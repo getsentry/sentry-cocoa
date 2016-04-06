@@ -1,0 +1,74 @@
+PODS:
+  - KSCrash (1.3.3):
+    - KSCrash/Installations (= 1.3.3)
+  - KSCrash/Installations (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting
+  - KSCrash/no-arc (1.3.3)
+  - KSCrash/Recording (1.3.3):
+    - KSCrash/no-arc
+  - KSCrash/Reporting (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters (= 1.3.3)
+    - KSCrash/Reporting/MessageUI (= 1.3.3)
+    - KSCrash/Reporting/Sinks (= 1.3.3)
+    - KSCrash/Reporting/Tools (= 1.3.3)
+  - KSCrash/Reporting/Filters (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Alert (= 1.3.3)
+    - KSCrash/Reporting/Filters/AppleFmt (= 1.3.3)
+    - KSCrash/Reporting/Filters/Base (= 1.3.3)
+    - KSCrash/Reporting/Filters/Basic (= 1.3.3)
+    - KSCrash/Reporting/Filters/GZip (= 1.3.3)
+    - KSCrash/Reporting/Filters/JSON (= 1.3.3)
+    - KSCrash/Reporting/Filters/Sets (= 1.3.3)
+    - KSCrash/Reporting/Filters/Tools (= 1.3.3)
+  - KSCrash/Reporting/Filters/Alert (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/AppleFmt (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/Base (1.3.3):
+    - KSCrash/Recording
+  - KSCrash/Reporting/Filters/Basic (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/GZip (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/JSON (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/Sets (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/AppleFmt
+    - KSCrash/Reporting/Filters/Base
+    - KSCrash/Reporting/Filters/Basic
+    - KSCrash/Reporting/Filters/GZip
+    - KSCrash/Reporting/Filters/JSON
+  - KSCrash/Reporting/Filters/Tools (1.3.3):
+    - KSCrash/Recording
+  - KSCrash/Reporting/MessageUI (1.3.3):
+    - KSCrash/Recording
+  - KSCrash/Reporting/Sinks (1.3.3):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters
+    - KSCrash/Reporting/Tools
+  - KSCrash/Reporting/Tools (1.3.3):
+    - KSCrash/Recording
+  - SentrySwift (0.1.0):
+    - KSCrash (~> 1.1)
+
+DEPENDENCIES:
+  - SentrySwift (from `../../`)
+
+EXTERNAL SOURCES:
+  SentrySwift:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  KSCrash: 49f17647a8a7cd722e9aa5def201856ca7927a12
+  SentrySwift: ed2621f4157a82e9d75a19f126159a8de9304059
+
+COCOAPODS: 0.39.0
