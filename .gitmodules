@@ -1,0 +1,3 @@
+[submodule "Carthage/Checkouts/KSCrash"]
+	path = Carthage/Checkouts/KSCrash
+	url = https://d1894ef214ee876e4fbb0b65f56a733a87d1afaa@github.com/kstenerud/KSCrash.git
