@@ -345,6 +345,7 @@
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = "$(inherited)";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SwiftExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rokkincat.SentryExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -361,6 +362,7 @@
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = "$(inherited)";
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = SwiftExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rokkincat.SentryExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
