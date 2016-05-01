@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentrySwift"
-  s.version      = "0.1.0"
+  s.version      = "0.1.1"
   s.summary      = "Swift client for Sentry"
   s.homepage     = "https://github.com/getsentry/sentry-swift"
   s.license      = "mit"
@@ -12,6 +12,6 @@ Pod::Spec.new do |s|
 
   s.source_files = "Sources/**/*.{h,m,swift}"
 
-  s.ios.dependency 'KSCrash', '~> 1.3'
+  s.ios.dependency 'KSCrash', '~> 1.5'
 
 end
