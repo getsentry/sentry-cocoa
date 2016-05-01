@@ -16,7 +16,7 @@ public typealias EventFingerprint = [String]
 /// A struct to hold event properties
 @objc public class Event: NSObject, EventProperties {
 	
-	public static let platform = "swift"
+	public static let platform = "cocoa"
 	
 	// MARK: Required
 	public let eventID: String = {
