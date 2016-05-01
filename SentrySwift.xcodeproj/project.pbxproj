@@ -12,7 +12,6 @@
 		033A342A1C605B7E00BED5AE /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A34281C605B7E00BED5AE /* EventProperties.swift */; };
 		033A342C1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
 		033A342D1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
-		035242921C988D2400A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242911C988D2400A65D6D /* Info.plist */; };
 		035242981C988D2F00A65D6D /* Abort.json in Resources */ = {isa = PBXBuildFile; fileRef = 035242941C988D2F00A65D6D /* Abort.json */; };
 		035242991C988D2F00A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242951C988D2F00A65D6D /* Info.plist */; };
 		035242A61C9892A700A65D6D /* SentrySwiftCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */; };
@@ -86,6 +85,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
 			remoteInfo = "RavenSwift-iOS";
+		};
+		21F8EED61CD660AD00F4188A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = EDF2BF211CCF15AD004BADF4;
+			remoteInfo = KSCrash_static;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -229,6 +235,7 @@
 				03DE7D7C1C876DEF00F789BA /* libKSCrashLib.a */,
 				03DE7D7E1C876DEF00F789BA /* KSCrashTests.xctest */,
 				03DE7D801C876DEF00F789BA /* KSCrash.framework */,
+				21F8EED71CD660AD00F4188A /* KSCrash.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -356,7 +363,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0730;
 				TargetAttributes = {
 					03E94AEB1C22595B009F8F29 = {
 						CreatedOnToolsVersion = 7.2;
@@ -420,6 +427,13 @@
 			remoteRef = 03DE7D7F1C876DEF00F789BA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		21F8EED71CD660AD00F4188A /* KSCrash.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KSCrash.framework;
+			remoteRef = 21F8EED61CD660AD00F4188A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -428,7 +442,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				035242981C988D2F00A65D6D /* Abort.json in Resources */,
-				035242921C988D2400A65D6D /* Info.plist in Resources */,
 				035242991C988D2F00A65D6D /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
