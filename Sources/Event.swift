@@ -125,11 +125,12 @@ extension Event: EventSerializable {
 		]
 		
 		// Reduce attributes so only non-nill attribute are sent
-		return attributes.reduce(SerializedType()) { (var serializedType, attribute) -> SerializedType in
+		return attributes.reduce(SerializedType()) { serializedType, attribute in
+			var output = serializedType
 			if let value = attribute.value {
-				serializedType[attribute.key] = value
+				output[attribute.key] = value
 			}
-			return serializedType
+			return output
 		}
 	}
 	
