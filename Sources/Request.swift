@@ -68,5 +68,4 @@ extension SentryClient {
 		});
 		task.resume()
 	}
-	
 }

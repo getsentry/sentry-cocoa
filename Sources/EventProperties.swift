@@ -65,5 +65,4 @@ extension EventProperties {
 		
 		return base
 	}
-	
 }

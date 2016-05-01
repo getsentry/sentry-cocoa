@@ -34,5 +34,4 @@ extension AppleCrashReport: EventSerializable {
 			"system": system
 		]
 	}
-	
 }

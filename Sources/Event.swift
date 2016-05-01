@@ -133,11 +133,7 @@ extension Event: EventSerializable {
 			return output
 		}
 	}
-	
-
 }
-
-
 
 @objc public enum SentrySeverity: Int {
 	case Fatal

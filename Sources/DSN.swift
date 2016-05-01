@@ -94,5 +94,4 @@ import Foundation
 		// Removing first and getting second
 		return url.pathComponents?.dropFirst().first
 	}
-	
 }

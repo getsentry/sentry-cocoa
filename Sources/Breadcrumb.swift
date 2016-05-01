@@ -149,5 +149,4 @@ extension Breadcrumb: EventSerializable {
 			"data": data
 		]
 	}
-	
 }

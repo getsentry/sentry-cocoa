@@ -53,5 +53,4 @@ extension BreadcrumbStore: EventSerializable {
 	public var serialized: SerializedType {
 		return crumbs.values.flatMap{$0.map{$0.serialized}}.flatMap{$0}
 	}
-	
 }
