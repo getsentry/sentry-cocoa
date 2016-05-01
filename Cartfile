@@ -1,1 +1,1 @@
-github "soffes/KSCrash" "master"
+github "kstenerud/KSCrash" ~> 1.5.5
