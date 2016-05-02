@@ -4,3 +4,4 @@ before_install:
     - gem install fastlane
 script: 
     - scan -s SentrySwift-iOS
+    - scan -s SentrySwift
