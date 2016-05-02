@@ -1,5 +1,6 @@
 # sentry-swift
 
+[![Travis](https://img.shields.io/travis/getsentry/sentry-swift.svg?maxAge=2592000)](https://travis-ci.org/getsentry/sentry-swift)
 ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20OSX-333333.svg)
 ![langauges](https://img.shields.io/badge/languages-Swift%20%7C%20ObjC-333333.svg)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
