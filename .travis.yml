@@ -4,6 +4,6 @@ before_install:
     - brew update
     - brew uninstall xctool && brew install xctool --HEAD
 script: 
-    - git submobule update --init
+    - git submodule update --init
     - xctool -project SentrySwift.xcodeproj -scheme SentrySwift-iOS -sdk iphonesimulator test
     - xctool -project SentrySwift.xcodeproj -scheme SentrySwift -sdk macosx test
