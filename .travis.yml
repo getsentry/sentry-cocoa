@@ -1,0 +1,7 @@
+language: swift
+osx_image: xcode7.3
+before_install:
+    - brew update
+    - brew uninstall xctool && brew install xctool --HEAD
+    - cd Project
+script: xctool -project SentrySwift.xcodeproj -scheme SentrySwift-iOS -sdk iphonesimulator test
