@@ -105,6 +105,4 @@ extension SentryClient {
 		let data = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
 		return NSString(data: data, encoding: NSUTF8StringEncoding) as? String
 	}
-	
 }
-

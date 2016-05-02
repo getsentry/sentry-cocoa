@@ -141,7 +141,6 @@ extension SentryClient {
 			}
 		}
 
-		
 		installation?.install()
 	}
 	

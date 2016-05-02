@@ -12,7 +12,6 @@
 		033A342A1C605B7E00BED5AE /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A34281C605B7E00BED5AE /* EventProperties.swift */; };
 		033A342C1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
 		033A342D1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
-		035242921C988D2400A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242911C988D2400A65D6D /* Info.plist */; };
 		035242981C988D2F00A65D6D /* Abort.json in Resources */ = {isa = PBXBuildFile; fileRef = 035242941C988D2F00A65D6D /* Abort.json */; };
 		035242991C988D2F00A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242951C988D2F00A65D6D /* Info.plist */; };
 		035242A61C9892A700A65D6D /* SentrySwiftCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */; };
@@ -41,7 +40,6 @@
 		03D4D9FA1CA48FA800799CC9 /* Breadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D4D9F81CA48FA800799CC9 /* Breadcrumb.swift */; };
 		03D4DA001CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D4D9FF1CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift */; };
 		03D4DA011CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D4D9FF1CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift */; };
-		03DE7D811C876E3200F789BA /* KSCrash.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03DE7D801C876DEF00F789BA /* KSCrash.framework */; };
 		03E3D1D81C3E166800F00547 /* EventSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0303BC3E1C29FC3F003E7B16 /* EventSerializable.swift */; };
 		03E3D1F81C3E1A2800F00547 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3D1F71C3E1A2800F00547 /* DSN.swift */; };
 		03E3D1F91C3E1A2800F00547 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3D1F71C3E1A2800F00547 /* DSN.swift */; };
@@ -49,30 +47,10 @@
 		03E3D2201C3EB20F00F00547 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3D21E1C3EB20F00F00547 /* Request.swift */; };
 		03E94AF71C22595C009F8F29 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03E94AEC1C22595B009F8F29 /* SentrySwift.framework */; };
 		03E94B151C22596A009F8F29 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03E94B0B1C22596A009F8F29 /* SentrySwift.framework */; };
+		217A96231CD67746006C681F /* KSCrash.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 217A961F1CD67736006C681F /* KSCrash.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		03DE7D7B1C876DEF00F789BA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CB6D132617EB749A00BC2C04;
-			remoteInfo = KSCrashLib;
-		};
-		03DE7D7D1C876DEF00F789BA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CB6D133317EB749A00BC2C04;
-			remoteInfo = KSCrashTests;
-		};
-		03DE7D7F1C876DEF00F789BA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 03DE7B6A1C84DEF700F789BA;
-			remoteInfo = KSCrash;
-		};
 		03E94AF81C22595C009F8F29 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 03E94AE31C22595B009F8F29 /* Project object */;
@@ -111,13 +89,13 @@
 		03CFCEC01C612F3E00999EB7 /* KSCrashHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KSCrashHandler.swift; sourceTree = "<group>"; };
 		03D4D9F81CA48FA800799CC9 /* Breadcrumb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Breadcrumb.swift; sourceTree = "<group>"; };
 		03D4D9FF1CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftBreadcrumbTests.swift; sourceTree = "<group>"; };
-		03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-iOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/iOS/KSCrash-iOS.xcodeproj"; sourceTree = "<group>"; };
 		03E3D1F71C3E1A2800F00547 /* DSN.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DSN.swift; sourceTree = "<group>"; };
 		03E3D21E1C3EB20F00F00547 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		03E94AEC1C22595B009F8F29 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		03E94AF61C22595C009F8F29 /* SentrySwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentrySwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03E94B0B1C22596A009F8F29 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		03E94B141C22596A009F8F29 /* SentrySwift-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SentrySwift-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		217A961F1CD67736006C681F /* KSCrash.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KSCrash.framework; path = Carthage/Build/iOS/KSCrash.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,7 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03DE7D811C876E3200F789BA /* KSCrash.framework in Frameworks */,
+				217A96231CD67746006C681F /* KSCrash.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,23 +201,13 @@
 			name = Crash;
 			sourceTree = "<group>";
 		};
-		03DE7D761C876DEF00F789BA /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				03DE7D7C1C876DEF00F789BA /* libKSCrashLib.a */,
-				03DE7D7E1C876DEF00F789BA /* KSCrashTests.xctest */,
-				03DE7D801C876DEF00F789BA /* KSCrash.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		03E94AE21C22595B009F8F29 = {
 			isa = PBXGroup;
 			children = (
-				03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */,
 				036378271C225D5200644C01 /* Sources */,
 				035242901C988D2400A65D6D /* SentrySwift */,
 				035242931C988D2F00A65D6D /* SentrySwiftTests */,
+				217A96211CD67739006C681F /* Frameworks */,
 				03E94AED1C22595B009F8F29 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -253,6 +221,22 @@
 				03E94B141C22596A009F8F29 /* SentrySwift-iOSTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		217A96211CD67739006C681F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				217A96221CD6773F006C681F /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		217A96221CD6773F006C681F /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				217A961F1CD67736006C681F /* KSCrash.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -356,7 +340,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0730;
 				TargetAttributes = {
 					03E94AEB1C22595B009F8F29 = {
 						CreatedOnToolsVersion = 7.2;
@@ -382,12 +366,6 @@
 			mainGroup = 03E94AE21C22595B009F8F29;
 			productRefGroup = 03E94AED1C22595B009F8F29 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 03DE7D761C876DEF00F789BA /* Products */;
-					ProjectRef = 03DE7D751C876DEF00F789BA /* KSCrash-iOS.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				03E94AEB1C22595B009F8F29 /* SentrySwift */,
@@ -398,37 +376,12 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		03DE7D7C1C876DEF00F789BA /* libKSCrashLib.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libKSCrashLib.a;
-			remoteRef = 03DE7D7B1C876DEF00F789BA /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03DE7D7E1C876DEF00F789BA /* KSCrashTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = KSCrashTests.xctest;
-			remoteRef = 03DE7D7D1C876DEF00F789BA /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03DE7D801C876DEF00F789BA /* KSCrash.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = KSCrash.framework;
-			remoteRef = 03DE7D7F1C876DEF00F789BA /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
 		03E94AEA1C22595B009F8F29 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				035242981C988D2F00A65D6D /* Abort.json in Resources */,
-				035242921C988D2400A65D6D /* Info.plist in Resources */,
 				035242991C988D2F00A65D6D /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -705,6 +658,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -728,6 +685,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

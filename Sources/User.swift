@@ -56,5 +56,4 @@ extension User: EventSerializable {
 		
 		return info
 	}
-	
 }
