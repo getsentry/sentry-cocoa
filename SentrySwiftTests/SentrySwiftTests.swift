@@ -201,7 +201,7 @@ class SentrySwiftTests: XCTestCase {
 		assert(serialized["message"] as! String == message)
 		assert(serialized["timestamp"] as? String != nil)
 		assert(serialized["level"] as! String == "error")
-		assert(serialized["platform"] as! String == "swift")
+		assert(serialized["platform"] as! String == "cocoa")
 	}
 	
 	func testEventSerializableWithOptional() {

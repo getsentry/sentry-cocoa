@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites tests='20' failures='0'>
+  <testsuite name='SentrySwiftObjCTests' tests='3' failures='0'>
+    <testcase classname='SentrySwiftObjCTests' name='testEvent' time='0.038'/>
+    <testcase classname='SentrySwiftObjCTests' name='testSharedClient' time='0.021'/>
+    <testcase classname='SentrySwiftObjCTests' name='testThatThingsCompileBecauseSwiftToOjbCBridge' time='0.140'/>
+  </testsuite>
+  <testsuite name='SentrySwift_iOSTests.SentrySwiftBreadcrumbTests' tests='2' failures='0'>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftBreadcrumbTests' name='testBreadcrumbStorage' time='0.059'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftBreadcrumbTests' name='testGeneralCrumbs' time='0.034'/>
+  </testsuite>
+  <testsuite name='SentrySwift_iOSTests.SentrySwiftCrashTests' tests='1' failures='0'>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftCrashTests' name='testCrashAbort' time='0.009'/>
+  </testsuite>
+  <testsuite name='SentrySwift_iOSTests.SentrySwiftTests' tests='14' failures='0'>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testBadDSN' time='0.004'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testDateSerialization' time='0.002'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventBuilder' time='0.001'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventProperties' time='0.005'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventSerializableWithOptional' time='0.009'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventSerializableWithRequired' time='0.003'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventWithDefaults' time='0.006'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testEventWithOptionals' time='0.028'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testNoneDSN' time='0.003'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testOS' time='0.002'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testPublicDSN' time='0.002'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testSecretDSN' time='0.002'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testSharedClient' time='0.001'/>
+    <testcase classname='SentrySwift_iOSTests.SentrySwiftTests' name='testXSentryAuthHeader' time='0.006'/>
+  </testsuite>
+</testsuites>
