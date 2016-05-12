@@ -34,7 +34,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "03E94AF51C22595C009F8F29"
                BuildableName = "SentrySwiftTests.xctest"
-               BlueprintName = "SentrySwiftTests"
+               BlueprintName = "SentrySwift-OSXTests"
                ReferencedContainer = "container:SentrySwift.xcodeproj">
             </BuildableReference>
          </TestableReference>
