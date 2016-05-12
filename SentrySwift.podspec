@@ -9,9 +9,11 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.10"
+  s.tvos.deployment_target = "9.0"
 
   s.source_files = "Sources/**/*.{h,m,swift}"
 
   s.ios.dependency 'KSCrash', '~> 1.5'
+  s.tvos.dependency 'KSCrash', '~> 1.5'
 
 end
