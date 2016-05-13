@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SwiftTVOSExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GEo-Xe-aay">
+                                <rect key="frame" x="790" y="271" width="340" height="123"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="123" id="SB6-3W-Fvj"/>
+                                    <constraint firstAttribute="width" constant="340" id="q7n-c0-mK9"/>
+                                </constraints>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Message"/>
+                                <connections>
+                                    <action selector="onClickMessage:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="Pxt-av-uSC"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xnK-KD-hce">
+                                <rect key="frame" x="790" y="409" width="340" height="123"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="123" id="AHJ-vY-bai"/>
+                                    <constraint firstAttribute="width" constant="340" id="gv0-kS-aNI"/>
+                                </constraints>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Complex"/>
+                                <connections>
+                                    <action selector="onClickComplexMessage:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="ANV-sj-3oY"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B2v-c0-fyh">
+                                <rect key="frame" x="790" y="124" width="340" height="123"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="123" id="8eV-x6-TaR"/>
+                                    <constraint firstAttribute="width" constant="340" id="qxi-54-geX"/>
+                                </constraints>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Break"/>
+                                <connections>
+                                    <action selector="onClickBreak:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="oql-IE-mAF"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="GEo-Xe-aay" firstAttribute="top" secondItem="B2v-c0-fyh" secondAttribute="bottom" constant="24" id="1Uf-dW-K8p"/>
+                            <constraint firstItem="B2v-c0-fyh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="DaX-iB-FAp"/>
+                            <constraint firstItem="B2v-c0-fyh" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="124" id="GU2-8t-0Ot"/>
+                            <constraint firstItem="GEo-Xe-aay" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Q9t-Tb-paa"/>
+                            <constraint firstItem="B2v-c0-fyh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="RYg-5o-MSh"/>
+                            <constraint firstItem="xnK-KD-hce" firstAttribute="top" secondItem="GEo-Xe-aay" secondAttribute="bottom" constant="15" id="Zh7-Sl-k2W"/>
+                            <constraint firstItem="xnK-KD-hce" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dGV-Kh-nuK"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="293" y="389"/>
+        </scene>
+    </scenes>
+</document>
