@@ -25,6 +25,13 @@ private func cleanValue(v: AnyObject) -> AnyObject? {
     case let v as NSURL:
         return v.absoluteString
 
+    case let v as NSError:
+        return [
+            "domain": v.domain,
+            "code": v.code,
+            "user_info": cleanValue(v.userInfo)!
+        ]
+
     default:
         return nil
     }
