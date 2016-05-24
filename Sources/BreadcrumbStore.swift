@@ -22,14 +22,15 @@ import Foundation
 	public var storeUpdated: StoreUpdated?
 	
 	public func add(crumb: Breadcrumb) {
-		var typedCrumbs = crumbs[crumb.type] ?? []
+		let type = crumb.type ?? "default"
+		var typedCrumbs = crumbs[type] ?? []
 		typedCrumbs.insert(crumb, atIndex: 0)
 		
 		if typedCrumbs.count > maxCrumbsForType {
 			typedCrumbs = Array(typedCrumbs[0..<maxCrumbsForType])
 		}
 		
-		crumbs[crumb.type] = typedCrumbs
+		crumbs[type] = typedCrumbs
 		storeUpdated?(self)
 	}
 	
