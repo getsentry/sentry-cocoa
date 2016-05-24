@@ -35,33 +35,28 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
 	func testBreadcrumbStorage() {
 		
 		let store = BreadcrumbStore()
-		store.maxCrumbsForType = 3
+		store.maxCrumbs = 3
 		
 		let test1 = Breadcrumb(category: "test", message: "Test 1")
 		let test2 = Breadcrumb(category: "test", message: "Test 2")
 		let test3 = Breadcrumb(category: "test", message: "Test 3")
 		let test4 = Breadcrumb(category: "test", message: "Test 4")
 		
-		let view1 = Breadcrumb(category: "test", to: "b", from: "a")
-		
-		store.add(view1)
-		XCTAssertEqual(store.get("navigation")?.count, 1)
-		
 		store.add(test1)
-		XCTAssertEqual(store.get("default")?.count, 1)
-		XCTAssertEqual(store.get("default")!, [test1])
+		XCTAssertEqual(store.get()?.count, 1)
+		XCTAssertEqual(store.get()!, [test1])
 		
 		store.add(test2)
-		XCTAssertEqual(store.get("default")?.count, 2)
-		XCTAssertEqual(store.get("default")!, [test2, test1])
+		XCTAssertEqual(store.get()?.count, 2)
+		XCTAssertEqual(store.get()!, [test1, test2])
 		
 		store.add(test3)
-		XCTAssertEqual(store.get("default")?.count, 3)
-		XCTAssertEqual(store.get("default")!, [test3, test2, test1])
+		XCTAssertEqual(store.get()?.count, 3)
+		XCTAssertEqual(store.get()!, [test1, test2, test3])
 		
 		store.add(test4)
-		XCTAssertEqual(store.get("default")?.count, 3)
-		XCTAssertEqual(store.get("default")!, [test4, test3, test2])
+		XCTAssertEqual(store.get()?.count, 3)
+		XCTAssertEqual(store.get()!, [test2, test3, test4])
 	}
 
 }
