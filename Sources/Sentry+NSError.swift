@@ -33,7 +33,7 @@ private func cleanValue(v: AnyObject) -> AnyObject? {
         ]
 
     default:
-        return nil
+        return "\(v)"
     }
 }
 
