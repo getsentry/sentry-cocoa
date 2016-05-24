@@ -8,7 +8,7 @@
 
 import Foundation
 
-private let directoryNamePrefix = "raven-swift-"
+private let directoryNamePrefix = "sentry-swift-"
 
 extension SentryClient {
 
@@ -92,10 +92,10 @@ extension SentryClient {
 	/// - Throws: Can throw while trying to create directory at path
 	/// - Returns: String?
 	private func writePath(event: Event) throws -> String? {
-		guard let ravenDir = directory() else { return nil }
+		guard let sentryDir = directory() else { return nil }
 		
-		try NSFileManager.defaultManager().createDirectoryAtPath(ravenDir as String, withIntermediateDirectories: true, attributes: nil)
-		return ravenDir.stringByAppendingPathComponent(event.eventID);
+		try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir as String, withIntermediateDirectories: true, attributes: nil)
+		return sentryDir.stringByAppendingPathComponent(event.eventID);
 	}
 	
 	/// Serializes an event into a string for writing to disk

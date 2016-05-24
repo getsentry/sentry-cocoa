@@ -71,7 +71,7 @@ import Foundation
 		// Header parts
 		let headerParts: [(String, String?)] = [
 			("Sentry sentry_version", String(SentryInfo.sentryVersion)),
-			("sentry_client", "raven-swift/\(SentryInfo.version)"),
+			("sentry_client", "sentry-swift/\(SentryInfo.version)"),
 			("sentry_timestamp", String(Int(NSDate().timeIntervalSince1970))),
 			("sentry_key", self.publicKey),
 			("sentry_secret", self.secretKey)
