@@ -255,11 +255,11 @@ class SentrySwiftTests: XCTestCase {
 		let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
 		client.tags = [
 			"tag_client": "value_client",
-			"tag_client_event": "client_wins"
+			"tag_client_event": "THIS SHOULDN'T SHOW AT ALL"
 		]
 		client.extra = [
 			"extra_client": "value_client",
-			"extra_client_event": "client_wins"
+			"extra_client_event": "THIS SHOULDN'T SHOW AT ALL"
 		]
 		client.user = User(id: "3", email: "things@example.com", username: "things")
 		
@@ -267,22 +267,22 @@ class SentrySwiftTests: XCTestCase {
 		let event = Event("Lalalala")
 		event.tags = [
 			"tag_event": "value_event",
-			"tag_client_event": "THIS SHOULDN'T SHOW AT ALL"
+			"tag_client_event": "event_wins"
 		]
 		event.extra = [
 			"extra_event": "value_event",
-			"extra_client_event": "THIS SHOULDN'T SHOW AT ALL"
+			"extra_client_event": "event_wins"
 		]
 		event.user = User(id: "4", email: "stuff@example.com", username: "stuff")
 		
 		// Test before merge
 		assert(event.tags! == [
 			"tag_event": "value_event",
-			"tag_client_event": "THIS SHOULDN'T SHOW AT ALL"
+			"tag_client_event": "event_wins"
 			])
 		assert(event.extra! == [
 			"extra_event": "value_event",
-			"extra_client_event": "THIS SHOULDN'T SHOW AT ALL"
+			"extra_client_event": "event_wins"
 			])
 		assert(event.user!.userID == "4")
 		assert(event.user!.email! == "stuff@example.com")
@@ -295,16 +295,16 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.tags! == [
 			"tag_client": "value_client",
 			"tag_event": "value_event",
-			"tag_client_event": "client_wins"
+			"tag_client_event": "event_wins"
 			])
 		assert(event.extra! == [
 			"extra_client": "value_client",
 			"extra_event": "value_event",
-			"extra_client_event": "client_wins"
+			"extra_client_event": "event_wins"
 			])
-		assert(event.user!.userID == "3")
-		assert(event.user!.email! == "things@example.com")
-		assert(event.user!.username! == "things")
+		assert(event.user!.userID == "4")
+		assert(event.user!.email! == "stuff@example.com")
+		assert(event.user!.username! == "stuff")
 	}
 }
 
