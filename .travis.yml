@@ -1,5 +1,7 @@
 language: objective-c
 osx_image: xcode7.3
+rvm:
+    - 2.2.3
 before_install:
     - gem install fastlane
 script: 
