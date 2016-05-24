@@ -60,7 +60,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'SentrySwift', :git => 'git@github.com:getsentry/sentry-swift.git', :tag => '0.2.0'
+pod 'SentrySwift', :git => 'git@github.com:getsentry/sentry-swift.git', :tag => '0.2.1'
 ```
 
 Then, run the following command:
