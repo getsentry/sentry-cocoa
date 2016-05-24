@@ -106,7 +106,7 @@ class SentrySwiftTests: XCTestCase {
 		assert(header.key == "X-Sentry-Auth")
 		assert(header.value.rangeOfString("Sentry ") != nil)
 		assert(header.value.rangeOfString("sentry_version=\(SentryInfo.sentryVersion)") != nil)
-		assert(header.value.rangeOfString("sentry_client=raven-swift/\(SentryInfo.version)") != nil)
+		assert(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryInfo.version)") != nil)
 		assert(header.value.rangeOfString("sentry_timestamp=") != nil)
 		
 		if let key = dsn.publicKey {

@@ -10,39 +10,33 @@ import Foundation
 
 @objc public class BreadcrumbStore: NSObject {
 	
-	private var crumbs = [String: [Breadcrumb]]()
+	private var crumbs = [Breadcrumb]()
 	
-	private var _maxCrumbsForType = 20
-	public var maxCrumbsForType: Int {
-		get { return _maxCrumbsForType }
-		set { _maxCrumbsForType = max(0, newValue) }
+	private var _maxCrumbs = 20
+	public var maxCrumbs: Int {
+		get { return _maxCrumbs }
+		set { _maxCrumbs = max(0, newValue) }
 	}
 	
 	public typealias StoreUpdated = (BreadcrumbStore) -> ()
 	public var storeUpdated: StoreUpdated?
 	
 	public func add(crumb: Breadcrumb) {
-		var typedCrumbs = crumbs[crumb.type] ?? []
-		typedCrumbs.insert(crumb, atIndex: 0)
 		
-		if typedCrumbs.count > maxCrumbsForType {
-			typedCrumbs = Array(typedCrumbs[0..<maxCrumbsForType])
+		if crumbs.count >= maxCrumbs {
+			crumbs.removeFirst()
 		}
+		crumbs.append(crumb)
 		
-		crumbs[crumb.type] = typedCrumbs
 		storeUpdated?(self)
 	}
 	
-	public func get(type: String) -> [Breadcrumb]? {
-		return crumbs[type]
+	public func get() -> [Breadcrumb]? {
+		return crumbs
 	}
 	
-	public func clear(type: String? = nil) {
-		if let type = type {
-			crumbs.removeValueForKey(type)
-		} else {
-			crumbs.removeAll()
-		}
+	public func clear() {
+		crumbs.removeAll()
 		storeUpdated?(self)
 	}
 	
@@ -51,6 +45,6 @@ import Foundation
 extension BreadcrumbStore: EventSerializable {
 	public typealias SerializedType = SerializedTypeArray
 	public var serialized: SerializedType {
-		return crumbs.values.flatMap{$0.map{$0.serialized}}.flatMap{$0}
+		return crumbs.map{$0.serialized}.flatMap{$0}
 	}
 }

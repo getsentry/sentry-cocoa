@@ -52,7 +52,7 @@ class ViewController: UIViewController {
 	}
 
 	@IBAction func onClickBreak(sender: AnyObject) {
-		SentryClient.shared?.breadcrumbs.add(Breadcrumb(uiEventType: "button", target: "onClickBreak"))
+		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		
 		// Note: You will have to disconnect your app from the debugger to
 		// to allow SentrySwift to detect the crash. To do this, kill the app (from Xcode)
@@ -63,14 +63,15 @@ class ViewController: UIViewController {
 	
 	@IBAction func onClickMessage(sender: AnyObject) {
 		// Send a simple message
-		SentryClient.shared?.breadcrumbs.add(Breadcrumb(uiEventType: "button", target: "onClickMessage"))
+		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", message: "Some message", level: .Info, data: ["hehe": "hoho"]))
+		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		SentryClient.shared?.captureMessage("Hehehe, this is totes not useful", level: .Error)
 	}
 	
 	@IBAction func onClickComplexMessage(sender: AnyObject) {
 		// Send a customly built event
-		SentryClient.shared?.breadcrumbs.add(Breadcrumb(uiEventType: "button", target: "onClickComplexMessage"))
-		let event = Event.build("Another example 3") {
+		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", url: "www.hammockdesk.com", method: "GET"))
+		let event = Event.build("Another example 4") {
 			$0.level = .Debug
 			$0.tags = ["status": "test"]
 			$0.extra = [

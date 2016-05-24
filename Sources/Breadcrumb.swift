@@ -16,114 +16,23 @@ import Foundation
 /// A class used to represent the breadcrumbs attached to events
 @objc public class Breadcrumb: NSObject {
 	
-	public var type: String
 	public var timestamp: NSDate
+	public var category: String
+	
+	public var type: String?
+	public var message: String?
 	public var data: [String: AnyObject]
+	public var level: SentrySeverity?
 	
 	/// Creates a user
-	public init(type: String, timestamp: NSDate = NSDate(), data: [String: AnyObject]) {
-		self.type = type
+	public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: SentrySeverity? = nil, data: [String: AnyObject]? = nil) {
+		self.category = category
 		self.timestamp = timestamp
-		self.data = data
+		self.message = message
+		self.type = type
+		self.data = data ?? [:]
 	}
-	
-	/// Creates a "message" type of breadcrumbs
-	/// - Parameter message: A message
-	/// - Parameter logger: A logger
-	/// - Parameter level: A level
-	/// - Parameter classifier: A classifier
-	public convenience init(message: String, logger: String? = nil, level: SentrySeverity? = nil, classifier: String? = nil) {
-		let data: [String: AnyObject] = ["message": message]
-			.set("logger", value: logger)
-			.set("level", value: level?.name)
-			.set("classifier", value: classifier)
-		
-		self.init(
-			type: "message",
-			data: data
-		)
-	}
-	
-	/// Creates an "rpc" type of breadcrumbs
-	/// - Parameter endpoint: An endpoint
-	/// - Parameter params: A params
-	/// - Parameter classifier: A classifier
-	public convenience init(endpoint: String, params: [String: AnyObject]? = nil, classifier: String? = nil) {
-		let data: [String: AnyObject] = ["endpoint": endpoint]
-			.set("params", value: params)
-			.set("classifier", value: classifier)
-		
-		self.init(
-			type: "rpc",
-			data: data
-		)
-	}
-	
-	/// Creates an "http_request" type of breadcrumbs
-	/// - Parameter endpoint: An endpoint
-	/// - Parameter method: A method
-	/// - Parameter headers: some headers
-	/// - Parameter statusCode: A status code
-	/// - Parameter response: A response
-	/// - Parameter reason: A reason
-	/// - Parameter classifier: A classifier
-	public convenience init(url: String, method: String? = nil, headers: [String: AnyObject]? = nil, statusCode: Int? = nil, response: String? = nil, reason: String? = nil, classifier: String? = nil) {
-		let data: [String: AnyObject] = ["url": url]
-			.set("method", value: method)
-			.set("headers", value: headers)
-			.set("statusCode", value: statusCode)
-			.set("response", value: response)
-			.set("reason", value: reason)
-			.set("classifier", value: classifier)
-		
-		self.init(
-			type: "http_request",
-			data: data
-		)
-	}
-	
-	/// Creates an "query" type of breadcrumbs
-	/// - Parameter query: A query
-	/// - Parameter params: A params
-	/// - Parameter classifier: A classifier
-	public convenience init(query: String, params: String? = nil, classifier: String? = nil) {
-		let data: [String: AnyObject] = ["query": query]
-			.set("params", value: params)
-			.set("classifier", value: classifier)
-		
-		self.init(
-			type: "query",
-			data: data
-		)
-	}
-	
-	/// Creates an "ui_event" type of breadcrumbs
-	/// - Parameter type: A type
-	/// - Parameter target: A target
-	/// - Parameter classifier: A classifier
-	public convenience init(uiEventType: String, target: String? = nil, classifier: String? = nil) {
-		let data: [String: AnyObject] = ["type": uiEventType]
-			.set("target", value: target)
-			.set("classifier", value: classifier)
-		
-		self.init(
-			type: "ui_event",
-			data: data
-		)
-	}
-	
-	/// Creates an "navigation" type of breadcrumbs
-	/// - Parameter to: A location going to
-	/// - Parameter from: A location going from
-	public convenience init(to: String, from: String? = nil) {
-		let data: [String: AnyObject] = ["to": to]
-			.set("from", value: from)
-		
-		self.init(
-			type: "navigation",
-			data: data
-		)
-	}
+
 }
 
 extension Dictionary {
@@ -140,13 +49,40 @@ extension Dictionary {
 	
 }
 
+extension Breadcrumb {
+	
+	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity? = nil, data: [String: AnyObject]? = nil, to: String, from: String? = nil) {
+		
+		let navigationData = (data ?? [:])
+			.set("to", value: to)
+			.set("from", value: from)
+		
+		self.init(category: category, timestamp: timestamp, message: message, type: "navigation", level: level, data: navigationData)
+	}
+	
+	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity? = nil, data: [String: AnyObject]? = nil, url: String, method: String, statusCode: Int? = nil, reason: String? = nil) {
+		
+		let httpData = (data ?? [:])
+			.set("url", value: url)
+			.set("method", value: method)
+			.set("status_code", value: statusCode)
+			.set("reason", value: "reason")
+		
+		self.init(category: category, timestamp: timestamp, message: message, type: "http", level: level, data: httpData)
+	}
+	
+}
+
 extension Breadcrumb: EventSerializable {
 	public typealias SerializedType = SerializedTypeDictionary
 	public var serialized: SerializedType {
 		return [
-			"type": type,
+			"category": category,
 			"timestamp": timestamp.iso8601,
 			"data": data
 		]
+		.set("type", value: type)
+		.set("message", value: message)
+		.set("level", value: level?.name)
 	}
 }
