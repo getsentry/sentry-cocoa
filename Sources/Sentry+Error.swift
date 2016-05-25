@@ -50,13 +50,12 @@ private func cleanDict(d: [String: AnyObject]) -> [String: AnyObject] {
 
 extension SentryClient {
 
-    public func captureError(error: NSError, file: String = #file, line: Int = #line, function: String = #function) {
-        let loc = SourceLocation(file: file, line: line, function: function)
-
-        let message = "\(error.domain).\(error.code) in \(loc.culprit)"
+    // broken out into a separate function for testability
+    func eventFor(error error: NSError, location: SourceLocation) -> Event {
+        let message = "\(error.domain).\(error.code) in \(location.culprit)"
 
         let event = Event(message, level: .Error)
-        event.mergeSourceLocation(loc)
+        event.mergeSourceLocation(location)
 
         if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyObject] {
             event.extra = ["user_info": cleanedUserInfo]
@@ -64,6 +63,12 @@ extension SentryClient {
             SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
 
+        return event
+    }
+
+    public func captureError(error: NSError, file: String = #file, line: Int = #line, function: String = #function) {
+        let loc = SourceLocation(file: file, line: line, function: function)
+        let event = eventFor(error: error, location: loc)
         captureEvent(event)
     }
 }
