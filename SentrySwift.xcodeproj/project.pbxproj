@@ -81,6 +81,9 @@
 		9B02CAFE1CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
 		9B02CAFF1CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
 		9B02CB001CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
+		80628F071CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftSourceLocationTests.swift */; };
+		80628F081CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftSourceLocationTests.swift */; };
+		80628F091CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftSourceLocationTests.swift */; };
 		8092F8E51CF2499600634F3F /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8092F8E41CF2499600634F3F /* Sentry+Error.swift */; };
 		8092F8E91CF2594100634F3F /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8092F8E41CF2499600634F3F /* Sentry+Error.swift */; };
 		8092F8EA1CF2594100634F3F /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8092F8E41CF2499600634F3F /* Sentry+Error.swift */; };
@@ -227,6 +230,7 @@
 		9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extras.swift"; sourceTree = "<group>"; };
 		9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Extras.swift"; sourceTree = "<group>"; };
 		9B02CAFD1CF607A5004F614C /* Exception.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exception.swift; sourceTree = "<group>"; };
+		80628F061CF5417A002A656D /* SentrySwiftSourceLocationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftSourceLocationTests.swift; sourceTree = "<group>"; };
 		8092F8E41CF2499600634F3F /* Sentry+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sentry+Error.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -308,6 +312,7 @@
 				035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */,
 				035242971C988D2F00A65D6D /* SentrySwiftTests.swift */,
 				03D4D9FF1CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift */,
+				80628F061CF5417A002A656D /* SentrySwiftSourceLocationTests.swift */,
 				035C4E6B1CA044060082B5EA /* SentrySwiftObjCTests.h */,
 				035C4E6C1CA044060082B5EA /* SentrySwiftObjCTests.m */,
 				035C4E6A1CA044060082B5EA /* SentrySwiftTests-Bridging-Header.h */,
@@ -799,6 +804,7 @@
 				03FF07C71CE545D300BA980E /* SentrySwiftBreadcrumbTests.swift in Sources */,
 				43FF9A3F1D12127E000B0F9A /* SentryClientTests.swift in Sources */,
 				03FF07C61CE545D300BA980E /* SentrySwiftTests.swift in Sources */,
+				80628F091CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */,
 				03FF07C51CE545D300BA980E /* SentrySwiftCrashTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -834,6 +840,7 @@
 				03D4DA001CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift in Sources */,
 				43FF9A3D1D12127E000B0F9A /* SentryClientTests.swift in Sources */,
 				035242A91C98957C00A65D6D /* SentrySwiftTests.swift in Sources */,
+				80628F071CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */,
 				035242A81C98957800A65D6D /* SentrySwiftCrashTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -868,6 +875,7 @@
 			files = (
 				035242AA1C98957C00A65D6D /* SentrySwiftTests.swift in Sources */,
 				035242A61C9892A700A65D6D /* SentrySwiftCrashTests.swift in Sources */,
+				80628F081CF5417A002A656D /* SentrySwiftSourceLocationTests.swift in Sources */,
 				03D4DA011CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift in Sources */,
 				035C4E711CA044A10082B5EA /* SentrySwiftObjCTests.m in Sources */,
 				43FF9A3E1D12127E000B0F9A /* SentryClientTests.swift in Sources */,
