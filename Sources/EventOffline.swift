@@ -12,48 +12,32 @@ private let directoryNamePrefix = "sentry-swift-"
 
 extension SentryClient {
 
-	/// Saves an event to disk
-	/// - Parameter event: An event
+	public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
+
+	/// Saves given event to disk
 	public func saveEvent(event: Event) {
-		
 		do {
 			// Gets write path and serialized string for event
-			guard let path = try writePath(event), text = try serializedString(event) else {
-				return
-			}
+			guard let path = try writePath(event), text = try serializedString(event) else { return }
 			
 			// Writes the event data to file
 			try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
 			SentryLog.Debug.log("Saved event \(event.eventID) to \(path)")
-		} catch let error as NSError {
+		} catch {
 			SentryLog.Error.log("Failed to save event \(event.eventID): \(error)")
 		}
 	}
-	
-	public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
-	
-	/// Gets an array of saved events that are on disk.
-	/// The closure to delete file should be used after
-	/// the event is sent to the API.
-	/// - Returns: [SavedEvent]
+
+	/// Fetches events that were saved to disk. **Make sure to delete after use**
 	public func savedEvents() -> [SavedEvent] {
-	
-		// Flat maps over the file paths in the directory
-		// and generates a tuple with the data and a closure
-		// to delete the file
-		//
-		// The closure to delete file should be used after
-		// the event is sent to the API
 		do {
 			guard let path = directory() else { return [] }
 			
 			return try NSFileManager.defaultManager()
-				.contentsOfDirectoryAtPath(path as String)
+				.contentsOfDirectoryAtPath(path)
 				.flatMap { fileName in
-					let absolutePath = path.stringByAppendingPathComponent(fileName)
-					guard let data = NSData(contentsOfFile: absolutePath) else {
-						return nil
-					}
+					let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
+					guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
 					
 					return (data, {
 						do {
@@ -64,45 +48,44 @@ extension SentryClient {
 						}
 					})
 				}
-			
 		} catch let error as NSError {
 			SentryLog.Error.log(error.localizedDescription)
 		}
 		
 		return []
 	}
+
+
+	// MARK: - Private Helpers
 	
-	// MARK: Private
-	
-	/// Gets the directory in which events will be saved for offline use (crashes)
-	/// - Returns: NSString
-	private func directory() -> NSString? {
-		/// Gets documents directory
-		guard let documentsDir: NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first else {
-			return nil
-		}
-		
-		// Appends a hash of the server url onto the documents directory path
-		// This will give each client a separate directory
-		let directory = "\(directoryNamePrefix)\(dsn.serverURL.absoluteString.hashValue)"
-		return documentsDir.stringByAppendingPathComponent(directory)
+	/// Path of directory to which events will be saved in offline mode
+	private func directory() -> String? {
+		guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
+		let directory: String = "\(directoryNamePrefix)\(dsn.serverURL.absoluteString.hashValue)"
+		return (documentsPath as NSString).stringByAppendingPathComponent(directory)
 	}
 	
-	/// Generates a path to write to based on `directory()` using the event's `eventID` as the file name
-	/// - Throws: Can throw while trying to create directory at path
-	/// - Returns: String?
+	/*
+	Creates directory to save events into in offline mode
+	- Parameter event: The event which we'll be trying to save
+	- Throws: Will throw upon failure to create directory
+	- Returns: Unique path to which save the given event
+	*/
 	private func writePath(event: Event) throws -> String? {
 		guard let sentryDir = directory() else { return nil }
-		
-		try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir as String, withIntermediateDirectories: true, attributes: nil)
-		return sentryDir.stringByAppendingPathComponent(event.eventID);
+
+		try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir, withIntermediateDirectories: true, attributes: nil)
+		return (sentryDir as NSString).stringByAppendingPathComponent(event.eventID)
 	}
 	
-	/// Serializes an event into a string for writing to disk
-	/// - Throws: Can throw while serializing JSON
-	/// - Returns: String?
+	/*
+	Serializes an event into a `String` we can write to disk
+	- Parameter event: Event we want to serialize
+	- Throws: Will throw upon failure to serializing to JSON
+	- Returns: Serialized string
+	*/
 	private func serializedString(event: Event) throws -> String? {
-		let data = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
-		return NSString(data: data, encoding: NSUTF8StringEncoding) as? String
+		let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
+		return String(data: data, encoding: NSUTF8StringEncoding)
 	}
 }

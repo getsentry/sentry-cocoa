@@ -65,6 +65,12 @@
 		03FF07C61CE545D300BA980E /* SentrySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242971C988D2F00A65D6D /* SentrySwiftTests.swift */; };
 		03FF07C71CE545D300BA980E /* SentrySwiftBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D4D9FF1CA586EF00799CC9 /* SentrySwiftBreadcrumbTests.swift */; };
 		03FF07C81CE546B500BA980E /* Abort.json in Resources */ = {isa = PBXBuildFile; fileRef = 035242941C988D2F00A65D6D /* Abort.json */; };
+		9B02CAB71CF5C20F004F614C /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */; };
+		9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */; };
+		9B02CAB91CF5C20F004F614C /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */; };
+		9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */; };
+		9B02CABD1CF5C270004F614C /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */; };
+		9B02CABE1CF5C270004F614C /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +178,8 @@
 		03E94AF61C22595C009F8F29 /* SentrySwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentrySwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03E94B0B1C22596A009F8F29 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		03E94B141C22596A009F8F29 /* SentrySwift-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SentrySwift-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extras.swift"; sourceTree = "<group>"; };
+		9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Extras.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,6 +267,7 @@
 		036378271C225D5200644C01 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				9B02CAB11CF5C1E8004F614C /* Extensions */,
 				036378281C225D5200644C01 /* SentrySwift.h */,
 				0363782B1C225D8300644C01 /* Sentry.swift */,
 				03E3D1F71C3E1A2800F00547 /* DSN.swift */,
@@ -348,6 +357,31 @@
 				03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */,
 			);
 			name = KSCrash;
+			sourceTree = "<group>";
+		};
+		9B02CAB11CF5C1E8004F614C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				9B02CABA1CF5C25D004F614C /* Foundation */,
+				9B02CAB51CF5C1F9004F614C /* Swift */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
+		9B02CAB51CF5C1F9004F614C /* Swift */ = {
+			isa = PBXGroup;
+			children = (
+				9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */,
+			);
+			name = Swift;
+			sourceTree = "<group>";
+		};
+		9B02CABA1CF5C25D004F614C /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */,
+			);
+			name = Foundation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -646,10 +680,12 @@
 			files = (
 				03C7152B1CE4DB940080AE60 /* AppleCrashReport.swift in Sources */,
 				03C7152C1CE4DB940080AE60 /* Breadcrumb.swift in Sources */,
+				9B02CAB91CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
 				03C715271CE4DB910080AE60 /* Event.swift in Sources */,
 				03C715241CE4DB8D0080AE60 /* Sentry.swift in Sources */,
 				03C7152A1CE4DB910080AE60 /* EventSerializable.swift in Sources */,
 				03C7152E1CE4DB940080AE60 /* BreadcrumbStore.swift in Sources */,
+				9B02CABE1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				03C715281CE4DB910080AE60 /* EventOffline.swift in Sources */,
 				03C715261CE4DB8D0080AE60 /* Request.swift in Sources */,
 				03C7152F1CE4DB980080AE60 /* CrashHandler.swift in Sources */,
@@ -679,9 +715,11 @@
 				03E3D21F1C3EB20F00F00547 /* Request.swift in Sources */,
 				0363782C1C225D8300644C01 /* Sentry.swift in Sources */,
 				03D4D9F91CA48FA800799CC9 /* Breadcrumb.swift in Sources */,
+				9B02CAB71CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
 				03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */,
 				03E3D1F81C3E1A2800F00547 /* DSN.swift in Sources */,
 				033A342C1C60693400BED5AE /* User.swift in Sources */,
+				9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				036378321C227C7900644C01 /* Event.swift in Sources */,
 				0303BC3F1C29FC3F003E7B16 /* EventSerializable.swift in Sources */,
 				0370617F1C75446B0082CCCE /* AppleCrashReport.swift in Sources */,
@@ -705,10 +743,12 @@
 			files = (
 				03C736E21C474715004428DF /* CrashHandler.swift in Sources */,
 				037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */,
+				9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
 				033A342A1C605B7E00BED5AE /* EventProperties.swift in Sources */,
 				03E3D2201C3EB20F00F00547 /* Request.swift in Sources */,
 				0363782D1C225D8300644C01 /* Sentry.swift in Sources */,
 				03CFCEC21C612F3E00999EB7 /* KSCrashHandler.swift in Sources */,
+				9B02CABD1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */,
 				033A342D1C60693400BED5AE /* User.swift in Sources */,
 				03E3D1F91C3E1A2800F00547 /* DSN.swift in Sources */,

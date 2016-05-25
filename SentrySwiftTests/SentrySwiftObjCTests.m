@@ -34,7 +34,7 @@
 - (void)testThatThingsCompileBecauseSwiftToOjbCBridge {
 	[SentryClient setLogLevel:SentryLogDebug];
 	
-	[[SentryClient shared] setCrashHandler:[[SentryKSCrashHandler alloc] init]];
+	[[SentryClient shared] startCrashHandler];
 	[SentryClient shared].user = [[User alloc] initWithId:@"3" email:@"example@example.com" username:@"Example" extra:@{@"is_admin": @NO}];
 	[SentryClient shared].tags = @{@"environment": @"production"};
 	[SentryClient shared].extra = @{
@@ -45,6 +45,9 @@
 
 	SentryClient *nilClient = nil;
 	[nilClient captureMessage:@"Some plain message from ObjC" level:SentrySeverityInfo];
+    
+    Breadcrumb *bc = [[Breadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:@"test message" type:@"test" level:SentrySeverityDebug data:nil];
+    [[SentryClient shared].breadcrumbs add:bc];
 }
 
 - (void)testEvent {
@@ -77,7 +80,7 @@
 	XCTAssertEqual(event.eventID.length, 32);
 	XCTAssertEqualObjects(event.message, message);
 	XCTAssertEqual(event.level, SentrySeverityError);
-	XCTAssertEqualObjects(event.platform, [Event platform]);
+	XCTAssertEqualObjects(event.platform, @"cocoa");
 	XCTAssertEqualObjects(event.logger, logger);
 	XCTAssertEqualObjects(event.culprit, culprit);
 	XCTAssertEqualObjects(event.serverName, serverName);
