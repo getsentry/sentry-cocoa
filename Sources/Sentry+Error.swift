@@ -1,5 +1,5 @@
 //
-//  Sentry+NSError.swift
+//  Sentry+Error.swift
 //  SentrySwift
 //
 //  Created by Lukas Stabe on 22.05.16.
@@ -50,14 +50,18 @@ private func cleanDict(d: [String: AnyObject]) -> [String: AnyObject] {
 
 extension SentryClient {
 
-    public func captureError(error: NSError, function: String = #function, file: String = #file, line: Int = #line) {
-        let culprit = "\((file as NSString).lastPathComponent):\(line) \(function)"
-        let message = "\(error.domain).\(error.code) in \(culprit)"
+    public func captureError(error: NSError, file: String = #file, line: Int = #line, function: String = #function) {
+        let loc = SourceLocation(file: file, line: line, function: function)
 
-        let event = Event.build(message) {
-            $0.level = .Error
-            $0.culprit = culprit
-            $0.extra = ["user_info": cleanValue(error.userInfo as! [String: AnyObject])!]
+        let message = "\(error.domain).\(error.code) in \(loc.culprit)"
+
+        let event = Event(message, level: .Error)
+        event.mergeSourceLocation(loc)
+
+        if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyObject] {
+            event.extra = ["user_info": cleanedUserInfo]
+        } else {
+            SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
 
         captureEvent(event)

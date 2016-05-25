@@ -147,3 +147,34 @@ import Foundation
 		}
 	}
 }
+
+extension SentryClient {
+
+    // internal struct to capture file, line and function number
+    struct SourceLocation {
+        let file: String
+        let line: Int
+        let function: String
+
+        var fileName: String {
+            return (file as NSString).lastPathComponent
+        }
+
+        var culprit: String {
+            return "\(fileName):\(line) \(function)"
+        }
+
+        var stackTrace: [String: [[String: AnyObject]]] {
+            let frame: [String: AnyObject] = ["filename" : fileName, "function" : function, "lineno" : line]
+            return ["frames": [frame]]
+        }
+    }
+
+}
+
+extension Event {
+    func mergeSourceLocation(loc: SentryClient.SourceLocation) {
+        culprit = loc.culprit
+        stackTrace = loc.stackTrace
+    }
+}
