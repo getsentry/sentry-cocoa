@@ -90,8 +90,6 @@ import Foundation
 
 	/// Strips the project ID from a URL
 	private static func getProjectID(url: NSURL) -> String? {
-		// Should be receiving something like ["/", "12345"]
-		// Removing first and getting second
-		return url.pathComponents?.dropFirst().first
+		return url.lastPathComponent
 	}
 }
