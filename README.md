@@ -173,7 +173,7 @@ Use the [Fastlane's](https://github.com/fastlane/fastlane) action, `download_dsy
 ```ruby
 lane :upload_symbols do
   download_dsyms
-  upload_sybols_to_sentry(
+  upload_symbols_to_sentry(
     api_key: '...',
     org_slug: '...',
     project_slug: '...',
@@ -198,7 +198,7 @@ sentry-cli --api-key YOUR_API_KEY upload-dsym --org YOUR_ORG_SLUG --project YOUR
 ```ruby
 lane :build do
   gym
-  upload_sybols_to_sentry(
+  upload_symbols_to_sentry(
     api_key: '...',
     org_slug: '...',
     project_slug: '...',
