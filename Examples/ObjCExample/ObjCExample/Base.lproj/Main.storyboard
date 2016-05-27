@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="uNn-uZ-Zo5">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="uNn-uZ-Zo5">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -56,13 +56,22 @@
                                     <action selector="onClickComplexMessage:" destination="uNn-uZ-Zo5" eventType="touchUpInside" id="ItT-JL-aOI"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WET-pM-IcV">
+                                <rect key="frame" x="138" y="389" width="325" height="30"/>
+                                <state key="normal" title="Click this to send up an error with breadcrumbs"/>
+                                <connections>
+                                    <action selector="onClickError:" destination="uNn-uZ-Zo5" eventType="touchUpInside" id="lGl-nA-HuV"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="okv-gm-5iD" firstAttribute="centerX" secondItem="sWD-sN-dgF" secondAttribute="centerX" id="8Ez-TC-828"/>
                             <constraint firstItem="2Kc-YH-aAO" firstAttribute="top" secondItem="Rqv-XL-5gj" secondAttribute="bottom" constant="44" id="Fkr-hc-bzI"/>
                             <constraint firstItem="okv-gm-5iD" firstAttribute="top" secondItem="2Kc-YH-aAO" secondAttribute="bottom" constant="8" id="IZP-k2-uAw"/>
+                            <constraint firstItem="WET-pM-IcV" firstAttribute="top" secondItem="okv-gm-5iD" secondAttribute="bottom" constant="8" id="Ni4-Kk-Uar"/>
                             <constraint firstItem="Rqv-XL-5gj" firstAttribute="top" secondItem="St0-fT-fTG" secondAttribute="bottom" constant="144" id="dLa-b1-rc6"/>
+                            <constraint firstItem="WET-pM-IcV" firstAttribute="centerX" secondItem="sWD-sN-dgF" secondAttribute="centerX" id="mNd-Uq-BR7"/>
                             <constraint firstItem="Rqv-XL-5gj" firstAttribute="centerX" secondItem="sWD-sN-dgF" secondAttribute="centerX" id="wOH-Tn-4cn"/>
                             <constraint firstItem="2Kc-YH-aAO" firstAttribute="centerX" secondItem="sWD-sN-dgF" secondAttribute="centerX" id="wov-7K-c8Q"/>
                         </constraints>

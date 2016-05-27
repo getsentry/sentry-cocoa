@@ -46,8 +46,14 @@
 									@"some_things": @[@"green", @"red"],
 									@"foobar": @{@"foo": @"bar"}
 									};
+    
+    // Step 5: Add breadcrumbs to help you debug errors
+    Breadcrumb *bcStart = [[Breadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"app start"}];
+    Breadcrumb *bcMain = [[Breadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"main screen"}];
+    [[SentryClient shared].breadcrumbs add:bcStart];
+    [[SentryClient shared].breadcrumbs add:bcMain];
 	
-	// Step 5: Don't make your app perfect so that you can get a crash ;)
+	// Step 6: Don't make your app perfect so that you can get a crash ;)
 	// See the really bad "onClickBreak" function on how to do that
 }
 
@@ -77,6 +83,27 @@
 	
 	[[SentryClient shared] captureEvent:event];
 }
+
+- (IBAction)onClickError:(id)sender {
+    NSError *error = [[NSError alloc] initWithDomain:@"test.domain" code:-1 userInfo:nil];
+    
+    Event *event = [[Event alloc] init:error.domain
+                             timestamp:[NSDate date]
+                                 level:SentrySeverityError
+                                logger:nil
+                               culprit:nil
+                            serverName:nil
+                               release:nil
+                                  tags:nil
+                               modules:nil
+                                 extra:nil
+                           fingerprint:nil
+                                  user:nil
+                      appleCrashReport:nil];
+    
+    [[SentryClient shared] captureEvent:event];
+}
+
 
 
 @end
