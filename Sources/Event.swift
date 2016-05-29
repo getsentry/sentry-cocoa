@@ -98,6 +98,17 @@ extension Event: EventSerializable {
 	
 	/// A dictionary of attributes defined by this event
 	public var serialized: SerializedType {
+
+        var modifiedExtra = extra
+
+        var truncatedCulprit: String? = nil
+        if let culprit = culprit where culprit.characters.count > 200 {
+            truncatedCulprit = culprit.substringToIndex(culprit.startIndex.advancedBy(200, limit: culprit.endIndex))
+            modifiedExtra = modifiedExtra ?? [:]
+                // need to force-unwrap because assigning into a if var would just 
+                // write into a shadowing copy
+            modifiedExtra!["__full_culprit"] = culprit
+        }
 		
 		// Create attributes list
 		let attributes: [Attribute] = [
@@ -110,12 +121,12 @@ extension Event: EventSerializable {
 			
 			// Optional
 			("logger", logger),
-			("culprit", culprit),
+			("culprit", truncatedCulprit ?? culprit),
 			("server_name", serverName),
 			("release", releaseVersion),
 			("tags", tags),
 			("modules", modules),
-			("extra", extra),
+			("extra", modifiedExtra),
 			("fingerprint", fingerprint),
 			
 			// Interfaces
