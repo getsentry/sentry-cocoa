@@ -247,6 +247,23 @@ class SentrySwiftTests: XCTestCase {
 		assert(serialized["extra"] as! EventExtra == extra)
 		assert(serialized["fingerprint"] as! EventFingerprint == fingerprint)
 	}
+
+    func testEventTruncatesCulprit() {
+        let shortString = String(count: 200, repeatedValue: Character("-"))
+        let longString = String(count: 201, repeatedValue: Character("-"))
+
+        let shortEvent = Event("test", culprit: shortString)
+        let longEvent = Event("test", culprit: longString)
+
+        let ss = shortEvent.serialized
+        let ls = longEvent.serialized
+
+        assert(ss["culprit"] as! String == shortString)
+        assert(ss["extra"]?["__full_culprit"] == nil)
+
+        assert(ls["culprit"] as! String == shortString) // note this compares to shortString
+        assert(ls["extra"]!["__full_culprit"]! == longString)
+    }
 	
 	// MARK: EventProperties
 	
