@@ -62,6 +62,8 @@
 	NSDictionary *modules = @{ @"2spooky": @"4you" };
 	NSDictionary *extra = @{ @"power rangers": @5, @"tmnt": @4 };
 	NSArray *fingerprint = @[@"this", @"happened", @"right", @"here"];
+
+	Exception *exc = [[Exception alloc] initWithType: @"Test" value: @"test-value" module: nil];
 	
 	Event *event = [[Event alloc] init:message
 							 timestamp:[NSDate date]
@@ -75,6 +77,7 @@
 								 extra:extra
 						   fingerprint:fingerprint
 								  user:nil
+							 exception: @[exc]
 					  appleCrashReport:nil];
 	
 	XCTAssertEqual(event.eventID.length, 32);
