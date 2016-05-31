@@ -125,15 +125,9 @@ internal class KSCrashHandler: CrashHandler {
 				let contents: [CrashDictionary]? = crashedThread?["backtrace"]?["contents"] as? [CrashDictionary]
 				let firstContentName: AnyObject? = contents?.first?["symbol_name"]
 
-				let messageName: String = {
-					if let firstContentName = firstContentName {
-						return "\(exceptionName) - \(firstContentName)"
-					}
-					return exceptionName
-				}()
-
 				/// Generate event to sent up to API
-				let event = Event.build(messageName) {
+				/// Sends a blank message because server does stuff
+				let event = Event.build("") {
 					$0.level = .Fatal
 					$0.timestamp = timestamp
 					$0.tags = userInfo.tags
