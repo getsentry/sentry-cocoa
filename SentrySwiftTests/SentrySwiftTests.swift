@@ -299,6 +299,56 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.user!.email! == "stuff@example.com")
 		assert(event.user!.username! == "stuff")
 	}
+
+    func testMergeEmptyEvent() {
+        let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+
+        let testTags = ["test": "foo"]
+        let testExtra = ["bar": "baz"]
+        let testUser = User(id: "3", email: "things@example.com", username: "things")
+
+        client.tags = testTags
+        client.extra = testExtra
+        client.user = testUser
+
+        let event = Event("such event")
+
+        assert(event.tags == nil)
+        assert(event.extra == nil)
+        assert(event.user == nil)
+
+        event.mergeProperties(client)
+        assert(event.tags! == testTags)
+        assert(event.extra! == testExtra)
+        assert(event.user!.userID == testUser.userID)
+        assert(event.user!.email! == testUser.email!)
+        assert(event.user!.username! == testUser.username!)
+    }
+
+    func testMergeEmptyClient() {
+        let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+
+        assert(client.tags == nil)
+        assert(client.extra == nil)
+        assert(client.user == nil)
+
+        let testTags = ["test": "foo"]
+        let testExtra = ["bar": "baz"]
+        let testUser = User(id: "3", email: "things@example.com", username: "things")
+
+        let event = Event("such event")
+
+        event.tags = testTags
+        event.extra = testExtra
+        event.user = testUser
+
+        event.mergeProperties(client)
+        assert(event.tags! == testTags)
+        assert(event.extra! == testExtra)
+        assert(event.user!.userID == testUser.userID)
+        assert(event.user!.email! == testUser.email!)
+        assert(event.user!.username! == testUser.username!)
+    }
 }
 
 /// A small hack to compare dictionaries
