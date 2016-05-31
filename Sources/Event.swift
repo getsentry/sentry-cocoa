@@ -57,14 +57,15 @@ public typealias EventFingerprint = [String]
 	// MARK: - Optional Interfaces
 
 	public var user: User?
+	public var exception: [Exception]?
 	public var appleCrashReport: AppleCrashReport?
 	internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
 
 	/*
-    Creates an event
-    - Paramter message: A message
-    - Paramter build: A closure that passes an event to build upon
-    */
+	Creates an event
+	- Parameter message: A message
+	- Parameter build: A closure that passes an event to build upon
+	*/
 	public static func build(message: String, build: BuildEvent) -> Event {
 		var event: Event = Event(message, timestamp: NSDate())
 		build(&event)
@@ -72,23 +73,24 @@ public typealias EventFingerprint = [String]
 	}
 
 	/*
-    Creates an event
-    - Paramter message: A message
-    - Paramter timestamp: A timestamp
-    - Paramter level: A severity level
-    - Paramter platform: A platform
-    - Paramter logger: A logger
-    - Paramter culprit: A culprit
-    - Paramter serverName: A server name
-    - Paramter release: A release
-    - Paramter tags: A dictionary of tags
-    - Paramter modules: A dictionary of modules
-    - Paramter extras: A dictionary of extras
-    - Paramter fingerprint: A array of fingerprints
-    - Paramter user: A user object
-    - Paramter appleCrashReport: An apple crash report
-    */
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = [:], modules: EventModules? = nil, extra: EventExtra? = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	Creates an event
+	- Parameter message: A message
+	- Parameter timestamp: A timestamp
+	- Parameter level: A severity level
+	- Parameter platform: A platform
+	- Parameter logger: A logger
+	- Parameter culprit: A culprit
+	- Parameter serverName: A server name
+	- Parameter release: A release
+	- Parameter tags: A dictionary of tags
+	- Parameter modules: A dictionary of modules
+	- Parameter extras: A dictionary of extras
+	- Parameter fingerprint: A array of fingerprints
+	- Parameter user: A user object
+	- Parameter exception: An array of `Exception` objects
+	- Parameter appleCrashReport: An apple crash report
+	*/
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = [:], modules: EventModules? = nil, extra: EventExtra? = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -107,6 +109,7 @@ public typealias EventFingerprint = [String]
 
 		// Optional Interfaces
 		self.user = user
+		self.exception = exception
 		self.appleCrashReport = appleCrashReport
 
 		super.init()
@@ -141,6 +144,7 @@ extension Event: EventSerializable {
 
 			// Interfaces
 			("user", user?.serialized),
+			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized)
 		]
