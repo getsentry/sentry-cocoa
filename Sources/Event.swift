@@ -8,6 +8,10 @@
 
 import Foundation
 
+#if os(iOS) || os(tvOS)
+	import UIKit
+#endif
+
 public typealias EventTags = [String: String]
 public typealias EventModules = [String: String]
 public typealias EventExtra = [String: AnyObject]
@@ -119,6 +123,46 @@ public typealias EventFingerprint = [String]
 extension Event: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal typealias Attribute = (key: String, value: AnyObject?)
+	
+	var sdk: [String: String]? {
+		return [
+			"name": "sentry-swift",
+			"version": SentryClient.Info.version
+		]
+	}
+	
+	var device: [String: String]? {
+		guard let os = os, version = version else {
+			return nil
+		}
+		
+		return [
+			"name": os,
+			"version": version
+		]
+	}
+	
+	var os: String? {
+		#if os(iOS)
+			return "iOS"
+		#elseif os(tvOS)
+			return "tvOS"
+		#elseif os(OSX)
+			return "macOS"
+		#else
+			return nil
+		#endif
+	}
+	
+	var version: String? {
+		#if os(iOS) || os(tvOS)
+			return UIDevice.currentDevice().systemVersion
+		#elseif os(OSX)
+			return NSProcessInfo.processInfo().operatingSystemVersionString
+		#else
+			return nil
+		#endif
+	}
 
 	/// Dictionary version of attributes set in event
 	internal var serialized: SerializedType {
@@ -131,6 +175,10 @@ extension Event: EventSerializable {
 			("timestamp", timestamp.iso8601),
 			("level", level.description),
 			("platform", platform),
+			
+			// Computed
+			("sdk", sdk),
+			("device", device),
 
 			// Optional
 			("logger", logger),
