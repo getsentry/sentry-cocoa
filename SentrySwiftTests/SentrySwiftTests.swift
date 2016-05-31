@@ -195,6 +195,24 @@ class SentrySwiftTests: XCTestCase {
 		assert(serialized["timestamp"] as? String != nil)
 		assert(serialized["level"] as! String == "error")
 		assert(serialized["platform"] as! String == "cocoa")
+		
+		// SDK
+		let sdk = serialized["sdk"] as! [String: String]
+		assert(sdk["name"] == "sentry-swift")
+		assert(sdk["version"] == SentryClient.Info.version)
+		
+		// Device
+		let device = serialized["device"] as! [String: String]
+		assert(device["name"] != nil)
+		assert(device["version"] != nil)
+		
+		#if os(iOS)
+			assert(device["name"] == "iOS")
+		#elseif os(tvOS)
+			assert(device["name"] == "tvOS")
+		#elseif os(OSX)
+			assert(device["name"] == "macOS")
+		#endif
 	}
 	
 	func testEventSerializableWithOptional() {
