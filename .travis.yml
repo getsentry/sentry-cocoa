@@ -1,9 +1,7 @@
 language: objective-c
 osx_image: xcode7.3
 before_install:
-    - gem install scan -v 0.6
+    - gem install fastlane
 script: 
-    - scan -s SentrySwift-iOS
-    - scan -s SentrySwift-OSX
-    - scan -s SentrySwift-tvOS
+    - fastlane test
 

@@ -1,0 +1,10 @@
+fastlane_version "1.66.0"
+
+desc "Test iOS, tvOS, and OSX"
+lane :test do
+
+    scan(scheme: "SentrySwift-iOS")
+    scan(scheme: "SentrySwift-tvOS")
+    scan(scheme: "SentrySwift-OSX")
+
+end
