@@ -5,8 +5,10 @@
 //  Created by Josh Holtz on 3/25/16.
 //
 //
+
 import XCTest
 import SentrySwift
+@testable import SentrySwift
 
 class SentrySwiftBreadcrumbTests: XCTestCase {
 	
@@ -43,20 +45,20 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
 		let test4 = Breadcrumb(category: "test", message: "Test 4")
 		
 		store.add(test1)
-		XCTAssertEqual(store.get()?.count, 1)
-		XCTAssertEqual(store.get()!, [test1])
+		XCTAssertEqual(store.crumbs.count, 1)
+		XCTAssertEqual(store.crumbs, [test1])
 		
 		store.add(test2)
-		XCTAssertEqual(store.get()?.count, 2)
-		XCTAssertEqual(store.get()!, [test1, test2])
+		XCTAssertEqual(store.crumbs.count, 2)
+		XCTAssertEqual(store.crumbs, [test1, test2])
 		
 		store.add(test3)
-		XCTAssertEqual(store.get()?.count, 3)
-		XCTAssertEqual(store.get()!, [test1, test2, test3])
+		XCTAssertEqual(store.crumbs.count, 3)
+		XCTAssertEqual(store.crumbs, [test1, test2, test3])
 		
 		store.add(test4)
-		XCTAssertEqual(store.get()?.count, 3)
-		XCTAssertEqual(store.get()!, [test2, test3, test4])
+		XCTAssertEqual(store.crumbs.count, 3)
+		XCTAssertEqual(store.crumbs, [test2, test3, test4])
 	}
 
 }

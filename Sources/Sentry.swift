@@ -8,40 +8,44 @@
 
 import Foundation
 
-public struct SentryInfo {
-	public static let version: Int = 1
-	public static let sentryVersion: Int = 7
-}
+// This is declared here to keep namespace compatibility with objc
+@objc public enum SentryLog: Int, CustomStringConvertible {
+	case None, Error, Debug
 
-@objc public enum SentryLog: Int {
-	case None = 0, Error = 1, Debug = 2
-	
-	var name: String {
+	public var description: String {
 		switch self {
 		case .None: return ""
 		case .Error: return "Error"
 		case .Debug: return "Debug"
 		}
 	}
-	
-	func log(string: String) {
+
+	internal func log(message: String) {
 		guard rawValue <= SentryClient.logLevel.rawValue else { return }
-		print("SentrySwift - \(name):: \(string)")
+		print("SentrySwift - \(description):: \(message)")
 	}
 }
 
-
 @objc public class SentryClient: NSObject, EventProperties {
 
-	// MARK: Static
+	// MARK: - Static Attributes
 	
 	public static var shared: SentryClient?
-	public static var logLevel = SentryLog.None
+	public static var logLevel: SentryLog = .None
+
+
+	// MARK: - Enums
+
+	internal struct Info {
+		static let version: Int = 1
+		static let sentryVersion: Int = 7
+	}
+
+
+	// MARK: - Attributes
 	
-	// MARK: Instance
-	
-	public let dsn: DSN
-	@objc public var crashHandler: CrashHandler? {
+	internal let dsn: DSN
+	internal(set) var crashHandler: CrashHandler? {
 		didSet {
 			crashHandler?.startCrashReporting { (event) -> () in
 				self.captureEvent(event, useClientProperties: false)
@@ -57,7 +61,9 @@ public struct SentryInfo {
 		return store
 	}()
 
+
 	// MARK: EventProperties
+
 	public var tags: EventTags? = nil {
 		didSet { crashHandler?.tags = tags }
 	}
@@ -68,18 +74,15 @@ public struct SentryInfo {
 		didSet { crashHandler?.user = user }
 	}
 
-	/// Creates a SentryClient
-	/// - Parameter dsn: The "client key"
-	/// - Returns: A SentryClient used to capture messages and exceptions
-	@objc public init(dsn: DSN) {
+
+	/// Creates a Sentry object to use for reporting
+	internal init(dsn: DSN) {
 		self.dsn = dsn
 		super.init()
 		sendEventsOnDisk()
 	}
 	
-	/// Creates a SentryClient
-	/// - Parameter : dsn: The "client key"
-	/// - Returns: A SentryClient used to capture messages and exceptions
+	/// Creates a Sentry object iff a valid DSN is provided
 	@objc public convenience init?(dsnString: String) {
 		guard let dsn = DSN(dsnString) else {
 			return nil
@@ -87,48 +90,42 @@ public struct SentryInfo {
 		self.init(dsn: dsn)
 	}
 	
-	/// The operating system this client is running on
-	public var os: OS {
-		#if os(iOS)
-			return .IOS
-		#elseif os(OSX)
-			return .OSX
-		#else
-			return .Other
-		#endif
-	}
-	
-	/// Captures message and level to create an event to report
-	/// - Parameter message: A message for the event
-	/// - Parameter level: A severity level for the event
-	public func captureMessage(message: String, level: SentrySeverity = .Info) {
+	/*
+	Reports message to Sentry with the given level
+	- Parameter message: The message to send to Sentry
+	- Parameter level: The severity of the message
+	*/
+	@objc public func captureMessage(message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
 		captureEvent(event)
 	}
-	
-	/// Captures event to report
-	/// - Parameter event: An event
+
+	/// Reports given event to Sentry
 	@objc public func captureEvent(event: Event) {
 		captureEvent(event, useClientProperties: true)
 	}
 	
-	/// A private function that will optionally merge client properties into an event.
-	/// Usage: Don't merge client properties from crash reports.
-	private func captureEvent(event: Event, useClientProperties: Bool) {
-		if useClientProperties {
-			event.mergeProperties(self)
-			
-			switch event.level {
-			case .Fatal, .Error:
-				event.breadcrumbsSerialized = breadcrumbs.serialized
-				breadcrumbs.clear()
-			default: ()
-			}
+	/*
+	Reports given event to Sentry
+	- Parameter event: An event struct
+	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
+	*/
+	private func captureEvent(event: Event, useClientProperties: Bool = true) {
+		var mutableEvent = event
+
+		// Don't allow client attributes to be used when reporting an `Exception`
+		if useClientProperties && mutableEvent.level != .Fatal {
+			mutableEvent.mergeProperties(from: self)
+		}
+
+		if mutableEvent.level == .Error && mutableEvent.level != .Fatal {
+			mutableEvent.breadcrumbsSerialized = breadcrumbs.serialized
+			breadcrumbs.clear()
 		}
 		
-		sendEvent(event) { success in
+		sendEvent(mutableEvent) { [weak self] success in
 			guard !success else { return }
-			self.saveEvent(event)
+			self?.saveEvent(mutableEvent)
 		}
 	}
 
@@ -143,9 +140,4 @@ public struct SentryInfo {
 			}
 		}
 	}
-}
-
-/// Platforms that this client is running on
-public enum OS {
-	case IOS, OSX, Other
 }

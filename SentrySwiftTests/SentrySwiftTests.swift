@@ -8,6 +8,7 @@
 
 import XCTest
 import SentrySwift
+@testable import SentrySwift
 
 class SentrySwiftTests: XCTestCase {
 	
@@ -27,14 +28,6 @@ class SentrySwiftTests: XCTestCase {
 	}
 	
 	// MARK: Helpers
-	
-    func testOS() {
-		#if os(iOS)
-			assert(client.os == .IOS)
-		#elseif os(OSX)
-			assert(client.os == .OSX)
-		#endif
-    }
 	
 	func testDateSerialization() {
 		let dateString = "2011-05-02T17:41:36"
@@ -105,8 +98,8 @@ class SentrySwiftTests: XCTestCase {
 		let header = dsn.xSentryAuthHeader
 		assert(header.key == "X-Sentry-Auth")
 		assert(header.value.rangeOfString("Sentry ") != nil)
-		assert(header.value.rangeOfString("sentry_version=\(SentryInfo.sentryVersion)") != nil)
-		assert(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryInfo.version)") != nil)
+		assert(header.value.rangeOfString("sentry_version=\(SentryClient.Info.sentryVersion)") != nil)
+		assert(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryClient.Info.version)") != nil)
 		assert(header.value.rangeOfString("sentry_timestamp=") != nil)
 		
 		if let key = dsn.publicKey {
@@ -132,7 +125,7 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.eventID.characters.count == 32)
 		assert(event.message == message)
 		assert(event.level == .Error)
-		assert(event.platform == Event.platform)
+		assert(event.platform == "cocoa")
 	}
 
 	func testEventWithOptionals() {
@@ -235,7 +228,7 @@ class SentrySwiftTests: XCTestCase {
 		assert((serialized["event_id"] as! String).characters.count == 32)
 		assert(serialized["message"] as! String == message)
 		assert(serialized["timestamp"] as! String == dateString)
-		assert(serialized["level"] as! String == level.name)
+		assert(serialized["level"] as! String == level.description)
 		assert(serialized["platform"] as! String == platform)
 		
 		// Optional
@@ -264,7 +257,7 @@ class SentrySwiftTests: XCTestCase {
 		client.user = User(id: "3", email: "things@example.com", username: "things")
 		
 		// Create event
-		let event = Event("Lalalala")
+		var event = Event("Lalalala")
 		event.tags = [
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
@@ -289,7 +282,7 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.user!.username! == "stuff")
 		
 		// Merge
-		event.mergeProperties(client)
+		event.mergeProperties(from: client)
 		
 		// Test after merge
 		assert(event.tags! == [

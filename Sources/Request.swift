@@ -10,36 +10,38 @@ import Foundation
 
 extension SentryClient {
 	
-	public typealias EventFinishedSending = (success: Bool) -> ()
+	internal typealias EventFinishedSending = (success: Bool) -> ()
 	
-	/// Sends an event to the API
-	/// - Parameter event: An event
-	/// - Parameter finished: A closure with a success boolean
-	func sendEvent(event: Event, finished: EventFinishedSending? = nil) {
+	/*
+	Sends given event to the API
+	- Parameter event: An event
+	- Parameter finished: A closure with the success status
+	*/
+	internal func sendEvent(event: Event, finished: EventFinishedSending? = nil) {
 		do {
-			let data = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
+			let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
 			sendData(data, finished: finished)
-		} catch _ {
+		} catch {
 			return
 		}
 	}
 	
-	/// Sends data to the API
-	/// - Parameter data: The data
-	/// - Parameter finished: A closure with a success boolean
+	/*
+	Sends given data to the API
+	- Parameter data: The data
+	- Parameter finished: A closure with the success status
+	*/
 	func sendData(data: NSData, finished: EventFinishedSending? = nil) {
-
-		// Logging cause yeah
 		if let body = NSString(data: data, encoding: NSUTF8StringEncoding) {
 			SentryLog.Debug.log("body = \(body)")
 		}
 		
-		// Creating request
-		let request = NSMutableURLRequest(URL: dsn.serverURL)
+		// Creating the request
+		let request: NSMutableURLRequest = NSMutableURLRequest(URL: dsn.serverURL)
 		request.HTTPMethod = "POST"
 		request.HTTPBody = data
 		
-		// Setting headers
+		// Setting the headers
 		let sentryHeader = dsn.xSentryAuthHeader
 		request.setValue(sentryHeader.value, forHTTPHeaderField: sentryHeader.key)
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -49,8 +51,7 @@ extension SentryClient {
 		let session = NSURLSession(configuration: config)
 		
 		// Creates and starts network request
-		let task : NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
-			
+		let task: NSURLSessionDataTask = session.dataTaskWithRequest(request) { data, response, error in
 			var success = false
 			
 			// Returns success if we have data and 200 response code
@@ -62,10 +63,13 @@ extension SentryClient {
 			}
 			if let error = error {
 				SentryLog.Error.log("error = \(error)")
+
+				success = false
 			}
 			
 			finished?(success: success)
-		});
+		}
+
 		task.resume()
 	}
 }

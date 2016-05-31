@@ -8,12 +8,12 @@
 
 import Foundation
 
-public typealias SerializedTypeDictionary = [String: AnyObject]
-public typealias SerializedTypeArray = [SerializedTypeDictionary]
+internal typealias SerializedTypeDictionary = [String: AnyObject]
+internal typealias SerializedTypeArray = [SerializedTypeDictionary]
 
 /// A protocol used for complex structures (ex: Event, User, AppleCrashReport)
 /// on how to serialize them.
-public protocol EventSerializable {
+internal protocol EventSerializable {
 	associatedtype SerializedType
 	var serialized: SerializedType { get }
 }

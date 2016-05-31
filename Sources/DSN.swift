@@ -8,54 +8,51 @@
 
 import Foundation
 
-/// A struct to hold infromation about the DSN
-/// and to generate the X-Sentry-Auth header.
-@objc public class DSN: NSObject {
-	
-	public let dsn: NSURL
-	public let serverURL: NSURL
-	public let publicKey: String?
-	public let secretKey: String?
-	public let projectID: String
-	
-	init(dsn: NSURL, serverURL: NSURL, publicKey: String?, secretKey: String?, projectID: String) {
+internal typealias XSentryAuthHeader = (key: String, value: String)
+
+/// A class to hold DSN information and populate X-Sentry-Auth header
+internal class DSN: NSObject {
+
+	internal let dsn: NSURL
+	internal let serverURL: NSURL
+	internal let publicKey: String?
+	internal let secretKey: String?
+	internal let projectID: String
+
+	internal init(dsn: NSURL, serverURL: NSURL, publicKey: String?, secretKey: String?, projectID: String) {
 		self.dsn = dsn
 		self.serverURL = serverURL
 		self.publicKey = publicKey
 		self.secretKey = secretKey
 		self.projectID = projectID
 	}
-	
-	/// Can create a DSN struct from a string. If the string is not a
-	/// valid DSN format, a nil will be returned
-	public convenience init?(_ dsnString: String) {
+
+	/// Creates DSN object from a valid DSN string
+	internal convenience init?(_ dsnString: String) {
 		var dsn: NSURL?
 		var serverURL: NSURL?
 		var publicKey: String?
 		var secretKey: String?
 		var projectID: String?
-		
+
 		if let url = NSURL(string: dsnString),
-			host = url.host,
-			id = DSN.getProjectID(url) {
-				
-				// Setting properties
-				dsn = url
-				publicKey = url.user
-				secretKey = url.password
-				projectID = id
-				
-				// Creating components for serverURL
-				let path = "/api/\(id)/store/"
-				
-				// Setting componts to create NSURL
-				let components = NSURLComponents()
-				components.scheme = url.scheme
-				components.host = host
-				components.path = path
-				components.port = url.port
-				
-				serverURL = components.URL
+		host = url.host,
+		id = DSN.projectID(from: url) {
+
+			// Setting properties
+			dsn = url
+			publicKey = url.user
+			secretKey = url.password
+			projectID = id
+
+			// Setting componts to create NSURL
+			let components = NSURLComponents()
+			components.scheme = url.scheme
+			components.host = host
+			components.path = "/api/\(id)/store/"
+			components.port = url.port
+
+			serverURL = components.URL
 		}
 
 		guard let theDsn = dsn, theServerURL = serverURL, theProjectID = projectID else {
@@ -63,33 +60,28 @@ import Foundation
 		}
 		self.init(dsn: theDsn, serverURL: theServerURL, publicKey: publicKey, secretKey: secretKey, projectID: theProjectID)
 	}
-	
-	public typealias XSentryAuthHeader = (key: String, value: String)
-	
-	/// Creates a tuple with the header name and header value
-	public var xSentryAuthHeader: XSentryAuthHeader {
-		// Header parts
+
+	/// Tuple with the header name and header value
+	internal var xSentryAuthHeader: XSentryAuthHeader {
+
+		// Create header parts
 		let headerParts: [(String, String?)] = [
-			("Sentry sentry_version", String(SentryInfo.sentryVersion)),
-			("sentry_client", "sentry-swift/\(SentryInfo.version)"),
-			("sentry_timestamp", String(Int(NSDate().timeIntervalSince1970))),
-			("sentry_key", self.publicKey),
-			("sentry_secret", self.secretKey)
+				("Sentry sentry_version", String(SentryClient.Info.sentryVersion)),
+				("sentry_client", "sentry-swift/\(SentryClient.Info.version)"),
+				("sentry_timestamp", String(Int(NSDate().timeIntervalSince1970))),
+				("sentry_key", self.publicKey),
+				("sentry_secret", self.secretKey)
 		]
-		
-		// Combine parts into comma, delimited string
-		let value = headerParts.reduce([], combine: { (combined, keyValue) -> [String] in
-			guard let value = keyValue.1 else {
-				return combined
-			}
-			return combined + ["\(keyValue.0)=\(value)"]
-		}).joinWithSeparator(",")
-		
+
+		var ret: [String] = []
+		headerParts.filter() { $0.1 != nil }.forEach() { ret.append("\($0.0)=\($0.1!)") }
+		let value = ret.joinWithSeparator(",")
+
 		return ("X-Sentry-Auth", value)
 	}
 
-	/// Strips the project ID from a URL
-	private static func getProjectID(url: NSURL) -> String? {
+	/// Extracts the project ID from a URL
+	private static func projectID(from url: NSURL) -> String? {
 		// Should be receiving something like ["/", "12345"]
 		// Removing first and getting second
 		return url.pathComponents?.dropFirst().first

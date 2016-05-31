@@ -8,35 +8,26 @@
 
 import Foundation
 
-private extension Dictionary {
-    mutating func mergeValues(from other: Dictionary<Key, Value>, overrideExisting: Bool = false) {
-        for k in other.keys {
-            if overrideExisting {
-                self[k] = other[k]
-            } else {
-                self[k] = self[k] ?? other[k]
-            }
-        }
-    }
-}
+/// Protocol defining common editable properties of Sentry client and Event
+internal protocol EventProperties {
 
-/// Properties that can be set globally on a SentryClient
-/// and on an Event.
-@objc public protocol EventProperties {
-	// Attributes
+	// MARK: - Attributes
 	var tags: EventTags? { get set }
 	var extra: EventExtra? { get set }
 	
-	// Interfaces
+	// MARK: - Interfaces
 	var user: User? { get set }
 }
 
 extension EventProperties {
-	/// Merges event properties into self. Only values not set in the receiver are set. Dictionary properties are merged non-recursively, preferring the values in the receiver.
-	/// - Parameter eventProperties: Event properties to merge on self
-	public func mergeProperties(eventProperties: EventProperties) {
-        tags?.mergeValues(from: eventProperties.tags ?? [:])
-        extra?.mergeValues(from: eventProperties.extra ?? [:])
-        user = user ?? eventProperties.user
-	}
+
+    /*
+    Merges another EventProperties into this. Will only replace non-existing keys.
+    - Parameter from: EventProperties to merge
+    */
+    internal mutating func mergeProperties(from other: EventProperties) {
+        tags?.unionInPlace(other.tags ?? [:])
+        extra?.unionInPlace(other.extra ?? [:])
+        user = user ?? other.user
+    }
 }

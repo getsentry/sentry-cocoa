@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public protocol CrashHandler: EventProperties {
+internal protocol CrashHandler: EventProperties {
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType? { get set }
-	func startCrashReporting(createdEvent: (event: Event) -> ())
+	func startCrashReporting(createdEvent: (generatedEvent: Event) -> ())
 }
