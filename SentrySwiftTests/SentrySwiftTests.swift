@@ -149,8 +149,9 @@ class SentrySwiftTests: XCTestCase {
 		let modules: EventModules = ["2spooky": "4you"]
 		let extra: EventExtra = ["power rangers": 5, "tmnt": 4]
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
-		
-		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint)
+		let exception: Exception = Exception(type: "Test", value: "test-value")
+
+		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
 		event.platform = platform
 		
 		// Required
@@ -165,6 +166,7 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.culprit == culprit)
 		assert(event.serverName == serverName)
 		assert(event.releaseVersion == release)
+		assert(event.exception! == [exception])
 		assert(event.tags! == tags)
 		assert(event.modules! == modules)
 		assert(event.extra! == extra)
