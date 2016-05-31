@@ -88,7 +88,7 @@ public typealias EventFingerprint = [String]
     - Paramter user: A user object
     - Paramter appleCrashReport: An apple crash report
     */
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = [:], modules: EventModules? = nil, extra: EventExtra? = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = nil, modules: EventModules? = nil, extra: EventExtra? = nil, fingerprint: EventFingerprint? = nil, user: User? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message

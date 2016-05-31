@@ -311,13 +311,13 @@ class SentrySwiftTests: XCTestCase {
         client.extra = testExtra
         client.user = testUser
 
-        let event = Event("such event")
+        var event = Event("such event")
 
         assert(event.tags == nil)
         assert(event.extra == nil)
         assert(event.user == nil)
 
-        event.mergeProperties(client)
+		event.mergeProperties(from: client)
         assert(event.tags! == testTags)
         assert(event.extra! == testExtra)
         assert(event.user!.userID == testUser.userID)
@@ -336,13 +336,13 @@ class SentrySwiftTests: XCTestCase {
         let testExtra = ["bar": "baz"]
         let testUser = User(id: "3", email: "things@example.com", username: "things")
 
-        let event = Event("such event")
+        var event = Event("such event")
 
         event.tags = testTags
         event.extra = testExtra
         event.user = testUser
 
-        event.mergeProperties(client)
+		event.mergeProperties(from: client)
         assert(event.tags! == testTags)
         assert(event.extra! == testExtra)
         assert(event.user!.userID == testUser.userID)

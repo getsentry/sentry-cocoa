@@ -26,6 +26,10 @@ extension EventProperties {
     - Parameter from: EventProperties to merge
     */
     internal mutating func mergeProperties(from other: EventProperties) {
+		// Cannot merge on nil dictionaries
+		tags = tags ?? [:]
+		extra = extra ?? [:]
+		
         tags?.unionInPlace(other.tags ?? [:])
         extra?.unionInPlace(other.extra ?? [:])
         user = user ?? other.user
