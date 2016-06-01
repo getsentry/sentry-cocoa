@@ -142,6 +142,7 @@ class SentrySwiftTests: XCTestCase {
 		
 		// Optional
 		let logger = "paul.bunyan"
+		let culprit = "hewey, dewey, and luey"
 		let serverName = "Janis"
 		let release = "by The Tea Party"
 		let tags: EventTags = ["doot": "doot"]
@@ -150,7 +151,7 @@ class SentrySwiftTests: XCTestCase {
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
 		let exception: Exception = Exception(type: "Test", value: "test-value")
 
-		let event = Event(message, timestamp: timestamp, level: level, logger: logger, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
+		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
 		event.platform = platform
 		
 		// Required
@@ -162,6 +163,7 @@ class SentrySwiftTests: XCTestCase {
 		
 		// Optional
 		assert(event.logger == logger)
+		assert(event.culprit == culprit)
 		assert(event.serverName == serverName)
 		assert(event.releaseVersion == release)
 		assert(event.exception! == [exception])
@@ -229,6 +231,7 @@ class SentrySwiftTests: XCTestCase {
 		
 		// Optional
 		let logger = "paul.bunyan"
+		let culprit = "hewey, dewey, and luey"
 		let serverName = "Janis"
 		let release = "by The Tea Party"
 		let tags: EventTags = ["doot": "doot"]
@@ -236,7 +239,7 @@ class SentrySwiftTests: XCTestCase {
 		let extra: EventExtra = ["power rangers": 5, "tmnt": 4]
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
 		
-		let event = Event(message, timestamp: timestamp, level: level, logger: logger, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint)
+		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint)
 		event.platform = platform
 		let serialized = event.serialized
 		
@@ -250,6 +253,7 @@ class SentrySwiftTests: XCTestCase {
 		
 		// Optional
 		assert(serialized["logger"] as! String == logger)
+		assert(serialized["culprit"] as! String == culprit)
 		assert(serialized["server_name"] as! String == serverName)
 		assert(serialized["tags"] as! EventTags == tags)
 		assert(serialized["modules"] as! EventModules == modules)

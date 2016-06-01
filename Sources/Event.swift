@@ -49,6 +49,7 @@ public typealias EventFingerprint = [String]
 	// MARK: - Optional Attributes
 
 	public var logger: String?
+	public var culprit: String?
 	public var serverName: String?
 	public var releaseVersion: String?
 	public var tags: EventTags?
@@ -82,6 +83,7 @@ public typealias EventFingerprint = [String]
 	- Parameter level: A severity level
 	- Parameter platform: A platform
 	- Parameter logger: A logger
+	- Parameter culprit: A culprit
 	- Parameter serverName: A server name
 	- Parameter release: A release
 	- Parameter tags: A dictionary of tags
@@ -92,7 +94,7 @@ public typealias EventFingerprint = [String]
 	- Parameter exception: An array of `Exception` objects
 	- Parameter appleCrashReport: An apple crash report
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = nil, modules: EventModules? = nil, extra: EventExtra? = nil, fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = nil, modules: EventModules? = nil, extra: EventExtra? = nil, fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -101,6 +103,7 @@ public typealias EventFingerprint = [String]
 
 		// Optional
 		self.logger = logger
+		self.culprit = culprit
 		self.serverName = serverName
 		self.releaseVersion = release
 		self.tags = tags
@@ -179,6 +182,7 @@ extension Event: EventSerializable {
 
 			// Optional
 			("logger", logger),
+			("culprit", culprit),
 			("server_name", serverName),
 			("release", releaseVersion),
 			("tags", tags),

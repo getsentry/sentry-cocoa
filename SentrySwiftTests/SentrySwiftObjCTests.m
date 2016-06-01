@@ -54,6 +54,7 @@
 	NSString *message = @"Thanks for looking at these tests";
 	
 	NSString *logger = @"paul.bunyan";
+	NSString *culprit = @"hewey, dewey, and luey";
 	NSString *serverName = @"Janis";
 	NSString *release = @"by The Tea Party";
 	
@@ -68,6 +69,7 @@
 							 timestamp:[NSDate date]
 								 level:SentrySeverityError
 								logger:logger
+							   culprit:culprit
 							serverName:serverName
 							   release:release
 								  tags:tags
@@ -83,6 +85,7 @@
 	XCTAssertEqual(event.level, SentrySeverityError);
 	XCTAssertEqualObjects(event.platform, @"cocoa");
 	XCTAssertEqualObjects(event.logger, logger);
+	XCTAssertEqualObjects(event.culprit, culprit);
 	XCTAssertEqualObjects(event.serverName, serverName);
 	XCTAssertEqualObjects(event.releaseVersion, release);
 	XCTAssertEqualObjects(event.tags, tags);
