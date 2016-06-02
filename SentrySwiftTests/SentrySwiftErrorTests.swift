@@ -25,6 +25,7 @@ class SentrySwiftErrorTests: XCTestCase {
         assert((event.extra!["user_info"] as! [String: AnyObject]) == [:])
         assert(event.culprit == location.culprit)
         assert(event.stackTrace! == location.stackTrace)
+        assert(event.exception! == [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")])
     }
 
     func testErrorWithUserInfo() {
