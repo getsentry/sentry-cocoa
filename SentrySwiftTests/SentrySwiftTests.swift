@@ -167,9 +167,9 @@ class SentrySwiftTests: XCTestCase {
 		assert(event.serverName == serverName)
 		assert(event.releaseVersion == release)
 		assert(event.exception! == [exception])
-		assert(event.tags! == tags)
+		assert(event.tags == tags)
 		assert(event.modules! == modules)
-		assert(event.extra! == extra)
+		assert(event.extra == extra)
 	}
 	
 	func testEventBuilder() {
@@ -179,7 +179,7 @@ class SentrySwiftTests: XCTestCase {
 		})
 		
 		assert(event.message == "A bad thing happened")
-		assert(event.tags! == ["doot": "doot"])
+		assert(event.tags == ["doot": "doot"])
 		assert(event.level == .Warning)
 	}
 	
@@ -289,28 +289,29 @@ class SentrySwiftTests: XCTestCase {
 		event.user = User(id: "4", email: "stuff@example.com", username: "stuff")
 		
 		// Test before merge
-		assert(event.tags! == [
+		assert(event.tags == [
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
 			])
-		assert(event.extra! == [
+		assert(event.extra == [
 			"extra_event": "value_event",
 			"extra_client_event": "event_wins"
 			])
 		assert(event.user!.userID == "4")
 		assert(event.user!.email! == "stuff@example.com")
 		assert(event.user!.username! == "stuff")
-		
-		// Merge
-		event.mergeProperties(from: client)
+        
+        // Merge
+		event.tags.unionInPlace(client.tags ?? [:])
+		event.extra.unionInPlace(client.extra ?? [:])
 		
 		// Test after merge
-		assert(event.tags! == [
+		assert(event.tags == [
 			"tag_client": "value_client",
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
 			])
-		assert(event.extra! == [
+		assert(event.extra == [
 			"extra_client": "value_client",
 			"extra_event": "value_event",
 			"extra_client_event": "event_wins"
@@ -331,15 +332,18 @@ class SentrySwiftTests: XCTestCase {
         client.extra = testExtra
         client.user = testUser
 
-        var event = Event("such event")
+        let event = Event("such event")
 
-        assert(event.tags == nil)
-        assert(event.extra == nil)
+        assert(event.tags == [:])
+        assert(event.extra == [:])
         assert(event.user == nil)
 
-		event.mergeProperties(from: client)
-        assert(event.tags! == testTags)
-        assert(event.extra! == testExtra)
+        event.tags.unionInPlace(client.tags ?? [:])
+        event.extra.unionInPlace(client.extra ?? [:])
+        event.user = event.user ?? client.user
+
+        assert(event.tags == testTags)
+        assert(event.extra == testExtra)
         assert(event.user!.userID == testUser.userID)
         assert(event.user!.email! == testUser.email!)
         assert(event.user!.username! == testUser.username!)
@@ -348,23 +352,25 @@ class SentrySwiftTests: XCTestCase {
     func testMergeEmptyClient() {
         let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
 
-        assert(client.tags == nil)
-        assert(client.extra == nil)
+        assert(client.tags == [:])
+        assert(client.extra == [:])
         assert(client.user == nil)
 
         let testTags = ["test": "foo"]
         let testExtra = ["bar": "baz"]
         let testUser = User(id: "3", email: "things@example.com", username: "things")
 
-        var event = Event("such event")
+        let event = Event("such event")
 
         event.tags = testTags
         event.extra = testExtra
         event.user = testUser
+        
+        event.tags.unionInPlace(client.tags)
+        event.extra.unionInPlace(client.extra)
 
-		event.mergeProperties(from: client)
-        assert(event.tags! == testTags)
-        assert(event.extra! == testExtra)
+        assert(event.tags == testTags)
+        assert(event.extra == testExtra)
         assert(event.user!.userID == testUser.userID)
         assert(event.user!.email! == testUser.email!)
         assert(event.user!.username! == testUser.username!)

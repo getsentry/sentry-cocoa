@@ -44,10 +44,10 @@ internal class KSCrashHandler: CrashHandler {
 
 	// MARK: - EventProperties
 
-	internal var tags: EventTags? {
+	internal var tags: EventTags = [:] {
 		didSet { updateUserInfo() }
 	}
-	internal var extra: EventExtra? {
+	internal var extra: EventExtra = [:] {
 		didSet { updateUserInfo() }
 	}
 	internal var user: User? {
@@ -130,8 +130,8 @@ internal class KSCrashHandler: CrashHandler {
 				let event = Event.build("") {
 					$0.level = .Fatal
 					$0.timestamp = timestamp
-					$0.tags = userInfo.tags
-					$0.extra = userInfo.extra
+					$0.tags = userInfo.tags ?? [:]
+					$0.extra = userInfo.extra ?? [:]
 					$0.user = userInfo.user
 					$0.appleCrashReport = appleCrashReport
 					$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
@@ -148,15 +148,11 @@ internal class KSCrashHandler: CrashHandler {
 
 	private func updateUserInfo() {
 		var userInfo = CrashDictionary()
+		userInfo[keyEventTags] = tags
+		userInfo[keyEventExtra] = extra
 
 		if let user = user?.serialized {
 			userInfo[keyUser] = user
-		}
-		if let tags = tags {
-			userInfo[keyEventTags] = tags
-		}
-		if let extra = extra {
-			userInfo[keyEventExtra] = extra
 		}
 
 		if let breadcrumbsSerialized = breadcrumbsSerialized {
