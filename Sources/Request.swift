@@ -18,11 +18,11 @@ extension SentryClient {
 	- Parameter finished: A closure with the success status
 	*/
 	internal func sendEvent(event: Event, finished: EventFinishedSending? = nil) {
-		do {
-			let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
-			sendData(data, finished: finished)
-		} catch {
-			return
+		if NSJSONSerialization.isValidJSONObject(event.serialized) {
+			do {
+				let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
+				sendData(data, finished: finished)
+			} catch {}
 		}
 	}
 	

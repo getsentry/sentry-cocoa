@@ -52,9 +52,9 @@ public typealias EventFingerprint = [String]
 	public var culprit: String?
 	public var serverName: String?
 	public var releaseVersion: String?
-	public var tags: EventTags?
+	public var tags: EventTags = [:]
 	public var modules: EventModules?
-	public var extra: EventExtra?
+	public var extra: EventExtra = [:]
 	public var fingerprint: EventFingerprint?
 
 
@@ -94,7 +94,7 @@ public typealias EventFingerprint = [String]
 	- Parameter exception: An array of `Exception` objects
 	- Parameter appleCrashReport: An apple crash report
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags? = nil, modules: EventModules? = nil, extra: EventExtra? = nil, fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -185,9 +185,9 @@ extension Event: EventSerializable {
 			("culprit", culprit),
 			("server_name", serverName),
 			("release", releaseVersion),
-			("tags", tags),
+			("tags", NSJSONSerialization.isValidJSONObject(tags) ? tags : nil),
 			("modules", modules),
-			("extra", extra),
+			("extra", NSJSONSerialization.isValidJSONObject(extra) ? extra : nil),
 			("fingerprint", fingerprint),
 
 			// Interfaces

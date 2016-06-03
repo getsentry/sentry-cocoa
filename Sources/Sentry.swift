@@ -64,10 +64,10 @@ import Foundation
 
 	// MARK: EventProperties
 
-	public var tags: EventTags? = nil {
+	public var tags: EventTags = [:] {
 		didSet { crashHandler?.tags = tags }
 	}
-	public var extra: EventExtra? = nil {
+	public var extra: EventExtra = [:] {
 		didSet { crashHandler?.extra = extra }
 	}
 	public var user: User? = nil {
@@ -111,21 +111,28 @@ import Foundation
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
 	private func captureEvent(event: Event, useClientProperties: Bool = true) {
-		var mutableEvent = event
 
 		// Don't allow client attributes to be used when reporting an `Exception`
-		if useClientProperties && mutableEvent.level != .Fatal {
-			mutableEvent.mergeProperties(from: self)
+		if useClientProperties && event.level != .Fatal {
+			event.user = event.user ?? user
+
+			if NSJSONSerialization.isValidJSONObject(tags) {
+				event.tags.unionInPlace(tags)
+			}
+
+			if NSJSONSerialization.isValidJSONObject(extra) {
+				event.extra.unionInPlace(extra)
+			}
 		}
 
-		if mutableEvent.level == .Error && mutableEvent.level != .Fatal {
-			mutableEvent.breadcrumbsSerialized = breadcrumbs.serialized
+		if event.level == .Error && event.level != .Fatal {
+			event.breadcrumbsSerialized = breadcrumbs.serialized
 			breadcrumbs.clear()
 		}
 		
-		sendEvent(mutableEvent) { [weak self] success in
+		sendEvent(event) { [weak self] success in
 			guard !success else { return }
-			self?.saveEvent(mutableEvent)
+			self?.saveEvent(event)
 		}
 	}
 
