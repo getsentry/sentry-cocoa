@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = "9.0"
 
   s.source_files = "Sources/**/*.{h,m,swift}"
+  s.osx.exclude_files = "Sources/**/KSCrashhandler.swift"
 
   s.ios.dependency 'KSCrash', '~> 1.5'
   s.tvos.dependency 'KSCrash', '~> 1.5'
