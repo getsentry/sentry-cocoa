@@ -25,7 +25,17 @@ import Foundation
 	*/
 	public init(crash: [String: AnyObject], binaryImages: [[String: AnyObject]], system: [String: AnyObject]) {
 		self.crash = crash
-		self.binaryImages = binaryImages
+		if binaryImages.count > 30 {
+			// Remove system images to decrease size
+			self.binaryImages = binaryImages.filter({ dict in
+				guard let name = dict["name"] as? String
+				else { return true }
+
+				return !name.containsString("/usr/") && !name.containsString("/System/")
+			})
+		} else {
+			self.binaryImages = binaryImages
+		}
 		self.system = system
 
 		super.init()
