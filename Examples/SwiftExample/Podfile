@@ -2,6 +2,7 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'SwiftExample' do
+	pod 'KSCrash', :path => '../../../../KSCrash'
 	pod 'SentrySwift', :path => '../../'
 end
 

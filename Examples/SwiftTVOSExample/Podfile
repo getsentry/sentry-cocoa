@@ -3,6 +3,7 @@
 
 target 'SwiftTVOSExample' do
   use_frameworks!
+  pod 'KSCrash', :path => '../../../../KSCrash'
   pod 'SentrySwift', :path => '../../'
 
 end

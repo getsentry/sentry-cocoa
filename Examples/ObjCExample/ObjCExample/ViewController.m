@@ -25,7 +25,7 @@
 	
 	// Step 2: Initialize a SentryClient with your DSN
 	// The DSN is in your Sentry project's settings
-	[SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"your-dsn-goes-here"]];
+	[SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"your-dsn"]];
 	
 	// OPTIONAL (but super useful)
 	// Step 3: Set and start the crash listener using SentryKSCrashHandler
@@ -79,6 +79,7 @@
 								 extra:nil
 						   fingerprint:nil
 								  user:nil
+							 exception:nil
 					  appleCrashReport:nil];
 	
 	[[SentryClient shared] captureEvent:event];
@@ -99,6 +100,7 @@
                                  extra:nil
                            fingerprint:nil
                                   user:nil
+							 exception:nil
                       appleCrashReport:nil];
     
     [[SentryClient shared] captureEvent:event];

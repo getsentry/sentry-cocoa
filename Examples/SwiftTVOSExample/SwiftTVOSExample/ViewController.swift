@@ -16,7 +16,7 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		
 		// Step 1.5: Set logging level to your liking
-		SentryClient.logLevel = .Debug
+		SentryClient.logLevel = .Error
 		
 		// Step 2: Initialize a SentryClient with your DSN
 		// The DSN is in your Sentry project's settings

@@ -31,6 +31,10 @@
 		037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
 		03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
 		03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
+		03B07D5E1D087D2F007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5D1D087D2F007B4758 /* libz.tbd */; };
+		03B07D601D087D35007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5F1D087D35007B4758 /* libz.tbd */; };
+		03B07D621D087D3C007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D611D087D3C007B4758 /* libz.tbd */; };
+		03B07DC31D089B23007B4758 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CFCEC01C612F3E00999EB7 /* KSCrashHandler.swift */; };
 		03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C715161CE4DB540080AE60 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03C7150C1CE4DB540080AE60 /* SentrySwift.framework */; };
@@ -112,6 +116,34 @@
 			remoteGlobalIDString = 03DE7B691C84DEF700F789BA;
 			remoteInfo = KSCrash;
 		};
+		03B07D781D0892E3007B4758 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CB8E55E717EB99E3000C56D3;
+			remoteInfo = KSCrash;
+		};
+		03B07D7A1D0892E3007B4758 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CB8E55FE17EB99E3000C56D3;
+			remoteInfo = KSCrashTests;
+		};
+		03B07D7C1D0892E3007B4758 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CB62408917EBC9F7006471F1;
+			remoteInfo = KSCrashLib;
+		};
+		03B07D811D089495007B4758 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CB8E55E617EB99E3000C56D3;
+			remoteInfo = KSCrash;
+		};
 		03C714E41CE4D20A0080AE60 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */;
@@ -167,6 +199,10 @@
 		036378311C227C7900644C01 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0370617E1C75446B0082CCCE /* AppleCrashReport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleCrashReport.swift; sourceTree = "<group>"; };
 		03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreadcrumbStore.swift; sourceTree = "<group>"; };
+		03B07D5D1D087D2F007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		03B07D5F1D087D35007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		03B07D611D087D3C007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-Mac.xcodeproj"; path = "Carthage/Checkouts/KSCrash/Mac/KSCrash-Mac.xcodeproj"; sourceTree = "<group>"; };
 		03C1E5A61C57192A004D68D8 /* EventOffline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventOffline.swift; sourceTree = "<group>"; };
 		03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-TVOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/TVOS/KSCrash-TVOS.xcodeproj"; sourceTree = "<group>"; };
 		03C7150C1CE4DB540080AE60 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -191,6 +227,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B07D621D087D3C007B4758 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +243,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B07D5E1D087D2F007B4758 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B07D601D087D35007B4758 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +354,16 @@
 			name = Crash;
 			sourceTree = "<group>";
 		};
+		03B07D701D0892E2007B4758 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				03B07D791D0892E3007B4758 /* KSCrash.framework */,
+				03B07D7B1D0892E3007B4758 /* KSCrashTests.xctest */,
+				03B07D7D1D0892E3007B4758 /* libKSCrashLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		03C714E11CE4D2090080AE60 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -350,6 +399,9 @@
 		217A96211CD67739006C681F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				03B07D611D087D3C007B4758 /* libz.tbd */,
+				03B07D5F1D087D35007B4758 /* libz.tbd */,
+				03B07D5D1D087D2F007B4758 /* libz.tbd */,
 				217A96221CD6773F006C681F /* KSCrash */,
 			);
 			name = Frameworks;
@@ -358,6 +410,7 @@
 		217A96221CD6773F006C681F /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
+				03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */,
 				03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */,
 				03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */,
 			);
@@ -468,6 +521,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				03B07D821D089495007B4758 /* PBXTargetDependency */,
 			);
 			name = "SentrySwift-OSX";
 			productName = RavenSwift;
@@ -574,6 +628,10 @@
 					ProjectRef = 03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */;
 				},
 				{
+					ProductGroup = 03B07D701D0892E2007B4758 /* Products */;
+					ProjectRef = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
+				},
+				{
 					ProductGroup = 03C714E11CE4D2090080AE60 /* Products */;
 					ProjectRef = 03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */;
 				},
@@ -617,6 +675,27 @@
 			fileType = wrapper.framework;
 			path = KSCrash.framework;
 			remoteRef = 03193C9E1CD78DF600E8AB83 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		03B07D791D0892E3007B4758 /* KSCrash.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KSCrash.framework;
+			remoteRef = 03B07D781D0892E3007B4758 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		03B07D7B1D0892E3007B4758 /* KSCrashTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = KSCrashTests.xctest;
+			remoteRef = 03B07D7A1D0892E3007B4758 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		03B07D7D1D0892E3007B4758 /* libKSCrashLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libKSCrashLib.a;
+			remoteRef = 03B07D7C1D0892E3007B4758 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		03C714E51CE4D20A0080AE60 /* KSCrash.framework */ = {
@@ -728,6 +807,7 @@
 				033A342C1C60693400BED5AE /* User.swift in Sources */,
 				9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				036378321C227C7900644C01 /* Event.swift in Sources */,
+				03B07DC31D089B23007B4758 /* KSCrashHandler.swift in Sources */,
 				0303BC3F1C29FC3F003E7B16 /* EventSerializable.swift in Sources */,
 				0370617F1C75446B0082CCCE /* AppleCrashReport.swift in Sources */,
 				033A34291C605B7E00BED5AE /* EventProperties.swift in Sources */,
@@ -786,6 +866,11 @@
 			name = KSCrash;
 			targetProxy = 03193CA01CD78E2100E8AB83 /* PBXContainerItemProxy */;
 		};
+		03B07D821D089495007B4758 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KSCrash;
+			targetProxy = 03B07D811D089495007B4758 /* PBXContainerItemProxy */;
+		};
 		03C715181CE4DB540080AE60 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 03C7150B1CE4DB540080AE60 /* SentrySwift-tvOS */;
@@ -824,6 +909,7 @@
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
@@ -844,6 +930,7 @@
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				VALIDATE_PRODUCT = YES;
