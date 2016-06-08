@@ -8,7 +8,9 @@
 
 import Foundation
 
+internal typealias GeneratedEvent = (event: Event) -> ()
+
 internal protocol CrashHandler: EventProperties {
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType? { get set }
-	func startCrashReporting(createdEvent: (generatedEvent: Event) -> ())
+	func startCrashReporting(generatedEvent: GeneratedEvent)
 }
