@@ -62,6 +62,9 @@ import Foundation
 
 	// MARK: EventProperties
 
+	public var releaseVersion: String? {
+		didSet { crashHandler?.releaseVersion = releaseVersion }
+	}
 	public var tags: EventTags = [:] {
 		didSet { crashHandler?.tags = tags }
 	}
@@ -113,6 +116,7 @@ import Foundation
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
 			event.user = event.user ?? user
+			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
 			if NSJSONSerialization.isValidJSONObject(tags) {
 				event.tags.unionInPlace(tags)

@@ -12,6 +12,7 @@ import Foundation
 internal protocol EventProperties {
 
 	// MARK: - Attributes
+	var releaseVersion: String? { get set }
 	var tags: EventTags { get set }
 	var extra: EventExtra { get set }
 	
