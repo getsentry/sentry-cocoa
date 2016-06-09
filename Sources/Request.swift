@@ -8,6 +8,8 @@
 
 import Foundation
 
+import KSCrash.NSData_GZip
+
 extension SentryClient {
 	
 	internal typealias EventFinishedSending = (success: Bool) -> ()
@@ -36,15 +38,21 @@ extension SentryClient {
 			SentryLog.Debug.log("body = \(body)")
 		}
 		
-		// Creating the request
+		// Creating the request and attempting to gzip
 		let request: NSMutableURLRequest = NSMutableURLRequest(URL: dsn.serverURL)
 		request.HTTPMethod = "POST"
-		request.HTTPBody = data
+		do {
+			request.HTTPBody = try data.gzippedWithCompressionLevel(-1)
+		} catch {
+			SentryLog.Error.log("Failed to gzip request data = \(error)")
+			request.HTTPBody = data
+		}
 		
 		// Setting the headers
 		let sentryHeader = dsn.xSentryAuthHeader
 		request.setValue(sentryHeader.value, forHTTPHeaderField: sentryHeader.key)
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
 		
 		// Creating data task
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()

@@ -9,6 +9,9 @@
 import Foundation
 
 internal protocol CrashHandler: EventProperties {
+	
+	init(client: SentryClient)
+	
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType? { get set }
-	func startCrashReporting(createdEvent: (generatedEvent: Event) -> ())
+	func startCrashReporting()
 }

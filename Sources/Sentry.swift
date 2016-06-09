@@ -37,7 +37,7 @@ import Foundation
 	// MARK: - Enums
 
 	internal struct Info {
-		static let version: String = "0.2.2"
+		static let version: String = "0.3.0"
 		static let sentryVersion: Int = 7
 	}
 
@@ -47,9 +47,7 @@ import Foundation
 	internal let dsn: DSN
 	internal(set) var crashHandler: CrashHandler? {
 		didSet {
-			crashHandler?.startCrashReporting { (event) -> () in
-				self.captureEvent(event, useClientProperties: false)
-			}
+			crashHandler?.startCrashReporting()
 		}
 	}
 	
@@ -110,7 +108,7 @@ import Foundation
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	private func captureEvent(event: Event, useClientProperties: Bool = true) {
+	internal func captureEvent(event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
 
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
@@ -131,6 +129,7 @@ import Foundation
 		}
 		
 		sendEvent(event) { [weak self] success in
+			completed?(success: success)
 			guard !success else { return }
 			self?.saveEvent(event)
 		}

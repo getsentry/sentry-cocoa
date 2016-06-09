@@ -1,22 +1,22 @@
 //
 //  ViewController.swift
-//  SwiftTVOSExample
+//  MacExample
 //
-//  Created by Josh Holtz on 5/12/16.
+//  Created by Josh Holtz on 6/9/16.
 //  Copyright © 2016 RokkinCat. All rights reserved.
 //
 
-import UIKit
+import Cocoa
 
 import SentrySwift
 
-class ViewController: UIViewController {
+class ViewController: NSViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		// Step 1.5: Set logging level to your liking
-		SentryClient.logLevel = .Error
+		SentryClient.logLevel = .Debug
 		
 		// Step 2: Initialize a SentryClient with your DSN
 		// The DSN is in your Sentry project's settings
@@ -49,12 +49,7 @@ class ViewController: UIViewController {
 		// Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
 	}
-
-	override func didReceiveMemoryWarning() {
-		super.didReceiveMemoryWarning()
-		// Dispose of any resources that can be recreated.
-	}
-
+	
 	@IBAction func onClickBreak(sender: AnyObject) {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		
@@ -75,7 +70,7 @@ class ViewController: UIViewController {
 	@IBAction func onClickComplexMessage(sender: AnyObject) {
 		// Send a customly built event
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", url: "www.hammockdesk.com", method: "GET"))
-		let event = Event.build("Another example 3") {
+		let event = Event.build("Another example 4") {
 			$0.level = .Debug
 			$0.tags = ["status": "test"]
 			$0.extra = [
