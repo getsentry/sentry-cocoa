@@ -60,7 +60,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'SentrySwift', :git => 'git@github.com:getsentry/sentry-swift.git', :tag => '0.2.2'
+pod 'SentrySwift'
 ```
 
 Then, run the following command:
@@ -83,7 +83,7 @@ $ brew install carthage
 To integrate SentrySwift into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "getsentry/sentry-swift" ~> 0.2
+github "getsentry/sentry-swift"
 ```
 
 Run `carthage update` to build the framework and drag the built `SentrySwift.framework` and `KSCrash.framework` into your Xcode project.

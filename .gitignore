@@ -44,5 +44,6 @@ Carthage/Checkouts
 **/Pods
 
 # Fastlane
+fastlane/test_output/
 report.xml
 .env

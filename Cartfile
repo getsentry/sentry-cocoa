@@ -1,2 +1,2 @@
 # Using KSCrash commit that fixes all platforms (this should be 1.5.8 eventually)
-github "kstenerud/KSCrash" ~> 1.5
+github "kstenerud/KSCrash" ~> 1.5.11

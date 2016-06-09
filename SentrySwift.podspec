@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
 
   s.source_files = "Sources/**/*.{h,m,swift}"
 
-  s.dependency 'KSCrash', '~> 1.5.10'
+  s.dependency 'KSCrash', '~> 1.5.11'
 
 end
