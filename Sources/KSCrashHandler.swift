@@ -11,7 +11,7 @@ import Foundation
 
 extension SentryClient {
 	public func startCrashHandler() {
-		crashHandler = KSCrashHandler()
+		crashHandler = KSCrashHandler(client: self)
 	}
 }
 
@@ -28,7 +28,10 @@ internal class KSCrashHandler: CrashHandler {
 
 	// MARK: - Attributes
 
-	private var installation: KSCrashSentryInstallation?
+	private var installation: KSCrashSentryInstallation
+	
+	private var lock = NSObject()
+	private var isInstalled = false
 
 	// MARK: - EventProperties
 
@@ -42,6 +45,9 @@ internal class KSCrashHandler: CrashHandler {
 		didSet { updateUserInfo() }
 	}
 
+	required init(client: SentryClient) {
+		installation = KSCrashSentryInstallation(client: client)
+	}
 
 	// MARK: - CrashHandler
 
@@ -53,18 +59,20 @@ internal class KSCrashHandler: CrashHandler {
 	Starts the crash reporting and sends any previously saved crash reports
 	- Parameter createdEvent: A closure that passes in a created event
 	*/
-	internal func startCrashReporting(generatedEvent: GeneratedEvent) {
-		
-		if installation != nil { return }
-		installation = KSCrashSentryInstallation(generatedEvent: generatedEvent)
+	internal func startCrashReporting() {
+		// Sychrnoizes this function
+		objc_sync_enter(lock)
+		defer { objc_sync_exit(lock) }
 
-		// Temporarily sets introspect to false due to KSCrash bug
-		// -> https://github.com/kstenerud/KSCrash/issues/110
-		KSCrash.sharedInstance().introspectMemory = false
-		installation?.install()
+		// Return out if already installed
+		if isInstalled { return }
+		isInstalled = true
+		
+		// Install
+		installation.install()
 
 		// Maps KSCrash reports in `Events`
-		installation?.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
+		installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
 			SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
 		}
 	}
@@ -90,43 +98,61 @@ internal class KSCrashHandler: CrashHandler {
 
 }
 
-class KSCrashSentryInstallation: KSCrashInstallation {
+private class KSCrashSentryInstallation: KSCrashInstallation {
 	
-	private let generatedEvent: GeneratedEvent
+	private let client: SentryClient
 	
-	init(generatedEvent: GeneratedEvent) {
-		self.generatedEvent = generatedEvent
+	init(client: SentryClient) {
+		self.client = client
 		super.init(requiredProperties: [])
 	}
 	
 	override func sink() -> KSCrashReportFilter! {
-		return KSCrashReportSinkSentry(generatedEvent: generatedEvent)
+		return KSCrashReportSinkSentry(client: client)
 	}
 	
 }
 
-class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
+private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 	
-	private let generatedEvent: GeneratedEvent
+	private let client: SentryClient
 	
-	init(generatedEvent: GeneratedEvent) {
-		self.generatedEvent = generatedEvent
+	init(client: SentryClient) {
+		self.client = client
 		super.init()
 	}
 	
-	func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
+	@objc func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
-		let events = reports?
+		var events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.map({mapReportToEvent($0)})
+			.map({mapReportToEvent($0)}) ?? []
 		
 		// Propigating this generated event up so the SentryClient object can send it off
-		for event in events ?? [] {
-			generatedEvent(event: event)
+		let event = events.popLast()
+		
+		guard let _ = event else {
+			onCompletion(reports, true, nil)
+			return
 		}
 		
-		onCompletion?(reports, true, nil)
+		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+	}
+	
+	private func sendEvent(reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
+		var events = allEvents
+		
+		// Complete when no more
+		guard let event = events.popLast() else {
+			onCompletion(reports, success, nil)
+			return
+		}
+		
+		// Send event
+		client.captureEvent(event, useClientProperties: true) { [weak self] eventSuccess in
+			self?.sendEvent(reports, events: events, success: success && eventSuccess, onCompletion: onCompletion)
+		}
 	}
 	
 	private func mapReportToEvent(report: CrashDictionary) -> Event {

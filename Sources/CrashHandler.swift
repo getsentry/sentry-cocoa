@@ -8,9 +8,10 @@
 
 import Foundation
 
-internal typealias GeneratedEvent = (event: Event) -> ()
-
 internal protocol CrashHandler: EventProperties {
+	
+	init(client: SentryClient)
+	
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType? { get set }
-	func startCrashReporting(generatedEvent: GeneratedEvent)
+	func startCrashReporting()
 }
