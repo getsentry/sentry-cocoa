@@ -125,18 +125,11 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 	@objc func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
-		var events: [Event] = reports?
+		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
 			.map({mapReportToEvent($0)}) ?? []
 		
-		// Propigating this generated event up so the SentryClient object can send it off
-		let event = events.popLast()
-		
-		guard let _ = event else {
-			onCompletion(reports, true, nil)
-			return
-		}
-		
+		// Sends events recursively
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
 	}
 	
