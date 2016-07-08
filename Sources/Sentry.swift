@@ -79,6 +79,7 @@ import Foundation
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {
 		self.dsn = dsn
+		self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
 		super.init()
 		sendEventsOnDisk()
 	}
