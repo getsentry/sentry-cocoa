@@ -37,7 +37,7 @@ import Foundation
 	// MARK: - Enums
 
 	internal struct Info {
-		static let version: String = "0.3.0"
+		static let version: String = "0.3.1"
 		static let sentryVersion: Int = 7
 	}
 
