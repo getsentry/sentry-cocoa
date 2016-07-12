@@ -133,39 +133,6 @@ extension Event: EventSerializable {
 			"version": SentryClient.Info.version
 		]
 	}
-	
-	var device: [String: String]? {
-		guard let os = os, version = version else {
-			return nil
-		}
-		
-		return [
-			"name": os,
-			"version": version
-		]
-	}
-	
-	var os: String? {
-		#if os(iOS)
-			return "iOS"
-		#elseif os(tvOS)
-			return "tvOS"
-		#elseif os(OSX)
-			return "macOS"
-		#else
-			return nil
-		#endif
-	}
-	
-	var version: String? {
-		#if os(iOS) || os(tvOS)
-			return UIDevice.currentDevice().systemVersion
-		#elseif os(OSX)
-			return NSProcessInfo.processInfo().operatingSystemVersionString
-		#else
-			return nil
-		#endif
-	}
 
 	/// Dictionary version of attributes set in event
 	internal var serialized: SerializedType {
@@ -181,7 +148,7 @@ extension Event: EventSerializable {
 			
 			// Computed
 			("sdk", sdk),
-			("device", device),
+			("context", Context().serialized),
 
 			// Optional
 			("logger", logger),
