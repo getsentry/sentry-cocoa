@@ -211,9 +211,9 @@ class SentrySwiftTests: XCTestCase {
 		#if os(iOS)
 			assert((context["os"] as! [String: AnyObject])["name"] as! String == "iOS")
 		#elseif os(tvOS)
-			assert(context["os"]["name"] == "tvOS")
+			assert((context["os"] as! [String: AnyObject])["name"] as! String == "tvOS")
 		#elseif os(OSX)
-			assert(context["os"]["name"] == "macOS")
+			assert((context["os"] as! [String: AnyObject])["name"] as! String == "macOS")
 		#endif
 	}
 	
