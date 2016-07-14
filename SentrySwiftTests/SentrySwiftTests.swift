@@ -204,16 +204,16 @@ class SentrySwiftTests: XCTestCase {
 		assert(sdk["version"] == SentryClient.Info.version)
 		
 		// Device
-		let device = serialized["device"] as! [String: String]
-		assert(device["name"] != nil)
-		assert(device["version"] != nil)
+		let context = serialized["context"] as! [String: AnyObject]
+		assert(context["os"] != nil)
+		assert(context["device"] != nil)
 		
 		#if os(iOS)
-			assert(device["name"] == "iOS")
+			assert((context["os"] as! [String: AnyObject])["name"] as! String == "iOS")
 		#elseif os(tvOS)
-			assert(device["name"] == "tvOS")
+			assert(context["os"]["name"] == "tvOS")
 		#elseif os(OSX)
-			assert(device["name"] == "macOS")
+			assert(context["os"]["name"] == "macOS")
 		#endif
 	}
 	

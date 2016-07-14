@@ -34,7 +34,15 @@ private class OSContext: NSObject {
 	var info = KSSystemInfo.systemInfo()
 	
 	var name: String? {
-		return info?[KSSystemField_OSVersion] as? String
+		#if os(iOS)
+			return "iOS"
+		#elseif os(tvOS)
+			return "tvOS"
+		#elseif os(OSX)
+			return "macOS"
+		#else
+			return nil
+		#endif
 	}
 	
 	var version: String? {
