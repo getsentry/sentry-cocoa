@@ -29,6 +29,9 @@
 		036378331C227C7900644C01 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036378311C227C7900644C01 /* Event.swift */; };
 		0370617F1C75446B0082CCCE /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
 		037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
+		03817D7E1D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
+		03817D7F1D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
+		03817D801D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
 		03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
 		03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
 		03B07D5E1D087D2F007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5D1D087D2F007B4758 /* libz.tbd */; };
@@ -210,6 +213,7 @@
 		0363782B1C225D8300644C01 /* Sentry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sentry.swift; sourceTree = "<group>"; };
 		036378311C227C7900644C01 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0370617E1C75446B0082CCCE /* AppleCrashReport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleCrashReport.swift; sourceTree = "<group>"; };
+		03817D7D1D301E1D005A674A /* Context.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
 		03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreadcrumbStore.swift; sourceTree = "<group>"; };
 		03B07D5D1D087D2F007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		03B07D5F1D087D35007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -361,6 +365,7 @@
 				9B02CAFD1CF607A5004F614C /* Exception.swift */,
 				033A342B1C60693400BED5AE /* User.swift */,
 				03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */,
+				03817D7D1D301E1D005A674A /* Context.swift */,
 			);
 			name = Interfaces;
 			sourceTree = "<group>";
@@ -782,6 +787,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03817D801D301E1D005A674A /* Context.swift in Sources */,
 				03C7152B1CE4DB940080AE60 /* AppleCrashReport.swift in Sources */,
 				03C7152C1CE4DB940080AE60 /* Breadcrumb.swift in Sources */,
 				9B02CAB91CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
@@ -819,6 +825,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03817D7E1D301E1D005A674A /* Context.swift in Sources */,
 				03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				03CFCEC31C612F5300999EB7 /* CrashHandler.swift in Sources */,
 				8092F8E51CF2499600634F3F /* Sentry+Error.swift in Sources */,
@@ -856,6 +863,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03817D7F1D301E1D005A674A /* Context.swift in Sources */,
 				03C736E21C474715004428DF /* CrashHandler.swift in Sources */,
 				037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */,
 				9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
