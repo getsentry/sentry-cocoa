@@ -22,6 +22,12 @@ import Foundation
 
         super.init()
     }
+
+    public override func isEqual(object: AnyObject?) -> Bool {
+        let lhs = self
+        guard let rhs = object as? Exception else { return false }
+        return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
+    }
 }
 
 extension Exception: EventSerializable {

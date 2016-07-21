@@ -65,6 +65,9 @@ public typealias EventFingerprint = [String]
 	public var appleCrashReport: AppleCrashReport?
 	internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
 
+    // for internal use for now, must be convertible using NSJSONSerialization
+    var stackTrace: [String: AnyObject]?
+	
 	/*
 	Creates an event
 	- Parameter message: A message
@@ -194,7 +197,8 @@ extension Event: EventSerializable {
 			("user", user?.serialized),
 			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
-			("breadcrumbs", breadcrumbsSerialized)
+			("breadcrumbs", breadcrumbsSerialized),
+			("stacktrace", stackTrace),
 		]
 
 		var ret: [String: AnyObject] = [:]
