@@ -26,6 +26,10 @@ import Foundation
 	}
 }
 
+internal enum SentryError: ErrorType {
+	case InvalidDSN
+}
+
 @objc public class SentryClient: NSObject, EventProperties {
 
 	// MARK: - Static Attributes
@@ -86,10 +90,24 @@ import Foundation
 	
 	/// Creates a Sentry object iff a valid DSN is provided
 	@objc public convenience init?(dsnString: String) {
-		guard let dsn = DSN(dsnString) else {
+		// Silently not creating a client if dsnString is empty string
+		if dsnString.isEmpty {
+			SentryLog.Debug.log("DSN provided was empty - not creating a SentryClient object")
 			return nil
 		}
-		self.init(dsn: dsn)
+		
+		// Try to create a client with a DSN string
+		// Log error if cannot make one
+		do {
+			let dsn = try DSN(dsnString)
+			self.init(dsn: dsn)
+		} catch SentryError.InvalidDSN {
+			SentryLog.Error.log("DSN is invalid")
+			return nil
+		} catch {
+			SentryLog.Error.log("DSN is invalid")
+			return nil
+		}
 	}
 	
 	/*
