@@ -42,47 +42,59 @@ class SentrySwiftTests: XCTestCase {
 	func testSecretDSN() {
 		let dsnString = "https://username:password@app.getsentry.com/12345"
 		
-		guard let dsn = DSN(dsnString) else {
+		do {
+			let dsn = try DSN(dsnString)
+			
+			assert(dsn.publicKey == "username")
+			assert(dsn.secretKey == "password")
+			assert(dsn.projectID == "12345")
+			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+		} catch {
 			assertionFailure("DSN is nil")
-			return
 		}
-		assert(dsn.publicKey == "username")
-		assert(dsn.secretKey == "password")
-		assert(dsn.projectID == "12345")
-		assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
 	}
 	
 	func testPublicDSN() {
 		let dsnString = "https://username@app.getsentry.com/12345"
 		
-		guard let dsn = DSN(dsnString) else {
+		do {
+			let dsn = try DSN(dsnString)
+			
+			assert(dsn.publicKey == "username")
+			assert(dsn.secretKey == nil)
+			assert(dsn.projectID == "12345")
+			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+		} catch {
 			assertionFailure("DSN is nil")
-			return
 		}
-		assert(dsn.publicKey == "username")
-		assert(dsn.secretKey == nil)
-		assert(dsn.projectID == "12345")
-		assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+		
 	}
 	
 	func testNoneDSN() {
 		let dsnString = "https://app.getsentry.com/12345"
 		
-		guard let dsn = DSN(dsnString) else {
+		do {
+			let dsn = try DSN(dsnString)
+			
+			assert(dsn.publicKey == nil)
+			assert(dsn.secretKey == nil)
+			assert(dsn.projectID == "12345")
+			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+		} catch {
 			assertionFailure("DSN is nil")
-			return
 		}
-		assert(dsn.publicKey == nil)
-		assert(dsn.secretKey == nil)
-		assert(dsn.projectID == "12345")
-		assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
 	}
 	
 	func testBadDSN() {
 		let dsnString = "https://app.getsentry.com"
-		let dsn = DSN(dsnString)
 		
-		assert(dsn == nil)
+		do {
+			let _ = try DSN(dsnString)
+			
+			assertionFailure("DSN should not have been created")
+		} catch {
+			
+		}
 	}
 	
 	// MARK: XSentryAuthHeader
@@ -90,7 +102,7 @@ class SentrySwiftTests: XCTestCase {
 	func testXSentryAuthHeader()  {
 		let dsnString = "https://username:password@app.getsentry.com/12345"
 
-		guard let dsn = DSN(dsnString) else {
+		guard let dsn = try? DSN(dsnString) else {
 			assertionFailure("DSN is nil")
 			return
 		}

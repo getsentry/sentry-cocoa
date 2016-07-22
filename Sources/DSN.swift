@@ -28,7 +28,7 @@ internal class DSN: NSObject {
 	}
 
 	/// Creates DSN object from a valid DSN string
-	internal convenience init?(_ dsnString: String) {
+	internal convenience init(_ dsnString: String) throws {
 		var dsn: NSURL?
 		var serverURL: NSURL?
 		var publicKey: String?
@@ -56,7 +56,7 @@ internal class DSN: NSObject {
 		}
 
 		guard let theDsn = dsn, theServerURL = serverURL, theProjectID = projectID else {
-			return nil
+			throw SentryError.InvalidDSN
 		}
 		self.init(dsn: theDsn, serverURL: theServerURL, publicKey: publicKey, secretKey: secretKey, projectID: theProjectID)
 	}
