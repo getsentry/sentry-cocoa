@@ -49,7 +49,9 @@ extension SentryClient {
 					})
 				}
 		} catch let error as NSError {
-			SentryLog.Error.log(error.localizedDescription)
+			// Debug logging this error since its purely informational
+			// This folder doesn't need to exist
+			SentryLog.Debug.log(error.localizedDescription)
 		}
 		
 		return []
