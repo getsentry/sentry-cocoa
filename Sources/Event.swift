@@ -62,11 +62,9 @@ public typealias EventFingerprint = [String]
 
 	public var user: User?
 	public var exception: [Exception]?
+	public var stacktrace: Stacktrace?
 	public var appleCrashReport: AppleCrashReport?
 	internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
-
-    // for internal use for now, must be convertible using NSJSONSerialization
-    var stackTrace: [String: AnyObject]?
 	
 	/*
 	Creates an event
@@ -95,9 +93,10 @@ public typealias EventFingerprint = [String]
 	- Parameter fingerprint: A array of fingerprints
 	- Parameter user: A user object
 	- Parameter exception: An array of `Exception` objects
+	- Parameter stacktrace: An array of `Stacktrace` objects
 	- Parameter appleCrashReport: An apple crash report
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, stacktrace: Stacktrace? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -117,6 +116,7 @@ public typealias EventFingerprint = [String]
 		// Optional Interfaces
 		self.user = user
 		self.exception = exception
+		self.stacktrace = stacktrace
 		self.appleCrashReport = appleCrashReport
 
 		super.init()
@@ -165,7 +165,7 @@ extension Event: EventSerializable {
 			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
-			("stacktrace", stackTrace),
+			("stacktrace", stacktrace),
 		]
 
 		var ret: [String: AnyObject] = [:]

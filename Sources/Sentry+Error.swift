@@ -48,29 +48,30 @@ private func cleanDict(d: [String: AnyObject]) -> [String: AnyObject] {
     return ret
 }
 
-extension SentryClient {
+extension Event {
 
     // broken out into a separate function for testability
-    func eventFor(error error: NSError, location: SourceLocation) -> Event {
-        let message = "\(error.domain).\(error.code) in \(location.culprit)"
+    internal convenience init(error: NSError, frame: Frame) {
+        let message = "\(error.domain).\(error.code) in \(frame.culprit)"
 
-        let event = Event(message, level: .Error)
-        event.mergeSourceLocation(location)
+        self.init(message, level: .Error)
+        stacktrace = Stacktrace(frames: [frame])
+		culprit = frame.culprit
 
         if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyObject] {
-            event.extra = ["user_info": cleanedUserInfo]
+            extra = ["user_info": cleanedUserInfo]
         } else {
             SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
 
-        event.exception = [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")]
-
-        return event
+        exception = [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")]
     }
+}
 
+extension SentryClient {
     public func captureError(error: NSError, file: String = #file, line: Int = #line, function: String = #function) {
-        let loc = SourceLocation(file: file, line: line, function: function)
-        let event = eventFor(error: error, location: loc)
+		let frame = Frame(file: file, function: function, module: nil, line: line)
+		let event = Event(error: error, frame: frame)
         captureEvent(event)
     }
 }

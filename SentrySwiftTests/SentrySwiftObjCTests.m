@@ -78,6 +78,7 @@
 						   fingerprint:fingerprint
 								  user:nil
 							 exception: @[exc]
+							stacktrace: nil
 					  appleCrashReport:nil];
 	
 	XCTAssertEqual(event.eventID.length, 32);
