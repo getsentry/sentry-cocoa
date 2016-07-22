@@ -24,7 +24,7 @@ class SentrySwiftTests: XCTestCase {
 	
 	func testSharedClient() {
 		SentryClient.shared = client
-		assert(SentryClient.shared != nil)
+		XCTAssertNotNil(SentryClient.shared)
 	}
 	
 	// MARK: Helpers
@@ -33,8 +33,8 @@ class SentrySwiftTests: XCTestCase {
 		let dateString = "2011-05-02T17:41:36"
 		
 		let date = NSDate.fromISO8601(dateString)
-		assert(date != nil)
-		assert(date?.iso8601 == dateString)
+		XCTAssertNotNil(date)
+		XCTAssertEqual(date?.iso8601, dateString)
 	}
 	
 	// MARK: DSN
@@ -45,12 +45,12 @@ class SentrySwiftTests: XCTestCase {
 		do {
 			let dsn = try DSN(dsnString)
 			
-			assert(dsn.publicKey == "username")
-			assert(dsn.secretKey == "password")
-			assert(dsn.projectID == "12345")
-			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.publicKey, "username")
+			XCTAssertEqual(dsn.secretKey, "password")
+			XCTAssertEqual(dsn.projectID, "12345")
+			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
 		} catch {
-			assertionFailure("DSN is nil")
+			XCTFail("DSN is nil")
 		}
 	}
 	
@@ -60,12 +60,12 @@ class SentrySwiftTests: XCTestCase {
 		do {
 			let dsn = try DSN(dsnString)
 			
-			assert(dsn.publicKey == "username")
-			assert(dsn.secretKey == nil)
-			assert(dsn.projectID == "12345")
-			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.publicKey, "username")
+			XCTAssertEqual(dsn.secretKey, nil)
+			XCTAssertEqual(dsn.projectID, "12345")
+			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
 		} catch {
-			assertionFailure("DSN is nil")
+			XCTFail("DSN is nil")
 		}
 		
 	}
@@ -76,12 +76,12 @@ class SentrySwiftTests: XCTestCase {
 		do {
 			let dsn = try DSN(dsnString)
 			
-			assert(dsn.publicKey == nil)
-			assert(dsn.secretKey == nil)
-			assert(dsn.projectID == "12345")
-			assert(dsn.serverURL.absoluteString == "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.publicKey, nil)
+			XCTAssertEqual(dsn.secretKey, nil)
+			XCTAssertEqual(dsn.projectID, "12345")
+			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
 		} catch {
-			assertionFailure("DSN is nil")
+			XCTFail("DSN is nil")
 		}
 	}
 	
@@ -91,7 +91,7 @@ class SentrySwiftTests: XCTestCase {
 		do {
 			let _ = try DSN(dsnString)
 			
-			assertionFailure("DSN should not have been created")
+			XCTFail("DSN should not have been created")
 		} catch {
 			
 		}
@@ -103,27 +103,27 @@ class SentrySwiftTests: XCTestCase {
 		let dsnString = "https://username:password@app.getsentry.com/12345"
 
 		guard let dsn = try? DSN(dsnString) else {
-			assertionFailure("DSN is nil")
+			XCTFail("DSN is nil")
 			return
 		}
 		
 		let header = dsn.xSentryAuthHeader
-		assert(header.key == "X-Sentry-Auth")
-		assert(header.value.rangeOfString("Sentry ") != nil)
-		assert(header.value.rangeOfString("sentry_version=\(SentryClient.Info.sentryVersion)") != nil)
-		assert(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryClient.Info.version)") != nil)
-		assert(header.value.rangeOfString("sentry_timestamp=") != nil)
+		XCTAssertEqual(header.key, "X-Sentry-Auth")
+		XCTAssertNotNil(header.value.rangeOfString("Sentry "))
+		XCTAssertNotNil(header.value.rangeOfString("sentry_version=\(SentryClient.Info.sentryVersion)"))
+		XCTAssertNotNil(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryClient.Info.version)"))
+		XCTAssertNotNil(header.value.rangeOfString("sentry_timestamp="))
 		
 		if let key = dsn.publicKey {
-			assert(header.value.rangeOfString("sentry_key=\(key)") != nil)
+			XCTAssertNotNil(header.value.rangeOfString("sentry_key=\(key)"))
 		} else {
-			assert(header.value.rangeOfString("sentry_key=") == nil)
+			XCTAssertNil(header.value.rangeOfString("sentry_key=") == nil)
 		}
 		
 		if let key = dsn.secretKey {
-			assert(header.value.rangeOfString("sentry_secret=\(key)") != nil)
+			XCTAssertNotNil(header.value.rangeOfString("sentry_secret=\(key)"))
 		} else {
-			assert(header.value.rangeOfString("sentry_secret=") == nil)
+			XCTAssertNil(header.value.rangeOfString("sentry_secret="))
 		}
 	}
 	
@@ -134,10 +134,10 @@ class SentrySwiftTests: XCTestCase {
 		
 		let event = Event(message)
 		
-		assert(event.eventID.characters.count == 32)
-		assert(event.message == message)
-		assert(event.level == .Error)
-		assert(event.platform == "cocoa")
+		XCTAssertEqual(event.eventID.characters.count, 32)
+		XCTAssertEqual(event.message, message)
+		XCTAssert(event.level == .Error)
+		XCTAssertEqual(event.platform, "cocoa")
 	}
 
 	func testEventWithOptionals() {
@@ -146,7 +146,7 @@ class SentrySwiftTests: XCTestCase {
 		// Required
 		let message = "Enjoy this library"
 		guard let timestamp = NSDate.fromISO8601(dateString) else {
-			assertionFailure("timestamp should not be nil")
+			XCTFail("timestamp should not be nil")
 			return
 		}
 		let level = SentrySeverity.Info
@@ -167,21 +167,21 @@ class SentrySwiftTests: XCTestCase {
 		event.platform = platform
 		
 		// Required
-		assert(event.eventID.characters.count == 32)
-		assert(event.message == message)
-		assert(event.timestamp == timestamp)
-		assert(event.level == level)
-		assert(event.platform == platform)
+		XCTAssertEqual(event.eventID.characters.count, 32)
+		XCTAssertEqual(event.message, message)
+		XCTAssertEqual(event.timestamp, timestamp)
+		XCTAssertEqual(event.level, level)
+		XCTAssertEqual(event.platform, platform)
 		
 		// Optional
-		assert(event.logger == logger)
-		assert(event.culprit == culprit)
-		assert(event.serverName == serverName)
-		assert(event.releaseVersion == release)
-		assert(event.exception! == [exception])
-		assert(event.tags == tags)
-		assert(event.modules! == modules)
-		assert(event.extra == extra)
+		XCTAssertEqual(event.logger, logger)
+		XCTAssertEqual(event.culprit, culprit)
+		XCTAssertEqual(event.serverName, serverName)
+		XCTAssertEqual(event.releaseVersion, release)
+		XCTAssertEqual(event.exception!, [exception])
+		XCTAssertEqual(event.tags, tags)
+		XCTAssertEqual(event.modules!, modules)
+		XCTAssert(event.extra == extra)
 	}
 	
 	func testEventBuilder() {
@@ -190,9 +190,9 @@ class SentrySwiftTests: XCTestCase {
 			$0.tags = ["doot": "doot"]
 		})
 		
-		assert(event.message == "A bad thing happened")
-		assert(event.tags == ["doot": "doot"])
-		assert(event.level == .Warning)
+		XCTAssertEqual(event.message, "A bad thing happened")
+		XCTAssertEqual(event.tags, ["doot": "doot"])
+		XCTAssert(event.level == .Warning)
 	}
 	
 	// MARK: EventSerializable
@@ -204,28 +204,28 @@ class SentrySwiftTests: XCTestCase {
 		let serialized = event.serialized
 		
 		// TODO: Find a less fugly way to test this
-		assert((serialized["event_id"] as! String).characters.count == 32)
-		assert(serialized["message"] as! String == message)
-		assert(serialized["timestamp"] as? String != nil)
-		assert(serialized["level"] as! String == "error")
-		assert(serialized["platform"] as! String == "cocoa")
+		XCTAssertEqual((serialized["event_id"] as! String).characters.count, 32)
+		XCTAssertEqual(serialized["message"] as? String, message)
+		XCTAssertNotNil(serialized["timestamp"] as? String)
+		XCTAssertEqual(serialized["level"] as? String, "error")
+		XCTAssertEqual(serialized["platform"] as? String, "cocoa")
 		
 		// SDK
 		let sdk = serialized["sdk"] as! [String: String]
-		assert(sdk["name"] == "sentry-swift")
-		assert(sdk["version"] == SentryClient.Info.version)
+		XCTAssertEqual(sdk["name"], "sentry-swift")
+		XCTAssertEqual(sdk["version"], SentryClient.Info.version)
 		
 		// Device
 		let context = serialized["context"] as! [String: AnyObject]
-		assert(context["os"] != nil)
-		assert(context["device"] != nil)
+		XCTAssertNotNil(context["os"])
+		XCTAssertNotNil(context["device"])
 		
 		#if os(iOS)
-			assert((context["os"] as! [String: AnyObject])["name"] as! String == "iOS")
+			XCTAssertEqual((context["os"] as! [String: AnyObject])["name"] as? String, "iOS")
 		#elseif os(tvOS)
-			assert((context["os"] as! [String: AnyObject])["name"] as! String == "tvOS")
+			XCTAssertEqual((context["os"] as! [String: AnyObject])["name"] as? String, "tvOS")
 		#elseif os(OSX)
-			assert((context["os"] as! [String: AnyObject])["name"] as! String == "macOS")
+			XCTAssertEqual((context["os"] as! [String: AnyObject])["name"] as? String, "macOS")
 		#endif
 	}
 	
@@ -257,20 +257,20 @@ class SentrySwiftTests: XCTestCase {
 		
 		// TODO: Find a less fugly way to test this
 		// Required
-		assert((serialized["event_id"] as! String).characters.count == 32)
-		assert(serialized["message"] as! String == message)
-		assert(serialized["timestamp"] as! String == dateString)
-		assert(serialized["level"] as! String == level.description)
-		assert(serialized["platform"] as! String == platform)
+		XCTAssertEqual((serialized["event_id"] as! String).characters.count, 32)
+		XCTAssertEqual(serialized["message"] as? String, message)
+		XCTAssertEqual(serialized["timestamp"] as? String, dateString)
+		XCTAssertEqual(serialized["level"] as? String, level.description)
+		XCTAssertEqual(serialized["platform"] as? String, platform)
 		
 		// Optional
-		assert(serialized["logger"] as! String == logger)
-		assert(serialized["culprit"] as! String == culprit)
-		assert(serialized["server_name"] as! String == serverName)
-		assert(serialized["tags"] as! EventTags == tags)
-		assert(serialized["modules"] as! EventModules == modules)
-		assert(serialized["extra"] as! EventExtra == extra)
-		assert(serialized["fingerprint"] as! EventFingerprint == fingerprint)
+		XCTAssertEqual(serialized["logger"] as? String, logger)
+		XCTAssertEqual(serialized["culprit"] as? String, culprit)
+		XCTAssertEqual(serialized["server_name"] as? String, serverName)
+		XCTAssertEqual(serialized["tags"] as! EventTags, tags)
+		XCTAssertEqual(serialized["modules"] as! EventModules, modules)
+		XCTAssert(serialized["extra"] as! EventExtra == extra)
+		XCTAssertEqual(serialized["fingerprint"] as! EventFingerprint, fingerprint)
 	}
 	
 	// MARK: EventProperties
@@ -289,7 +289,7 @@ class SentrySwiftTests: XCTestCase {
 		client.user = User(id: "3", email: "things@example.com", username: "things")
 		
 		// Create event
-		var event = Event("Lalalala")
+		let event = Event("Lalalala")
 		event.tags = [
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
@@ -301,36 +301,36 @@ class SentrySwiftTests: XCTestCase {
 		event.user = User(id: "4", email: "stuff@example.com", username: "stuff")
 		
 		// Test before merge
-		assert(event.tags == [
+		XCTAssertEqual(event.tags, [
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
 			])
-		assert(event.extra == [
+		XCTAssert(event.extra == [
 			"extra_event": "value_event",
 			"extra_client_event": "event_wins"
 			])
-		assert(event.user!.userID == "4")
-		assert(event.user!.email! == "stuff@example.com")
-		assert(event.user!.username! == "stuff")
+		XCTAssertEqual(event.user!.userID, "4")
+		XCTAssertEqual(event.user!.email!, "stuff@example.com")
+		XCTAssertEqual(event.user!.username!, "stuff")
         
         // Merge
 		event.tags.unionInPlace(client.tags ?? [:])
 		event.extra.unionInPlace(client.extra ?? [:])
 		
 		// Test after merge
-		assert(event.tags == [
+		XCTAssert(event.tags == [
 			"tag_client": "value_client",
 			"tag_event": "value_event",
 			"tag_client_event": "event_wins"
 			])
-		assert(event.extra == [
+		XCTAssert(event.extra == [
 			"extra_client": "value_client",
 			"extra_event": "value_event",
 			"extra_client_event": "event_wins"
 			])
-		assert(event.user!.userID == "4")
-		assert(event.user!.email! == "stuff@example.com")
-		assert(event.user!.username! == "stuff")
+		XCTAssertEqual(event.user!.userID, "4")
+		XCTAssertEqual(event.user!.email!, "stuff@example.com")
+		XCTAssertEqual(event.user!.username!, "stuff")
 	}
 
     func testMergeEmptyEvent() {
@@ -346,27 +346,27 @@ class SentrySwiftTests: XCTestCase {
 
         let event = Event("such event")
 
-        assert(event.tags == [:])
-        assert(event.extra == [:])
-        assert(event.user == nil)
+        XCTAssertEqual(event.tags, [:])
+        XCTAssert(event.extra == [:])
+        XCTAssertNil(event.user)
 
         event.tags.unionInPlace(client.tags ?? [:])
         event.extra.unionInPlace(client.extra ?? [:])
         event.user = event.user ?? client.user
 
-        assert(event.tags == testTags)
-        assert(event.extra == testExtra)
-        assert(event.user!.userID == testUser.userID)
-        assert(event.user!.email! == testUser.email!)
-        assert(event.user!.username! == testUser.username!)
+        XCTAssertEqual(event.tags, testTags)
+        XCTAssert(event.extra == testExtra)
+        XCTAssertEqual(event.user!.userID, testUser.userID)
+        XCTAssertEqual(event.user!.email!, testUser.email!)
+        XCTAssertEqual(event.user!.username!, testUser.username!)
     }
 
     func testMergeEmptyClient() {
         let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
 
-        assert(client.tags == [:])
-        assert(client.extra == [:])
-        assert(client.user == nil)
+		XCTAssertEqual(client.tags, [:])
+		XCTAssert(client.extra == [:])
+		XCTAssertNil(client.user)
 
         let testTags = ["test": "foo"]
         let testExtra = ["bar": "baz"]
@@ -381,11 +381,11 @@ class SentrySwiftTests: XCTestCase {
         event.tags.unionInPlace(client.tags)
         event.extra.unionInPlace(client.extra)
 
-        assert(event.tags == testTags)
-        assert(event.extra == testExtra)
-        assert(event.user!.userID == testUser.userID)
-        assert(event.user!.email! == testUser.email!)
-        assert(event.user!.username! == testUser.username!)
+		XCTAssertEqual(event.tags, testTags)
+		XCTAssert(event.extra == testExtra)
+		XCTAssertEqual(event.user!.userID, testUser.userID)
+		XCTAssertEqual(event.user!.email!, testUser.email!)
+		XCTAssertEqual(event.user!.username!, testUser.username!)
     }
 }
 
