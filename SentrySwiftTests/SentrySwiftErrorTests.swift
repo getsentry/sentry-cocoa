@@ -20,12 +20,12 @@ class SentrySwiftErrorTests: XCTestCase {
 
         let event = client.eventFor(error: error, location: location)
 
-        assert(event.message == "\(domain).\(code) in \(location.culprit)")
-        assert(event.extra["user_info"] is [String: AnyObject])
-        assert((event.extra["user_info"] as! [String: AnyObject]) == [:])
-        assert(event.culprit == location.culprit)
-        assert(event.stackTrace! == location.stackTrace)
-        assert(event.exception! == [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")])
+        XCTAssertEqual(event.message, "\(domain).\(code) in \(location.culprit)")
+        XCTAssertTrue(event.extra["user_info"] is [String: AnyObject])
+        XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == [:])
+        XCTAssertEqual(event.culprit, location.culprit)
+        XCTAssert(event.stackTrace! == location.stackTrace)
+        XCTAssertEqual(event.exception!, [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")])
     }
 
     func testErrorWithUserInfo() {
@@ -49,6 +49,6 @@ class SentrySwiftErrorTests: XCTestCase {
             ],
             "some key": ["https://example.com", 10]
         ]
-        assert((event.extra["user_info"] as! [String: AnyObject]) == expectedUserInfo)
+        XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == expectedUserInfo)
     }
 }

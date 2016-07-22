@@ -28,7 +28,7 @@
 
 - (void)testSharedClient {
 	[SentryClient setShared:_client];
-	assert([SentryClient shared] != nil);
+	XCTAssertNotNil([SentryClient shared]);
 }
 
 - (void)testThatThingsCompileBecauseSwiftToOjbCBridge {
