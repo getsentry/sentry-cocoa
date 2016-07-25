@@ -38,6 +38,9 @@
 		03B07D601D087D35007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5F1D087D35007B4758 /* libz.tbd */; };
 		03B07D621D087D3C007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D611D087D3C007B4758 /* libz.tbd */; };
 		03B07DC31D089B23007B4758 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CFCEC01C612F3E00999EB7 /* KSCrashHandler.swift */; };
+		03C1E26A1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
+		03C1E26B1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
+		03C1E26C1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
 		03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C715161CE4DB540080AE60 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03C7150C1CE4DB540080AE60 /* SentrySwift.framework */; };
@@ -222,6 +225,7 @@
 		03B07D5F1D087D35007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		03B07D611D087D3C007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-Mac.xcodeproj"; path = "Carthage/Checkouts/KSCrash/Mac/KSCrash-Mac.xcodeproj"; sourceTree = "<group>"; };
+		03C1E2691D4652180004A612 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
 		03C1E5A61C57192A004D68D8 /* EventOffline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventOffline.swift; sourceTree = "<group>"; };
 		03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-TVOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/TVOS/KSCrash-TVOS.xcodeproj"; sourceTree = "<group>"; };
 		03C7150C1CE4DB540080AE60 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -371,6 +375,7 @@
 				03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */,
 				03817D7D1D301E1D005A674A /* Context.swift */,
 				03CF118A1D423D4B0002B06A /* Stacktrace.swift */,
+				03C1E2691D4652180004A612 /* Thread.swift */,
 			);
 			name = Interfaces;
 			sourceTree = "<group>";
@@ -803,6 +808,7 @@
 				03CF118D1D423D4C0002B06A /* Stacktrace.swift in Sources */,
 				03C7152E1CE4DB940080AE60 /* BreadcrumbStore.swift in Sources */,
 				9B02CABE1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
+				03C1E26C1D4652180004A612 /* Thread.swift in Sources */,
 				03C715281CE4DB910080AE60 /* EventOffline.swift in Sources */,
 				9B02CB001CF607A5004F614C /* Exception.swift in Sources */,
 				03C715261CE4DB8D0080AE60 /* Request.swift in Sources */,
@@ -842,6 +848,7 @@
 				03CF118B1D423D4C0002B06A /* Stacktrace.swift in Sources */,
 				9B02CAFE1CF607A5004F614C /* Exception.swift in Sources */,
 				03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */,
+				03C1E26A1D4652180004A612 /* Thread.swift in Sources */,
 				03E3D1F81C3E1A2800F00547 /* DSN.swift in Sources */,
 				033A342C1C60693400BED5AE /* User.swift in Sources */,
 				9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
@@ -881,6 +888,7 @@
 				03CF118C1D423D4C0002B06A /* Stacktrace.swift in Sources */,
 				03CFCEC21C612F3E00999EB7 /* KSCrashHandler.swift in Sources */,
 				9B02CABD1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
+				03C1E26B1D4652180004A612 /* Thread.swift in Sources */,
 				03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */,
 				9B02CAFF1CF607A5004F614C /* Exception.swift in Sources */,
 				033A342D1C60693400BED5AE /* User.swift in Sources */,

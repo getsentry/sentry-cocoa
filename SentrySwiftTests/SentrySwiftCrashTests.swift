@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SentrySwift
+@testable import SentrySwift
 
 class SentrySwiftCrashTests: XCTestCase {
 	
@@ -22,7 +22,39 @@ class SentrySwiftCrashTests: XCTestCase {
     }
 	
 	func testCrashAbort() {
-		_ = readJSONCrashFile("Abort")
+		let crashJSON = readJSONCrashFile("Abort")!
+		let crashDict = crashJSON["crash"] as! [String: AnyObject]
+		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
+		
+		let threads = threadDicts.flatMap({Thread(threadCrashDict: $0)})
+		
+		XCTAssertEqual(threads.count, 8)
+		
+		let thread0 = threads[0]
+		XCTAssertEqual(thread0.id, 0)
+		XCTAssertTrue(thread0.crashed!)
+		XCTAssertTrue(thread0.current!)
+		
+		let thread1 = threads[1]
+		XCTAssertEqual(thread1.id, 1)
+		XCTAssertFalse(thread1.crashed!)
+		XCTAssertFalse(thread1.current!)
+		
+		let thread2 = threads[2]
+		XCTAssertEqual(thread2.id, 2)
+		XCTAssertFalse(thread2.crashed!)
+		XCTAssertFalse(thread2.current!)
+		
+		let thread3 = threads[3]
+		XCTAssertEqual(thread3.id, 3)
+		XCTAssertFalse(thread3.crashed!)
+		XCTAssertFalse(thread3.current!)
+		
+		let thread4 = threads[4]
+		XCTAssertEqual(thread4.id, 4)
+		XCTAssertFalse(thread4.crashed!)
+		XCTAssertFalse(thread4.current!)
+		XCTAssertEqual(thread4.name, "WebThread")
 	}
 
 	// MARK: Private
