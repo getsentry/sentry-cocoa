@@ -80,6 +80,7 @@
 						   fingerprint:nil
 								  user:nil
 							 exception:nil
+							stacktrace:nil
 					  appleCrashReport:nil];
 	
 	[[SentryClient shared] captureEvent:event];
@@ -101,6 +102,7 @@
                            fingerprint:nil
                                   user:nil
 							 exception:nil
+							stacktrace:nil
                       appleCrashReport:nil];
     
     [[SentryClient shared] captureEvent:event];
