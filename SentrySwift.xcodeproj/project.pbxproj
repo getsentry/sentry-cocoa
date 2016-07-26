@@ -12,7 +12,6 @@
 		033A342A1C605B7E00BED5AE /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A34281C605B7E00BED5AE /* EventProperties.swift */; };
 		033A342C1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
 		033A342D1C60693400BED5AE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
-		035242981C988D2F00A65D6D /* Abort.json in Resources */ = {isa = PBXBuildFile; fileRef = 035242941C988D2F00A65D6D /* Abort.json */; };
 		035242991C988D2F00A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242951C988D2F00A65D6D /* Info.plist */; };
 		035242A61C9892A700A65D6D /* SentrySwiftCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */; };
 		035242A81C98957800A65D6D /* SentrySwiftCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */; };
@@ -41,6 +40,12 @@
 		03C1E26A1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
 		03C1E26B1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
 		03C1E26C1D4652180004A612 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
+		03C1E2761D466E310004A612 /* StackOverflow.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2721D466CA40004A612 /* StackOverflow.json */; };
+		03C1E2771D466E320004A612 /* StackOverflow.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2721D466CA40004A612 /* StackOverflow.json */; };
+		03C1E2781D466E330004A612 /* StackOverflow.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2721D466CA40004A612 /* StackOverflow.json */; };
+		03C1E27D1D466EFB0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
+		03C1E27E1D466EFC0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
+		03C1E27F1D466EFC0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
 		03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C715161CE4DB540080AE60 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03C7150C1CE4DB540080AE60 /* SentrySwift.framework */; };
@@ -226,6 +231,8 @@
 		03B07D611D087D3C007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-Mac.xcodeproj"; path = "Carthage/Checkouts/KSCrash/Mac/KSCrash-Mac.xcodeproj"; sourceTree = "<group>"; };
 		03C1E2691D4652180004A612 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
+		03C1E2721D466CA40004A612 /* StackOverflow.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = StackOverflow.json; sourceTree = "<group>"; };
+		03C1E2791D466EF70004A612 /* NSException.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = NSException.json; sourceTree = "<group>"; };
 		03C1E5A61C57192A004D68D8 /* EventOffline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventOffline.swift; sourceTree = "<group>"; };
 		03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-TVOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/TVOS/KSCrash-TVOS.xcodeproj"; sourceTree = "<group>"; };
 		03C7150C1CE4DB540080AE60 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -324,6 +331,8 @@
 			isa = PBXGroup;
 			children = (
 				035242941C988D2F00A65D6D /* Abort.json */,
+				03C1E2791D466EF70004A612 /* NSException.json */,
+				03C1E2721D466CA40004A612 /* StackOverflow.json */,
 				035242951C988D2F00A65D6D /* Info.plist */,
 				035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */,
 				035242971C988D2F00A65D6D /* SentrySwiftTests.swift */,
@@ -754,6 +763,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03C1E2771D466E320004A612 /* StackOverflow.json in Resources */,
+				03C1E27F1D466EFC0004A612 /* NSException.json in Resources */,
 				03FF07C81CE546B500BA980E /* Abort.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -762,7 +773,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				035242981C988D2F00A65D6D /* Abort.json in Resources */,
 				035242991C988D2F00A65D6D /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -771,6 +781,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03C1E2761D466E310004A612 /* StackOverflow.json in Resources */,
+				03C1E27E1D466EFC0004A612 /* NSException.json in Resources */,
 				035242AC1C98959400A65D6D /* Abort.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -786,6 +798,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03C1E2781D466E330004A612 /* StackOverflow.json in Resources */,
+				03C1E27D1D466EFB0004A612 /* NSException.json in Resources */,
 				035242AB1C98958C00A65D6D /* Abort.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

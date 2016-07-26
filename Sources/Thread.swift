@@ -27,17 +27,19 @@ import Foundation
 		super.init()
 	}
 	
-	internal convenience init?(threadCrashDict: [String: AnyObject]) {
-		guard let id = threadCrashDict["index"] as? Int else {
+	internal convenience init?(appleCrashThreadDict: [String: AnyObject], appleCrashBinaryImagesDicts: [[String: AnyObject]]) {
+		guard let id = appleCrashThreadDict["index"] as? Int else {
 			return nil
 		}
 		
-		let crashed = threadCrashDict["crashed"] as? Bool ?? false
-		let current = threadCrashDict["current_thread"] as? Bool ?? false
-		let name = threadCrashDict["name"] as? String
+		let crashed = appleCrashThreadDict["crashed"] as? Bool ?? false
+		let current = appleCrashThreadDict["current_thread"] as? Bool ?? false
+		let name = appleCrashThreadDict["name"] as? String
+		let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
 		
-		// TODO: Do something with this stacktrace
-		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: nil)
+		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, appleCrashBinaryImagesDicts: appleCrashBinaryImagesDicts)
+		
+		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace)
 	}
 }
 

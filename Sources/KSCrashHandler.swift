@@ -171,17 +171,13 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 
 		// Populate user info
 		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
-
-		// Generate Apple crash report
-		let appleCrashReport: AppleCrashReport? = {
-			guard let
-				crash = report["crash"] as? [String: AnyObject],
-				binaryImages = report["binary_images"] as? [[String: AnyObject]],
-				system = report["system"] as? [String: AnyObject] else {
-					return nil
-				}
-			return AppleCrashReport(crash: crash, binaryImages: binaryImages, system: system)
-		}()
+		
+		let binaryImagesDict = report["binary_images"] as! [[String: AnyObject]]
+		let crashDict = report["crash"] as! [String: AnyObject]
+		let errorDict = crashDict["error"] as! [String: AnyObject]
+		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
+		
+		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, appleCrashBinaryImagesDicts: binaryImagesDict)})
 
 		/// Generate event to sent up to API
 		/// Sends a blank message because server does stuff
@@ -191,7 +187,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			$0.tags = userInfo.tags ?? [:]
 			$0.extra = userInfo.extra ?? [:]
 			$0.user = userInfo.user
-			$0.appleCrashReport = appleCrashReport
+			$0.threads = threads
 			$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
 			$0.releaseVersion = userInfo.releaseVersion
 		}

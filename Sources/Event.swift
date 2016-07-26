@@ -61,6 +61,7 @@ public typealias EventFingerprint = [String]
 	// MARK: - Optional Interfaces
 
 	public var user: User?
+	public var threads: [Thread]?
 	public var exception: [Exception]?
 	public var stacktrace: Stacktrace?
 	public var appleCrashReport: AppleCrashReport?
@@ -136,6 +137,13 @@ extension Event: EventSerializable {
 
 	/// Dictionary version of attributes set in event
 	internal var serialized: SerializedType {
+		
+		let serializedThreads: SerializedTypeDictionary?
+		if let threads: SerializedTypeArray = threads?.map({$0.serialized}) {
+			serializedThreads = ["values": threads]
+		} else {
+			serializedThreads = nil
+		}
 
 		// Create attributes list
 		let attributes: [Attribute] = [
@@ -162,6 +170,7 @@ extension Event: EventSerializable {
 
 			// Interfaces
 			("user", user?.serialized),
+			("threads", serializedThreads),
 			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),

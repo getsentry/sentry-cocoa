@@ -161,7 +161,7 @@ class SentrySwiftTests: XCTestCase {
 		let modules: EventModules = ["2spooky": "4you"]
 		let extra: EventExtra = ["power rangers": 5, "tmnt": 4]
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
-		let exception: Exception = Exception(type: "Test", value: "test-value")
+		let exception: Exception = Exception(value: "test-value", type: "Test")
 
 		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
 		event.platform = platform
