@@ -63,8 +63,13 @@ extension SentryClient {
 	/// Path of directory to which events will be saved in offline mode
 	private func directory() -> String? {
 		guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
-		let directory: String = "\(directoryNamePrefix)\(dsn.serverURL.absoluteString.hashValue)"
-		return (documentsPath as NSString).stringByAppendingPathComponent(directory)
+
+        let serverURLString: String! = dsn.serverURL.absoluteString
+        if serverURLString == nil { return nil }
+
+        let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"
+
+        return (documentsPath as NSString).stringByAppendingPathComponent(directory)
 	}
 	
 	/*
