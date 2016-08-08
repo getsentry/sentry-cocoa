@@ -14,7 +14,7 @@ import Foundation
 	public let type: String?
     public let module: String?
 	
-	public var threadId: Int?
+	public var thread: Thread?
 
     /// Creates `Exception` object
 	@objc public init(value: String, type: String? = nil, module: String? = nil) {
@@ -22,7 +22,7 @@ import Foundation
         self.type = type
         self.module = module
 		
-		self.threadId = nil
+		self.thread = nil
 
         super.init()
     }
@@ -80,8 +80,7 @@ import Foundation
 		if let value = value {
 			self.init(value: value, type: type)
 			
-			let crashedThread = threads?.filter({$0.crashed ?? false}).first
-			self.threadId = crashedThread?.id
+			self.thread = threads?.filter({$0.crashed ?? false}).first
 		} else {
 			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
 			return nil
@@ -97,5 +96,7 @@ extension Exception: EventSerializable {
         ]
 		.set("type", value: type)
         .set("module", value: module)
+		.set("thread_id", value: thread?.id)
+		.set("stacktrace", value: thread?.stacktrace?.serialized)
     }
 }

@@ -15,11 +15,11 @@ import Foundation
 import KSCrash.KSSystemInfo
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public class Context: NSObject {
+@objc public class Contexts: NSObject {
 
 }
 
-extension Context: EventSerializable {
+extension Contexts: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal var serialized: SerializedType {
 		return [
@@ -69,7 +69,7 @@ extension OSContext: EventSerializable {
 			.set("name", value: name)
 			.set("version", value: version)
 			.set("build", value: build)
-			.set("kernalVersion", value: kernalVersion)
+			.set("kernal_version", value: kernalVersion)
 			.set("rooted", value: jailbroken)
 	}
 }
@@ -148,7 +148,7 @@ extension DeviceContext: EventSerializable {
 	var serialized: SerializedType {
 		var dict = SerializedType()
 			.set("family", value: family)
-			.set("architecture", value: architecture)
+			.set("arch", value: architecture)
 			.set("model", value: model)
 			.set("family", value: family)
 		

@@ -62,10 +62,12 @@ public typealias EventFingerprint = [String]
 
 	public var user: User?
 	public var threads: [Thread]?
-	public var exception: [Exception]?
+	public var exceptions: [Exception]?
 	public var stacktrace: Stacktrace?
 	public var appleCrashReport: AppleCrashReport?
 	internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
+	
+	internal var debugMeta: DebugMeta?
 	
 	/*
 	Creates an event
@@ -93,11 +95,11 @@ public typealias EventFingerprint = [String]
 	- Parameter extras: A dictionary of extras
 	- Parameter fingerprint: A array of fingerprints
 	- Parameter user: A user object
-	- Parameter exception: An array of `Exception` objects
+	- Parameter exceptions: An array of `Exception` objects
 	- Parameter stacktrace: An array of `Stacktrace` objects
 	- Parameter appleCrashReport: An apple crash report
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, stacktrace: Stacktrace? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exceptions: [Exception]? = nil, stacktrace: Stacktrace? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -116,7 +118,7 @@ public typealias EventFingerprint = [String]
 
 		// Optional Interfaces
 		self.user = user
-		self.exception = exception
+		self.exceptions = exceptions
 		self.stacktrace = stacktrace
 		self.appleCrashReport = appleCrashReport
 
@@ -137,13 +139,6 @@ extension Event: EventSerializable {
 
 	/// Dictionary version of attributes set in event
 	internal var serialized: SerializedType {
-		
-		let serializedThreads: SerializedTypeDictionary?
-		if let threads: SerializedTypeArray = threads?.map({$0.serialized}) {
-			serializedThreads = ["values": threads]
-		} else {
-			serializedThreads = nil
-		}
 
 		// Create attributes list
 		let attributes: [Attribute] = [
@@ -156,7 +151,8 @@ extension Event: EventSerializable {
 			
 			// Computed
 			("sdk", sdk),
-			("contexts", Context().serialized),
+
+			("contexts", Contexts().serialized),
 
 			// Optional
 			("logger", logger),
@@ -170,11 +166,13 @@ extension Event: EventSerializable {
 
 			// Interfaces
 			("user", user?.serialized),
-			("threads", serializedThreads),
-			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
+			("threads", [:].set("values", value: threads?.map() { $0.serialized }.flatMap() { $0 })),
+			("exception", [:].set("values", value: exceptions?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
-			("stacktrace", stacktrace?.serialized),
+			("stacktrace", stacktrace),
+			
+			("debug_meta", debugMeta?.serialized)
 		]
 
 		var ret: [String: AnyObject] = [:]

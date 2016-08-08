@@ -120,6 +120,7 @@
 				EECE5BE6D0A798B737D482C2 /* [CP] Copy Pods Resources */,
 				AE1F0D52BB698AF9FB8DD035 /* 📦 Embed Pods Frameworks */,
 				84CD39A162F7D3EF8A9449BF /* 📦 Copy Pods Resources */,
+				03C1E2801D47E2780004A612 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -178,6 +179,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		03C1E2801D47E2780004A612 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = ./sentry_dsym_upload.rb;
+		};
 		05E992927815BE3F8A63BD58 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

@@ -27,7 +27,7 @@ import Foundation
 		super.init()
 	}
 	
-	internal convenience init?(appleCrashThreadDict: [String: AnyObject], appleCrashBinaryImagesDicts: [[String: AnyObject]]) {
+	internal convenience init?(appleCrashThreadDict: [String: AnyObject], binaryImages: [BinaryImage]) {
 		guard let id = appleCrashThreadDict["index"] as? Int else {
 			return nil
 		}
@@ -37,7 +37,7 @@ import Foundation
 		let name = appleCrashThreadDict["name"] as? String
 		let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
 		
-		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, appleCrashBinaryImagesDicts: appleCrashBinaryImagesDicts)
+		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
 		
 		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace)
 	}
@@ -52,6 +52,6 @@ extension Thread: EventSerializable {
 			.set("crashed", value: crashed)
 			.set("current", value: current)
 			.set("name", value: name)
-			.set("stacktrace", value: stacktrace)
+			.set("stacktrace", value: stacktrace?.serialized)
 	}
 }

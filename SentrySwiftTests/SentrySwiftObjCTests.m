@@ -77,7 +77,7 @@
 								 extra:extra
 						   fingerprint:fingerprint
 								  user:nil
-							 exception: @[exc]
+							exceptions: @[exc]
 							stacktrace: nil
 					  appleCrashReport:nil];
 	
