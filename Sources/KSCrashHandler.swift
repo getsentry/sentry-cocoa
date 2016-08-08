@@ -132,7 +132,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		// Mapping reports
 		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.map({mapReportToEvent($0)}) ?? []
+			.flatMap({mapReportToEvent($0)}) ?? []
 		
 		// Sends events recursively
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
@@ -153,7 +153,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		}
 	}
 	
-	private func mapReportToEvent(report: CrashDictionary) -> Event {
+	private func mapReportToEvent(report: CrashDictionary) -> Event? {
 
 		// Extract crash timestamp
 		let timestamp: NSDate = {
@@ -181,7 +181,10 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		let debugMeta = DebugMeta(binaryImages: binaryImages)
 		
 		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
+			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+			return nil
+		}
 
 		/// Generate event to sent up to API
 		/// Sends a blank message because server does stuff
@@ -192,7 +195,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			$0.extra = userInfo.extra ?? [:]
 			$0.user = userInfo.user
 			$0.threads = threads
-			$0.exceptions = [exception]
+			$0.exceptions = [exception].flatMap({$0})
 			$0.debugMeta = debugMeta
 			$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
 			$0.releaseVersion = userInfo.releaseVersion
