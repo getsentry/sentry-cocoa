@@ -64,7 +64,7 @@ extension Event {
             SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
 
-        exception = [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)]
+        exceptions = [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)]
     }
 }
 

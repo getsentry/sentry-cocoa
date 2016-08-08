@@ -24,7 +24,11 @@ extension SentryClient {
 			do {
 				let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
 				sendData(data, finished: finished)
-			} catch {}
+			} catch {
+				SentryLog.Error.log("Could not serialized event - \(error)")
+			}
+		} else {
+			SentryLog.Error.log("Could not serialized event")
 		}
 	}
 	

@@ -163,7 +163,7 @@ class SentrySwiftTests: XCTestCase {
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
 		let exception: Exception = Exception(value: "test-value", type: "Test")
 
-		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
+		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exceptions: [exception])
 		event.platform = platform
 		
 		// Required
@@ -178,7 +178,7 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.culprit, culprit)
 		XCTAssertEqual(event.serverName, serverName)
 		XCTAssertEqual(event.releaseVersion, release)
-		XCTAssertEqual(event.exception!, [exception])
+		XCTAssertEqual(event.exceptions!, [exception])
 		XCTAssertEqual(event.tags, tags)
 		XCTAssertEqual(event.modules!, modules)
 		XCTAssert(event.extra == extra)

@@ -28,9 +28,9 @@
 		036378331C227C7900644C01 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036378311C227C7900644C01 /* Event.swift */; };
 		0370617F1C75446B0082CCCE /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
 		037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
-		03817D7E1D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
-		03817D7F1D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
-		03817D801D301E1D005A674A /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Context.swift */; };
+		03817D7E1D301E1D005A674A /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Contexts.swift */; };
+		03817D7F1D301E1D005A674A /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Contexts.swift */; };
+		03817D801D301E1D005A674A /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Contexts.swift */; };
 		03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
 		03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
 		03B07D5E1D087D2F007B4758 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5D1D087D2F007B4758 /* libz.tbd */; };
@@ -46,6 +46,9 @@
 		03C1E27D1D466EFB0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
 		03C1E27E1D466EFC0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
 		03C1E27F1D466EFC0004A612 /* NSException.json in Resources */ = {isa = PBXBuildFile; fileRef = 03C1E2791D466EF70004A612 /* NSException.json */; };
+		03C1E2821D480A1F0004A612 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2811D480A1F0004A612 /* DebugMeta.swift */; };
+		03C1E2831D480A1F0004A612 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2811D480A1F0004A612 /* DebugMeta.swift */; };
+		03C1E2841D480A1F0004A612 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2811D480A1F0004A612 /* DebugMeta.swift */; };
 		03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C1E5A81C57192A004D68D8 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
 		03C715161CE4DB540080AE60 /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03C7150C1CE4DB540080AE60 /* SentrySwift.framework */; };
@@ -224,7 +227,7 @@
 		0363782B1C225D8300644C01 /* Sentry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sentry.swift; sourceTree = "<group>"; };
 		036378311C227C7900644C01 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0370617E1C75446B0082CCCE /* AppleCrashReport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleCrashReport.swift; sourceTree = "<group>"; };
-		03817D7D1D301E1D005A674A /* Context.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
+		03817D7D1D301E1D005A674A /* Contexts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Contexts.swift; sourceTree = "<group>"; };
 		03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreadcrumbStore.swift; sourceTree = "<group>"; };
 		03B07D5D1D087D2F007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		03B07D5F1D087D35007B4758 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -233,6 +236,7 @@
 		03C1E2691D4652180004A612 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
 		03C1E2721D466CA40004A612 /* StackOverflow.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = StackOverflow.json; sourceTree = "<group>"; };
 		03C1E2791D466EF70004A612 /* NSException.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = NSException.json; sourceTree = "<group>"; };
+		03C1E2811D480A1F0004A612 /* DebugMeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugMeta.swift; sourceTree = "<group>"; };
 		03C1E5A61C57192A004D68D8 /* EventOffline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventOffline.swift; sourceTree = "<group>"; };
 		03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-TVOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/TVOS/KSCrash-TVOS.xcodeproj"; sourceTree = "<group>"; };
 		03C7150C1CE4DB540080AE60 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -382,9 +386,10 @@
 				9B02CAFD1CF607A5004F614C /* Exception.swift */,
 				033A342B1C60693400BED5AE /* User.swift */,
 				03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */,
-				03817D7D1D301E1D005A674A /* Context.swift */,
+				03817D7D1D301E1D005A674A /* Contexts.swift */,
 				03CF118A1D423D4B0002B06A /* Stacktrace.swift */,
 				03C1E2691D4652180004A612 /* Thread.swift */,
+				03C1E2811D480A1F0004A612 /* DebugMeta.swift */,
 			);
 			name = Interfaces;
 			sourceTree = "<group>";
@@ -811,7 +816,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03817D801D301E1D005A674A /* Context.swift in Sources */,
+				03817D801D301E1D005A674A /* Contexts.swift in Sources */,
 				03C7152B1CE4DB940080AE60 /* AppleCrashReport.swift in Sources */,
 				03C7152C1CE4DB940080AE60 /* Breadcrumb.swift in Sources */,
 				9B02CAB91CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
@@ -820,6 +825,7 @@
 				8092F8EA1CF2594100634F3F /* Sentry+Error.swift in Sources */,
 				03C7152A1CE4DB910080AE60 /* EventSerializable.swift in Sources */,
 				03CF118D1D423D4C0002B06A /* Stacktrace.swift in Sources */,
+				03C1E2841D480A1F0004A612 /* DebugMeta.swift in Sources */,
 				03C7152E1CE4DB940080AE60 /* BreadcrumbStore.swift in Sources */,
 				9B02CABE1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				03C1E26C1D4652180004A612 /* Thread.swift in Sources */,
@@ -851,7 +857,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03817D7E1D301E1D005A674A /* Context.swift in Sources */,
+				03817D7E1D301E1D005A674A /* Contexts.swift in Sources */,
 				03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				03CFCEC31C612F5300999EB7 /* CrashHandler.swift in Sources */,
 				8092F8E51CF2499600634F3F /* Sentry+Error.swift in Sources */,
@@ -860,6 +866,7 @@
 				03D4D9F91CA48FA800799CC9 /* Breadcrumb.swift in Sources */,
 				9B02CAB71CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
 				03CF118B1D423D4C0002B06A /* Stacktrace.swift in Sources */,
+				03C1E2821D480A1F0004A612 /* DebugMeta.swift in Sources */,
 				9B02CAFE1CF607A5004F614C /* Exception.swift in Sources */,
 				03C1E5A71C57192A004D68D8 /* EventOffline.swift in Sources */,
 				03C1E26A1D4652180004A612 /* Thread.swift in Sources */,
@@ -891,7 +898,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03817D7F1D301E1D005A674A /* Context.swift in Sources */,
+				03817D7F1D301E1D005A674A /* Contexts.swift in Sources */,
 				03C736E21C474715004428DF /* CrashHandler.swift in Sources */,
 				037061801C75446B0082CCCE /* AppleCrashReport.swift in Sources */,
 				9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
@@ -900,6 +907,7 @@
 				8092F8E91CF2594100634F3F /* Sentry+Error.swift in Sources */,
 				0363782D1C225D8300644C01 /* Sentry.swift in Sources */,
 				03CF118C1D423D4C0002B06A /* Stacktrace.swift in Sources */,
+				03C1E2831D480A1F0004A612 /* DebugMeta.swift in Sources */,
 				03CFCEC21C612F3E00999EB7 /* KSCrashHandler.swift in Sources */,
 				9B02CABD1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				03C1E26B1D4652180004A612 /* Thread.swift in Sources */,

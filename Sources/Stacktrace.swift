@@ -12,14 +12,14 @@ import Foundation
 @objc public class Stacktrace: NSObject {
 	public let frames: [Frame]
 	
-	internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, appleCrashBinaryImagesDicts: [[String: AnyObject]]?) {
+	internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, binaryImages: [BinaryImage]?) {
 		
-		guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, appleCrashBinaryImagesDicts = appleCrashBinaryImagesDicts else {
+		guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, binaryImages = binaryImages else {
 			return nil
 		}
 		
 		let frames = (appleCrashTreadBacktraceDict["contents"] as? [[String: AnyObject]])?
-			.flatMap({Frame(appleCrashFrameDict: $0, appleCrashBinaryImagesDicts: appleCrashBinaryImagesDicts)})
+			.flatMap({Frame(appleCrashFrameDict: $0, binaryImages: binaryImages)})
 		self.init(frames: frames)
 		
 	}
@@ -33,7 +33,7 @@ extension Stacktrace: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal var serialized: SerializedType {
 		return [
-			"frames": frames,
+			"frames": frames.map({$0.serialized}),
 			]
 	}
 }
@@ -82,66 +82,27 @@ extension Stacktrace: EventSerializable {
 	private override init() {
 		super.init()
 	}
-	
-	internal typealias MemoryAddress = UInt64
 
-	internal convenience init?(appleCrashFrameDict frameDict: [String: AnyObject], appleCrashBinaryImagesDicts: [[String: AnyObject]]) {
+	internal convenience init?(appleCrashFrameDict frameDict: [String: AnyObject], binaryImages: [BinaryImage]) {
 		
-		if let instructionAddress = Frame.asMemoryAddress(frameDict["instruction_addr"]),
-			binaryImage = Frame.getBinaryImage(appleCrashBinaryImagesDicts, address: instructionAddress) {
-			
+		if let instructionAddress = BinaryImage.asMemoryAddress(frameDict["instruction_addr"]),
+			binaryImage = BinaryImage.getBinaryImage(binaryImages, address: instructionAddress) {
+
 			self.init()
 			
 			self.function = frameDict["symbol_name"] as? String
 			
-			self.inApp = (binaryImage["name"] as? String)?.containsString("/Bundle/Application/") ?? false
-			self.package = binaryImage["name"] as? String
+			self.inApp = binaryImage.name?.containsString("/Bundle/Application/") ?? false
+			self.package = binaryImage.name
 			
-			self.imageAddress = Frame.getHexAddress(binaryImage["image_addr"])
-			self.instructionAddress = Frame.getHexAddress(frameDict["instruction_addr"])
-			self.symbolAddress = Frame.getHexAddress(frameDict["symbol_addr"])
+			self.imageAddress = BinaryImage.getHexAddress(binaryImage.imageAddress)
+			self.instructionAddress = BinaryImage.getHexAddress(frameDict["instruction_addr"])
+			self.symbolAddress = BinaryImage.getHexAddress(frameDict["symbol_addr"])
 		} else {
 			return nil
 		}
 	}
-	
-	private class func asMemoryAddress(object: AnyObject?) -> MemoryAddress? {
-		guard let object = object else { return nil }
-		
-		switch object {
-		case let object as NSNumber:
-			return object.unsignedLongLongValue
-		case let object as Int64:
-			return UInt64(object)
-		default:
-			return nil
-		}
-	}
-	
-	private class func getHexAddress(object: AnyObject?) -> String? {
-		return getHexAddress(asMemoryAddress(object))
-	}
-	
-	internal class func getHexAddress(address: MemoryAddress?) -> String? {
-		guard let address = address else { return nil }
-		return String(format: "0x%x", address)
-	}
-	
-	private class func getBinaryImage(binaryImages: [[String: AnyObject]], address: MemoryAddress) -> [String: AnyObject]? {
-		for binaryImage in binaryImages {
-			if let imageStart = asMemoryAddress(binaryImage["image_addr"]),
-				imageSize = asMemoryAddress(binaryImage["image_size"]) {
-				
-				let imageEnd = imageStart + imageSize
-				if address >= imageStart && address < imageEnd {
-					return binaryImage
-				}
-				
-			}
-		}
-		
-		return nil
-	}
+
 }
 
 extension Frame: EventSerializable {
@@ -152,5 +113,10 @@ extension Frame: EventSerializable {
 			.set("function", value: function)
 			.set("module", value: module)
 			.set("lineno", value: line)
+			.set("package", value: package)
+			.set("image_addr", value: imageAddress)
+			.set("instruction_addr", value: instructionAddress)
+			.set("symbol_addr", value: symbolAddress)
+			.set("in_app", value: inApp)
 	}
 }

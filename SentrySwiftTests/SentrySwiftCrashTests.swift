@@ -22,19 +22,21 @@ class SentrySwiftCrashTests: XCTestCase {
     }
 	
 	func testUInt64ToHex() {
-		let intAddress: Frame.MemoryAddress = 827844157
-		let hexAddress = Frame.getHexAddress(intAddress)
+		let intAddress: BinaryImage.MemoryAddress = 827844157
+		let hexAddress = BinaryImage.getHexAddress(intAddress)
 		XCTAssertEqual(hexAddress, "0x3157e63d")
 	}
 	
 	func testCrashSignal() {
 		let crashJSON = readJSONCrashFile("Abort")!
-		let binaryImagesDict = crashJSON["binary_images"] as! [[String: AnyObject]]
+		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
 		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, appleCrashBinaryImagesDicts: binaryImagesDict)})
+		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+		
+		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 8)
@@ -67,19 +69,21 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		// Test exception
 		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
-		XCTAssertEqual(exception.threadId, 0)
+		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Signal 6, Code 0")
 		XCTAssertEqual(exception.type, "SIGABRT")
 	}
 	
 	func testCrashMach() {
 		let crashJSON = readJSONCrashFile("StackOverflow")!
-		let binaryImagesDict = crashJSON["binary_images"] as! [[String: AnyObject]]
+		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
 		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, appleCrashBinaryImagesDicts: binaryImagesDict)})
+		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+		
+		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 7)
@@ -124,19 +128,21 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		// Test exception
 		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
-		XCTAssertEqual(exception.threadId, 0)
+		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Exception 1, Code 1, Subcode 0")
 		XCTAssertEqual(exception.type, "EXC_BAD_ACCESS")
 	}
 	
 	func testCrashNSException() {
 		let crashJSON = readJSONCrashFile("NSException")!
-		let binaryImagesDict = crashJSON["binary_images"] as! [[String: AnyObject]]
+		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
 		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, appleCrashBinaryImagesDicts: binaryImagesDict)})
+		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+		
+		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 8)
@@ -183,7 +189,7 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		// Test exception
 		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
-		XCTAssertEqual(exception.threadId, 0)
+		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50")
 		XCTAssertEqual(exception.type, "NSInvalidArgumentException")
 	}

@@ -25,7 +25,7 @@ class SentrySwiftErrorTests: XCTestCase {
         XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == [:])
         XCTAssertEqual(event.culprit, frame.culprit)
         XCTAssert(event.stacktrace?.frames.first == frame)
-        XCTAssertEqual(event.exception!, [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)])
+        XCTAssertEqual(event.exceptions!, [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)])
     }
 
     func testErrorWithUserInfo() {
