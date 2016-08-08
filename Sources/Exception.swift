@@ -42,7 +42,7 @@ import Foundation
 			case "nsexception":
 				if let context = appleCrashErrorDict["nsexception"] as? [String: AnyObject] {
 					type = context["name"] as? String
-					value = context["reason"] as? String
+					value = context["reason"] as? String ?? value
 				}
 			case "cpp_exception":
 				if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
