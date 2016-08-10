@@ -148,7 +148,7 @@ extension Event: EventSerializable {
 			
 			// Computed
 			("sdk", sdk),
-			("context", Context().serialized),
+			("contexts", Context().serialized),
 
 			// Optional
 			("logger", logger),
