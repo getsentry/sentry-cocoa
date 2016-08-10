@@ -216,7 +216,7 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(sdk["version"], SentryClient.Info.version)
 		
 		// Device
-		let context = serialized["context"] as! [String: AnyObject]
+		let context = serialized["contexts"] as! [String: AnyObject]
 		XCTAssertNotNil(context["os"])
 		XCTAssertNotNil(context["device"])
 		

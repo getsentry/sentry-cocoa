@@ -41,7 +41,7 @@ internal enum SentryError: ErrorType {
 	// MARK: - Enums
 
 	internal struct Info {
-		static let version: String = "0.3.1"
+		static let version: String = "0.3.2"
 		static let sentryVersion: Int = 7
 	}
 
@@ -52,6 +52,10 @@ internal enum SentryError: ErrorType {
 	internal(set) var crashHandler: CrashHandler? {
 		didSet {
 			crashHandler?.startCrashReporting()
+			crashHandler?.releaseVersion = releaseVersion
+			crashHandler?.tags = tags
+			crashHandler?.extra = extra
+			crashHandler?.user = user
 		}
 	}
 	
