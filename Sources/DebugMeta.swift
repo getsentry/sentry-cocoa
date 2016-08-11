@@ -76,7 +76,11 @@ extension DebugMeta: EventSerializable {
 		
 		switch object {
 		case let object as NSNumber:
-			return object.unsignedLongLongValue
+			#if swift(>=3.0)
+				return object.uint64Value
+			#else
+				return object.unsignedLongLongValue
+			#endif
 		case let object as Int64:
 			return UInt64(object)
 		default:

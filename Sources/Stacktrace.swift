@@ -92,7 +92,11 @@ extension Stacktrace: EventSerializable {
 			
 			self.function = frameDict["symbol_name"] as? String
 			
-			self.inApp = binaryImage.name?.containsString("/Bundle/Application/") ?? false
+			#if swift(>=3.0)
+				self.inApp = binaryImage.name?.contains("/Bundle/Application/") ?? false
+			#else
+				self.inApp = binaryImage.name?.containsString("/Bundle/Application/") ?? false
+			#endif
 			self.package = binaryImage.name
 			
 			self.imageAddress = BinaryImage.getHexAddress(binaryImage.imageAddress)

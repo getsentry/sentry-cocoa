@@ -76,9 +76,15 @@ internal class KSCrashHandler: CrashHandler {
 		installation.install()
 
 		// Maps KSCrash reports in `Events`
-		installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
-			SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
-		}
+		#if swift(>=3.0)
+			installation.sendAllReports() { (filteredReports, completed, error) -> Void in
+				SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
+			}
+		#else
+			installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
+				SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
+			}
+		#endif
 	}
 
 
@@ -127,7 +133,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		super.init()
 	}
 	
-	@objc func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
+	@objc func filterReports(_ reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
 		let events: [Event] = reports?
@@ -138,7 +144,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
 	}
 	
-	private func sendEvent(reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
+	private func sendEvent(_ reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
 		var events = allEvents
 		
 		// Complete when no more
@@ -153,20 +159,34 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		}
 	}
 	
-	private func mapReportToEvent(report: CrashDictionary) -> Event? {
+	private func mapReportToEvent(_ report: CrashDictionary) -> Event? {
 
 		// Extract crash timestamp
-		let timestamp: NSDate = {
-			var date: NSDate?
-			if let timestampStr = report["report"]?["timestamp"] as? String {
-				let dateFormatter = NSDateFormatter()
-				dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-				dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-				dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-				date = dateFormatter.dateFromString(timestampStr)
-			}
-			return date ?? NSDate()
-		}()
+		#if swift(>=3.0)
+			let timestamp: Date = {
+				var date: Date?
+				if let timestampStr = report["report"]?["timestamp"] as? String {
+					let dateFormatter = DateFormatter()
+					dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+					dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+					dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+					date = dateFormatter.date(from: timestampStr)
+				}
+				return date ?? Date()
+			}()
+		#else
+			let timestamp: NSDate = {
+				var date: NSDate?
+				if let timestampStr = report["report"]?["timestamp"] as? String {
+					let dateFormatter = NSDateFormatter()
+					dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+					dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+					dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+					date = dateFormatter.dateFromString(timestampStr)
+				}
+				return date ?? NSDate()
+			}()
+		#endif
 
 		// Populate user info
 		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
@@ -204,7 +224,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		return event
 	}
 	
-	private func parseUserInfo(userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
+	private func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
 		return (
 			userInfo?[keyEventTags] as? EventTags,
 			userInfo?[keyEventExtra] as? EventExtra,

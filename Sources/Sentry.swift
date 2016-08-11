@@ -29,7 +29,10 @@ import Foundation
 #if swift(>=3.0)
 	
 #else
-	typealias Error = ErrorType
+	internal typealias Error = ErrorType
+	internal typealias ProcessInfo = NSProcessInfo
+	internal typealias JSONSerialization = NSJSONSerialization
+	internal typealias Bundle = NSBundle
 #endif
 
 internal enum SentryError: Error {
@@ -93,7 +96,13 @@ internal enum SentryError: Error {
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {
 		self.dsn = dsn
-		self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+		
+		#if swift(>=3.0)
+			self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+		#else
+			self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+		#endif
+		
 		super.init()
 		sendEventsOnDisk()
 	}
@@ -147,11 +156,11 @@ internal enum SentryError: Error {
 			event.user = event.user ?? user
 			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
-			if NSJSONSerialization.isValidJSONObject(tags) {
+			if JSONSerialization.isValidJSONObject(tags) {
 				event.tags.unionInPlace(tags)
 			}
 
-			if NSJSONSerialization.isValidJSONObject(extra) {
+			if JSONSerialization.isValidJSONObject(extra) {
 				event.extra.unionInPlace(extra)
 			}
 		}
