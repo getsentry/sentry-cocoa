@@ -55,7 +55,7 @@ extension DebugMeta: EventSerializable {
 		self.name = appleCrashBinaryImagesDict["name"] as? String
 	}
 	
-	internal class func getBinaryImage(binaryImages: [BinaryImage], address: MemoryAddress) -> BinaryImage? {
+	internal class func getBinaryImage(_ binaryImages: [BinaryImage], address: MemoryAddress) -> BinaryImage? {
 		for binaryImage in binaryImages {
 			if let imageStart = binaryImage.imageAddress,
 				imageSize = binaryImage.imageSize {
@@ -71,7 +71,7 @@ extension DebugMeta: EventSerializable {
 		return nil
 	}
 	
-	internal class func asMemoryAddress(object: AnyObject?) -> MemoryAddress? {
+	internal class func asMemoryAddress(_ object: AnyObject?) -> MemoryAddress? {
 		guard let object = object else { return nil }
 		
 		switch object {
@@ -84,11 +84,11 @@ extension DebugMeta: EventSerializable {
 		}
 	}
 	
-	internal class func getHexAddress(object: AnyObject?) -> String? {
+	internal class func getHexAddress(_ object: AnyObject?) -> String? {
 		return getHexAddress(asMemoryAddress(object))
 	}
 	
-	internal class func getHexAddress(address: MemoryAddress?) -> String? {
+	internal class func getHexAddress(_ address: MemoryAddress?) -> String? {
 		guard let address = address else { return nil }
 		return String(format: "0x%x", address)
 	}

@@ -28,7 +28,7 @@ class TestCrashHandler:CrashHandler {
 
 class TestableSentryClient: SentryClient {
 	var dataToSend:[(data:NSData, callback:EventFinishedSending?)] = []
-	override func sendData(data: NSData, finished: EventFinishedSending?) {
+	override func sendData(_ data: NSData, finished: EventFinishedSending?) {
 		// Do nothing. The original sends data to the server
 
 		dataToSend.append((data, finished))

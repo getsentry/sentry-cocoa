@@ -9,7 +9,7 @@
 import Foundation
 
 
-private func cleanValue(v: AnyObject) -> AnyObject? {
+private func cleanValue(_ v: AnyObject) -> AnyObject? {
     switch v {
     case is NSNumber: fallthrough
     case is NSString: fallthrough
@@ -37,7 +37,7 @@ private func cleanValue(v: AnyObject) -> AnyObject? {
     }
 }
 
-private func cleanDict(d: [String: AnyObject]) -> [String: AnyObject] {
+private func cleanDict(_ d: [String: AnyObject]) -> [String: AnyObject] {
     var ret = [String: AnyObject]()
 
     for (k, v) in d {

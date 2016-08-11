@@ -125,7 +125,7 @@ private class DeviceContext: NSObject {
 		#endif
 	}
 	
-	private func extractFamily(model: String?) -> String? {
+	private func extractFamily(_ model: String?) -> String? {
 		guard let model = model else { return nil }
 		
 		let pattern = "^\\D+"

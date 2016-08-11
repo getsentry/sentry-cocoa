@@ -15,7 +15,7 @@ extension SentryClient {
 	public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
 
 	/// Saves given event to disk
-	public func saveEvent(event: Event) {
+	public func saveEvent(_ event: Event) {
 		do {
 			// Gets write path and serialized string for event
 			guard let path = try writePath(event), text = try serializedString(event) else { return }

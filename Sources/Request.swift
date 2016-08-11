@@ -19,7 +19,7 @@ extension SentryClient {
 	- Parameter event: An event
 	- Parameter finished: A closure with the success status
 	*/
-	internal func sendEvent(event: Event, finished: EventFinishedSending? = nil) {
+	internal func sendEvent(_ event: Event, finished: EventFinishedSending? = nil) {
 		if NSJSONSerialization.isValidJSONObject(event.serialized) {
 			do {
 				let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
@@ -37,7 +37,7 @@ extension SentryClient {
 	- Parameter data: The data
 	- Parameter finished: A closure with the success status
 	*/
-	func sendData(data: NSData, finished: EventFinishedSending? = nil) {
+	func sendData(_ data: NSData, finished: EventFinishedSending? = nil) {
 		if let body = NSString(data: data, encoding: NSUTF8StringEncoding) {
 			SentryLog.Debug.log("body = \(body)")
 		}

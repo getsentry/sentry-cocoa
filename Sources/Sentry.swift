@@ -20,13 +20,19 @@ import Foundation
 		}
 	}
 
-	internal func log(message: String) {
+	internal func log(_ message: String) {
 		guard rawValue <= SentryClient.logLevel.rawValue else { return }
 		print("SentrySwift - \(description):: \(message)")
 	}
 }
 
-internal enum SentryError: ErrorType {
+#if swift(>=3.0)
+	
+#else
+	typealias Error = ErrorType
+#endif
+
+internal enum SentryError: Error {
 	case InvalidDSN
 }
 
@@ -119,13 +125,13 @@ internal enum SentryError: ErrorType {
 	- Parameter message: The message to send to Sentry
 	- Parameter level: The severity of the message
 	*/
-	@objc public func captureMessage(message: String, level: SentrySeverity = .Info) {
+	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
 		captureEvent(event)
 	}
 
 	/// Reports given event to Sentry
-	@objc public func captureEvent(event: Event) {
+	@objc public func captureEvent(_ event: Event) {
 		captureEvent(event, useClientProperties: true)
 	}
 	
@@ -134,7 +140,7 @@ internal enum SentryError: ErrorType {
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	internal func captureEvent(event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
+	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
 
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
