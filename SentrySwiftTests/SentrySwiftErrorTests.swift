@@ -50,5 +50,7 @@ class SentrySwiftErrorTests: XCTestCase {
             "some key": ["https://example.com", 10]
         ]
         XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == expectedUserInfo)
+		
+        XCTAssertTrue(NSJSONSerialization.isValidJSONObject(event.serialized) )
     }
 }
