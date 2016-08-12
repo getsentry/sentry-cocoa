@@ -3,7 +3,7 @@ fastlane_version "1.66.0"
 
 desc "Test iOS, tvOS, and OSX"
 lane :test do
-    test_xcode7 unless is_ci
+    test_xcode7
     test_xcode8
 end
 
@@ -24,7 +24,7 @@ end
 
 def test_xcode7
     kill_sims
-    xcode_select("/Applications/Xcode.app")
+    xcode_select("/Applications/Xcode.app") unless is_ci
 
     scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (9.3)")
     scan(scheme: "SentrySwift-tvOS")
