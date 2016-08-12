@@ -3,7 +3,9 @@ fastlane_version "1.66.0"
 desc "Test iOS, tvOS, and OSX"
 lane :test do
 
-    scan(scheme: "SentrySwift-iOS")
+    xcode_select("/Applications/Xcode.app")
+
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (9.3)")
     scan(scheme: "SentrySwift-tvOS")
     scan(scheme: "SentrySwift-OSX")
 
