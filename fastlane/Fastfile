@@ -1,10 +1,42 @@
 fastlane_version "1.66.0"
 
+
 desc "Test iOS, tvOS, and OSX"
 lane :test do
+    test_xcode7
+    test_xcode8
+end
 
-    scan(scheme: "SentrySwift-iOS")
+lane :test_7 do
+    test_xcode7
+end
+
+lane :test_8 do
+    test_xcode8
+end
+
+def kill_sims
+    sh "killall -9 com.apple.CoreSimulator.CoreSimulatorService" rescue nil
+    sh "killall -9 Simulator" rescue nil
+
+    sleep 5
+end
+
+def test_xcode7
+    kill_sims
+    xcode_select("/Applications/Xcode.app") unless is_ci
+
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (9.3)")
     scan(scheme: "SentrySwift-tvOS")
     scan(scheme: "SentrySwift-OSX")
+end
 
+def test_xcode8
+    kill_sims
+    xcode_select("/Applications/Xcode-beta.app") unless is_ci
+
+    xcargs = "SWIFT_VERSION=\"3.0\""
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", xcargs: xcargs)
+    scan(scheme: "SentrySwift-tvOS", device: "Apple TV 1080p (9.2)", xcargs: xcargs)
+    scan(scheme: "SentrySwift-OSX", xcargs: xcargs)
 end

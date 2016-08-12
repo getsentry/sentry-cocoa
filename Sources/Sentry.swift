@@ -20,13 +20,22 @@ import Foundation
 		}
 	}
 
-	internal func log(message: String) {
+	internal func log(_ message: String) {
 		guard rawValue <= SentryClient.logLevel.rawValue else { return }
 		print("SentrySwift - \(description):: \(message)")
 	}
 }
 
-internal enum SentryError: ErrorType {
+#if swift(>=3.0)
+	
+#else
+	internal typealias Error = ErrorType
+	internal typealias ProcessInfo = NSProcessInfo
+	internal typealias JSONSerialization = NSJSONSerialization
+	internal typealias Bundle = NSBundle
+#endif
+
+internal enum SentryError: Error {
 	case InvalidDSN
 }
 
@@ -87,7 +96,13 @@ internal enum SentryError: ErrorType {
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {
 		self.dsn = dsn
-		self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+		
+		#if swift(>=3.0)
+			self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+		#else
+			self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+		#endif
+		
 		super.init()
 		sendEventsOnDisk()
 	}
@@ -119,13 +134,13 @@ internal enum SentryError: ErrorType {
 	- Parameter message: The message to send to Sentry
 	- Parameter level: The severity of the message
 	*/
-	@objc public func captureMessage(message: String, level: SentrySeverity = .Info) {
+	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
 		captureEvent(event)
 	}
 
 	/// Reports given event to Sentry
-	@objc public func captureEvent(event: Event) {
+	@objc public func captureEvent(_ event: Event) {
 		captureEvent(event, useClientProperties: true)
 	}
 	
@@ -134,18 +149,18 @@ internal enum SentryError: ErrorType {
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	internal func captureEvent(event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
+	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
 
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
 			event.user = event.user ?? user
 			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
-			if NSJSONSerialization.isValidJSONObject(tags) {
+			if JSONSerialization.isValidJSONObject(tags) {
 				event.tags.unionInPlace(tags)
 			}
 
-			if NSJSONSerialization.isValidJSONObject(extra) {
+			if JSONSerialization.isValidJSONObject(extra) {
 				event.extra.unionInPlace(extra)
 			}
 		}

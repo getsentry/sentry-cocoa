@@ -109,22 +109,30 @@ class SentrySwiftTests: XCTestCase {
 		
 		let header = dsn.xSentryAuthHeader
 		XCTAssertEqual(header.key, "X-Sentry-Auth")
-		XCTAssertNotNil(header.value.rangeOfString("Sentry "))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_version=\(SentryClient.Info.sentryVersion)"))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryClient.Info.version)"))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_timestamp="))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "Sentry "))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_version=\(SentryClient.Info.sentryVersion)"))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_client=sentry-swift/\(SentryClient.Info.version)"))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_timestamp="))
 		
 		if let key = dsn.publicKey {
-			XCTAssertNotNil(header.value.rangeOfString("sentry_key=\(key)"))
+			XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_key=\(key)"))
 		} else {
-			XCTAssertNil(header.value.rangeOfString("sentry_key=") == nil)
+			XCTAssertNil(rangeOfString(header.value, rangeString: "sentry_key=") == nil)
 		}
 		
 		if let key = dsn.secretKey {
-			XCTAssertNotNil(header.value.rangeOfString("sentry_secret=\(key)"))
+			XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_secret=\(key)"))
 		} else {
-			XCTAssertNil(header.value.rangeOfString("sentry_secret="))
+			XCTAssertNil(rangeOfString(header.value, rangeString: "sentry_secret="))
 		}
+	}
+
+	private func rangeOfString(_ string: String, rangeString: String) -> Range<String.Index>? {
+		#if swift(>=3.0)
+			return string.range(of: rangeString)
+		#else
+			return string.rangeOfString(rangeString)
+		#endif
 	}
 	
 	// MARK: Event
@@ -391,5 +399,9 @@ class SentrySwiftTests: XCTestCase {
 
 /// A small hack to compare dictionaries
 public func ==(lhs: [String: AnyObject], rhs: [String: AnyObject] ) -> Bool {
-	return NSDictionary(dictionary: lhs).isEqualToDictionary(rhs)
+	#if swift(>=3.0)
+		return NSDictionary(dictionary: lhs).isEqual(to: rhs)
+	#else
+		return NSDictionary(dictionary: lhs).isEqualToDictionary(rhs)
+	#endif
 }

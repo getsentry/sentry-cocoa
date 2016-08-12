@@ -23,11 +23,11 @@ public typealias EventFingerprint = [String]
 
 	public var description: String {
 		switch self {
-		case Fatal: return "fatal"
-		case Error: return "error"
-		case Warning: return "warning"
-		case Info: return "info"
-		case Debug: return "debug"
+		case .Fatal: return "fatal"
+		case .Error: return "error"
+		case .Warning: return "warning"
+		case .Info: return "info"
+		case .Debug: return "debug"
 		}
 	}
 }
@@ -39,7 +39,11 @@ public typealias EventFingerprint = [String]
 
 	// MARK: - Required Attributes
 
-	public let eventID: String = NSUUID().UUIDString.stringByReplacingOccurrencesOfString("-", withString: "")
+	#if swift(>=3.0)
+		public let eventID: String = NSUUID().uuidString.replacingOccurrences(of: "-", with: "")
+	#else
+		public let eventID: String = NSUUID().UUIDString.stringByReplacingOccurrencesOfString("-", withString: "")
+	#endif
 	public var message: String
 	public var timestamp: NSDate = NSDate()
 	public var level: SentrySeverity = .Error
@@ -74,7 +78,7 @@ public typealias EventFingerprint = [String]
 	- Parameter message: A message
 	- Parameter build: A closure that passes an event to build upon
 	*/
-	public static func build(message: String, build: BuildEvent) -> Event {
+	public static func build(_ message: String, build: BuildEvent) -> Event {
 		var event: Event = Event(message, timestamp: NSDate())
 		build(&event)
 		return event
@@ -159,9 +163,9 @@ extension Event: EventSerializable {
 			("culprit", culprit),
 			("server_name", serverName),
 			("release", releaseVersion),
-			("tags", NSJSONSerialization.isValidJSONObject(tags) ? tags : nil),
+			("tags", JSONSerialization.isValidJSONObject(tags) ? tags : nil),
 			("modules", modules),
-			("extra", NSJSONSerialization.isValidJSONObject(extra) ? extra : nil),
+			("extra", JSONSerialization.isValidJSONObject(extra) ? extra : nil),
 			("fingerprint", fingerprint),
 
 			// Interfaces

@@ -52,7 +52,11 @@ internal class DSN: NSObject {
 			components.path = "/api/\(id)/store/"
 			components.port = url.port
 
-			serverURL = components.URL
+			#if swift(>=3.0)
+				serverURL = components.url
+			#else
+				serverURL = components.URL
+			#endif
 		}
 
 		guard let theDsn = dsn, theServerURL = serverURL, theProjectID = projectID else {
@@ -75,7 +79,11 @@ internal class DSN: NSObject {
 
 		var ret: [String] = []
 		headerParts.filter() { $0.1 != nil }.forEach() { ret.append("\($0.0)=\($0.1!)") }
-		let value = ret.joinWithSeparator(",")
+		#if swift(>=3.0)
+			let value = ret.joined(separator: ",")
+		#else
+			let value = ret.joinWithSeparator(",")
+		#endif
 
 		return ("X-Sentry-Auth", value)
 	}
