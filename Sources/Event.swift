@@ -165,7 +165,7 @@ extension Event: EventSerializable {
 			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
-			("stacktrace", stacktrace),
+			("stacktrace", stacktrace?.serialized),
 		]
 
 		var ret: [String: AnyObject] = [:]

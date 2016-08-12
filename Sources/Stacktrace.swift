@@ -22,7 +22,7 @@ extension Stacktrace: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal var serialized: SerializedType {
 		return [
-			"frames": frames,
+			"frames": frames.map({$0.serialized}),
 			]
 	}
 }
