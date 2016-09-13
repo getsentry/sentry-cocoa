@@ -15,7 +15,7 @@ extension SentryClient {
 	}
 }
 
-private typealias CrashDictionary = [String: AnyObject]
+private typealias CrashDictionary = [String: Any]
 
 private let keyUser = "user"
 private let keyEventTags = "event_tags"
@@ -76,8 +76,8 @@ internal class KSCrashHandler: CrashHandler {
 		installation.install()
 
 		// Maps KSCrash reports in `Events`
-		installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
-			SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
+		installation.sendAllReports() { (filteredReports, completed, error) -> Void in
+			SentryLog.Debug.log(message: "Sent \(filteredReports?.count) report(s)")
 		}
 	}
 
@@ -127,18 +127,18 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		super.init()
 	}
 	
-	@objc func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
+	@objc func filterReports(_ reports: [Any]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
 		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.map({mapReportToEvent($0)}) ?? []
+			.map({mapReportToEvent(report: $0)}) ?? []
 		
 		// Sends events recursively
-		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+		sendEvent(reports: reports, events: events, success: true, onCompletion: onCompletion)
 	}
 	
-	private func sendEvent(reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
+	private func sendEvent(reports: [Any]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
 		var events = allEvents
 		
 		// Complete when no more
@@ -147,37 +147,41 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			return
 		}
 		
-		// Send event
-		client.captureEvent(event, useClientProperties: true) { [weak self] eventSuccess in
-			self?.sendEvent(reports, events: events, success: success && eventSuccess, onCompletion: onCompletion)
-		}
+        // Send event
+        client.captureEvent(event: event, useClientProperties: true) { [weak self] (eventSuccess) -> Void in
+            self?.sendEvent(reports: reports, events: events, success: success && eventSuccess, onCompletion: onCompletion)
+        }
 	}
 	
 	private func mapReportToEvent(report: CrashDictionary) -> Event {
-		SentryLog.Debug.log("Found report: \(report)")
+		SentryLog.Debug.log(message: "Found report: \(report)")
 
 		// Extract crash timestamp
-		let timestamp: NSDate = {
-			var date: NSDate?
-			if let timestampStr = report["report"]?["timestamp"] as? String {
-				let dateFormatter = NSDateFormatter()
+        var date: Date?
+		let timestamp: Date = {
+			if let timestampStr = (report["report"] as? [String: Any])?["timestamp"] as? String {
+				let dateFormatter = DateFormatter()
 				dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-				dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-				dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-				date = dateFormatter.dateFromString(timestampStr)
-			}
-			return date ?? NSDate()
+				dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
+				dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0) as TimeZone!
+				date = dateFormatter.date(from: timestampStr)
+            }
+            if let date = date {
+                return date
+            } else {
+                return Date()
+            }
 		}()
 
 		// Populate user info
-		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
+		let userInfo = self.parseUserInfo(userInfo: report["user"] as? CrashDictionary)
 
 		// Generate Apple crash report
 		let appleCrashReport: AppleCrashReport? = {
 			guard let
-				crash = report["crash"] as? [String: AnyObject],
-				binaryImages = report["binary_images"] as? [[String: AnyObject]],
-				system = report["system"] as? [String: AnyObject] else {
+				crash = report["crash"] as? [String: Any],
+				let binaryImages = report["binary_images"] as? [[String: Any]],
+				let system = report["system"] as? [String: Any] else {
 					return nil
 				}
 			return AppleCrashReport(crash: crash, binaryImages: binaryImages, system: system)
@@ -185,8 +189,8 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 
 		/// Generate event to sent up to API
 		/// Sends a blank message because server does stuff
-		let event = Event.build("") {
-			$0.level = .Fatal
+		let event = Event.build(message: "") {
+			$0.level = .fatal
 			$0.timestamp = timestamp
 			$0.tags = userInfo.tags ?? [:]
 			$0.extra = userInfo.extra ?? [:]
@@ -203,7 +207,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		return (
 			userInfo?[keyEventTags] as? EventTags,
 			userInfo?[keyEventExtra] as? EventExtra,
-			User(dictionary: userInfo?[keyUser] as? [String: AnyObject]),
+			User(dictionary: userInfo?[keyUser] as? [String: Any]),
 			userInfo?[keyBreadcrumbsSerialized] as? BreadcrumbStore.SerializedType,
 			userInfo?[keyReleaseVersion] as? String
 		)

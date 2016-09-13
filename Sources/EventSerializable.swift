@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal typealias SerializedTypeDictionary = [String: AnyObject]
+internal typealias SerializedTypeDictionary = [String: Any]
 internal typealias SerializedTypeArray = [SerializedTypeDictionary]
 
 /// A protocol used for complex structures (ex: Event, User, AppleCrashReport)

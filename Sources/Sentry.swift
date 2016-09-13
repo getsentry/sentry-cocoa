@@ -26,8 +26,8 @@ import Foundation
 	}
 }
 
-internal enum SentryError: ErrorType {
-	case InvalidDSN
+internal enum SentryError: Error {
+	case invalidDSN
 }
 
 @objc public class SentryClient: NSObject, EventProperties {
@@ -87,7 +87,7 @@ internal enum SentryError: ErrorType {
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {
 		self.dsn = dsn
-		self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+		self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
 		super.init()
 		sendEventsOnDisk()
 	}
@@ -96,7 +96,7 @@ internal enum SentryError: ErrorType {
 	@objc public convenience init?(dsnString: String) {
 		// Silently not creating a client if dsnString is empty string
 		if dsnString.isEmpty {
-			SentryLog.Debug.log("DSN provided was empty - not creating a SentryClient object")
+			SentryLog.Debug.log(message: "DSN provided was empty - not creating a SentryClient object")
 			return nil
 		}
 		
@@ -105,11 +105,11 @@ internal enum SentryError: ErrorType {
 		do {
 			let dsn = try DSN(dsnString)
 			self.init(dsn: dsn)
-		} catch SentryError.InvalidDSN {
-			SentryLog.Error.log("DSN is invalid")
+		} catch SentryError.invalidDSN {
+			SentryLog.Error.log(message: "DSN is invalid")
 			return nil
 		} catch {
-			SentryLog.Error.log("DSN is invalid")
+			SentryLog.Error.log(message: "DSN is invalid")
 			return nil
 		}
 	}
@@ -119,14 +119,14 @@ internal enum SentryError: ErrorType {
 	- Parameter message: The message to send to Sentry
 	- Parameter level: The severity of the message
 	*/
-	@objc public func captureMessage(message: String, level: SentrySeverity = .Info) {
+	@objc public func captureMessage(message: String, level: SentrySeverity = .info) {
 		let event = Event(message, level: level)
-		captureEvent(event)
+		captureEvent(event: event)
 	}
 
 	/// Reports given event to Sentry
 	@objc public func captureEvent(event: Event) {
-		captureEvent(event, useClientProperties: true)
+        captureEvent(event: event, useClientProperties: true)
 	}
 	
 	/*
@@ -134,31 +134,31 @@ internal enum SentryError: ErrorType {
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	internal func captureEvent(event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
+	internal func captureEvent(event: Event, useClientProperties: Bool = true, completed: ((_ success: Bool) -> ())? = nil) {
 
 		// Don't allow client attributes to be used when reporting an `Exception`
-		if useClientProperties && event.level != .Fatal {
+		if useClientProperties && event.level != .fatal {
 			event.user = event.user ?? user
 			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
-			if NSJSONSerialization.isValidJSONObject(tags) {
-				event.tags.unionInPlace(tags)
+			if JSONSerialization.isValidJSONObject(tags) {
+				event.tags.unionInPlace(dictionary: tags)
 			}
 
-			if NSJSONSerialization.isValidJSONObject(extra) {
-				event.extra.unionInPlace(extra)
+			if JSONSerialization.isValidJSONObject(extra) {
+				event.extra.unionInPlace(dictionary: extra)
 			}
 		}
 
-		if event.level == .Error && event.level != .Fatal {
+		if event.level == .error && event.level != .fatal {
 			event.breadcrumbsSerialized = breadcrumbs.serialized
 			breadcrumbs.clear()
 		}
 		
-		sendEvent(event) { [weak self] success in
-			completed?(success: success)
+		sendEvent(event: event) { [weak self] success in
+			completed?(success)
 			guard !success else { return }
-			self?.saveEvent(event)
+			self?.saveEvent(event: event)
 		}
 	}
 
@@ -167,7 +167,7 @@ internal enum SentryError: ErrorType {
 		let events = savedEvents()
 		
 		for savedEvent in events {
-			sendData(savedEvent.data) { success in
+            sendData(data: savedEvent.data) { success in
 				guard success else { return }
 				savedEvent.deleteEvent()
 			}

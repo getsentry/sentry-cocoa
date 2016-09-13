@@ -12,19 +12,19 @@ private let directoryNamePrefix = "sentry-swift-"
 
 extension SentryClient {
 
-	public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
+	public typealias SavedEvent = (data: Data, deleteEvent: () -> ())
 
 	/// Saves given event to disk
 	public func saveEvent(event: Event) {
 		do {
 			// Gets write path and serialized string for event
-			guard let path = try writePath(event), text = try serializedString(event) else { return }
+			guard let path = try writePath(event: event), let text = try serializedString(event: event) else { return }
 			
 			// Writes the event data to file
-			try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
-			SentryLog.Debug.log("Saved event \(event.eventID) to \(path)")
+			try text.write(toFile: path, atomically: false, encoding: String.Encoding.utf8)
+			SentryLog.Debug.log(message: "Saved event \(event.eventID) to \(path)")
 		} catch {
-			SentryLog.Error.log("Failed to save event \(event.eventID): \(error)")
+			SentryLog.Error.log(message: "Failed to save event \(event.eventID): \(error)")
 		}
 	}
 
@@ -33,25 +33,30 @@ extension SentryClient {
 		do {
 			guard let path = directory() else { return [] }
 			
-			return try NSFileManager.defaultManager()
-				.contentsOfDirectoryAtPath(path)
+			return try FileManager.default
+				.contentsOfDirectory(atPath: path)
 				.flatMap { fileName in
-					let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
-					guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
+					let absolutePath = path+"/"+fileName
+                    var data: Data!
+                    do {
+                        data = try Data(contentsOf: URL(fileURLWithPath: absolutePath))
+                    } catch _ {
+                        return nil
+                    }
 					
 					return (data, {
 						do {
-							try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
-							SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+							try FileManager.default.removeItem(atPath: absolutePath)
+							SentryLog.Debug.log(message: "Deleted event at path - \(absolutePath)")
 						} catch {
-							SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+							SentryLog.Error.log(message: "Failed to delete event at path - \(absolutePath)")
 						}
 					})
 				}
 		} catch let error as NSError {
 			// Debug logging this error since its purely informational
 			// This folder doesn't need to exist
-			SentryLog.Debug.log(error.localizedDescription)
+			SentryLog.Debug.log(message: error.localizedDescription)
 		}
 		
 		return []
@@ -62,14 +67,14 @@ extension SentryClient {
 	
 	/// Path of directory to which events will be saved in offline mode
 	private func directory() -> String? {
-		guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
+		guard let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else { return nil }
 
         let serverURLString: String! = dsn.serverURL.absoluteString
         if serverURLString == nil { return nil }
 
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"
 
-        return (documentsPath as NSString).stringByAppendingPathComponent(directory)
+        return (documentsPath as NSString).appendingPathComponent(directory)
 	}
 	
 	/*
@@ -81,8 +86,8 @@ extension SentryClient {
 	private func writePath(event: Event) throws -> String? {
 		guard let sentryDir = directory() else { return nil }
 
-		try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir, withIntermediateDirectories: true, attributes: nil)
-		return (sentryDir as NSString).stringByAppendingPathComponent(event.eventID)
+		try FileManager.default.createDirectory(atPath: sentryDir, withIntermediateDirectories: true, attributes: nil)
+		return (sentryDir as NSString).appendingPathComponent(event.eventID)
 	}
 	
 	/*
@@ -92,9 +97,9 @@ extension SentryClient {
 	- Returns: Serialized string
 	*/
 	private func serializedString(event: Event) throws -> String? {
-		if NSJSONSerialization.isValidJSONObject(event.serialized) {
-			let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
-			return String(data: data, encoding: NSUTF8StringEncoding)
+		if JSONSerialization.isValidJSONObject(event.serialized) {
+			let data = try JSONSerialization.data(withJSONObject: event.serialized, options: [])
+			return String(data: data, encoding: String.Encoding.utf8)
 		}
 
 		return nil

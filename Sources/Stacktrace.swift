@@ -63,7 +63,7 @@ extension Frame: EventSerializable {
 			"filename": fileName,
 			"function": function
 			]
-			.set("module", value: module)
-			.set("lineno", value: line)
+			.set(key: "module", value: module)
+			.set(key: "lineno", value: line)
 	}
 }

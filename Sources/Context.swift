@@ -66,11 +66,11 @@ extension OSContext: EventSerializable {
 	typealias SerializedType = SerializedTypeDictionary
 	var serialized: SerializedType {
 		return [:]
-			.set("name", value: name)
-			.set("version", value: version)
-			.set("build", value: build)
-			.set("kernalVersion", value: kernalVersion)
-			.set("rooted", value: jailbroken)
+			.set(key: "name", value: name)
+			.set(key: "version", value: version)
+			.set(key: "build", value: build)
+			.set(key: "kernalVersion", value: kernalVersion)
+			.set(key: "rooted", value: jailbroken)
 	}
 }
 
@@ -83,7 +83,7 @@ private class DeviceContext: NSObject {
 	}
 	
 	var family: String? {
-		return extractFamily(model)
+		return extractFamily(model: model)
 	}
 	
 	var machine: String? {
@@ -96,7 +96,7 @@ private class DeviceContext: NSObject {
 	}
 	
 	var model: String? {
-		if let simModel = NSProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] where isSimulator {
+		if let simModel = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] , isSimulator {
 			return simModel
 		} else {
 		
@@ -133,11 +133,11 @@ private class DeviceContext: NSObject {
 		do {
 			let regex = try NSRegularExpression(pattern: pattern, options: [])
 			let nsString = model as NSString
-			let results = regex.matchesInString(model,
+			let results = regex.matches(in: model,
 			                                    options: [], range: NSMakeRange(0, nsString.length))
-			return results.map { nsString.substringWithRange($0.range)}.first
+			return results.map { nsString.substring(with: $0.range)}.first
 		} catch let error as NSError {
-			SentryLog.Error.log("Invalid family regeex: \(error.localizedDescription)")
+			SentryLog.Error.log(message: "Invalid family regeex: \(error.localizedDescription)")
 			return nil
 		}
 	}
@@ -147,26 +147,26 @@ extension DeviceContext: EventSerializable {
 	typealias SerializedType = SerializedTypeDictionary
 	var serialized: SerializedType {
 		var dict = SerializedType()
-			.set("family", value: family)
-			.set("architecture", value: architecture)
-			.set("model", value: model)
-			.set("family", value: family)
+			.set(key: "family", value: family)
+			.set(key: "architecture", value: architecture)
+			.set(key: "model", value: model)
+			.set(key: "family", value: family)
 		
 		switch (isOSX, isSimulator) {
 		// macOS
 		case (true, _):
-			dict = dict.set("machine", value: machine)
+			dict = dict.set(key: "machine", value: machine)
 			
 		// iOS/tvOS/watchOS Sim
 		case (false, true):
 			dict = dict
-				.set("simulator", value: isSimulator)
+				.set(key: "simulator", value: isSimulator)
 			
 		// iOS/tvOS/watchOS Device
 		default:
 			dict = dict
-				.set("model_id", value: model)
-				.set("simulator", value: isSimulator)
+				.set(key: "model_id", value: model)
+				.set(key: "simulator", value: isSimulator)
 		}
 		
 		return dict

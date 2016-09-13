@@ -14,20 +14,20 @@ import Foundation
 
 public typealias EventTags = [String: String]
 public typealias EventModules = [String: String]
-public typealias EventExtra = [String: AnyObject]
+public typealias EventExtra = [String: Any]
 public typealias EventFingerprint = [String]
 
 // This is declared here to keep namespace compatibility with objc
 @objc public enum SentrySeverity: Int, CustomStringConvertible {
-	case Fatal, Error, Warning, Info, Debug
+	case fatal, error, warning, info, debug
 
 	public var description: String {
 		switch self {
-		case Fatal: return "fatal"
-		case Error: return "error"
-		case Warning: return "warning"
-		case Info: return "info"
-		case Debug: return "debug"
+		case .fatal: return "fatal"
+		case .error: return "error"
+		case .warning: return "warning"
+		case .info: return "info"
+		case .debug: return "debug"
 		}
 	}
 }
@@ -38,11 +38,10 @@ public typealias EventFingerprint = [String]
 	public typealias BuildEvent = (inout Event) -> Void
 
 	// MARK: - Required Attributes
-
-	public let eventID: String = NSUUID().UUIDString.stringByReplacingOccurrencesOfString("-", withString: "")
+	public let eventID: String = NSUUID().uuidString.replacingOccurrences(of: "-", with: "")
 	public var message: String
-	public var timestamp: NSDate = NSDate()
-	public var level: SentrySeverity = .Error
+	public var timestamp: Date = Date()
+	public var level: SentrySeverity = .error
 	public var platform: String = "cocoa"
 
 
@@ -72,7 +71,7 @@ public typealias EventFingerprint = [String]
 	- Parameter build: A closure that passes an event to build upon
 	*/
 	public static func build(message: String, build: BuildEvent) -> Event {
-		var event: Event = Event(message, timestamp: NSDate())
+		var event: Event = Event(message, timestamp: Date())
 		build(&event)
 		return event
 	}
@@ -96,7 +95,7 @@ public typealias EventFingerprint = [String]
 	- Parameter stacktrace: An array of `Stacktrace` objects
 	- Parameter appleCrashReport: An apple crash report
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, stacktrace: Stacktrace? = nil, appleCrashReport: AppleCrashReport? = nil) {
+	@objc public init(_ message: String, timestamp: Date = Date(), level: SentrySeverity = .error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exception: [Exception]? = nil, stacktrace: Stacktrace? = nil, appleCrashReport: AppleCrashReport? = nil) {
 
 		// Required
 		self.message = message
@@ -125,7 +124,7 @@ public typealias EventFingerprint = [String]
 
 extension Event: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
-	internal typealias Attribute = (key: String, value: AnyObject?)
+	internal typealias Attribute = (key: String, value: Any?)
 	
 	var sdk: [String: String]? {
 		return [
@@ -142,7 +141,7 @@ extension Event: EventSerializable {
 			// Required
 			("event_id", eventID),
 			("message", message),
-			("timestamp", timestamp.iso8601),
+			("timestamp", timestamp.timeIntervalSince1970),
 			("level", level.description),
 			("platform", platform),
 			
@@ -155,20 +154,20 @@ extension Event: EventSerializable {
 			("culprit", culprit),
 			("server_name", serverName),
 			("release", releaseVersion),
-			("tags", NSJSONSerialization.isValidJSONObject(tags) ? tags : nil),
+			("tags", JSONSerialization.isValidJSONObject(tags) ? tags : nil),
 			("modules", modules),
-			("extra", NSJSONSerialization.isValidJSONObject(extra) ? extra : nil),
+			("extra", JSONSerialization.isValidJSONObject(extra) ? extra : nil),
 			("fingerprint", fingerprint),
 
 			// Interfaces
 			("user", user?.serialized),
-			("exception", [:].set("values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
+			("exception", [:].set(key: "values", value: exception?.map() { $0.serialized }.flatMap() { $0 })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
 			("stacktrace", stacktrace?.serialized),
 		]
 
-		var ret: [String: AnyObject] = [:]
+		var ret: [String: Any] = [:]
 		attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
 		return ret
 	}
