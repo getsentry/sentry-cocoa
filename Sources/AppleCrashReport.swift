@@ -13,9 +13,9 @@ import Foundation
 
 	// MARK: - Attributes
 
-	public var crash: [String: AnyObject]
-	public var binaryImages: [[String: AnyObject]]
-	public var system: [String: AnyObject]
+	public var crash: [String: Any]
+	public var binaryImages: [[String: Any]]
+	public var system: [String: Any]
 	
 	/*
 	Creates an apple crash report
@@ -23,7 +23,7 @@ import Foundation
 	- Parameter binaryImages: An array of dictionaries of binary images
 	- Parameter system: A dictionary of system info for the crash
 	*/
-	public init(crash: [String: AnyObject], binaryImages: [[String: AnyObject]], system: [String: AnyObject]) {
+	public init(crash: [String: Any], binaryImages: [[String: Any]], system: [String: Any]) {
 		self.crash = crash
 		self.binaryImages = binaryImages
 		self.system = system

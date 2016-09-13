@@ -13,17 +13,17 @@ import Foundation
 
 	// MARK: - Attributes
 
-	public let timestamp: NSDate
+	public let timestamp: Date
 	public var category: String
 
 	public var type: String?
 	public var message: String?
-	public var data: [String: AnyObject]
+	public var data: [String: Any]
 	public var level: SentrySeverity // can't be optional because @objc can't handle optional enums
 
 
 	/// Creates a breadcrumb
-	@objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil) {
+	@objc public init(category: String, timestamp: Date = Date(), message: String? = nil, type: String? = nil, level: SentrySeverity = .info, data: [String: Any]? = nil) {
 		self.category = category
 		self.timestamp = timestamp
 		self.message = message
@@ -35,21 +35,21 @@ import Foundation
 	}
 
 	/// Conveneince init for a "navigation" type breadcrumb
-	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil, to: String, from: String? = nil) {
-		let navigationData: [String: AnyObject] = (data ?? [:])
-		.set("to", value: to)
-		.set("from", value: from)
+	public convenience init(category: String, timestamp: Date = Date(), message: String? = nil, level: SentrySeverity = .info, data: [String: Any]? = nil, to: String, from: String? = nil) {
+		let navigationData: [String: Any] = (data ?? [:])
+		.set(key: "to", value: to)
+		.set(key: "from", value: from)
 
 		self.init(category: category, timestamp: timestamp, message: message, type: "navigation", level: level, data: navigationData)
 	}
 
 	/// Conveneince init for an "http" type breadcrumb (-999 workaround because @objc can't handle optional Int)
-	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil, url: String, method: String, statusCode: Int = -999, reason: String? = nil) {
-		let httpData: [String: AnyObject] = (data ?? [:])
-		.set("url", value: url)
-		.set("method", value: method)
-		.set("status_code", value: statusCode == -999 ? nil : statusCode)
-		.set("reason", value: "reason")
+	public convenience init(category: String, timestamp: Date = Date(), message: String? = nil, level: SentrySeverity = .info, data: [String: Any]? = nil, url: String, method: String, statusCode: Int = -999, reason: String? = nil) {
+		let httpData: [String: Any] = (data ?? [:])
+		.set(key: "url", value: url)
+		.set(key: "method", value: method)
+		.set(key: "status_code", value: statusCode == -999 ? nil : statusCode)
+		.set(key: "reason", value: "reason")
 
 		self.init(category: category, timestamp: timestamp, message: message, type: "http", level: level, data: httpData)
 	}
@@ -63,8 +63,8 @@ extension Breadcrumb: EventSerializable {
 			"timestamp": timestamp.iso8601,
 			"data": data
 		]
-		.set("type", value: type)
-		.set("message", value: message)
-		.set("level", value: level.description)
+		.set(key: "type", value: type)
+		.set(key: "message", value: message)
+		.set(key: "level", value: level.description)
 	}
 }

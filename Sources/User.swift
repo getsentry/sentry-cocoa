@@ -13,14 +13,14 @@ import Foundation
     public var userID: String
     public var email: String?
     public var username: String?
-    public var extra: [String: AnyObject]
+    public var extra: [String: Any]
 
     /// Creates a user
     /// - Parameter userID: A user id
     /// - Parameter email: An optional email
     /// - Parameter username: An optional username
     /// - Parameter extra: An optional extra dictionary
-    @objc public init(id userID: String, email: String? = nil, username: String? = nil, extra: [String: AnyObject] = [:]) {
+    @objc public init(id userID: String, email: String? = nil, username: String? = nil, extra: [String: Any] = [:]) {
         self.userID = userID
         self.email = email
         self.username = username
@@ -32,8 +32,8 @@ import Foundation
     /// Creates a user from a dictionary
     /// This will mostly get used from a saved offline event
     /// - Parameter dictionary: A dictionary of data to parse to fill properties of a user
-    internal convenience init?(dictionary: [String: AnyObject]?) {
-        guard let dictionary = dictionary, userID = dictionary["id"] as? String else { return nil }
+    internal convenience init?(dictionary: [String: Any]?) {
+        guard let dictionary = dictionary, let userID = dictionary["id"] as? String else { return nil }
         self.init(
         id: userID,
                 email: dictionary["email"] as? String,
@@ -47,8 +47,8 @@ extension User: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
         return extra
-            .set("id", value: userID)
-            .set("email", value: email)
-            .set("username", value: username)
+            .set(key: "id", value: userID)
+            .set(key: "email", value: email)
+            .set(key: "username", value: username)
     }
 }
