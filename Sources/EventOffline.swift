@@ -18,7 +18,7 @@ extension SentryClient {
 	public func saveEvent(_ event: Event) {
 		do {
 			// Gets write path and serialized string for event
-			guard let path = try writePath(event), text = try serializedString(event) else { return }
+			guard let path = try writePath(event), let text = try serializedString(event) else { return }
 			
 			// Writes the event data to file
 			#if swift(>=3.0)
@@ -129,7 +129,7 @@ extension SentryClient {
 	private func serializedString(_ event: Event) throws -> String? {
 		#if swift(>=3.0)
 			if JSONSerialization.isValidJSONObject(event.serialized) {
-				let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: [])
+				let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
 				return String(data: data as Data, encoding: String.Encoding.utf8)
 			}
 		#else

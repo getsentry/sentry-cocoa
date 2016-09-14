@@ -14,7 +14,7 @@ import Foundation
 
 public typealias EventTags = [String: String]
 public typealias EventModules = [String: String]
-public typealias EventExtra = [String: AnyObject]
+public typealias EventExtra = [String: AnyType]
 public typealias EventFingerprint = [String]
 
 // This is declared here to keep namespace compatibility with objc
@@ -132,7 +132,7 @@ public typealias EventFingerprint = [String]
 
 extension Event: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
-	internal typealias Attribute = (key: String, value: AnyObject?)
+	internal typealias Attribute = (key: String, value: AnyType?)
 	
 	var sdk: [String: String]? {
 		return [
@@ -179,7 +179,7 @@ extension Event: EventSerializable {
 			("debug_meta", debugMeta?.serialized)
 		]
 
-		var ret: [String: AnyObject] = [:]
+		var ret: [String: AnyType] = [:]
 		attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
 		return ret
 	}

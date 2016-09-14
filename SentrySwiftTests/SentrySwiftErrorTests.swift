@@ -31,7 +31,7 @@ class SentrySwiftErrorTests: XCTestCase {
     func testErrorWithUserInfo() {
         let domain = "testDomain"
         let code = 123
-        let userInfo = [
+		let userInfo: [String: AnyType] = [
             NSLocalizedDescriptionKey: "I am error",
             NSUnderlyingErrorKey: NSError(domain: "foo", code: -42, userInfo: nil),
             "some key": [NSURL(string: "https://example.com")!, 10]
@@ -40,7 +40,7 @@ class SentrySwiftErrorTests: XCTestCase {
 
 		let event = Event(error: error, frame: frame)
 
-        let expectedUserInfo = [
+		let expectedUserInfo: [String: AnyType] = [
             NSLocalizedDescriptionKey: "I am error",
             NSUnderlyingErrorKey: [
                 "domain": "foo",

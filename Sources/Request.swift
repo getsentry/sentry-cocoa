@@ -12,7 +12,7 @@ import KSCrash.NSData_GZip
 
 extension SentryClient {
 	
-	internal typealias EventFinishedSending = (success: Bool) -> ()
+	internal typealias EventFinishedSending = (Bool) -> ()
 	
 	/*
 	Sends given event to the API
@@ -23,7 +23,7 @@ extension SentryClient {
 		if JSONSerialization.isValidJSONObject(event.serialized) {
 			do {
 				#if swift(>=3.0)
-					let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: [])
+					let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
 				#else
 					let data: NSData = try JSONSerialization.dataWithJSONObject(event.serialized, options: [])
 				#endif
@@ -84,7 +84,7 @@ extension SentryClient {
 				success = false
 			}
 			
-			finished?(success: success)
+			finished?(success)
 		}
 		
 		task.resume()
@@ -131,7 +131,7 @@ extension SentryClient {
 					success = false
 				}
 				
-				finished?(success: success)
+				finished?(success)
 			}
 
 			task.resume()

@@ -27,8 +27,9 @@ import Foundation
 }
 
 #if swift(>=3.0)
-	
+	public typealias AnyType = Any
 #else
+	public typealias AnyType = AnyObject
 	internal typealias Error = ErrorType
 	internal typealias ProcessInfo = NSProcessInfo
 	internal typealias JSONSerialization = NSJSONSerialization
@@ -149,7 +150,7 @@ internal enum SentryError: Error {
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((success: Bool) -> ())? = nil) {
+	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((Bool) -> ())? = nil) {
 
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
@@ -171,7 +172,7 @@ internal enum SentryError: Error {
 		}
 		
 		sendEvent(event) { [weak self] success in
-			completed?(success: success)
+			completed?(success)
 			guard !success else { return }
 			self?.saveEvent(event)
 		}

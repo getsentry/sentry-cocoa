@@ -36,8 +36,8 @@ internal class DSN: NSObject {
 		var projectID: String?
 
 		if let url = NSURL(string: dsnString),
-		host = url.host,
-		id = DSN.projectID(from: url) {
+			let host = url.host,
+			let id = DSN.projectID(from: url) {
 
 			// Setting properties
 			dsn = url
@@ -53,13 +53,13 @@ internal class DSN: NSObject {
 			components.port = url.port
 
 			#if swift(>=3.0)
-				serverURL = components.url
+				serverURL = components.url as NSURL?
 			#else
 				serverURL = components.URL
 			#endif
 		}
 
-		guard let theDsn = dsn, theServerURL = serverURL, theProjectID = projectID else {
+		guard let theDsn = dsn, let theServerURL = serverURL, let theProjectID = projectID else {
 			throw SentryError.InvalidDSN
 		}
 		self.init(dsn: theDsn, serverURL: theServerURL, publicKey: publicKey, secretKey: secretKey, projectID: theProjectID)

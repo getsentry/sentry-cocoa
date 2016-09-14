@@ -398,7 +398,7 @@ class SentrySwiftTests: XCTestCase {
 }
 
 /// A small hack to compare dictionaries
-public func ==(lhs: [String: AnyObject], rhs: [String: AnyObject] ) -> Bool {
+public func ==(lhs: [String: AnyType], rhs: [String: AnyType] ) -> Bool {
 	#if swift(>=3.0)
 		return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 	#else

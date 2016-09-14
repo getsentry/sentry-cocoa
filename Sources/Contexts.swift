@@ -96,8 +96,8 @@ private class DeviceContext: NSObject {
 	}
 	
 	var model: String? {
-		if let simModel = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] where isSimulator {
-			return simModel
+		if isSimulator {
+			return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
 		} else {
 		
 			#if os(OSX)

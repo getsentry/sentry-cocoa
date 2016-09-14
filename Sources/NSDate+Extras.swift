@@ -21,7 +21,7 @@ import Foundation
 	
 	extension NSDate {
 		internal static func fromISO8601(_ iso8601String: String) -> NSDate? {
-			return dateFormatter.date(from: iso8601String)
+			return dateFormatter.date(from: iso8601String) as NSDate?
 		}
 		
 		internal var iso8601: String {

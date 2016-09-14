@@ -27,12 +27,12 @@ import Foundation
         super.init()
     }
 
-    public override func isEqual(_ object: AnyObject?) -> Bool {
+    public override func isEqual(_ object: AnyType?) -> Bool {
         let lhs = self
         guard let rhs = object as? Exception else { return false }
         return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
     }
-	
+
 	internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil) {
 		var type = appleCrashErrorDict["type"] as? String
 		var value = appleCrashErrorDict["reason"] as? String
@@ -50,24 +50,24 @@ import Foundation
 				}
 			case "mach":
 				if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
-					name = context["exception_name"] as? String,
-					exception = context["exception"],
-					code = context["code"],
-					subcode = context["subcode"] {
+					let name = context["exception_name"] as? String,
+					let exception = context["exception"],
+					let code = context["code"],
+					let subcode = context["subcode"] {
 					type = name
 					value = "Exception \(exception), Code \(code), Subcode \(subcode)"
 				}
 			case "signal":
 				if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
-					name = context["name"] as? String,
-					signal = context["signal"],
-					code = context["code"] {
+					let name = context["name"] as? String,
+					let signal = context["signal"],
+					let code = context["code"] {
 					type = name
 					value = "Signal \(signal), Code \(code)"
 				}
 			case "user":
 				if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
-					name = context["name"] as? String {
+					let name = context["name"] as? String {
 					type = name
 					// TODO: with custom stack
 					// TODO: also platform field for customs stack

@@ -199,7 +199,7 @@ class SentrySwiftCrashTests: XCTestCase {
 	typealias JSONCrashFile = [String: AnyObject]
 	private func readJSONCrashFile(_ name: String) -> JSONCrashFile? {
 		#if swift(>=3.0)
-			let bundle = Bundle(for: self.dynamicType)
+			let bundle = Bundle(for: type(of: self))
 			guard let path = bundle.path(forResource: name, ofType: "json") else {
 				return nil
 			}

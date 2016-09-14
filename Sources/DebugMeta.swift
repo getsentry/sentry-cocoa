@@ -58,7 +58,7 @@ extension DebugMeta: EventSerializable {
 	internal class func getBinaryImage(_ binaryImages: [BinaryImage], address: MemoryAddress) -> BinaryImage? {
 		for binaryImage in binaryImages {
 			if let imageStart = binaryImage.imageAddress,
-				imageSize = binaryImage.imageSize {
+				let imageSize = binaryImage.imageSize {
 				
 				let imageEnd = imageStart + UInt64(imageSize)
 				if address >= imageStart && address < imageEnd {

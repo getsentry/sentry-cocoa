@@ -15,7 +15,7 @@ extension SentryClient {
 	}
 }
 
-private typealias CrashDictionary = [String: AnyObject]
+private typealias CrashDictionary = [String: AnyType]
 
 private let keyUser = "user"
 private let keyEventTags = "event_tags"
@@ -133,7 +133,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		super.init()
 	}
 	
-	@objc func filterReports(_ reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
+	@objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
 		let events: [Event] = reports?
@@ -144,7 +144,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
 	}
 	
-	private func sendEvent(_ reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
+	private func sendEvent(_ reports: [AnyType]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
 		var events = allEvents
 		
 		// Complete when no more
@@ -163,16 +163,16 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 
 		// Extract crash timestamp
 		#if swift(>=3.0)
-			let timestamp: Date = {
+			let timestamp: NSDate = {
 				var date: Date?
-				if let timestampStr = report["report"]?["timestamp"] as? String {
+				if let reportDict = report["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
 					let dateFormatter = DateFormatter()
 					dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 					dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 					dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
 					date = dateFormatter.date(from: timestampStr)
 				}
-				return date ?? Date()
+				return date as NSDate? ?? NSDate()
 			}()
 		#else
 			let timestamp: NSDate = {
@@ -191,20 +191,34 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		// Populate user info
 		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
 		
-		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
-		let crashDict = report["crash"] as! [String: AnyObject]
-		let errorDict = crashDict["error"] as! [String: AnyObject]
-		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
+		// Generating threads, exceptions, and debug meta for crash report
+		// TODO: Uncomment when fully implemented in API
+		// This will replace the appleCrashReport below
+//		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
+//		let crashDict = report["crash"] as! [String: AnyObject]
+//		let errorDict = crashDict["error"] as! [String: AnyObject]
+//		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
+//		
+//		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
 		
-		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+//		let debugMeta = DebugMeta(binaryImages: binaryImages)
+//		
+//		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+//		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
+//			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+//			return nil
+//		}
 		
-		let debugMeta = DebugMeta(binaryImages: binaryImages)
-		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
-			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
-			return nil
-		}
+		// Generate Apple crash report
+		let appleCrashReport: AppleCrashReport? = {
+			guard let
+				crash = report["crash"] as? [String: AnyObject],
+				let binaryImages = report["binary_images"] as? [[String: AnyObject]],
+				let system = report["system"] as? [String: AnyObject] else {
+					return nil
+			}
+			return AppleCrashReport(crash: crash, binaryImages: binaryImages, system: system)
+		}()
 
 		/// Generate event to sent up to API
 		/// Sends a blank message because server does stuff
@@ -214,11 +228,15 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			$0.tags = userInfo.tags ?? [:]
 			$0.extra = userInfo.extra ?? [:]
 			$0.user = userInfo.user
-			$0.threads = threads
-			$0.exceptions = [exception].flatMap({$0})
-			$0.debugMeta = debugMeta
 			$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
 			$0.releaseVersion = userInfo.releaseVersion
+			
+			$0.appleCrashReport = appleCrashReport
+			
+			// TODO: Uncomment when fully implemented in API
+//			$0.threads = threads
+//			$0.exceptions = [exception].flatMap({$0})
+//			$0.debugMeta = debugMeta
 		}
 		
 		return event

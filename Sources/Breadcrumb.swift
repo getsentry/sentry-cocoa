@@ -18,12 +18,12 @@ import Foundation
 
 	public var type: String?
 	public var message: String?
-	public var data: [String: AnyObject]
+	public var data: [String: AnyType]
 	public var level: SentrySeverity // can't be optional because @objc can't handle optional enums
 
 
 	/// Creates a breadcrumb
-	@objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil) {
+	@objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: SentrySeverity = .Info, data: [String: AnyType]? = nil) {
 		self.category = category
 		self.timestamp = timestamp
 		self.message = message
@@ -35,8 +35,8 @@ import Foundation
 	}
 
 	/// Conveneince init for a "navigation" type breadcrumb
-	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil, to: String, from: String? = nil) {
-		let navigationData: [String: AnyObject] = (data ?? [:])
+	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyType]? = nil, to: String, from: String? = nil) {
+		let navigationData: [String: AnyType] = (data ?? [:])
 		.set("to", value: to)
 		.set("from", value: from)
 
@@ -44,8 +44,8 @@ import Foundation
 	}
 
 	/// Conveneince init for an "http" type breadcrumb (-999 workaround because @objc can't handle optional Int)
-	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyObject]? = nil, url: String, method: String, statusCode: Int = -999, reason: String? = nil) {
-		let httpData: [String: AnyObject] = (data ?? [:])
+	public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyType]? = nil, url: String, method: String, statusCode: Int = -999, reason: String? = nil) {
+		let httpData: [String: AnyType] = (data ?? [:])
 		.set("url", value: url)
 		.set("method", value: method)
 		.set("status_code", value: statusCode == -999 ? nil : statusCode)

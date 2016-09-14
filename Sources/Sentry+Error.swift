@@ -9,17 +9,17 @@
 import Foundation
 
 
-private func cleanValue(_ v: AnyObject) -> AnyObject? {
+private func cleanValue(_ v: AnyType) -> AnyType? {
     switch v {
     case is NSNumber: fallthrough
     case is NSString: fallthrough
     case is NSNull:
         return v
 
-    case let v as [String: AnyObject]:
+    case let v as [String: AnyType]:
         return cleanDict(v)
 
-    case let v as [AnyObject]:
+    case let v as [AnyType]:
         return v.flatMap(cleanValue)
 
     case let v as NSURL:
@@ -37,8 +37,8 @@ private func cleanValue(_ v: AnyObject) -> AnyObject? {
     }
 }
 
-private func cleanDict(_ d: [String: AnyObject]) -> [String: AnyObject] {
-    var ret = [String: AnyObject]()
+private func cleanDict(_ d: [String: AnyType]) -> [String: AnyType] {
+    var ret = [String: AnyType]()
 
     for (k, v) in d {
         guard let c = cleanValue(v) else { continue }
@@ -58,7 +58,7 @@ extension Event {
         stacktrace = Stacktrace(frames: [frame])
 		culprit = frame.culprit
 
-        if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyObject] {
+        if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyType] {
             extra = ["user_info": cleanedUserInfo]
         } else {
             SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")

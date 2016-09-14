@@ -10,14 +10,14 @@ sudo gem install fastlane
 fastlane test
 ```
 Test iOS, tvOS, and OSX
-### test_7
+### test_swift_2
 ```
-fastlane test_7
+fastlane test_swift_2
 ```
 
-### test_8
+### test_swift_3
 ```
-fastlane test_8
+fastlane test_swift_3
 ```
 
 

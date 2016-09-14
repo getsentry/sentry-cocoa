@@ -14,7 +14,7 @@ import Foundation
 	
 	internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, binaryImages: [BinaryImage]?) {
 		
-		guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, binaryImages = binaryImages else {
+		guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, let binaryImages = binaryImages else {
 			return nil
 		}
 		
@@ -64,7 +64,7 @@ extension Stacktrace: EventSerializable {
 	}
 	
 	var culprit: String? {
-		guard let fileName = fileName, line = line, function = function else { return nil }
+		guard let fileName = fileName, let line = line, let function = function else { return nil }
 		return "\(fileName):\(line) \(function)"
 	}
 	
@@ -86,7 +86,7 @@ extension Stacktrace: EventSerializable {
 	internal convenience init?(appleCrashFrameDict frameDict: [String: AnyObject], binaryImages: [BinaryImage]) {
 		
 		if let instructionAddress = BinaryImage.asMemoryAddress(frameDict["instruction_addr"]),
-			binaryImage = BinaryImage.getBinaryImage(binaryImages, address: instructionAddress) {
+			let binaryImage = BinaryImage.getBinaryImage(binaryImages, address: instructionAddress) {
 
 			self.init()
 			
