@@ -170,11 +170,11 @@ extension Event: EventSerializable {
 
 			// Interfaces
 			("user", user?.serialized),
-			("threads", [:].set("values", value: threads?.map() { $0.serialized }.flatMap() { $0 })),
-			("exception", [:].set("values", value: exceptions?.map() { $0.serialized }.flatMap() { $0 })),
+			("threads", [:].set("values", value: threads?.map() { $0.serialized })),
+			("exception", [:].set("values", value: exceptions?.map() { $0.serialized })),
 			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
-			("stacktrace", stacktrace),
+			("stacktrace", stacktrace?.serialized),
 			
 			("debug_meta", debugMeta?.serialized)
 		]
