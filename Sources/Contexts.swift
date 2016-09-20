@@ -15,11 +15,11 @@ import Foundation
 import KSCrash.KSSystemInfo
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public class Context: NSObject {
+@objc public class Contexts: NSObject {
 
 }
 
-extension Context: EventSerializable {
+extension Contexts: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal var serialized: SerializedType {
 		return [
@@ -69,7 +69,7 @@ extension OSContext: EventSerializable {
 			.set("name", value: name)
 			.set("version", value: version)
 			.set("build", value: build)
-			.set("kernalVersion", value: kernalVersion)
+			.set("kernal_version", value: kernalVersion)
 			.set("rooted", value: jailbroken)
 	}
 }
@@ -96,8 +96,8 @@ private class DeviceContext: NSObject {
 	}
 	
 	var model: String? {
-		if let simModel = NSProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] where isSimulator {
-			return simModel
+		if isSimulator {
+			return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
 		} else {
 		
 			#if os(OSX)
@@ -125,7 +125,7 @@ private class DeviceContext: NSObject {
 		#endif
 	}
 	
-	private func extractFamily(model: String?) -> String? {
+	private func extractFamily(_ model: String?) -> String? {
 		guard let model = model else { return nil }
 		
 		let pattern = "^\\D+"
@@ -133,9 +133,17 @@ private class DeviceContext: NSObject {
 		do {
 			let regex = try NSRegularExpression(pattern: pattern, options: [])
 			let nsString = model as NSString
-			let results = regex.matchesInString(model,
-			                                    options: [], range: NSMakeRange(0, nsString.length))
-			return results.map { nsString.substringWithRange($0.range)}.first
+			
+			#if swift(>=3.0)
+				let results = regex.matches(in: model,
+				                                    options: [], range: NSMakeRange(0, nsString.length))
+				return results.map { nsString.substring(with: $0.range)}.first
+			#else
+				let results = regex.matchesInString(model,
+				options: [], range: NSMakeRange(0, nsString.length))
+				return results.map { nsString.substringWithRange($0.range)}.first
+			#endif
+
 		} catch let error as NSError {
 			SentryLog.Error.log("Invalid family regeex: \(error.localizedDescription)")
 			return nil
@@ -148,7 +156,7 @@ extension DeviceContext: EventSerializable {
 	var serialized: SerializedType {
 		var dict = SerializedType()
 			.set("family", value: family)
-			.set("architecture", value: architecture)
+			.set("arch", value: architecture)
 			.set("model", value: model)
 			.set("family", value: family)
 		

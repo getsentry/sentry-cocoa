@@ -18,7 +18,7 @@ class SentrySwiftSourceLocationTests: XCTestCase {
     }
 
     func testStacktrace() {
-        let expectedFrame = [
+		let expectedFrame: [String: AnyType] = [
 			"filename": "please",
 			"lineno": 7357,
 			"function": "this"

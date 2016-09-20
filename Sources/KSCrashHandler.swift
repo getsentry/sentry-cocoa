@@ -15,7 +15,7 @@ extension SentryClient {
 	}
 }
 
-private typealias CrashDictionary = [String: AnyObject]
+private typealias CrashDictionary = [String: AnyType]
 
 private let keyUser = "user"
 private let keyEventTags = "event_tags"
@@ -76,9 +76,15 @@ internal class KSCrashHandler: CrashHandler {
 		installation.install()
 
 		// Maps KSCrash reports in `Events`
-		installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
-			SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
-		}
+		#if swift(>=3.0)
+			installation.sendAllReports() { (filteredReports, completed, error) -> Void in
+				SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
+			}
+		#else
+			installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
+				SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
+			}
+		#endif
 	}
 
 
@@ -127,18 +133,18 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		super.init()
 	}
 	
-	@objc func filterReports(reports: [AnyObject]!, onCompletion: KSCrashReportFilterCompletion!) {
+	@objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
 		
 		// Mapping reports
 		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.map({mapReportToEvent($0)}) ?? []
+			.flatMap({mapReportToEvent($0)}) ?? []
 		
 		// Sends events recursively
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
 	}
 	
-	private func sendEvent(reports: [AnyObject]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
+	private func sendEvent(_ reports: [AnyType]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
 		var events = allEvents
 		
 		// Complete when no more
@@ -153,33 +159,64 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		}
 	}
 	
-	private func mapReportToEvent(report: CrashDictionary) -> Event {
-		SentryLog.Debug.log("Found report: \(report)")
+	private func mapReportToEvent(_ report: CrashDictionary) -> Event? {
 
 		// Extract crash timestamp
-		let timestamp: NSDate = {
-			var date: NSDate?
-			if let timestampStr = report["report"]?["timestamp"] as? String {
-				let dateFormatter = NSDateFormatter()
-				dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-				dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-				dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-				date = dateFormatter.dateFromString(timestampStr)
-			}
-			return date ?? NSDate()
-		}()
+		#if swift(>=3.0)
+			let timestamp: NSDate = {
+				var date: Date?
+				if let reportDict = report["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
+					let dateFormatter = DateFormatter()
+					dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+					dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+					dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+					date = dateFormatter.date(from: timestampStr)
+				}
+				return date as NSDate? ?? NSDate()
+			}()
+		#else
+			let timestamp: NSDate = {
+				var date: NSDate?
+				if let timestampStr = report["report"]?["timestamp"] as? String {
+					let dateFormatter = NSDateFormatter()
+					dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+					dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+					dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+					date = dateFormatter.dateFromString(timestampStr)
+				}
+				return date ?? NSDate()
+			}()
+		#endif
 
 		// Populate user info
 		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
-
+		
+		// Generating threads, exceptions, and debug meta for crash report
+		// TODO: Uncomment when fully implemented in API
+		// This will replace the appleCrashReport below
+//		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
+//		let crashDict = report["crash"] as! [String: AnyObject]
+//		let errorDict = crashDict["error"] as! [String: AnyObject]
+//		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
+//		
+//		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+		
+//		let debugMeta = DebugMeta(binaryImages: binaryImages)
+//		
+//		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+//		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
+//			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+//			return nil
+//		}
+		
 		// Generate Apple crash report
 		let appleCrashReport: AppleCrashReport? = {
 			guard let
 				crash = report["crash"] as? [String: AnyObject],
-				binaryImages = report["binary_images"] as? [[String: AnyObject]],
-				system = report["system"] as? [String: AnyObject] else {
+				let binaryImages = report["binary_images"] as? [[String: AnyObject]],
+				let system = report["system"] as? [String: AnyObject] else {
 					return nil
-				}
+			}
 			return AppleCrashReport(crash: crash, binaryImages: binaryImages, system: system)
 		}()
 
@@ -191,15 +228,21 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			$0.tags = userInfo.tags ?? [:]
 			$0.extra = userInfo.extra ?? [:]
 			$0.user = userInfo.user
-			$0.appleCrashReport = appleCrashReport
 			$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
 			$0.releaseVersion = userInfo.releaseVersion
+			
+			$0.appleCrashReport = appleCrashReport
+			
+			// TODO: Uncomment when fully implemented in API
+//			$0.threads = threads
+//			$0.exceptions = [exception].flatMap({$0})
+//			$0.debugMeta = debugMeta
 		}
 		
 		return event
 	}
 	
-	private func parseUserInfo(userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
+	private func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
 		return (
 			userInfo?[keyEventTags] as? EventTags,
 			userInfo?[keyEventExtra] as? EventExtra,

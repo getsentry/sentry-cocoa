@@ -25,13 +25,13 @@ class SentrySwiftErrorTests: XCTestCase {
         XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == [:])
         XCTAssertEqual(event.culprit, frame.culprit)
         XCTAssert(event.stacktrace?.frames.first == frame)
-        XCTAssertEqual(event.exception!, [Exception(type: error.domain, value: "\(error.domain) (\(error.code))")])
+        XCTAssertEqual(event.exceptions!, [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)])
     }
 
     func testErrorWithUserInfo() {
         let domain = "testDomain"
         let code = 123
-        let userInfo = [
+		let userInfo: [String: AnyType] = [
             NSLocalizedDescriptionKey: "I am error",
             NSUnderlyingErrorKey: NSError(domain: "foo", code: -42, userInfo: nil),
             "some key": [NSURL(string: "https://example.com")!, 10]
@@ -40,7 +40,7 @@ class SentrySwiftErrorTests: XCTestCase {
 
 		let event = Event(error: error, frame: frame)
 
-        let expectedUserInfo = [
+		let expectedUserInfo: [String: AnyType] = [
             NSLocalizedDescriptionKey: "I am error",
             NSUnderlyingErrorKey: [
                 "domain": "foo",
@@ -51,6 +51,10 @@ class SentrySwiftErrorTests: XCTestCase {
         ]
         XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == expectedUserInfo)
 		
-        XCTAssertTrue(NSJSONSerialization.isValidJSONObject(event.serialized) )
+		#if swift(>=3.0)
+			XCTAssertTrue(JSONSerialization.isValidJSONObject(event.serialized) )
+		#else
+			XCTAssertTrue(NSJSONSerialization.isValidJSONObject(event.serialized) )
+		#endif
     }
 }

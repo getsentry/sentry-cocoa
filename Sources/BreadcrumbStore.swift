@@ -29,7 +29,7 @@ public class BreadcrumbStore: NSObject {
 	// MARK: - Public Interface
 
 	/// Adds given crumb to the client store
-	public func add(crumb: Breadcrumb) {
+	public func add(_ crumb: Breadcrumb) {
 		if crumbs.count >= maxCrumbs {
 			crumbs.removeFirst()
 		}

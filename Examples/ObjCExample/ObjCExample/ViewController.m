@@ -79,7 +79,7 @@
 								 extra:nil
 						   fingerprint:nil
 								  user:nil
-							 exception:nil
+							 exceptions:nil
 							stacktrace:nil
 					  appleCrashReport:nil];
 	
@@ -101,7 +101,7 @@
                                  extra:nil
                            fingerprint:nil
                                   user:nil
-							 exception:nil
+							 exceptions:nil
 							stacktrace:nil
                       appleCrashReport:nil];
     

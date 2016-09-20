@@ -9,12 +9,12 @@
 import Foundation
 
 extension Dictionary {
-    internal mutating func unionInPlace(dictionary: Dictionary) {
+    internal mutating func unionInPlace(_ dictionary: Dictionary) {
         dictionary.forEach { self.updateValue(self[$0] ?? $1, forKey: $0) }
     }
     
     // Sets the key and value but only if value is non-nil
-    internal func set(key: Key, value: Value?) -> Dictionary<Key, Value> {
+    internal func set(_ key: Key, value: Value?) -> Dictionary<Key, Value> {
         guard let value = value else { return self }
         
         var newDict = self

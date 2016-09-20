@@ -1,10 +1,22 @@
 fastlane_version "1.66.0"
 
+
 desc "Test iOS, tvOS, and OSX"
 lane :test do
+    test_swift_2
+    test_swift_3
+end
 
-    scan(scheme: "SentrySwift-iOS")
-    scan(scheme: "SentrySwift-tvOS")
-    scan(scheme: "SentrySwift-OSX")
+lane :test_swift_2 do
+    xcargs = "SWIFT_VERSION=\"2.3\""
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (9.3)", xcargs: xcargs)
+    scan(scheme: "SentrySwift-tvOS", xcargs: xcargs)
+    scan(scheme: "SentrySwift-OSX", xcargs: xcargs)
+end
 
+lane :test_swift_3 do
+    xcargs = "SWIFT_VERSION=\"3.0\""
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", xcargs: xcargs)
+    scan(scheme: "SentrySwift-tvOS", device: "Apple TV 1080p (9.2)", xcargs: xcargs)
+    scan(scheme: "SentrySwift-OSX", xcargs: xcargs)
 end

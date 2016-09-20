@@ -109,22 +109,30 @@ class SentrySwiftTests: XCTestCase {
 		
 		let header = dsn.xSentryAuthHeader
 		XCTAssertEqual(header.key, "X-Sentry-Auth")
-		XCTAssertNotNil(header.value.rangeOfString("Sentry "))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_version=\(SentryClient.Info.sentryVersion)"))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_client=sentry-swift/\(SentryClient.Info.version)"))
-		XCTAssertNotNil(header.value.rangeOfString("sentry_timestamp="))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "Sentry "))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_version=\(SentryClient.Info.sentryVersion)"))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_client=sentry-swift/\(SentryClient.Info.version)"))
+		XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_timestamp="))
 		
 		if let key = dsn.publicKey {
-			XCTAssertNotNil(header.value.rangeOfString("sentry_key=\(key)"))
+			XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_key=\(key)"))
 		} else {
-			XCTAssertNil(header.value.rangeOfString("sentry_key=") == nil)
+			XCTAssertNil(rangeOfString(header.value, rangeString: "sentry_key=") == nil)
 		}
 		
 		if let key = dsn.secretKey {
-			XCTAssertNotNil(header.value.rangeOfString("sentry_secret=\(key)"))
+			XCTAssertNotNil(rangeOfString(header.value, rangeString: "sentry_secret=\(key)"))
 		} else {
-			XCTAssertNil(header.value.rangeOfString("sentry_secret="))
+			XCTAssertNil(rangeOfString(header.value, rangeString: "sentry_secret="))
 		}
+	}
+
+	private func rangeOfString(_ string: String, rangeString: String) -> Range<String.Index>? {
+		#if swift(>=3.0)
+			return string.range(of: rangeString)
+		#else
+			return string.rangeOfString(rangeString)
+		#endif
 	}
 	
 	// MARK: Event
@@ -161,9 +169,9 @@ class SentrySwiftTests: XCTestCase {
 		let modules: EventModules = ["2spooky": "4you"]
 		let extra: EventExtra = ["power rangers": 5, "tmnt": 4]
 		let fingerprint: EventFingerprint = ["this", "happend", "right", "here"]
-		let exception: Exception = Exception(type: "Test", value: "test-value")
+		let exception: Exception = Exception(value: "test-value", type: "Test")
 
-		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exception: [exception])
+		let event = Event(message, timestamp: timestamp, level: level, logger: logger, culprit: culprit, serverName: serverName, release: release, tags: tags, modules: modules, extra: extra, fingerprint: fingerprint, exceptions: [exception])
 		event.platform = platform
 		
 		// Required
@@ -178,7 +186,7 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.culprit, culprit)
 		XCTAssertEqual(event.serverName, serverName)
 		XCTAssertEqual(event.releaseVersion, release)
-		XCTAssertEqual(event.exception!, [exception])
+		XCTAssertEqual(event.exceptions!, [exception])
 		XCTAssertEqual(event.tags, tags)
 		XCTAssertEqual(event.modules!, modules)
 		XCTAssert(event.extra == extra)
@@ -390,6 +398,10 @@ class SentrySwiftTests: XCTestCase {
 }
 
 /// A small hack to compare dictionaries
-public func ==(lhs: [String: AnyObject], rhs: [String: AnyObject] ) -> Bool {
-	return NSDictionary(dictionary: lhs).isEqualToDictionary(rhs)
+public func ==(lhs: [String: AnyType], rhs: [String: AnyType] ) -> Bool {
+	#if swift(>=3.0)
+		return NSDictionary(dictionary: lhs).isEqual(to: rhs)
+	#else
+		return NSDictionary(dictionary: lhs).isEqualToDictionary(rhs)
+	#endif
 }
