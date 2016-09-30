@@ -35,11 +35,13 @@ public class BreadcrumbStore: NSObject {
 		}
 
 		crumbs.append(crumb)
+		storeUpdated?(self)
 	}
 
 	/// Clears the store for given type or all if none specified
 	public func clear() {
 		crumbs.removeAll()
+		storeUpdated?(self)
 	}
 }
 
