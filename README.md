@@ -20,7 +20,7 @@ SentryClient.shared?.user = User(id: "3",
 )
 ```
 
-- [Documentation](https://docs.sentry.io/clients/objc/)
+- [Documentation](https://docs.sentry.io/clients/cocoa/)
 - Example Projects
   - [Swift Project](/Examples/SwiftExample) - Full project
     - [ViewController.swift](/Examples/SwiftExample/SwiftExample/ViewController.swift) - Implementation
