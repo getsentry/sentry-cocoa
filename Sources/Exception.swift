@@ -8,18 +8,22 @@
 
 import Foundation
 
+public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
+
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc public class Exception: NSObject {
     public let value: String
 	public let type: String?
+    public var mechanism: Mechanism?
     public let module: String?
 	
 	public var thread: Thread?
 
     /// Creates `Exception` object
-	@objc public init(value: String, type: String? = nil, module: String? = nil) {
+	@objc public init(value: String, type: String? = nil, mechanism: Mechanism? = nil, module: String? = nil) {
 		self.value = value
         self.type = type
+        self.mechanism = mechanism
         self.module = module
 		
 		self.thread = nil
@@ -36,7 +40,17 @@ import Foundation
 	internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil) {
 		var type = appleCrashErrorDict["type"] as? String
 		var value = appleCrashErrorDict["reason"] as? String
+        var mechanism = Mechanism()
 		
+        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
+            let signal = signalDict["name"] as? String,
+            let codeName = signalDict["code_name"] as? String,
+            let code = signalDict["code"] as? Int,
+            let signalCode = signalDict["signal"] as? Int
+        {
+            mechanism["posix_signal"] = ["name": signal, "signal": "\(code)"]
+        }
+        
 		if let theType = type {
 			switch theType {
 			case "nsexception":
@@ -56,6 +70,7 @@ import Foundation
 					let subcode = context["subcode"] {
 					type = name
 					value = "Exception \(exception), Code \(code), Subcode \(subcode)"
+                    mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
 				}
 			case "signal":
 				if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
@@ -76,10 +91,12 @@ import Foundation
 				()
 			}
 		}
+ 
 		
 		if let value = value {
 			self.init(value: value, type: type)
-			
+            
+            self.mechanism = mechanism
 			self.thread = threads?.filter({$0.crashed ?? false}).first
 		} else {
 			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
@@ -95,6 +112,7 @@ extension Exception: EventSerializable {
             "value": value
         ]
 		.set("type", value: type)
+        .set("mechanism", value: mechanism)
         .set("module", value: module)
 		.set("thread_id", value: thread?.id)
 		.set("stacktrace", value: thread?.stacktrace?.serialized)

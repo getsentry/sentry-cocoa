@@ -192,33 +192,20 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		let userInfo = self.parseUserInfo(report["user"] as? CrashDictionary)
 		
 		// Generating threads, exceptions, and debug meta for crash report
-		// TODO: Uncomment when fully implemented in API
-		// This will replace the appleCrashReport below
-//		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
-//		let crashDict = report["crash"] as! [String: AnyObject]
-//		let errorDict = crashDict["error"] as! [String: AnyObject]
-//		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
-//		
-//		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
+		let crashDict = report["crash"] as! [String: AnyObject]
+		let errorDict = crashDict["error"] as! [String: AnyObject]
+		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
 		
-//		let debugMeta = DebugMeta(binaryImages: binaryImages)
-//		
-//		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-//		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
-//			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
-//			return nil
-//		}
+		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
 		
-		// Generate Apple crash report
-		let appleCrashReport: AppleCrashReport? = {
-			guard let
-				crash = report["crash"] as? [String: AnyObject],
-				let binaryImages = report["binary_images"] as? [[String: AnyObject]],
-				let system = report["system"] as? [String: AnyObject] else {
-					return nil
-			}
-			return AppleCrashReport(crash: crash, binaryImages: binaryImages, system: system)
-		}()
+		let debugMeta = DebugMeta(binaryImages: binaryImages)
+		
+		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
+			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+			return nil
+		}
 
 		/// Generate event to sent up to API
 		/// Sends a blank message because server does stuff
@@ -231,12 +218,9 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 			$0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
 			$0.releaseVersion = userInfo.releaseVersion
 			
-			$0.appleCrashReport = appleCrashReport
-			
-			// TODO: Uncomment when fully implemented in API
-//			$0.threads = threads
-//			$0.exceptions = [exception].flatMap({$0})
-//			$0.debugMeta = debugMeta
+			$0.threads = threads
+			$0.exceptions = [exception].flatMap({$0})
+			$0.debugMeta = debugMeta
 		}
 		
 		return event
