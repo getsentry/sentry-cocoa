@@ -194,6 +194,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		// Generating threads, exceptions, and debug meta for crash report
 		let binaryImagesDicts = report["binary_images"] as! [[String: AnyObject]]
 		let crashDict = report["crash"] as! [String: AnyObject]
+        let diagnosis = crashDict["diagnosis"] as? String
 		let errorDict = crashDict["error"] as! [String: AnyObject]
 		let threadDicts = crashDict["threads"] as! [[String: AnyObject]]
 		
@@ -202,7 +203,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		let debugMeta = DebugMeta(binaryImages: binaryImages)
 		
 		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads) else {
+		guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads, diagnosis: diagnosis) else {
 			SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
 			return nil
 		}

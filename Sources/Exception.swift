@@ -37,7 +37,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
     }
 
-	internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil) {
+    internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil, diagnosis: String? = nil) {
 		var type = appleCrashErrorDict["type"] as? String
 		var value = appleCrashErrorDict["reason"] as? String
         var mechanism = Mechanism()
@@ -92,16 +92,17 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 			}
 		}
  
-		
-		if let value = value {
+        if let diagnosis = diagnosis {
+            self.init(value: diagnosis, type: type)
+        } else if let value = diagnosis {
 			self.init(value: value, type: type)
-            
-            self.mechanism = mechanism
-			self.thread = threads?.filter({$0.crashed ?? false}).first
 		} else {
 			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
 			return nil
 		}
+        
+        self.mechanism = mechanism
+        self.thread = threads?.filter({$0.crashed ?? false}).first
 	}
 }
 
