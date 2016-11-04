@@ -60,7 +60,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 				}
 			case "cpp_exception":
 				if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
-					type = context["name"] as? String
+                    value = context["name"] as? String
 				}
 			case "mach":
 				if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
@@ -88,7 +88,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 					// TODO: also platform field for customs stack
 				}
 			default:
-				()
+				value = "UNKNOWN Exception"
 			}
 		}
  

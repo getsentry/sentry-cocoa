@@ -41,6 +41,10 @@ import Foundation
 		
 		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace)
 	}
+    
+    public override var debugDescription: String {
+        return "id: \(id) \n crashed: \(crashed) \n current: \(current) \n name: \(name) \n stacktrace: \(stacktrace) \n"
+    }
 }
 
 extension Thread: EventSerializable {
