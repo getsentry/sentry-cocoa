@@ -322,8 +322,8 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.user!.username!, "stuff")
         
         // Merge
-		event.tags.unionInPlace(client.tags ?? [:])
-		event.extra.unionInPlace(client.extra ?? [:])
+		event.tags.unionInPlace(client.tags)
+		event.extra.unionInPlace(client.extra)
 		
 		// Test after merge
 		XCTAssert(event.tags == [
@@ -358,8 +358,8 @@ class SentrySwiftTests: XCTestCase {
         XCTAssert(event.extra == [:])
         XCTAssertNil(event.user)
 
-        event.tags.unionInPlace(client.tags ?? [:])
-        event.extra.unionInPlace(client.extra ?? [:])
+        event.tags.unionInPlace(client.tags)
+        event.extra.unionInPlace(client.extra)
         event.user = event.user ?? client.user
 
         XCTAssertEqual(event.tags, testTags)

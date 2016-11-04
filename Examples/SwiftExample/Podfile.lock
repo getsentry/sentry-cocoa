@@ -60,19 +60,19 @@ PODS:
     - KSCrash/Reporting/Tools
   - KSCrash/Reporting/Tools (1.8.5):
     - KSCrash/Recording
-  - SentrySwift (0.4.0):
-    - KSCrash (~> 1.8.3)
+  - SentrySwift (0.4.1):
+    - KSCrash (~> 1.8.5)
 
 DEPENDENCIES:
   - SentrySwift (from `../../`)
 
 EXTERNAL SOURCES:
   SentrySwift:
-    :path: "../../"
+    :path: ../../
 
 SPEC CHECKSUMS:
   KSCrash: af236dd97dbabd1110f8ac262ce7584162d4345a
-  SentrySwift: c60d070937ca39806c412f27016e1b67d08b91d6
+  SentrySwift: 186a042c29180eb93e8bf6db6ceb9988bd9c301e
 
 PODFILE CHECKSUM: ae5e9006335e93392297c5272d4c9f591e18a9af
 

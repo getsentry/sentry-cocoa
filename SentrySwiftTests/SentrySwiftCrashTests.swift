@@ -127,7 +127,7 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread6.name, "KSCrash Exception Handler (Primary)")
 		
 		// Test exception
-		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+        let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
 		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Exception 1, Code 1, Subcode 0")
 		XCTAssertEqual(exception.type, "EXC_BAD_ACCESS")

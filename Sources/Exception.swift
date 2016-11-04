@@ -94,7 +94,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
  
         if let diagnosis = diagnosis {
             self.init(value: diagnosis, type: type)
-        } else if let value = diagnosis {
+        } else if let value = value {
 			self.init(value: value, type: type)
 		} else {
 			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")

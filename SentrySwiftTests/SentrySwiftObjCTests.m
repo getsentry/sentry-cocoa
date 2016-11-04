@@ -63,7 +63,7 @@
 	NSDictionary *extra = @{ @"power rangers": @5, @"tmnt": @4 };
 	NSArray *fingerprint = @[@"this", @"happened", @"right", @"here"];
 
-	Exception *exc = [[Exception alloc] initWithValue: @"test-value" type: @"Test" module: nil];
+    Exception *exc = [[Exception alloc] initWithValue: @"test-value" type: @"Test" mechanism: nil module: nil];
 	
 	Event *event = [[Event alloc] init:message
 							 timestamp:[NSDate date]
