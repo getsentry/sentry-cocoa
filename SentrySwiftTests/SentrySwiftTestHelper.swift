@@ -23,8 +23,8 @@ class SentrySwiftTestHelper {
             }
         #else
             do {
-            let data = try NSData(contentsOfURL: NSURL(fileURLWithPath: path), options: NSDataReadingOptions.DataReadingMappedIfSafe)
-            let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions())
+                let data = try NSData(contentsOfURL: NSURL(fileURLWithPath: path), options: NSDataReadingOptions.DataReadingMappedIfSafe)
+                let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions())
                 return json as? JSONCrashFile
             } catch {
                 return nil
@@ -32,36 +32,44 @@ class SentrySwiftTestHelper {
         #endif
     }
     
-    func readIOSJSONCrashFile(name: String) -> JSONCrashFile? {
-        #if swift(>=3.0)
-            let bundle = Bundle(for: type(of: self))
-            guard let path = bundle.path(forResource: name, ofType: "json", inDirectory: "crashReports/ios-simulator-debug/") else {
-                return nil
-            }
-            return getJSONCrashFileFromPath(path: path)
-        #else
-            let bundle = NSBundle(forClass: self.dynamicType)
-            guard let path = bundle.pathForResource(name, ofType: "json", inDirectory: "crashReports/ios-simulator-debug/") else {
-                return nil
-            }
-            return getJSONCrashFileFromPath(path)
-        #endif
+    #if !swift(>=3.0)
+    func readIOSJSONCrashFile(name name: String) -> JSONCrashFile? {
+        let bundle = NSBundle(forClass: self.dynamicType)
+        guard let path = bundle.pathForResource(name, ofType: "json", inDirectory: "crashReports/ios-simulator-debug/") else {
+            return nil
+        }
+        return getJSONCrashFileFromPath(path)
     }
+    #endif
     
-    func readJSONCrashFile(name: String) -> JSONCrashFile? {
-        #if swift(>=3.0)
-            let bundle = Bundle(for: type(of: self))
-            guard let path = bundle.path(forResource: name, ofType: "json") else {
-                return nil
-            }
-            return getJSONCrashFileFromPath(path: path)
-        #else
-            let bundle = NSBundle(forClass: self.dynamicType)
-            guard let path = bundle.pathForResource(name, ofType: "json") else {
-                return nil
-            }
-            return getJSONCrashFileFromPath(path)
-        #endif
+    #if swift(>=3.0)
+    func readIOSJSONCrashFile(name: String) -> JSONCrashFile? {
+        let bundle = Bundle(for: type(of: self))
+        guard let path = bundle.path(forResource: name, ofType: "json", inDirectory: "crashReports/ios-simulator-debug/") else {
+            return nil
+        }
+        return getJSONCrashFileFromPath(path: path)
     }
+    #endif
+    
+    #if swift(>=3.0)
+    func readJSONCrashFile(name: String) -> JSONCrashFile? {
+        let bundle = Bundle(for: type(of: self))
+        guard let path = bundle.path(forResource: name, ofType: "json") else {
+            return nil
+        }
+        return getJSONCrashFileFromPath(path: path)
+    }
+    #endif
+    
+    #if !swift(>=3.0)
+    func readJSONCrashFile(name name: String) -> JSONCrashFile? {
+        let bundle = NSBundle(forClass: self.dynamicType)
+        guard let path = bundle.pathForResource(name, ofType: "json") else {
+            return nil
+        }
+        return getJSONCrashFileFromPath(path)
+    }
+    #endif
     
 }
