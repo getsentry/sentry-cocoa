@@ -40,7 +40,12 @@ import Foundation
 		let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
 		
 		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
-        let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
+        
+        #if swift(>=3.0)
+            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict: appleCrashThreadDict)
+        #else
+            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
+        #endif
         
 		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace, reason: reason)
 	}
@@ -51,19 +56,19 @@ import Foundation
         }
         
         #if swift(>=3.0)
-            return notableAddresses.reduce("") {prev, notableAddress in
+            return notableAddresses.reduce(nil as String?) {prev, notableAddress in
                 let dict = notableAddress.1
                 if let type = dict["type"] as? String, type == "string" {
                     if let prev = prev,
                         let value = dict["value"] as? String,
-                        value.componentsSeparatedByString(" ").count > 3 {
+                        value.components(separatedBy: " ").count > 3 {
                         return "\(prev)\(value) "
                     }
                 }
                 return prev
             }
         #else
-            return notableAddresses.reduce("") {prev, notableAddress in
+            return notableAddresses.reduce(nil as String?) {prev, notableAddress in
                 let dict = notableAddress.1
                 if let type = dict["type"] as? String where type == "string" {
                     if let prev = prev,
