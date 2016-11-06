@@ -44,11 +44,14 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 		
         if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
             let signal = signalDict["name"] as? String,
-            let codeName = signalDict["code_name"] as? String,
-            let code = signalDict["code"] as? Int,
-            let signalCode = signalDict["signal"] as? Int
-        {
+            let code = signalDict["code"] as? Int {
             mechanism["posix_signal"] = ["name": signal, "signal": "\(code)"]
+        }
+        
+        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyObject],
+            let name = machDict["exception_name"] as? String,
+            let exception = machDict["exception"] {
+            mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
         }
         
 		if let theType = type {
