@@ -15,14 +15,16 @@ import Foundation
 	public let current: Bool?
 	public let name: String?
 	public let stacktrace: Stacktrace?
-	
+	public let reason: String?
+    
 	/// Creates `Exception` object
-	@objc public init(id: Int, crashed: Bool = false, current: Bool = false, name: String? = nil, stacktrace: Stacktrace? = nil) {
+	@objc public init(id: Int, crashed: Bool = false, current: Bool = false, name: String? = nil, stacktrace: Stacktrace? = nil, reason: String? = nil) {
 		self.id = id
 		self.crashed = crashed
 		self.current = current
 		self.name = name
 		self.stacktrace = stacktrace
+        self.reason = reason
 		
 		super.init()
 	}
@@ -38,12 +40,45 @@ import Foundation
 		let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
 		
 		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
-		
-		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace)
+        let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
+        
+		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace, reason: reason)
 	}
     
+    private static func extractCrashReasonFromNotableAddresses(appleCrashThreadDict: [String: AnyObject]) -> String? {
+        guard let notableAddresses = appleCrashThreadDict["notable_addresses"] as? Dictionary<String, AnyObject> else {
+            return nil
+        }
+        
+        #if swift(>=3.0)
+            return notableAddresses.reduce("") {prev, notableAddress in
+                let dict = notableAddress.1
+                if let type = dict["type"] as? String, type == "string" {
+                    if let prev = prev,
+                        let value = dict["value"] as? String,
+                        value.componentsSeparatedByString(" ").count > 3 {
+                        return "\(prev)\(value) "
+                    }
+                }
+                return prev
+            }
+        #else
+            return notableAddresses.reduce("") {prev, notableAddress in
+                let dict = notableAddress.1
+                if let type = dict["type"] as? String where type == "string" {
+                    if let prev = prev,
+                        let value = dict["value"] as? String
+                        where value.componentsSeparatedByString(" ").count > 3 {
+                        return "\(prev)\(value) "
+                    }
+                }
+                return prev
+            }
+        #endif
+    }
+    
     public override var debugDescription: String {
-        return "id: \(id) \n crashed: \(crashed) \n current: \(current) \n name: \(name) \n stacktrace: \(stacktrace) \n"
+        return "id: \(id) \n crashed: \(crashed) \n current: \(current) \n name: \(name) \n reason: \(reason) \n stacktrace: \(stacktrace) \n"
     }
 }
 
@@ -56,6 +91,7 @@ extension Thread: EventSerializable {
 			.set("crashed", value: crashed)
 			.set("current", value: current)
 			.set("name", value: name)
+            .set("reason", value: reason)
 			.set("stacktrace", value: stacktrace?.serialized)
 	}
 }

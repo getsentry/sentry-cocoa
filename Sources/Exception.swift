@@ -54,6 +54,8 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
         }
         
+        let crashedThread = threads?.filter({$0.crashed ?? false}).first
+        
 		if let theType = type {
 			switch theType {
 			case "nsexception":
@@ -73,7 +75,6 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 					let subcode = context["subcode"] {
 					type = name
 					value = "Exception \(exception), Code \(code), Subcode \(subcode)"
-                    mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
 				}
 			case "signal":
 				if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
@@ -95,8 +96,11 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 			}
 		}
  
+        // We prefer diagnosis generated from KSCrash
         if let diagnosis = diagnosis {
             self.init(value: diagnosis, type: type)
+        } else if let reason = crashedThread?.reason {
+            self.init(value: reason, type: type)
         } else if let value = value {
 			self.init(value: value, type: type)
 		} else {
@@ -105,7 +109,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 		}
         
         self.mechanism = mechanism
-        self.thread = threads?.filter({$0.crashed ?? false}).first
+        self.thread = crashedThread
 	}
 }
 
