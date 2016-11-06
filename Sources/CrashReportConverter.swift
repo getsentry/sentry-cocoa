@@ -10,8 +10,7 @@ import Foundation
 
 public class CrashReportConverter {
     
-    internal func mapReportToEvent(_ report: CrashDictionary) -> Event? {
-        
+    internal func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         // Extract crash timestamp
         #if swift(>=3.0)
             let timestamp: NSDate = {

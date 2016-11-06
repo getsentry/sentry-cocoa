@@ -141,7 +141,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		// Mapping reports
 		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.flatMap({crashReportConverter.mapReportToEvent($0)}) ?? []
+			.flatMap({crashReportConverter.convertReportToEvent($0)}) ?? []
 		
 		// Sends events recursively
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
