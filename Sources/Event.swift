@@ -68,7 +68,6 @@ public typealias EventFingerprint = [String]
 	public var threads: [Thread]?
 	public var exceptions: [Exception]?
 	public var stacktrace: Stacktrace?
-	public var appleCrashReport: AppleCrashReport?
 	internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
 	
 	internal var debugMeta: DebugMeta?
@@ -124,7 +123,6 @@ public typealias EventFingerprint = [String]
 		self.user = user
 		self.exceptions = exceptions
 		self.stacktrace = stacktrace
-		self.appleCrashReport = appleCrashReport
 
 		super.init()
 	}
@@ -172,7 +170,6 @@ extension Event: EventSerializable {
 			("user", user?.serialized),
 			("threads", [:].set("values", value: threads?.map() { $0.serialized })),
 			("exception", [:].set("values", value: exceptions?.map() { $0.serialized })),
-			("applecrashreport", appleCrashReport?.serialized),
 			("breadcrumbs", breadcrumbsSerialized),
 			("stacktrace", stacktrace?.serialized),
 			

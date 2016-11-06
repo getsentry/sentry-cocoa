@@ -29,7 +29,7 @@ class SentrySwiftCrashTests: XCTestCase {
 	}
 		
     func testCrashSignal() {
-		let crashJSON = testHelper.readJSONCrashFile("Abort")!
+		let crashJSON = testHelper.readJSONCrashFile(name: "Abort")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
@@ -76,7 +76,7 @@ class SentrySwiftCrashTests: XCTestCase {
 	}
 	
 	func testCrashMach() {
-		let crashJSON = testHelper.readJSONCrashFile("StackOverflow")!
+		let crashJSON = testHelper.readJSONCrashFile(name: "StackOverflow")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
@@ -135,7 +135,7 @@ class SentrySwiftCrashTests: XCTestCase {
 	}
 	
 	func testCrashNSException() {
-		let crashJSON = testHelper.readJSONCrashFile("NSException")!
+		let crashJSON = testHelper.readJSONCrashFile(name: "NSException")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
