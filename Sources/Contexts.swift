@@ -46,14 +46,14 @@ private class OSContext: NSObject {
 	}
 	
 	var version: String? {
-		return info?[KSSystemField_OSVersion] as? String
-	}
-	
-	var build: String? {
 		return info?[KSSystemField_SystemVersion] as? String
 	}
 	
-	var kernalVersion: String? {
+	var build: String? {
+		return info?[KSSystemField_OSVersion] as? String
+	}
+	
+	var kernelVersion: String? {
 		return info?[KSSystemField_KernelVersion] as? String
 	}
 	
@@ -69,7 +69,7 @@ extension OSContext: EventSerializable {
 			.set("name", value: name)
 			.set("version", value: version)
 			.set("build", value: build)
-			.set("kernal_version", value: kernalVersion)
+			.set("kernel_version", value: kernelVersion)
 			.set("rooted", value: jailbroken)
 	}
 }
