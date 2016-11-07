@@ -56,30 +56,34 @@ import Foundation
         }
         
         #if swift(>=3.0)
-            return notableAddresses.reduce(nil as String?) {prev, notableAddress in
+            var result = notableAddresses.reduce("") { prev, notableAddress in
                 let dict = notableAddress.1
                 if let type = dict["type"] as? String, type == "string" {
-                    if let prev = prev,
-                        let value = dict["value"] as? String,
+                    if let value = dict["value"] as? String,
                         value.components(separatedBy: " ").count > 3 {
+                        // we try to find a human readable sentence so we say there should be at least
+                        // 4 words e.g: unexpectedly found nil while unwrapping an Optional value
                         return "\(prev)\(value) "
                     }
                 }
                 return prev
             }
+            result = result.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         #else
-            return notableAddresses.reduce(nil as String?) {prev, notableAddress in
+            var result = notableAddresses.reduce("") { prev, notableAddress in
                 let dict = notableAddress.1
                 if let type = dict["type"] as? String where type == "string" {
-                    if let prev = prev,
-                        let value = dict["value"] as? String
+                    if let value = dict["value"] as? String
                         where value.componentsSeparatedByString(" ").count > 3 {
                         return "\(prev)\(value) "
                     }
                 }
                 return prev
             }
+            result = result.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         #endif
+        
+        return result.characters.count == 0 ? nil : result
     }
     
     public override var debugDescription: String {
