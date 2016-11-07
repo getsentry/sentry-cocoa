@@ -49,7 +49,7 @@ internal class KSCrashHandler: CrashHandler {
 	}
 
 	required init(client: SentryClient) {
-        installation = KSCrashSentryInstallation(client: client, crashReportConverter: CrashReportConverter())
+        installation = KSCrashSentryInstallation(client: client)
 	}
 
 	// MARK: - CrashHandler
@@ -111,16 +111,14 @@ internal class KSCrashHandler: CrashHandler {
 private class KSCrashSentryInstallation: KSCrashInstallation {
 	
 	private let client: SentryClient
-    private let crashReportConverter: CrashReportConverter
     
-    init(client: SentryClient, crashReportConverter: CrashReportConverter) {
+    init(client: SentryClient) {
         self.client = client
-        self.crashReportConverter = crashReportConverter
 		super.init(requiredProperties: [])
 	}
 	
 	override func sink() -> KSCrashReportFilter! {
-        return KSCrashReportSinkSentry(client: client, crashReportConverter: crashReportConverter)
+        return KSCrashReportSinkSentry(client: client)
 	}
 	
 }
@@ -128,11 +126,9 @@ private class KSCrashSentryInstallation: KSCrashInstallation {
 private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 	
 	private let client: SentryClient
-    private let crashReportConverter: CrashReportConverter
 	
-	init(client: SentryClient, crashReportConverter: CrashReportConverter) {
+	init(client: SentryClient) {
 		self.client = client
-        self.crashReportConverter = crashReportConverter
 		super.init()
 	}
 	
@@ -141,7 +137,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
 		// Mapping reports
 		let events: [Event] = reports?
 			.flatMap({$0 as? CrashDictionary})
-			.flatMap({crashReportConverter.convertReportToEvent($0)}) ?? []
+			.flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
 		
 		// Sends events recursively
 		sendEvent(reports, events: events, success: true, onCompletion: onCompletion)

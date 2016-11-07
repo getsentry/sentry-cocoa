@@ -8,35 +8,18 @@
 
 import Foundation
 
-public class CrashReportConverter {
+class CrashReportConverter {
     
-    internal func convertReportToEvent(_ report: CrashDictionary) -> Event? {
+    internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         // Extract crash timestamp
-        #if swift(>=3.0)
-            let timestamp: NSDate = {
-                var date: Date?
-                if let reportDict = report["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-                    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-                    date = dateFormatter.date(from: timestampStr)
-                }
-                return date as NSDate? ?? NSDate()
-            }()
-        #else
-            let timestamp: NSDate = {
+        let timestamp: NSDate = {
             var date: NSDate?
-            if let timestampStr = report["report"]?["timestamp"] as? String {
-            let dateFormatter = NSDateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-            dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-            dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-            date = dateFormatter.dateFromString(timestampStr)
+            if let reportDict = report["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
+                date = NSDate.fromISO8601(timestampStr)
             }
-            return date ?? NSDate()
-            }()
-        #endif
+            return date as NSDate? ?? NSDate()
+        }()
+        
         
         // Populate user info
         let userInfo = parseUserInfo(report["user"] as? CrashDictionary)
@@ -93,7 +76,7 @@ public class CrashReportConverter {
         return event
     }
     
-    private func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
+    private static func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
         return (
             userInfo?[keyEventTags] as? EventTags,
             userInfo?[keyEventExtra] as? EventExtra,
