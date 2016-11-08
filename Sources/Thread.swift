@@ -15,14 +15,16 @@ import Foundation
 	public let current: Bool?
 	public let name: String?
 	public let stacktrace: Stacktrace?
-	
+	public let reason: String?
+    
 	/// Creates `Exception` object
-	@objc public init(id: Int, crashed: Bool = false, current: Bool = false, name: String? = nil, stacktrace: Stacktrace? = nil) {
+	@objc public init(id: Int, crashed: Bool = false, current: Bool = false, name: String? = nil, stacktrace: Stacktrace? = nil, reason: String? = nil) {
 		self.id = id
 		self.crashed = crashed
 		self.current = current
 		self.name = name
 		self.stacktrace = stacktrace
+        self.reason = reason
 		
 		super.init()
 	}
@@ -38,9 +40,55 @@ import Foundation
 		let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
 		
 		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
-		
-		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace)
+        
+        #if swift(>=3.0)
+            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict: appleCrashThreadDict)
+        #else
+            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
+        #endif
+        
+		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace, reason: reason)
 	}
+    
+    private static func extractCrashReasonFromNotableAddresses(appleCrashThreadDict: [String: AnyObject]) -> String? {
+        guard let notableAddresses = appleCrashThreadDict["notable_addresses"] as? Dictionary<String, AnyObject> else {
+            return nil
+        }
+        
+        #if swift(>=3.0)
+            var result = notableAddresses.reduce("") { prev, notableAddress in
+                let dict = notableAddress.1
+                if let type = dict["type"] as? String, type == "string" {
+                    if let value = dict["value"] as? String,
+                        value.components(separatedBy: " ").count > 3 {
+                        // we try to find a human readable sentence so we say there should be at least
+                        // 4 words e.g: unexpectedly found nil while unwrapping an Optional value
+                        return "\(prev)\(value) "
+                    }
+                }
+                return prev
+            }
+            result = result.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        #else
+            var result = notableAddresses.reduce("") { prev, notableAddress in
+                let dict = notableAddress.1
+                if let type = dict["type"] as? String where type == "string" {
+                    if let value = dict["value"] as? String
+                        where value.componentsSeparatedByString(" ").count > 3 {
+                        return "\(prev)\(value) "
+                    }
+                }
+                return prev
+            }
+            result = result.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+        #endif
+        
+        return result.characters.count == 0 ? nil : result
+    }
+    
+    public override var debugDescription: String {
+        return "id: \(id) \n crashed: \(crashed) \n current: \(current) \n name: \(name) \n reason: \(reason) \n stacktrace: \(stacktrace) \n"
+    }
 }
 
 extension Thread: EventSerializable {
@@ -52,6 +100,7 @@ extension Thread: EventSerializable {
 			.set("crashed", value: crashed)
 			.set("current", value: current)
 			.set("name", value: name)
+            .set("reason", value: reason)
 			.set("stacktrace", value: stacktrace?.serialized)
 	}
 }

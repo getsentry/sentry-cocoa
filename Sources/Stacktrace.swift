@@ -27,6 +27,12 @@ import Foundation
 	@objc public init(frames: [Frame]?) {
 		self.frames = frames ?? []
 	}
+    
+    public override var debugDescription: String {
+        return frames.reduce("") {
+            "\($0) \($1.debugDescription)"
+        }
+    }
 }
 
 extension Stacktrace: EventSerializable {
@@ -106,7 +112,10 @@ extension Stacktrace: EventSerializable {
 			return nil
 		}
 	}
-
+    
+    public override var debugDescription: String {
+        return "file: \(file) \n function: \(function) \n module: \(module) \n line: \(line) \n package: \(package) \n imageAddress: \(imageAddress) \n platform: \(platform) \n instructionAddress: \(instructionAddress) \n symbolAddress: \(symbolAddress) \n inApp: \(inApp) \n"
+    }
 }
 
 extension Frame: EventSerializable {

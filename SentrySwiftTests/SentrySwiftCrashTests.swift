@@ -12,7 +12,8 @@ import XCTest
 class SentrySwiftCrashTests: XCTestCase {
 	
 	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
-	
+	let testHelper = SentrySwiftTestHelper()
+    
     override func setUp() {
         super.setUp()
     }
@@ -26,9 +27,9 @@ class SentrySwiftCrashTests: XCTestCase {
 		let hexAddress = BinaryImage.getHexAddress(intAddress)
 		XCTAssertEqual(hexAddress, "0x3157e63d")
 	}
-	
-	func testCrashSignal() {
-		let crashJSON = readJSONCrashFile("Abort")!
+		
+    func testCrashSignal() {
+		let crashJSON = testHelper.readJSONCrashFile(name: "Abort")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
@@ -75,7 +76,7 @@ class SentrySwiftCrashTests: XCTestCase {
 	}
 	
 	func testCrashMach() {
-		let crashJSON = readJSONCrashFile("StackOverflow")!
+		let crashJSON = testHelper.readJSONCrashFile(name: "StackOverflow")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
@@ -127,14 +128,14 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread6.name, "KSCrash Exception Handler (Primary)")
 		
 		// Test exception
-		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+        let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
 		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Exception 1, Code 1, Subcode 0")
 		XCTAssertEqual(exception.type, "EXC_BAD_ACCESS")
 	}
 	
 	func testCrashNSException() {
-		let crashJSON = readJSONCrashFile("NSException")!
+		let crashJSON = testHelper.readJSONCrashFile(name: "NSException")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
 		let crashDict = crashJSON["crash"] as! [String: AnyObject]
 		let errorDict = crashDict["error"] as! [String: AnyObject]
@@ -194,34 +195,4 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(exception.type, "NSInvalidArgumentException")
 	}
 
-	// MARK: Private
-
-	typealias JSONCrashFile = [String: AnyObject]
-	private func readJSONCrashFile(_ name: String) -> JSONCrashFile? {
-		#if swift(>=3.0)
-			let bundle = Bundle(for: type(of: self))
-			guard let path = bundle.path(forResource: name, ofType: "json") else {
-				return nil
-			}
-			do {
-				let data = try NSData(contentsOf: NSURL(fileURLWithPath: path) as URL, options: NSData.ReadingOptions.mappedIfSafe)
-				let json = try JSONSerialization.jsonObject(with: data as Data, options: JSONSerialization.ReadingOptions())
-				return json as? JSONCrashFile
-			} catch {
-				return nil
-			}
-		#else
-			let bundle = NSBundle(forClass: self.dynamicType)
-			guard let path = bundle.pathForResource(name, ofType: "json") else {
-				return nil
-			}
-			do {
-				let data = try NSData(contentsOfURL: NSURL(fileURLWithPath: path), options: NSDataReadingOptions.DataReadingMappedIfSafe)
-				let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions())
-				return json as? JSONCrashFile
-			} catch {
-				return nil
-			}
-		#endif
-	}
 }

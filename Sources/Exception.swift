@@ -8,18 +8,22 @@
 
 import Foundation
 
+public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
+
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc public class Exception: NSObject {
     public let value: String
 	public let type: String?
+    public var mechanism: Mechanism?
     public let module: String?
 	
 	public var thread: Thread?
 
     /// Creates `Exception` object
-	@objc public init(value: String, type: String? = nil, module: String? = nil) {
+	@objc public init(value: String, type: String? = nil, mechanism: Mechanism? = nil, module: String? = nil) {
 		self.value = value
         self.type = type
+        self.mechanism = mechanism
         self.module = module
 		
 		self.thread = nil
@@ -33,10 +37,25 @@ import Foundation
         return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
     }
 
-	internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil) {
+    internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil, diagnosis: String? = nil) {
 		var type = appleCrashErrorDict["type"] as? String
 		var value = appleCrashErrorDict["reason"] as? String
+        var mechanism = Mechanism()
 		
+        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
+            let signal = signalDict["name"] as? String,
+            let code = signalDict["code"] as? Int {
+            mechanism["posix_signal"] = ["name": signal, "signal": "\(code)"]
+        }
+        
+        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyObject],
+            let name = machDict["exception_name"] as? String,
+            let exception = machDict["exception"] {
+            mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
+        }
+        
+        let crashedThread = threads?.filter({$0.crashed ?? false}).first
+        
 		if let theType = type {
 			switch theType {
 			case "nsexception":
@@ -46,7 +65,7 @@ import Foundation
 				}
 			case "cpp_exception":
 				if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
-					type = context["name"] as? String
+                    value = context["name"] as? String
 				}
 			case "mach":
 				if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
@@ -73,18 +92,24 @@ import Foundation
 					// TODO: also platform field for customs stack
 				}
 			default:
-				()
+				value = "UNKNOWN Exception"
 			}
 		}
-		
-		if let value = value {
+ 
+        // We prefer diagnosis generated from KSCrash
+        if let diagnosis = diagnosis {
+            self.init(value: diagnosis, type: type)
+        } else if let reason = crashedThread?.reason {
+            self.init(value: reason, type: type)
+        } else if let value = value {
 			self.init(value: value, type: type)
-			
-			self.thread = threads?.filter({$0.crashed ?? false}).first
 		} else {
 			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
 			return nil
 		}
+        
+        self.mechanism = mechanism
+        self.thread = crashedThread
 	}
 }
 
@@ -95,6 +120,7 @@ extension Exception: EventSerializable {
             "value": value
         ]
 		.set("type", value: type)
+        .set("mechanism", value: mechanism)
         .set("module", value: module)
 		.set("thread_id", value: thread?.id)
 		.set("stacktrace", value: thread?.stacktrace?.serialized)
