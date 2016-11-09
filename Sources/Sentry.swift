@@ -137,12 +137,32 @@ internal enum SentryError: Error {
 	*/
 	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
-		captureEvent(event)
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.captureEvent(event)
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.captureEvent(event)
+            })
+        #endif
 	}
 
 	/// Reports given event to Sentry
 	@objc public func captureEvent(_ event: Event) {
-		captureEvent(event, useClientProperties: true)
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.captureEvent(event, useClientProperties: true)
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.captureEvent(event, useClientProperties: true)
+            })
+        #endif
 	}
 	
 	/*
@@ -151,7 +171,6 @@ internal enum SentryError: Error {
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
 	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((Bool) -> ())? = nil) {
-
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties && event.level != .Fatal {
 			event.user = event.user ?? user
