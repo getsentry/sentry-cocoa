@@ -105,7 +105,17 @@ internal enum SentryError: Error {
 		#endif
 		
 		super.init()
-		sendEventsOnDisk()
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.sendEventsOnDisk()
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.sendEventsOnDisk()
+            })
+        #endif
 	}
 	
 	/// Creates a Sentry object iff a valid DSN is provided
