@@ -55,6 +55,9 @@ internal enum SentryError: Error {
 		static let sentryVersion: Int = 7
 	}
 
+    public static var versionString: String {
+        return "\(Info.version) (\(Info.sentryVersion))"
+    }
 
 	// MARK: - Attributes
 	
