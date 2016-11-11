@@ -46,7 +46,10 @@ internal enum SentryError: Error {
 	
 	public static var shared: SentryClient?
 	public static var logLevel: SentryLog = .None
-
+    
+    public static var versionString: String {
+        return "\(Info.version) (\(Info.sentryVersion))"
+    }
 
 	// MARK: - Enums
 
@@ -54,8 +57,7 @@ internal enum SentryError: Error {
 		static let version: String = "0.5.0"
 		static let sentryVersion: Int = 7
 	}
-
-
+    
 	// MARK: - Attributes
 	
 	internal let dsn: DSN
@@ -105,8 +107,23 @@ internal enum SentryError: Error {
 		#endif
 		
 		super.init()
-		sendEventsOnDisk()
+        sendEventsOnDiskInBackground()
 	}
+    
+    /// Sends events that are stored on disk to the server
+    private func sendEventsOnDiskInBackground() {
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.sendEventsOnDisk()
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.sendEventsOnDisk()
+            })
+        #endif
+    }
 	
 	/// Creates a Sentry object iff a valid DSN is provided
 	@objc public convenience init?(dsnString: String) {
@@ -137,12 +154,32 @@ internal enum SentryError: Error {
 	*/
 	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
-		captureEvent(event)
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.captureEvent(event)
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.captureEvent(event)
+            })
+        #endif
 	}
 
 	/// Reports given event to Sentry
 	@objc public func captureEvent(_ event: Event) {
-		captureEvent(event, useClientProperties: true)
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.captureEvent(event, useClientProperties: true)
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.captureEvent(event, useClientProperties: true)
+            })
+        #endif
 	}
 	
 	/*
@@ -151,9 +188,8 @@ internal enum SentryError: Error {
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
 	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((Bool) -> ())? = nil) {
-
 		// Don't allow client attributes to be used when reporting an `Exception`
-		if useClientProperties && event.level != .Fatal {
+		if useClientProperties {
 			event.user = event.user ?? user
 			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
@@ -166,16 +202,17 @@ internal enum SentryError: Error {
 			}
 		}
 
-		if event.level == .Error && event.level != .Fatal {
-			event.breadcrumbsSerialized = breadcrumbs.serialized
-			breadcrumbs.clear()
-		}
-		
+        event.breadcrumbsSerialized = breadcrumbs.serialized
+        breadcrumbs.clear()
+        
 		sendEvent(event) { [weak self] success in
 			completed?(success)
 			guard !success else { return }
 			self?.saveEvent(event)
 		}
+        
+        // In the end we check if there are any events still stored on disk and send them
+        sendEventsOnDiskInBackground()
 	}
 
 	/// Attempts to send all events that are saved on disk

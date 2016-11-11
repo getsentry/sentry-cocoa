@@ -109,6 +109,14 @@ private class DeviceContext: NSObject {
 		}
 	}
 	
+    var modelDetail: String? {
+        if isSimulator {
+            return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
+        } else {
+            return info?[KSSystemField_Model] as? String
+        }
+    }
+    
 	var isOSX: Bool {
 		#if os(OSX)
 			return true
@@ -173,7 +181,7 @@ extension DeviceContext: EventSerializable {
 		// iOS/tvOS/watchOS Device
 		default:
 			dict = dict
-				.set("model_id", value: model)
+				.set("model_id", value: modelDetail)
 				.set("simulator", value: isSimulator)
 		}
 		
