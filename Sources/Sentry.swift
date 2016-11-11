@@ -46,7 +46,10 @@ internal enum SentryError: Error {
 	
 	public static var shared: SentryClient?
 	public static var logLevel: SentryLog = .None
-
+    
+    public static var versionString: String {
+        return "\(Info.version) (\(Info.sentryVersion))"
+    }
 
 	// MARK: - Enums
 
@@ -54,11 +57,7 @@ internal enum SentryError: Error {
 		static let version: String = "0.5.0"
 		static let sentryVersion: Int = 7
 	}
-
-    public static var versionString: String {
-        return "\(Info.version) (\(Info.sentryVersion))"
-    }
-
+    
 	// MARK: - Attributes
 	
 	internal let dsn: DSN
@@ -108,6 +107,11 @@ internal enum SentryError: Error {
 		#endif
 		
 		super.init()
+        sendEventsOnDiskInBackground()
+	}
+    
+    /// Sends events that are stored on disk to the server
+    private func sendEventsOnDiskInBackground() {
         #if swift(>=3.0)
             DispatchQueue.global(qos: .background).async {
                 self.sendEventsOnDisk()
@@ -119,7 +123,7 @@ internal enum SentryError: Error {
                 self.sendEventsOnDisk()
             })
         #endif
-	}
+    }
 	
 	/// Creates a Sentry object iff a valid DSN is provided
 	@objc public convenience init?(dsnString: String) {
@@ -208,6 +212,9 @@ internal enum SentryError: Error {
 			guard !success else { return }
 			self?.saveEvent(event)
 		}
+        
+        // In the end we check if there are any events still stored on disk and send them
+        sendEventsOnDiskInBackground()
 	}
 
 	/// Attempts to send all events that are saved on disk

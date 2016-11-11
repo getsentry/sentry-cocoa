@@ -73,7 +73,9 @@ internal class KSCrashHandler: CrashHandler {
 		
 		// Install
 		installation.install()
-
+        
+        SentryLog.Debug.log("Started Sentry Client \(SentryClient.versionString)")
+        
 		// Maps KSCrash reports in `Events`
 		#if swift(>=3.0)
 			installation.sendAllReports() { (filteredReports, completed, error) -> Void in
