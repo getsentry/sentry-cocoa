@@ -49,7 +49,6 @@ public typealias EventFingerprint = [String]
 	public var level: SentrySeverity = .Error
 	public var platform: String = "cocoa"
 
-
 	// MARK: - Optional Attributes
 
 	public var logger: String?
@@ -60,7 +59,6 @@ public typealias EventFingerprint = [String]
 	public var modules: EventModules?
 	public var extra: EventExtra = [:]
 	public var fingerprint: EventFingerprint?
-
 
 	// MARK: - Optional Interfaces
 
@@ -101,7 +99,20 @@ public typealias EventFingerprint = [String]
 	- Parameter exceptions: An array of `Exception` objects
 	- Parameter stacktrace: An array of `Stacktrace` objects
 	*/
-	@objc public init(_ message: String, timestamp: NSDate = NSDate(), level: SentrySeverity = .Error, logger: String? = nil, culprit: String? = nil, serverName: String? = nil, release: String? = nil, tags: EventTags = [:], modules: EventModules? = nil, extra: EventExtra = [:], fingerprint: EventFingerprint? = nil, user: User? = nil, exceptions: [Exception]? = nil, stacktrace: Stacktrace? = nil) {
+	@objc public init(_ message: String,
+	                  timestamp: NSDate = NSDate(),
+	                  level: SentrySeverity = .Error,
+	                  logger: String? = nil,
+	                  culprit: String? = nil,
+	                  serverName: String? = nil,
+	                  release: String? = nil,
+	                  tags: EventTags = [:],
+	                  modules: EventModules? = nil,
+	                  extra: EventExtra = [:],
+	                  fingerprint: EventFingerprint? = nil,
+	                  user: User? = nil,
+	                  exceptions: [Exception]? = nil,
+	                  stacktrace: Stacktrace? = nil) {
 
 		// Required
 		self.message = message

@@ -85,6 +85,5 @@ class ViewController: UIViewController {
 		}
 		SentryClient.shared?.captureEvent(event)
 	}
-
+    
 }
-

@@ -53,7 +53,7 @@ import Foundation
         
         var crashReasons = Set<String>()
         
-        notableAddresses.filter {
+        let _ = notableAddresses.filter {
             // we try to find a human readable sentence so we say there should be at least
             // 2 words e.g: unexpectedly found nil while unwrapping an Optional value
 

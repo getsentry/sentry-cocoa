@@ -25,7 +25,6 @@ public class BreadcrumbStore: NSObject {
 
 	internal var storeUpdated: StoreUpdated?
 
-
 	// MARK: - Public Interface
 
 	/// Adds given crumb to the client store
@@ -48,6 +47,6 @@ public class BreadcrumbStore: NSObject {
 extension BreadcrumbStore: EventSerializable {
 	internal typealias SerializedType = SerializedTypeArray
 	internal var serialized: SerializedType {
-		return crumbs.map{$0.serialized}.flatMap{$0}
+		return crumbs.map { $0.serialized }.flatMap { $0 }
 	}
 }

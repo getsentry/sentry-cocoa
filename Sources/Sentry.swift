@@ -79,7 +79,6 @@ internal enum SentryError: Error {
 		return store
 	}()
 
-
 	// MARK: EventProperties
 
 	public var releaseVersion: String? {
@@ -94,7 +93,6 @@ internal enum SentryError: Error {
 	public var user: User? = nil {
 		didSet { crashHandler?.user = user }
 	}
-
 
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {

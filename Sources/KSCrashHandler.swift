@@ -88,7 +88,6 @@ internal class KSCrashHandler: CrashHandler {
         #endif
     }
     
-    
     // MARK: - Private Helpers
     
     private func updateUserInfo() {

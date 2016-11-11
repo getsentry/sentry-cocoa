@@ -20,7 +20,6 @@ class CrashReportConverter {
             return date as NSDate? ?? NSDate()
         }()
         
-        
         // Populate user info
         let userInfo = parseUserInfo(report["user"] as? CrashDictionary)
         
@@ -76,7 +75,7 @@ class CrashReportConverter {
         return event
     }
     
-    private static func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion:String?) {
+    private static func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion: String?) {
         return (
             userInfo?[keyEventTags] as? EventTags,
             userInfo?[keyEventExtra] as? EventExtra,
