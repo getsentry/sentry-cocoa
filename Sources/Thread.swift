@@ -82,10 +82,11 @@ import Foundation
             }
         }
         #if swift(>=3.0)
-            return crashReasons.joined(separator: " | ")
+            let result = crashReasons.joined(separator: " | ")
         #else
-            return crashReasons.joinWithSeparator(" | ")
+            let result = crashReasons.joinWithSeparator(" | ")
         #endif
+        return result.characters.count == 0 ? nil : result
     }
     
     public override var debugDescription: String {
