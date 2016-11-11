@@ -60,5 +60,22 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
 		XCTAssertEqual(store.crumbs.count, 3)
 		XCTAssertEqual(store.crumbs, [test2, test3, test4])
 	}
+    
+    func testBreadcrumbStorageLimits() {
+        let store = BreadcrumbStore()
+        store.maxCrumbs = 50000
+        
+        for _ in 1...store.maxCrumbs {
+            store.add(Breadcrumb(category: "test", message: "Test 1"))
+        }
+        
+        XCTAssertEqual(store.crumbs.count, 50000)
+        
+        for _ in 1...store.maxCrumbs {
+            store.add(Breadcrumb(category: "test", message: "Test 2"))
+        }
+        
+        XCTAssertEqual(store.crumbs.count, 50000)
+    }
 
 }
