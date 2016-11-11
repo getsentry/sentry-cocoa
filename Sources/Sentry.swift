@@ -189,7 +189,7 @@ internal enum SentryError: Error {
 	*/
 	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((Bool) -> ())? = nil) {
 		// Don't allow client attributes to be used when reporting an `Exception`
-		if useClientProperties && event.level != .Fatal {
+		if useClientProperties {
 			event.user = event.user ?? user
 			event.releaseVersion = event.releaseVersion ?? releaseVersion
 
@@ -202,11 +202,9 @@ internal enum SentryError: Error {
 			}
 		}
 
-		if event.level == .Error && event.level != .Fatal {
-			event.breadcrumbsSerialized = breadcrumbs.serialized
-			breadcrumbs.clear()
-		}
-		
+        event.breadcrumbsSerialized = breadcrumbs.serialized
+        breadcrumbs.clear()
+        
 		sendEvent(event) { [weak self] success in
 			completed?(success)
 			guard !success else { return }
