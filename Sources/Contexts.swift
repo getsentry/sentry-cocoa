@@ -40,6 +40,8 @@ private class OSContext: NSObject {
 			return "tvOS"
 		#elseif os(OSX)
 			return "macOS"
+        #elseif os(watchOS)
+            return "watchOS"
 		#else
 			return nil
 		#endif
