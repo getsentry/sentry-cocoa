@@ -171,7 +171,7 @@ extension DeviceContext: EventSerializable {
 		switch (isOSX, isSimulator) {
 		// macOS
 		case (true, _):
-			dict = dict.set("machine", value: machine)
+			dict = dict.set("model", value: machine)
 			
 		// iOS/tvOS/watchOS Sim
 		case (false, true):
