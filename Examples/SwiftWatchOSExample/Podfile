@@ -6,7 +6,7 @@ target 'SwiftWatchOSExample' do
   pod 'SentrySwift', :path => '../../'
 end
 
-target 'SwiftWatchOSExample WatchKit App' do
+target 'SwiftWatchOSExample WatchKit Extension' do
   use_frameworks!
   pod 'SentrySwift', :path => '../../'
 end
