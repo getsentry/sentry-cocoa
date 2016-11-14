@@ -38,8 +38,6 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
     }
 
     internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil, diagnosis: String? = nil) {
-		var type = appleCrashErrorDict["type"] as? String
-		var value = appleCrashErrorDict["reason"] as? String
         var mechanism = Mechanism()
 		
         if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
@@ -56,45 +54,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         
         let crashedThread = threads?.filter({$0.crashed ?? false}).first
         
-		if let theType = type {
-			switch theType {
-			case "nsexception":
-				if let context = appleCrashErrorDict["nsexception"] as? [String: AnyObject] {
-					type = context["name"] as? String
-					value = context["reason"] as? String ?? value
-				}
-			case "cpp_exception":
-				if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
-                    value = context["name"] as? String
-				}
-			case "mach":
-				if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
-					let name = context["exception_name"] as? String,
-					let exception = context["exception"],
-					let code = context["code"],
-					let subcode = context["subcode"] {
-					type = name
-					value = "Exception \(exception), Code \(code), Subcode \(subcode)"
-				}
-			case "signal":
-				if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
-					let name = context["name"] as? String,
-					let signal = context["signal"],
-					let code = context["code"] {
-					type = name
-					value = "Signal \(signal), Code \(code)"
-				}
-			case "user":
-				if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
-					let name = context["name"] as? String {
-					type = name
-					// TODO: with custom stack
-					// TODO: also platform field for customs stack
-				}
-			default:
-				value = "UNKNOWN Exception"
-			}
-		}
+		let (type, value) = Exception.extractCrashValue(appleCrashErrorDict)
  
         // We prefer diagnosis generated from KSCrash
         if let diagnosis = diagnosis {
@@ -111,6 +71,51 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         self.mechanism = mechanism
         self.thread = crashedThread
 	}
+    
+    private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?) {
+        var type = appleCrashErrorDict["type"] as? String
+        var value = appleCrashErrorDict["reason"] as? String
+        
+        switch type {
+        case "nsexception"?:
+            if let context = appleCrashErrorDict["nsexception"] as? [String: AnyObject] {
+                type = context["name"] as? String
+                value = context["reason"] as? String ?? value
+            }
+        case "cpp_exception"?:
+            if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
+                value = context["name"] as? String
+            }
+        case "mach"?:
+            if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
+                let name = context["exception_name"] as? String,
+                let exception = context["exception"],
+                let code = context["code"],
+                let subcode = context["subcode"] {
+                type = name
+                value = "Exception \(exception), Code \(code), Subcode \(subcode)"
+            }
+        case "signal"?:
+            if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
+                let name = context["name"] as? String,
+                let signal = context["signal"],
+                let code = context["code"] {
+                type = name
+                value = "Signal \(signal), Code \(code)"
+            }
+        case "user"?:
+            if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
+                let name = context["name"] as? String {
+                type = name
+                // TODO: with custom stack
+                // TODO: also platform field for customs stack
+            }
+        default:
+            value = "UNKNOWN Exception"
+        }
+        
+        return (type: type, value: value)
+    }
 }
 
 extension Exception: EventSerializable {

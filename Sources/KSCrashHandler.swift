@@ -159,7 +159,6 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
         #endif
     }
     
-    // TODO: move to seperate class
     private func sendEvent(_ reports: [AnyType]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
         var events = allEvents
         

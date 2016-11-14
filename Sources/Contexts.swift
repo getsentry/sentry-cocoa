@@ -141,7 +141,7 @@ private class DeviceContext: NSObject {
 		do {
 			let regex = try NSRegularExpression(pattern: pattern, options: [])
 			let nsString = model as NSString
-			
+            // swiftlint:disable legacy_constructor
 			#if swift(>=3.0)
 				let results = regex.matches(in: model,
 				                                    options: [], range: NSMakeRange(0, nsString.length))
@@ -151,7 +151,7 @@ private class DeviceContext: NSObject {
 				options: [], range: NSMakeRange(0, nsString.length))
 				return results.map { nsString.substringWithRange($0.range)}.first
 			#endif
-
+            // swiftlint:enable legacy_constructor
 		} catch let error as NSError {
 			SentryLog.Error.log("Invalid family regeex: \(error.localizedDescription)")
 			return nil
