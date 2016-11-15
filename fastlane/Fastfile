@@ -15,7 +15,7 @@ end
 
 lane :test_swift_3 do
     xcargs = "SWIFT_VERSION=\"3.0\""
-    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", xcargs: xcargs, clean: true)
+    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", xcargs: xcargs, clean: true, code_coverage: true)
     scan(scheme: "SentrySwift-tvOS", device: "Apple TV 1080p (9.2)", xcargs: xcargs, clean: true)
     scan(scheme: "SentrySwift-OSX", xcargs: xcargs, clean: true)
 end
