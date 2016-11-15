@@ -20,6 +20,11 @@ fastlane test_swift_2
 fastlane test_swift_3
 ```
 
+### coverage
+```
+fastlane coverage
+```
+
 
 ----
 
