@@ -1631,6 +1631,7 @@
 				63CDAB201DD9D45900B63921 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
