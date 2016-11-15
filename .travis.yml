@@ -6,10 +6,12 @@ rvm:
     - 2.2
 before_install:
     - gem install fastlane
+    - gem install slather
     - brew update
     - brew outdated swiftlint || brew upgrade swiftlint
 script: 
     - swiftlint
     - fastlane test
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -J 'SentrySwift-iOS'
+    - slather coverage -x --scheme SentrySwift-iOS SentrySwift.xcodeproj
+    - bash <(curl -s https://codecov.io/bash) -f cobertura.xml
