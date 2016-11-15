@@ -8,39 +8,38 @@
 
 import Foundation
 
-
-private func cleanValue(_ v: AnyType) -> AnyType? {
-    switch v {
+private func cleanValue(_ value: AnyType) -> AnyType? {
+    switch value {
     case is NSNumber: fallthrough
     case is NSString: fallthrough
     case is NSNull:
-        return v
+        return value
 
-    case let v as [String: AnyType]:
-        return cleanDict(v)
+    case let value as [String: AnyType]:
+        return cleanDict(value)
 
-    case let v as [AnyType]:
-        return v.flatMap(cleanValue)
+    case let value as [AnyType]:
+        return value.flatMap(cleanValue)
 
-    case let v as NSURL:
-        return v.absoluteString
+    case let value as NSURL:
+        return value.absoluteString
 
-    case let v as NSError:
+    case let value as NSError:
         return [
-            "domain": v.domain,
-            "code": v.code,
-            "user_info": cleanValue(v.userInfo)!
+            "domain": value.domain,
+            "code": value.code,
+            "user_info": cleanValue(value.userInfo)!
         ]
 
     default:
-        return "\(v)"
+        return "\(value)"
     }
 }
 
-private func cleanDict(_ d: [String: AnyType]) -> [String: AnyType] {
+private func cleanDict(_ dict: [String: AnyType]) -> [String: AnyType] {
     var ret = [String: AnyType]()
 
-    for (k, v) in d {
+    for (k, v) in dict {
         guard let c = cleanValue(v) else { continue }
         ret[k] = c
     }

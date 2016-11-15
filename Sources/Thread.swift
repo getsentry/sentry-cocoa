@@ -41,48 +41,51 @@ import Foundation
 		
 		let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
         
-        #if swift(>=3.0)
-            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict: appleCrashThreadDict)
-        #else
-            let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
-        #endif
+        let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
         
 		self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace, reason: reason)
 	}
     
-    private static func extractCrashReasonFromNotableAddresses(appleCrashThreadDict: [String: AnyObject]) -> String? {
+    private static func extractCrashReasonFromNotableAddresses(_ appleCrashThreadDict: [String: AnyObject]) -> String? {
         guard let notableAddresses = appleCrashThreadDict["notable_addresses"] as? Dictionary<String, AnyObject> else {
             return nil
         }
         
-        #if swift(>=3.0)
-            var result = notableAddresses.reduce("") { prev, notableAddress in
-                let dict = notableAddress.1
-                if let type = dict["type"] as? String, type == "string" {
-                    if let value = dict["value"] as? String,
-                        value.components(separatedBy: " ").count > 3 {
-                        // we try to find a human readable sentence so we say there should be at least
-                        // 4 words e.g: unexpectedly found nil while unwrapping an Optional value
-                        return "\(prev)\(value) "
-                    }
-                }
-                return prev
-            }
-            result = result.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        #else
-            var result = notableAddresses.reduce("") { prev, notableAddress in
-                let dict = notableAddress.1
-                if let type = dict["type"] as? String where type == "string" {
-                    if let value = dict["value"] as? String
-                        where value.componentsSeparatedByString(" ").count > 3 {
-                        return "\(prev)\(value) "
-                    }
-                }
-                return prev
-            }
-            result = result.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-        #endif
+        var crashReasons = Set<String>()
         
+        let _ = notableAddresses.filter {
+            // we try to find a human readable sentence so we say there should be at least
+            // 2 words e.g: unexpectedly found nil while unwrapping an Optional value
+
+            let dict = $0.1
+            #if swift(>=3.0)
+                if let type = dict["type"] as? String, type == "string" {
+                    if let value = dict["value"] as? String, value.components(separatedBy: " ").count > 1 {
+                        return true
+                    }
+                }
+            #else
+                if let type = dict["type"] as? String where type == "string" {
+                    if let value = dict["value"] as? String where value.componentsSeparatedByString(" ").count > 1 {
+                        return true
+                    }
+                }
+            #endif
+            return false
+        }.map { _, dict in
+            if let value = dict["value"] as? String {
+                #if swift(>=3.0)
+                    crashReasons.insert(value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+                #else
+                    crashReasons.insert(value.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
+                #endif
+            }
+        }
+        #if swift(>=3.0)
+            let result = crashReasons.joined(separator: " | ")
+        #else
+            let result = crashReasons.joinWithSeparator(" | ")
+        #endif
         return result.characters.count == 0 ? nil : result
     }
     

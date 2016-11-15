@@ -101,6 +101,29 @@
 		6382A73D1DCCBFB200065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
 		6382A73E1DCCBFB200065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
 		6382A73F1DCCBFB300065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
+		63CDAB271DD9D47F00B63921 /* SentrySwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 036378281C225D5200644C01 /* SentrySwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		63CDAB281DD9D48500B63921 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0363782B1C225D8300644C01 /* Sentry.swift */; };
+		63CDAB291DD9D48800B63921 /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8092F8E41CF2499600634F3F /* Sentry+Error.swift */; };
+		63CDAB2A1DD9D48C00B63921 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3D1F71C3E1A2800F00547 /* DSN.swift */; };
+		63CDAB2B1DD9D48E00B63921 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3D21E1C3EB20F00F00547 /* Request.swift */; };
+		63CDAB2C1DD9D49300B63921 /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */; };
+		63CDAB2D1DD9D49700B63921 /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */; };
+		63CDAB2E1DD9D49B00B63921 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036378311C227C7900644C01 /* Event.swift */; };
+		63CDAB2F1DD9D4A000B63921 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E5A61C57192A004D68D8 /* EventOffline.swift */; };
+		63CDAB301DD9D4A000B63921 /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A34281C605B7E00BED5AE /* EventProperties.swift */; };
+		63CDAB311DD9D4A000B63921 /* EventSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0303BC3E1C29FC3F003E7B16 /* EventSerializable.swift */; };
+		63CDAB321DD9D4A800B63921 /* AppleCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0370617E1C75446B0082CCCE /* AppleCrashReport.swift */; };
+		63CDAB331DD9D4A800B63921 /* Breadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D4D9F81CA48FA800799CC9 /* Breadcrumb.swift */; };
+		63CDAB341DD9D4A800B63921 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
+		63CDAB351DD9D4A800B63921 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033A342B1C60693400BED5AE /* User.swift */; };
+		63CDAB361DD9D4A800B63921 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A89AA01CAACA6F00D94E22 /* BreadcrumbStore.swift */; };
+		63CDAB371DD9D4A800B63921 /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03817D7D1D301E1D005A674A /* Contexts.swift */; };
+		63CDAB381DD9D4A800B63921 /* Stacktrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CF118A1D423D4B0002B06A /* Stacktrace.swift */; };
+		63CDAB391DD9D4A800B63921 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2691D4652180004A612 /* Thread.swift */; };
+		63CDAB3A1DD9D4A800B63921 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1E2811D480A1F0004A612 /* DebugMeta.swift */; };
+		63CDAB3B1DD9D4AE00B63921 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C736E11C474715004428DF /* CrashHandler.swift */; };
+		63CDAB3C1DD9D4AE00B63921 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CFCEC01C612F3E00999EB7 /* KSCrashHandler.swift */; };
+		63CDAB3D1DD9D4AE00B63921 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */; };
 		80628F071CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F081CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F091CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
@@ -220,6 +243,27 @@
 			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
 			remoteInfo = "RavenSwift-iOS";
 		};
+		63CDAB441DD9D7F300B63921 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8A2506FE1DA8768E00D7F158;
+			remoteInfo = KSCrashTests;
+		};
+		63CDAB471DD9D7F300B63921 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CB0DD4F51D9B6DD9009D4FE7;
+			remoteInfo = KSCrash;
+		};
+		63CDAB491DD9D80100B63921 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CB0DD4F41D9B6DD9009D4FE7;
+			remoteInfo = KSCrash;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -269,6 +313,9 @@
 		6350F66B1DCE1C8700B6B596 /* SentrySwiftTestHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftTestHelper.swift; sourceTree = "<group>"; };
 		6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrashReportConverter.swift; sourceTree = "<group>"; };
 		6382A7341DCCBF5200065393 /* crashReports */ = {isa = PBXFileReference; lastKnownFileType = folder; path = crashReports; sourceTree = "<group>"; };
+		63CDAB1A1DD9D45900B63921 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		63CDAB1D1DD9D45900B63921 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KSCrash.xcodeproj; path = Carthage/Checkouts/KSCrash/WatchOS/KSCrash.xcodeproj; sourceTree = "<group>"; };
 		80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftStacktraceTests.swift; sourceTree = "<group>"; };
 		80628F0A1CF544C8002A656D /* SentrySwiftErrorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftErrorTests.swift; sourceTree = "<group>"; };
 		8092F8E41CF2499600634F3F /* Sentry+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sentry+Error.swift"; sourceTree = "<group>"; };
@@ -319,6 +366,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		03E94B111C22596A009F8F29 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		63CDAB161DD9D45900B63921 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -437,6 +491,7 @@
 			isa = PBXGroup;
 			children = (
 				03C714E51CE4D20A0080AE60 /* KSCrash.framework */,
+				63CDAB451DD9D7F300B63921 /* KSCrashTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -447,6 +502,7 @@
 				036378271C225D5200644C01 /* Sources */,
 				035242901C988D2400A65D6D /* SentrySwift */,
 				035242931C988D2F00A65D6D /* SentrySwiftTests */,
+				63CDAB1B1DD9D45900B63921 /* SentrySwift-WatchOS */,
 				217A96211CD67739006C681F /* Frameworks */,
 				03E94AED1C22595B009F8F29 /* Products */,
 			);
@@ -461,6 +517,7 @@
 				03E94B141C22596A009F8F29 /* SentrySwift-iOSTests.xctest */,
 				03C7150C1CE4DB540080AE60 /* SentrySwift.framework */,
 				03C715151CE4DB540080AE60 /* SentrySwift-tvOSTests.xctest */,
+				63CDAB1A1DD9D45900B63921 /* SentrySwift.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -479,11 +536,28 @@
 		217A96221CD6773F006C681F /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
+				63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */,
 				03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */,
 				03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */,
 				03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */,
 			);
 			name = KSCrash;
+			sourceTree = "<group>";
+		};
+		63CDAB1B1DD9D45900B63921 /* SentrySwift-WatchOS */ = {
+			isa = PBXGroup;
+			children = (
+				63CDAB1D1DD9D45900B63921 /* Info.plist */,
+			);
+			path = "SentrySwift-WatchOS";
+			sourceTree = "<group>";
+		};
+		63CDAB411DD9D7F300B63921 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				63CDAB481DD9D7F300B63921 /* KSCrash.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		9B02CAB11CF5C1E8004F614C /* Extensions */ = {
@@ -535,6 +609,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				0363782A1C225D6400644C01 /* SentrySwift.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		63CDAB171DD9D45900B63921 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63CDAB271DD9D47F00B63921 /* SentrySwift.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -623,6 +705,7 @@
 				03E94B071C22596A009F8F29 /* Frameworks */,
 				03E94B081C22596A009F8F29 /* Headers */,
 				03E94B091C22596A009F8F29 /* Resources */,
+				63524AC21DD5FD7C001BC6B2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -652,6 +735,25 @@
 			productReference = 03E94B141C22596A009F8F29 /* SentrySwift-iOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		63CDAB191DD9D45900B63921 /* SentrySwift-WatchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 63CDAB261DD9D45900B63921 /* Build configuration list for PBXNativeTarget "SentrySwift-WatchOS" */;
+			buildPhases = (
+				63CDAB151DD9D45900B63921 /* Sources */,
+				63CDAB161DD9D45900B63921 /* Frameworks */,
+				63CDAB171DD9D45900B63921 /* Headers */,
+				63CDAB181DD9D45900B63921 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				63CDAB4A1DD9D80100B63921 /* PBXTargetDependency */,
+			);
+			name = "SentrySwift-WatchOS";
+			productName = "SentrySwift-WatchOS";
+			productReference = 63CDAB1A1DD9D45900B63921 /* SentrySwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -679,6 +781,10 @@
 					03E94B131C22596A009F8F29 = {
 						CreatedOnToolsVersion = 7.2;
 					};
+					63CDAB191DD9D45900B63921 = {
+						CreatedOnToolsVersion = 8.1;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 03E94AE61C22595B009F8F29 /* Build configuration list for PBXProject "SentrySwift" */;
@@ -704,12 +810,17 @@
 					ProductGroup = 03C714E11CE4D2090080AE60 /* Products */;
 					ProjectRef = 03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */;
 				},
+				{
+					ProductGroup = 63CDAB411DD9D7F300B63921 /* Products */;
+					ProjectRef = 63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
 				03E94AEB1C22595B009F8F29 /* SentrySwift-OSX */,
 				03E94B0A1C22596A009F8F29 /* SentrySwift-iOS */,
 				03C7150B1CE4DB540080AE60 /* SentrySwift-tvOS */,
+				63CDAB191DD9D45900B63921 /* SentrySwift-WatchOS */,
 				03E94AF51C22595C009F8F29 /* SentrySwift-OSXTests */,
 				03E94B131C22596A009F8F29 /* SentrySwift-iOSTests */,
 				03C715141CE4DB540080AE60 /* SentrySwift-tvOSTests */,
@@ -774,6 +885,20 @@
 			remoteRef = 03C714E41CE4D20A0080AE60 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		63CDAB451DD9D7F300B63921 /* KSCrashTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = KSCrashTests.xctest;
+			remoteRef = 63CDAB441DD9D7F300B63921 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		63CDAB481DD9D7F300B63921 /* KSCrash.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KSCrash.framework;
+			remoteRef = 63CDAB471DD9D7F300B63921 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -832,7 +957,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		63CDAB181DD9D45900B63921 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		63524AC21DD5FD7C001BC6B2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		03C715071CE4DB540080AE60 /* Sources */ = {
@@ -968,6 +1116,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		63CDAB151DD9D45900B63921 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63CDAB3B1DD9D4AE00B63921 /* CrashHandler.swift in Sources */,
+				63CDAB2D1DD9D49700B63921 /* Dictionary+Extras.swift in Sources */,
+				63CDAB371DD9D4A800B63921 /* Contexts.swift in Sources */,
+				63CDAB321DD9D4A800B63921 /* AppleCrashReport.swift in Sources */,
+				63CDAB3D1DD9D4AE00B63921 /* CrashReportConverter.swift in Sources */,
+				63CDAB2A1DD9D48C00B63921 /* DSN.swift in Sources */,
+				63CDAB2F1DD9D4A000B63921 /* EventOffline.swift in Sources */,
+				63CDAB381DD9D4A800B63921 /* Stacktrace.swift in Sources */,
+				63CDAB2B1DD9D48E00B63921 /* Request.swift in Sources */,
+				63CDAB391DD9D4A800B63921 /* Thread.swift in Sources */,
+				63CDAB2C1DD9D49300B63921 /* NSDate+Extras.swift in Sources */,
+				63CDAB3C1DD9D4AE00B63921 /* KSCrashHandler.swift in Sources */,
+				63CDAB351DD9D4A800B63921 /* User.swift in Sources */,
+				63CDAB301DD9D4A000B63921 /* EventProperties.swift in Sources */,
+				63CDAB3A1DD9D4A800B63921 /* DebugMeta.swift in Sources */,
+				63CDAB281DD9D48500B63921 /* Sentry.swift in Sources */,
+				63CDAB361DD9D4A800B63921 /* BreadcrumbStore.swift in Sources */,
+				63CDAB341DD9D4A800B63921 /* Exception.swift in Sources */,
+				63CDAB2E1DD9D49B00B63921 /* Event.swift in Sources */,
+				63CDAB291DD9D48800B63921 /* Sentry+Error.swift in Sources */,
+				63CDAB331DD9D4A800B63921 /* Breadcrumb.swift in Sources */,
+				63CDAB311DD9D4A000B63921 /* EventSerializable.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1000,6 +1177,11 @@
 			isa = PBXTargetDependency;
 			target = 03E94B0A1C22596A009F8F29 /* SentrySwift-iOS */;
 			targetProxy = 03E94B161C22596A009F8F29 /* PBXContainerItemProxy */;
+		};
+		63CDAB4A1DD9D80100B63921 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KSCrash;
+			targetProxy = 63CDAB491DD9D80100B63921 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1321,6 +1503,61 @@
 			};
 			name = Release;
 		};
+		63CDAB1F1DD9D45900B63921 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "SentrySwift-WatchOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_NAME = SentrySwift;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 3.1;
+			};
+			name = Debug;
+		};
+		63CDAB201DD9D45900B63921 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "SentrySwift-WatchOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_NAME = SentrySwift;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 3.1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1386,6 +1623,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		63CDAB261DD9D45900B63921 /* Build configuration list for PBXNativeTarget "SentrySwift-WatchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63CDAB1F1DD9D45900B63921 /* Debug */,
+				63CDAB201DD9D45900B63921 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

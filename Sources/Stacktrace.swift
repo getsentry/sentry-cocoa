@@ -63,7 +63,6 @@ extension Stacktrace: EventSerializable {
 	public var symbolAddress: String?
 	public var inApp: Bool?
 	
-	
 	var fileName: String? {
 		guard let file = file else { return nil }
 		return (file as NSString).lastPathComponent
@@ -114,7 +113,8 @@ extension Stacktrace: EventSerializable {
 	}
     
     public override var debugDescription: String {
-        return "file: \(file) \n function: \(function) \n module: \(module) \n line: \(line) \n package: \(package) \n imageAddress: \(imageAddress) \n platform: \(platform) \n instructionAddress: \(instructionAddress) \n symbolAddress: \(symbolAddress) \n inApp: \(inApp) \n"
+        let firstPart =  "file: \(file) \n function: \(function) \n module: \(module) \n line: \(line) \n package: \(package) \n imageAddress: \(imageAddress) \n"
+        return "\(firstPart) platform: \(platform) \n instructionAddress: \(instructionAddress) \n symbolAddress: \(symbolAddress) \n inApp: \(inApp) \n"
     }
 }
 

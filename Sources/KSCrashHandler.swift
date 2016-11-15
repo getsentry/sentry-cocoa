@@ -79,7 +79,7 @@ internal class KSCrashHandler: CrashHandler {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
             installation.sendAllReports() { (filteredReports, completed, error) -> Void in
-            SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
+                SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #else
             installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
@@ -87,7 +87,6 @@ internal class KSCrashHandler: CrashHandler {
             }
         #endif
     }
-    
     
     // MARK: - Private Helpers
     
@@ -137,13 +136,13 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
     @objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
         #if swift(>=3.0)
             DispatchQueue.global(qos: .background).async {
-            // Mapping reports
-            let events: [Event] = reports?
-            .flatMap({$0 as? CrashDictionary})
-            .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
-            
-            // Sends events recursively
-            self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+                // Mapping reports
+                let events: [Event] = reports?
+                    .flatMap({$0 as? CrashDictionary})
+                    .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
+                
+                // Sends events recursively
+                self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
             }
         #else
             let qualityOfServiceClass = QOS_CLASS_BACKGROUND
@@ -160,7 +159,6 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
         #endif
     }
     
-    // TODO: move to seperate class
     private func sendEvent(_ reports: [AnyType]!, events allEvents: [Event], success: Bool, onCompletion: KSCrashReportFilterCompletion!) {
         var events = allEvents
         

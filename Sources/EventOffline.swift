@@ -79,7 +79,6 @@ extension SentryClient {
 		return []
 	}
 
-
 	// MARK: - Private Helpers
 	
 	/// Path of directory to which events will be saved in offline mode
