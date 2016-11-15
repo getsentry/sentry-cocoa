@@ -1,8 +1,15 @@
 language: objective-c
 osx_image: xcode8
+cache:
+    - bundler
+rvm:
+    - 2.2
 before_install:
     - gem install fastlane
+    - brew update
+    - brew outdated swiftlint || brew upgrade swiftlint
 script: 
+    - swiftlint
     - fastlane test
 after_success:
     - bash <(curl -s https://codecov.io/bash) -J 'SentrySwift-iOS'
