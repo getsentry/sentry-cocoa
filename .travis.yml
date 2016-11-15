@@ -5,4 +5,4 @@ before_install:
 script: 
     - fastlane test
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -J 'SentrySwift-iOS'
+    - bash <(curl -s https://codecov.io/bash) -J 'SentrySwift-iOS'
