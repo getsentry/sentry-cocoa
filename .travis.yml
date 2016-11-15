@@ -4,4 +4,5 @@ before_install:
     - gem install fastlane
 script: 
     - fastlane test
-
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -J 'SentrySwift-iOS'
