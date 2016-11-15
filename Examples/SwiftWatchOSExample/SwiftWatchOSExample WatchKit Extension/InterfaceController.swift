@@ -67,11 +67,7 @@ class InterfaceController: WKInterfaceController {
     @IBAction func onClickBreak() {
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
         
-        // Note: You will have to disconnect your app from the debugger to
-        // to allow SentrySwift to detect the crash. To do this, kill the app (from Xcode)
-        // and then start the app manually in the simulator
-        let s: String! = nil
-        s.lowercased()
+        NSException(name: NSExceptionName("test"), reason: "test", userInfo: nil).raise()
     }
 
     @IBAction func onClickSimpleMessage() {
