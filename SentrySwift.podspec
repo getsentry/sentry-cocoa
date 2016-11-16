@@ -13,6 +13,10 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
 
   s.source_files = "Sources/**/*.{h,m,swift}"
-
+  s.source_files = "Sources/**/*.{h,m,swift}"
+  s.resource_bundles = {
+    'storyboards' => ['Sources/**/*.{storyboard}']
+  }
+  
   s.dependency 'KSCrash', '~> 1.10.1'
 end

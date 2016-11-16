@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if os(iOS)
+    import UIKit
+#endif
 
 // This is declared here to keep namespace compatibility with objc
 @objc public enum SentryLog: Int, CustomStringConvertible {
@@ -184,7 +187,29 @@ internal enum SentryError: Error {
     @objc public func crash() {
         fatalError("TEST - Sentry Client Crash")
     }
-	
+    
+    #if os(iOS)
+    /// This will return the UserFeedbackViewController
+    @objc public func userFeedbackViewController() -> UIViewController? {
+        #if swift(>=3.0)
+            let frameworkBundle = Bundle(for: type(of: self))
+            guard let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle"),
+                let bundle = Bundle(url: bundleURL) else {
+                return nil
+            }
+        #else
+            let frameworkBundle = NSBundle(forClass: self.dynamicType)
+            guard let bundleURL = frameworkBundle.URLForResource("storyboards", withExtension: "bundle"),
+                let bundle = NSBundle(URL: bundleURL) else {
+                return nil
+            }
+        #endif
+    
+        let storyboard = UIStoryboard(name: "UserFeedback", bundle: bundle)
+        return storyboard.instantiateInitialViewController()
+    }
+    #endif
+    
 	/*
 	Reports given event to Sentry
 	- Parameter event: An event struct

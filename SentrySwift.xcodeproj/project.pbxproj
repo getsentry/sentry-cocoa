@@ -135,6 +135,8 @@
 		63CDAB751DDB323800B63921 /* SentrySwiftRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB741DDB323800B63921 /* SentrySwiftRequestTests.swift */; };
 		63CDAB761DDB323800B63921 /* SentrySwiftRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB741DDB323800B63921 /* SentrySwiftRequestTests.swift */; };
 		63CDAB771DDB323800B63921 /* SentrySwiftRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB741DDB323800B63921 /* SentrySwiftRequestTests.swift */; };
+		63CDAB7A1DDB41ED00B63921 /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63CDAB791DDB41ED00B63921 /* UserFeedback.storyboard */; };
+		63CDAB871DDC51E400B63921 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */; };
 		80628F071CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F081CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F091CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
@@ -336,6 +338,8 @@
 		63CDAB6C1DDB164500B63921 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63CDAB701DDB304200B63921 /* SentrySwiftAppleCrashReportTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftAppleCrashReportTests.swift; sourceTree = "<group>"; };
 		63CDAB741DDB323800B63921 /* SentrySwiftRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftRequestTests.swift; sourceTree = "<group>"; };
+		63CDAB791DDB41ED00B63921 /* UserFeedback.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = UserFeedback.storyboard; sourceTree = "<group>"; };
+		63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFeedbackTableViewController.swift; sourceTree = "<group>"; };
 		80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftStacktraceTests.swift; sourceTree = "<group>"; };
 		80628F0A1CF544C8002A656D /* SentrySwiftErrorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftErrorTests.swift; sourceTree = "<group>"; };
 		8092F8E41CF2499600634F3F /* Sentry+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sentry+Error.swift"; sourceTree = "<group>"; };
@@ -456,6 +460,8 @@
 		036378271C225D5200644C01 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				63CDAB851DDC51C500B63921 /* ViewController */,
+				63CDAB781DDB41CD00B63921 /* Views */,
 				9B02CAB11CF5C1E8004F614C /* Extensions */,
 				036378281C225D5200644C01 /* SentrySwift.h */,
 				0363782B1C225D8300644C01 /* Sentry.swift */,
@@ -602,6 +608,22 @@
 				63CDAB6C1DDB164500B63921 /* Info.plist */,
 			);
 			path = iOS;
+			sourceTree = "<group>";
+		};
+		63CDAB781DDB41CD00B63921 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				63CDAB791DDB41ED00B63921 /* UserFeedback.storyboard */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		63CDAB851DDC51C500B63921 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */,
+			);
+			name = ViewController;
 			sourceTree = "<group>";
 		};
 		9B02CAB11CF5C1E8004F614C /* Extensions */ = {
@@ -1010,6 +1032,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63CDAB7A1DDB41ED00B63921 /* UserFeedback.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1178,6 +1201,7 @@
 				03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				03D4D9FA1CA48FA800799CC9 /* Breadcrumb.swift in Sources */,
 				03E3D1D81C3E166800F00547 /* EventSerializable.swift in Sources */,
+				63CDAB871DDC51E400B63921 /* UserFeedbackTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1794,6 +1818,7 @@
 				63CDAB6F1DDB164500B63921 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
