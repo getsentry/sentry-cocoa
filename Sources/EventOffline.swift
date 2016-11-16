@@ -10,9 +10,9 @@ import Foundation
 
 private let directoryNamePrefix = "sentry-swift-"
 
-extension SentryClient {
+public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
 
-	public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
+extension SentryClient {
 
 	/// Saves given event to disk
 	public func saveEvent(_ event: Event) {
@@ -89,7 +89,7 @@ extension SentryClient {
 			guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
 		#endif
 
-        let serverURLString: String! = dsn.urls.storeURL.absoluteString
+        let serverURLString: String! = dsn.url.absoluteString // TODO: remove !
         if serverURLString == nil { return nil }
 
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"

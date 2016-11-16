@@ -143,7 +143,7 @@
 				TargetAttributes = {
 					03864B621C89F9100030B13A = {
 						CreatedOnToolsVersion = 7.2.1;
-						DevelopmentTeam = WPBN76YKX2;
+						DevelopmentTeam = 97JCY7859U;
 					};
 				};
 			};
@@ -408,6 +408,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 97JCY7859U;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = "$(inherited)";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SwiftExample/Info.plist;
@@ -425,6 +426,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = 97JCY7859U;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = "$(inherited)";
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = SwiftExample/Info.plist;

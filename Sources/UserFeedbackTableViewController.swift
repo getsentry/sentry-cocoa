@@ -28,12 +28,12 @@ public class UserFeedbackTableViewController: UITableViewController {
     override public func viewDidLoad() {
         super.viewDidLoad()
         clearsSelectionOnViewWillAppear = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismiss))
+        //navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
         tableView.tableFooterView = UIView()
         updateInterface()
     }
 
-    func dismiss() {
+    func dismissViewController() {
         
     }
     
