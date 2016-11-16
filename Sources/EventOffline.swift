@@ -89,7 +89,7 @@ extension SentryClient {
 			guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
 		#endif
 
-        let serverURLString: String! = dsn.serverURL.absoluteString
+        let serverURLString: String! = dsn.urls.storeURL.absoluteString
         if serverURLString == nil { return nil }
 
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"

@@ -8,76 +8,61 @@
 
 import UIKit
 
-class UserFeedbackTableViewController: UITableViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        
-        title = "User Feedback"
-        tableView.tableFooterView = UIView()
-    }
-
-    // MARK: - Table view data source
+public class UserFeedbackTableViewController: UITableViewController {
     
-    /*
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var subtitleLabel: UILabel!
 
-        // Configure the cell...
+    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var emailTextField: UITextField!
+    @IBOutlet weak var messageTextField: UITextField!
 
-        return cell
+    @IBOutlet weak var submitButton: UIButton!
+    
+    @IBOutlet weak var poweredByTableViewCell: UITableViewCell!
+    
+    var viewModel = UserFeedbackViewModel() {
+        didSet { updateInterface() }
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    
+    override public func viewDidLoad() {
+        super.viewDidLoad()
+        clearsSelectionOnViewWillAppear = false
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismiss))
+        tableView.tableFooterView = UIView()
+        updateInterface()
     }
-    */
 
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    func dismiss() {
+        
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
+    
+    @IBAction func onClickSubmit(_ sender: AnyObject) {
+        SentryClient.shared?.sendUserFeedback()
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
+    
+    private func updateInterface() {
+        titleLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subTitle
+        
+        nameTextField.text = viewModel.nameTextFieldValue
+        nameTextField.placeholder = viewModel.nameTextFieldPlaceholder
+        
+        emailTextField.text = viewModel.emailTextFieldValue
+        emailTextField.placeholder = viewModel.emailTextFieldPlaceholder
+        
+        messageTextField.text = viewModel.messageTextFieldValue
+        messageTextField.placeholder = viewModel.messageTextFieldPlaceholder
+        
+        #if swift(>=3.0)
+            submitButton.setTitle(viewModel.submitButtonText, for: .normal)
+            poweredByTableViewCell.isHidden = !viewModel.showSentryBranding
+        #else
+            submitButton.setTitle(viewModel.submitButtonText, forState: .Normal)
+            poweredByTableViewCell.hidden = !viewModel.showSentryBranding
+        #endif
+        
+        title = viewModel.viewControllerTitle
     }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+    
 }

@@ -14,7 +14,7 @@
         <scene sceneID="xRt-Cc-9J1">
             <objects>
                 <tableViewController id="xgF-SM-DmY" customClass="UserFeedbackTableViewController" customModule="SentrySwift" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="c6m-nC-yFI">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="c6m-nC-yFI">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -108,20 +108,21 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="179"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="xNl-vK-hlk">
-                                                    <rect key="frame" x="24" y="8" width="327" height="163.5"/>
-                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" placeholder="I clicked on X and then this happened" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="UJb-Ie-rFk">
+                                                    <rect key="frame" x="26" y="16" width="323" height="147.5"/>
+                                                    <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                                </textView>
+                                                    <textInputTraits key="textInputTraits"/>
+                                                </textField>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="xNl-vK-hlk" firstAttribute="leading" secondItem="PAu-bT-J6l" secondAttribute="leadingMargin" constant="16" id="4V8-m0-FQC"/>
-                                                <constraint firstAttribute="trailingMargin" secondItem="xNl-vK-hlk" secondAttribute="trailing" constant="16" id="Ho8-9D-789"/>
-                                                <constraint firstItem="xNl-vK-hlk" firstAttribute="top" secondItem="PAu-bT-J6l" secondAttribute="topMargin" id="eyU-wc-rpB"/>
-                                                <constraint firstAttribute="bottomMargin" secondItem="xNl-vK-hlk" secondAttribute="bottom" id="h7u-cm-bYw"/>
+                                                <constraint firstAttribute="trailing" secondItem="UJb-Ie-rFk" secondAttribute="trailing" constant="26" id="IY1-5u-3P8"/>
+                                                <constraint firstItem="UJb-Ie-rFk" firstAttribute="top" secondItem="PAu-bT-J6l" secondAttribute="topMargin" constant="8" id="MTH-IK-2xf"/>
+                                                <constraint firstAttribute="bottomMargin" secondItem="UJb-Ie-rFk" secondAttribute="bottom" constant="8" id="Rl9-TU-sMP"/>
+                                                <constraint firstItem="UJb-Ie-rFk" firstAttribute="leading" secondItem="PAu-bT-J6l" secondAttribute="leading" constant="26" id="jXb-ay-ZVH"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="QBU-39-Y8T">
                                         <rect key="frame" x="0.0" y="416" width="375" height="44"/>
@@ -133,6 +134,9 @@
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ljr-FW-CFP">
                                                     <rect key="frame" x="119" y="8" width="137" height="27.5"/>
                                                     <state key="normal" title="Submit crash report"/>
+                                                    <connections>
+                                                        <action selector="onClickSubmit:" destination="xgF-SM-DmY" eventType="touchUpInside" id="L5v-sN-iQI"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -141,6 +145,36 @@
                                                 <constraint firstItem="Ljr-FW-CFP" firstAttribute="centerX" secondItem="KMz-Sz-aXH" secondAttribute="centerX" id="Wck-tb-G1a"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <inset key="separatorInset" minX="999" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="AV0-Ol-X7H">
+                                        <rect key="frame" x="0.0" y="460" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="AV0-Ol-X7H" id="kHQ-92-YRE">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sentry" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tf4-kn-B2U">
+                                                    <rect key="frame" x="304.5" y="11" width="50.5" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="powered by" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b3o-7r-1u9">
+                                                    <rect key="frame" x="217" y="13" width="75.5" height="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="tf4-kn-B2U" firstAttribute="leading" secondItem="b3o-7r-1u9" secondAttribute="trailing" constant="12" id="RGO-hz-WDc"/>
+                                                <constraint firstItem="tf4-kn-B2U" firstAttribute="centerY" secondItem="kHQ-92-YRE" secondAttribute="centerY" id="RNV-Iq-WjB"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="tf4-kn-B2U" secondAttribute="trailing" constant="12" id="jl1-e8-bff"/>
+                                                <constraint firstItem="b3o-7r-1u9" firstAttribute="centerY" secondItem="kHQ-92-YRE" secondAttribute="centerY" id="tCh-M7-gst"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <inset key="separatorInset" minX="999" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -151,6 +185,15 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Root View Controller" id="SG0-GJ-CgW"/>
+                    <connections>
+                        <outlet property="emailTextField" destination="Mm0-fC-UMB" id="v0E-25-FDR"/>
+                        <outlet property="messageTextField" destination="UJb-Ie-rFk" id="75b-CJ-onh"/>
+                        <outlet property="nameTextField" destination="tDn-rh-lhn" id="cec-Cr-Eh6"/>
+                        <outlet property="poweredByTableViewCell" destination="AV0-Ol-X7H" id="PYf-ra-43E"/>
+                        <outlet property="submitButton" destination="Ljr-FW-CFP" id="Esm-gk-Yu8"/>
+                        <outlet property="subtitleLabel" destination="pQh-Nn-xPX" id="mVq-sP-zlG"/>
+                        <outlet property="titleLabel" destination="7hj-0c-bhv" id="ru3-S3-HTD"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K0W-pV-1eA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

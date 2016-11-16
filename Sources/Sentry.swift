@@ -248,7 +248,7 @@ internal enum SentryError: Error {
 		let events = savedEvents()
 		
 		for savedEvent in events {
-			sendData(savedEvent.data) { success in
+            sendData(savedEvent.data, url: dsn.urls.storeURL) { success in
 				guard success else { return }
 				savedEvent.deleteEvent()
 			}

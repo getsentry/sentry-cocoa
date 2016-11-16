@@ -67,6 +67,10 @@ class ViewController: UIViewController {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", message: "Some message", level: .Info, data: ["hehe": "hoho"]))
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		SentryClient.shared?.captureMessage("Hehehe, this is totes not useful", level: .Error)
+        
+        if let viewController = SentryClient.shared?.userFeedbackViewController() {
+            presentViewController(viewController, animated: true, completion: nil)
+        }
 	}
 	
     @IBAction func onClickFatalError(sender: AnyObject) {
