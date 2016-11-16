@@ -12,6 +12,7 @@ import UIKit
     public var name = ""
     public var email = ""
     public var comments = ""
+    public var event: Event?
 }
 
 extension UserFeedback {
@@ -20,6 +21,7 @@ extension UserFeedback {
     #else
     internal typealias SerializedType = NSData?
     #endif
+    
     
     internal var serialized: SerializedType {
         let urlEncodedString = "email=\(urlEncodeString(email))&name=\(urlEncodeString(name))&comments=\(urlEncodeString(comments))"
@@ -44,5 +46,13 @@ extension UserFeedback {
         #endif
         SentryLog.Error.log("Could not urlencode \(string)")
         return string
+    }
+    
+    internal var queryItems: [URLQueryItem] {
+        return [
+            URLQueryItem(name: "email", value: urlEncodeString(email)),
+            //URLQueryItem(name: "eventId", value: event?.eventID),
+            URLQueryItem(name: "eventId", value: "69AEB5B5A62B4C4EA85C4380EC98B9C6"), // TODO: use actual event
+        ]
     }
 }

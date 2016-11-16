@@ -37,6 +37,7 @@ import Foundation
 	internal typealias ProcessInfo = NSProcessInfo
 	internal typealias JSONSerialization = NSJSONSerialization
 	internal typealias Bundle = NSBundle
+    internal typealias URLQueryItem = NSURLQueryItem
 #endif
 
 internal enum SentryError: Error {
@@ -110,21 +111,6 @@ internal enum SentryError: Error {
 		super.init()
         sendEventsOnDiskInBackground()
 	}
-    
-    /// Sends events that are stored on disk to the server
-    private func sendEventsOnDiskInBackground() {
-        #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
-                self.sendEventsOnDisk()
-            }
-        #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
-                self.sendEventsOnDisk()
-            })
-        #endif
-    }
 	
 	/// Creates a Sentry object iff a valid DSN is provided
 	@objc public convenience init?(dsnString: String) {
@@ -242,6 +228,22 @@ internal enum SentryError: Error {
         // In the end we check if there are any events still stored on disk and send them
         sendEventsOnDiskInBackground()
 	}
+    
+    
+    /// Sends events that are stored on disk to the server
+    private func sendEventsOnDiskInBackground() {
+        #if swift(>=3.0)
+            DispatchQueue.global(qos: .background).async {
+                self.sendEventsOnDisk()
+            }
+        #else
+            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+            dispatch_async(backgroundQueue, {
+                self.sendEventsOnDisk()
+            })
+        #endif
+    }
 
 	/// Attempts to send all events that are saved on disk
 	private func sendEventsOnDisk() {

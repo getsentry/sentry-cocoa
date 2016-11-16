@@ -47,20 +47,8 @@ enum SentryEndpoint: Endpoint {
             components.path = "/api/\(dsn.projectID)/store/"
         case .userFeedback(let userFeedback):
             components.path = "/api/embed/error-page/"
-            #if swift(>=3.0)
-            components.queryItems = [
-                URLQueryItem(name: "name", value: "a"),
-                URLQueryItem(name: "eventId", value: "a"),
-                URLQueryItem(name: "dsn", value: "a")
-            ]
-            #else
-            components.queryItems = [
-                NSURLQueryItem(name: "email", value: "daniel.griesser.86@gmail.com"),
-                NSURLQueryItem(name: "eventId", value: "69AEB5B5A62B4C4EA85C4380EC98B9C6"),
-                NSURLQueryItem(name: "dsn", value: dsn.url.absoluteString),
-            ]
-            #endif
-            // TODO userFeedback.queryItems
+            components.queryItems = userFeedback.queryItems
+            components.queryItems?.append(URLQueryItem(name: "dsn", value: dsn.url.absoluteString))
         }
         
         #if swift(>=3.0)
