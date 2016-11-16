@@ -9,7 +9,7 @@
 import Foundation
 import KSCrash.NSData_GZip
 
-internal typealias SentryEndpointRequestSent = (Bool) -> ()
+typealias SentryEndpointRequestFinished = (Bool) -> ()
 
 enum HttpMethod: String {
     case post = "POST"
@@ -20,7 +20,7 @@ protocol Endpoint {
     var httpMethod: HttpMethod { get }
     func route(dsn dsn: DSN) -> NSURL?
     var payload: NSData { get }
-    func send(dsn: DSN, finished: SentryEndpointRequestSent?)
+    func send(dsn: DSN, finished: SentryEndpointRequestFinished?)
 }
 
 enum SentryEndpoint: Endpoint {
@@ -140,7 +140,7 @@ enum SentryEndpoint: Endpoint {
         }
     }
     
-    func send(dsn: DSN, finished: SentryEndpointRequestSent? = nil) {
+    func send(dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
         guard let url = route(dsn: dsn) else {
             SentryLog.Error.log("Cannot find route for \(self)")
             finished?(false)
@@ -209,7 +209,7 @@ enum SentryEndpoint: Endpoint {
             }
         #else
             guard let body = NSString(data: data, encoding: NSUTF8StringEncoding) else {
-            return
+                return
             }
         #endif
         SentryLog.Debug.log("body = \(body)")

@@ -15,7 +15,7 @@ extension SentryClient {
 	- Parameter event: An event
 	- Parameter finished: A closure with the success status
 	*/
-	internal func sendEvent(_ event: Event, finished: SentryEndpointRequestSent? = nil) {
+	internal func sendEvent(_ event: Event, finished: SentryEndpointRequestFinished? = nil) {
         #if swift(>=3.0)
             SentryEndpoint.store(event: event).send(dsn: dsn, finished: finished)
         #else
@@ -28,7 +28,7 @@ extension SentryClient {
      - Parameter event: An event
      - Parameter finished: A closure with the success status
      */
-    internal func sendEvent(_ event: SavedEvent, finished: SentryEndpointRequestSent? = nil) {
+    internal func sendEvent(_ event: SavedEvent, finished: SentryEndpointRequestFinished? = nil) {
         #if swift(>=3.0)
             SentryEndpoint.storeSavedEvent(event: event).send(dsn: dsn, finished: finished)
         #else

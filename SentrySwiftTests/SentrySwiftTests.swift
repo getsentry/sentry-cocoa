@@ -48,7 +48,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, "username")
 			XCTAssertEqual(dsn.secretKey, "password")
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://username:password@app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}
@@ -63,7 +63,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, "username")
 			XCTAssertEqual(dsn.secretKey, nil)
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://username@app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}
@@ -79,7 +79,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, nil)
 			XCTAssertEqual(dsn.secretKey, nil)
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}

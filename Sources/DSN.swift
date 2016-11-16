@@ -28,15 +28,13 @@ internal class DSN: NSObject {
 	/// Creates DSN object from a valid DSN string
 	internal convenience init(_ dsnString: String) throws {
 		guard let url = NSURL(string: dsnString),
-            let projectID = DSN.projectID(from: url),
-            let publicKey = url.user,
-            let secretKey = url.password else {
+            let projectID = DSN.projectID(from: url) else {
 			throw SentryError.InvalidDSN
 		}
         
         self.init(url: url,
-                  publicKey: publicKey,
-                  secretKey: secretKey,
+                  publicKey: url.user,
+                  secretKey: url.password,
                   projectID: projectID)
 	}
 
