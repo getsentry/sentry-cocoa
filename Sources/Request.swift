@@ -35,7 +35,7 @@ extension SentryClient {
             SentryEndpoint.storeSavedEvent(event: event).send(dsn, finished: finished)
         #endif
     }
-	  
+    
     internal func sendUserFeedback(_ userFeedback: UserFeedback, finished: SentryEndpointRequestFinished? = nil) {
         guard nil != userFeedback.event || nil != lastSuccessfullySentEvent else {
             SentryLog.Error.log("Cannot send userFeedback without Event")
@@ -45,9 +45,15 @@ extension SentryClient {
             userFeedback.event = lastSuccessfullySentEvent
         }
         #if swift(>=3.0)
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn: dsn, finished: finished)
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn: dsn) { [weak self] success in
+                self?.sentUserFeedback()
+                finished?(success)
+            }
         #else
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn, finished: finished)
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn) { [weak self] success in
+                self?.sentUserFeedback()
+                finished?(success)
+            }
         #endif
     }
 }

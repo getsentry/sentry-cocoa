@@ -44,6 +44,11 @@ internal enum SentryError: Error {
 	case InvalidDSN
 }
 
+@objc public protocol SentryClientUserFeedbackDelegate {
+    func userFeedbackReady()
+    func userFeedbackSent()
+}
+
 @objc public class SentryClient: NSObject, EventProperties {
 
 	// MARK: - Static Attributes
@@ -83,13 +88,21 @@ internal enum SentryError: Error {
 		return store
 	}()
     
+    public var delegate: SentryClientUserFeedbackDelegate?
     private(set) var userFeedbackViewModel: UserFeedbackViewModel?
     private(set) var lastSuccessfullySentEvent: Event? {
         didSet {
+            guard nil != lastSuccessfullySentEvent else {
+                return
+            }
             #if swift(>=3.0)
-                NotificationCenter.default.post(Notification.init(name: Notification.Name(rawValue: "SentryClientSentFatalCrash")))
+                DispatchQueue.main.async {
+                    self.delegate?.userFeedbackReady()
+                }
             #else
-                
+                dispatch_async(dispatch_get_main_queue(), {
+                    self.delegate?.userFeedbackReady()
+                })
             #endif
         }
     }
@@ -186,8 +199,8 @@ internal enum SentryError: Error {
     }
     
     #if os(iOS)
-    /// This will return the UserFeedbackViewController
-    public func userFeedbackViewController() -> (navigationController: UINavigationController, UserFeedbackTableViewController: UserFeedbackTableViewController)? {
+    /// This will return the UserFeedbackControllers
+    public func userFeedbackControllers() -> (navigationController: UINavigationController, UserFeedbackTableViewController: UserFeedbackTableViewController)? {
         #if swift(>=3.0)
             let frameworkBundle = Bundle(for: type(of: self))
             guard let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle"),
@@ -215,6 +228,11 @@ internal enum SentryError: Error {
     /// Call this with your custom UserFeedbackViewModel to configure the UserFeedbackViewController
     public func enableUserFeedbackAfterFatalEvent(userFeedbackViewModel: UserFeedbackViewModel = UserFeedbackViewModel()) {
         self.userFeedbackViewModel = userFeedbackViewModel
+    }
+    
+    internal func sentUserFeedback() {
+        delegate?.userFeedbackSent()
+        lastSuccessfullySentEvent = nil
     }
     
     #endif

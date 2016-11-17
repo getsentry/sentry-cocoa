@@ -26,6 +26,9 @@ public class UserFeedbackViewModel {
     
     var submitButtonText = "Submit crash report"
     
+    var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
+    var defaultTextColor = UIColor.darkTextColor()
+    
     var showSentryBranding = true
     
     private(set) var name: String?
@@ -51,7 +54,7 @@ public class UserFeedbackViewModel {
             guard let name = nameTextField.text, "" != name else {
                 return nameTextField
             }
-            guard let email = emailTextField.text, "" != email else {
+            guard let email = emailTextField.text, "" != email, validateEmail(email) else {
                 return emailTextField
             }
             guard let comments = commentsTextField.text, "" != comments else {
@@ -61,7 +64,7 @@ public class UserFeedbackViewModel {
             guard let name = nameTextField.text where "" != name else {
                 return nameTextField
             }
-            guard let email = emailTextField.text where "" != email else {
+            guard let email = emailTextField.text where "" != email && validateEmail(email) else {
                 return emailTextField
             }
             guard let comments = commentsTextField.text where "" != comments else {
@@ -74,5 +77,10 @@ public class UserFeedbackViewModel {
         self.comments = comments
         
         return nil
+    }
+    
+    private func validateEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluateWithObject(email)
     }
 }

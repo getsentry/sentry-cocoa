@@ -89,7 +89,11 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
         if let erroredTextField = viewModel.validatedUserFeedback(nameTextField: nameTextField,
                                                                   emailTextField: emailTextField,
                                                                   commentsTextField: commentsTextField) {
+            nameTextField.textColor = viewModel.defaultTextColor
+            emailTextField.textColor = viewModel.defaultTextColor
+            commentsTextField.textColor = viewModel.defaultTextColor
             erroredTextField.becomeFirstResponder()
+            erroredTextField.textColor = viewModel.errorTextColor
         } else {
             viewModel.sendUserFeedback() { [weak self] success in
                 self?.dismissViewController()

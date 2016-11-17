@@ -11,7 +11,7 @@ import UIKit
 // Step 1: Import the SentrySwift framework
 import SentrySwift
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -49,11 +49,25 @@ class ViewController: UIViewController {
 		]
         
         SentryClient.shared?.enableUserFeedbackAfterFatalEvent()
-		
+		SentryClient.shared?.delegate = self
 		// Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
 	}
+    
+    // MARK: SentryClientUserFeedbackDelegate
 
+    func userFeedbackReady() {
+        if let viewControllers = SentryClient.shared?.userFeedbackControllers() {
+            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
+        }
+    }
+    
+    func userFeedbackSent() {
+        
+    }
+    
+    // MARK: Actions
+    
 	@IBAction func onClickBreak(sender: AnyObject) {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		
@@ -69,10 +83,6 @@ class ViewController: UIViewController {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", message: "Some message", level: .Info, data: ["hehe": "hoho"]))
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		SentryClient.shared?.captureMessage("Hehehe, this is totes not useful", level: .Error)
-        
-        if let viewControllers = SentryClient.shared?.userFeedbackViewController() {
-            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
-        }
 	}
 	
     @IBAction func onClickFatalError(sender: AnyObject) {
