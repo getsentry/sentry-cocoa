@@ -27,7 +27,12 @@ public class UserFeedbackViewModel {
     var submitButtonText = "Submit crash report"
     
     var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
-    var defaultTextColor = UIColor.darkTextColor()
+    
+    #if swift(>=3.0)
+        var defaultTextColor = UIColor.darkText
+    #else
+        var defaultTextColor = UIColor.darkGrayColor()
+    #endif
     
     var showSentryBranding = true
     
@@ -81,6 +86,10 @@ public class UserFeedbackViewModel {
     
     private func validateEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"
-        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluateWithObject(email)
+        #if swift(>=3.0)
+            return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+        #else
+            return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluateWithObject(email)
+        #endif
     }
 }

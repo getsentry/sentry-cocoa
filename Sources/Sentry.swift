@@ -230,12 +230,20 @@ internal enum SentryError: Error {
         self.userFeedbackViewModel = userFeedbackViewModel
     }
     
+    #endif
+    
     internal func sentUserFeedback() {
-        delegate?.userFeedbackSent()
+        #if swift(>=3.0)
+            DispatchQueue.main.async {
+                self.delegate?.userFeedbackSent()
+            }
+        #else
+            dispatch_async(dispatch_get_main_queue(), {
+            self.delegate?.userFeedbackSent()
+            })
+        #endif
         lastSuccessfullySentEvent = nil
     }
-    
-    #endif
     
 	/*
 	Reports given event to Sentry
