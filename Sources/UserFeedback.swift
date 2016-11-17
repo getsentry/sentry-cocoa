@@ -51,8 +51,7 @@ extension UserFeedback {
     internal var queryItems: [URLQueryItem] {
         return [
             URLQueryItem(name: "email", value: urlEncodeString(email)),
-            //URLQueryItem(name: "eventId", value: event?.eventID),
-            URLQueryItem(name: "eventId", value: "69AEB5B5A62B4C4EA85C4380EC98B9C6"), // TODO: use actual event
+            URLQueryItem(name: "eventId", value: event?.eventID)
         ]
     }
 }

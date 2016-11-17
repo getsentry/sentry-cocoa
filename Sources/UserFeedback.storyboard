@@ -68,7 +68,10 @@
                                                     <rect key="frame" x="24" y="8" width="327" height="28"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits"/>
+                                                    <textInputTraits key="textInputTraits" returnKeyType="next"/>
+                                                    <connections>
+                                                        <outlet property="delegate" destination="xgF-SM-DmY" id="rCY-SW-vCU"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -90,7 +93,10 @@
                                                     <rect key="frame" x="24" y="8" width="327" height="28"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="emailAddress" returnKeyType="next"/>
+                                                    <connections>
+                                                        <outlet property="delegate" destination="xgF-SM-DmY" id="qWJ-V7-NdE"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -112,7 +118,10 @@
                                                     <rect key="frame" x="26" y="16" width="323" height="147.5"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits"/>
+                                                    <textInputTraits key="textInputTraits" returnKeyType="send"/>
+                                                    <connections>
+                                                        <outlet property="delegate" destination="xgF-SM-DmY" id="jbK-g1-LXJ"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -186,8 +195,8 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Root View Controller" id="SG0-GJ-CgW"/>
                     <connections>
+                        <outlet property="commentsTextField" destination="UJb-Ie-rFk" id="GUw-OH-Js9"/>
                         <outlet property="emailTextField" destination="Mm0-fC-UMB" id="v0E-25-FDR"/>
-                        <outlet property="messageTextField" destination="UJb-Ie-rFk" id="75b-CJ-onh"/>
                         <outlet property="nameTextField" destination="tDn-rh-lhn" id="cec-Cr-Eh6"/>
                         <outlet property="poweredByTableViewCell" destination="AV0-Ol-X7H" id="PYf-ra-43E"/>
                         <outlet property="submitButton" destination="Ljr-FW-CFP" id="Esm-gk-Yu8"/>

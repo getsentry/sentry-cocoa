@@ -82,6 +82,17 @@ internal enum SentryError: Error {
 		}
 		return store
 	}()
+    
+    private(set) var userFeedbackViewModel: UserFeedbackViewModel?
+    private(set) var lastSuccessfullySentEvent: Event? {
+        didSet {
+            #if swift(>=3.0)
+                NotificationCenter.default.post(Notification.init(name: Notification.Name(rawValue: "SentryClientSentFatalCrash")))
+            #else
+                
+            #endif
+        }
+    }
 
 	// MARK: EventProperties
 
@@ -176,7 +187,7 @@ internal enum SentryError: Error {
     
     #if os(iOS)
     /// This will return the UserFeedbackViewController
-    @objc public func userFeedbackViewController() -> UIViewController? {
+    public func userFeedbackViewController() -> (navigationController: UINavigationController, UserFeedbackTableViewController: UserFeedbackTableViewController)? {
         #if swift(>=3.0)
             let frameworkBundle = Bundle(for: type(of: self))
             guard let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle"),
@@ -192,8 +203,20 @@ internal enum SentryError: Error {
         #endif
     
         let storyboard = UIStoryboard(name: "UserFeedback", bundle: bundle)
-        return storyboard.instantiateInitialViewController()
+        if let navigationViewController = storyboard.instantiateInitialViewController() as? UINavigationController,
+            let userFeedbackViewController = navigationViewController.viewControllers.first as? UserFeedbackTableViewController,
+            let viewModel = userFeedbackViewModel {
+            userFeedbackViewController.viewModel = viewModel
+            return (navigationViewController, userFeedbackViewController)
+        }
+        return nil
     }
+    
+    /// Call this with your custom UserFeedbackViewModel to configure the UserFeedbackViewController
+    public func enableUserFeedbackAfterFatalEvent(userFeedbackViewModel: UserFeedbackViewModel = UserFeedbackViewModel()) {
+        self.userFeedbackViewModel = userFeedbackViewModel
+    }
+    
     #endif
     
 	/*
@@ -201,7 +224,7 @@ internal enum SentryError: Error {
 	- Parameter event: An event struct
 	- Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
 	*/
-	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: ((Bool) -> ())? = nil) {
+	internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: SentryEndpointRequestFinished? = nil) {
 		// Don't allow client attributes to be used when reporting an `Exception`
 		if useClientProperties {
 			event.user = event.user ?? user
@@ -221,7 +244,12 @@ internal enum SentryError: Error {
         
 		sendEvent(event) { [weak self] success in
 			completed?(success)
-			guard !success else { return }
+			guard !success else {
+                if event.level == .Fatal {
+                    self?.lastSuccessfullySentEvent = event
+                }
+                return
+            }
 			self?.saveEvent(event)
 		}
         

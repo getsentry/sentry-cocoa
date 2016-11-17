@@ -47,6 +47,8 @@ class ViewController: UIViewController {
 			"some_things": ["green", "red"],
 			"foobar": ["foo": "bar"]
 		]
+        
+        SentryClient.shared?.enableUserFeedbackAfterFatalEvent()
 		
 		// Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
@@ -68,8 +70,8 @@ class ViewController: UIViewController {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		SentryClient.shared?.captureMessage("Hehehe, this is totes not useful", level: .Error)
         
-        if let viewController = SentryClient.shared?.userFeedbackViewController() {
-            presentViewController(viewController, animated: true, completion: nil)
+        if let viewControllers = SentryClient.shared?.userFeedbackViewController() {
+            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
         }
 	}
 	

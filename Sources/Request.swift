@@ -36,15 +36,18 @@ extension SentryClient {
         #endif
     }
 	  
-    func sendUserFeedback() {
-        let userFeedback = UserFeedback()
-        userFeedback.name = "Daniel G."
-        userFeedback.email = "daniel.griesser.86@gmail.com"
-        userFeedback.comments = "User Feedback is working 🚀"
+    internal func sendUserFeedback(_ userFeedback: UserFeedback, finished: SentryEndpointRequestFinished? = nil) {
+        guard nil != userFeedback.event || nil != lastSuccessfullySentEvent else {
+            SentryLog.Error.log("Cannot send userFeedback without Event")
+            return
+        }
+        if nil == userFeedback.event {
+            userFeedback.event = lastSuccessfullySentEvent
+        }
         #if swift(>=3.0)
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn: dsn, finished: nil)
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn: dsn, finished: finished)
         #else
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn, finished: nil)
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn, finished: finished)
         #endif
     }
 }
