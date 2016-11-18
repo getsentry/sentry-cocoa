@@ -55,7 +55,7 @@ import Foundation
 		.set("url", value: url)
 		.set("method", value: method)
 		.set("status_code", value: statusCode == -999 ? nil : statusCode)
-		.set("reason", value: "reason")
+		.set("reason", value: reason)
 
 		self.init(category: category, timestamp: timestamp, message: message, type: "http", level: level, data: httpData)
 	}

@@ -14,7 +14,6 @@ class SentrySwiftRequestTests: XCTestCase {
     let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
     let frame = Frame(file: "a", function: "b", line: 1)
 
-
     func testExample() {
         let event = Event.build("Another example 4") {
             $0.level = .Fatal
