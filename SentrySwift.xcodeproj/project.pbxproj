@@ -147,12 +147,6 @@
 		63CDAB931DDCADF900B63921 /* UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB901DDCADF900B63921 /* UserFeedback.swift */; };
 		63CDAB941DDCADF900B63921 /* UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB901DDCADF900B63921 /* UserFeedback.swift */; };
 		63CDAB961DDDDFB200B63921 /* SentrySwiftUserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB951DDDDFB200B63921 /* SentrySwiftUserFeedback.swift */; };
-		63CDAB971DDDE59E00B63921 /* UserFeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB891DDC58A600B63921 /* UserFeedbackViewModel.swift */; };
-		63CDAB981DDDE59F00B63921 /* UserFeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB891DDC58A600B63921 /* UserFeedbackViewModel.swift */; };
-		63CDAB991DDDE5A000B63921 /* UserFeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB891DDC58A600B63921 /* UserFeedbackViewModel.swift */; };
-		63CDAB9A1DDDE5A400B63921 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */; };
-		63CDAB9B1DDDE5A500B63921 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */; };
-		63CDAB9C1DDDE5A500B63921 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CDAB861DDC51E400B63921 /* UserFeedbackTableViewController.swift */; };
 		63CDAB9F1DDEF29900B63921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63CDAB9E1DDEF29900B63921 /* Assets.xcassets */; };
 		63CDABA01DDEF29900B63921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63CDAB9E1DDEF29900B63921 /* Assets.xcassets */; };
 		63CDABA11DDEF29900B63921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63CDAB9E1DDEF29900B63921 /* Assets.xcassets */; };
@@ -1140,7 +1134,6 @@
 				03817D801D301E1D005A674A /* Contexts.swift in Sources */,
 				03C7152B1CE4DB940080AE60 /* AppleCrashReport.swift in Sources */,
 				03C7152C1CE4DB940080AE60 /* Breadcrumb.swift in Sources */,
-				63CDAB981DDDE59F00B63921 /* UserFeedbackViewModel.swift in Sources */,
 				9B02CAB91CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
 				6350F6751DCE2F0A00B6B596 /* CrashReportConverter.swift in Sources */,
 				03C715271CE4DB910080AE60 /* Event.swift in Sources */,
@@ -1154,7 +1147,6 @@
 				63CDAB8E1DDCAAE700B63921 /* SentryEndpoint.swift in Sources */,
 				03C1E26C1D4652180004A612 /* Thread.swift in Sources */,
 				03C715281CE4DB910080AE60 /* EventOffline.swift in Sources */,
-				63CDAB9B1DDDE5A500B63921 /* UserFeedbackTableViewController.swift in Sources */,
 				9B02CB001CF607A5004F614C /* Exception.swift in Sources */,
 				63CDAB931DDCADF900B63921 /* UserFeedback.swift in Sources */,
 				03C715261CE4DB8D0080AE60 /* Request.swift in Sources */,
@@ -1190,7 +1182,6 @@
 				03817D7E1D301E1D005A674A /* Contexts.swift in Sources */,
 				03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				03CFCEC31C612F5300999EB7 /* CrashHandler.swift in Sources */,
-				63CDAB971DDDE59E00B63921 /* UserFeedbackViewModel.swift in Sources */,
 				8092F8E51CF2499600634F3F /* Sentry+Error.swift in Sources */,
 				6350F6731DCE2F0900B6B596 /* CrashReportConverter.swift in Sources */,
 				03E3D21F1C3EB20F00F00547 /* Request.swift in Sources */,
@@ -1204,7 +1195,6 @@
 				63CDAB8C1DDCAAE700B63921 /* SentryEndpoint.swift in Sources */,
 				03C1E26A1D4652180004A612 /* Thread.swift in Sources */,
 				03E3D1F81C3E1A2800F00547 /* DSN.swift in Sources */,
-				63CDAB9A1DDDE5A400B63921 /* UserFeedbackTableViewController.swift in Sources */,
 				033A342C1C60693400BED5AE /* User.swift in Sources */,
 				63CDAB911DDCADF900B63921 /* UserFeedback.swift in Sources */,
 				9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
@@ -1292,7 +1282,6 @@
 				63CDAB3B1DD9D4AE00B63921 /* CrashHandler.swift in Sources */,
 				63CDAB2D1DD9D49700B63921 /* Dictionary+Extras.swift in Sources */,
 				63CDAB371DD9D4A800B63921 /* Contexts.swift in Sources */,
-				63CDAB991DDDE5A000B63921 /* UserFeedbackViewModel.swift in Sources */,
 				63CDAB321DD9D4A800B63921 /* AppleCrashReport.swift in Sources */,
 				63CDAB3D1DD9D4AE00B63921 /* CrashReportConverter.swift in Sources */,
 				63CDAB2A1DD9D48C00B63921 /* DSN.swift in Sources */,
@@ -1306,7 +1295,6 @@
 				63CDAB8F1DDCAAE700B63921 /* SentryEndpoint.swift in Sources */,
 				63CDAB301DD9D4A000B63921 /* EventProperties.swift in Sources */,
 				63CDAB3A1DD9D4A800B63921 /* DebugMeta.swift in Sources */,
-				63CDAB9C1DDDE5A500B63921 /* UserFeedbackTableViewController.swift in Sources */,
 				63CDAB281DD9D48500B63921 /* Sentry.swift in Sources */,
 				63CDAB941DDCADF900B63921 /* UserFeedback.swift in Sources */,
 				63CDAB361DD9D4A800B63921 /* BreadcrumbStore.swift in Sources */,

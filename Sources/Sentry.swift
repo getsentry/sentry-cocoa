@@ -88,6 +88,7 @@ internal enum SentryError: Error {
 		return store
 	}()
     
+    #if os(iOS)
     public var delegate: SentryClientUserFeedbackDelegate?
     private(set) var userFeedbackViewModel: UserFeedbackViewModel?
     private(set) var lastSuccessfullySentEvent: Event? {
@@ -106,6 +107,7 @@ internal enum SentryError: Error {
             #endif
         }
     }
+    #endif
 
 	// MARK: EventProperties
 
@@ -230,8 +232,6 @@ internal enum SentryError: Error {
         self.userFeedbackViewModel = userFeedbackViewModel
     }
     
-    #endif
-    
     internal func sentUserFeedback() {
         #if swift(>=3.0)
             DispatchQueue.main.async {
@@ -239,11 +239,14 @@ internal enum SentryError: Error {
             }
         #else
             dispatch_async(dispatch_get_main_queue(), {
-            self.delegate?.userFeedbackSent()
+                self.delegate?.userFeedbackSent()
             })
         #endif
         lastSuccessfullySentEvent = nil
     }
+    
+    #endif
+    
     
 	/*
 	Reports given event to Sentry
@@ -271,9 +274,11 @@ internal enum SentryError: Error {
 		sendEvent(event) { [weak self] success in
 			completed?(success)
 			guard !success else {
+                #if os(iOS)
                 if event.level == .Fatal {
                     self?.lastSuccessfullySentEvent = event
                 }
+                #endif
                 return
             }
 			self?.saveEvent(event)
