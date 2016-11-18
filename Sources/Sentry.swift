@@ -213,20 +213,21 @@ internal enum SentryError: Error {
             return userFeedbackViewControllers
         }
         
+        var bundle: Bundle? = nil
         #if swift(>=3.0)
             let frameworkBundle = Bundle(for: type(of: self))
-            guard let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle"),
-                let bundle = Bundle(url: bundleURL) else {
-                return nil
+            bundle = frameworkBundle
+            if let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle") {
+                bundle = Bundle(url: bundleURL)
             }
         #else
             let frameworkBundle = NSBundle(forClass: self.dynamicType)
-            guard let bundleURL = frameworkBundle.URLForResource("storyboards", withExtension: "bundle"),
-                let bundle = NSBundle(URL: bundleURL) else {
-                return nil
+            bundle = frameworkBundle
+            if let bundleURL = frameworkBundle.URLForResource("storyboards", withExtension: "bundle") {
+                bundle = NSBundle(URL: bundleURL) 
             }
         #endif
-    
+        
         let storyboard = UIStoryboard(name: "UserFeedback", bundle: bundle)
         if let navigationViewController = storyboard.instantiateInitialViewController() as? UINavigationController,
             let userFeedbackViewController = navigationViewController.viewControllers.first as? UserFeedbackTableViewController,

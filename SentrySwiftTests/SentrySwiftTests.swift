@@ -421,6 +421,21 @@ class SentrySwiftTests: XCTestCase {
         }
     }
     #endif
+    #if os(iOS)
+    func testUserFeedbackController() {
+        client.enableUserFeedbackAfterFatalEvent()
+        
+        let controllers = client.userFeedbackControllers()
+        
+        XCTAssertEqual(controllers?.userFeedbackTableViewController, client.userFeedbackTableViewController())
+        XCTAssertEqual(controllers?.navigationController, client.userFeedbackNavigationViewController())
+        
+        let controllers2 = client.userFeedbackControllers()
+        
+        XCTAssertEqual(controllers?.userFeedbackTableViewController, controllers2?.userFeedbackTableViewController)
+        XCTAssertEqual(controllers?.navigationController, controllers2?.navigationController)
+    }
+    #endif
 }
 
 /// A small hack to compare dictionaries
