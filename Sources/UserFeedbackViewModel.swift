@@ -10,31 +10,31 @@ import UIKit
 
 @objc public class UserFeedbackViewModel: NSObject {
     
-    var viewControllerTitle = "User Feedback"
+    public var viewControllerTitle = "User Feedback"
     
-    var title = "It looks like we're having some internal issues."
-    var subTitle = "Our team has been notified. If you'd like to help, tell us what happened below."
+    public var title = "It looks like we're having some internal issues."
+    public var subTitle = "Our team has been notified. If you'd like to help, tell us what happened below."
     
-    var nameLabel = "Name:"
-    var nameTextFieldValue = ""
+    public var nameLabel = "Name:"
+    public var nameTextFieldValue = ""
     
-    var emailLabel = "Email:"
-    var emailTextFieldValue = ""
+    public var emailLabel = "Email:"
+    public var emailTextFieldValue = ""
     
-    var commentsTextFieldPlaceholder = "I clicked X and then this happened ..."
-    var commentsTextFieldValue = ""
+    public var commentsTextFieldPlaceholder = "I clicked X and then this happened ..."
+    public var commentsTextFieldValue = ""
     
-    var submitButtonText = "Submit"
+    public var submitButtonText = "Submit"
     
-    var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
+    public var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
     
     #if swift(>=3.0)
-        var defaultTextColor = UIColor.darkText
+        public var defaultTextColor = UIColor.darkText
     #else
-        var defaultTextColor = UIColor.darkGrayColor()
+        public var defaultTextColor = UIColor.darkGrayColor()
     #endif
     
-    var showSentryBranding = true
+    public var showSentryBranding = true
     
     private(set) var name: String?
     private(set) var email: String?

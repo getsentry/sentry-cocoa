@@ -13,5 +13,5 @@ script:
     - swiftlint
     - fastlane test
 after_success:
-    - slather coverage -x --scheme SentrySwift-iOS SentrySwift.xcodeproj
+    - slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" SentrySwift.xcodeproj
     - bash <(curl -s https://codecov.io/bash) -f cobertura.xml

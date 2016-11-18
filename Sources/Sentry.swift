@@ -307,7 +307,6 @@ internal enum SentryError: Error {
         sendEventsOnDiskInBackground()
 	}
     
-    
     /// Sends events that are stored on disk to the server
     private func sendEventsOnDiskInBackground() {
         #if swift(>=3.0)

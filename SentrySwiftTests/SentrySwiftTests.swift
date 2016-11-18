@@ -395,6 +395,32 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.user!.email!, testUser.email!)
 		XCTAssertEqual(event.user!.username!, testUser.username!)
     }
+    
+    #if swift(>=3.0)
+    func testCaptureEvent() {
+        let asyncExpectation = expectation(description: "longRunningFunction")
+        
+        let event = Event.build("Another example 4") {
+            $0.level = .Fatal
+            $0.tags = ["status": "test"]
+            $0.extra = [
+                "name": "Josh Holtz",
+                "favorite_power_ranger": "green/white"
+            ]
+        }
+        client.breadcrumbs.add(Breadcrumb(category: "captureEvent"))
+        client.captureEvent(event)
+        
+        let deadlineTime = DispatchTime.now() + .milliseconds(10)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
+            asyncExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 2) { error in
+            let breadcrumbs = event.serialized["breadcrumbs"] as! [Dictionary<String, AnyType>]
+            XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
+        }
+    }
+    #endif
 }
 
 /// A small hack to compare dictionaries
