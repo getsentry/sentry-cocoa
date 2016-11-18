@@ -91,6 +91,10 @@ internal enum SentryError: Error {
 	}()
     
     #if os(iOS)
+    public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
+    
+    private var userFeedbackViewControllers: UserFeedbackViewContollers?
+    
     public var delegate: SentryClientUserFeedbackDelegate?
     private(set) var userFeedbackViewModel: UserFeedbackViewModel?
     private(set) var lastSuccessfullySentEvent: Event? {
@@ -204,7 +208,11 @@ internal enum SentryError: Error {
     
     #if os(iOS)
     /// This will return the UserFeedbackControllers
-    public func userFeedbackControllers() -> (navigationController: UINavigationController, UserFeedbackTableViewController: UserFeedbackTableViewController)? {
+    public func userFeedbackControllers() -> UserFeedbackViewContollers? {
+        guard userFeedbackViewControllers == nil else {
+            return userFeedbackViewControllers
+        }
+        
         #if swift(>=3.0)
             let frameworkBundle = Bundle(for: type(of: self))
             guard let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle"),
@@ -224,13 +232,22 @@ internal enum SentryError: Error {
             let userFeedbackViewController = navigationViewController.viewControllers.first as? UserFeedbackTableViewController,
             let viewModel = userFeedbackViewModel {
             userFeedbackViewController.viewModel = viewModel
-            return (navigationViewController, userFeedbackViewController)
+            userFeedbackViewControllers = (navigationViewController, userFeedbackViewController)
+            return userFeedbackViewControllers
         }
         return nil
     }
     
+    @objc public func userFeedbackTableViewController() -> UserFeedbackTableViewController? {
+        return userFeedbackControllers()?.userFeedbackTableViewController
+    }
+    
+    @objc public func userFeedbackNavigationViewController() -> UINavigationController? {
+        return userFeedbackControllers()?.navigationController
+    }
+    
     /// Call this with your custom UserFeedbackViewModel to configure the UserFeedbackViewController
-    public func enableUserFeedbackAfterFatalEvent(userFeedbackViewModel: UserFeedbackViewModel = UserFeedbackViewModel()) {
+    @objc public func enableUserFeedbackAfterFatalEvent(userFeedbackViewModel: UserFeedbackViewModel = UserFeedbackViewModel()) {
         self.userFeedbackViewModel = userFeedbackViewModel
     }
     
