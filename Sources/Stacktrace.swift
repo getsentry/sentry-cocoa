@@ -27,27 +27,16 @@ import Foundation
 	@objc public init(frames: [Frame]?) {
 		self.frames = frames ?? []
 	}
-    
-    public override var debugDescription: String {
-        return frames.reduce("") {
-            "\($0) \($1.debugDescription)"
-        }
-    }
+  
 }
 
 extension Stacktrace: EventSerializable {
 	internal typealias SerializedType = SerializedTypeDictionary
 	internal var serialized: SerializedType {
-		return [
-			"frames": frames.map({$0.serialized}),
-			]
+        return [:]
+            .set("frames", value: frames.map({$0.serialized}))
 	}
 }
-
-//if(showRegisters)
-//{
-//	result[@"vars"] = frame[@"registers"][@"basic"];
-//}
 
 @objc public class Frame: NSObject {
 	public var file: String?
@@ -111,25 +100,28 @@ extension Stacktrace: EventSerializable {
 			return nil
 		}
 	}
-    
-    public override var debugDescription: String {
-        let firstPart =  "file: \(file) \n function: \(function) \n module: \(module) \n line: \(line) \n package: \(package) \n imageAddress: \(imageAddress) \n"
-        return "\(firstPart) platform: \(platform) \n instructionAddress: \(instructionAddress) \n symbolAddress: \(symbolAddress) \n inApp: \(inApp) \n"
-    }
+
 }
 
 extension Frame: EventSerializable {
-	internal typealias SerializedType = SerializedTypeDictionary
-	internal var serialized: SerializedType {
-		return [:]
-			.set("filename", value: fileName)
-			.set("function", value: function)
-			.set("module", value: module)
-			.set("lineno", value: line)
-			.set("package", value: package)
-			.set("image_addr", value: imageAddress)
-			.set("instruction_addr", value: instructionAddress)
-			.set("symbol_addr", value: symbolAddress)
-			.set("in_app", value: inApp)
-	}
+    internal typealias SerializedType = SerializedTypeDictionary
+    internal typealias Attribute = (key: String, value: AnyType?)
+    
+    internal var serialized: SerializedType {
+        var attributes: [Attribute] = []
+        
+        attributes.append(("filename", fileName))
+        attributes.append(("function", function))
+        attributes.append(("module", module))
+        attributes.append(("lineno", line))
+        attributes.append(("package", package))
+        attributes.append(("image_addr", imageAddress))
+        attributes.append(("instruction_addr", instructionAddress))
+        attributes.append(("symbol_addr", symbolAddress))
+        attributes.append(("in_app", inApp))
+        
+        var ret: [String: AnyType] = [:]
+        attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
+        return ret
+    }
 }

@@ -56,7 +56,7 @@ public typealias EventFingerprint = [String]
 	public var serverName: String?
 	public var releaseVersion: String?
 	public var tags: EventTags = [:]
-	public var modules: EventModules?
+    public var modules: EventModules?
 	public var extra: EventExtra = [:]
 	public var fingerprint: EventFingerprint?
 
@@ -153,39 +153,34 @@ extension Event: EventSerializable {
 	internal var serialized: SerializedType {
 
 		// Create attributes list
-		let attributes: [Attribute] = [
-			// Required
-			("event_id", eventID),
-			("message", message),
-			("timestamp", timestamp.iso8601),
-			("level", level.description),
-			("platform", platform),
-			
-			// Computed
-			("sdk", sdk),
-
-			("contexts", Contexts().serialized),
-
-			// Optional
-			("logger", logger),
-			("culprit", culprit),
-			("server_name", serverName),
-			("release", releaseVersion),
-			("tags", JSONSerialization.isValidJSONObject(tags) ? tags : nil),
-			("modules", modules),
-			("extra", JSONSerialization.isValidJSONObject(extra) ? extra : nil),
-			("fingerprint", fingerprint),
-
-			// Interfaces
-			("user", user?.serialized),
-			("threads", [:].set("values", value: threads?.map() { $0.serialized })),
-			("exception", [:].set("values", value: exceptions?.map() { $0.serialized })),
-			("breadcrumbs", breadcrumbsSerialized),
-			("stacktrace", stacktrace?.serialized),
-			
-			("debug_meta", debugMeta?.serialized)
-		]
-
+		var attributes: [Attribute] = []
+        
+        // Required
+        attributes.append(("event_id", eventID))
+        attributes.append(("message", message))
+        attributes.append(("timestamp", timestamp.iso8601))
+        attributes.append(("level", level.description))
+        attributes.append(("platform", platform))
+        // Computed
+        attributes.append(("sdk", sdk))
+        attributes.append(("contexts", Contexts().serialized))
+        // Optional
+        attributes.append(("logger", logger))
+        attributes.append(("culprit", culprit))
+        attributes.append(("server_name", serverName))
+        attributes.append(("release", releaseVersion))
+        attributes.append(("tags", JSONSerialization.isValidJSONObject(tags) ? tags : nil))
+        attributes.append(("modules", modules))
+        attributes.append(("extra", JSONSerialization.isValidJSONObject(extra) ? extra : nil))
+        attributes.append(("fingerprint", fingerprint))
+        // Interfaces
+        attributes.append(("user", user?.serialized))
+        attributes.append(("threads", [:].set("values", value: threads?.map() { $0.serialized })))
+        attributes.append(("exception", [:].set("values", value: exceptions?.map() { $0.serialized })))
+        attributes.append(("breadcrumbs", breadcrumbsSerialized))
+        attributes.append(("stacktrace", stacktrace?.serialized))
+        attributes.append(("debug_meta", debugMeta?.serialized))
+        
 		var ret: [String: AnyType] = [:]
 		attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
 		return ret
