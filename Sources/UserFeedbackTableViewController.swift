@@ -22,6 +22,9 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
     @IBOutlet weak var commentsTextField: UITextField!
 
     @IBOutlet weak var sentryLogoImageView: UIImageView!
+    
+    @IBOutlet weak var emailTableViewCell: UITableViewCell!
+    @IBOutlet weak var nameTableViewCell: UITableViewCell!
     @IBOutlet weak var poweredByTableViewCell: UITableViewCell!
     
     var viewModel: UserFeedbackViewModel?
@@ -131,4 +134,38 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
         }
         return true
     }
+    
+    // MARK: UITableViewControllerDelegate
+    #if swift(>=3.0)
+    public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else {
+            return
+        }
+        
+        switch cell {
+        case nameTableViewCell:
+            nameTextField.becomeFirstResponder()
+        case emailTableViewCell:
+            emailTextField.becomeFirstResponder()
+        default:
+            break
+        }
+    }
+    #else
+    public override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        guard let cell = tableView.cellForRowAtIndexPath(indexPath) else {
+            return
+        }
+        
+        switch cell {
+        case nameTableViewCell:
+            nameTextField.becomeFirstResponder()
+        case emailTableViewCell:
+            emailTextField.becomeFirstResponder()
+        default:
+            break
+        }
+    }
+    #endif
+    
 }
