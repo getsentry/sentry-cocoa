@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 @testable import SentrySwift
 
-class TestCrashHandler:CrashHandler {
+class TestCrashHandler: CrashHandler {
 	required init(client: SentryClient) {
 	}
 
@@ -25,23 +25,23 @@ class TestCrashHandler:CrashHandler {
 	var extra: EventExtra = [:]
 	var user: User?
 }
-
-class TestableSentryClient: SentryClient {
-	var dataToSend:[(data:NSData, callback:EventFinishedSending?)] = []
-	override func sendData(_ data: NSData, finished: EventFinishedSending?) {
-		// Do nothing. The original sends data to the server
-
-		dataToSend.append((data, finished))
-	}
-}
+//
+//class TestableSentryClient: SentryClient {
+//	var dataToSend:[(data:NSData, callback: SentryEndpointRequestFinished?)] = []
+//	override func sendEvent(_ event: SavedEvent, finished: SentryEndpointRequestFinished? = nil) {
+//		// Do nothing. The original sends data to the server
+//
+//		dataToSend.append((event.data, finished))
+//	}
+//}
 
 class SentryClientTests: XCTestCase {
 	var client:SentryClient!
 	override func setUp() {
 		super.setUp()
 
-		let dsn = DSN(dsn: NSURL(), serverURL: NSURL(), publicKey: nil, secretKey: nil, projectID: "some project")
-		client = TestableSentryClient(dsn: dsn)
+		let dsn = DSN(url: NSURL(), publicKey: nil, secretKey: nil, projectID: "some project")
+		client = SentryClient(dsn: dsn)
 	}
 
 	func test_setReleaseVersion_crashHandlerIsPresent_releaseVersionIsPassedOnToCrashHandler() {

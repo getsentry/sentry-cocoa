@@ -13,15 +13,13 @@ internal typealias XSentryAuthHeader = (key: String, value: String)
 /// A class to hold DSN information and populate X-Sentry-Auth header
 internal class DSN: NSObject {
 
-	internal let dsn: NSURL
-	internal let serverURL: NSURL
+	internal let url: NSURL
 	internal let publicKey: String?
 	internal let secretKey: String?
 	internal let projectID: String
 
-	internal init(dsn: NSURL, serverURL: NSURL, publicKey: String?, secretKey: String?, projectID: String) {
-		self.dsn = dsn
-		self.serverURL = serverURL
+	internal init(url: NSURL, publicKey: String?, secretKey: String?, projectID: String) {
+		self.url = url
 		self.publicKey = publicKey
 		self.secretKey = secretKey
 		self.projectID = projectID
@@ -29,40 +27,15 @@ internal class DSN: NSObject {
 
 	/// Creates DSN object from a valid DSN string
 	internal convenience init(_ dsnString: String) throws {
-		var dsn: NSURL?
-		var serverURL: NSURL?
-		var publicKey: String?
-		var secretKey: String?
-		var projectID: String?
-
-		if let url = NSURL(string: dsnString),
-			let host = url.host,
-			let id = DSN.projectID(from: url) {
-
-			// Setting properties
-			dsn = url
-			publicKey = url.user
-			secretKey = url.password
-			projectID = id
-
-			// Setting componts to create NSURL
-			let components = NSURLComponents()
-			components.scheme = url.scheme
-			components.host = host
-			components.path = "/api/\(id)/store/"
-			components.port = url.port
-
-			#if swift(>=3.0)
-				serverURL = components.url as NSURL?
-			#else
-				serverURL = components.URL
-			#endif
-		}
-
-		guard let theDsn = dsn, let theServerURL = serverURL, let theProjectID = projectID else {
+		guard let url = NSURL(string: dsnString),
+            let projectID = DSN.projectID(from: url) else {
 			throw SentryError.InvalidDSN
 		}
-		self.init(dsn: theDsn, serverURL: theServerURL, publicKey: publicKey, secretKey: secretKey, projectID: theProjectID)
+        
+        self.init(url: url,
+                  publicKey: url.user,
+                  secretKey: url.password,
+                  projectID: projectID)
 	}
 
 	/// Tuple with the header name and header value
@@ -73,8 +46,8 @@ internal class DSN: NSObject {
 				("Sentry sentry_version", String(SentryClient.Info.sentryVersion)),
 				("sentry_client", "sentry-swift/\(SentryClient.Info.version)"),
 				("sentry_timestamp", String(Int(NSDate().timeIntervalSince1970))),
-				("sentry_key", self.publicKey),
-				("sentry_secret", self.secretKey)
+				("sentry_key", publicKey),
+				("sentry_secret", secretKey)
 		]
 
 		var ret: [String] = []
@@ -87,7 +60,7 @@ internal class DSN: NSObject {
 
 		return ("X-Sentry-Auth", value)
 	}
-
+    
 	/// Extracts the project ID from a URL
 	private static func projectID(from url: NSURL) -> String? {
 		// Should be receiving something like ["/", "12345"]

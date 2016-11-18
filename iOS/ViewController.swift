@@ -1,9 +1,9 @@
 //
 //  ViewController.swift
-//  SwiftWatchOSExample
+//  iOS
 //
-//  Created by Daniel Griesser on 14/11/16.
-//  Copyright © 2016 Sentry. All rights reserved.
+//  Created by Daniel Griesser on 15/11/16.
+//
 //
 
 import UIKit
@@ -20,4 +20,6 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+
 }
+
