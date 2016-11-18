@@ -6,8 +6,6 @@
 //
 //
 
-import UIKit
-
 @objc public class UserFeedback: NSObject {
     public var name = ""
     public var email = ""
@@ -21,7 +19,6 @@ extension UserFeedback {
     #else
     internal typealias SerializedType = NSData?
     #endif
-    
     
     internal var serialized: SerializedType {
         let urlEncodedString = "email=\(urlEncodeString(email))&name=\(urlEncodeString(name))&comments=\(urlEncodeString(comments))"

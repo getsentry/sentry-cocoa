@@ -44,10 +44,12 @@ internal enum SentryError: Error {
 	case InvalidDSN
 }
 
+#if os(iOS)
 @objc public protocol SentryClientUserFeedbackDelegate {
     func userFeedbackReady()
     func userFeedbackSent()
 }
+#endif
 
 @objc public class SentryClient: NSObject, EventProperties {
 
