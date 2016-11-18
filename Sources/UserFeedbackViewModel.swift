@@ -15,16 +15,16 @@ public class UserFeedbackViewModel {
     var title = "It looks like we're having some internal issues."
     var subTitle = "Our team has been notified. If you'd like to help, tell us what happened below."
     
-    var nameTextFieldPlaceholder = "Name"
+    var nameLabel = "Name:"
     var nameTextFieldValue = ""
     
-    var emailTextFieldPlaceholder = "Email"
+    var emailLabel = "Email:"
     var emailTextFieldValue = ""
     
     var commentsTextFieldPlaceholder = "I clicked X and then this happened ..."
     var commentsTextFieldValue = ""
     
-    var submitButtonText = "Submit crash report"
+    var submitButtonText = "Submit"
     
     var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
     

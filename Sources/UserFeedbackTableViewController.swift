@@ -13,12 +13,15 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
 
+    @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var nameTextField: UITextField!
+    
+    @IBOutlet weak var emailLabel: UILabel!
     @IBOutlet weak var emailTextField: UITextField!
+    
     @IBOutlet weak var commentsTextField: UITextField!
 
-    @IBOutlet weak var submitButton: UIButton!
-    
+    @IBOutlet weak var sentryLogoImageView: UIImageView!
     @IBOutlet weak var poweredByTableViewCell: UITableViewCell!
     
     var viewModel: UserFeedbackViewModel?
@@ -26,11 +29,6 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
     override public func viewDidLoad() {
         super.viewDidLoad()
         clearsSelectionOnViewWillAppear = false
-        #if swift(>=3.0)
-            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
-        #else
-            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismissViewController))
-        #endif
         tableView.tableFooterView = UIView()
     }
     
@@ -47,7 +45,7 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
         #endif
     }
     
-    @IBAction func onClickSubmit(_ sender: AnyObject) {
+    func onClickSubmit() {
         submitUserFeedback()
     }
     
@@ -61,20 +59,34 @@ public class UserFeedbackTableViewController: UITableViewController, UITextField
         subtitleLabel.text = viewModel.subTitle
         
         nameTextField.text = viewModel.nameTextFieldValue
-        nameTextField.placeholder = viewModel.nameTextFieldPlaceholder
+        nameLabel.text = viewModel.nameLabel
         
         emailTextField.text = viewModel.emailTextFieldValue
-        emailTextField.placeholder = viewModel.emailTextFieldPlaceholder
+        emailLabel.text = viewModel.emailLabel
         
         commentsTextField.text = viewModel.commentsTextFieldValue
         commentsTextField.placeholder = viewModel.commentsTextFieldPlaceholder
         
         #if swift(>=3.0)
-            submitButton.setTitle(viewModel.submitButtonText, for: .normal)
             poweredByTableViewCell.isHidden = !viewModel.showSentryBranding
+            
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.submitButtonText, style: .done, target: self, action: #selector(onClickSubmit))
+            
+            if let bundleURL = Bundle(for: type(of: self)).url(forResource: "assets", withExtension: "bundle"),
+            let bundle = Bundle(url: bundleURL) {
+            sentryLogoImageView.image = UIImage(named: "sentry-glyph-black", in: bundle, compatibleWith: nil)
+            }
         #else
-            submitButton.setTitle(viewModel.submitButtonText, forState: .Normal)
             poweredByTableViewCell.hidden = !viewModel.showSentryBranding
+           
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismissViewController))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.submitButtonText, style: .Done, target: self, action: #selector(onClickSubmit))
+            
+            if let bundleURL = NSBundle(forClass: self.dynamicType).URLForResource("assets", withExtension: "bundle"),
+                let bundle = NSBundle(URL: bundleURL) {
+                sentryLogoImageView.image = UIImage(named: "sentry-glyph-black", inBundle: bundle, compatibleWithTraitCollection: nil)
+            }
         #endif
         
         title = viewModel.viewControllerTitle

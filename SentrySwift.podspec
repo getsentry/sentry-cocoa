@@ -15,7 +15,8 @@ Pod::Spec.new do |s|
   s.source_files = "Sources/**/*.{h,m,swift}"
   s.source_files = "Sources/**/*.{h,m,swift}"
   s.resource_bundles = {
-    'storyboards' => ['Sources/**/*.{storyboard}']
+    'storyboards' => ['Sources/**/*.{storyboard}'],
+    'assets' => ['Sources/**/*.{xcassets}']
   }
   
   s.dependency 'KSCrash', '~> 1.10.1'
