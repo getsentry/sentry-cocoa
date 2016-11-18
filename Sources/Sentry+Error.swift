@@ -23,7 +23,7 @@ private func cleanValue(_ value: AnyType) -> AnyType? {
 
     case let value as NSURL:
         return value.absoluteString
-
+        
     case let value as NSError:
         return [
             "domain": value.domain,
