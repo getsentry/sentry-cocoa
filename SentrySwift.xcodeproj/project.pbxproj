@@ -737,6 +737,7 @@
 				03C715081CE4DB540080AE60 /* Frameworks */,
 				03C715091CE4DB540080AE60 /* Headers */,
 				03C7150A1CE4DB540080AE60 /* Resources */,
+				63CDABDF1DE2E8DB00B63921 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -774,6 +775,7 @@
 				03E94AE81C22595B009F8F29 /* Frameworks */,
 				03E94AE91C22595B009F8F29 /* Headers */,
 				03E94AEA1C22595B009F8F29 /* Resources */,
+				63CDABD81DE2E8D200B63921 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -849,6 +851,7 @@
 				63CDAB161DD9D45900B63921 /* Frameworks */,
 				63CDAB171DD9D45900B63921 /* Headers */,
 				63CDAB181DD9D45900B63921 /* Resources */,
+				63CDABE01DE2E8E200B63921 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1112,6 +1115,45 @@
 
 /* Begin PBXShellScriptBuildPhase section */
 		63524AC21DD5FD7C001BC6B2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+		63CDABD81DE2E8D200B63921 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+		63CDABDF1DE2E8DB00B63921 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+		};
+		63CDABE01DE2E8E200B63921 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1628,6 +1670,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
+				OTHER_SWIFT_FLAGS = "-Xfrontend -debug-time-function-bodies";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = iphoneos;
