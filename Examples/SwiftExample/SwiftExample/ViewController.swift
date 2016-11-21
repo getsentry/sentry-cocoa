@@ -11,7 +11,7 @@ import UIKit
 // Step 1: Import the SentrySwift framework
 import SentrySwift
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -40,17 +40,34 @@ class ViewController: UIViewController {
 		SentryClient.shared?.tags = [
 			"environment": "production"
 		]
+        
 		// An arbitrary mapping of additional metadata to store with the event
 		SentryClient.shared?.extra = [
 			"a_thing": 3,
 			"some_things": ["green", "red"],
 			"foobar": ["foo": "bar"]
 		]
-		
+        
+        SentryClient.shared?.enableUserFeedbackAfterFatalEvent()
+		SentryClient.shared?.delegate = self
 		// Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
 	}
+    
+    // MARK: SentryClientUserFeedbackDelegate
 
+    func userFeedbackReady() {
+        if let viewControllers = SentryClient.shared?.userFeedbackControllers() {
+            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
+        }
+    }
+    
+    func userFeedbackSent() {
+        
+    }
+    
+    // MARK: Actions
+    
 	@IBAction func onClickBreak(sender: AnyObject) {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		
@@ -68,11 +85,15 @@ class ViewController: UIViewController {
 		SentryClient.shared?.captureMessage("Hehehe, this is totes not useful", level: .Error)
 	}
 	
+    @IBAction func onClickFatalError(sender: AnyObject) {
+        SentryClient.shared?.crash()
+    }
+    
 	@IBAction func onClickComplexMessage(sender: AnyObject) {
 		// Send a customly built event
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", url: "www.hammockdesk.com", method: "GET"))
 		let event = Event.build("Another example 4") {
-			$0.level = .Debug
+			$0.level = .Fatal
 			$0.tags = ["status": "test"]
 			$0.extra = [
 				"name": "Josh Holtz",
@@ -82,4 +103,3 @@ class ViewController: UIViewController {
 		SentryClient.shared?.captureEvent(event)
 	}
 }
-

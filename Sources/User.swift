@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to represent the user attached to events
-@objc public class User: NSObject {
+@objc public final class User: NSObject {
     public var userID: String
     public var email: String?
     public var username: String?

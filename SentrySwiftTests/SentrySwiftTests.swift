@@ -48,7 +48,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, "username")
 			XCTAssertEqual(dsn.secretKey, "password")
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://username:password@app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}
@@ -63,7 +63,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, "username")
 			XCTAssertEqual(dsn.secretKey, nil)
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://username@app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}
@@ -79,7 +79,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTAssertEqual(dsn.publicKey, nil)
 			XCTAssertEqual(dsn.secretKey, nil)
 			XCTAssertEqual(dsn.projectID, "12345")
-			XCTAssertEqual(dsn.serverURL.absoluteString, "https://app.getsentry.com/api/12345/store/")
+			XCTAssertEqual(dsn.url.absoluteString, "https://app.getsentry.com/12345")
 		} catch {
 			XCTFail("DSN is nil")
 		}
@@ -394,6 +394,66 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.user!.userID, testUser.userID)
 		XCTAssertEqual(event.user!.email!, testUser.email!)
 		XCTAssertEqual(event.user!.username!, testUser.username!)
+    }
+    
+    #if swift(>=3.0)
+    func testCaptureEvent() {
+        let asyncExpectation = expectation(description: "longRunningFunction")
+        
+        let event = Event.build("Another example 4") {
+            $0.level = .Fatal
+            $0.tags = ["status": "test"]
+            $0.extra = [
+                "name": "Josh Holtz",
+                "favorite_power_ranger": "green/white"
+            ]
+        }
+        client.breadcrumbs.add(Breadcrumb(category: "captureEvent"))
+        client.captureEvent(event)
+        
+        let deadlineTime = DispatchTime.now() + .milliseconds(10)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
+            asyncExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 2) { error in
+            let breadcrumbs = event.serialized["breadcrumbs"] as! [Dictionary<String, AnyType>]
+            XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
+        }
+    }
+    #endif
+    #if os(iOS)
+    func testUserFeedbackController() {
+        client.enableUserFeedbackAfterFatalEvent()
+        
+        let controllers = client.userFeedbackControllers()
+        
+        XCTAssertEqual(controllers?.userFeedbackTableViewController, client.userFeedbackTableViewController())
+        XCTAssertEqual(controllers?.navigationController, client.userFeedbackNavigationViewController())
+        
+        let controllers2 = client.userFeedbackControllers()
+        
+        XCTAssertEqual(controllers?.userFeedbackTableViewController, controllers2?.userFeedbackTableViewController)
+        XCTAssertEqual(controllers?.navigationController, controllers2?.navigationController)
+    }
+    #endif
+    
+    func testConvertAttributesToNonNil() {
+        var serialized: SerializedTypeDictionary {
+            
+            // Create attributes list
+            var attributes: [Attribute] = []
+            
+            attributes.append(("filename", "1"))
+            attributes.append(("function", nil))
+            attributes.append(("module", "2"))
+            
+            return convertAttributes(attributes)
+        }
+        
+        XCTAssertEqual(serialized["filename"] as? String, "1")
+        XCTAssertEqual(serialized["module"] as? String, "2")
+        XCTAssertEqual(serialized.count, 2)
+        XCTAssertNil(serialized["function"])
     }
 }
 

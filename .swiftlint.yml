@@ -1,0 +1,19 @@
+excluded:
+  - SentrySwiftTests
+  - Examples
+  - iOS
+  - Carthage
+  - Pods
+disabled_rules:
+  - trailing_whitespace
+  - nesting
+variable_name:
+  min_length:
+    - 2
+    - 1
+type_name:
+  min_length:
+    - 2
+    - 1
+line_length:
+  - 220

@@ -26,7 +26,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -42,9 +43,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "03E94B0A1C22596A009F8F29"
-            BuildableName = "SentrySwift.framework"
-            BlueprintName = "SentrySwift-iOS"
+            BlueprintIdentifier = "63CDAB5D1DDB164500B63921"
+            BuildableName = "iOS.app"
+            BlueprintName = "iOS"
             ReferencedContainer = "container:SentrySwift.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -61,15 +62,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "03E94B0A1C22596A009F8F29"
-            BuildableName = "SentrySwift.framework"
-            BlueprintName = "SentrySwift-iOS"
+            BlueprintIdentifier = "63CDAB5D1DDB164500B63921"
+            BuildableName = "iOS.app"
+            BlueprintName = "iOS"
             ReferencedContainer = "container:SentrySwift.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
