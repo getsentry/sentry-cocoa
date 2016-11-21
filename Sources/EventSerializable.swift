@@ -19,12 +19,8 @@ internal protocol EventSerializable {
     var serialized: SerializedType { get }
 }
 
-extension EventSerializable {
-    
-    internal func convertAttributes(_ attributes: [Attribute]) -> SerializedTypeDictionary {
-        var ret: SerializedTypeDictionary = [:]
-        attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
-        return ret
-    }
-    
+internal func convertAttributes(_ attributes: [Attribute]) -> SerializedTypeDictionary {
+    var ret: SerializedTypeDictionary = [:]
+    attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
+    return ret
 }
