@@ -58,8 +58,7 @@
 }
 
 - (IBAction)onClickBreak:(id)sender {
-	NSMutableArray *someArray = @[].mutableCopy;
-	[someArray addObject:nil];
+    [[SentryClient shared] crash];
 }
 
 - (IBAction)onClickMessage:(id)sender {
