@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentrySwift"
-  s.version      = "0.5.0"
+  s.version      = "1.0.0"
   s.summary      = "Swift client for Sentry"
   s.homepage     = "https://github.com/getsentry/sentry-swift"
   s.license      = "mit"

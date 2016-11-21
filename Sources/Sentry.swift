@@ -267,7 +267,6 @@ internal enum SentryError: Error {
     
     #endif
     
-    
 	/*
 	Reports given event to Sentry
 	- Parameter event: An event struct

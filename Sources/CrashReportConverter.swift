@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CrashReportConverter {
+internal final class CrashReportConverter {
     
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         // Extract crash timestamp

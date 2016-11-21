@@ -11,35 +11,35 @@ import Foundation
 public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public class Exception: NSObject {
+@objc public final class Exception: NSObject {
     public let value: String
-	public let type: String?
+    public let type: String?
     public var mechanism: Mechanism?
     public let module: String?
-	
-	public var thread: Thread?
-
+    
+    public var thread: Thread?
+    
     /// Creates `Exception` object
-	@objc public init(value: String, type: String? = nil, mechanism: Mechanism? = nil, module: String? = nil) {
-		self.value = value
+    @objc public init(value: String, type: String? = nil, mechanism: Mechanism? = nil, module: String? = nil) {
+        self.value = value
         self.type = type
         self.mechanism = mechanism
         self.module = module
-		
-		self.thread = nil
-
+        
+        self.thread = nil
+        
         super.init()
     }
-
+    
     public override func isEqual(_ object: AnyType?) -> Bool {
         let lhs = self
         guard let rhs = object as? Exception else { return false }
         return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
     }
-
+    
     internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil, diagnosis: String? = nil) {
         var mechanism = Mechanism()
-		
+        
         if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
             let signal = signalDict["name"] as? String,
             let code = signalDict["code"] as? Int {
@@ -54,23 +54,23 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         
         let crashedThread = threads?.filter({$0.crashed ?? false}).first
         
-		let (type, value) = Exception.extractCrashValue(appleCrashErrorDict)
- 
+        let (type, value) = Exception.extractCrashValue(appleCrashErrorDict)
+        
         // We prefer diagnosis generated from KSCrash
         if let diagnosis = diagnosis {
             self.init(value: diagnosis, type: type)
         } else if let reason = crashedThread?.reason {
             self.init(value: reason, type: type)
         } else if let value = value {
-			self.init(value: value, type: type)
-		} else {
-			SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
-			return nil
-		}
+            self.init(value: value, type: type)
+        } else {
+            SentryLog.Error.log("Crash error could not generate a 'value' based off of information")
+            return nil
+        }
         
         self.mechanism = mechanism
         self.thread = crashedThread
-	}
+    }
     
     private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?) {
         var type = appleCrashErrorDict["type"] as? String
@@ -120,14 +120,17 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 
 extension Exception: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
+    
     internal var serialized: SerializedType {
-        return [
-            "value": value
-        ]
-		.set("type", value: type)
-        .set("mechanism", value: mechanism)
-        .set("module", value: module)
-		.set("thread_id", value: thread?.id)
-		.set("stacktrace", value: thread?.stacktrace?.serialized)
+        var attributes: [Attribute] = []
+        
+        attributes.append(("value", value))
+        attributes.append(("type", type))
+        attributes.append(("mechanism", mechanism))
+        attributes.append(("module", module))
+        attributes.append(("thread_id", thread?.id))
+        attributes.append(("stacktrace", thread?.stacktrace?.serialized))
+        
+        return convertAttributes(attributes)
     }
 }

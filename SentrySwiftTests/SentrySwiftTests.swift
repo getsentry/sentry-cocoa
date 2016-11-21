@@ -436,6 +436,25 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertEqual(controllers?.navigationController, controllers2?.navigationController)
     }
     #endif
+    
+    func testConvertAttributesToNonNil() {
+        var serialized: SerializedTypeDictionary {
+            
+            // Create attributes list
+            var attributes: [Attribute] = []
+            
+            attributes.append(("filename", "1"))
+            attributes.append(("function", nil))
+            attributes.append(("module", "2"))
+            
+            return convertAttributes(attributes)
+        }
+        
+        XCTAssertEqual(serialized["filename"] as? String, "1")
+        XCTAssertEqual(serialized["module"] as? String, "2")
+        XCTAssertEqual(serialized.count, 2)
+        XCTAssertNil(serialized["function"])
+    }
 }
 
 /// A small hack to compare dictionaries

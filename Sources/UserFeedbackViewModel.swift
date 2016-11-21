@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc public class UserFeedbackViewModel: NSObject {
+@objc public final class UserFeedbackViewModel: NSObject {
     
     public var viewControllerTitle = "User Feedback"
     
