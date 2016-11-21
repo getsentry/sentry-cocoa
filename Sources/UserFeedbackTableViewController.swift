@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class UserFeedbackTableViewController: UITableViewController, UITextFieldDelegate {
+public final class UserFeedbackTableViewController: UITableViewController, UITextFieldDelegate {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!

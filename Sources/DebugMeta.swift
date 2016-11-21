@@ -9,7 +9,7 @@
 import Foundation
 
 // A class used to represent an exception: `debug_meta`
-@objc internal class DebugMeta: NSObject {
+@objc internal final class DebugMeta: NSObject {
 	
 	let images: [BinaryImage]
 	

@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to represent the breadcrumbs leading up to an events
-@objc public class Breadcrumb: NSObject {
+@objc public final class Breadcrumb: NSObject {
 
 	// MARK: - Attributes
 

@@ -11,7 +11,7 @@ import Foundation
 public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public class Exception: NSObject {
+@objc public final class Exception: NSObject {
     public let value: String
 	public let type: String?
     public var mechanism: Mechanism?

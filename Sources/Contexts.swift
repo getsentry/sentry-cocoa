@@ -15,7 +15,7 @@ import Foundation
 import KSCrash.KSSystemInfo
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public class Contexts: NSObject {
+@objc public final class Contexts: NSObject {
     
 }
 

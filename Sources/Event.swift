@@ -33,7 +33,7 @@ public typealias EventFingerprint = [String]
 }
 
 /// A class that defines an event to be reported
-@objc public class Event: NSObject, EventProperties {
+@objc public final class Event: NSObject, EventProperties {
     
     public typealias BuildEvent = (inout Event) -> Void
     

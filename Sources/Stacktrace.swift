@@ -9,7 +9,7 @@
 import Foundation
 
 // A class used to represent an exception: `sentry.interfaces.stacktrace.Stacktrace`
-@objc public class Stacktrace: NSObject {
+@objc public final class Stacktrace: NSObject {
     public let frames: [Frame]
     
     internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, binaryImages: [BinaryImage]?) {

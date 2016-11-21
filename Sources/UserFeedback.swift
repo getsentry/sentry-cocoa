@@ -6,7 +6,7 @@
 //
 //
 
-@objc public class UserFeedback: NSObject {
+@objc public final class UserFeedback: NSObject {
     public var name = ""
     public var email = ""
     public var comments = ""

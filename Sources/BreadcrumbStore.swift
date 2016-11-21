@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to hold and store our `Breadcrumb`
-public class BreadcrumbStore: NSObject {
+public final class BreadcrumbStore: NSObject {
 
 	public typealias StoreUpdated = (BreadcrumbStore) -> ()
 

@@ -24,7 +24,7 @@ internal let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
 internal let keyReleaseVersion = "releaseVersion_serialized"
 
 /// A class to report crashes to Sentry built upon KSCrash
-internal class KSCrashHandler: CrashHandler {
+internal final class KSCrashHandler: CrashHandler {
     
     // MARK: - Attributes
     
