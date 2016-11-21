@@ -9,19 +9,19 @@
 import Foundation
 
 extension SentryClient {
-	
-	/*
-	Sends given event to the API
-	- Parameter event: An event
-	- Parameter finished: A closure with the success status
-	*/
-	internal func sendEvent(_ event: Event, finished: SentryEndpointRequestFinished? = nil) {
+    
+    /*
+     Sends given event to the API
+     - Parameter event: An event
+     - Parameter finished: A closure with the success status
+     */
+    internal func sendEvent(_ event: Event, finished: SentryEndpointRequestFinished? = nil) {
         #if swift(>=3.0)
             SentryEndpoint.store(event: event).send(dsn: dsn, finished: finished)
         #else
             SentryEndpoint.store(event: event).send(dsn, finished: finished)
         #endif
-	}
+    }
     
     /*
      Sends given event to the API

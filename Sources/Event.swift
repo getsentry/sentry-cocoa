@@ -140,7 +140,6 @@ public typealias EventFingerprint = [String]
 
 extension Event: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
-    internal typealias Attribute = (key: String, value: AnyType?)
     
     var sdk: [String: String]? {
         return [
@@ -181,8 +180,6 @@ extension Event: EventSerializable {
         attributes.append(("stacktrace", stacktrace?.serialized))
         attributes.append(("debug_meta", debugMeta?.serialized))
         
-        var ret: [String: AnyType] = [:]
-        attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
-        return ret
+        return convertAttributes(attributes)
     }
 }

@@ -105,7 +105,6 @@ extension Stacktrace: EventSerializable {
 
 extension Frame: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
-    internal typealias Attribute = (key: String, value: AnyType?)
     
     internal var serialized: SerializedType {
         var attributes: [Attribute] = []
@@ -120,8 +119,6 @@ extension Frame: EventSerializable {
         attributes.append(("symbol_addr", symbolAddress))
         attributes.append(("in_app", inApp))
         
-        var ret: [String: AnyType] = [:]
-        attributes.filter() { $0.value != nil }.forEach() { ret.updateValue($0.value!, forKey: $0.key) }
-        return ret
+        return convertAttributes(attributes)
     }
 }

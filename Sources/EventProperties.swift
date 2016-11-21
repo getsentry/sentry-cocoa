@@ -10,12 +10,12 @@ import Foundation
 
 /// Protocol defining common editable properties of Sentry client and Event
 internal protocol EventProperties {
-
-	// MARK: - Attributes
-	var releaseVersion: String? { get set }
-	var tags: EventTags { get set }
-	var extra: EventExtra { get set }
-	
-	// MARK: - Interfaces
-	var user: User? { get set }
+    
+    // MARK: - Attributes
+    var releaseVersion: String? { get set }
+    var tags: EventTags { get set }
+    var extra: EventExtra { get set }
+    
+    // MARK: - Interfaces
+    var user: User? { get set }
 }

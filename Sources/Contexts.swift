@@ -163,30 +163,28 @@ private class DeviceContext: NSObject {
 
 extension DeviceContext: EventSerializable {
     typealias SerializedType = SerializedTypeDictionary
+    
     var serialized: SerializedType {
-        var dict = SerializedType()
-            .set("family", value: family)
-            .set("arch", value: architecture)
-            .set("model", value: model)
-            .set("family", value: family)
+        var attributes: [Attribute] = []
+        
+        attributes.append(("family", family))
+        attributes.append(("arch", architecture))
+        attributes.append(("model", model))
+        attributes.append(("family", family))
         
         switch (isOSX, isSimulator) {
         // macOS
         case (true, _):
-            dict = dict.set("model", value: machine)
-            
+            attributes.append(("model", machine))
         // iOS/tvOS/watchOS Sim
         case (false, true):
-            dict = dict
-                .set("simulator", value: isSimulator)
-            
+            attributes.append(("simulator", isSimulator))
         // iOS/tvOS/watchOS Device
         default:
-            dict = dict
-                .set("model_id", value: modelDetail)
-                .set("simulator", value: isSimulator)
+            attributes.append(("model_id", modelDetail))
+            attributes.append(("simulator", isSimulator))
         }
         
-        return dict
+        return convertAttributes(attributes)
     }
 }
