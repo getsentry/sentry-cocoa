@@ -68,6 +68,17 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
     
     // MARK: Actions
     
+    @IBAction func onClickBreadcrumbMessage(sender: AnyObject) {
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test2", to: "test2"))
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test3"))
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test4", timestamp: NSDate(), message: "message", level: .Info, data: ["additional": "data"], to: "to", from: "from"))
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test5", timestamp: NSDate(), message: "message", level: .Error, data: ["addData": "data"], url: "http://orf.at", method: "POST", statusCode: 200, reason: "not working"))
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test6", timestamp: NSDate(), message: "nachrichten", type: "Miau", level: .Info, data: ["add": "data"]))
+        
+        SentryClient.shared?.captureMessage("onClickBreadcrumbMessage", level: .Error)
+    }
+    
 	@IBAction func onClickBreak(sender: AnyObject) {
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", to: "point b", from: "point a"))
 		

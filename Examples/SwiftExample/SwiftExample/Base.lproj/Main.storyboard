@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2659" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -67,15 +67,24 @@
                                     <action selector="onClickFatalError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iPn-q5-lPJ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ca-0p-7z1">
+                                <rect key="frame" x="112" y="478" width="150" height="30"/>
+                                <state key="normal" title="Breadcrumb Message"/>
+                                <connections>
+                                    <action selector="onClickBreadcrumbMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5qs-dk-ycq"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="SC1-4u-grG" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="1ia-LS-N6N"/>
                             <constraint firstItem="9Zf-Ya-OPg" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="5Jg-Ff-eax"/>
+                            <constraint firstItem="0ca-0p-7z1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="JUM-na-rTB"/>
                             <constraint firstItem="GRm-GB-b1f" firstAttribute="top" secondItem="9Zf-Ya-OPg" secondAttribute="bottom" constant="44" id="Mug-d8-nCk"/>
                             <constraint firstItem="SC1-4u-grG" firstAttribute="top" secondItem="jfu-R7-WiI" secondAttribute="bottom" constant="46" id="bZw-j0-XQA"/>
                             <constraint firstItem="jfu-R7-WiI" firstAttribute="top" secondItem="GRm-GB-b1f" secondAttribute="bottom" constant="8" id="i4G-Pg-Soi"/>
                             <constraint firstItem="GRm-GB-b1f" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="jiT-Ot-Blg"/>
+                            <constraint firstItem="0ca-0p-7z1" firstAttribute="top" secondItem="SC1-4u-grG" secondAttribute="bottom" constant="21" id="wNJ-JP-fhR"/>
                             <constraint firstItem="9Zf-Ya-OPg" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="144" id="wRV-SU-XCd"/>
                             <constraint firstItem="jfu-R7-WiI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="x74-0s-YCt"/>
                         </constraints>
