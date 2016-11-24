@@ -1,0 +1,3406 @@
+{
+    "report": {
+        "version": "3.1.0",
+        "id": "9BCBC83B-80D7-4F42-B133-E89E8E27D174",
+        "process_name": "CrashProbeiOS",
+        "timestamp": 1479999644,
+        "type": "standard"
+    },
+    "binary_images": [
+        {
+            "image_addr": 4372480000,
+            "image_vmaddr": 0,
+            "image_size": 167936,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/dyld_sim",
+            "uuid": "493D07DF-3F9F-30E0-96EF-4A398E59EC4A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4372393984,
+            "image_vmaddr": 4294967296,
+            "image_size": 28672,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/CrashProbeiOS",
+            "uuid": "9CD5C1D8-933D-31FA-B1C9-7F6EBAF0D677",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4372942848,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/CrashLibiOS.framework/CrashLibiOS",
+            "uuid": "47357591-C6CC-3091-8B0D-D861CD87C8A0",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4373049344,
+            "image_vmaddr": 0,
+            "image_size": 3043328,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Foundation.framework/Foundation",
+            "uuid": "4212F72C-2A19-323A-84A3-91FEABA7F900",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4378525696,
+            "image_vmaddr": 0,
+            "image_size": 15368192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework/UIKit",
+            "uuid": "58C43C32-FE94-382D-B15C-53CC00BC5B7A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4404154368,
+            "image_vmaddr": 0,
+            "image_size": 405504,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/SystemConfiguration.framework/SystemConfiguration",
+            "uuid": "D3019422-D521-31C5-931C-E50DD4F50840",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4404744192,
+            "image_vmaddr": 0,
+            "image_size": 3993600,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libobjc.A.dylib",
+            "uuid": "BF9354F3-A2AB-3BF0-98E7-7E99B6735513",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4409618432,
+            "image_vmaddr": 0,
+            "image_size": 356352,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libc++.1.dylib",
+            "uuid": "CD2ECD2E-152E-327A-898F-703E1E0BBE81",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4410318848,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libSystem.dylib",
+            "uuid": "039236C9-BABD-3793-B2F1-59A0E77FD0C2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4410347520,
+            "image_vmaddr": 0,
+            "image_size": 3637248,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation",
+            "uuid": "0A35C4D8-BFD0-3CAD-9376-831AF2975359",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4415537152,
+            "image_vmaddr": 0,
+            "image_size": 462848,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/SentrySwift.framework/SentrySwift",
+            "uuid": "16B24E0E-FFE9-37AA-A309-CF21CD8863E8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4416675840,
+            "image_vmaddr": 0,
+            "image_size": 372736,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/KSCrash.framework/KSCrash",
+            "uuid": "66C51926-23EB-33BA-A7D9-ABFDF7C648BE",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4417474560,
+            "image_vmaddr": 0,
+            "image_size": 172032,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libc++abi.dylib",
+            "uuid": "B976F6AD-454C-3B1C-A03C-4263C0AB23AC",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4417703936,
+            "image_vmaddr": 0,
+            "image_size": 2592768,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftCore.dylib",
+            "uuid": "D3E232C9-423C-3741-A764-947A0B78D0D5",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4423012352,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftDarwin.dylib",
+            "uuid": "313D43CA-A3CF-3D42-B21D-C7CCB527186F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4423081984,
+            "image_vmaddr": 0,
+            "image_size": 114688,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftDispatch.dylib",
+            "uuid": "88B368B6-5358-387B-9607-E2FBE25CF559",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4423430144,
+            "image_vmaddr": 0,
+            "image_size": 880640,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftFoundation.dylib",
+            "uuid": "6BC0DDD7-06F6-3F56-A950-E150E8499882",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4425363456,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftObjectiveC.dylib",
+            "uuid": "348EC64C-9773-35D1-9554-746E5E6BC4AB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4425424896,
+            "image_vmaddr": 0,
+            "image_size": 73728,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libz.1.dylib",
+            "uuid": "900CD842-FA8F-3214-8D84-EACF6F1CB39A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4425519104,
+            "image_vmaddr": 0,
+            "image_size": 942080,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MessageUI.framework/MessageUI",
+            "uuid": "B16BDB98-FF58-3FE3-A16D-3CC822E1C11D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4427280384,
+            "image_vmaddr": 0,
+            "image_size": 20480,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libcache.dylib",
+            "uuid": "E8CDDFF8-209E-30B7-986F-0400D2F1E255",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4427321344,
+            "image_vmaddr": 0,
+            "image_size": 45056,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libcommonCrypto.dylib",
+            "uuid": "3310495A-7BE1-334F-BE61-98DB6FE651B9",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4427419648,
+            "image_vmaddr": 0,
+            "image_size": 32768,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libcompiler_rt.dylib",
+            "uuid": "33FC8470-0363-3490-B055-66FBBBEE261C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4427481088,
+            "image_vmaddr": 0,
+            "image_size": 32768,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libcopyfile.dylib",
+            "uuid": "FFBBD693-830A-327E-9EB4-D91375F683EE",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4427538432,
+            "image_vmaddr": 0,
+            "image_size": 540672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libcorecrypto.dylib",
+            "uuid": "51518AEE-B3C7-32B5-812C-813755239C42",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428185600,
+            "image_vmaddr": 0,
+            "image_size": 204800,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libdispatch.dylib",
+            "uuid": "CB11C8CD-917A-354F-A4F3-08FEED786623",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428619776,
+            "image_vmaddr": 0,
+            "image_size": 20480,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libdyld.dylib",
+            "uuid": "590A5511-62BE-38D6-9FED-AF325969828C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428668928,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/liblaunch.dylib",
+            "uuid": "5504C318-22AA-3912-B671-2E508E3C916A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428701696,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libmacho.dylib",
+            "uuid": "0BB8F85F-5211-3492-B4B5-13126E9E0FB4",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428746752,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libremovefile.dylib",
+            "uuid": "17B58A3B-0063-3485-A4B7-C14AE447C194",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428775424,
+            "image_vmaddr": 0,
+            "image_size": 98304,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_asl.dylib",
+            "uuid": "F3017B2D-1EAF-3243-9E19-1B6F93653416",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428922880,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_blocks.dylib",
+            "uuid": "048E153C-EC95-31E9-9CBC-E7E74E0C5413",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4428943360,
+            "image_vmaddr": 0,
+            "image_size": 557056,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_c.dylib",
+            "uuid": "D0E6FE54-BE52-311C-8402-930FE5523A79",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429651968,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_configuration.dylib",
+            "uuid": "06F17E52-AF30-3109-842A-153D3947D68A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429692928,
+            "image_vmaddr": 0,
+            "image_size": 20480,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_containermanager.dylib",
+            "uuid": "EB41114B-0A3B-328E-BE22-D6AC11FFB2CB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429737984,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_coreservices.dylib",
+            "uuid": "653A2928-43EA-33B5-B8F6-24351CE37F86",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429766656,
+            "image_vmaddr": 0,
+            "image_size": 102400,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_coretls.dylib",
+            "uuid": "87804815-F91D-3E92-841D-7301D12C7F15",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429914112,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_dnssd.dylib",
+            "uuid": "1CDBC9AD-C2D4-3287-BBA1-0DEB2E0E7197",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4429963264,
+            "image_vmaddr": 0,
+            "image_size": 147456,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_info.dylib",
+            "uuid": "9D918D03-F045-3196-AA3C-47E3B92DAA8D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4430180352,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_kernel.dylib",
+            "uuid": "69B2FA18-537F-35A2-88CF-35A21DD6F33B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4430213120,
+            "image_vmaddr": 0,
+            "image_size": 282624,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_m.dylib",
+            "uuid": "F42DCA73-13C8-33A6-AA4D-7521415906F4",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4430528512,
+            "image_vmaddr": 0,
+            "image_size": 122880,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_malloc.dylib",
+            "uuid": "F7448B73-D3F3-3A72-B374-EFDCA2E8BA94",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4430700544,
+            "image_vmaddr": 0,
+            "image_size": 258048,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_network.dylib",
+            "uuid": "0346C215-5C3A-37D4-A3F4-4FCB2D3482D3",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431081472,
+            "image_vmaddr": 0,
+            "image_size": 40960,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_notify.dylib",
+            "uuid": "14B78BCF-9606-300C-B90B-F988DC14FEEA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431151104,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_platform.dylib",
+            "uuid": "31EB163C-8146-364A-9B72-DA18ABF098DB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431183872,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_pthread.dylib",
+            "uuid": "A3302D33-E175-3016-80B8-57D4C2A0472F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431204352,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sandbox.dylib",
+            "uuid": "53B81228-46FC-3DD6-B558-5C3FEBB93C6D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431245312,
+            "image_vmaddr": 0,
+            "image_size": 135168,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_trace.dylib",
+            "uuid": "D0043EE5-6CDB-318F-A91F-CB54406D0674",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431458304,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libunwind.dylib",
+            "uuid": "F7276C99-C97C-39C8-9DE1-EE15287DB5DC",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431511552,
+            "image_vmaddr": 0,
+            "image_size": 163840,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libxpc.dylib",
+            "uuid": "17F6B510-0FB1-30D3-B29C-D74A5D63719E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431798272,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_pthread_host.dylib",
+            "uuid": "83C062C1-FBF6-3273-AC7D-13AA1FEC3042",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431818752,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_platform_host.dylib",
+            "uuid": "02CFF456-B95E-35E1-A83E-1977A259FA2E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431843328,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/system/libsystem_sim_kernel_host.dylib",
+            "uuid": "40D982E8-407A-3BC0-9621-AD1EB557AFDB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4431867904,
+            "image_vmaddr": 0,
+            "image_size": 143360,
+            "name": "/usr/lib/system/libsystem_kernel.dylib",
+            "uuid": "651F249F-D797-3FBD-A66F-66DFB48FCF38",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4432105472,
+            "image_vmaddr": 0,
+            "image_size": 36864,
+            "name": "/usr/lib/system/libsystem_platform.dylib",
+            "uuid": "884DDF42-3CAE-334A-82CE-965617130FB1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4432175104,
+            "image_vmaddr": 0,
+            "image_size": 45056,
+            "name": "/usr/lib/system/libsystem_pthread.dylib",
+            "uuid": "F35891AC-CA82-3F97-9BE6-15EC3B4C36F6",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4432269312,
+            "image_vmaddr": 0,
+            "image_size": 1187840,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/MobileCoreServices",
+            "uuid": "4C4EBEA8-038F-3D4A-AB07-34E09F089E8D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4434268160,
+            "image_vmaddr": 0,
+            "image_size": 180224,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libarchive.2.dylib",
+            "uuid": "843F93DC-AC37-341A-88BA-4BBF1FCB1A79",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4434489344,
+            "image_vmaddr": 0,
+            "image_size": 2228224,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libicucore.A.dylib",
+            "uuid": "9D3242A1-D6A4-3A23-B729-152554E33BA7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4437532672,
+            "image_vmaddr": 0,
+            "image_size": 983040,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libxml2.2.dylib",
+            "uuid": "C09FCA8C-8AE9-3888-8637-A18989DF9A39",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4438736896,
+            "image_vmaddr": 0,
+            "image_size": 3649536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CFNetwork.framework/CFNetwork",
+            "uuid": "CE288175-C2FF-3A28-8CB5-BC95E8F5DF32",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4445274112,
+            "image_vmaddr": 0,
+            "image_size": 421888,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+            "uuid": "B597AA4E-6588-3374-B390-C401E4657C40",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4445917184,
+            "image_vmaddr": 0,
+            "image_size": 114688,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libCRFSuite.dylib",
+            "uuid": "4A16DD2C-6260-3944-A38C-7542D2B5DF08",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4446072832,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/liblangid.dylib",
+            "uuid": "B953DCA3-39E2-3245-B101-8C6543E8A7EB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4446097408,
+            "image_vmaddr": 0,
+            "image_size": 94208,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libMobileGestalt.dylib",
+            "uuid": "135C23A8-9702-3A87-8A94-34E07CD0812F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4446449664,
+            "image_vmaddr": 0,
+            "image_size": 69632,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libbsm.0.dylib",
+            "uuid": "920FFA6D-A8E6-3363-9D11-47FBF7632AE2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4446552064,
+            "image_vmaddr": 0,
+            "image_size": 577536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Security.framework/Security",
+            "uuid": "F254D912-9BA6-3947-95D6-9A5ABE048A50",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4447555584,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libcoretls.dylib",
+            "uuid": "04C60F4C-9552-3E31-8854-23FDC96D5EC1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4447592448,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libcoretls_cfhelpers.dylib",
+            "uuid": "9C5E07D0-52BF-384A-8818-BE883053709E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4447621120,
+            "image_vmaddr": 0,
+            "image_size": 1212416,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libsqlite3.dylib",
+            "uuid": "783BABE9-D163-30A7-A912-B2738580681D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4448944128,
+            "image_vmaddr": 0,
+            "image_size": 462848,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libnetwork.dylib",
+            "uuid": "3434E37A-0C2F-32C8-B942-552CAC89048C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4449624064,
+            "image_vmaddr": 0,
+            "image_size": 106496,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/liblzma.5.dylib",
+            "uuid": "62632B29-B526-3890-A7F3-94761F604859",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4449763328,
+            "image_vmaddr": 0,
+            "image_size": 61440,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libbz2.1.0.dylib",
+            "uuid": "84C8972A-961F-3754-A5C3-2F3B43510CA7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4449845248,
+            "image_vmaddr": 0,
+            "image_size": 6049792,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/ImageIO.framework/ImageIO",
+            "uuid": "BBABFD69-2D0E-3D70-BB75-D63C4FE39172",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4457000960,
+            "image_vmaddr": 0,
+            "image_size": 622592,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CalendarDatabase.framework/CalendarDatabase",
+            "uuid": "C7BBC11A-8AEA-38F0-ACB1-67A8FEB411B8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4458041344,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AggregateDictionary.framework/AggregateDictionary",
+            "uuid": "3745D21D-F65E-38AE-A760-6167FB8F7983",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4458082304,
+            "image_vmaddr": 0,
+            "image_size": 1347584,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/ContactsUI.framework/ContactsUI",
+            "uuid": "2FBF0C73-6894-32A8-9261-FE42005FE76E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4460609536,
+            "image_vmaddr": 0,
+            "image_size": 221184,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ContactsAutocomplete.framework/ContactsAutocomplete",
+            "uuid": "CB81982C-68EC-33A1-8694-C7C0C41907E8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4461105152,
+            "image_vmaddr": 0,
+            "image_size": 1409024,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreText.framework/CoreText",
+            "uuid": "972DFF5B-9699-3EEF-BA81-9EAACFE426AB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4463235072,
+            "image_vmaddr": 0,
+            "image_size": 946176,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ManagedConfiguration.framework/ManagedConfiguration",
+            "uuid": "C4B40E6F-49B3-30CE-BA22-0F5DF12DA981",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4464922624,
+            "image_vmaddr": 0,
+            "image_size": 1687552,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/QuartzCore.framework/QuartzCore",
+            "uuid": "AFADEAE0-25A4-328F-B093-CA6C41ADD3E4",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4467408896,
+            "image_vmaddr": 0,
+            "image_size": 524288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreMedia.framework/CoreMedia",
+            "uuid": "EA746F68-3EA8-3FB7-9297-EFBCDCBFBD8E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4468396032,
+            "image_vmaddr": 0,
+            "image_size": 376832,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/IMFoundation.framework/IMFoundation",
+            "uuid": "45E8043C-3D62-3863-837D-BCA9D34BD4F9",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4469026816,
+            "image_vmaddr": 0,
+            "image_size": 49152,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreRecents.framework/CoreRecents",
+            "uuid": "D83964D9-D6E8-39BC-A9C1-A85811435072",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4469141504,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FTClientServices.framework/FTClientServices",
+            "uuid": "0FC6F294-8C68-3B17-B290-55D4B9F58D91",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4469178368,
+            "image_vmaddr": 0,
+            "image_size": 905216,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AddressBookUI.framework/AddressBookUI",
+            "uuid": "B1BEC2AD-3279-3200-B17C-E902671C7420",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4470947840,
+            "image_vmaddr": 0,
+            "image_size": 86016,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/GraphicsServices.framework/GraphicsServices",
+            "uuid": "0669ABE3-DAA9-37D0-860E-DD7CF1B0D550",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4471128064,
+            "image_vmaddr": 0,
+            "image_size": 1277952,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Message.framework/Message",
+            "uuid": "0B163E4A-58DE-3E9A-A698-4F0FDCE3FEC6",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4473368576,
+            "image_vmaddr": 0,
+            "image_size": 557056,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AddressBook.framework/AddressBook",
+            "uuid": "ACABBC04-A088-314E-A927-A880979BCAB9",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4474281984,
+            "image_vmaddr": 0,
+            "image_size": 6508544,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics",
+            "uuid": "CA9F49EA-B7E9-3BD1-952A-66EBED14BCD7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4481691648,
+            "image_vmaddr": 0,
+            "image_size": 3137536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/WebKit.framework/WebKit",
+            "uuid": "00C768AC-6CE7-3251-B2DD-FBAFEBBD5159",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4488077312,
+            "image_vmaddr": 0,
+            "image_size": 19161088,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/WebCore.framework/WebCore",
+            "uuid": "52F9C771-F0F5-3521-892B-82F88414CFAA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4517588992,
+            "image_vmaddr": 0,
+            "image_size": 311296,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AppSupport.framework/AppSupport",
+            "uuid": "395FC2AD-A1EC-3039-9B10-C09DDCF16A4A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4518146048,
+            "image_vmaddr": 0,
+            "image_size": 323584,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DataAccess.framework/DataAccess",
+            "uuid": "91698B43-05DF-38A6-9CA9-C91D90CA91AF",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4518703104,
+            "image_vmaddr": 0,
+            "image_size": 864256,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/EventKit.framework/EventKit",
+            "uuid": "59555573-648C-329A-9A9C-3A01962267CD",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4520169472,
+            "image_vmaddr": 0,
+            "image_size": 69632,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MailServices.framework/MailServices",
+            "uuid": "B6419B94-A0B8-3338-9D5F-1F3501EEB3DF",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4520329216,
+            "image_vmaddr": 0,
+            "image_size": 348160,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MIME.framework/MIME",
+            "uuid": "62FD2B9E-C397-3936-AFC2-70630A612273",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4520972288,
+            "image_vmaddr": 0,
+            "image_size": 229376,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Celestial.framework/Celestial",
+            "uuid": "F2C44891-B1E9-3355-BFE3-DA89195F6A01",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4521541632,
+            "image_vmaddr": 0,
+            "image_size": 155648,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DataAccessExpress.framework/DataAccessExpress",
+            "uuid": "75614CF5-B932-38A1-B62C-0B8A835C2AEA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4521844736,
+            "image_vmaddr": 0,
+            "image_size": 118784,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreVideo.framework/CoreVideo",
+            "uuid": "8B821B0D-71C7-3C50-9825-37C4B210AA6B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4522057728,
+            "image_vmaddr": 0,
+            "image_size": 3411968,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox",
+            "uuid": "474BA591-DF79-3F69-B350-68C17ACC1559",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4525993984,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MessageSupport.framework/MessageSupport",
+            "uuid": "FD5A8392-A2A8-3567-B7F3-A1ABC5DFD694",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4526034944,
+            "image_vmaddr": 0,
+            "image_size": 1802240,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AVFoundation.framework/AVFoundation",
+            "uuid": "55BD56B1-DE4B-338B-A146-E7B0F88F0F4C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4529606656,
+            "image_vmaddr": 0,
+            "image_size": 675840,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Contacts.framework/Contacts",
+            "uuid": "B39F90A6-79A2-3770-88AC-920FBDEC02A6",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4531171328,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate",
+            "uuid": "69BB11EB-CCF6-37A5-B7B7-2A947ABC87A1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4531187712,
+            "image_vmaddr": 0,
+            "image_size": 286720,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Metal.framework/Metal",
+            "uuid": "EB63D096-A653-346C-9431-7C6A8DCEFA56",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4532019200,
+            "image_vmaddr": 0,
+            "image_size": 86016,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libcompression.dylib",
+            "uuid": "99FD3F14-214B-3699-99F9-1EC28BF7B9E2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4532133888,
+            "image_vmaddr": 0,
+            "image_size": 573440,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AppleJPEG.framework/AppleJPEG",
+            "uuid": "A759DBA0-70C8-3882-96EB-AD07AB846192",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4533104640,
+            "image_vmaddr": 0,
+            "image_size": 6594560,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/vImage",
+            "uuid": "655DDAB5-34B9-3939-B88B-463EC98A0CB5",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4540112896,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/vecLib",
+            "uuid": "58316254-B422-3798-BB4E-018529C22944",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4540129280,
+            "image_vmaddr": 0,
+            "image_size": 1318912,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libvDSP.dylib",
+            "uuid": "AD4EAD53-893C-339B-A3BF-0B4CA303DFF1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4541497344,
+            "image_vmaddr": 0,
+            "image_size": 4247552,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libLAPACK.dylib",
+            "uuid": "9CA7E251-F1A9-37CF-B344-35970824C63B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4545937408,
+            "image_vmaddr": 0,
+            "image_size": 1867776,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libBLAS.dylib",
+            "uuid": "4AFA8D53-33C8-39E7-8E62-062B55289CD6",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4547932160,
+            "image_vmaddr": 0,
+            "image_size": 634880,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libvMisc.dylib",
+            "uuid": "C0985766-2E8D-3AE2-AF01-499D608C63A7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4548603904,
+            "image_vmaddr": 0,
+            "image_size": 94208,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libLinearAlgebra.dylib",
+            "uuid": "52C90D1A-5352-31BE-9AA9-3F7A36387F83",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4548730880,
+            "image_vmaddr": 0,
+            "image_size": 81920,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libSparseBLAS.dylib",
+            "uuid": "3B24F489-A0CD-3CF1-AD67-9DFC2D1DAD7C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4548841472,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libQuadrature.dylib",
+            "uuid": "102DF76D-E3BE-3374-B4EF-C0CB0BD32EB8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4548886528,
+            "image_vmaddr": 0,
+            "image_size": 94208,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/libBNNS.dylib",
+            "uuid": "03653B51-56D4-3731-8842-6ECD1E716683",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4549005312,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/libCoreFSCache.dylib",
+            "uuid": "8013DF55-2C45-3DB9-869B-745914E36411",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4549038080,
+            "image_vmaddr": 0,
+            "image_size": 176128,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/BackBoardServices.framework/BackBoardServices",
+            "uuid": "A017739B-90C3-3199-A410-0924CF5C56D0",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4549427200,
+            "image_vmaddr": 0,
+            "image_size": 385024,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CalendarFoundation.framework/CalendarFoundation",
+            "uuid": "14F6A100-E877-3D61-91BD-E6149B4F76F0",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4550144000,
+            "image_vmaddr": 0,
+            "image_size": 225280,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/iCalendar.framework/iCalendar",
+            "uuid": "ECB62FCF-D749-3054-82E0-1E2EB9E484DC",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4550537216,
+            "image_vmaddr": 0,
+            "image_size": 49152,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AssertionServices.framework/AssertionServices",
+            "uuid": "A3D1FA9D-5836-3799-9B26-CA1D4A50D776",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4550668288,
+            "image_vmaddr": 0,
+            "image_size": 356352,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/BaseBoard.framework/BaseBoard",
+            "uuid": "BC426E16-6CAB-312B-BFE4-AB42BDC9C414",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4551409664,
+            "image_vmaddr": 0,
+            "image_size": 61440,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/PersonaKit.framework/PersonaKit",
+            "uuid": "B132FBA3-6F8E-3E61-B4B9-59930235533D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4551528448,
+            "image_vmaddr": 0,
+            "image_size": 40960,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ProactiveEventTracker.framework/ProactiveEventTracker",
+            "uuid": "5D0B623A-C935-3DA1-84C5-01A251EE0120",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4551614464,
+            "image_vmaddr": 0,
+            "image_size": 258048,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accounts.framework/Accounts",
+            "uuid": "3C0CB41F-D29A-30CA-B98F-BD34A1458A89",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4552073216,
+            "image_vmaddr": 0,
+            "image_size": 208896,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Bom.framework/Bom",
+            "uuid": "C4D4057C-6E3F-35D1-8DC6-4147D813E8AD",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4552351744,
+            "image_vmaddr": 0,
+            "image_size": 397312,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreDAV.framework/CoreDAV",
+            "uuid": "EF625751-D7F9-3B52-87B8-9907C796314E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4553134080,
+            "image_vmaddr": 0,
+            "image_size": 471040,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreLocation.framework/CoreLocation",
+            "uuid": "122741E9-48BB-3265-9438-F4F8344A1559",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4553752576,
+            "image_vmaddr": 0,
+            "image_size": 65536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/IntlPreferences.framework/IntlPreferences",
+            "uuid": "7AB5108A-48EF-32BF-AEDE-8EF805236924",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4553875456,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/TCC.framework/TCC",
+            "uuid": "64EAC558-9E21-35D7-9F0C-B80F3DA6564B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4553936896,
+            "image_vmaddr": 0,
+            "image_size": 2981888,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreData.framework/CoreData",
+            "uuid": "C3153527-D54C-3E52-9A6A-11EB2BDB981F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4558249984,
+            "image_vmaddr": 0,
+            "image_size": 159744,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/vCard.framework/vCard",
+            "uuid": "9D1C3530-7FBD-3FD1-A360-8E2FDB7C655A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4558602240,
+            "image_vmaddr": 0,
+            "image_size": 323584,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ContactsFoundation.framework/ContactsFoundation",
+            "uuid": "919A3959-9607-3843-A0F8-A525B37A6BDE",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4559347712,
+            "image_vmaddr": 0,
+            "image_size": 204800,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices",
+            "uuid": "D716BB08-E950-3F6C-96A7-EA68D5E44900",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4559798272,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/OAuth.framework/OAuth",
+            "uuid": "74A2BB22-8DD9-30AD-A55E-541730136168",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4559835136,
+            "image_vmaddr": 0,
+            "image_size": 331776,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FrontBoardServices.framework/FrontBoardServices",
+            "uuid": "767DD047-CCAF-3002-81B4-0B78AB8167B9",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4560609280,
+            "image_vmaddr": 0,
+            "image_size": 233472,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AuthKit.framework/AuthKit",
+            "uuid": "ED7FD588-67AD-3DFC-8F27-1C373FD5635D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4561043456,
+            "image_vmaddr": 0,
+            "image_size": 118784,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libresolv.9.dylib",
+            "uuid": "34A3E494-93F6-34DC-A33D-985D4604F8D2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4561203200,
+            "image_vmaddr": 0,
+            "image_size": 610304,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreTelephony.framework/CoreTelephony",
+            "uuid": "A62A3DF2-BC4F-39FE-8EC6-1AA1458E296F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4562264064,
+            "image_vmaddr": 0,
+            "image_size": 49152,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AppleIDAuthSupport.framework/AppleIDAuthSupport",
+            "uuid": "1C3FFC12-0AE5-31FE-A24B-975A23A717B8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4562358272,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libcupolicy.dylib",
+            "uuid": "7A224BA7-E12E-3894-8ED0-C059655C1498",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4562419712,
+            "image_vmaddr": 0,
+            "image_size": 266240,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libTelephonyUtilDynamic.dylib",
+            "uuid": "1A843035-E441-3866-8ED5-3B18E8D54A0D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4562989056,
+            "image_vmaddr": 0,
+            "image_size": 53248,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CommonUtilities.framework/CommonUtilities",
+            "uuid": "B08299C2-FF91-3522-A010-7EA3B608035D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4563095552,
+            "image_vmaddr": 0,
+            "image_size": 147456,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/PersistentConnection.framework/PersistentConnection",
+            "uuid": "5A6AAE08-9392-3F2A-AC53-5C1B106D8F53",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4563398656,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DataMigration.framework/DataMigration",
+            "uuid": "E97902D2-5D10-3482-9638-D0DC3759F2C5",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4563464192,
+            "image_vmaddr": 0,
+            "image_size": 6909952,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/GeoServices.framework/GeoServices",
+            "uuid": "B784EA90-9B3D-3550-8148-0D6FD6046FA5",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4575105024,
+            "image_vmaddr": 0,
+            "image_size": 172032,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreBluetooth.framework/CoreBluetooth",
+            "uuid": "7AD539D6-28C5-38E5-A846-96EB758FE5B7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4575391744,
+            "image_vmaddr": 0,
+            "image_size": 110592,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ProtocolBuffer.framework/ProtocolBuffer",
+            "uuid": "8E6EA549-ABC9-368F-B746-0F05C081B835",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4575596544,
+            "image_vmaddr": 0,
+            "image_size": 184320,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CacheDelete.framework/CacheDelete",
+            "uuid": "1444E1F6-5105-3F2A-8C46-C815DAAC7E51",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4575899648,
+            "image_vmaddr": 0,
+            "image_size": 294912,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ContactsUICore.framework/ContactsUICore",
+            "uuid": "B625459E-1F44-3F95-A6F0-EDA3DE63DE87",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4576509952,
+            "image_vmaddr": 0,
+            "image_size": 307200,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreSpotlight.framework/CoreSpotlight",
+            "uuid": "D935409E-E3F0-3FF2-9371-1ADA68097FCB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4577112064,
+            "image_vmaddr": 0,
+            "image_size": 135168,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/PlugInKit.framework/PlugInKit",
+            "uuid": "9077776C-DC56-3201-837F-8A197229799F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4577361920,
+            "image_vmaddr": 0,
+            "image_size": 20480,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CommunicationsFilter.framework/CommunicationsFilter",
+            "uuid": "97D5F8A8-7A40-3A1D-9F15-2BAAC976A727",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4577406976,
+            "image_vmaddr": 0,
+            "image_size": 884736,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreDuet.framework/CoreDuet",
+            "uuid": "7131C429-1BA5-365F-A051-93C71D34EEFA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4578926592,
+            "image_vmaddr": 0,
+            "image_size": 966656,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/UIFoundation.framework/UIFoundation",
+            "uuid": "437362E1-A144-3F09-A862-3D8DA2C8DA4B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4580380672,
+            "image_vmaddr": 0,
+            "image_size": 143360,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UserNotifications.framework/UserNotifications",
+            "uuid": "EEF354CE-2EF5-3DA4-9CC9-6E6134F0046E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4580679680,
+            "image_vmaddr": 0,
+            "image_size": 856064,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreUI.framework/CoreUI",
+            "uuid": "1C992216-9CB3-3227-B90D-40A283D5FFEA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4583129088,
+            "image_vmaddr": 0,
+            "image_size": 49152,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/OpenGLES",
+            "uuid": "BDE44751-6C35-333E-B88A-26AD363E070D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4583223296,
+            "image_vmaddr": 0,
+            "image_size": 69632,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MobileAsset.framework/MobileAsset",
+            "uuid": "04AE8A04-C6B8-30BC-9269-95141528CD48",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4583354368,
+            "image_vmaddr": 0,
+            "image_size": 2113536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreImage.framework/CoreImage",
+            "uuid": "8AB1D80A-313E-3F62-954A-608948C9D1D7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4586975232,
+            "image_vmaddr": 0,
+            "image_size": 163840,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DictionaryServices.framework/DictionaryServices",
+            "uuid": "26D684AE-B4E7-324B-9B53-BBCE1BB35380",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4587294720,
+            "image_vmaddr": 0,
+            "image_size": 294912,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/TextInput.framework/TextInput",
+            "uuid": "CD57770D-999E-3DEF-AE85-37F8205427F6",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4587962368,
+            "image_vmaddr": 0,
+            "image_size": 970752,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/WebKitLegacy.framework/WebKitLegacy",
+            "uuid": "BE4F8EE1-70AA-324A-80CE-2D8F1CE73BA2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4589727744,
+            "image_vmaddr": 0,
+            "image_size": 950272,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ProofReader.framework/ProofReader",
+            "uuid": "91F73730-5B4F-369E-922F-628E91BC3F56",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4590919680,
+            "image_vmaddr": 0,
+            "image_size": 65536,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libAccessibility.dylib",
+            "uuid": "93D705CA-D128-3C37-9EBD-238425BAE098",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4591087616,
+            "image_vmaddr": 0,
+            "image_size": 372736,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/PhysicsKit.framework/PhysicsKit",
+            "uuid": "0AFC0373-0D0B-3A7C-A431-BCA6532B2DB8",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4591640576,
+            "image_vmaddr": 0,
+            "image_size": 4096,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FontServices.framework/FontServices",
+            "uuid": "CF54FA7B-513A-3E5E-A92D-2337A83A82F7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4591661056,
+            "image_vmaddr": 0,
+            "image_size": 1114112,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FontServices.framework/libFontParser.dylib",
+            "uuid": "A12FBFC4-9C95-3B3F-9AF0-30854D32E535",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4593565696,
+            "image_vmaddr": 0,
+            "image_size": 475136,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ColorSync.framework/ColorSync",
+            "uuid": "6B9EDB75-63F3-3F15-B756-E6C422212928",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4594200576,
+            "image_vmaddr": 0,
+            "image_size": 45056,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/libGFXShared.dylib",
+            "uuid": "270AE8AA-B46A-398B-A9C7-BDD22063BBA7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4594270208,
+            "image_vmaddr": 0,
+            "image_size": 286720,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/libGLImage.dylib",
+            "uuid": "67F835FA-F380-3349-B475-B67155383369",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4594589696,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/libCVMSPluginSupport.dylib",
+            "uuid": "C7BBB066-AA6F-3151-95E0-5C480077C676",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4594618368,
+            "image_vmaddr": 0,
+            "image_size": 36864,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework/libCoreVMClient.dylib",
+            "uuid": "6E6073EF-0AA8-36C9-A61A-A9384C6AF91D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4594679808,
+            "image_vmaddr": 0,
+            "image_size": 13434880,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework//libLLVMContainer.dylib",
+            "uuid": "E4744621-648D-37EF-A821-F0EC7491C8E1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4611469312,
+            "image_vmaddr": 0,
+            "image_size": 1814528,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/TextureIO.framework/TextureIO",
+            "uuid": "9A6C4A7C-37DF-386B-8FD1-D16C49A8FAB2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4613414912,
+            "image_vmaddr": 0,
+            "image_size": 909312,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libate.dylib",
+            "uuid": "A52AD202-E024-37A9-92F6-F55BC13DA822",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4614373376,
+            "image_vmaddr": 0,
+            "image_size": 4440064,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FaceCore.framework/FaceCore",
+            "uuid": "C3EF2C7A-82BB-3DEA-B618-99285BEF99AE",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4621004800,
+            "image_vmaddr": 0,
+            "image_size": 2179072,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libFosl_dynamic.dylib",
+            "uuid": "C98CEC92-B201-3129-89AD-257040630414",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4623392768,
+            "image_vmaddr": 0,
+            "image_size": 16384,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/SimulatorClient.framework/SimulatorClient",
+            "uuid": "C7CF1D3C-2D11-3393-A8B6-34B1AA04FE2B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4623425536,
+            "image_vmaddr": 0,
+            "image_size": 569344,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio",
+            "uuid": "F26FA4A2-AB48-3C60-9730-F1181C075665",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4624154624,
+            "image_vmaddr": 0,
+            "image_size": 929792,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/NLP.framework/NLP",
+            "uuid": "4290465F-AD4C-3435-A18E-AB2303523ADA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4625371136,
+            "image_vmaddr": 0,
+            "image_size": 172032,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libxslt.1.dylib",
+            "uuid": "EC5FD21E-8087-3515-AE4C-D5F62BF00604",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4625592320,
+            "image_vmaddr": 0,
+            "image_size": 94208,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libmarisa.dylib",
+            "uuid": "A97CB92B-56F3-3BFB-8A7A-464F40ECEF90",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4625735680,
+            "image_vmaddr": 0,
+            "image_size": 1105920,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/LanguageModeling.framework/LanguageModeling",
+            "uuid": "A9AF65D2-471D-34C2-B668-6BCD3B8AB087",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4626968576,
+            "image_vmaddr": 0,
+            "image_size": 69632,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libcmph.dylib",
+            "uuid": "8623087E-D815-38BE-AD50-528B6AD93206",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4627070976,
+            "image_vmaddr": 0,
+            "image_size": 208896,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DataDetectorsCore.framework/DataDetectorsCore",
+            "uuid": "B152882C-4BEC-3018-A9C1-FD46FC54E74B",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4627415040,
+            "image_vmaddr": 0,
+            "image_size": 73728,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreEmoji.framework/CoreEmoji",
+            "uuid": "65F466E6-2588-3BB8-9F57-CB87EE387554",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4627607552,
+            "image_vmaddr": 0,
+            "image_size": 995328,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libiconv.2.dylib",
+            "uuid": "6EDB1779-6564-3629-898D-7036EC97F028",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4637704192,
+            "image_vmaddr": 0,
+            "image_size": 7892992,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/JavaScriptCore.framework/JavaScriptCore",
+            "uuid": "CD7F6020-1046-3CD4-B1DE-AD7CFA82315E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4628664320,
+            "image_vmaddr": 0,
+            "image_size": 3850240,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox",
+            "uuid": "98D9E36F-5F49-3B47-A6D6-9126FD0B5DAB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4633985024,
+            "image_vmaddr": 0,
+            "image_size": 40960,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MediaAccessibility.framework/MediaAccessibility",
+            "uuid": "61B1B220-CE2E-3D0E-B9AE-B317B4D8ED0A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4634087424,
+            "image_vmaddr": 0,
+            "image_size": 1703936,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MobileSpotlightIndex.framework/MobileSpotlightIndex",
+            "uuid": "4A023C64-DCA0-37B6-A5C4-2151A7C8884D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4647575552,
+            "image_vmaddr": 0,
+            "image_size": 1314816,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Intents.framework/Intents",
+            "uuid": "C2CF0BA3-9685-3EFB-A026-5CB26E0F9655",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636385280,
+            "image_vmaddr": 0,
+            "image_size": 81920,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreDuetDaemonProtocol.framework/CoreDuetDaemonProtocol",
+            "uuid": "742E6458-A2A0-3F61-B84B-CC47F361FCB7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636532736,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreDuetDebugLogging.framework/CoreDuetDebugLogging",
+            "uuid": "112FE3E8-63AD-373F-B24B-C26E71CA12D1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4650135552,
+            "image_vmaddr": 0,
+            "image_size": 802816,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AVFoundation.framework/Frameworks/AVFAudio.framework/AVFAudio",
+            "uuid": "CDCB93EA-1615-3CA1-BA55-1A18F56F38F0",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4651347968,
+            "image_vmaddr": 0,
+            "image_size": 3153920,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MediaToolbox.framework/MediaToolbox",
+            "uuid": "D330E50F-824E-3388-954B-65BD6097B82E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636561408,
+            "image_vmaddr": 0,
+            "image_size": 208896,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libtidy.A.dylib",
+            "uuid": "AD948B42-3D6A-313F-B753-3F54CC2D23FB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4655693824,
+            "image_vmaddr": 0,
+            "image_size": 274432,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CalendarDaemon.framework/CalendarDaemon",
+            "uuid": "B511B0FB-8571-3BC4-9F6A-35C3495C7848",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636835840,
+            "image_vmaddr": 0,
+            "image_size": 12288,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Marco.framework/Marco",
+            "uuid": "71B96F19-4C14-3D8B-B1CE-F373F7CB4466",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4656214016,
+            "image_vmaddr": 0,
+            "image_size": 245760,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FTServices.framework/FTServices",
+            "uuid": "A744D005-054E-317D-91B2-2A8493CA993C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636868608,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/DiagnosticLogCollection.framework/DiagnosticLogCollection",
+            "uuid": "3F7466DE-EE01-3750-B589-0073494FE694",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4656553984,
+            "image_vmaddr": 0,
+            "image_size": 253952,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/IDSFoundation.framework/IDSFoundation",
+            "uuid": "983DB66D-F057-3078-851D-9AA88AC3E5BB",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4657004544,
+            "image_vmaddr": 0,
+            "image_size": 253952,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/WirelessDiagnostics.framework/WirelessDiagnostics",
+            "uuid": "8DCACCC1-9A94-3E14-BAEA-C9D29A00C8F7",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636897280,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CertUI.framework/CertUI",
+            "uuid": "1BE087DA-8FB0-3D21-84E7-7EB2DB2F48C2",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4657434624,
+            "image_vmaddr": 0,
+            "image_size": 913408,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CloudKit.framework/CloudKit",
+            "uuid": "FB16FAD9-7204-34BA-BBC0-EE302186871C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4659085312,
+            "image_vmaddr": 0,
+            "image_size": 745472,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libAWDSupportFramework.dylib",
+            "uuid": "D3593EF0-9857-30FD-B92A-614CB57BE2B9",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4660543488,
+            "image_vmaddr": 0,
+            "image_size": 458752,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libprotobuf.dylib",
+            "uuid": "7AFA8E63-0BDC-3EDC-AF8A-5F545195B7F3",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4661374976,
+            "image_vmaddr": 0,
+            "image_size": 860160,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/MMCS.framework/MMCS",
+            "uuid": "B00A4D38-F873-3AED-BD9E-231E2B18472C",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4663177216,
+            "image_vmaddr": 0,
+            "image_size": 180224,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ProtectedCloudStorage.framework/ProtectedCloudStorage",
+            "uuid": "65821D44-4A87-3C17-BDA1-99A0522601E0",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4636962816,
+            "image_vmaddr": 0,
+            "image_size": 28672,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AssetCacheServices.framework/AssetCacheServices",
+            "uuid": "43C24177-6327-3F74-AE56-683C8C3CFE8F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4663504896,
+            "image_vmaddr": 0,
+            "image_size": 159744,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ChunkingLibrary.framework/ChunkingLibrary",
+            "uuid": "FC2D071A-10BA-3517-B7D1-3896FDB4768A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4637040640,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libheimdal-asn1.dylib",
+            "uuid": "D3AE4CF0-141D-3A1C-A099-F81D4086FCFF",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4663713792,
+            "image_vmaddr": 0,
+            "image_size": 323584,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AppleAccount.framework/AppleAccount",
+            "uuid": "0C2838BA-B8ED-31A4-9CE4-C037780BF22D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4664311808,
+            "image_vmaddr": 0,
+            "image_size": 290816,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/WebBookmarks.framework/WebBookmarks",
+            "uuid": "1392CF07-B04A-33F5-85AA-A523DBC92999",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4664782848,
+            "image_vmaddr": 0,
+            "image_size": 262144,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Notes.framework/Notes",
+            "uuid": "19D61710-3049-3FE9-B835-94303F037A9F",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4637089792,
+            "image_vmaddr": 0,
+            "image_size": 8192,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/AppleIDSSOAuthentication.framework/AppleIDSSOAuthentication",
+            "uuid": "6F5499A7-C469-3448-8C51-42A1A8E77919",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4665245696,
+            "image_vmaddr": 0,
+            "image_size": 1486848,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/StoreServices.framework/StoreServices",
+            "uuid": "90D0C1E5-6E81-351C-98EF-7A7F647E9904",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4668260352,
+            "image_vmaddr": 0,
+            "image_size": 90112,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ApplePushService.framework/ApplePushService",
+            "uuid": "462AC676-86B2-3F77-90E2-4A26267DE48E",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4668452864,
+            "image_vmaddr": 0,
+            "image_size": 266240,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ContentIndex.framework/ContentIndex",
+            "uuid": "BADE9618-9445-367B-B080-C4819B1A4597",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4668858368,
+            "image_vmaddr": 0,
+            "image_size": 913408,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CorePDF.framework/CorePDF",
+            "uuid": "BDE349EC-2EC4-36F1-9C11-41D72855C361",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4670259200,
+            "image_vmaddr": 0,
+            "image_size": 57344,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftCoreGraphics.dylib",
+            "uuid": "0F3E6529-C314-3D63-94A9-5622962289F1",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4670410752,
+            "image_vmaddr": 0,
+            "image_size": 20480,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftCoreImage.dylib",
+            "uuid": "7B0EFA84-7A01-3756-88D5-EEB2FFE031E3",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4670447616,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftQuartzCore.dylib",
+            "uuid": "63DE935F-7AEF-3194-8CB2-871652297968",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4670492672,
+            "image_vmaddr": 0,
+            "image_size": 49152,
+            "name": "/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/Frameworks/libswiftUIKit.dylib",
+            "uuid": "14FE9D8E-BAE5-39B1-B004-C4084D82C3DA",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4702138368,
+            "image_vmaddr": 0,
+            "image_size": 40960,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/lib/libMobileGestaltExtensions.dylib",
+            "uuid": "5343DDA2-DFF9-3E27-B537-002F561EFD09",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4702294016,
+            "image_vmaddr": 0,
+            "image_size": 94208,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Libraries/libCGInterfaces.dylib",
+            "uuid": "D9F844BD-D8FA-311D-ABFD-E682E4CB547A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4702474240,
+            "image_vmaddr": 0,
+            "image_size": 53248,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FontServices.framework/libGSFontCache.dylib",
+            "uuid": "C85C3E0D-12AD-38B8-8FC4-A275F979CF8A",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4704821248,
+            "image_vmaddr": 0,
+            "image_size": 24576,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/ConstantClasses.framework/ConstantClasses",
+            "uuid": "B2C61004-431D-353C-B4DF-12863EDDE19D",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4707766272,
+            "image_vmaddr": 0,
+            "image_size": 208896,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/FontServices.framework/libTrueTypeScaler.dylib",
+            "uuid": "AFC71A8C-C062-3D4E-9ED3-B02752B90116",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4726046720,
+            "image_vmaddr": 0,
+            "image_size": 167936,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/CoreServicesInternal.framework/CoreServicesInternal",
+            "uuid": "E7CDCE85-D70F-3A83-B650-C683C12B30A3",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4726378496,
+            "image_vmaddr": 0,
+            "image_size": 77824,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/UserManagement.framework/UserManagement",
+            "uuid": "23104120-8F96-3C05-B0E7-93464C351E97",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        },
+        {
+            "image_addr": 4733829120,
+            "image_vmaddr": 0,
+            "image_size": 217088,
+            "name": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/PrivateFrameworks/Pegasus.framework/Pegasus",
+            "uuid": "6DE24C58-523C-3C3F-BAF2-340528DA7368",
+            "cpu_type": 16777223,
+            "cpu_subtype": 3
+        }
+    ],
+    "process": {},
+    "system": {"CFBundleExecutable":"CrashProbeiOS","CFBundleExecutablePath":"/Users/haza/Library/Developer/CoreSimulator/Devices/928B0625-CDE8-41D0-A742-09290077883D/data/Containers/Bundle/Application/24C78A5B-8ED9-4F7D-BF12-5C036F8EF039/CrashProbeiOS.app/CrashProbeiOS","CFBundleIdentifier":"io.sentry.crashTest","CFBundleName":"CrashProbeiOS","CFBundleShortVersionString":"1.1","CFBundleVersion":"2","app_start_time":"2016-11-24T14:57:12Z","app_uuid":"9CD5C1D8-933D-31FA-B1C9-7F6EBAF0D677","binary_cpu_subtype":3,"binary_cpu_type":16777223,"boot_time":"2016-11-22T11:20:28Z","build_type":"simulator","cpu_arch":"x86","cpu_subtype":8,"cpu_type":7,"device_app_hash":"1a3a56984735076a65d939716d5e2efb6136f4e0","jailbroken":false,"kernel_version":"Darwin Kernel Version 16.1.0: Wed Oct 19 20:31:56 PDT 2016; root:xnu-3789.21.4~4/RELEASE_X86_64","machine":"iPhone9,1","memory":{"size":17179869184},"model":"simulator","os_version":"16B2659","parent_process_id":60362,"process_id":89828,"process_name":"CrashProbeiOS","system_name":"iOS","system_version":"10.1","time_zone":"GMT+1"},
+    "system_atcrash": {
+        "memory": {
+            "usable": 15486017536,
+            "free": 122785792
+        },
+        "application_stats": {
+            "application_active": true,
+            "application_in_foreground": true,
+            "launches_since_last_crash": 1,
+            "sessions_since_last_crash": 3,
+            "active_time_since_last_crash": 98526.6,
+            "background_time_since_last_crash": 2.19104,
+            "sessions_since_launch": 3,
+            "active_time_since_launch": 98526.6,
+            "background_time_since_launch": 2.19104
+        }
+    },
+    "user": {"breadcrumbs_serialized":[{"category":"navigation","data":{"Controller":"CRLMasterViewController"},"level":"info","message":"ViewDidAppear","timestamp":"2016-11-24T15:00:43","type":"navigation"},{"category":"navigation","data":{"View":"<UITableViewLabel: 0x7f8a63c18290; frame = (16 0; 324 43.5); text = 'Execute an undefined inst...'; clipsToBounds = YES; opaque = NO; layer = <_UILabelLayer: 0x600000288890>>"},"level":"info","message":"Tap","timestamp":"2016-11-24T15:00:43","type":"navigation"},{"category":"navigation","data":{"Controller":"CRLDetailViewController"},"level":"info","message":"ViewDidAppear","timestamp":"2016-11-24T15:00:44","type":"navigation"},{"category":"navigation","data":{"View":"<UIButton: 0x7f8a63f3a040; frame = (20 353; 280 44); opaque = NO; autoresize = RM+BM; layer = <CALayer: 0x60800023cd00>>"},"level":"info","message":"Tap","timestamp":"2016-11-24T15:00:44","type":"navigation"}],"event_extra":{"crash":"Execute an undefined instruction"},"event_tags":{},"releaseVersion_serialized":"1.1"},
+    "crash": {
+        "threads": [
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "CrashLibiOS",
+                            "object_addr": 4372942848,
+                            "symbol_name": "-[CRLCrashUndefInst crash]",
+                            "symbol_addr": 4372953344,
+                            "instruction_addr": 4372953356
+                        },
+                        {
+                            "object_name": "CrashProbeiOS",
+                            "object_addr": 4372393984,
+                            "symbol_name": "-[CRLDetailViewController doCrash]",
+                            "symbol_addr": 4372406510,
+                            "instruction_addr": 4372406558
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIApplication sendAction:to:from:forEvent:]",
+                            "symbol_addr": 4378695013,
+                            "instruction_addr": 4378695096
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIControl sendAction:to:forEvent:]",
+                            "symbol_addr": 4380290714,
+                            "instruction_addr": 4380290781
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIControl _sendActionsForEvents:withEvent:]",
+                            "symbol_addr": 4380291130,
+                            "instruction_addr": 4380291574
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIControl touchesEnded:withEvent:]",
+                            "symbol_addr": 4380286550,
+                            "instruction_addr": 4380287218
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "_UIGestureEnvironmentSortAndSendDelayedTouches",
+                            "symbol_addr": 4384155527,
+                            "instruction_addr": 4384161172
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "_UIGestureEnvironmentUpdate",
+                            "symbol_addr": 4384138395,
+                            "instruction_addr": 4384139867
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIGestureEnvironment _deliverEvent:toGestureRecognizers:usingBlock:]",
+                            "symbol_addr": 4384137802,
+                            "instruction_addr": 4384138323
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIGestureEnvironment _updateGesturesForEvent:window:]",
+                            "symbol_addr": 4384134424,
+                            "instruction_addr": 4384134710
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIWindow sendEvent:]",
+                            "symbol_addr": 4379145252,
+                            "instruction_addr": 4379149241
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIApplication sendEvent:]",
+                            "symbol_addr": 4378809548,
+                            "instruction_addr": 4378809919
+                        },
+                        {
+                            "object_name": "SentrySwift",
+                            "object_addr": 4415537152,
+                            "symbol_name": "_TTSf4g_n___TFE11SentrySwiftCSo13UIApplication22sentryClient_sendEventfCSo7UIEventT_",
+                            "symbol_addr": 4415910528,
+                            "instruction_addr": 4415914136
+                        },
+                        {
+                            "object_name": "SentrySwift",
+                            "object_addr": 4415537152,
+                            "symbol_name": "_TToFE11SentrySwiftCSo13UIApplication22sentryClient_sendEventfCSo7UIEventT_",
+                            "symbol_addr": 4415906864,
+                            "instruction_addr": 4415906901
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "__dispatchPreprocessedEventFromEventQueue",
+                            "symbol_addr": 4387138157,
+                            "instruction_addr": 4387141405
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "__handleEventQueue",
+                            "symbol_addr": 4387107000,
+                            "instruction_addr": 4387111879
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE0_PERFORM_FUNCTION__",
+                            "symbol_addr": 4410987264,
+                            "instruction_addr": 4410987281
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopDoSources0",
+                            "symbol_addr": 4410876784,
+                            "instruction_addr": 4410877340
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopRun",
+                            "symbol_addr": 4410873584,
+                            "instruction_addr": 4410874502
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 4410872560,
+                            "instruction_addr": 4410872980
+                        },
+                        {
+                            "object_name": "GraphicsServices",
+                            "object_addr": 4470947840,
+                            "symbol_name": "GSEventRunModal",
+                            "symbol_addr": 4470999502,
+                            "instruction_addr": 4470999663
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "UIApplicationMain",
+                            "symbol_addr": 4378687685,
+                            "instruction_addr": 4378687844
+                        },
+                        {
+                            "object_name": "CrashProbeiOS",
+                            "object_addr": 4372393984,
+                            "symbol_name": "main",
+                            "symbol_addr": 4372401609,
+                            "instruction_addr": 4372401689
+                        },
+                        {
+                            "object_name": "libdyld.dylib",
+                            "object_addr": 4428619776,
+                            "symbol_name": "start",
+                            "symbol_addr": 4428637836,
+                            "instruction_addr": 4428637837
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 107202383749728,
+                        "rbx": 107202383749728,
+                        "rcx": 12,
+                        "rdx": 1027,
+                        "rdi": 107202383749728,
+                        "rsi": 4372964413,
+                        "rbp": 140734722362912,
+                        "rsp": 140734722362912,
+                        "r8": 127,
+                        "r9": 107202383749728,
+                        "r10": 71362707000756352,
+                        "r11": 4372953344,
+                        "r12": 4372418178,
+                        "r13": 106652628256976,
+                        "r14": 4404857536,
+                        "r15": 140232359125056,
+                        "rip": 4372953356,
+                        "rflags": 66118,
+                        "cs": 43,
+                        "fs": 0,
+                        "gs": 0
+                    },
+                    "exception": {
+                        "trapno": 6,
+                        "err": 0,
+                        "faultvaddr": 5577654272
+                    }
+                },
+                "index": 0,
+                "crashed": true,
+                "current_thread": false,
+                "stack": {
+                    "grow_direction": "-",
+                    "dump_start": 140734722362832,
+                    "dump_end": 140734722363072,
+                    "stack_pointer": 140734722362912,
+                    "overflow": false,
+                    "contents": "55494B69742E6576656E74436F756E7480C127000061000001000000000000000000000000F062400000000000000000000000000000F03F00000000000000003D24A6040100000060A2000080610000404E225BFF7F00001EA19D0401000000908FF3638A7F0000003A0F0080600000704E225BFF7F0000B895FD0401000000908FF3638A7F000082CE9D0401000000003A0F008060000040A0F3638A7F0000A04E225BFF7F0000DDEE150501000000908FF3638A7F0000000000000000000082CE9D040100000040A0F3638A7F0000704F225BFF7F0000F6F1150501000000990DC4050100000040A0F3638A7F0000"
+                },
+                "notable_addresses": {
+                    "rax": {
+                        "address": 107202383749728,
+                        "type": "objc_object",
+                        "class": "CRLCrashUndefInst",
+                        "ivars": {}
+                    },
+                    "rbx": {
+                        "address": 107202383749728,
+                        "type": "objc_object",
+                        "class": "CRLCrashUndefInst",
+                        "ivars": {}
+                    },
+                    "rdi": {
+                        "address": 107202383749728,
+                        "type": "objc_object",
+                        "class": "CRLCrashUndefInst",
+                        "ivars": {}
+                    },
+                    "rsi": {
+                        "address": 4372964413,
+                        "type": "string",
+                        "value": "crash"
+                    },
+                    "r9": {
+                        "address": 107202383749728,
+                        "type": "objc_object",
+                        "class": "CRLCrashUndefInst",
+                        "ivars": {}
+                    },
+                    "r12": {
+                        "address": 4372418178,
+                        "type": "string",
+                        "value": "doCrash"
+                    },
+                    "r13": {
+                        "address": 106652628256976,
+                        "type": "objc_object",
+                        "class": "UIControlTargetAction",
+                        "ivars": {
+                            "_target": {
+                                "address": 140232359120784,
+                                "type": "objc_object",
+                                "class": "CRLDetailViewController",
+                                "ivars": {
+                                    "_detailItem": {
+                                        "address": 107202383749728,
+                                        "type": "objc_object",
+                                        "class": "CRLCrashUndefInst",
+                                        "ivars": {}
+                                    },
+                                    "_titleLabel": {
+                                        "address": 140232395841296,
+                                        "type": "objc_object",
+                                        "class": "UILabel"
+                                    },
+                                    "_descriptionLabel": {
+                                        "address": 140232356868192,
+                                        "type": "objc_object",
+                                        "class": "UILabel"
+                                    },
+                                    "_descriptionImage": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    }
+                                }
+                            },
+                            "_action": {
+                                "address": 4372418178,
+                                "type": "string",
+                                "value": "doCrash"
+                            },
+                            "_eventMask": 64,
+                            "_cancelled": false
+                        }
+                    },
+                    "r15": {
+                        "address": 140232359125056,
+                        "type": "objc_object",
+                        "class": "UIButton",
+                        "ivars": {
+                            "_externalFlatEdge": 0,
+                            "_backgroundView": {
+                                "address": 140232393523776,
+                                "type": "objc_object",
+                                "class": "UIImageView",
+                                "ivars": {
+                                    "_storage": {
+                                        "address": 106102873079680,
+                                        "type": "objc_object",
+                                        "class": "_UIImageViewExtendedStorage"
+                                    },
+                                    "_lastResolvedTraitCollection": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_lastResolvedLayoutDirectionTrait": -1,
+                                    "_templateSettingsAreInvalid": false,
+                                    "_edgeInsetsForEffectsAreValid": false,
+                                    "_adjustsImageWhenAncestorFocused": false,
+                                    "__animatesContents": false,
+                                    "_focusedFrameGuide": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    }
+                                }
+                            },
+                            "_floatingContentView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_contentBackdropView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_imageView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_titleView": {
+                                "address": 140232393521312,
+                                "type": "objc_object",
+                                "class": "UIButtonLabel"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224de0": {
+                        "address": 106652630499712,
+                        "type": "objc_object",
+                        "class": "__NSCFString",
+                        "value": "com.apple.UIKit.eventCount.tap.button.UIButton"
+                    },
+                    "stack@0x7fff5b224e10": {
+                        "address": 4372964413,
+                        "type": "string",
+                        "value": "crash"
+                    },
+                    "stack@0x7fff5b224e18": {
+                        "address": 107202383749728,
+                        "type": "objc_object",
+                        "class": "CRLCrashUndefInst",
+                        "ivars": {}
+                    },
+                    "stack@0x7fff5b224e30": {
+                        "address": 140232359120784,
+                        "type": "objc_object",
+                        "class": "CRLDetailViewController",
+                        "ivars": {
+                            "_detailItem": {
+                                "address": 107202383749728,
+                                "type": "objc_object",
+                                "class": "CRLCrashUndefInst",
+                                "ivars": {}
+                            },
+                            "_titleLabel": {
+                                "address": 140232395841296,
+                                "type": "objc_object",
+                                "class": "UILabel",
+                                "ivars": {
+                                    "_highlightedColor": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_numberOfLines": 1,
+                                    "_measuredNumberOfLines": 1,
+                                    "_lastLineBaseline": 21.5,
+                                    "_previousBaselineOffsetFromBottom": 0,
+                                    "_firstLineBaseline": 21.5,
+                                    "_previousFirstLineBaseline": 0,
+                                    "_minimumScaleFactor": 0.5
+                                }
+                            },
+                            "_descriptionLabel": {
+                                "address": 140232356868192,
+                                "type": "objc_object",
+                                "class": "UILabel"
+                            },
+                            "_descriptionImage": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e38": {
+                        "address": 106102873078272,
+                        "type": "objc_object",
+                        "class": "UITouchesEvent",
+                        "ivars": {
+                            "_touches": {
+                                "address": 106102872419472,
+                                "type": "objc_object",
+                                "class": "__NSSetM",
+                                "ivars": {
+                                    "_size": 3,
+                                    "_mutations": 2
+                                }
+                            },
+                            "_latentSystemGestureWindows": {
+                                "address": 140232359116144,
+                                "type": "objc_object",
+                                "class": "NSConcreteMapTable"
+                            },
+                            "_predictionManager": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e50": {
+                        "address": 140232359120784,
+                        "type": "objc_object",
+                        "class": "CRLDetailViewController",
+                        "ivars": {
+                            "_detailItem": {
+                                "address": 107202383749728,
+                                "type": "objc_object",
+                                "class": "CRLCrashUndefInst",
+                                "ivars": {}
+                            },
+                            "_titleLabel": {
+                                "address": 140232395841296,
+                                "type": "objc_object",
+                                "class": "UILabel",
+                                "ivars": {
+                                    "_highlightedColor": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_numberOfLines": 1,
+                                    "_measuredNumberOfLines": 1,
+                                    "_lastLineBaseline": 21.5,
+                                    "_previousBaselineOffsetFromBottom": 0,
+                                    "_firstLineBaseline": 21.5,
+                                    "_previousFirstLineBaseline": 0,
+                                    "_minimumScaleFactor": 0.5
+                                }
+                            },
+                            "_descriptionLabel": {
+                                "address": 140232356868192,
+                                "type": "objc_object",
+                                "class": "UILabel"
+                            },
+                            "_descriptionImage": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e58": {
+                        "address": 4372418178,
+                        "type": "string",
+                        "value": "doCrash"
+                    },
+                    "stack@0x7fff5b224e60": {
+                        "address": 106102873078272,
+                        "type": "objc_object",
+                        "class": "UITouchesEvent",
+                        "ivars": {
+                            "_touches": {
+                                "address": 106102872419472,
+                                "type": "objc_object",
+                                "class": "__NSSetM",
+                                "ivars": {
+                                    "_size": 3,
+                                    "_mutations": 2
+                                }
+                            },
+                            "_latentSystemGestureWindows": {
+                                "address": 140232359116144,
+                                "type": "objc_object",
+                                "class": "NSConcreteMapTable"
+                            },
+                            "_predictionManager": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e68": {
+                        "address": 140232359125056,
+                        "type": "objc_object",
+                        "class": "UIButton",
+                        "ivars": {
+                            "_externalFlatEdge": 0,
+                            "_backgroundView": {
+                                "address": 140232393523776,
+                                "type": "objc_object",
+                                "class": "UIImageView",
+                                "ivars": {
+                                    "_storage": {
+                                        "address": 106102873079680,
+                                        "type": "objc_object",
+                                        "class": "_UIImageViewExtendedStorage"
+                                    },
+                                    "_lastResolvedTraitCollection": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_lastResolvedLayoutDirectionTrait": -1,
+                                    "_templateSettingsAreInvalid": false,
+                                    "_edgeInsetsForEffectsAreValid": false,
+                                    "_adjustsImageWhenAncestorFocused": false,
+                                    "__animatesContents": false,
+                                    "_focusedFrameGuide": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    }
+                                }
+                            },
+                            "_floatingContentView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_contentBackdropView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_imageView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_titleView": {
+                                "address": 140232393521312,
+                                "type": "objc_object",
+                                "class": "UIButtonLabel"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e80": {
+                        "address": 140232359120784,
+                        "type": "objc_object",
+                        "class": "CRLDetailViewController",
+                        "ivars": {
+                            "_detailItem": {
+                                "address": 107202383749728,
+                                "type": "objc_object",
+                                "class": "CRLCrashUndefInst",
+                                "ivars": {}
+                            },
+                            "_titleLabel": {
+                                "address": 140232395841296,
+                                "type": "objc_object",
+                                "class": "UILabel",
+                                "ivars": {
+                                    "_highlightedColor": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_numberOfLines": 1,
+                                    "_measuredNumberOfLines": 1,
+                                    "_lastLineBaseline": 21.5,
+                                    "_previousBaselineOffsetFromBottom": 0,
+                                    "_firstLineBaseline": 21.5,
+                                    "_previousFirstLineBaseline": 0,
+                                    "_minimumScaleFactor": 0.5
+                                }
+                            },
+                            "_descriptionLabel": {
+                                "address": 140232356868192,
+                                "type": "objc_object",
+                                "class": "UILabel"
+                            },
+                            "_descriptionImage": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224e90": {
+                        "address": 4372418178,
+                        "type": "string",
+                        "value": "doCrash"
+                    },
+                    "stack@0x7fff5b224e98": {
+                        "address": 140232359125056,
+                        "type": "objc_object",
+                        "class": "UIButton",
+                        "ivars": {
+                            "_externalFlatEdge": 0,
+                            "_backgroundView": {
+                                "address": 140232393523776,
+                                "type": "objc_object",
+                                "class": "UIImageView",
+                                "ivars": {
+                                    "_storage": {
+                                        "address": 106102873079680,
+                                        "type": "objc_object",
+                                        "class": "_UIImageViewExtendedStorage"
+                                    },
+                                    "_lastResolvedTraitCollection": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_lastResolvedLayoutDirectionTrait": -1,
+                                    "_templateSettingsAreInvalid": false,
+                                    "_edgeInsetsForEffectsAreValid": false,
+                                    "_adjustsImageWhenAncestorFocused": false,
+                                    "__animatesContents": false,
+                                    "_focusedFrameGuide": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    }
+                                }
+                            },
+                            "_floatingContentView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_contentBackdropView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_imageView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_titleView": {
+                                "address": 140232393521312,
+                                "type": "objc_object",
+                                "class": "UIButtonLabel"
+                            }
+                        }
+                    },
+                    "stack@0x7fff5b224eb0": {
+                        "address": 4391701913,
+                        "type": "string",
+                        "value": "_commitInteractionDurationStatisticMeasurements"
+                    },
+                    "stack@0x7fff5b224eb8": {
+                        "address": 140232359125056,
+                        "type": "objc_object",
+                        "class": "UIButton",
+                        "ivars": {
+                            "_externalFlatEdge": 0,
+                            "_backgroundView": {
+                                "address": 140232393523776,
+                                "type": "objc_object",
+                                "class": "UIImageView",
+                                "ivars": {
+                                    "_storage": {
+                                        "address": 106102873079680,
+                                        "type": "objc_object",
+                                        "class": "_UIImageViewExtendedStorage"
+                                    },
+                                    "_lastResolvedTraitCollection": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    },
+                                    "_lastResolvedLayoutDirectionTrait": -1,
+                                    "_templateSettingsAreInvalid": false,
+                                    "_edgeInsetsForEffectsAreValid": false,
+                                    "_adjustsImageWhenAncestorFocused": false,
+                                    "__animatesContents": false,
+                                    "_focusedFrameGuide": {
+                                        "address": 0,
+                                        "type": "null_pointer"
+                                    }
+                                }
+                            },
+                            "_floatingContentView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_contentBackdropView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_imageView": {
+                                "address": 0,
+                                "type": "null_pointer"
+                            },
+                            "_titleView": {
+                                "address": 140232393521312,
+                                "type": "objc_object",
+                                "class": "UIButtonLabel"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "kevent_qos",
+                            "symbol_addr": 4431978068,
+                            "instruction_addr": 4431978078
+                        },
+                        {
+                            "object_name": "libdispatch.dylib",
+                            "object_addr": 4428185600,
+                            "symbol_name": "_dispatch_mgr_invoke",
+                            "symbol_addr": 4428265869,
+                            "instruction_addr": 4428266117
+                        },
+                        {
+                            "object_name": "libdispatch.dylib",
+                            "object_addr": 4428185600,
+                            "symbol_name": "_dispatch_mgr_thread",
+                            "symbol_addr": 4428265553,
+                            "instruction_addr": 4428265607
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 33554806,
+                        "rbx": 4428510208,
+                        "rcx": 123145551295288,
+                        "rdx": 1,
+                        "rdi": 3,
+                        "rsi": 123145551295408,
+                        "rbp": 123145551295344,
+                        "rsp": 123145551295288,
+                        "r8": 1,
+                        "r9": 0,
+                        "r10": 123145551295480,
+                        "r11": 582,
+                        "r12": 0,
+                        "r13": 4428510544,
+                        "r14": 123145551295408,
+                        "r15": 123145551295368,
+                        "rip": 4431978078,
+                        "rflags": 582,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 1,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 4431942672,
+                            "instruction_addr": 4431942682
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopServiceMachPort",
+                            "symbol_addr": 4410877664,
+                            "instruction_addr": 4410877876
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopRun",
+                            "symbol_addr": 4410873584,
+                            "instruction_addr": 4410874929
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 4410872560,
+                            "instruction_addr": 4410872980
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 4373049344,
+                            "symbol_name": "-[NSRunLoop(NSRunLoop) runMode:beforeDate:]",
+                            "symbol_addr": 4373184222,
+                            "instruction_addr": 4373184496
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 4373049344,
+                            "symbol_name": "-[NSRunLoop(NSRunLoop) runUntilDate:]",
+                            "symbol_addr": 4373739843,
+                            "instruction_addr": 4373739921
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 4378525696,
+                            "symbol_name": "-[UIEventFetcher threadMain]",
+                            "symbol_addr": 4389721283,
+                            "instruction_addr": 4389721401
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 4373049344,
+                            "symbol_name": "__NSThread__start__",
+                            "symbol_addr": 4373248521,
+                            "instruction_addr": 4373249764
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_body",
+                            "symbol_addr": 4432189943,
+                            "instruction_addr": 4432190123
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 4432189657,
+                            "instruction_addr": 4432189943
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "thread_start",
+                            "symbol_addr": 4432187924,
+                            "instruction_addr": 4432187937
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 16777247,
+                        "rbx": 4294967295,
+                        "rcx": 123145552366968,
+                        "rdx": 0,
+                        "rdi": 123145552367344,
+                        "rsi": 117442566,
+                        "rbp": 123145552367040,
+                        "rsp": 123145552366968,
+                        "r8": 13827,
+                        "r9": 4294967295,
+                        "r10": 3072,
+                        "r11": 518,
+                        "r12": 3072,
+                        "r13": 0,
+                        "r14": 123145552367344,
+                        "r15": 13827,
+                        "rip": 4431942682,
+                        "rflags": 518,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 2,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 4431942672,
+                            "instruction_addr": 4431942682
+                        },
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "thread_suspend",
+                            "symbol_addr": 4431926826,
+                            "instruction_addr": 4431926898
+                        },
+                        {
+                            "object_name": "KSCrash",
+                            "object_addr": 4416675840,
+                            "symbol_name": "ksmachexc_i_handleExceptions",
+                            "symbol_addr": 4416901297,
+                            "instruction_addr": 4416901414
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_body",
+                            "symbol_addr": 4432189943,
+                            "instruction_addr": 4432190123
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 4432189657,
+                            "instruction_addr": 4432189943
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "thread_start",
+                            "symbol_addr": 4432187924,
+                            "instruction_addr": 4432187937
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 0,
+                        "rbx": 0,
+                        "rcx": 123145553443016,
+                        "rdx": 24,
+                        "rdi": 123145553443112,
+                        "rsi": 3,
+                        "rbp": 123145553443088,
+                        "rsp": 123145553443016,
+                        "r8": 27395,
+                        "r9": 0,
+                        "r10": 44,
+                        "r11": 518,
+                        "r12": 44,
+                        "r13": 24,
+                        "r14": 123145553443112,
+                        "r15": 27395,
+                        "rip": 4431942682,
+                        "rflags": 518,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 3,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "index": 4,
+                "crashed": false,
+                "current_thread": true
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 4431942672,
+                            "instruction_addr": 4431942682
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopServiceMachPort",
+                            "symbol_addr": 4410877664,
+                            "instruction_addr": 4410877876
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "__CFRunLoopRun",
+                            "symbol_addr": 4410873584,
+                            "instruction_addr": 4410874929
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 4410347520,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 4410872560,
+                            "instruction_addr": 4410872980
+                        },
+                        {
+                            "object_name": "CFNetwork",
+                            "object_addr": 4438736896,
+                            "symbol_name": "+[NSURLConnection(Loader) _resourceLoadLoop:]",
+                            "symbol_addr": 4438760225,
+                            "instruction_addr": 4438760586
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 4373049344,
+                            "symbol_name": "__NSThread__start__",
+                            "symbol_addr": 4373248521,
+                            "instruction_addr": 4373249764
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_body",
+                            "symbol_addr": 4432189943,
+                            "instruction_addr": 4432190123
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 4432189657,
+                            "instruction_addr": 4432189943
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "thread_start",
+                            "symbol_addr": 4432187924,
+                            "instruction_addr": 4432187937
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 16777247,
+                        "rbx": 4294967295,
+                        "rcx": 123145554513304,
+                        "rdx": 0,
+                        "rdi": 123145554513680,
+                        "rsi": 117442566,
+                        "rbp": 123145554513376,
+                        "rsp": 123145554513304,
+                        "r8": 32003,
+                        "r9": 4294967295,
+                        "r10": 3072,
+                        "r11": 518,
+                        "r12": 3072,
+                        "r13": 0,
+                        "r14": 123145554513680,
+                        "r15": 32003,
+                        "rip": 4431942682,
+                        "rflags": 518,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 5,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 4431975644,
+                            "instruction_addr": 4431975654
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "start_wqthread",
+                            "symbol_addr": 4432187908,
+                            "instruction_addr": 4432187921
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 33554800,
+                        "rbx": 1073741919,
+                        "rcx": 123145555054328,
+                        "rdx": 0,
+                        "rdi": 4,
+                        "rsi": 0,
+                        "rbp": 123145555054416,
+                        "rsp": 123145555054328,
+                        "r8": 255,
+                        "r9": 107202383939360,
+                        "r10": 0,
+                        "r11": 582,
+                        "r12": 2147485951,
+                        "r13": 123145555054592,
+                        "r14": 2147483648,
+                        "r15": 5639,
+                        "rip": 4431975654,
+                        "rflags": 582,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 6,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 4431975644,
+                            "instruction_addr": 4431975654
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "start_wqthread",
+                            "symbol_addr": 4432187908,
+                            "instruction_addr": 4432187921
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 33554800,
+                        "rbx": 1073741919,
+                        "rcx": 123145550683896,
+                        "rdx": 0,
+                        "rdi": 4,
+                        "rsi": 0,
+                        "rbp": 123145550683984,
+                        "rsp": 123145550683896,
+                        "r8": 17179869184,
+                        "r9": -12884901887,
+                        "r10": 0,
+                        "r11": 582,
+                        "r12": 2303,
+                        "r13": 123145550684160,
+                        "r14": 0,
+                        "r15": 20015,
+                        "rip": 4431975654,
+                        "rflags": 582,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 7,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 4431975644,
+                            "instruction_addr": 4431975654
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "start_wqthread",
+                            "symbol_addr": 4432187908,
+                            "instruction_addr": 4432187921
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 33554800,
+                        "rbx": 1073741919,
+                        "rcx": 123145551220472,
+                        "rdx": 0,
+                        "rdi": 4,
+                        "rsi": 0,
+                        "rbp": 123145551220560,
+                        "rsp": 123145551220472,
+                        "r8": 857619338103440,
+                        "r9": 4,
+                        "r10": 0,
+                        "r11": 582,
+                        "r12": 2147484927,
+                        "r13": 123145551220736,
+                        "r14": 2147483648,
+                        "r15": 18003,
+                        "rip": 4431975654,
+                        "rflags": 582,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 8,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 4431867904,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 4431975644,
+                            "instruction_addr": 4431975654
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 4432175104,
+                            "symbol_name": "start_wqthread",
+                            "symbol_addr": 4432187908,
+                            "instruction_addr": 4432187921
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "rax": 33554800,
+                        "rbx": 1073741919,
+                        "rcx": 123145551834872,
+                        "rdx": 0,
+                        "rdi": 4,
+                        "rsi": 0,
+                        "rbp": 123145551834960,
+                        "rsp": 123145551834872,
+                        "r8": 176,
+                        "r9": 106102875563232,
+                        "r10": 0,
+                        "r11": 582,
+                        "r12": 2303,
+                        "r13": 123145551835136,
+                        "r14": 0,
+                        "r15": 33123,
+                        "rip": 4431975654,
+                        "rflags": 582,
+                        "cs": 7,
+                        "fs": 0,
+                        "gs": 0
+                    }
+                },
+                "index": 9,
+                "crashed": false,
+                "current_thread": false
+            }
+        ],
+        "error": {
+            "mach": {
+                "exception": 2,
+                "exception_name": "EXC_BAD_INSTRUCTION",
+                "code": 0,
+                "subcode": 8
+            },
+            "signal": {
+                "signal": 4,
+                "name": "SIGILL",
+                "code": 0,
+                "code_name": "ILL_NOOP"
+            },
+            "address": 4372953356,
+            "type": "mach"
+        }
+    },
+    "user_atcrash": {}
+}

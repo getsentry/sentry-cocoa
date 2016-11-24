@@ -13,7 +13,8 @@ import SentrySwift
 class SentrySwiftBreadcrumbTests: XCTestCase {
 	
 	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
-	
+    let testHelper = SentrySwiftTestHelper()
+    
     override func setUp() {
         super.setUp()
     }
@@ -21,7 +22,14 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
     }
-	
+    
+    func testLoadBreadcrumbsFromCrashreport() {
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "breadcrumbs")!
+        
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        print("\(SentryEndpoint.store(event: event!).payload)")
+    }
+    
 	func testGeneralCrumbs() {
 		let dateString = "2011-05-02T17:41:36"
 		let date = NSDate.fromISO8601(dateString)!
