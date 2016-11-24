@@ -57,17 +57,17 @@ extension SentryClient {
                 return try NSFileManager.defaultManager()
                 .contentsOfDirectoryAtPath(path)
                 .flatMap { fileName in
-                let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
-                guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
+                    let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
+                    guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
                 
-                return (data, {
-                do {
-                try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
-                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
-                } catch {
-                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
-                }
-                })
+                    return (data, {
+                        do {
+                            try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
+                            SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                        } catch {
+                            SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                        }
+                    })
                 }
             #endif
         } catch let error as NSError {
