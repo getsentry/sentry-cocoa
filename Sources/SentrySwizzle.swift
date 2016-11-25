@@ -21,7 +21,7 @@ extension UIApplication {
             return
         }
         
-        swizzlinger(self)
+        sentrySwizzle(self, #selector(UIApplication.sendAction(_:to:from:for:)), #selector(UIApplication.sentryClient_sendAction(_:to:from:for:)))
     }
     #else
     public override class func initialize() {
@@ -35,9 +35,8 @@ extension UIApplication {
         }
     
         dispatch_once(&Static.token) {
-            let originalSelector = #selector(UIApplication.sendEvent(_:))
-            let swizzledSelector = #selector(UIApplication.sentryClient_sendEvent(_:))
-    
+            let originalSelector = #selector(UIApplication.sendAction(_:to:from:for:))
+            let swizzledSelector = #selector(UIApplication.sentryClient_sendAction(_:to:from:for:))
             let originalMethod = class_getInstanceMethod(self, originalSelector)
             let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
     
@@ -52,37 +51,35 @@ extension UIApplication {
     }
     #endif
     
-    func sentryClient_sendEvent(_ event: UIEvent) {
+    func sentryClient_sendAction(_ action: Selector, to target: Any?, from sender: Any?, for event: UIEvent?) -> Bool {
+        var data: [String: String] = [:]
         #if swift(>=3.0)
-        if let touches = event.allTouches {
-            for touch in touches.enumerated() {
-                if touch.element.phase == .cancelled || touch.element.phase == .ended {
-                    print("\(touch.element.view)")
-                    if let view = touch.element.view {
-                        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
-                                                                        message: "Tap",
-                                                                        type: "navigation",
-                                                                        data: ["View": "\(view)"]))
+            if let touches = event?.allTouches {
+                for touch in touches.enumerated() {
+                    if touch.element.phase == .cancelled || touch.element.phase == .ended {
+                        if let view = touch.element.view {
+                            data = ["View": "\(view)"]
+                        }
                     }
                 }
             }
-        }
         #else
-            if let touches = event.allTouches() {
+            if let touches = event?.allTouches() {
                 for touch in touches.enumerate() {
                     if touch.element.phase == .Cancelled || touch.element.phase == .Ended {
-                        print("\(touch.element.view)")
                         if let view = touch.element.view {
-                            SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
-                                                                            message: "Tap",
-                                                                            type: "navigation",
-                                                                            data: ["View": "\(view)"]))
+                            data =  ["View": "\(view)"]
                         }
                     }
                 }
             }
         #endif
-        sentryClient_sendEvent(event)
+        
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "action",
+                                                        message: "\(action)",
+                                                        type: "navigation",
+                                                        data: data))
+        return sentryClient_sendAction(action, to: target, from: sender, for: event)
     }
 }
 
@@ -113,7 +110,7 @@ extension UIViewController {
             return
         }
     
-        swizzling(self)
+        sentrySwizzle(self, #selector(UIViewController.viewDidAppear(_:)), #selector(UIViewController.sentryClient_viewDidAppear(_:)))
     }
     #else
     public override class func initialize() {
@@ -145,47 +142,26 @@ extension UIViewController {
     #endif
     
     func sentryClient_viewDidAppear(_ animated: Bool) {
-        print("Tracked view controller: \(className)")
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
                                                         message: "ViewDidAppear",
                                                         type: "navigation",
                                                         data: ["Controller": "\(className)"]))
         
-        print("\(SentryClient.shared?.breadcrumbs.serialized)")
         sentryClient_viewDidAppear(animated)
     }
 }
 
 #if swift(>=3.0)
-fileprivate let swizzling: (UIViewController.Type) -> () = { viewController in
-    let originalSelector = #selector(UIViewController.viewDidAppear(_:))
-    let swizzledSelector = #selector(UIViewController.sentryClient_viewDidAppear(_:))
-    
-    let originalMethod = class_getInstanceMethod(viewController, originalSelector)
-    let swizzledMethod = class_getInstanceMethod(viewController, swizzledSelector)
-    
-    let didAddMethod = class_addMethod(viewController, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-    
-    if didAddMethod {
-        class_replaceMethod(viewController, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-    } else {
-        method_exchangeImplementations(originalMethod, swizzledMethod)
+    fileprivate let sentrySwizzle: (AnyClass, Selector, Selector) -> () = { object, originalSelector, swizzledSelector in
+        let originalMethod = class_getInstanceMethod(object, originalSelector)
+        let swizzledMethod = class_getInstanceMethod(object, swizzledSelector)
+        
+        let didAddMethod = class_addMethod(object, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
+        
+        if didAddMethod {
+            class_replaceMethod(object, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+        } else {
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
     }
-}
-    
-fileprivate let swizzlinger: (UIApplication.Type) -> () = { application in
-    let originalSelector = #selector(UIApplication.sendEvent(_:))
-    let swizzledSelector = #selector(UIApplication.sentryClient_sendEvent(_:))
-    
-    let originalMethod = class_getInstanceMethod(application, originalSelector)
-    let swizzledMethod = class_getInstanceMethod(application, swizzledSelector)
-    
-    let didAddMethod = class_addMethod(application, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-    
-    if didAddMethod {
-        class_replaceMethod(application, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-    } else {
-        method_exchangeImplementations(originalMethod, swizzledMethod)
-    }
-}
 #endif
