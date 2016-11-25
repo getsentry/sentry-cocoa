@@ -25,9 +25,12 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
     
     func testLoadBreadcrumbsFromCrashreport() {
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "breadcrumbs")!
-        
+        let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+        client.breadcrumbs.add(Breadcrumb(category: "test", timestamp: NSDate(), type: "some_type", data: ["foo": "bar"]))
         let event = CrashReportConverter.convertReportToEvent(crashJSON)
-        print("\(SentryEndpoint.store(event: event!).payload)")
+        client.breadcrumbs.add(Breadcrumb(category: "test2", timestamp: NSDate(), type: "some_type", data: ["foo": "bar"]))
+        
+        print("\(event?.breadcrumbsSerialized)")
     }
     
 	func testGeneralCrumbs() {
