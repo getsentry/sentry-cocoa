@@ -23,7 +23,7 @@ class SentrySwiftRequestTests: XCTestCase {
                 "favorite_power_ranger": "green/white"
             ]
         }
-        client.sendEvent(event) { [weak self] success in
+        client.sendEvent(event) { success in
             
         }
     }

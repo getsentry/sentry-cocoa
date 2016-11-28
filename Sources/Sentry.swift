@@ -70,6 +70,15 @@ internal enum SentryError: Error {
 	}
     
 	// MARK: - Attributes
+    @available(iOS 8.0, *)
+    public var enableAutomaticBreadcrumbTracking: Bool {
+        get {
+            return SentrySettings.automaticBreadcrumbsEnabled
+        }
+        set {
+            SentrySettings.automaticBreadcrumbsEnabled = newValue
+        }
+    }
 	
 	internal let dsn: DSN
 	internal(set) var crashHandler: CrashHandler? {

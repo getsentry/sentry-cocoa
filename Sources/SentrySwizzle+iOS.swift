@@ -12,30 +12,20 @@ import UIKit
 extension UIApplication {
     #if swift(>=3.0)
     open override class func initialize() {
-        struct Static {
-            static var token: Int = 0
-        }
-        
-        // make sure this isn't a subclass
-        if self !== UIApplication.self {
-            return
-        }
+        guard self === UIApplication.self else { return }
         
         sentrySwizzle(self, #selector(UIApplication.sendAction(_:to:from:for:)), #selector(UIApplication.sentryClient_sendAction(_:to:from:for:)))
     }
     #else
     public override class func initialize() {
+        guard self === UIApplication.self else { return }
+    
         struct Static {
             static var token: Int = 0
         }
     
-        // make sure this isn't a subclass
-        if self !== UIApplication.self {
-            return
-        }
-    
         dispatch_once(&Static.token) {
-            let originalSelector = #selector(UIApplication.sendAction(_:to:from:for:))
+            let originalSelector = #selector(UIApplication.sendAction(_:to:from:forEvent:))
             let swizzledSelector = #selector(UIApplication.sentryClient_sendAction(_:to:from:for:))
             let originalMethod = class_getInstanceMethod(self, originalSelector)
             let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
@@ -51,7 +41,7 @@ extension UIApplication {
     }
     #endif
     
-    func sentryClient_sendAction(_ action: Selector, to target: Any?, from sender: Any?, for event: UIEvent?) -> Bool {
+    @objc func sentryClient_sendAction(_ action: Selector, to target: AnyObject?, from sender: AnyObject?, for event: UIEvent?) -> Bool {
         var data: [String: String] = [:]
         #if swift(>=3.0)
             if let touches = event?.allTouches {
@@ -101,26 +91,16 @@ extension UIViewController {
     
     #if swift(>=3.0)
     open override class func initialize() {
-        struct Static {
-            static var token: Int = 0
-        }
-    
-        // make sure this isn't a subclass
-        if self !== UIViewController.self {
-            return
-        }
+        guard self === UIViewController.self else { return }
     
         sentrySwizzle(self, #selector(UIViewController.viewDidAppear(_:)), #selector(UIViewController.sentryClient_viewDidAppear(_:)))
     }
     #else
     public override class func initialize() {
+        guard self === UIViewController.self else { return }
+    
         struct Static {
             static var token: Int = 0
-        }
-    
-        // make sure this isn't a subclass
-        if self !== UIViewController.self {
-            return
         }
     
         dispatch_once(&Static.token) {
@@ -156,12 +136,6 @@ extension UIViewController {
         let originalMethod = class_getInstanceMethod(object, originalSelector)
         let swizzledMethod = class_getInstanceMethod(object, swizzledSelector)
         
-        let didAddMethod = class_addMethod(object, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-        
-        if didAddMethod {
-            class_replaceMethod(object, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-        } else {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
+        method_exchangeImplementations(originalMethod, swizzledMethod)
     }
 #endif
