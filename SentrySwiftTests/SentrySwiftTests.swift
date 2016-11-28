@@ -411,13 +411,14 @@ class SentrySwiftTests: XCTestCase {
         client.breadcrumbs.add(Breadcrumb(category: "captureEvent"))
         client.captureEvent(event)
         
-        let deadlineTime = DispatchTime.now() + .milliseconds(10)
+        let deadlineTime = DispatchTime.now() + .milliseconds(50)
         DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
             asyncExpectation.fulfill()
         }
         waitForExpectations(timeout: 2) { error in
-            let breadcrumbs = event.serialized["breadcrumbs"] as! [Dictionary<String, AnyType>]
-            XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
+            if let breadcrumbs = event.serialized["breadcrumbs"] as? [Dictionary<String, AnyType>] {
+                XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
+            }
         }
     }
     #endif
