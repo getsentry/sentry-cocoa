@@ -12,11 +12,12 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
 
-  s.source_files = "Sources/**/*.{h,m,swift}"
-  s.source_files = "Sources/**/*.{h,m,swift}"
-  s.resource_bundles = {
-    'storyboards' => ['Sources/**/*.{storyboard}'],
-    'assets' => ['Sources/**/*.{xcassets}']
+  s.source_files = "Sources/*.{h,m,swift}"
+  s.ios.source_files = "Sources/ios/*.{h,m,swift}"
+
+  s.ios.resource_bundles = {
+    'storyboards' => ['Sources/ios/*.{storyboard}'],
+    'assets' => ['Sources/ios/*.{xcassets}']
   }
   
   s.dependency 'KSCrash', '~> 1.10.1'

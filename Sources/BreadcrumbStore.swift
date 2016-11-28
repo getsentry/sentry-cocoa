@@ -29,6 +29,7 @@ public final class BreadcrumbStore: NSObject {
     
     /// Adds given crumb to the client store
     public func add(_ crumb: Breadcrumb) {
+        SentryLog.Debug.log("Added breadcrumb: \(crumb.category) \(crumb.type) \(crumb.message)")
         if crumbs.count >= maxCrumbs {
             crumbs.removeFirst()
         }

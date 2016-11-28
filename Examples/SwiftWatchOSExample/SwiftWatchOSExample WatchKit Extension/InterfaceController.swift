@@ -23,7 +23,7 @@ class InterfaceController: WKInterfaceController {
         
         // Step 2: Initialize a SentryClient with your DSN
         // The DSN is in your Sentry project's settings
-        SentryClient.shared = SentryClient(dsnString: "http://808671937ad740ec9cd39c35b26c7264:18bb23d3d52a4ea5b4ad16f14391b041@dgriesser-7b0957b1732f38a5e205.eu.ngrok.io/1")
+        SentryClient.shared = SentryClient(dsnString: "")
         
         // OPTIONAL (but super useful)
         // Step 3: Set and start the crash handler

@@ -13,7 +13,8 @@ import SentrySwift
 class SentrySwiftBreadcrumbTests: XCTestCase {
 	
 	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
-	
+    let testHelper = SentrySwiftTestHelper()
+    
     override func setUp() {
         super.setUp()
     }
@@ -21,7 +22,13 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
     }
-	
+    
+    func testLoadBreadcrumbsFromCrashreport() {
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "breadcrumbs")!
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        XCTAssertEqual(event!.breadcrumbsSerialized?.count, 20)
+    }
+    
 	func testGeneralCrumbs() {
 		let dateString = "2011-05-02T17:41:36"
 		let date = NSDate.fromISO8601(dateString)!
@@ -56,7 +63,6 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
 	}
 	
 	func testBreadcrumbStorage() {
-		
 		let store = BreadcrumbStore()
 		store.maxCrumbs = 3
 		
@@ -106,20 +112,21 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
     }
     
     func testBreadcrumbStorageLimits() {
+        SentryClient.logLevel = .None
         let store = BreadcrumbStore()
-        store.maxCrumbs = 50000
+        store.maxCrumbs = 500
         
         for _ in 1...store.maxCrumbs {
             store.add(Breadcrumb(category: "test", message: "Test 1"))
         }
         
-        XCTAssertEqual(store.crumbs.count, 50000)
+        XCTAssertEqual(store.crumbs.count, 500)
         
         for _ in 1...store.maxCrumbs {
             store.add(Breadcrumb(category: "test", message: "Test 2"))
         }
         
-        XCTAssertEqual(store.crumbs.count, 50000)
+        XCTAssertEqual(store.crumbs.count, 500)
     }
 
 }

@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode8
+osx_image: xcode8.1
 cache:
     - bundler
 rvm:
@@ -8,10 +8,10 @@ before_install:
     - gem install fastlane
     - gem install slather
     - brew update
-    - brew outdated swiftlint || brew upgrade swiftlint
+    - brew install swiftlint
 script: 
     - swiftlint
-    - fastlane test
+    - travis_retry fastlane test
 after_success:
     - slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" SentrySwift.xcodeproj
     - bash <(curl -s https://codecov.io/bash) -f cobertura.xml
