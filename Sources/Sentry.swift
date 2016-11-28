@@ -70,15 +70,6 @@ internal enum SentryError: Error {
 	}
     
 	// MARK: - Attributes
-    @available(iOS 8.0, *)
-    public var enableAutomaticBreadcrumbTracking: Bool {
-        get {
-            return SentrySettings.automaticBreadcrumbsEnabled
-        }
-        set {
-            SentrySettings.automaticBreadcrumbsEnabled = newValue
-        }
-    }
 	
 	internal let dsn: DSN
 	internal(set) var crashHandler: CrashHandler? {
@@ -209,6 +200,11 @@ internal enum SentryError: Error {
             })
         #endif
 	}
+    
+    @available(iOS 8.0, *)
+    @objc public func enableAutomaticBreadcrumbTracking() {
+        SentrySwizzle.enableAutomaticBreadcrumbTracking()
+    }
     
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {
