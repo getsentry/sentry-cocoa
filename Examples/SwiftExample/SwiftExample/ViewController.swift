@@ -54,10 +54,11 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 		SentryClient.shared?.delegate = self
         
         // Enable automatic breadcrumb tracking
-        SentryClient.shared?.enableAutomaticBreadcrumbTracking = true
-        
-		// Step 5: Don't make your app perfect so that you can get a crash ;)
+        SentryClient.shared?.enableAutomaticBreadcrumbTracking()
+		
+        // Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
+        
 	}
     
     // MARK: SentryClientUserFeedbackDelegate

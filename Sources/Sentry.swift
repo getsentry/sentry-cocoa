@@ -201,10 +201,11 @@ internal enum SentryError: Error {
         #endif
 	}
     
-    @available(iOS 8.0, *)
+    #if os(iOS)
     @objc public func enableAutomaticBreadcrumbTracking() {
         SentrySwizzle.enableAutomaticBreadcrumbTracking()
     }
+    #endif
     
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {

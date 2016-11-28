@@ -72,7 +72,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   KSCrash: d9fae3bfbc77a31aa5a0710edaf2bff43c77eb1f
-  SentrySwift: 5b2e542b6ec5abdc996c91f76362c68799ebde34
+  SentrySwift: dcee2a7b810bdedfdefab310761c3c34acd5381e
 
 PODFILE CHECKSUM: e2f56b8fcd102c4720a29fbd3ab795b115f4c210
 
