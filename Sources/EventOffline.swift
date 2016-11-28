@@ -55,19 +55,19 @@ extension SentryClient {
                 }
             #else
                 return try NSFileManager.defaultManager()
-                .contentsOfDirectoryAtPath(path)
-                .flatMap { fileName in
-                let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
-                guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
+                    .contentsOfDirectoryAtPath(path)
+                    .flatMap { fileName in
+                        let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
+                        guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
                 
-                return (data, {
-                do {
-                try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
-                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
-                } catch {
-                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
-                }
-                })
+                        return (data, {
+                            do {
+                                try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
+                                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                            } catch {
+                                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                            }
+                        })
                 }
             #endif
         } catch let error as NSError {
@@ -134,8 +134,8 @@ extension SentryClient {
             }
         #else
             if NSJSONSerialization.isValidJSONObject(event.serialized) {
-            let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
-            return String(data: data, encoding: NSUTF8StringEncoding)
+                let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
+                return String(data: data, encoding: NSUTF8StringEncoding)
             }
         #endif
         

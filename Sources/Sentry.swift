@@ -201,6 +201,12 @@ internal enum SentryError: Error {
         #endif
 	}
     
+    #if os(iOS)
+    @objc public func enableAutomaticBreadcrumbTracking() {
+        SentrySwizzle.enableAutomaticBreadcrumbTracking()
+    }
+    #endif
+    
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {
         fatalError("TEST - Sentry Client Crash")
@@ -287,7 +293,9 @@ internal enum SentryError: Error {
 			}
 		}
 
-        event.breadcrumbsSerialized = breadcrumbs.serialized
+        if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
+            event.breadcrumbsSerialized = breadcrumbs.serialized
+        }
         breadcrumbs.clear()
         
 		sendEvent(event) { [weak self] success in
