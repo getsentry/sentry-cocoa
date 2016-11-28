@@ -398,7 +398,7 @@ class SentrySwiftTests: XCTestCase {
     
     #if swift(>=3.0)
     func testCaptureEvent() {
-        let asyncExpectation = expectation(description: "longRunningFunction")
+        let asyncExpectation = expectation(description: "testCaptureEvent")
         
         let event = Event.build("Another example 4") {
             $0.level = .Fatal
