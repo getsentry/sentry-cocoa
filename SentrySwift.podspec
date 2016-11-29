@@ -20,5 +20,5 @@ Pod::Spec.new do |s|
     'assets' => ['Sources/ios/*.{xcassets}']
   }
   
-  s.dependency 'KSCrash', '~> 1.11.0'
+  s.dependency 'KSCrash', '~> 1.11.1'
 end
