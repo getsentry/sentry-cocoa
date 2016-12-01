@@ -24,10 +24,10 @@ protocol ViewModel {
     public var subTitle = "Our team has been notified. If you'd like to help, tell us what happened below."
     
     public var nameLabel = "Name:"
-    public var nameTextFieldValue = ""
+    public var nameTextFieldValue = SentryClient.shared?.user?.username
     
     public var emailLabel = "Email:"
-    public var emailTextFieldValue = ""
+    public var emailTextFieldValue = SentryClient.shared?.user?.email
     
     public var commentsTextFieldPlaceholder = "I clicked X and then this happened ..."
     public var commentsTextFieldValue = ""
