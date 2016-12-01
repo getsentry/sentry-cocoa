@@ -12,7 +12,7 @@ import Foundation
     import UIKit
 #endif
 
-import KSCrash.KSSystemInfo
+import KSCrash
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc public final class Contexts: NSObject {

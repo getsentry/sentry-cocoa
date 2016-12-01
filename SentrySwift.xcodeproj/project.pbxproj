@@ -336,7 +336,6 @@
 		6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrashReportConverter.swift; sourceTree = "<group>"; };
 		6382A7341DCCBF5200065393 /* crashReports */ = {isa = PBXFileReference; lastKnownFileType = folder; path = crashReports; sourceTree = "<group>"; };
 		63CDAB1A1DD9D45900B63921 /* SentrySwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		63CDAB1D1DD9D45900B63921 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63CDAB401DD9D7F300B63921 /* KSCrash.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KSCrash.xcodeproj; path = Carthage/Checkouts/KSCrash/WatchOS/KSCrash.xcodeproj; sourceTree = "<group>"; };
 		63CDAB5E1DDB164500B63921 /* iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63CDAB601DDB164500B63921 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -551,7 +550,6 @@
 				036378271C225D5200644C01 /* Sources */,
 				035242901C988D2400A65D6D /* SentrySwift */,
 				035242931C988D2F00A65D6D /* SentrySwiftTests */,
-				63CDAB1B1DD9D45900B63921 /* SentrySwift-WatchOS */,
 				63CDAB5F1DDB164500B63921 /* iOS */,
 				217A96211CD67739006C681F /* Frameworks */,
 				03E94AED1C22595B009F8F29 /* Products */,
@@ -603,14 +601,6 @@
 				63CDAB8B1DDCAAE700B63921 /* SentryEndpoint.swift */,
 			);
 			name = Network;
-			sourceTree = "<group>";
-		};
-		63CDAB1B1DD9D45900B63921 /* SentrySwift-WatchOS */ = {
-			isa = PBXGroup;
-			children = (
-				63CDAB1D1DD9D45900B63921 /* Info.plist */,
-			);
-			path = "SentrySwift-WatchOS";
 			sourceTree = "<group>";
 		};
 		63CDAB411DD9D7F300B63921 /* Products */ = {
@@ -1424,7 +1414,7 @@
 				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1445,7 +1435,7 @@
 				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1589,7 +1579,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1612,7 +1602,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SKIP_INSTALL = YES;
 			};
@@ -1667,7 +1657,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_SWIFT_FLAGS = "-Xfrontend -debug-time-function-bodies";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1693,7 +1683,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1746,10 +1736,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "SentrySwift-WatchOS/Info.plist";
+				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1773,10 +1763,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "SentrySwift-WatchOS/Info.plist";
+				INFOPLIST_FILE = SentrySwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwift;
 				PRODUCT_NAME = SentrySwift;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;

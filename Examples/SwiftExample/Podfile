@@ -2,7 +2,8 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'SwiftExample' do
-  pod 'SentrySwift', :path => '../../'
+    pod 'KSCrash', :git => 'git@github.com:kstenerud/KSCrash.git', :tag => '1.11.1'
+    pod 'SentrySwift', :path => '../../'
 end
 
 post_install do |installer|
