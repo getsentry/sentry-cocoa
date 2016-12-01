@@ -159,31 +159,31 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" alpha="0.75" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SENTRY" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tf4-kn-B2U">
-                                                    <rect key="frame" x="333.33333333333326" y="20" width="60.666666666666686" height="19.333333333333336"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <rect key="frame" x="340" y="21.333333333333336" width="54" height="17.000000000000007"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Crash reports powered by" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b3o-7r-1u9">
-                                                    <rect key="frame" x="154.33333333333331" y="22" width="146.99999999999994" height="15"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                    <rect key="frame" x="171.66666666666663" y="23" width="136.33333333333337" height="13.333333333333336"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <imageView userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NFt-xw-keo">
-                                                    <rect key="frame" x="301.33333333333331" y="14" width="32" height="32"/>
+                                                <imageView userInteractionEnabled="NO" alpha="0.75" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NFt-xw-keo">
+                                                    <rect key="frame" x="316" y="20" width="20" height="20"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="width" constant="32" id="8Lu-8a-DHh"/>
-                                                        <constraint firstAttribute="height" constant="32" id="OKW-29-URA"/>
+                                                        <constraint firstAttribute="width" constant="20" id="8Lu-8a-DHh"/>
+                                                        <constraint firstAttribute="height" constant="20" id="OKW-29-URA"/>
                                                     </constraints>
                                                 </imageView>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="trailingMargin" secondItem="tf4-kn-B2U" secondAttribute="trailing" constant="12" id="9kE-H0-qrl"/>
-                                                <constraint firstItem="NFt-xw-keo" firstAttribute="leading" secondItem="b3o-7r-1u9" secondAttribute="trailing" id="ZgZ-K2-xgl"/>
+                                                <constraint firstItem="NFt-xw-keo" firstAttribute="leading" secondItem="b3o-7r-1u9" secondAttribute="trailing" constant="8" id="ZgZ-K2-xgl"/>
                                                 <constraint firstItem="b3o-7r-1u9" firstAttribute="centerY" secondItem="kHQ-92-YRE" secondAttribute="centerY" id="ase-Bs-yEN"/>
                                                 <constraint firstItem="NFt-xw-keo" firstAttribute="centerY" secondItem="kHQ-92-YRE" secondAttribute="centerY" id="h3r-xs-Mdr"/>
-                                                <constraint firstItem="tf4-kn-B2U" firstAttribute="leading" secondItem="NFt-xw-keo" secondAttribute="trailing" id="oZ2-oD-1Lo"/>
+                                                <constraint firstItem="tf4-kn-B2U" firstAttribute="leading" secondItem="NFt-xw-keo" secondAttribute="trailing" constant="4" id="oZ2-oD-1Lo"/>
                                                 <constraint firstItem="tf4-kn-B2U" firstAttribute="centerY" secondItem="kHQ-92-YRE" secondAttribute="centerY" id="vqc-8c-duv"/>
                                             </constraints>
                                         </tableViewCellContentView>

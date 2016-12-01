@@ -39,7 +39,7 @@ protocol ViewModel {
     #if swift(>=3.0)
         public var defaultTextColor = UIColor.darkText
     #else
-        public var defaultTextColor = UIColor.darkGrayColor()
+        public var defaultTextColor = UIColor.darkTextColor()
     #endif
     
     public var showSentryBranding = true

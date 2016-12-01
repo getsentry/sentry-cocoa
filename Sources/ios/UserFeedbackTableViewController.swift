@@ -63,6 +63,9 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         nameTextField.text = viewModel.nameTextFieldValue
         emailTextField.text = viewModel.emailTextFieldValue
         commentsTextField.text = viewModel.commentsTextFieldValue
+        nameTextField.textColor = viewModel.defaultTextColor
+        emailTextField.textColor = viewModel.defaultTextColor
+        commentsTextField.textColor = viewModel.defaultTextColor
         
         titleLabel.text = viewModel.title
         subtitleLabel.text = viewModel.subTitle
@@ -70,10 +73,9 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         nameLabel.text = viewModel.nameLabel
         
         emailLabel.text = viewModel.emailLabel
-        
-        commentsTextField.placeholder = viewModel.commentsTextFieldPlaceholder
-        
+
         #if swift(>=3.0)
+            commentsTextField.attributedPlaceholder = NSAttributedString(string: viewModel.commentsTextFieldPlaceholder, attributes: [NSForegroundColorAttributeName: UIColor.darkGray])
             poweredByTableViewCell.isHidden = !viewModel.showSentryBranding
             
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
@@ -82,6 +84,8 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
                 sentryLogoImageView.image = UIImage(named: "sentry-glyph-black", in: bundle, compatibleWith: nil)
             }
         #else
+            commentsTextField.attributedPlaceholder = NSAttributedString(string: viewModel.commentsTextFieldPlaceholder, attributes: [NSForegroundColorAttributeName: UIColor.darkGrayColor()])
+
             poweredByTableViewCell.hidden = !viewModel.showSentryBranding
             
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismissViewController))
