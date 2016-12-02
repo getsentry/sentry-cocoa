@@ -62,7 +62,7 @@ extension UIApplication {
                 for touch in touches.enumerated() {
                     if touch.element.phase == .cancelled || touch.element.phase == .ended {
                         if let view = touch.element.view {
-                            data = ["View": "\(view)"]
+                            data = ["view": "\(view)"]
                         }
                     }
                 }
@@ -72,7 +72,7 @@ extension UIApplication {
                 for touch in touches.enumerate() {
                     if touch.element.phase == .Cancelled || touch.element.phase == .Ended {
                         if let view = touch.element.view {
-                            data =  ["View": "\(view)"]
+                            data =  ["view": "\(view)"]
                         }
                     }
                 }
@@ -93,7 +93,7 @@ extension UIViewController {
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
                                                         message: "ViewDidAppear",
                                                         type: "navigation",
-                                                        data: ["Controller": "\(self)"]))
+                                                        data: ["controller": "\(self)"]))
         
         sentryClient_viewDidAppear(animated)
     }
