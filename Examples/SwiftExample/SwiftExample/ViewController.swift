@@ -21,7 +21,7 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 		
 		// Step 2: Initialize a SentryClient with your DSN
 		// The DSN is in your Sentry project's settings
-		SentryClient.shared = SentryClient(dsnString: "")
+		SentryClient.shared = SentryClient(dsnString: "http://bf9398c8660c42ad89fdeac75c11a266:8eeb1d825c3942b384456c4356477ada@dgriesser-7b0957b1732f38a5e205.eu.ngrok.io/1")
 		
 		// OPTIONAL (but super useful)
 		// Step 3: Set and start the crash handler
