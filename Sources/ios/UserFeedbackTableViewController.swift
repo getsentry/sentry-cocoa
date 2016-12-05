@@ -8,7 +8,7 @@
 
 import UIKit
 
-public final class UserFeedbackTableViewController: UITableViewController, UITextFieldDelegate {
+public final class UserFeedbackTableViewController: UITableViewController, UITextFieldDelegate, ViewModelDelegate {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
@@ -33,13 +33,15 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         super.viewDidLoad()
         clearsSelectionOnViewWillAppear = false
         tableView.tableFooterView = UIView()
+        viewModel?.delegate = self
+        setupInterface()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateInterface()
     }
-
+    
     func dismissViewController() {
         #if swift(>=3.0)
             dismiss(animated: true, completion: nil)
@@ -52,39 +54,41 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         submitUserFeedback()
     }
     
-    private func updateInterface() {
+    private func setupInterface() {
         guard let viewModel = viewModel else {
             SentryLog.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
             return
         }
         
+        nameTextField.text = viewModel.nameTextFieldValue
+        emailTextField.text = viewModel.emailTextFieldValue
+        commentsTextField.text = viewModel.commentsTextFieldValue
+        nameTextField.textColor = viewModel.defaultTextColor
+        emailTextField.textColor = viewModel.defaultTextColor
+        commentsTextField.textColor = viewModel.defaultTextColor
+        
         titleLabel.text = viewModel.title
         subtitleLabel.text = viewModel.subTitle
         
-        nameTextField.text = viewModel.nameTextFieldValue
         nameLabel.text = viewModel.nameLabel
         
-        emailTextField.text = viewModel.emailTextFieldValue
         emailLabel.text = viewModel.emailLabel
-        
-        commentsTextField.text = viewModel.commentsTextFieldValue
-        commentsTextField.placeholder = viewModel.commentsTextFieldPlaceholder
-        
+
         #if swift(>=3.0)
+            commentsTextField.attributedPlaceholder = NSAttributedString(string: viewModel.commentsTextFieldPlaceholder, attributes: [NSForegroundColorAttributeName: UIColor.darkGray])
             poweredByTableViewCell.isHidden = !viewModel.showSentryBranding
             
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismissViewController))
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.submitButtonText, style: .done, target: self, action: #selector(onClickSubmit))
-            
             if let bundleURL = Bundle(for: type(of: self)).url(forResource: "assets", withExtension: "bundle"),
             let bundle = Bundle(url: bundleURL) {
-            sentryLogoImageView.image = UIImage(named: "sentry-glyph-black", in: bundle, compatibleWith: nil)
+                sentryLogoImageView.image = UIImage(named: "sentry-glyph-black", in: bundle, compatibleWith: nil)
             }
         #else
+            commentsTextField.attributedPlaceholder = NSAttributedString(string: viewModel.commentsTextFieldPlaceholder, attributes: [NSForegroundColorAttributeName: UIColor.darkGrayColor()])
+
             poweredByTableViewCell.hidden = !viewModel.showSentryBranding
-           
+            
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: #selector(dismissViewController))
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.submitButtonText, style: .Done, target: self, action: #selector(onClickSubmit))
             
             if let bundleURL = NSBundle(forClass: self.dynamicType).URLForResource("assets", withExtension: "bundle"),
                 let bundle = NSBundle(URL: bundleURL) {
@@ -93,6 +97,23 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         #endif
         
         title = viewModel.viewControllerTitle
+    }
+    
+    private func updateInterface() {
+        guard let viewModel = viewModel else {
+            SentryLog.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
+            return
+        }
+        
+        #if swift(>=3.0)
+            let rightBarButton = UIBarButtonItem(title: viewModel.submitButtonText, style: .done, target: self, action: #selector(onClickSubmit))
+            navigationItem.rightBarButtonItem = rightBarButton
+            rightBarButton.isEnabled = viewModel.submitButtonEnabled
+        #else
+            let rightBarButton = UIBarButtonItem(title: viewModel.submitButtonText, style: .Done, target: self, action: #selector(onClickSubmit))
+            navigationItem.rightBarButtonItem = rightBarButton
+            rightBarButton.enabled = viewModel.submitButtonEnabled
+        #endif
     }
     
     private func submitUserFeedback() {
@@ -116,7 +137,29 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
         }
     }
     
+    // MARK: ViewModelDelegate
+    
+    func signalUpdate() {
+        updateInterface()
+    }
+    
     // MARK: UITextFieldDelegate
+    
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+    }
+    
+    #if swift(>=3.0)
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+        return true
+    }
+    #else
+    public func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+        return true
+    }
+    #endif
     
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {

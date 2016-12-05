@@ -8,7 +8,15 @@
 
 import UIKit
 
-@objc public final class UserFeedbackViewModel: NSObject {
+protocol ViewModelDelegate: class {
+    func signalUpdate()
+}
+
+protocol ViewModel {
+    weak var delegate: ViewModelDelegate? { get }
+}
+
+@objc public final class UserFeedbackViewModel: NSObject, ViewModel {
     
     public var viewControllerTitle = "User Feedback"
     
@@ -16,10 +24,10 @@ import UIKit
     public var subTitle = "Our team has been notified. If you'd like to help, tell us what happened below."
     
     public var nameLabel = "Name:"
-    public var nameTextFieldValue = ""
+    public var nameTextFieldValue = SentryClient.shared?.user?.username
     
     public var emailLabel = "Email:"
-    public var emailTextFieldValue = ""
+    public var emailTextFieldValue = SentryClient.shared?.user?.email
     
     public var commentsTextFieldPlaceholder = "I clicked X and then this happened ..."
     public var commentsTextFieldValue = ""
@@ -31,7 +39,7 @@ import UIKit
     #if swift(>=3.0)
         public var defaultTextColor = UIColor.darkText
     #else
-        public var defaultTextColor = UIColor.darkGrayColor()
+        public var defaultTextColor = UIColor.darkTextColor()
     #endif
     
     public var showSentryBranding = true
@@ -39,6 +47,12 @@ import UIKit
     private(set) var name: String?
     private(set) var email: String?
     private(set) var comments: String?
+    
+    var submitButtonEnabled: Bool {
+        return name != nil && email != nil && comments != nil
+    }
+
+    weak var delegate: ViewModelDelegate?
     
     func sendUserFeedback(finished: SentryEndpointRequestFinished? = nil) {
         guard let name = self.name, let email = self.email, let comments = self.comments else {
@@ -55,24 +69,34 @@ import UIKit
     }
     
     func validatedUserFeedback(nameTextField nameTextField: UITextField, emailTextField: UITextField, commentsTextField: UITextField) -> UITextField? {
+        defer {
+            delegate?.signalUpdate()
+        }
+        
         #if swift(>=3.0)
             guard let name = nameTextField.text, "" != name else {
+                self.name = nil
                 return nameTextField
             }
             guard let email = emailTextField.text, "" != email, validateEmail(email) else {
+                self.email = nil
                 return emailTextField
             }
             guard let comments = commentsTextField.text, "" != comments else {
+                self.comments = nil
                 return commentsTextField
             }
         #else
             guard let name = nameTextField.text where "" != name else {
+                self.name = nil
                 return nameTextField
             }
             guard let email = emailTextField.text where "" != email && validateEmail(email) else {
+                self.email = nil
                 return emailTextField
             }
             guard let comments = commentsTextField.text where "" != comments else {
+                self.comments = nil
                 return commentsTextField
             }
         #endif
@@ -92,4 +116,5 @@ import UIKit
             return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluateWithObject(email)
         #endif
     }
+    
 }
