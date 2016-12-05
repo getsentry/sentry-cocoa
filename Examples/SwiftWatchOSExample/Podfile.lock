@@ -1,45 +1,45 @@
 PODS:
-  - KSCrash (1.10.1):
-    - KSCrash/Installations (= 1.10.1)
-  - KSCrash/Installations (1.10.1):
+  - KSCrash (1.11.2):
+    - KSCrash/Installations (= 1.11.2)
+  - KSCrash/Installations (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting
-  - KSCrash/Recording (1.10.1)
-  - KSCrash/Reporting (1.10.1):
+  - KSCrash/Recording (1.11.2)
+  - KSCrash/Reporting (1.11.2):
     - KSCrash/Recording
-    - KSCrash/Reporting/Filters (= 1.10.1)
-    - KSCrash/Reporting/MessageUI (= 1.10.1)
-    - KSCrash/Reporting/Sinks (= 1.10.1)
-    - KSCrash/Reporting/Tools (= 1.10.1)
-  - KSCrash/Reporting/Filters (1.10.1):
+    - KSCrash/Reporting/Filters (= 1.11.2)
+    - KSCrash/Reporting/MessageUI (= 1.11.2)
+    - KSCrash/Reporting/Sinks (= 1.11.2)
+    - KSCrash/Reporting/Tools (= 1.11.2)
+  - KSCrash/Reporting/Filters (1.11.2):
     - KSCrash/Recording
-    - KSCrash/Reporting/Filters/Alert (= 1.10.1)
-    - KSCrash/Reporting/Filters/AppleFmt (= 1.10.1)
-    - KSCrash/Reporting/Filters/Base (= 1.10.1)
-    - KSCrash/Reporting/Filters/Basic (= 1.10.1)
-    - KSCrash/Reporting/Filters/GZip (= 1.10.1)
-    - KSCrash/Reporting/Filters/JSON (= 1.10.1)
-    - KSCrash/Reporting/Filters/Sets (= 1.10.1)
-    - KSCrash/Reporting/Filters/Stringify (= 1.10.1)
-    - KSCrash/Reporting/Filters/Tools (= 1.10.1)
-  - KSCrash/Reporting/Filters/Alert (1.10.1):
-    - KSCrash/Recording
-    - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/AppleFmt (1.10.1):
+    - KSCrash/Reporting/Filters/Alert (= 1.11.2)
+    - KSCrash/Reporting/Filters/AppleFmt (= 1.11.2)
+    - KSCrash/Reporting/Filters/Base (= 1.11.2)
+    - KSCrash/Reporting/Filters/Basic (= 1.11.2)
+    - KSCrash/Reporting/Filters/GZip (= 1.11.2)
+    - KSCrash/Reporting/Filters/JSON (= 1.11.2)
+    - KSCrash/Reporting/Filters/Sets (= 1.11.2)
+    - KSCrash/Reporting/Filters/Stringify (= 1.11.2)
+    - KSCrash/Reporting/Filters/Tools (= 1.11.2)
+  - KSCrash/Reporting/Filters/Alert (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Base (1.10.1):
-    - KSCrash/Recording
-  - KSCrash/Reporting/Filters/Basic (1.10.1):
+  - KSCrash/Reporting/Filters/AppleFmt (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/GZip (1.10.1):
+  - KSCrash/Reporting/Filters/Base (1.11.2):
+    - KSCrash/Recording
+  - KSCrash/Reporting/Filters/Basic (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/JSON (1.10.1):
+  - KSCrash/Reporting/Filters/GZip (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Sets (1.10.1):
+  - KSCrash/Reporting/Filters/JSON (1.11.2):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/Sets (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/AppleFmt
     - KSCrash/Reporting/Filters/Base
@@ -47,33 +47,42 @@ PODS:
     - KSCrash/Reporting/Filters/GZip
     - KSCrash/Reporting/Filters/JSON
     - KSCrash/Reporting/Filters/Stringify
-  - KSCrash/Reporting/Filters/Stringify (1.10.1):
+  - KSCrash/Reporting/Filters/Stringify (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Tools (1.10.1):
+  - KSCrash/Reporting/Filters/Tools (1.11.2):
     - KSCrash/Recording
-  - KSCrash/Reporting/MessageUI (1.10.1):
+  - KSCrash/Reporting/MessageUI (1.11.2):
     - KSCrash/Recording
-  - KSCrash/Reporting/Sinks (1.10.1):
+  - KSCrash/Reporting/Sinks (1.11.2):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters
     - KSCrash/Reporting/Tools
-  - KSCrash/Reporting/Tools (1.10.1):
+  - KSCrash/Reporting/Tools (1.11.2):
     - KSCrash/Recording
-  - SentrySwift (1.0.0):
-    - KSCrash (~> 1.10.1)
+  - SentrySwift (1.1.0):
+    - KSCrash (~> 1.11.2)
 
 DEPENDENCIES:
+  - KSCrash (from `git@github.com:kstenerud/KSCrash.git`, tag `1.11.2`)
   - SentrySwift (from `../../`)
 
 EXTERNAL SOURCES:
+  KSCrash:
+    :git: git@github.com:kstenerud/KSCrash.git
+    :tag: 1.11.2
   SentrySwift:
     :path: "../../"
 
-SPEC CHECKSUMS:
-  KSCrash: d9fae3bfbc77a31aa5a0710edaf2bff43c77eb1f
-  SentrySwift: dcee2a7b810bdedfdefab310761c3c34acd5381e
+CHECKOUT OPTIONS:
+  KSCrash:
+    :git: git@github.com:kstenerud/KSCrash.git
+    :tag: 1.11.2
 
-PODFILE CHECKSUM: 4f83e7f1df88155c746e42bba84197eb2806d923
+SPEC CHECKSUMS:
+  KSCrash: 8acc46aca72b2772d5d1e3cba1da9173db4d705e
+  SentrySwift: dcba5c72e7243a6b3539bdb6504a2768fe9b9d15
+
+PODFILE CHECKSUM: 5e326fa60029d0b3ae7367d5ab838b24ced29e2c
 
 COCOAPODS: 1.1.1

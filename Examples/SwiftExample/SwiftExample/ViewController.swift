@@ -64,8 +64,7 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
     // MARK: SentryClientUserFeedbackDelegate
 
     func userFeedbackReady() {
-        if let viewControllers = SentryClient.shared?.userFeedbackControllers() {
-            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
+        if let viewControllers = SentryClient.shared?.userFeedbackControllers() where self.presentedViewController == nil {            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
         }
     }
     
