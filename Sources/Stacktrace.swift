@@ -19,7 +19,7 @@ import Foundation
         }
         
         let frames = (appleCrashTreadBacktraceDict["contents"] as? [[String: AnyObject]])?
-            .flatMap({Frame(appleCrashFrameDict: $0, binaryImages: binaryImages)})
+            .flatMap({ Frame(appleCrashFrameDict: $0, binaryImages: binaryImages) })
         self.init(frames: frames)
         
     }
@@ -33,8 +33,13 @@ import Foundation
 extension Stacktrace: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
+        #if swift(>=3.0)
         return [:]
-            .set("frames", value: frames.map({$0.serialized}))
+            .set("frames", value: frames.reversed().map({ $0.serialized }))
+        #else
+        return [:]
+            .set("frames", value: frames.reverse().map({ $0.serialized }))
+        #endif
     }
 }
 
@@ -50,7 +55,6 @@ extension Stacktrace: EventSerializable {
     public var platform: String?
     public var instructionAddress: String?
     public var symbolAddress: String?
-    public var inApp: Bool?
     
     var fileName: String? {
         guard let file = file else { return nil }
@@ -85,12 +89,6 @@ extension Stacktrace: EventSerializable {
             self.init()
             
             self.function = frameDict["symbol_name"] as? String
-            
-            #if swift(>=3.0)
-                self.inApp = binaryImage.name?.contains("/Bundle/Application/") ?? false
-            #else
-                self.inApp = binaryImage.name?.containsString("/Bundle/Application/") ?? false
-            #endif
             self.package = binaryImage.name
             
             self.imageAddress = BinaryImage.getHexAddress(binaryImage.imageAddress)
@@ -117,7 +115,6 @@ extension Frame: EventSerializable {
         attributes.append(("image_addr", imageAddress))
         attributes.append(("instruction_addr", instructionAddress))
         attributes.append(("symbol_addr", symbolAddress))
-        attributes.append(("in_app", inApp))
         
         return convertAttributes(attributes)
     }
