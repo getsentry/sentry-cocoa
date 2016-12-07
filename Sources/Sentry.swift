@@ -11,6 +11,8 @@ import Foundation
     import UIKit
 #endif
 
+import KSCrash
+
 // This is declared here to keep namespace compatibility with objc
 @objc public enum SentryLog: Int, CustomStringConvertible {
 	case None, Error, Debug
@@ -206,6 +208,11 @@ internal enum SentryError: Error {
         SentrySwizzle.enableAutomaticBreadcrumbTracking()
     }
     #endif
+    
+    @objc public func testUserException() {
+        KSCrash.sharedInstance().reportUserException("what", reason: "reason", language: "swift", lineOfCode: "123", stackTrace: ["stracktrace"], terminateProgram: false)
+        crashHandler!.sendAllReports()
+    }
     
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {

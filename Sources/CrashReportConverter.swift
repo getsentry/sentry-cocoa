@@ -59,7 +59,7 @@ internal final class CrashReportConverter {
         /// Generate event to sent up to API
         /// Sends a blank message because server does stuff
         let event = Event.build("") {
-            $0.level = .Fatal
+            $0.level = (exception.userReported ? .Warning : .Fatal)
             $0.timestamp = timestamp
             $0.tags = userInfo.tags ?? [:]
             $0.extra = userInfo.extra ?? [:]

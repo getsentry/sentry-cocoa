@@ -14,4 +14,5 @@ internal protocol CrashHandler: EventProperties {
     
     var breadcrumbsSerialized: BreadcrumbStore.SerializedType? { get set }
     func startCrashReporting()
+    func sendAllReports()
 }

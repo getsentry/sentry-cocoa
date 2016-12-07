@@ -103,7 +103,8 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 	}
 	
     @IBAction func onClickFatalError(sender: AnyObject) {
-        SentryClient.shared?.crash()
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "miauuauau", to: "point x", from: "point y"))
+        SentryClient.shared?.testUserException()
     }
     
 	@IBAction func onClickComplexMessage(sender: AnyObject) {
