@@ -65,7 +65,7 @@ internal enum SentryError: Error {
 	// MARK: - Enums
 
 	internal struct Info {
-		static let version: String = "1.1.1"
+		static let version: String = "1.2.0"
 		static let sentryVersion: Int = 7
 	}
     
