@@ -160,11 +160,9 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread0Frames[0].instructionAddress, "0x3157e63d")
 		XCTAssertEqual(thread0Frames[0].symbolAddress, "0x3157e5dc")
 		XCTAssertEqual(thread0Frames[0].imageAddress, "0x314e0000")
-		XCTAssertEqual(thread0Frames[0].inApp, false)
 		XCTAssertEqual(thread0Frames[1].instructionAddress, "0x35099c5d")
 		XCTAssertEqual(thread0Frames[1].symbolAddress, "0x35099c44")
 		XCTAssertEqual(thread0Frames[1].imageAddress, "0x35095000")
-		XCTAssertEqual(thread0Frames[1].inApp, true)
 		
 		// Thread 1
 		let thread1 = threads[1]
