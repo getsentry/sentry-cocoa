@@ -66,11 +66,16 @@ enum SentryEndpoint: Endpoint {
                 return NSData()
             }
             do {
-                #if swift(>=3.0)
-                    let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
-                #else
-                    let data: NSData = try JSONSerialization.dataWithJSONObject(event.serialized, options: [])
-                #endif
+                var data = NSData()
+                if let transform = SentryClient.shared?.beforeSendEventBlock {
+                    data = try transform(event)
+                } else {
+                    #if swift(>=3.0)
+                        data = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
+                    #else
+                        data = try JSONSerialization.dataWithJSONObject(event.serialized, options: [])
+                    #endif
+                }
                 return data
             } catch {
                 SentryLog.Error.log("Could not serialized event - \(error)")

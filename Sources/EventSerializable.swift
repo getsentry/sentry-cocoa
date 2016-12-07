@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal typealias SerializedTypeDictionary = [String: AnyType]
+public typealias SerializedTypeDictionary = [String: AnyType]
 internal typealias SerializedTypeArray = [SerializedTypeDictionary]
 internal typealias Attribute = (key: String, value: AnyType?)
 

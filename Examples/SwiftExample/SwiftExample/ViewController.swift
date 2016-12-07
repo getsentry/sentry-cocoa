@@ -21,7 +21,7 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 		
 		// Step 2: Initialize a SentryClient with your DSN
 		// The DSN is in your Sentry project's settings
-		SentryClient.shared = SentryClient(dsnString: "")
+		SentryClient.shared = SentryClient(dsnString: "http://bf9398c8660c42ad89fdeac75c11a266:8eeb1d825c3942b384456c4356477ada@dgriesser-7b0957b1732f38a5e205.eu.ngrok.io/1")
 		
 		// OPTIONAL (but super useful)
 		// Step 3: Set and start the crash handler
@@ -58,13 +58,13 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 		
         // Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
-        
 	}
     
     // MARK: SentryClientUserFeedbackDelegate
 
     func userFeedbackReady() {
-        if let viewControllers = SentryClient.shared?.userFeedbackControllers() where self.presentedViewController == nil {            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
+        if let viewControllers = SentryClient.shared?.userFeedbackControllers() where self.presentedViewController == nil {
+            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
         }
     }
     
@@ -103,7 +103,8 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 	}
 	
     @IBAction func onClickFatalError(sender: AnyObject) {
-        SentryClient.shared?.crash()
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "miauuauau", to: "point x", from: "point y"))
+        SentryClient.shared?.testUserException()
     }
     
 	@IBAction func onClickComplexMessage(sender: AnyObject) {

@@ -190,7 +190,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=org\nexport SENTRY_PROJECT=sentry\nexport SENTRY_AUTH_TOKEN=YOUR_AUTH_TOKEN\nERROR=$(sentry-cli upload-dsym 2>&1 >/dev/null)\nif [ ! -z \"$ERROR\" ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi";
+			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=sentry\nexport SENTRY_PROJECT=internal\nexport SENTRY_AUTH_TOKEN=533044fed9f449a4801fbc529fad8dbaa518a8cdf1074c05b5291e93d3583038\nexport SENTRY_URL=http://dgriesser-7b0957b1732f38a5e205.eu.ngrok.io/\nERROR=$(sentry-cli upload-dsym 2>&1 >/dev/null)\nif [ ! -z \"$ERROR\" ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi";
 		};
 		05E992927815BE3F8A63BD58 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

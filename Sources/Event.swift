@@ -139,7 +139,7 @@ public typealias EventFingerprint = [String]
 }
 
 extension Event: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
     var sdk: [String: String]? {
         return [
@@ -149,7 +149,7 @@ extension Event: EventSerializable {
     }
     
     /// Dictionary version of attributes set in event
-    internal var serialized: SerializedType {
+    public var serialized: SerializedType {
         
         // Create attributes list
         var attributes: [Attribute] = []
