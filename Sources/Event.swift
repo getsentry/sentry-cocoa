@@ -69,7 +69,7 @@ public typealias EventFingerprint = [String]
     internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
     
     internal var debugMeta: DebugMeta?
-    
+  
     /*
      Creates an event
      - Parameter message: A message
@@ -139,7 +139,7 @@ public typealias EventFingerprint = [String]
 }
 
 extension Event: EventSerializable {
-    public typealias SerializedType = SerializedTypeDictionary
+    typealias SerializedType = SerializedTypeDictionary
     
     var sdk: [String: String]? {
         return [
@@ -149,7 +149,7 @@ extension Event: EventSerializable {
     }
     
     /// Dictionary version of attributes set in event
-    public var serialized: SerializedType {
+    var serialized: SerializedType {
         
         // Create attributes list
         var attributes: [Attribute] = []

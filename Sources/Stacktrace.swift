@@ -13,7 +13,6 @@ import Foundation
     public let frames: [Frame]
     
     internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, binaryImages: [BinaryImage]?) {
-        
         guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, let binaryImages = binaryImages else {
             return nil
         }

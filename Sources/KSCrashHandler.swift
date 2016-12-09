@@ -76,6 +76,10 @@ internal final class KSCrashHandler: CrashHandler {
         
         SentryLog.Debug.log("Started Sentry Client \(SentryClient.versionString)")
         
+        sendAllReports()
+    }
+    
+    internal func sendAllReports() {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
             installation.sendAllReports() { (filteredReports, completed, error) -> Void in
@@ -141,8 +145,15 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     .flatMap({$0 as? CrashDictionary})
                     .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
                 
+                let userReported = events.filter({
+                    if let exceptions = $0.exceptions, let exception = exceptions.first {
+                        return exception.userReported
+                    }
+                    return false
+                })
+                
                 // Sends events recursively
-                self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+                self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             }
         #else
             let qualityOfServiceClass = QOS_CLASS_BACKGROUND
@@ -152,9 +163,16 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                 let events: [Event] = reports?
                     .flatMap({$0 as? CrashDictionary})
                     .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
-                
+            
+                let userReported = events.filter({
+                    if let exceptions = $0.exceptions, let exception = exceptions.first {
+                        return exception.userReported
+                    }
+                    return false
+                })
+            
                 // Sends events recursively
-                self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+                self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             })
         #endif
     }

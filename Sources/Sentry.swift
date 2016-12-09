@@ -130,7 +130,7 @@ internal enum SentryError: Error {
 		didSet { crashHandler?.user = user }
 	}
 
-    public typealias EventBeforeSend = (Event) throws -> NSData
+    public typealias EventBeforeSend = (Event) throws -> Event
     public var beforeSendEventBlock: EventBeforeSend?
 
 	/// Creates a Sentry object to use for reporting
