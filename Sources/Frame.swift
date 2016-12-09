@@ -80,6 +80,7 @@ extension Frame: EventSerializable {
         attributes.append(("image_addr", imageAddress))
         attributes.append(("instruction_addr", instructionAddress))
         attributes.append(("symbol_addr", symbolAddress))
+        attributes.append(("platform", platform))
         
         return convertAttributes(attributes)
     }

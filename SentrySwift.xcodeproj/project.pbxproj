@@ -98,6 +98,9 @@
 		6350F6731DCE2F0900B6B596 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */; };
 		6350F6741DCE2F0900B6B596 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */; };
 		6350F6751DCE2F0A00B6B596 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350F66F1DCE2EB700B6B596 /* CrashReportConverter.swift */; };
+		63571E8E1DFAAD41001924CD /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634EA0201DF85BF000FE83A9 /* Frame.swift */; };
+		63571E951DFAAD42001924CD /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634EA0201DF85BF000FE83A9 /* Frame.swift */; };
+		63571E961DFAAD42001924CD /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634EA0201DF85BF000FE83A9 /* Frame.swift */; };
 		6382A73D1DCCBFB200065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
 		6382A73E1DCCBFB200065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
 		6382A73F1DCCBFB300065393 /* crashReports in Resources */ = {isa = PBXBuildFile; fileRef = 6382A7341DCCBF5200065393 /* crashReports */; };
@@ -1186,6 +1189,7 @@
 				63CDABA41DDF09EC00B63921 /* UserFeedback.swift in Sources */,
 				03C715261CE4DB8D0080AE60 /* Request.swift in Sources */,
 				03C7152F1CE4DB980080AE60 /* CrashHandler.swift in Sources */,
+				63571E951DFAAD42001924CD /* Frame.swift in Sources */,
 				03C715251CE4DB8D0080AE60 /* DSN.swift in Sources */,
 				03C715321CE4DBAE0080AE60 /* KSCrashHandler.swift in Sources */,
 				03C7152D1CE4DB940080AE60 /* User.swift in Sources */,
@@ -1261,6 +1265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63571E8E1DFAAD41001924CD /* Frame.swift in Sources */,
 				03817D7F1D301E1D005A674A /* Contexts.swift in Sources */,
 				03C736E21C474715004428DF /* CrashHandler.swift in Sources */,
 				9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
@@ -1321,6 +1326,7 @@
 				63CDAB381DD9D4A800B63921 /* Stacktrace.swift in Sources */,
 				63CDAB2B1DD9D48E00B63921 /* Request.swift in Sources */,
 				63CDAB391DD9D4A800B63921 /* Thread.swift in Sources */,
+				63571E961DFAAD42001924CD /* Frame.swift in Sources */,
 				63CDAB2C1DD9D49300B63921 /* NSDate+Extras.swift in Sources */,
 				63CDAB3C1DD9D4AE00B63921 /* KSCrashHandler.swift in Sources */,
 				63CDAB351DD9D4A800B63921 /* User.swift in Sources */,
