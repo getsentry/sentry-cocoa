@@ -466,14 +466,13 @@ class SentrySwiftTests: XCTestCase {
         SentryClient.shared?.startCrashHandler()
         
         SentryClient.shared?.snapshotStacktrace()
-        SentryClient.shared?.beforeSendEventBlock = { (event: Event) -> Event in
-            XCTAssertNil(event.threads)
-            XCTAssertNil(event.debugMeta)
-            event.fetchStacktrace()
-            XCTAssertNotNil(event.threads)
-            XCTAssertNotNil(event.debugMeta)
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertNil($0.threads)
+            XCTAssertNil($0.debugMeta)
+            $0.fetchStacktrace()
+            XCTAssertNotNil($0.threads)
+            XCTAssertNotNil($0.debugMeta)
             asyncExpectation.fulfill()
-            return event
         }
         SentryClient.shared?.captureMessage("Test")
         

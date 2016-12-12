@@ -68,7 +68,7 @@ enum SentryEndpoint: Endpoint {
             do {
                 var eventToSend = event
                 if let transform = SentryClient.shared?.beforeSendEventBlock {
-                    eventToSend = try transform(event)
+                    transform(&eventToSend)
                 }
                 #if swift(>=3.0)
                     return try JSONSerialization.data(withJSONObject: eventToSend.serialized, options: []) as NSData

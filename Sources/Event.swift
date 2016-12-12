@@ -35,7 +35,7 @@ public typealias EventFingerprint = [String]
 /// A class that defines an event to be reported
 @objc public final class Event: NSObject, EventProperties {
     
-    public typealias BuildEvent = (inout Event) -> Void
+    public typealias BuildEvent = (inout Event) -> ()
     internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
     
     // MARK: - Required Attributes
@@ -138,6 +138,8 @@ public typealias EventFingerprint = [String]
         super.init()
     }
     
+    /// This will set threads and debugMeta if not nil with snapshot of stacktrace if called
+    /// SentryClient.shared?.snapshotStacktrace()
     public func fetchStacktrace() {
         if threads == nil {
             threads = SentryClient.shared?.stacktraceSnapshot?.threads
