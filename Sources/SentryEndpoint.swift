@@ -95,6 +95,7 @@ enum SentryEndpoint: Endpoint {
         request.setValue(sentryHeader.value, forHTTPHeaderField: sentryHeader.key)
         
         let data = payload
+        debugData(data)
         
         #if swift(>=3.0)
             request.httpMethod = httpMethod.rawValue
@@ -137,8 +138,6 @@ enum SentryEndpoint: Endpoint {
             finished?(false)
             return
         }
-        
-        debugData(payload)
         
         #if swift(>=3.0)
             let request: NSMutableURLRequest = NSMutableURLRequest(url: url as URL)

@@ -180,8 +180,12 @@ internal enum SentryError: Error {
      Use event.fetchStacktrace() to fill your event with this stacktrace
     */
     @objc public func snapshotStacktrace() {
+        guard let crashHandler = crashHandler else {
+            SentryLog.Error.log("crashHandler not yet initialized")
+            return
+        }
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
-        crashHandler!.sendAllReports()
+        crashHandler.sendAllReports()
     }
     
 	/*
@@ -190,16 +194,7 @@ internal enum SentryError: Error {
 	- Parameter level: The severity of the message
 	*/
 	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
-		let event = Event(message, level: level)
-        #if swift(>=3.0)
-            DispatchQueue(label: SentryClient.queueName).sync {
-                self.captureEvent(event)
-            }
-        #else
-            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
-                self.captureEvent(event)
-            })
-        #endif
+        self.captureEvent(Event(message, level: level))
 	}
 
 	/// Reports given event to Sentry
