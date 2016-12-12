@@ -10,6 +10,7 @@ import Foundation
 #if os(iOS)
     import UIKit
 #endif
+import KSCrash
 
 // This is declared here to keep namespace compatibility with objc
 @objc public enum SentryLog: Int, CustomStringConvertible {
@@ -90,6 +91,9 @@ internal enum SentryError: Error {
 		return store
 	}()
     
+    public var snapshotThreads: [Thread]?
+    public var debugMeta: DebugMeta?
+    
     #if os(iOS)
     public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
     
@@ -169,6 +173,11 @@ internal enum SentryError: Error {
 		}
 	}
 	
+    @objc public func snapshotStacktraceOfAllThreads() {
+        KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
+        crashHandler!.sendAllReports()
+    }
+    
 	/*
 	Reports message to Sentry with the given level
 	- Parameter message: The message to send to Sentry

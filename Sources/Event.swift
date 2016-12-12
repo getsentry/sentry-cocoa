@@ -68,7 +68,7 @@ public typealias EventFingerprint = [String]
     public var stacktrace: Stacktrace?
     internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
     
-    internal var debugMeta: DebugMeta?
+    public var debugMeta: DebugMeta?
   
     /*
      Creates an event
