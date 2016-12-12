@@ -1,0 +1,19 @@
+{
+  "support_level": "production",
+  "platforms": {
+    "cocoa": {
+      "name": "Cocoa",
+      "type": "language",
+      "doc_link": "",
+      "wizard": [
+        "index#installation",
+        "index#configuration",
+        "index#debug-symbols",
+        "dsym#upload-symbols-with-sentry-cli"
+      ]
+    }
+  },
+  "vars": {
+    "SENTRY_SWIFT_TAG": "1.2.0"
+  }
+}
