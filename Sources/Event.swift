@@ -138,9 +138,13 @@ public typealias EventFingerprint = [String]
         super.init()
     }
     
-    public func fetchSnapshotStacktrace() {
-        threads = SentryClient.shared?.stacktraceSnapshot?.threads
-        debugMeta = SentryClient.shared?.stacktraceSnapshot?.debugMeta
+    public func fetchStacktrace() {
+        if threads == nil {
+            threads = SentryClient.shared?.stacktraceSnapshot?.threads
+        }
+        if debugMeta == nil {
+            debugMeta = SentryClient.shared?.stacktraceSnapshot?.debugMeta
+        }
     }
 }
 

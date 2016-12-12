@@ -136,6 +136,7 @@ internal enum SentryError: Error {
 	}
 
     public typealias EventBeforeSend = (Event) throws -> Event
+    /// Use this block to get the event that will be send with the next
     public var beforeSendEventBlock: EventBeforeSend?
 
 	/// Creates a Sentry object to use for reporting
@@ -174,7 +175,11 @@ internal enum SentryError: Error {
 		}
 	}
 	
-    @objc public func snapshotStacktraceOfAllThreads() {
+    /*
+     Captures current stracktrace of the thread and stores it in internal var stacktraceSnapshot
+     Use event.fetchStacktrace() to fill your event with this stacktrace
+    */
+    @objc public func snapshotStacktrace() {
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
         crashHandler!.sendAllReports()
     }
