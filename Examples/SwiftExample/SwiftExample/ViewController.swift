@@ -55,16 +55,20 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
         
         // Enable automatic breadcrumb tracking
         SentryClient.shared?.enableAutomaticBreadcrumbTracking()
-		
+
+        SentryClient.shared?.beforeSendEventBlock = {
+            $0.fetchStacktrace()
+        }
+        
         // Step 5: Don't make your app perfect so that you can get a crash ;)
 		// See the really bad "onClickBreak" function on how to do that
-        
 	}
     
     // MARK: SentryClientUserFeedbackDelegate
 
     func userFeedbackReady() {
-        if let viewControllers = SentryClient.shared?.userFeedbackControllers() where self.presentedViewController == nil {            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
+        if let viewControllers = SentryClient.shared?.userFeedbackControllers() where self.presentedViewController == nil {
+            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
         }
     }
     
@@ -103,11 +107,13 @@ class ViewController: UIViewController, SentryClientUserFeedbackDelegate {
 	}
 	
     @IBAction func onClickFatalError(sender: AnyObject) {
-        SentryClient.shared?.crash()
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "miauuauau", to: "point x", from: "point y"))
     }
     
 	@IBAction func onClickComplexMessage(sender: AnyObject) {
 		// Send a customly built event
+        SentryClient.shared?.snapshotStacktrace()
+        
 		SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test", url: "www.hammockdesk.com", method: "GET"))
 		let event = Event.build("Another example 4") {
 			$0.level = .Fatal

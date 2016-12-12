@@ -76,6 +76,10 @@ internal final class KSCrashHandler: CrashHandler {
         
         SentryLog.Debug.log("Started Sentry Client \(SentryClient.versionString)")
         
+        sendAllReports()
+    }
+    
+    internal func sendAllReports() {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
             installation.sendAllReports() { (filteredReports, completed, error) -> Void in
@@ -135,26 +139,58 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
     
     @objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 // Mapping reports
                 let events: [Event] = reports?
                     .flatMap({$0 as? CrashDictionary})
                     .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
                 
+                let userReported = events.filter({
+                    if let exceptions = $0.exceptions, let exception = exceptions.first {
+                        return exception.userReported
+                    }
+                    return false
+                })
+                
+                SentryClient.shared?.stacktraceSnapshot = (
+                    threads: userReported.first?.threads?.filter({
+                        if let crashed = $0.crashed {
+                            return crashed
+                        }
+                        return false
+                    }),
+                    debugMeta: userReported.first?.debugMeta
+                )
+                
                 // Sends events recursively
-                self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+                self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 // Mapping reports
                 let events: [Event] = reports?
                     .flatMap({$0 as? CrashDictionary})
                     .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
-                
+            
+                let userReported = events.filter({
+                    if let exceptions = $0.exceptions, let exception = exceptions.first {
+                        return exception.userReported
+                    }
+                    return false
+                })
+            
+                SentryClient.shared?.stacktraceSnapshot = (
+                    threads: userReported.first?.threads?.filter({
+                        if let crashed = $0.crashed {
+                            return crashed
+                        }
+                        return false
+                    }),
+                    debugMeta: userReported.first?.debugMeta
+                )
+            
                 // Sends events recursively
-                self.sendEvent(reports, events: events, success: true, onCompletion: onCompletion)
+                self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             })
         #endif
     }

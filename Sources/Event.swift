@@ -35,7 +35,8 @@ public typealias EventFingerprint = [String]
 /// A class that defines an event to be reported
 @objc public final class Event: NSObject, EventProperties {
     
-    public typealias BuildEvent = (inout Event) -> Void
+    public typealias BuildEvent = (inout Event) -> ()
+    internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
     
     // MARK: - Required Attributes
     
@@ -69,7 +70,7 @@ public typealias EventFingerprint = [String]
     internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
     
     internal var debugMeta: DebugMeta?
-    
+  
     /*
      Creates an event
      - Parameter message: A message
@@ -136,10 +137,21 @@ public typealias EventFingerprint = [String]
         
         super.init()
     }
+    
+    /// This will set threads and debugMeta if not nil with snapshot of stacktrace if called
+    /// SentryClient.shared?.snapshotStacktrace()
+    public func fetchStacktrace() {
+        if threads == nil {
+            threads = SentryClient.shared?.stacktraceSnapshot?.threads
+        }
+        if debugMeta == nil {
+            debugMeta = SentryClient.shared?.stacktraceSnapshot?.debugMeta
+        }
+    }
 }
 
 extension Event: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
+    typealias SerializedType = SerializedTypeDictionary
     
     var sdk: [String: String]? {
         return [
@@ -149,7 +161,7 @@ extension Event: EventSerializable {
     }
     
     /// Dictionary version of attributes set in event
-    internal var serialized: SerializedType {
+    var serialized: SerializedType {
         
         // Create attributes list
         var attributes: [Attribute] = []

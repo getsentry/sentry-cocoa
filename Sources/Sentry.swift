@@ -10,6 +10,7 @@ import Foundation
 #if os(iOS)
     import UIKit
 #endif
+import KSCrash
 
 // This is declared here to keep namespace compatibility with objc
 @objc public enum SentryLog: Int, CustomStringConvertible {
@@ -61,6 +62,8 @@ internal enum SentryError: Error {
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
     }
+    
+    internal static let queueName = "io.sentry.event.queue"
 
 	// MARK: - Enums
 
@@ -89,6 +92,8 @@ internal enum SentryError: Error {
 		}
 		return store
 	}()
+    
+    internal var stacktraceSnapshot: Event.StacktraceSnapshot?
     
     #if os(iOS)
     public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
@@ -130,6 +135,10 @@ internal enum SentryError: Error {
 		didSet { crashHandler?.user = user }
 	}
 
+    public typealias EventBeforeSend = (inout Event) -> ()
+    /// Use this block to get the event that will be send with the next
+    public var beforeSendEventBlock: EventBeforeSend?
+
 	/// Creates a Sentry object to use for reporting
 	internal init(dsn: DSN) {
 		self.dsn = dsn
@@ -166,36 +175,36 @@ internal enum SentryError: Error {
 		}
 	}
 	
+    /*
+     Captures current stracktrace of the thread and stores it in internal var stacktraceSnapshot
+     Use event.fetchStacktrace() to fill your event with this stacktrace
+    */
+    @objc public func snapshotStacktrace() {
+        guard let crashHandler = crashHandler else {
+            SentryLog.Error.log("crashHandler not yet initialized")
+            return
+        }
+        KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
+        crashHandler.sendAllReports()
+    }
+    
 	/*
 	Reports message to Sentry with the given level
 	- Parameter message: The message to send to Sentry
 	- Parameter level: The severity of the message
 	*/
 	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
-		let event = Event(message, level: level)
-        #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
-                self.captureEvent(event)
-            }
-        #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
-                self.captureEvent(event)
-            })
-        #endif
+        self.captureEvent(Event(message, level: level))
 	}
 
 	/// Reports given event to Sentry
 	@objc public func captureEvent(_ event: Event) {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 self.captureEvent(event, useClientProperties: true)
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.captureEvent(event, useClientProperties: true)
             })
         #endif
@@ -318,13 +327,11 @@ internal enum SentryError: Error {
     /// Sends events that are stored on disk to the server
     private func sendEventsOnDiskInBackground() {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 self.sendEventsOnDisk()
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.sendEventsOnDisk()
             })
         #endif

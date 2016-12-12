@@ -66,12 +66,15 @@ enum SentryEndpoint: Endpoint {
                 return NSData()
             }
             do {
+                var eventToSend = event
+                if let transform = SentryClient.shared?.beforeSendEventBlock {
+                    transform(&eventToSend)
+                }
                 #if swift(>=3.0)
-                    let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
+                    return try JSONSerialization.data(withJSONObject: eventToSend.serialized, options: []) as NSData
                 #else
-                    let data: NSData = try JSONSerialization.dataWithJSONObject(event.serialized, options: [])
+                    return try JSONSerialization.dataWithJSONObject(eventToSend.serialized, options: [])
                 #endif
-                return data
             } catch {
                 SentryLog.Error.log("Could not serialized event - \(error)")
                 return NSData()
@@ -92,6 +95,7 @@ enum SentryEndpoint: Endpoint {
         request.setValue(sentryHeader.value, forHTTPHeaderField: sentryHeader.key)
         
         let data = payload
+        debugData(data)
         
         #if swift(>=3.0)
             request.httpMethod = httpMethod.rawValue
@@ -134,8 +138,6 @@ enum SentryEndpoint: Endpoint {
             finished?(false)
             return
         }
-        
-        debugData(payload)
         
         #if swift(>=3.0)
             let request: NSMutableURLRequest = NSMutableURLRequest(url: url as URL)

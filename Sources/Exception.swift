@@ -16,6 +16,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
     public let type: String?
     public var mechanism: Mechanism?
     public let module: String?
+    public var userReported = false
     
     public var thread: Thread?
     
@@ -54,7 +55,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         
         let crashedThread = threads?.filter({$0.crashed ?? false}).first
         
-        let (type, value) = Exception.extractCrashValue(appleCrashErrorDict)
+        let (type, value, userReported) = Exception.extractCrashValue(appleCrashErrorDict)
         
         // We prefer diagnosis generated from KSCrash
         if let diagnosis = diagnosis {
@@ -68,13 +69,15 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             return nil
         }
         
+        self.userReported = userReported
         self.mechanism = mechanism
         self.thread = crashedThread
     }
     
-    private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?) {
+    private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?, Bool) {
         var type = appleCrashErrorDict["type"] as? String
         var value = appleCrashErrorDict["reason"] as? String
+        var userReported = false
         
         switch type {
         case "nsexception"?:
@@ -107,14 +110,13 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
                 let name = context["name"] as? String {
                 type = name
-                // TODO: with custom stack
-                // TODO: also platform field for customs stack
+                userReported = true
             }
         default:
             value = "UNKNOWN Exception"
         }
         
-        return (type: type, value: value)
+        return (type: type, value: value, userReported: userReported)
     }
 }
 

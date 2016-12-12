@@ -12,10 +12,12 @@ import SentrySwift
 
 class SentrySwiftTests: XCTestCase {
 	
-	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+	var client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
 	
     override func setUp() {
         super.setUp()
+        client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+        SentryClient.shared = client
     }
     
     override func tearDown() {
@@ -396,32 +398,6 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.user!.username!, testUser.username!)
     }
     
-    #if swift(>=3.0)
-    func testCaptureEvent() {
-        let asyncExpectation = expectation(description: "testCaptureEvent")
-        
-        let event = Event.build("Another example 4") {
-            $0.level = .Fatal
-            $0.tags = ["status": "test"]
-            $0.extra = [
-                "name": "Josh Holtz",
-                "favorite_power_ranger": "green/white"
-            ]
-        }
-        client.breadcrumbs.add(Breadcrumb(category: "captureEvent"))
-        client.captureEvent(event)
-        
-        let deadlineTime = DispatchTime.now() + .milliseconds(50)
-        DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
-            asyncExpectation.fulfill()
-        }
-        waitForExpectations(timeout: 2) { error in
-            if let breadcrumbs = event.serialized["breadcrumbs"] as? [Dictionary<String, AnyType>] {
-                XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
-            }
-        }
-    }
-    #endif
     #if os(iOS)
     func testUserFeedbackController() {
         client.enableUserFeedbackAfterFatalEvent()
@@ -456,6 +432,56 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertEqual(serialized.count, 2)
         XCTAssertNil(serialized["function"])
     }
+    
+    
+    #if swift(>=3.0)
+    func testCaptureEvent() {
+        let asyncExpectation = expectation(description: "testCaptureEvent")
+        
+        let event = Event.build("Another example 4") {
+            $0.level = .Fatal
+            $0.tags = ["status": "test"]
+            $0.extra = [
+                "name": "Josh Holtz",
+                "favorite_power_ranger": "green/white"
+            ]
+        }
+        client.breadcrumbs.add(Breadcrumb(category: "captureEvent"))
+        client.captureEvent(event)
+        
+        let deadlineTime = DispatchTime.now() + .milliseconds(50)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
+            asyncExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 2) { error in
+            if let breadcrumbs = event.serialized["breadcrumbs"] as? [Dictionary<String, AnyType>] {
+                XCTAssertEqual(breadcrumbs.first?["category"] as? String, "captureEvent")
+            }
+        }
+    }
+    
+    func testCaptureStacktrace() {
+        let asyncExpectation = expectation(description: "testCaptureStacktrace")
+        
+        SentryClient.shared?.startCrashHandler()
+        
+        SentryClient.shared?.snapshotStacktrace()
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertNil($0.threads)
+            XCTAssertNil($0.debugMeta)
+            $0.fetchStacktrace()
+            XCTAssertNotNil($0.threads)
+            XCTAssertNotNil($0.debugMeta)
+            asyncExpectation.fulfill()
+        }
+        SentryClient.shared?.captureMessage("Test")
+        
+        waitForExpectations(timeout: 1) { error in
+            
+        }
+    }
+    #endif
+    
 }
 
 /// A small hack to compare dictionaries
