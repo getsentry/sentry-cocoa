@@ -60,7 +60,7 @@ PODS:
     - KSCrash/Reporting/Tools
   - KSCrash/Reporting/Tools (1.11.2):
     - KSCrash/Recording
-  - SentrySwift (1.2.0):
+  - SentrySwift (1.3.0):
     - KSCrash (~> 1.11.2)
 
 DEPENDENCIES:
@@ -81,7 +81,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   KSCrash: 8acc46aca72b2772d5d1e3cba1da9173db4d705e
-  SentrySwift: 4beaa4c27bdb85088ab3583774dfebaec11d783f
+  SentrySwift: fa4fab2c6525bebcef79726079dd0e4e0d31571a
 
 PODFILE CHECKSUM: 5e326fa60029d0b3ae7367d5ab838b24ced29e2c
 
