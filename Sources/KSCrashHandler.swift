@@ -152,13 +152,16 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     return false
                 })
                 
-                SentryClient.shared?.snapshotThreads = userReported.first?.threads?.filter({
-                    if let crashed = $0.crashed {
-                        return crashed
-                    }
-                    return false
-                })
-                SentryClient.shared?.debugMeta = userReported.first?.debugMeta
+                SentryClient.shared?.stacktraceSnapshot = (
+                    threads: userReported.first?.threads?.filter({
+                        if let crashed = $0.crashed {
+                            return crashed
+                        }
+                        return false
+                    }),
+                    debugMeta: userReported.first?.debugMeta
+                )
+                
                 // Sends events recursively
                 self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             }
@@ -178,13 +181,16 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     return false
                 })
             
-                SentryClient.shared?.snapshotThreads = userReported.first?.threads?.filter({
-                    if let crashed = $0.crashed {
-                        return crashed
-                    }
-                    return false
-                })
-                SentryClient.shared?.debugMeta = userReported.first?.debugMeta
+                SentryClient.shared?.stacktraceSnapshot = (
+                    threads: userReported.first?.threads?.filter({
+                        if let crashed = $0.crashed {
+                            return crashed
+                        }
+                        return false
+                    }),
+                    debugMeta: userReported.first?.debugMeta
+                )
+            
                 // Sends events recursively
                 self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             })

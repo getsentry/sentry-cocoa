@@ -36,6 +36,7 @@ public typealias EventFingerprint = [String]
 @objc public final class Event: NSObject, EventProperties {
     
     public typealias BuildEvent = (inout Event) -> Void
+    internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
     
     // MARK: - Required Attributes
     
@@ -68,7 +69,7 @@ public typealias EventFingerprint = [String]
     public var stacktrace: Stacktrace?
     internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
     
-    public var debugMeta: DebugMeta?
+    internal var debugMeta: DebugMeta?
   
     /*
      Creates an event
@@ -135,6 +136,11 @@ public typealias EventFingerprint = [String]
         self.stacktrace = stacktrace
         
         super.init()
+    }
+    
+    public func fetchSnapshotStacktrace() {
+        threads = SentryClient.shared?.stacktraceSnapshot?.threads
+        debugMeta = SentryClient.shared?.stacktraceSnapshot?.debugMeta
     }
 }
 

@@ -91,8 +91,7 @@ internal enum SentryError: Error {
 		return store
 	}()
     
-    public var snapshotThreads: [Thread]?
-    public var debugMeta: DebugMeta?
+    internal var stacktraceSnapshot: Event.StacktraceSnapshot?
     
     #if os(iOS)
     public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
