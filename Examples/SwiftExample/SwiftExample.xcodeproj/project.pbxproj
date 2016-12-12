@@ -139,7 +139,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0720;
-				ORGANIZATIONNAME = RokkinCat;
+				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
 					03864B621C89F9100030B13A = {
 						CreatedOnToolsVersion = 7.2.1;

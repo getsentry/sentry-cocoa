@@ -139,7 +139,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
     
     @objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 // Mapping reports
                 let events: [Event] = reports?
                     .flatMap({$0 as? CrashDictionary})
@@ -166,9 +166,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                 self.sendEvent(reports, events: events.filter({ !userReported.contains($0) }), success: true, onCompletion: onCompletion)
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 // Mapping reports
                 let events: [Event] = reports?
                     .flatMap({$0 as? CrashDictionary})

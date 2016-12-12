@@ -19,6 +19,10 @@ class TestCrashHandler: CrashHandler {
 		crashReportingHasStarted = true
 	}
 
+    func sendAllReports() {
+        
+    }
+    
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
 	var releaseVersion: String?
 	var tags: EventTags = [:]

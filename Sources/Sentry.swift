@@ -62,6 +62,8 @@ internal enum SentryError: Error {
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
     }
+    
+    internal static let queueName = "io.sentry.event.queue"
 
 	// MARK: - Enums
 
@@ -185,13 +187,11 @@ internal enum SentryError: Error {
 	@objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
 		let event = Event(message, level: level)
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 self.captureEvent(event)
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.captureEvent(event)
             })
         #endif
@@ -200,13 +200,11 @@ internal enum SentryError: Error {
 	/// Reports given event to Sentry
 	@objc public func captureEvent(_ event: Event) {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 self.captureEvent(event, useClientProperties: true)
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.captureEvent(event, useClientProperties: true)
             })
         #endif
@@ -329,13 +327,11 @@ internal enum SentryError: Error {
     /// Sends events that are stored on disk to the server
     private func sendEventsOnDiskInBackground() {
         #if swift(>=3.0)
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue(label: SentryClient.queueName).sync {
                 self.sendEventsOnDisk()
             }
         #else
-            let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-            let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-            dispatch_async(backgroundQueue, {
+            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.sendEventsOnDisk()
             })
         #endif
