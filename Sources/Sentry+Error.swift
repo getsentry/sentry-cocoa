@@ -69,7 +69,7 @@ extension Event {
 
 extension SentryClient {
     public func captureError(error: NSError, file: String = #file, line: Int = #line, function: String = #function) {
-        let frame = Frame(file: file, function: function, module: nil, line: line)
+        let frame = Frame(fileName: file, function: function, module: nil, line: line)
         let event = Event(error: error, frame: frame)
         captureEvent(event)
     }

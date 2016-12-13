@@ -9,11 +9,12 @@
 import Foundation
 
 @objc public class Frame: NSObject {
-    public var file: String?
+    public var fileName: String?
     public var function: String?
     public var module: String?
     
     public var line: Int?
+    public var column: Int?
     
     public var package: String?
     public var imageAddress: String?
@@ -21,25 +22,25 @@ import Foundation
     public var instructionAddress: String?
     public var symbolAddress: String?
     
-    var fileName: String? {
-        guard let file = file else { return nil }
-        return (file as NSString).lastPathComponent
-    }
-    
     var culprit: String? {
         guard let fileName = fileName, let line = line, let function = function else { return nil }
         return "\(fileName):\(line) \(function)"
     }
     
     /// Creates `Exception` object
-    @objc public init(file: String? = nil, function: String? = nil, module: String? = nil, line: Int) {
-        self.file = file
+    @objc public init(fileName: String? = nil, function: String? = nil, module: String? = nil, line: Int) {
+        self.fileName = fileName
         self.function = function
         self.module = module
         
         self.line = line
         
         super.init()
+    }
+    
+    @objc public convenience init(fileName: String? = nil, function: String? = nil, module: String? = nil, line: Int, column: Int) {
+        self.init(fileName: fileName, function: function, module: module, line: line)
+        self.column = column
     }
     
     private override init() {
@@ -76,6 +77,7 @@ extension Frame: EventSerializable {
         attributes.append(("function", function))
         attributes.append(("module", module))
         attributes.append(("lineno", line))
+        attributes.append(("colno", column))
         attributes.append(("package", package))
         attributes.append(("image_addr", imageAddress))
         attributes.append(("instruction_addr", instructionAddress))
