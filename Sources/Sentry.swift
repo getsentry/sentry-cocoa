@@ -57,7 +57,7 @@ internal enum SentryError: Error {
     // MARK: - Static Attributes
     
     public static var shared: SentryClient?
-    public static var logLevel: SentryLog = .None
+    public static var logLevel: SentryLog = .Error
     
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"

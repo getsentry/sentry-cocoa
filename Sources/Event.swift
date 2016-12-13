@@ -180,10 +180,21 @@ extension Event: EventSerializable {
         attributes.append(("culprit", culprit))
         attributes.append(("server_name", serverName))
         attributes.append(("release", releaseVersion))
-        attributes.append(("tags", JSONSerialization.isValidJSONObject(tags) ? tags : nil))
         attributes.append(("modules", modules))
-        attributes.append(("extra", JSONSerialization.isValidJSONObject(extra) ? extra : nil))
         attributes.append(("fingerprint", fingerprint))
+        
+        if !tags.isEmpty && JSONSerialization.isValidJSONObject(tags) {
+            attributes.append(("tags", tags))
+        } else if !tags.isEmpty {
+            SentryLog.Error.log("event.tags is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
+        }
+        
+        if !extra.isEmpty && JSONSerialization.isValidJSONObject(extra) {
+            attributes.append(("extra", extra))
+        } else if !extra.isEmpty {
+            SentryLog.Error.log("event.extra is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
+        }
+        
         // Interfaces
         attributes.append(("user", user?.serialized))
         attributes.append(("threads", [:].set("values", value: threads?.map() { $0.serialized })))

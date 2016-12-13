@@ -482,6 +482,43 @@ class SentrySwiftTests: XCTestCase {
     }
     #endif
     
+    func testNoValidJSON() {
+        XCTAssertNil(Event.build("Alarm is too far in future") {
+                $0.level = .Warning
+                $0.extra = [
+                    "Alarm ID": "12",
+                    "Query Time" : 12,
+                    "Local Query Time" : NSDate(),
+                    "Local Current Time" : "123",
+                    "Seconds Since Query" : "123123",
+                    "Seconds to arrival" : 123.1
+                ]
+            }.serialized["extra"])
+        
+        XCTAssertNotNil(Event.build("Alarm is too far in future") {
+            $0.level = .Warning
+            $0.extra = [
+                "Alarm ID": "12",
+                "Query Time" : 12,
+                "Local Query Time" : "asda",
+                "Local Current Time" : "123",
+                "Seconds Since Query" : "123123",
+                "Seconds to arrival" : 123.1
+            ]
+            }.serialized["extra"])
+        
+        XCTAssertNotNil(Event.build("Alarm is too far in future") {
+            $0.level = .Warning
+            $0.tags = [
+                "Alarm ID": "12",
+                "Query Time" : "12",
+                "Local Query Time" : "asda",
+                "Local Current Time" : "123",
+                "Seconds Since Query" : "123123",
+                "Seconds to arrival" : "123.1"
+            ]
+            }.serialized["tags"])
+    }
 }
 
 /// A small hack to compare dictionaries
