@@ -183,13 +183,13 @@ extension Event: EventSerializable {
         attributes.append(("modules", modules))
         attributes.append(("fingerprint", fingerprint))
         
-        if !tags.isEmpty && JSONSerialization.isValidJSONObject(tags) {
+        if JSONSerialization.isValidJSONObject(tags) {
             attributes.append(("tags", tags))
         } else if !tags.isEmpty {
             SentryLog.Error.log("event.tags is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
         }
         
-        if !extra.isEmpty && JSONSerialization.isValidJSONObject(extra) {
+        if JSONSerialization.isValidJSONObject(extra) {
             attributes.append(("extra", extra))
         } else if !extra.isEmpty {
             SentryLog.Error.log("event.extra is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
