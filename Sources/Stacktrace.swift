@@ -41,3 +41,32 @@ extension Stacktrace: EventSerializable {
         #endif
     }
 }
+
+extension Stacktrace {
+    
+    public static func convertReactNativeStacktrace(stacktrace: [Dictionary<String, AnyObject>]?) -> Stacktrace? {
+        guard let stacktrace = stacktrace else { return nil }
+        
+        var frames: [Frame] = []
+        for frame in stacktrace {
+            if frame["methodName"] == nil {
+                continue
+            }
+            if let file = frame["file"] as? String {
+                if file == "[native code]" {
+                    continue
+                }
+                if let methodName = frame["methodName"] as? String,
+                    let lineNumber = frame["lineNumber"] as? Int,
+                    let column = frame["column"] as? Int {
+                    let frame = Frame(fileName: file, function: methodName, module: nil, line: lineNumber, column: column)
+                    frame.platform = "javascript"
+                    frames.append(frame)
+                }
+            }
+        }
+        
+        return Stacktrace(frames: frames)
+    }
+    
+}

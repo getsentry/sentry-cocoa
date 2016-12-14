@@ -72,6 +72,10 @@ internal enum SentryError: Error {
         static let sentryVersion: Int = 7
     }
     
+    internal struct CrashLanguages {
+        static let reactNative = "react-native"
+    }
+    
     // MARK: - Attributes
     
     internal let dsn: DSN
@@ -186,6 +190,10 @@ internal enum SentryError: Error {
         }
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
         crashHandler.sendAllReports()
+    }
+    
+    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [Any]) {
+        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, terminateProgram: true)
     }
     
     /*

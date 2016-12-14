@@ -38,7 +38,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         return lhs.type == rhs.type && lhs.value == rhs.value && lhs.module == rhs.module
     }
     
-    internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: [Thread]? = nil, diagnosis: String? = nil) {
+    internal convenience init?(appleCrashErrorDict: [String: AnyObject], threads: inout [Thread], diagnosis: String? = nil) {
         var mechanism = Mechanism()
         
         if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
@@ -53,9 +53,15 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
         }
         
-        let crashedThread = threads?.filter({$0.crashed ?? false}).first
+        let (type, value, userReported, stacktrace) = Exception.extractCrashValue(appleCrashErrorDict)
         
-        let (type, value, userReported) = Exception.extractCrashValue(appleCrashErrorDict)
+        var crashedThread = threads.filter({$0.crashed ?? false}).first
+        
+        if let stacktrace = stacktrace {
+            let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)
+            threads.append(reactNativeThread)
+            crashedThread = reactNativeThread
+        }
         
         // We prefer diagnosis generated from KSCrash
         if let diagnosis = diagnosis {
@@ -74,10 +80,11 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         self.thread = crashedThread
     }
     
-    private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?, Bool) {
+    private static func extractCrashValue(_ appleCrashErrorDict: [String: AnyObject]) -> (String?, String?, Bool, Stacktrace?) {
         var type = appleCrashErrorDict["type"] as? String
         var value = appleCrashErrorDict["reason"] as? String
         var userReported = false
+        var stacktrace: Stacktrace?
         
         switch type {
         case "nsexception"?:
@@ -108,15 +115,22 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             }
         case "user"?:
             if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
-                let name = context["name"] as? String {
+                let name = context["name"] as? String,
+                let language = context["language"] as? String {
                 type = name
-                userReported = true
+                if language == SentryClient.CrashLanguages.reactNative { // We use this syntax here because dont want to have swift 3.0 #if
+                    if let backtrace = context["backtrace"] as? [Dictionary<String, AnyObject>] {
+                        stacktrace = Stacktrace.convertReactNativeStacktrace(stacktrace: backtrace)
+                    }
+                } else {
+                    userReported = true
+                }
             }
         default:
             value = "UNKNOWN Exception"
         }
         
-        return (type: type, value: value, userReported: userReported)
+        return (type: type, value: value, userReported: userReported, stacktrace: stacktrace)
     }
 }
 

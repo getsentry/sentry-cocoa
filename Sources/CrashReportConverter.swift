@@ -46,12 +46,12 @@ internal final class CrashReportConverter {
             return nil
         }
         
-        let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+        let binaryImages = binaryImagesDicts.flatMap({ BinaryImage(appleCrashBinaryImagesDict: $0) })
         
         let debugMeta = DebugMeta(binaryImages: binaryImages)
         
-        let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-        guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads, diagnosis: diagnosis) else {
+        var threads = threadDicts.flatMap({ Thread(appleCrashThreadDict: $0, binaryImages: binaryImages) })
+        guard let exception = Exception(appleCrashErrorDict: errorDict, threads: &threads, diagnosis: diagnosis) else {
             SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
         }
