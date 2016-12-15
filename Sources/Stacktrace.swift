@@ -56,10 +56,15 @@ extension Stacktrace {
                 if file == "[native code]" {
                     continue
                 }
+                #if swift(>=3.0)
+                    let simpleFilename = (file as NSString).lastPathComponent.components(separatedBy: "?")[0]
+                #else
+                    let simpleFilename = (file as NSString).lastPathComponent.componentsSeparatedByString("?")[0]
+                #endif
                 if let methodName = frame["methodName"] as? String,
                     let lineNumber = frame["lineNumber"] as? Int,
                     let column = frame["column"] as? Int {
-                    let frame = Frame(fileName: file, function: methodName, module: nil, line: lineNumber, column: column)
+                    let frame = Frame(fileName: "/\(simpleFilename)", function: methodName, module: nil, line: lineNumber, column: column)
                     frame.platform = "javascript"
                     frames.append(frame)
                 }
