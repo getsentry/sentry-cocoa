@@ -42,7 +42,12 @@ internal class SentrySwizzle {
                 let originalMethodUIViewController = class_getInstanceMethod(UIViewController.self, originalSelectorUIViewController)
                 let swizzledMethodUIViewController = class_getInstanceMethod(UIViewController.self, swizzledSelectorUIViewController)
                 
-                let didAddMethodUIViewController = class_addMethod(UIViewController.self, originalSelectorUIViewController, method_getImplementation(swizzledMethodUIViewController), method_getTypeEncoding(swizzledMethodUIViewController))
+                let didAddMethodUIViewController = class_addMethod(
+                    UIViewController.self,
+                    originalSelectorUIViewController,
+                    method_getImplementation(swizzledMethodUIViewController),
+                    method_getTypeEncoding(swizzledMethodUIViewController)
+                )
                 
                 if didAddMethodUIViewController {
                     class_replaceMethod(UIViewController.self, swizzledSelectorUIViewController, method_getImplementation(originalMethodUIViewController), method_getTypeEncoding(originalMethodUIViewController))

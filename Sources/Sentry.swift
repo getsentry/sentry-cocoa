@@ -192,7 +192,7 @@ internal enum SentryError: Error {
         crashHandler.sendAllReports()
     }
     
-    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [Any]) {
+    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [AnyType]) {
         KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, terminateProgram: true)
     }
     
