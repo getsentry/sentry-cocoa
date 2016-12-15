@@ -60,10 +60,8 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             crashedThread = reactNativeThread
         }
         
-        if value == Exception.defaultReason {
-            if let reason = crashedThread?.reason {
-                value = reason
-            }
+        if let reason = crashedThread?.reason {
+            value = reason
         }
         
         thread = crashedThread
@@ -106,7 +104,9 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
     
     private func extractReason(_ appleCrashErrorDict: [String: AnyObject]) {
         type = appleCrashErrorDict["type"] as? String
-        value = "\(appleCrashErrorDict["reason"])"
+        if let reason = appleCrashErrorDict["reason"] as? String {
+            value = reason
+        }
         
         switch type {
         case "nsexception"?:
@@ -115,8 +115,9 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
                 value = context["reason"] as? String ?? value
             }
         case "cpp_exception"?:
-            if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject] {
-                value = "\(context["name"])"
+            if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject],
+                let name = context["name"] as? String {
+                value = name
             }
         case "mach"?:
             if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
