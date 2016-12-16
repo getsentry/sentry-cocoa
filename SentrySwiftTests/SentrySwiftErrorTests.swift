@@ -11,7 +11,7 @@ import XCTest
 
 class SentrySwiftErrorTests: XCTestCase {
     let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
-    let frame = Frame(file: "a", function: "b", line: 1)
+    let frame = Frame(fileName: "a", function: "b", line: 1)
 
     func testSimpleError() {
         let domain = "testDomain"

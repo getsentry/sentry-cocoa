@@ -57,7 +57,7 @@ internal enum SentryError: Error {
     // MARK: - Static Attributes
     
     public static var shared: SentryClient?
-    public static var logLevel: SentryLog = .None
+    public static var logLevel: SentryLog = .Error
     
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
@@ -70,6 +70,10 @@ internal enum SentryError: Error {
     internal struct Info {
         static let version: String = "1.3.0"
         static let sentryVersion: Int = 7
+    }
+    
+    internal struct CrashLanguages {
+        static let reactNative = "react-native"
     }
     
     // MARK: - Attributes
@@ -186,6 +190,10 @@ internal enum SentryError: Error {
         }
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
         crashHandler.sendAllReports()
+    }
+    
+    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [AnyType]) {
+        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, terminateProgram: true)
     }
     
     /*

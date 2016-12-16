@@ -34,8 +34,6 @@ internal final class CrashReportConverter {
             return nil
         }
         
-        let diagnosis = crashDict["diagnosis"] as? String
-        
         guard let errorDict = crashDict["error"] as? [String: AnyObject] else {
             SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
@@ -46,15 +44,15 @@ internal final class CrashReportConverter {
             return nil
         }
         
-        let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
+        let binaryImages = binaryImagesDicts.flatMap({ BinaryImage(appleCrashBinaryImagesDict: $0) })
         
         let debugMeta = DebugMeta(binaryImages: binaryImages)
         
-        let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
-        guard let exception = Exception(appleCrashErrorDict: errorDict, threads: threads, diagnosis: diagnosis) else {
-            SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
-            return nil
-        }
+        var threads = threadDicts.flatMap({ Thread(appleCrashThreadDict: $0, binaryImages: binaryImages) })
+        
+        let exception = Exception(appleCrashErrorDict: errorDict)
+        exception.update(threads: &threads) // the order is important for this 2 calls
+        exception.update(ksCrashDiagnosis: crashDict["diagnosis"] as? String) // the order is important for this 2 calls
         
         /// Generate event to sent up to API
         /// Sends a blank message because server does stuff

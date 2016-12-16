@@ -37,7 +37,7 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+		var threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 8)
@@ -69,7 +69,8 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread4.name, "WebThread")
 		
 		// Test exception
-		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+		let exception = Exception(appleCrashErrorDict: errorDict)
+        exception.update(threads: &threads)
 		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Signal 6, Code 0")
 		XCTAssertEqual(exception.type, "SIGABRT")
@@ -84,7 +85,7 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+		var threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 7)
@@ -128,7 +129,8 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread6.name, "KSCrash Exception Handler (Primary)")
 		
 		// Test exception
-        let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+        let exception = Exception(appleCrashErrorDict: errorDict)
+        exception.update(threads: &threads)
 		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "Exception 1, Code 1, Subcode 0")
 		XCTAssertEqual(exception.type, "EXC_BAD_ACCESS")
@@ -143,7 +145,7 @@ class SentrySwiftCrashTests: XCTestCase {
 		
 		let binaryImages = binaryImagesDicts.flatMap({BinaryImage(appleCrashBinaryImagesDict: $0)})
 		
-		let threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
+		var threads = threadDicts.flatMap({Thread(appleCrashThreadDict: $0, binaryImages: binaryImages)})
 		
 		// Test threads
 		XCTAssertEqual(threads.count, 8)
@@ -187,7 +189,8 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(thread4.name, "WebThread")
 		
 		// Test exception
-		let exception = Exception(appleCrashErrorDict: errorDict, threads: threads)!
+		let exception = Exception(appleCrashErrorDict: errorDict)
+        exception.update(threads: &threads)
 		XCTAssertEqual(exception.thread?.id, 0)
 		XCTAssertEqual(exception.value, "-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50")
 		XCTAssertEqual(exception.type, "NSInvalidArgumentException")

@@ -31,8 +31,9 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "SIGABRT")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Signal 6, Code 0")
     }
-
+    
     func testCrashprobeOverwriteLink() { // Overwrite link register, then crash
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-CrashReport-04DBADA2-A47E-4F18-B933-D21FF3981602")!
         
@@ -40,8 +41,9 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
-
+    
     func testCrashprobeBadPointer() { // Dereference a bad pointer
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-CrashReport-5A3A2D67-08CE-4BC9-8F94-E108802723E6")!
         
@@ -49,6 +51,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 377913344, Subcode 8")
     }
     
     func testCrashprobeJumpNXPage() { // Jump into an NX page
@@ -58,6 +61,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeDWARF() { // DWARF Unwinding
@@ -67,6 +71,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeCorruptMalloc() { // Corrupt malloc()'s internal tracking information
@@ -76,6 +81,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "SIGABRT")
+        XCTAssertEqual(event?.exceptions?.first?.value, "*** error for object 0x608000272540: Invalid pointer dequeued from free list")
     }
     
     func testCrashprobeThrowObjcException() { // Throw Objective-C exception
@@ -85,6 +91,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "NSGenericException")
+        XCTAssertEqual(event?.exceptions?.first?.value, "An uncaught exception! SCREAM.")
     }
     
     func testCrashprobeDereferenceNullPointer() { // Dereference a NULL pointer
@@ -94,6 +101,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeMessageReleasedObject() { // Message a released object
@@ -103,6 +111,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeBuiltinTrap() { // Call __builtin_trap()
@@ -112,6 +121,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_INSTRUCTION")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 2, Code 0, Subcode 8")
     }
     
     func testCrashprobeExecutePrivInstruction() { // Execute a privileged instruction
@@ -121,6 +131,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeSwift() { // Swift
@@ -130,6 +141,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_INSTRUCTION")
+        XCTAssertEqual(event?.exceptions?.first?.value, "unexpectedly found nil while unwrapping an Optional value")
     }
     
     func testCrashprobePthreadListLock() { // Crash with _pthread_list_lock held
@@ -139,6 +151,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 1, Subcode 8")
     }
     
     func testCrashprobeAccessNonObject() { // Access a non-object as an object
@@ -148,6 +161,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 16, Subcode 8")
     }
     
     func testCrashprobeWriteReadOnlyPage() { // Write to a read-only page
@@ -157,6 +171,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 116779056, Subcode 8")
     }
     
     func testCrashprobeSmashBottomStack() { // Smash the bottom of the stack
@@ -166,6 +181,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeSmashTopStack() { // Smash the top of the stack
@@ -175,6 +191,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
     }
     
     func testCrashprobeObjcMsgSend() { // Crash inside objc_msgSend()
@@ -184,6 +201,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 66, Subcode 8")
     }
     
     func testCrashprobeStackOverflow() { // Stack overflow
@@ -193,6 +211,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 1482043384, Subcode 8")
     }
     
     func testCrashprobeExecUndefInstruction() { // Execute an undefined instruction
@@ -202,6 +221,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_INSTRUCTION")
+        XCTAssertEqual(event?.exceptions?.first?.value, "Exception 2, Code 0, Subcode 8")
     }
     
     
@@ -212,6 +232,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "cpp_exception")
+        XCTAssertEqual(event?.exceptions?.first?.value, "P16kaboom_exception")
     }
     
     

@@ -11,7 +11,7 @@ import XCTest
 
 class SentrySwiftSourceLocationTests: XCTestCase {
 
-	let frame = Frame(file: "please", function: "this", line: 7357)
+	let frame = Frame(fileName: "please", function: "this", line: 7357)
 
     func testCulprit() {
         XCTAssertEqual(frame.culprit, "please:7357 this")
@@ -27,8 +27,8 @@ class SentrySwiftSourceLocationTests: XCTestCase {
     }
 
     func testTruncatesPath() {
-		let frame = Frame(file: "/absolute/path/to/something.spl", function: "a", line: 1)
-        XCTAssertEqual(frame.culprit, "something.spl:1 a")
+		let frame = Frame(fileName: "/absolute/path/to/something.spl", function: "a", line: 1)
+        XCTAssertEqual(frame.culprit, "/absolute/path/to/something.spl:1 a")
     }
 
     func testSourceLocationMerge() {
