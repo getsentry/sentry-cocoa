@@ -1,5 +1,5 @@
 //
-//  SwiftSentryReactNativeCrashTests.swift
+//  SentrySwiftReactNativeCrashTests.swift
 //  SentrySwift
 //
 //  Created by Daniel Griesser on 14/12/2016.
@@ -10,7 +10,7 @@ import XCTest
 import KSCrash
 @testable import SentrySwift
 
-class SwiftSentryReactNativeCrashTests: XCTestCase {
+class SentrySwiftReactNativeCrashTests: XCTestCase {
     
     let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
     let testHelper = SentrySwiftTestHelper()
