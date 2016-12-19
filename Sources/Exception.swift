@@ -69,17 +69,17 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
     #else
     func update(inout threads threads: [Thread]) {
         var crashedThread = threads.filter({ $0.crashed ?? false }).first
-        
+    
         if let stacktrace = userStacktrace {
             let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)
             threads.append(reactNativeThread)
             crashedThread = reactNativeThread
         }
-        
+    
         if let reason = crashedThread?.reason {
             value = reason
         }
-        
+    
         thread = crashedThread
     }
     #endif
@@ -110,36 +110,52 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
         
         switch type {
         case "nsexception"?:
-            if let context = appleCrashErrorDict["nsexception"] as? [String: AnyObject] {
-                type = context["name"] as? String
-                value = context["reason"] as? String ?? value
-            }
+            handleNSException(appleCrashErrorDict)
         case "cpp_exception"?:
-            if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject],
-                let name = context["name"] as? String {
-                value = name
-            }
+            handleCPPException(appleCrashErrorDict)
         case "mach"?:
-            if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
-                let name = context["exception_name"] as? String,
-                let exception = context["exception"],
-                let code = context["code"],
-                let subcode = context["subcode"] {
-                type = name
-                value = "Exception \(exception), Code \(code), Subcode \(subcode)"
-            }
+            handleMachException(appleCrashErrorDict)
         case "signal"?:
-            if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
-                let name = context["name"] as? String,
-                let signal = context["signal"],
-                let code = context["code"] {
-                type = name
-                value = "Signal \(signal), Code \(code)"
-            }
+            handleSignalException(appleCrashErrorDict)
         case "user"?:
             handleUserException(appleCrashErrorDict)
         default:
             value = Exception.defaultReason
+        }
+    }
+    
+    private func handleNSException(_ appleCrashErrorDict: [String: AnyObject]) {
+        if let context = appleCrashErrorDict["nsexception"] as? [String: AnyObject] {
+            type = context["name"] as? String
+            value = context["reason"] as? String ?? value
+        }
+    }
+    
+    private func handleCPPException(_ appleCrashErrorDict: [String: AnyObject]) {
+        if let context = appleCrashErrorDict["cpp_exception"] as? [String: AnyObject],
+            let name = context["name"] as? String {
+            value = name
+        }
+    }
+    
+    private func handleMachException(_ appleCrashErrorDict: [String: AnyObject]) {
+        if let context = appleCrashErrorDict["mach"] as? [String: AnyObject],
+            let name = context["exception_name"] as? String,
+            let exception = context["exception"],
+            let code = context["code"],
+            let subcode = context["subcode"] {
+            type = name
+            value = "Exception \(exception), Code \(code), Subcode \(subcode)"
+        }
+    }
+    
+    private func handleSignalException(_ appleCrashErrorDict: [String: AnyObject]) {
+        if let context = appleCrashErrorDict["signal"] as? [String: AnyObject],
+            let name = context["name"] as? String,
+            let signal = context["signal"],
+            let code = context["code"] {
+            type = name
+            value = "Signal \(signal), Code \(code)"
         }
     }
     
