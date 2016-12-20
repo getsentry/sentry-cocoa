@@ -39,6 +39,7 @@ import KSCrash
     internal typealias JSONSerialization = NSJSONSerialization
     internal typealias Bundle = NSBundle
     internal typealias URLQueryItem = NSURLQueryItem
+    internal typealias URLSession = NSURLSession
 #endif
 
 internal enum SentryError: Error {
@@ -79,6 +80,7 @@ internal enum SentryError: Error {
     // MARK: - Attributes
     
     internal let dsn: DSN
+    internal let session: URLSession
     internal(set) var crashHandler: CrashHandler? {
         didSet {
             crashHandler?.startCrashReporting()
@@ -117,7 +119,7 @@ internal enum SentryError: Error {
                 }
             #else
                 dispatch_async(dispatch_get_main_queue(), {
-                self.delegate?.userFeedbackReady()
+                    self.delegate?.userFeedbackReady()
                 })
             #endif
         }
@@ -149,8 +151,10 @@ internal enum SentryError: Error {
         
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+            self.session = URLSession(configuration: URLSessionConfiguration.ephemeral)
         #else
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+            self.session = NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration())
         #endif
         
         super.init()
@@ -208,11 +212,11 @@ internal enum SentryError: Error {
     /// Reports given event to Sentry
     @objc public func captureEvent(_ event: Event) {
         #if swift(>=3.0)
-            DispatchQueue(label: SentryClient.queueName).sync {
+            DispatchQueue(label: SentryClient.queueName).async {
                 self.captureEvent(event, useClientProperties: true)
             }
         #else
-            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
+            dispatch_async(dispatch_queue_create(SentryClient.queueName, nil), {
                 self.captureEvent(event, useClientProperties: true)
             })
         #endif
@@ -309,7 +313,7 @@ internal enum SentryError: Error {
                 event.extra.unionInPlace(extra)
             }
         }
-        
+
         if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
             event.breadcrumbsSerialized = breadcrumbs.serialized
         }
