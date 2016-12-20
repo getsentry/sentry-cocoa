@@ -36,10 +36,18 @@ extension SentryClient {
     public func savedEvents() -> [SavedEvent] {
         do {
             guard let path = directory() else { return [] }
+            let now = NSDate().timeIntervalSince1970
             
             #if swift(>=3.0)
                 return try FileManager.default
                     .contentsOfDirectory(atPath: path)
+                    .filter { fileName in
+                        let splitName = fileName.characters.split { $0 == "-" }.map(String.init)
+                        guard let storedTime = Double(splitName[0]) else {
+                            return true
+                        }
+                        return now > storedTime
+                    }
                     .flatMap { fileName in
                         let absolutePath: String = (path as NSString).appendingPathComponent(fileName)
                         guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
@@ -56,10 +64,17 @@ extension SentryClient {
             #else
                 return try NSFileManager.defaultManager()
                     .contentsOfDirectoryAtPath(path)
+                    .filter { fileName in
+                        let splitName = fileName.characters.split { $0 == "-" }.map(String.init)
+                        guard let storedTime = Double(splitName[0]) else {
+                            return true
+                        }
+                        return now > storedTime
+                    }
                     .flatMap { fileName in
                         let absolutePath: String = (path as NSString).stringByAppendingPathComponent(fileName)
                         guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
-                
+                        
                         return (data, {
                             do {
                                 try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
@@ -110,13 +125,14 @@ extension SentryClient {
      */
     private func writePath(_ event: Event) throws -> String? {
         guard let sentryDir = directory() else { return nil }
+        let date = NSDate().timeIntervalSince1970 + 60 + Double(arc4random_uniform(10) + 1)
         
         #if swift(>=3.0)
             try FileManager.default.createDirectory(atPath: sentryDir, withIntermediateDirectories: true, attributes: nil)
-            return (sentryDir as NSString).appendingPathComponent(event.eventID)
+            return (sentryDir as NSString).appendingPathComponent("\(date)-\(event.eventID)")
         #else
             try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir, withIntermediateDirectories: true, attributes: nil)
-            return (sentryDir as NSString).stringByAppendingPathComponent(event.eventID)
+            return (sentryDir as NSString).stringByAppendingPathComponent("\(date)-\(event.eventID)")
         #endif
     }
     
@@ -127,14 +143,15 @@ extension SentryClient {
      - Returns: Serialized string
      */
     private func serializedString(_ event: Event) throws -> String? {
+        let serializedEvent = event.serialized
         #if swift(>=3.0)
-            if JSONSerialization.isValidJSONObject(event.serialized) {
-                let data: NSData = try JSONSerialization.data(withJSONObject: event.serialized, options: []) as NSData
+            if JSONSerialization.isValidJSONObject(serializedEvent) {
+                let data: NSData = try JSONSerialization.data(withJSONObject: serializedEvent, options: []) as NSData
                 return String(data: data as Data, encoding: String.Encoding.utf8)
             }
         #else
-            if NSJSONSerialization.isValidJSONObject(event.serialized) {
-                let data: NSData = try NSJSONSerialization.dataWithJSONObject(event.serialized, options: [])
+            if NSJSONSerialization.isValidJSONObject(serializedEvent) {
+                let data: NSData = try NSJSONSerialization.dataWithJSONObject(serializedEvent, options: [])
                 return String(data: data, encoding: NSUTF8StringEncoding)
             }
         #endif

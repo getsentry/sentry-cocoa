@@ -24,6 +24,11 @@ protocol Endpoint {
 }
 
 enum SentryEndpoint: Endpoint {
+    #if swift(>=3.0)
+        static let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
+    #else
+        static let session = NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration())
+    #endif
     
     case store(event: Event)
     case storeSavedEvent(event: SavedEvent)
@@ -150,9 +155,7 @@ enum SentryEndpoint: Endpoint {
         configureRequest(dsn: dsn, request: request)
         
         #if swift(>=3.0)
-            let config = URLSessionConfiguration.default
-            let session = URLSession(configuration: config)
-            session.dataTask(with: request as URLRequest) { data, response, error in
+            SentryEndpoint.session.dataTask(with: request as URLRequest) { data, response, error in
                 var success = false
                 
                 // Returns success if we have data and 200 response code
@@ -171,9 +174,7 @@ enum SentryEndpoint: Endpoint {
                 finished?(success)
             }.resume()
         #else
-            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            let session = NSURLSession(configuration: config)
-            session.dataTaskWithRequest(request) { data, response, error in
+            SentryEndpoint.session.dataTaskWithRequest(request) { data, response, error in
                 var success = false
             
                 // Returns success if we have data and 200 response code
