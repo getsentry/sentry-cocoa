@@ -20,7 +20,7 @@ protocol Endpoint {
     var httpMethod: HttpMethod { get }
     func route(dsn dsn: DSN) -> NSURL?
     var payload: NSData { get }
-    func send(dsn: DSN, finished: SentryEndpointRequestFinished?)
+    func send(session: URLSession, dsn: DSN, finished: SentryEndpointRequestFinished?)
 }
 
 enum SentryEndpoint: Endpoint {
@@ -134,7 +134,7 @@ enum SentryEndpoint: Endpoint {
         }
     }
     
-    func send(dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
+    func send(session: URLSession, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
         guard let url = route(dsn: dsn) else {
             SentryLog.Error.log("Cannot find route for \(self)")
             finished?(false)
@@ -150,8 +150,6 @@ enum SentryEndpoint: Endpoint {
         configureRequest(dsn: dsn, request: request)
         
         #if swift(>=3.0)
-            let config = URLSessionConfiguration.default
-            let session = URLSession(configuration: config)
             session.dataTask(with: request as URLRequest) { data, response, error in
                 var success = false
                 
@@ -171,8 +169,6 @@ enum SentryEndpoint: Endpoint {
                 finished?(success)
             }.resume()
         #else
-            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            let session = NSURLSession(configuration: config)
             session.dataTaskWithRequest(request) { data, response, error in
                 var success = false
             

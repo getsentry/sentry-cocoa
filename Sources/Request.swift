@@ -17,9 +17,9 @@ extension SentryClient {
      */
     internal func sendEvent(_ event: Event, finished: SentryEndpointRequestFinished? = nil) {
         #if swift(>=3.0)
-            SentryEndpoint.store(event: event).send(dsn: dsn, finished: finished)
+            SentryEndpoint.store(event: event).send(session: session, dsn: dsn, finished: finished)
         #else
-            SentryEndpoint.store(event: event).send(dsn, finished: finished)
+            SentryEndpoint.store(event: event).send(session, dsn: dsn, finished: finished)
         #endif
     }
     
@@ -30,9 +30,9 @@ extension SentryClient {
      */
     internal func sendEvent(_ event: SavedEvent, finished: SentryEndpointRequestFinished? = nil) {
         #if swift(>=3.0)
-            SentryEndpoint.storeSavedEvent(event: event).send(dsn: dsn, finished: finished)
+            SentryEndpoint.storeSavedEvent(event: event).send(session: session, dsn: dsn, finished: finished)
         #else
-            SentryEndpoint.storeSavedEvent(event: event).send(dsn, finished: finished)
+            SentryEndpoint.storeSavedEvent(event: event).send(session, dsn: dsn, finished: finished)
         #endif
     }
     
@@ -46,12 +46,12 @@ extension SentryClient {
             userFeedback.event = lastSuccessfullySentEvent
         }
         #if swift(>=3.0)
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn: dsn) { [weak self] success in
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(session: session, dsn: dsn) { [weak self] success in
                 self?.sentUserFeedback()
                 finished?(success)
             }
         #else
-            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(dsn) { [weak self] success in
+            SentryEndpoint.userFeedback(userFeedback: userFeedback).send(session, dsn: dsn) { [weak self] success in
                 self?.sentUserFeedback()
                 finished?(success)
             }

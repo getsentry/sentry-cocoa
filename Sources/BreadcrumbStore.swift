@@ -38,8 +38,9 @@ public final class BreadcrumbStore: NSObject {
         storeUpdated?(self)
     }
     
-    /// Clears the store for given type or all if none specified
+    /// Clears the store if crumbs exist
     public func clear() {
+        guard crumbs.count > 0 else { return }
         crumbs.removeAll()
         storeUpdated?(self)
     }
