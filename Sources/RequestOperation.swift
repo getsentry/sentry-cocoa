@@ -6,7 +6,6 @@
 //
 //
 
-import UIKit
 import Foundation
 
 class RequestOperation: AsynchronousOperation {
