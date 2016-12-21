@@ -20,7 +20,7 @@ protocol Endpoint {
     var httpMethod: HttpMethod { get }
     func route(dsn dsn: DSN) -> NSURL?
     var payload: NSData { get }
-    func send(session: URLSession, dsn: DSN, finished: SentryEndpointRequestFinished?)
+    func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished?)
 }
 
 enum SentryEndpoint: Endpoint {
@@ -134,7 +134,7 @@ enum SentryEndpoint: Endpoint {
         }
     }
     
-    func send(session: URLSession, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
+    func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
         guard let url = route(dsn: dsn) else {
             SentryLog.Error.log("Cannot find route for \(self)")
             finished?(false)
@@ -149,45 +149,7 @@ enum SentryEndpoint: Endpoint {
         
         configureRequest(dsn: dsn, request: request)
         
-        #if swift(>=3.0)
-            session.dataTask(with: request as URLRequest) { data, response, error in
-                var success = false
-                
-                // Returns success if we have data and 200 response code
-                if let data = data, let response = response as? HTTPURLResponse {
-                    SentryLog.Debug.log("status = \(response.statusCode)")
-                    SentryLog.Debug.log("response = \(NSString(data: data, encoding: String.Encoding.utf8.rawValue))")
-                    
-                    success = 200..<300 ~= response.statusCode
-                }
-                if let error = error {
-                    SentryLog.Error.log("error = \(error)")
-                    
-                    success = false
-                }
-                
-                finished?(success)
-            }.resume()
-        #else
-            session.dataTaskWithRequest(request) { data, response, error in
-                var success = false
-            
-                // Returns success if we have data and 200 response code
-                if let data = data, let response = response as? NSHTTPURLResponse {
-                    SentryLog.Debug.log("status = \(response.statusCode)")
-                    SentryLog.Debug.log("response = \(NSString(data: data, encoding: NSUTF8StringEncoding))")
-            
-                    success = 200..<300 ~= response.statusCode
-                }
-                if let error = error {
-                    SentryLog.Error.log("error = \(error)")
-            
-                    success = false
-                }
-            
-                finished?(success)
-            }.resume()
-        #endif
+        requestManager.addRequest(request as URLRequest, finished: finished)
     }
     
     private func debugData(_ data: NSData) {
