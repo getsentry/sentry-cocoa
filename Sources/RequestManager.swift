@@ -6,8 +6,6 @@
 //
 //
 
-import UIKit
-
 internal class RequestManager {
     
     let queue: OperationQueue = {
@@ -18,7 +16,7 @@ internal class RequestManager {
     }()
     
     var isQueueReady: Bool {
-        return queue.operationCount <= 1 // We always have at least on operation in the queue when calling this
+        return queue.operationCount <= 1 // We always have at least one operation in the queue when calling this
     }
     
     let session: URLSession
@@ -28,7 +26,10 @@ internal class RequestManager {
     }
     
     func addRequest(_ request: URLRequest, finished: SentryEndpointRequestFinished? = nil) {
-        let operation = RequestOperation(session: session, request: request, finished: { success in
+        let operation = RequestOperation(session: session, request: request, finished: { [weak self] success in
+            if let operationCount = self?.queue.operationCount {
+                SentryLog.Debug.log("Queued requests: \(operationCount-1)")
+            }
             finished?(success)
         })
         

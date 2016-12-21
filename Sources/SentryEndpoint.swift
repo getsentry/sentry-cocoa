@@ -18,9 +18,9 @@ enum HttpMethod: String {
 
 protocol Endpoint {
     var httpMethod: HttpMethod { get }
-    func route(dsn dsn: DSN) -> NSURL?
-    var payload: NSData { get }
+    var payload: Data { get }
     func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished?)
+    func routeForDsn(_ dsn: DSN) -> URL?
 }
 
 enum SentryEndpoint: Endpoint {
@@ -36,29 +36,7 @@ enum SentryEndpoint: Endpoint {
         }
     }
     
-    func route(dsn dsn: DSN) -> NSURL? {
-        let components = NSURLComponents()
-        components.scheme = dsn.url.scheme
-        components.host = dsn.url.host
-        components.port = dsn.url.port
-        
-        switch self {
-        case .store(_), .storeSavedEvent(_):
-            components.path = "/api/\(dsn.projectID)/store/"
-        case .userFeedback(let userFeedback):
-            components.path = "/api/embed/error-page/"
-            components.queryItems = userFeedback.queryItems
-            components.queryItems?.append(URLQueryItem(name: "dsn", value: dsn.url.absoluteString))
-        }
-        
-        #if swift(>=3.0)
-            return components.url as NSURL?
-        #else
-            return components.URL
-        #endif
-    }
-    
-    var payload: NSData {
+    var payload: Data {
         switch self {
         case .store(let event):
             do {
@@ -70,29 +48,69 @@ enum SentryEndpoint: Endpoint {
                 let serializedEvent = eventToSend.serialized
                 guard JSONSerialization.isValidJSONObject(serializedEvent) else {
                     SentryLog.Error.log("Could not serialized event")
-                    return NSData()
+                    return Data()
                 }
                 #if swift(>=3.0)
-                    return try JSONSerialization.data(withJSONObject: serializedEvent, options: []) as NSData
+                    return try JSONSerialization.data(withJSONObject: serializedEvent, options: [])
                 #else
                     return try JSONSerialization.dataWithJSONObject(serializedEvent, options: [])
                 #endif
             } catch {
                 SentryLog.Error.log("Could not serialized event - \(error)")
-                return NSData()
+                return Data()
             }
         case .storeSavedEvent(let savedEvent):
             return savedEvent.data
         case .userFeedback(let userFeedback):
             guard let data = userFeedback.serialized else {
                 SentryLog.Error.log("Could not serialize userFeedback")
-                return NSData()
+                return Data()
             }
-            return data as NSData
+            return data
         }
     }
     
-    func configureRequest(dsn dsn: DSN, request: NSMutableURLRequest) {
+    func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
+        guard let url = routeForDsn(dsn) else {
+            SentryLog.Error.log("Cannot find route for \(self)")
+            finished?(false)
+            return
+        }
+        
+        #if swift(>=3.0)
+            let request: NSMutableURLRequest = NSMutableURLRequest(url: url)
+        #else
+            let request: NSMutableURLRequest = NSMutableURLRequest(URL: url)
+        #endif
+        
+        configureRequestWithDsn(dsn, request: request)
+        
+        requestManager.addRequest(request as URLRequest, finished: finished)
+    }
+    
+    func routeForDsn(_ dsn: DSN) -> URL? {
+        var components = URLComponents()
+        components.scheme = dsn.url.scheme
+        components.host = dsn.url.host
+        components.port = dsn.url.port as Int?
+        
+        switch self {
+        case .store(_), .storeSavedEvent(_):
+            components.path = "/api/\(dsn.projectID)/store/"
+        case .userFeedback(let userFeedback):
+            components.path = "/api/embed/error-page/"
+            components.queryItems = userFeedback.queryItems
+            components.queryItems?.append(URLQueryItem(name: "dsn", value: dsn.url.absoluteString))
+        }
+        
+        #if swift(>=3.0)
+            return components.url
+        #else
+            return components.URL
+        #endif
+    }
+    
+    private func configureRequestWithDsn(_ dsn: DSN, request: NSMutableURLRequest) {
         let sentryHeader = dsn.xSentryAuthHeader
         request.setValue(sentryHeader.value, forHTTPHeaderField: sentryHeader.key)
         
@@ -109,7 +127,7 @@ enum SentryEndpoint: Endpoint {
         case .store(_), .storeSavedEvent(_):
             do {
                 #if swift(>=3.0)
-                    request.httpBody = try data.gzipped(withCompressionLevel: -1)
+                    request.httpBody = try (data as NSData).gzipped(withCompressionLevel: -1)
                 #else
                     request.HTTPBody = try data.gzippedWithCompressionLevel(-1)
                 #endif
@@ -134,27 +152,9 @@ enum SentryEndpoint: Endpoint {
         }
     }
     
-    func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
-        guard let url = route(dsn: dsn) else {
-            SentryLog.Error.log("Cannot find route for \(self)")
-            finished?(false)
-            return
-        }
-        
+    private func debugData(_ data: Data) {
         #if swift(>=3.0)
-            let request: NSMutableURLRequest = NSMutableURLRequest(url: url as URL)
-        #else
-            let request: NSMutableURLRequest = NSMutableURLRequest(URL: url)
-        #endif
-        
-        configureRequest(dsn: dsn, request: request)
-        
-        requestManager.addRequest(request as URLRequest, finished: finished)
-    }
-    
-    private func debugData(_ data: NSData) {
-        #if swift(>=3.0)
-            guard let body = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue) else {
+            guard let body = NSString(data: data, encoding: String.Encoding.utf8.rawValue) else {
                 return
             }
         #else

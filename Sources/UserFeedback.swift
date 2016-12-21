@@ -14,11 +14,7 @@
 }
 
 extension UserFeedback {
-    #if swift(>=3.0)
     internal typealias SerializedType = Data?
-    #else
-    internal typealias SerializedType = NSData?
-    #endif
     
     internal var serialized: SerializedType {
         let urlEncodedString = "email=\(urlEncodeString(email))&name=\(urlEncodeString(name))&comments=\(urlEncodeString(comments))"

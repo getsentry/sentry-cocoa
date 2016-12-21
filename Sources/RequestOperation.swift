@@ -14,6 +14,16 @@ class RequestOperation: AsynchronousOperation {
     var task: URLSessionTask?
     var request: URLRequest?
     
+    #if swift(>=3.0)
+    func isEqual(object: AnyObject?) -> Bool {
+        if let otherOperation = object as? RequestOperation,
+            let otherOperationRequest = otherOperation.request,
+            let thisOperationRequest = self.request {
+            return otherOperationRequest.httpBody == thisOperationRequest.httpBody
+        }
+        return false
+    }
+    #else
     override func isEqual(object: AnyObject?) -> Bool {
         if let otherOperation = object as? RequestOperation,
             let otherOperationRequest = otherOperation.request,
@@ -22,6 +32,7 @@ class RequestOperation: AsynchronousOperation {
         }
         return false
     }
+    #endif
     
     init(session: URLSession, request: URLRequest, finished: SentryEndpointRequestFinished? = nil) {
         super.init()
@@ -71,7 +82,6 @@ class RequestOperation: AsynchronousOperation {
             }
             if let error = error {
                 SentryLog.Error.log("error = \(error)")
-                
                 success = false
             }
             

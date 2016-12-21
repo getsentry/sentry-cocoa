@@ -10,12 +10,12 @@ import Foundation
 
 private let directoryNamePrefix = "sentry-swift-"
 
-public typealias SavedEvent = (data: NSData, deleteEvent: () -> ())
+internal typealias SavedEvent = (data: Data, deleteEvent: () -> ())
 
 extension SentryClient {
     
     /// Saves given event to disk
-    public func saveEvent(_ event: Event) {
+    internal func saveEvent(_ event: Event) {
         do {
             // Gets write path and serialized string for event
             guard let path = try writePath(event), let text = try serializedString(event) else { return }
@@ -33,7 +33,7 @@ extension SentryClient {
     }
     
     /// Fetches events that were saved to disk. **Make sure to delete after use**
-    public func savedEvents() -> [SavedEvent] {
+    internal func savedEvents() -> [SavedEvent] {
         do {
             guard let path = directory() else { return [] }
             let now = NSDate().timeIntervalSince1970
@@ -52,7 +52,7 @@ extension SentryClient {
                         let absolutePath: String = (path as NSString).appendingPathComponent(fileName)
                         guard let data = NSData(contentsOfFile: absolutePath) else { return nil }
                         
-                        return (data, {
+                        return (data as Data, {
                             do {
                                 try FileManager.default.removeItem(atPath: absolutePath)
                                 SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
@@ -146,12 +146,12 @@ extension SentryClient {
         let serializedEvent = event.serialized
         #if swift(>=3.0)
             if JSONSerialization.isValidJSONObject(serializedEvent) {
-                let data: NSData = try JSONSerialization.data(withJSONObject: serializedEvent, options: []) as NSData
-                return String(data: data as Data, encoding: String.Encoding.utf8)
+                let data = try JSONSerialization.data(withJSONObject: serializedEvent, options: [])
+                return String(data: data, encoding: String.Encoding.utf8)
             }
         #else
             if NSJSONSerialization.isValidJSONObject(serializedEvent) {
-                let data: NSData = try NSJSONSerialization.dataWithJSONObject(serializedEvent, options: [])
+                let data = try NSJSONSerialization.dataWithJSONObject(serializedEvent, options: [])
                 return String(data: data, encoding: NSUTF8StringEncoding)
             }
         #endif

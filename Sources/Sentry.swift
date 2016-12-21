@@ -44,6 +44,9 @@ import KSCrash
     internal typealias OperationQueue = NSOperationQueue
     internal typealias Operation = NSOperation
     internal typealias URLSessionTask = NSURLSessionTask
+    internal typealias URL = NSURL
+    internal typealias URLComponents = NSURLComponents
+    internal typealias Data = NSData
 #endif
 
 internal enum SentryError: Error {
