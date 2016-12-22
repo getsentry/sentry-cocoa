@@ -312,6 +312,13 @@
 			remoteGlobalIDString = 63CDAB5D1DDB164500B63921;
 			remoteInfo = iOS;
 		};
+		63D54ECC1E0C0F850005B07A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03E94AE31C22595B009F8F29 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
+			remoteInfo = "SentrySwift-iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -905,6 +912,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				63D54ECD1E0C0F850005B07A /* PBXTargetDependency */,
 			);
 			name = iOS;
 			productName = iOS;
@@ -1445,6 +1453,11 @@
 			target = 63CDAB5D1DDB164500B63921 /* iOS */;
 			targetProxy = 63D54EC91E0BF2100005B07A /* PBXContainerItemProxy */;
 		};
+		63D54ECD1E0C0F850005B07A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 03E94B0A1C22596A009F8F29 /* SentrySwift-iOS */;
+			targetProxy = 63D54ECC1E0C0F850005B07A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1858,9 +1871,11 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.getsentry.SentrySwift.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1878,6 +1893,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
