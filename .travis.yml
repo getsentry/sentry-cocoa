@@ -10,13 +10,8 @@ before_install:
     - brew update
     - brew outdated swiftlint || brew upgrade swiftlint
 script: 
-    - travis_retry fastlane $LANE
+    - swiftlint
+    - travis_retry fastlane test
 after_success:
-    - if [ "$LANE" = "coverage" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
-matrix:
-  fast_finish: true
-  include:
-    - env: LANE=lint
-    - env: LANE=test_swift_2
-    - env: LANE=test_swift_3
-    - env: LANE=coverage
+    - slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" SentrySwift.xcodeproj
+    - bash <(curl -s https://codecov.io/bash) -f cobertura.xml

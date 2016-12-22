@@ -12,10 +12,6 @@ lane :localcoverage do
     sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" SentrySwift.xcodeproj')
 end
 
-lane :lint do 
-    sh('cd .. && swiftlint')
-end
-
 lane :test_swift_2 do
     xcargs = "SWIFT_VERSION=\"2.3\""
     clear_derived_data
@@ -31,7 +27,5 @@ lane :test_swift_3 do
 end
 
 lane :coverage do
-    clear_derived_data
     scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", clean: true, code_coverage: true)
-    sh('cd .. && slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" SentrySwift.xcodeproj')
 end
