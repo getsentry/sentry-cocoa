@@ -32,11 +32,10 @@ extension SentryClient {
         }
     }
     
-    /// Fetches events that were saved to disk. **Make sure to delete after use**
-    internal func savedEvents() -> [SavedEvent] {
+    /// Fetches events that were saved to disk.
+    internal func savedEvents(since now: TimeInterval = Date().timeIntervalSince1970) -> [SavedEvent] {
         do {
             guard let path = directory() else { return [] }
-            let now = NSDate().timeIntervalSince1970
             
             #if swift(>=3.0)
                 return try FileManager.default
@@ -86,11 +85,8 @@ extension SentryClient {
                 }
             #endif
         } catch let error as NSError {
-            // Debug logging this error since its purely informational
-            // This folder doesn't need to exist
             SentryLog.Debug.log(error.localizedDescription)
         }
-        
         return []
     }
     

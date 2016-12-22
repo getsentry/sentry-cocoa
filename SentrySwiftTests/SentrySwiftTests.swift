@@ -519,6 +519,23 @@ class SentrySwiftTests: XCTestCase {
             ]
             }.serialized["tags"])
     }
+    
+    func testSaveEvent() {
+        for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+            event.deleteEvent()
+        }
+        let event = Event.build("Another example 4") {
+            $0.level = .Fatal
+            $0.tags = ["status": "test"]
+            $0.extra = [
+                "name": "Josh Holtz",
+                "favorite_power_ranger": "green/white"
+            ]
+        }
+        client.saveEvent(event)
+        XCTAssertEqual(client.savedEvents().count, 0)
+        XCTAssertEqual(client.savedEvents(since: (Date().timeIntervalSince1970 + 100)).count, 1)
+    }
 }
 
 /// A small hack to compare dictionaries

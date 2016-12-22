@@ -10,6 +10,11 @@ sudo gem install fastlane
 fastlane test
 ```
 Test iOS, tvOS, and OSX
+### localcoverage
+```
+fastlane localcoverage
+```
+
 ### test_swift_2
 ```
 fastlane test_swift_2
