@@ -13,11 +13,12 @@ script:
     - travis_retry fastlane $LANE
 after_success:
     - if [ "$LANE" = "coverage" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
-matrix:
-    - LANE=lint
-    - LANE=test_swift_2_ios
-    - LANE=test_swift_2_tvos
-    - LANE=test_swift_2_macos
-    - LANE=test_swift_3_tvos
-    - LANE=test_swift_3_macos
-    - LANE=coverage
+env:
+    matrix:
+        - LANE=lint
+        - LANE=test_swift_2_ios
+        - LANE=test_swift_2_tvos
+        - LANE=test_swift_2_macos
+        - LANE=test_swift_3_tvos
+        - LANE=test_swift_3_macos
+        - LANE=coverage
