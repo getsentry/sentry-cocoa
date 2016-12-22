@@ -164,6 +164,7 @@
 		63D54E681E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
 		63D54E691E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
 		63D54E6A1E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
+		63D54ECB1E0BFFCF0005B07A /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03E94B0B1C22596A009F8F29 /* SentrySwift.framework */; };
 		80628F071CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F081CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F091CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
@@ -450,6 +451,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63D54ECB1E0BFFCF0005B07A /* SentrySwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

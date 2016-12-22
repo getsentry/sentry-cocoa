@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 @objc public final class UserFeedback: NSObject {
     public var name = ""
     public var email = ""
