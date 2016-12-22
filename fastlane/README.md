@@ -20,14 +20,29 @@ fastlane localcoverage
 fastlane lint
 ```
 
-### test_swift_2
+### test_swift_2_ios
 ```
-fastlane test_swift_2
+fastlane test_swift_2_ios
 ```
 
-### test_swift_3
+### test_swift_2_tvos
 ```
-fastlane test_swift_3
+fastlane test_swift_2_tvos
+```
+
+### test_swift_2_macos
+```
+fastlane test_swift_2_macos
+```
+
+### test_swift_3_tvos
+```
+fastlane test_swift_3_tvos
+```
+
+### test_swift_3_macos
+```
+fastlane test_swift_3_macos
 ```
 
 ### coverage

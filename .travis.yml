@@ -14,9 +14,10 @@ script:
 after_success:
     - if [ "$LANE" = "coverage" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
 matrix:
-  fast_finish: true
-  include:
-    - env: LANE=lint
-    - env: LANE=test_swift_2
-    - env: LANE=test_swift_3
-    - env: LANE=coverage
+    - LANE=lint
+    - LANE=test_swift_2_ios
+    - LANE=test_swift_2_tvos
+    - LANE=test_swift_2_macos
+    - LANE=test_swift_3_tvos
+    - LANE=test_swift_3_macos
+    - LANE=coverage
