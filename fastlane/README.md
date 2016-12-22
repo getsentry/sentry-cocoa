@@ -15,6 +15,11 @@ Test iOS, tvOS, and OSX
 fastlane localcoverage
 ```
 
+### lint
+```
+fastlane lint
+```
+
 ### test_swift_2
 ```
 fastlane test_swift_2
