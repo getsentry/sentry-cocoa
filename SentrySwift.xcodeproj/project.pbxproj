@@ -164,7 +164,6 @@
 		63D54E681E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
 		63D54E691E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
 		63D54E6A1E0A7F680005B07A /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D54E661E0A7F680005B07A /* RequestManager.swift */; };
-		63D54ECB1E0BFFCF0005B07A /* SentrySwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03E94B0B1C22596A009F8F29 /* SentrySwift.framework */; };
 		80628F071CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F081CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
 		80628F091CF5417A002A656D /* SentrySwiftStacktraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80628F061CF5417A002A656D /* SentrySwiftStacktraceTests.swift */; };
@@ -312,13 +311,6 @@
 			remoteGlobalIDString = 63CDAB5D1DDB164500B63921;
 			remoteInfo = iOS;
 		};
-		63D54ECC1E0C0F850005B07A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03E94AE31C22595B009F8F29 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
-			remoteInfo = "SentrySwift-iOS";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -458,7 +450,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63D54ECB1E0BFFCF0005B07A /* SentrySwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -912,7 +903,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				63D54ECD1E0C0F850005B07A /* PBXTargetDependency */,
 			);
 			name = iOS;
 			productName = iOS;
@@ -946,7 +936,6 @@
 					03E94B131C22596A009F8F29 = {
 						CreatedOnToolsVersion = 7.2;
 						ProvisioningStyle = Manual;
-						TestTargetID = 63CDAB5D1DDB164500B63921;
 					};
 					63CDAB191DD9D45900B63921 = {
 						CreatedOnToolsVersion = 8.1;
@@ -1454,11 +1443,6 @@
 			target = 63CDAB5D1DDB164500B63921 /* iOS */;
 			targetProxy = 63D54EC91E0BF2100005B07A /* PBXContainerItemProxy */;
 		};
-		63D54ECD1E0C0F850005B07A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 03E94B0A1C22596A009F8F29 /* SentrySwift-iOS */;
-			targetProxy = 63D54ECC1E0C0F850005B07A /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1779,7 +1763,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";
@@ -1789,7 +1772,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.SentrySwift-iOSTests";
 				PRODUCT_NAME = "SentrySwift-iOSTests";
 				SDKROOT = iphoneos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS.app/iOS";
 			};
 			name = Debug;
 		};
@@ -1797,7 +1779,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";
@@ -1807,7 +1788,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.getsentry.SentrySwift-iOSTests";
 				PRODUCT_NAME = "SentrySwift-iOSTests";
 				SDKROOT = iphoneos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iOS.app/iOS";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

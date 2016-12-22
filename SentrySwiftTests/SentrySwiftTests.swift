@@ -550,10 +550,6 @@ class SentrySwiftTests: XCTestCase {
         
         XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
         
-        UIApplication.shared.sendAction(#selector(stubCall), to: nil, from: nil, for: nil)
-        
-        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
-        
         // ---------------
         
         client.enableAutomaticBreadcrumbTracking()
@@ -561,17 +557,9 @@ class SentrySwiftTests: XCTestCase {
         controllers.navigationController.viewDidAppear(true)
         
         XCTAssertEqual(client.breadcrumbs.crumbs.count, 1)
-        
-        UIApplication.shared.sendAction(#selector(stubCall), to: nil, from: nil, for: nil)
-        
-        XCTAssertEqual(client.breadcrumbs.crumbs.count, 2)
     }
     #endif
     #endif
-    
-    func stubCall() {
-        // Do nothing
-    }
 }
 
 /// A small hack to compare dictionaries
