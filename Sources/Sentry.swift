@@ -40,6 +40,15 @@ import KSCrash
     internal typealias Bundle = NSBundle
     internal typealias URLQueryItem = NSURLQueryItem
     internal typealias URLSession = NSURLSession
+    internal typealias URLRequest = NSURLRequest
+    internal typealias OperationQueue = NSOperationQueue
+    internal typealias Operation = NSOperation
+    internal typealias URLSessionTask = NSURLSessionTask
+    internal typealias URL = NSURL
+    internal typealias URLComponents = NSURLComponents
+    internal typealias Data = NSData
+    internal typealias TimeInterval = NSTimeInterval
+    internal typealias Date = NSDate
 #endif
 
 internal enum SentryError: Error {
@@ -69,7 +78,7 @@ internal enum SentryError: Error {
     // MARK: - Enums
     
     internal struct Info {
-        static let version: String = "1.3.2"
+        static let version: String = "1.3.3"
         static let sentryVersion: Int = 7
     }
     
@@ -80,7 +89,7 @@ internal enum SentryError: Error {
     // MARK: - Attributes
     
     internal let dsn: DSN
-    internal let session: URLSession
+    internal let requestManager: RequestManager
     internal(set) var crashHandler: CrashHandler? {
         didSet {
             crashHandler?.startCrashReporting()
@@ -151,10 +160,10 @@ internal enum SentryError: Error {
         
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-            self.session = URLSession(configuration: URLSessionConfiguration.ephemeral)
+            self.requestManager = RequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         #else
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
-            self.session = NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration())
+            self.requestManager = RequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
         #endif
         
         super.init()
@@ -333,7 +342,10 @@ internal enum SentryError: Error {
         }
         
         // In the end we check if there are any events still stored on disk and send them
-        sendEventsOnDiskInBackground()
+        // If the request queue is ready
+        if requestManager.isQueueReady {
+            sendEventsOnDiskInBackground()
+        }
     }
     
     /// Sends events that are stored on disk to the server

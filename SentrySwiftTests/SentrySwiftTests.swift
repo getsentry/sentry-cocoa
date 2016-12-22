@@ -519,6 +519,47 @@ class SentrySwiftTests: XCTestCase {
             ]
             }.serialized["tags"])
     }
+    
+    func testSaveEvent() {
+        for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+            event.deleteEvent()
+        }
+        let event = Event.build("Another example 4") {
+            $0.level = .Fatal
+            $0.tags = ["status": "test"]
+            $0.extra = [
+                "name": "Josh Holtz",
+                "favorite_power_ranger": "green/white"
+            ]
+        }
+        client.saveEvent(event)
+        XCTAssertEqual(client.savedEvents().count, 0)
+        XCTAssertEqual(client.savedEvents(since: (Date().timeIntervalSince1970 + 100)).count, 1)
+    }
+    
+    #if swift(>=3.0)
+    #if os(iOS)
+    func testSwizzle() {
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
+        
+        client.enableUserFeedbackAfterFatalEvent()
+    
+        let controllers = client.userFeedbackControllers()!
+        
+        controllers.navigationController.viewDidAppear(true)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
+        
+        // ---------------
+        
+        client.enableAutomaticBreadcrumbTracking()
+        
+        controllers.navigationController.viewDidAppear(true)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 1)
+    }
+    #endif
+    #endif
 }
 
 /// A small hack to compare dictionaries
