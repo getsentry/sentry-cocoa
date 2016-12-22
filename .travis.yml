@@ -8,7 +8,7 @@ before_install:
     - gem install fastlane
     - gem install slather
     - brew update
-    - brew install swiftlint
+    - brew outdated swiftlint || brew upgrade swiftlint
 script: 
     - swiftlint
     - travis_retry fastlane test
