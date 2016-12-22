@@ -536,6 +536,42 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertEqual(client.savedEvents().count, 0)
         XCTAssertEqual(client.savedEvents(since: (Date().timeIntervalSince1970 + 100)).count, 1)
     }
+    
+    #if swift(>=3.0)
+    #if os(iOS)
+    func testSwizzle() {
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
+        
+        client.enableUserFeedbackAfterFatalEvent()
+    
+        let controllers = client.userFeedbackControllers()!
+        
+        controllers.navigationController.viewDidAppear(true)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
+        
+        UIApplication.shared.sendAction(#selector(stubCall), to: nil, from: nil, for: nil)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 0)
+        
+        // ---------------
+        
+        client.enableAutomaticBreadcrumbTracking()
+        
+        controllers.navigationController.viewDidAppear(true)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 1)
+        
+        UIApplication.shared.sendAction(#selector(stubCall), to: nil, from: nil, for: nil)
+        
+        XCTAssertEqual(client.breadcrumbs.crumbs.count, 2)
+    }
+    #endif
+    #endif
+    
+    func stubCall() {
+        // Do nothing
+    }
 }
 
 /// A small hack to compare dictionaries
