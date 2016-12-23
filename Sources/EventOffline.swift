@@ -18,7 +18,10 @@ extension SentryClient {
     internal func saveEvent(_ event: Event) {
         do {
             // Gets write path and serialized string for event
-            guard let path = try writePath(event), let text = try serializedString(event) else { return }
+            guard let path = try writeEvent(event, to: appendSentryDirToPath(cachesDirectory())),
+                let text = try serializeEvent(event) else {
+                    return
+            }
             
             // Writes the event data to file
             #if swift(>=3.0)
@@ -34,9 +37,20 @@ extension SentryClient {
     
     /// Fetches events that were saved to disk.
     internal func savedEvents(since now: TimeInterval = Date().timeIntervalSince1970) -> [SavedEvent] {
+        guard let cachesPath = appendSentryDirToPath(cachesDirectory()) else { return [] }
+        guard let documentsPath = appendSentryDirToPath(documentDirectory()) else { return [] }
+        
+        let cachedEvents = loadSavedEventsFromPath(cachesPath, since: now)
+        deleteEmptyFolderAtPath(cachesPath)
+        let documentsEvents = loadSavedEventsFromPath(documentsPath, since: now)
+        deleteEmptyFolderAtPath(documentsPath)
+        
+        return cachedEvents + documentsEvents
+    }
+    
+    // MARK: - Private Helpers
+    private func loadSavedEventsFromPath(_ path: String, since now: TimeInterval) -> [SavedEvent] {
         do {
-            guard let path = directory() else { return [] }
-            
             #if swift(>=3.0)
                 return try FileManager.default
                     .contentsOfDirectory(atPath: path)
@@ -90,15 +104,24 @@ extension SentryClient {
         return []
     }
     
-    // MARK: - Private Helpers
+    private func deleteEmptyFolderAtPath(_ path: String) {
+        do {
+            #if swift(>=3.0)
+                guard try FileManager.default.contentsOfDirectory(atPath: path).count == 0 else { return }
+                try FileManager.default.removeItem(atPath: path)
+            #else
+                guard try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).count == 0 else { return }
+                try NSFileManager.defaultManager().removeItemAtPath(path)
+            #endif
+        } catch let error as NSError {
+            SentryLog.Debug.log(error.localizedDescription)
+        }
+    }
     
-    /// Path of directory to which events will be saved in offline mode
-    private func directory() -> String? {
-        #if swift(>=3.0)
-            guard let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else { return nil }
-        #else
-            guard let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
-        #endif
+    private func appendSentryDirToPath(_ path: String?) -> String? {
+        guard let path = path else {
+            return nil
+        }
         
         guard let serverURLString = dsn.url.absoluteString else {
             return nil
@@ -107,10 +130,28 @@ extension SentryClient {
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"
         
         #if swift(>=3.0)
-            return (documentsPath as NSString).appendingPathComponent(directory)
+            return (path as NSString).appendingPathComponent(directory)
         #else
-            return (documentsPath as NSString).stringByAppendingPathComponent(directory)
+            return (path as NSString).stringByAppendingPathComponent(directory)
         #endif
+    }
+    
+    private func documentDirectory() -> String? {
+        #if swift(>=3.0)
+            guard let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else { return nil }
+        #else
+            guard let path = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first else { return nil }
+        #endif
+        return path
+    }
+    
+    private func cachesDirectory() -> String? {
+        #if swift(>=3.0)
+            guard let path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first else { return nil }
+        #else
+            guard let path = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true).first else { return nil }
+        #endif
+        return path
     }
     
     /*
@@ -119,16 +160,16 @@ extension SentryClient {
      - Throws: Will throw upon failure to create directory
      - Returns: Unique path to which save the given event
      */
-    private func writePath(_ event: Event) throws -> String? {
-        guard let sentryDir = directory() else { return nil }
-        let date = NSDate().timeIntervalSince1970 + 60 + Double(arc4random_uniform(10) + 1)
+    private func writeEvent(_ event: Event, to path: String?) throws -> String? {
+        guard let path = path else { return nil }
+        let date = Date().timeIntervalSince1970 + 60 + Double(arc4random_uniform(10) + 1)
         
         #if swift(>=3.0)
-            try FileManager.default.createDirectory(atPath: sentryDir, withIntermediateDirectories: true, attributes: nil)
-            return (sentryDir as NSString).appendingPathComponent("\(date)-\(event.eventID)")
+            try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
+            return (path as NSString).appendingPathComponent("\(date)-\(event.eventID)")
         #else
-            try NSFileManager.defaultManager().createDirectoryAtPath(sentryDir, withIntermediateDirectories: true, attributes: nil)
-            return (sentryDir as NSString).stringByAppendingPathComponent("\(date)-\(event.eventID)")
+            try NSFileManager.defaultManager().createDirectoryAtPath(path, withIntermediateDirectories: true, attributes: nil)
+            return (path as NSString).stringByAppendingPathComponent("\(date)-\(event.eventID)")
         #endif
     }
     
@@ -138,7 +179,7 @@ extension SentryClient {
      - Throws: Will throw upon failure to serializing to JSON
      - Returns: Serialized string
      */
-    private func serializedString(_ event: Event) throws -> String? {
+    private func serializeEvent(_ event: Event) throws -> String? {
         let serializedEvent = event.serialized
         #if swift(>=3.0)
             if JSONSerialization.isValidJSONObject(serializedEvent) {
