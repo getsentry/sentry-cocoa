@@ -12,11 +12,11 @@ lane :test do
     clear_derived_data
     test_swift_3_tvos
     test_swift_3_macos
-    coverage
+    test_swift_3_ios
 end
 
 lane :localcoverage do
-    coverage
+    test_swift_3_ios
     sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" SentrySwift.xcodeproj')
 end
 
@@ -47,8 +47,12 @@ lane :test_swift_3_macos do
     scan(scheme: "SentrySwift-OSX", destination: "platform=macOS", clean: true)
 end
 
-lane :coverage do
+lane :test_swift_3_ios do
     clear_derived_data
     scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", clean: true, code_coverage: true)
+    travis_slather
+end
+
+lane :travis_slather do
     sh('cd .. && slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" SentrySwift.xcodeproj')
 end

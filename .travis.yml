@@ -12,7 +12,7 @@ before_install:
 script: 
     - travis_retry fastlane $LANE
 after_success:
-    - if [ "$LANE" = "coverage" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
+    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
 env:
     matrix:
         - LANE=lint
@@ -21,4 +21,4 @@ env:
         - LANE=test_swift_2_macos
         - LANE=test_swift_3_tvos
         - LANE=test_swift_3_macos
-        - LANE=coverage
+        - LANE=test_swift_3_ios
