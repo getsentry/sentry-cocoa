@@ -14,7 +14,7 @@ extension Dictionary {
     }
     
     // Sets the key and value but only if value is non-nil
-    internal func set(_ key: Key, value: Value?) -> Dictionary<Key, Value> {
+    internal func set(_ key: Key, value: Value?) -> [Key: Value] {
         guard let value = value else { return self }
         
         var newDict = self

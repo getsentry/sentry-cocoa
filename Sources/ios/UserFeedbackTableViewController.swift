@@ -131,7 +131,7 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
             erroredTextField.becomeFirstResponder()
             erroredTextField.textColor = viewModel.errorTextColor
         } else {
-            viewModel.sendUserFeedback() { [weak self] success in
+            viewModel.sendUserFeedback { [weak self] _ in
                 self?.dismissViewController()
             }
         }

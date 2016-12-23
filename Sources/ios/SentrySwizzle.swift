@@ -105,7 +105,7 @@ extension UIViewController {
 }
 
 #if swift(>=3.0)
-    fileprivate let sentrySwizzle: (AnyClass, Selector, Selector) -> () = { object, originalSelector, swizzledSelector in
+    fileprivate let sentrySwizzle: (AnyClass, Selector, Selector) -> Void = { object, originalSelector, swizzledSelector in
         let originalMethod = class_getInstanceMethod(object, originalSelector)
         let swizzledMethod = class_getInstanceMethod(object, swizzledSelector)
         

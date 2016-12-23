@@ -10,7 +10,7 @@ import Foundation
 
 private let directoryNamePrefix = "sentry-swift-"
 
-internal typealias SavedEvent = (data: Data, deleteEvent: () -> ())
+internal typealias SavedEvent = (data: Data, deleteEvent: () -> Void)
 
 extension SentryClient {
     

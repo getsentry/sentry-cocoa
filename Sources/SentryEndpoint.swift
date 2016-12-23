@@ -9,7 +9,7 @@
 import Foundation
 import KSCrash.NSData_GZip
 
-typealias SentryEndpointRequestFinished = (Bool) -> ()
+internal typealias SentryEndpointRequestFinished = (Bool) -> Void
 
 enum HttpMethod: String {
     case post = "POST"

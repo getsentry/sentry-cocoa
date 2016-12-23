@@ -115,7 +115,7 @@ internal enum SentryError: Error {
     
     private var userFeedbackViewControllers: UserFeedbackViewContollers?
     
-    public var delegate: SentryClientUserFeedbackDelegate?
+    public weak var delegate: SentryClientUserFeedbackDelegate?
     private(set) var userFeedbackViewModel: UserFeedbackViewModel?
     private(set) var lastSuccessfullySentEvent: Event? {
         didSet {
@@ -150,7 +150,7 @@ internal enum SentryError: Error {
         didSet { crashHandler?.user = user }
     }
     
-    public typealias EventBeforeSend = (inout Event) -> ()
+    public typealias EventBeforeSend = (inout Event) -> Void
     /// Use this block to get the event that will be send with the next
     public var beforeSendEventBlock: EventBeforeSend?
     

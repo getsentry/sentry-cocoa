@@ -47,7 +47,7 @@ import Foundation
     }
     
     private static func extractCrashReasonFromNotableAddresses(_ appleCrashThreadDict: [String: AnyObject]) -> String? {
-        guard let notableAddresses = appleCrashThreadDict["notable_addresses"] as? Dictionary<String, AnyObject> else {
+        guard let notableAddresses = appleCrashThreadDict["notable_addresses"] as? [String: AnyObject] else {
             return nil
         }
         
