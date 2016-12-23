@@ -82,11 +82,11 @@ internal final class KSCrashHandler: CrashHandler {
     internal func sendAllReports() {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
-            installation.sendAllReports() { (filteredReports, completed, error) -> Void in
+            installation.sendAllReports { (filteredReports, _, _) -> Void in
                 SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #else
-            installation.sendAllReportsWithCompletion() { (filteredReports, completed, error) -> Void in
+            installation.sendAllReportsWithCompletion { (filteredReports, completed, error) -> Void in
                 SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
             }
         #endif

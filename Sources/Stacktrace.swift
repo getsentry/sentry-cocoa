@@ -44,7 +44,7 @@ extension Stacktrace: EventSerializable {
 
 extension Stacktrace {
     
-    public static func convertReactNativeStacktrace(_ stacktrace: [Dictionary<String, AnyObject>]?) -> Stacktrace? {
+    public static func convertReactNativeStacktrace(_ stacktrace: [[String: AnyObject]]?) -> Stacktrace? {
         guard let stacktrace = stacktrace else { return nil }
         
         var frames: [Frame] = []

@@ -11,7 +11,7 @@ import Foundation
 /// A class used to hold and store our `Breadcrumb`
 public final class BreadcrumbStore: NSObject {
     
-    public typealias StoreUpdated = (BreadcrumbStore) -> ()
+    public typealias StoreUpdated = (BreadcrumbStore) -> Void
     
     // MARK: - Attributes
     

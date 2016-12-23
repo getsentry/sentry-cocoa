@@ -35,7 +35,7 @@ public typealias EventFingerprint = [String]
 /// A class that defines an event to be reported
 @objc public final class Event: NSObject, EventProperties {
     
-    public typealias BuildEvent = (inout Event) -> ()
+    public typealias BuildEvent = (inout Event) -> Void
     internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
     
     // MARK: - Required Attributes
@@ -197,8 +197,8 @@ extension Event: EventSerializable {
         
         // Interfaces
         attributes.append(("user", user?.serialized))
-        attributes.append(("threads", [:].set("values", value: threads?.map() { $0.serialized })))
-        attributes.append(("exception", [:].set("values", value: exceptions?.map() { $0.serialized })))
+        attributes.append(("threads", [:].set("values", value: threads?.map { $0.serialized })))
+        attributes.append(("exception", [:].set("values", value: exceptions?.map { $0.serialized })))
         attributes.append(("breadcrumbs", breadcrumbsSerialized))
         attributes.append(("stacktrace", stacktrace?.serialized))
         attributes.append(("debug_meta", debugMeta?.serialized))

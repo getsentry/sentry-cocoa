@@ -51,7 +51,7 @@ internal class DSN: NSObject {
         ]
         
         var ret: [String] = []
-        headerParts.filter() { $0.1 != nil }.forEach() { ret.append("\($0.0)=\($0.1!)") }
+        headerParts.filter { $0.1 != nil }.forEach { ret.append("\($0.0)=\($0.1!)") }
         #if swift(>=3.0)
             let value = ret.joined(separator: ",")
         #else

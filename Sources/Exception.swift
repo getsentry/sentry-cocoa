@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
+public typealias Mechanism = [String: [String: String]]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc public final class Exception: NSObject {
@@ -167,7 +167,7 @@ public typealias Mechanism = Dictionary<String, Dictionary<String, String>>
             let language = context["language"] as? String {
             type = name
             if language == SentryClient.CrashLanguages.reactNative { // We use this syntax here because dont want to have swift 3.0 #if
-                if let backtrace = context["backtrace"] as? [Dictionary<String, AnyObject>] {
+                if let backtrace = context["backtrace"] as? [[String: AnyObject]] {
                     userStacktrace = Stacktrace.convertReactNativeStacktrace(backtrace)
                 }
             } else {
