@@ -31,7 +31,7 @@ extension Contexts: EventSerializable {
 
 private class OSContext: NSObject {
     
-    var info = KSSystemInfo.systemInfo()
+    var info = KSCrash.sharedInstance().systemInfo
     
     var name: String? {
         #if os(iOS)
@@ -48,40 +48,44 @@ private class OSContext: NSObject {
     }
     
     var version: String? {
-        return info?[KSSystemField_SystemVersion] as? String
+        return info?["systemVersion"] as? String
     }
     
     var build: String? {
-        return info?[KSSystemField_OSVersion] as? String
+        return info?["osVersion"] as? String
     }
     
     var kernelVersion: String? {
-        return info?[KSSystemField_KernelVersion] as? String
+        return info?["kernelVersion"] as? String
     }
     
     var jailbroken: String? {
-        return info?[KSSystemField_Jailbroken] as? String
+        return info?["isJailbroken"] as? String
     }
 }
 
 extension OSContext: EventSerializable {
     typealias SerializedType = SerializedTypeDictionary
+    
     var serialized: SerializedType {
-        return [:]
-            .set("name", value: name)
-            .set("version", value: version)
-            .set("build", value: build)
-            .set("kernel_version", value: kernelVersion)
-            .set("rooted", value: jailbroken)
+        var attributes: [Attribute] = []
+        
+        attributes.append(("name", name))
+        attributes.append(("version", version))
+        attributes.append(("build", build))
+        attributes.append(("kernel_version", kernelVersion))
+        attributes.append(("rooted", jailbroken))
+        
+        return convertAttributes(attributes)
     }
 }
 
 private class DeviceContext: NSObject {
     
-    var info = KSSystemInfo.systemInfo()
+    var info = KSCrash.sharedInstance().systemInfo
     
     var architecture: String? {
-        return info?[KSSystemField_CPUArch] as? String
+        return info?["cpuArchitecture"] as? String
     }
     
     var family: String? {
@@ -90,7 +94,7 @@ private class DeviceContext: NSObject {
     
     var machine: String? {
         #if os(OSX)
-            return info?[KSSystemField_Machine] as? String
+            return info?["machine"] as? String
         #else
             // Not needed for iOS
             return nil
@@ -103,10 +107,10 @@ private class DeviceContext: NSObject {
         } else {
             
             #if os(OSX)
-                return info?[KSSystemField_Model] as? String
+                return info?["model"] as? String
             #else
                 // Reversed for iOS
-                return info?[KSSystemField_Machine] as? String
+                return info?["machine"] as? String
             #endif
         }
     }
@@ -115,7 +119,7 @@ private class DeviceContext: NSObject {
         if isSimulator {
             return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
         } else {
-            return info?[KSSystemField_Model] as? String
+            return info?["model"] as? String
         }
     }
     

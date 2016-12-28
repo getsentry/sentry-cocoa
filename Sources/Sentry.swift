@@ -201,12 +201,12 @@ internal enum SentryError: Error {
             SentryLog.Error.log("crashHandler not yet initialized")
             return
         }
-        KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], terminateProgram: false)
+        KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
         crashHandler.sendAllReports()
     }
     
     @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [AnyType]) {
-        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, terminateProgram: true)
+        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, logAllThreads: true, terminateProgram: true)
     }
     
     /*
