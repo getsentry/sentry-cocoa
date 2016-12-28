@@ -52,6 +52,9 @@ extension SentryClient {
     private func loadSavedEventsFromPath(_ path: String, since now: TimeInterval) -> [SavedEvent] {
         do {
             #if swift(>=3.0)
+                guard FileManager.default.fileExists(atPath: path) else {
+                    return []
+                }
                 return try FileManager.default
                     .contentsOfDirectory(atPath: path)
                     .filter { fileName in
@@ -75,6 +78,9 @@ extension SentryClient {
                         })
                 }
             #else
+                guard NSFileManager.defaultManager().fileExistsAtPath(path) else {
+                    return []
+                }
                 return try NSFileManager.defaultManager()
                     .contentsOfDirectoryAtPath(path)
                     .filter { fileName in
@@ -99,7 +105,7 @@ extension SentryClient {
                 }
             #endif
         } catch let error as NSError {
-            SentryLog.Debug.log(error.localizedDescription)
+            SentryLog.Error.log(error.localizedDescription)
         }
         return []
     }
@@ -107,14 +113,16 @@ extension SentryClient {
     private func deleteEmptyFolderAtPath(_ path: String) {
         do {
             #if swift(>=3.0)
+                guard FileManager.default.fileExists(atPath: path) else { return }
                 guard try FileManager.default.contentsOfDirectory(atPath: path).count == 0 else { return }
                 try FileManager.default.removeItem(atPath: path)
             #else
+                guard NSFileManager.defaultManager().fileExistsAtPath(path) else { return }
                 guard try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).count == 0 else { return }
                 try NSFileManager.defaultManager().removeItemAtPath(path)
             #endif
         } catch let error as NSError {
-            SentryLog.Debug.log(error.localizedDescription)
+            SentryLog.Error.log(error.localizedDescription)
         }
     }
     
