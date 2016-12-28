@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public final class UserFeedback: NSObject {
+@objc(SentryUserFeedback) public final class UserFeedback: NSObject {
     public var name = ""
     public var email = ""
     public var comments = ""
@@ -39,7 +39,7 @@ extension UserFeedback {
                 return escapedString
             }
         #endif
-        SentryLog.Error.log("Could not urlencode \(string)")
+        Log.Error.log("Could not urlencode \(string)")
         return string
     }
     

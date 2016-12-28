@@ -13,7 +13,7 @@ import Foundation
 import KSCrash
 
 // This is declared here to keep namespace compatibility with objc
-@objc public enum SentryLog: Int, CustomStringConvertible {
+@objc(SentryLog) public enum Log: Int, CustomStringConvertible {
     case None, Error, Debug
     
     public var description: String {
@@ -67,7 +67,7 @@ internal enum SentryError: Error {
     // MARK: - Static Attributes
     
     public static var shared: SentryClient?
-    public static var logLevel: SentryLog = .Error
+    public static var logLevel: Log = .Error
     
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
@@ -174,7 +174,7 @@ internal enum SentryError: Error {
     @objc public convenience init?(dsnString: String) {
         // Silently not creating a client if dsnString is empty string
         if dsnString.isEmpty {
-            SentryLog.Debug.log("DSN provided was empty - not creating a SentryClient object")
+            Log.Debug.log("DSN provided was empty - not creating a SentryClient object")
             return nil
         }
         
@@ -184,10 +184,10 @@ internal enum SentryError: Error {
             let dsn = try DSN(dsnString)
             self.init(dsn: dsn)
         } catch SentryError.InvalidDSN {
-            SentryLog.Error.log("DSN is invalid")
+            Log.Error.log("DSN is invalid")
             return nil
         } catch {
-            SentryLog.Error.log("DSN is invalid")
+            Log.Error.log("DSN is invalid")
             return nil
         }
     }
@@ -198,7 +198,7 @@ internal enum SentryError: Error {
      */
     @objc public func snapshotStacktrace() {
         guard let crashHandler = crashHandler else {
-            SentryLog.Error.log("crashHandler not yet initialized")
+            Log.Error.log("crashHandler not yet initialized")
             return
         }
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
@@ -214,7 +214,7 @@ internal enum SentryError: Error {
      - Parameter message: The message to send to Sentry
      - Parameter level: The severity of the message
      */
-    @objc public func captureMessage(_ message: String, level: SentrySeverity = .Info) {
+    @objc public func captureMessage(_ message: String, level: Severity = .Info) {
         self.captureEvent(Event(message, level: level))
     }
     

@@ -56,7 +56,7 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
     
     private func setupInterface() {
         guard let viewModel = viewModel else {
-            SentryLog.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
+            Log.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
             return
         }
         
@@ -101,7 +101,7 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
     
     private func updateInterface() {
         guard let viewModel = viewModel else {
-            SentryLog.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
+            Log.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
             return
         }
         
@@ -118,7 +118,7 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
     
     private func submitUserFeedback() {
         guard let viewModel = viewModel else {
-            SentryLog.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
+            Log.Error.log("UserFeedbackTableViewController has no UserFeedbackViewModel set")
             return
         }
         

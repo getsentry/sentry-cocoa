@@ -29,9 +29,9 @@ extension SentryClient {
             #else
                 try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
             #endif
-            SentryLog.Debug.log("Saved event \(event.eventID) to \(path)")
+            Log.Debug.log("Saved event \(event.eventID) to \(path)")
         } catch {
-            SentryLog.Error.log("Failed to save event \(event.eventID): \(error)")
+            Log.Error.log("Failed to save event \(event.eventID): \(error)")
         }
     }
     
@@ -71,9 +71,9 @@ extension SentryClient {
                         return (data as Data, {
                             do {
                                 try FileManager.default.removeItem(atPath: absolutePath)
-                                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                                Log.Debug.log("Deleted event at path - \(absolutePath)")
                             } catch {
-                                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                                Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
                 }
@@ -97,15 +97,15 @@ extension SentryClient {
                         return (data, {
                             do {
                                 try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
-                                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                                Log.Debug.log("Deleted event at path - \(absolutePath)")
                             } catch {
-                                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                                Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
                 }
             #endif
         } catch let error as NSError {
-            SentryLog.Error.log(error.localizedDescription)
+            Log.Error.log(error.localizedDescription)
         }
         return []
     }
@@ -122,7 +122,7 @@ extension SentryClient {
                 try NSFileManager.defaultManager().removeItemAtPath(path)
             #endif
         } catch let error as NSError {
-            SentryLog.Error.log(error.localizedDescription)
+            Log.Error.log(error.localizedDescription)
         }
     }
     

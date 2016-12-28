@@ -74,7 +74,7 @@ internal final class KSCrashHandler: CrashHandler {
         // Install
         installation.install()
         
-        SentryLog.Debug.log("Started Sentry Client \(SentryClient.versionString)")
+        Log.Debug.log("Started Sentry Client \(SentryClient.versionString)")
         
         sendAllReports()
     }
@@ -83,11 +83,11 @@ internal final class KSCrashHandler: CrashHandler {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
             installation.sendAllReports { (filteredReports, _, _) -> Void in
-                SentryLog.Debug.log("Sent \(filteredReports?.count) report(s)")
+                Log.Debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #else
             installation.sendAllReportsWithCompletion { (filteredReports, completed, error) -> Void in
-                SentryLog.Debug.log("Sent \(filteredReports.count) report(s)")
+                Log.Debug.log("Sent \(filteredReports.count) report(s)")
             }
         #endif
     }

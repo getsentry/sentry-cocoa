@@ -35,7 +35,7 @@
 	// OPTIONAL (but also useful)
 	// Step 4: Set any user or global information to be sent up with every exception/message
 	// This is optional and can also be done at anytime (so when a user logs in/out)
-	[SentryClient shared].user = [[User alloc] initWithId:@"3" email:@"example@example.com" username:@"Example" extra:@{@"is_admin": @NO}];
+	[SentryClient shared].user = [[SentryUser alloc] initWithId:@"3" email:@"example@example.com" username:@"Example" extra:@{@"is_admin": @NO}];
 
 	// A map or list of tags for this event.
 	[SentryClient shared].tags = @{@"environment": @"production"};
@@ -48,8 +48,8 @@
 									};
     
     // Step 5: Add breadcrumbs to help you debug errors
-    Breadcrumb *bcStart = [[Breadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"app start"}];
-    Breadcrumb *bcMain = [[Breadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"main screen"}];
+    SentryBreadcrumb *bcStart = [[SentryBreadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"app start"}];
+    SentryBreadcrumb *bcMain = [[SentryBreadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"main screen"}];
     [[SentryClient shared].breadcrumbs add:bcStart];
     [[SentryClient shared].breadcrumbs add:bcMain];
 	
@@ -66,7 +66,7 @@
 }
 
 - (IBAction)onClickComplexMessage:(id)sender {
-	Event *event = [[Event alloc] init:@"Some message from ObjC"
+	SentryEvent *event = [[SentryEvent alloc] init:@"Some message from ObjC"
 							 timestamp:[NSDate date]
 								 level:SentrySeverityFatal
 								logger:nil
@@ -87,7 +87,7 @@
 - (IBAction)onClickError:(id)sender {
     NSError *error = [[NSError alloc] initWithDomain:@"test.domain" code:-1 userInfo:nil];
     
-    Event *event = [[Event alloc] init:error.domain
+    SentryEvent *event = [[SentryEvent alloc] init:error.domain
                              timestamp:[NSDate date]
                                  level:SentrySeverityError
                                 logger:nil

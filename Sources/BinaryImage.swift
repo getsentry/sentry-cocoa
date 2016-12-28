@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc internal class BinaryImage: NSObject {
+final class BinaryImage {
     
     internal typealias MemoryAddress = UInt64
     

@@ -60,7 +60,7 @@ extension Event {
         if let cleanedUserInfo = cleanValue(error.userInfo) as? [String: AnyType] {
             extra = ["user_info": cleanedUserInfo]
         } else {
-            SentryLog.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
+            Log.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
         
         exceptions = [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)]

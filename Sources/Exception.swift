@@ -11,7 +11,7 @@ import Foundation
 public typealias Mechanism = [String: [String: String]]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public final class Exception: NSObject {
+@objc(SentryException) public final class Exception: NSObject {
     static let defaultReason = "UNKNOWN Exception"
     public var value: String
     public var type: String?

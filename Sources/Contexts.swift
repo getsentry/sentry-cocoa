@@ -15,9 +15,7 @@ import Foundation
 import KSCrash
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public final class Contexts: NSObject {
-    
-}
+final class Contexts {}
 
 extension Contexts: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
@@ -29,7 +27,7 @@ extension Contexts: EventSerializable {
     }
 }
 
-private class OSContext: NSObject {
+private final class OSContext {
     
     var info = KSCrash.sharedInstance().systemInfo
     
@@ -80,7 +78,7 @@ extension OSContext: EventSerializable {
     }
 }
 
-private class DeviceContext: NSObject {
+private final class DeviceContext {
     
     var info = KSCrash.sharedInstance().systemInfo
     
@@ -159,7 +157,7 @@ private class DeviceContext: NSObject {
             #endif
             // swiftlint:enable legacy_constructor
         } catch let error as NSError {
-            SentryLog.Error.log("Invalid family regeex: \(error.localizedDescription)")
+            Log.Error.log("Invalid family regeex: \(error.localizedDescription)")
             return nil
         }
     }

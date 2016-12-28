@@ -9,13 +9,12 @@
 import Foundation
 
 // A class used to represent an exception: `debug_meta`
-@objc internal final class DebugMeta: NSObject {
+final class DebugMeta {
     
     let images: [BinaryImage]
     
     init(binaryImages: [BinaryImage]) {
         self.images = binaryImages
-        super.init()
     }
     
 }
@@ -24,7 +23,7 @@ extension DebugMeta: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
         return [
-            "images": images.map({$0.serialized})
+            "images": images.map({ $0.serialized })
         ]
     }
 }

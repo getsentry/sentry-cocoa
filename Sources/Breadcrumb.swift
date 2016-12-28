@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to represent the breadcrumbs leading up to an events
-@objc public final class Breadcrumb: NSObject {
+@objc(SentryBreadcrumb) public final class Breadcrumb: NSObject {
     
     // MARK: - Attributes
     
@@ -19,10 +19,10 @@ import Foundation
     public var type: String?
     public var message: String?
     public var data: [String: AnyType]
-    public var level: SentrySeverity // can't be optional because @objc can't handle optional enums
+    public var level: Severity // can't be optional because @objc can't handle optional enums
     
     /// Creates a breadcrumb
-    @objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: SentrySeverity = .Info, data: [String: AnyType]? = nil) {
+    @objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: Severity = .Info, data: [String: AnyType]? = nil) {
         self.category = category
         self.timestamp = timestamp
         self.message = message
@@ -34,7 +34,7 @@ import Foundation
     }
     
     /// Conveneince init for a "navigation" type breadcrumb
-    public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: SentrySeverity = .Info, data: [String: AnyType]? = nil, to: String, from: String? = nil) {
+    public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: Severity = .Info, data: [String: AnyType]? = nil, to: String, from: String? = nil) {
         let navigationData: [String: AnyType] = (data ?? [:])
             .set("to", value: to)
             .set("from", value: from)
@@ -46,7 +46,7 @@ import Foundation
     public convenience init(category: String,
                             timestamp: NSDate = NSDate(),
                             message: String? = nil,
-                            level: SentrySeverity = .Info,
+                            level: Severity = .Info,
                             data: [String: AnyType]? = nil,
                             url: String, method: String,
                             statusCode: Int = -999,

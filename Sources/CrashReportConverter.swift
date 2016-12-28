@@ -25,22 +25,22 @@ internal final class CrashReportConverter {
         
         // Generating threads, exceptions, and debug meta for crash report
         guard let binaryImagesDicts = report["binary_images"] as? [[String: AnyObject]] else {
-            SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
         }
         
         guard let crashDict = report["crash"] as? [String: AnyObject] else {
-            SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
         }
         
         guard let errorDict = crashDict["error"] as? [String: AnyObject] else {
-            SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
         }
         
         guard let threadDicts = crashDict["threads"] as? [[String: AnyObject]] else {
-            SentryLog.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
             return nil
         }
         

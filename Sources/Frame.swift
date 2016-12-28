@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public class Frame: NSObject {
+@objc(SentryFrame) public class Frame: NSObject {
     public var fileName: String?
     public var function: String?
     public var module: String?
