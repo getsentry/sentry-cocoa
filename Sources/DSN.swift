@@ -11,7 +11,7 @@ import Foundation
 internal typealias XSentryAuthHeader = (key: String, value: String)
 
 /// A class to hold DSN information and populate X-Sentry-Auth header
-internal class DSN: NSObject {
+final class DSN {
     
     internal let url: NSURL
     internal let publicKey: String?

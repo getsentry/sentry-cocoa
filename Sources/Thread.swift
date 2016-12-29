@@ -9,7 +9,7 @@
 import Foundation
 
 // A class used to represent an exception: `sentry.interfaces.exception`
-@objc public final class Thread: NSObject {
+@objc(SentryThread) public final class Thread: NSObject {
     public let id: Int
     public let crashed: Bool?
     public let current: Bool?

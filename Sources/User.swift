@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to represent the user attached to events
-@objc public final class User: NSObject {
+@objc(SentryUser) public final class User: NSObject {
     public var userID: String
     public var email: String?
     public var username: String?
@@ -35,10 +35,10 @@ import Foundation
     internal convenience init?(dictionary: [String: AnyType]?) {
         guard let dictionary = dictionary, let userID = dictionary["id"] as? String else { return nil }
         self.init(
-        id: userID,
-                email: dictionary["email"] as? String,
-                username: dictionary["username"] as? String,
-                extra: dictionary
+            id: userID,
+            email: dictionary["email"] as? String,
+            username: dictionary["username"] as? String,
+            extra: dictionary
         )
     }
 }

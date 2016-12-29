@@ -16,7 +16,7 @@ protocol ViewModel {
     weak var delegate: ViewModelDelegate? { get }
 }
 
-@objc public final class UserFeedbackViewModel: NSObject, ViewModel {
+@objc(SentryUserFeedbackViewModel)public final class UserFeedbackViewModel: NSObject, ViewModel {
     
     public var viewControllerTitle = "User Feedback"
     
@@ -56,7 +56,7 @@ protocol ViewModel {
     
     func sendUserFeedback(finished: SentryEndpointRequestFinished? = nil) {
         guard let name = self.name, let email = self.email, let comments = self.comments else {
-            SentryLog.Error.log("UserFeedback must be filled")
+            Log.Error.log("UserFeedback must be filled")
             return
         }
         

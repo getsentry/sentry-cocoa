@@ -18,7 +18,7 @@ public typealias EventExtra = [String: AnyType]
 public typealias EventFingerprint = [String]
 
 // This is declared here to keep namespace compatibility with objc
-@objc public enum SentrySeverity: Int, CustomStringConvertible {
+@objc(SentrySeverity) public enum Severity: Int, CustomStringConvertible {
     case Fatal, Error, Warning, Info, Debug
     
     public var description: String {
@@ -33,7 +33,7 @@ public typealias EventFingerprint = [String]
 }
 
 /// A class that defines an event to be reported
-@objc public final class Event: NSObject, EventProperties {
+@objc(SentryEvent) public final class Event: NSObject, EventProperties {
     
     public typealias BuildEvent = (inout Event) -> Void
     internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
@@ -47,7 +47,7 @@ public typealias EventFingerprint = [String]
     #endif
     public var message: String
     public var timestamp: NSDate = NSDate()
-    public var level: SentrySeverity = .Error
+    public var level: Severity = .Error
     public var platform: String = "cocoa"
     
     // MARK: - Optional Attributes
@@ -102,7 +102,7 @@ public typealias EventFingerprint = [String]
      */
     @objc public init(_ message: String,
                       timestamp: NSDate = NSDate(),
-                      level: SentrySeverity = .Error,
+                      level: Severity = .Error,
                       logger: String? = nil,
                       culprit: String? = nil,
                       serverName: String? = nil,
@@ -186,13 +186,13 @@ extension Event: EventSerializable {
         if JSONSerialization.isValidJSONObject(tags) {
             attributes.append(("tags", tags))
         } else if !tags.isEmpty {
-            SentryLog.Error.log("event.tags is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
+            Log.Error.log("event.tags is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
         }
         
         if JSONSerialization.isValidJSONObject(extra) {
             attributes.append(("extra", extra))
         } else if !extra.isEmpty {
-            SentryLog.Error.log("event.extra is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
+            Log.Error.log("event.extra is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
         }
         
         // Interfaces

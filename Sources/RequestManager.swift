@@ -28,7 +28,7 @@ internal class RequestManager {
     func addRequest(_ request: URLRequest, finished: SentryEndpointRequestFinished? = nil) {
         let operation = RequestOperation(session: session, request: request, finished: { [weak self] success in
             if let operationCount = self?.queue.operationCount {
-                SentryLog.Debug.log("Queued requests: \(operationCount-1)")
+                Log.Debug.log("Queued requests: \(operationCount-1)")
             }
             finished?(success)
         })

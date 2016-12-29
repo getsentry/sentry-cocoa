@@ -39,7 +39,7 @@ extension SentryClient {
     #if os(iOS)
     internal func sendUserFeedback(_ userFeedback: UserFeedback, finished: SentryEndpointRequestFinished? = nil) {
         guard nil != userFeedback.event || nil != lastSuccessfullySentEvent else {
-            SentryLog.Error.log("Cannot send userFeedback without Event")
+            Log.Error.log("Cannot send userFeedback without Event")
             return
         }
         if nil == userFeedback.event {

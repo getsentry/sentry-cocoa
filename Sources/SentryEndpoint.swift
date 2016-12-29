@@ -47,7 +47,7 @@ enum SentryEndpoint: Endpoint {
                 
                 let serializedEvent = eventToSend.serialized
                 guard JSONSerialization.isValidJSONObject(serializedEvent) else {
-                    SentryLog.Error.log("Could not serialized event")
+                    Log.Error.log("Could not serialized event")
                     return Data()
                 }
                 #if swift(>=3.0)
@@ -56,14 +56,14 @@ enum SentryEndpoint: Endpoint {
                     return try JSONSerialization.dataWithJSONObject(serializedEvent, options: [])
                 #endif
             } catch {
-                SentryLog.Error.log("Could not serialized event - \(error)")
+                Log.Error.log("Could not serialized event - \(error)")
                 return Data()
             }
         case .storeSavedEvent(let savedEvent):
             return savedEvent.data
         case .userFeedback(let userFeedback):
             guard let data = userFeedback.serialized else {
-                SentryLog.Error.log("Could not serialize userFeedback")
+                Log.Error.log("Could not serialize userFeedback")
                 return Data()
             }
             return data
@@ -72,7 +72,7 @@ enum SentryEndpoint: Endpoint {
     
     func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
         guard let url = routeForDsn(dsn) else {
-            SentryLog.Error.log("Cannot find route for \(self)")
+            Log.Error.log("Cannot find route for \(self)")
             finished?(false)
             return
         }
@@ -133,7 +133,7 @@ enum SentryEndpoint: Endpoint {
                 #endif
                 request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             } catch {
-                SentryLog.Error.log("Failed to gzip request data = \(error)")
+                Log.Error.log("Failed to gzip request data = \(error)")
                 #if swift(>=3.0)
                     request.httpBody = data as Data
                 #else
@@ -162,6 +162,6 @@ enum SentryEndpoint: Endpoint {
                 return
             }
         #endif
-        SentryLog.Debug.log("body = \(body)")
+        Log.Debug.log("body = \(body)")
     }
 }

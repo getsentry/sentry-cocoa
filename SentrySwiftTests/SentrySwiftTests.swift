@@ -159,7 +159,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTFail("timestamp should not be nil")
 			return
 		}
-		let level = SentrySeverity.Info
+		let level = Severity.Info
 		let platform = "osx"
 		
 		// Optional
@@ -248,7 +248,7 @@ class SentrySwiftTests: XCTestCase {
 			assertionFailure("timestamp should not be nil")
 			return
 		}
-		let level = SentrySeverity.Info
+		let level = Severity.Info
 		let platform = "osx"
 		
 		// Optional

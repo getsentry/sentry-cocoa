@@ -29,9 +29,9 @@ extension SentryClient {
             #else
                 try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
             #endif
-            SentryLog.Debug.log("Saved event \(event.eventID) to \(path)")
+            Log.Debug.log("Saved event \(event.eventID) to \(path)")
         } catch {
-            SentryLog.Error.log("Failed to save event \(event.eventID): \(error)")
+            Log.Error.log("Failed to save event \(event.eventID): \(error)")
         }
     }
     
@@ -52,6 +52,9 @@ extension SentryClient {
     private func loadSavedEventsFromPath(_ path: String, since now: TimeInterval) -> [SavedEvent] {
         do {
             #if swift(>=3.0)
+                guard FileManager.default.fileExists(atPath: path) else {
+                    return []
+                }
                 return try FileManager.default
                     .contentsOfDirectory(atPath: path)
                     .filter { fileName in
@@ -68,13 +71,16 @@ extension SentryClient {
                         return (data as Data, {
                             do {
                                 try FileManager.default.removeItem(atPath: absolutePath)
-                                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                                Log.Debug.log("Deleted event at path - \(absolutePath)")
                             } catch {
-                                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                                Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
                 }
             #else
+                guard NSFileManager.defaultManager().fileExistsAtPath(path) else {
+                    return []
+                }
                 return try NSFileManager.defaultManager()
                     .contentsOfDirectoryAtPath(path)
                     .filter { fileName in
@@ -91,15 +97,15 @@ extension SentryClient {
                         return (data, {
                             do {
                                 try NSFileManager.defaultManager().removeItemAtPath(absolutePath)
-                                SentryLog.Debug.log("Deleted event at path - \(absolutePath)")
+                                Log.Debug.log("Deleted event at path - \(absolutePath)")
                             } catch {
-                                SentryLog.Error.log("Failed to delete event at path - \(absolutePath)")
+                                Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
                 }
             #endif
         } catch let error as NSError {
-            SentryLog.Debug.log(error.localizedDescription)
+            Log.Error.log(error.localizedDescription)
         }
         return []
     }
@@ -107,14 +113,16 @@ extension SentryClient {
     private func deleteEmptyFolderAtPath(_ path: String) {
         do {
             #if swift(>=3.0)
+                guard FileManager.default.fileExists(atPath: path) else { return }
                 guard try FileManager.default.contentsOfDirectory(atPath: path).count == 0 else { return }
                 try FileManager.default.removeItem(atPath: path)
             #else
+                guard NSFileManager.defaultManager().fileExistsAtPath(path) else { return }
                 guard try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).count == 0 else { return }
                 try NSFileManager.defaultManager().removeItemAtPath(path)
             #endif
         } catch let error as NSError {
-            SentryLog.Debug.log(error.localizedDescription)
+            Log.Error.log(error.localizedDescription)
         }
     }
     

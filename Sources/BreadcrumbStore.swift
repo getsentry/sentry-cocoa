@@ -9,7 +9,7 @@
 import Foundation
 
 /// A class used to hold and store our `Breadcrumb`
-public final class BreadcrumbStore: NSObject {
+@objc public final class BreadcrumbStore: NSObject {
     
     public typealias StoreUpdated = (BreadcrumbStore) -> Void
     
@@ -29,7 +29,7 @@ public final class BreadcrumbStore: NSObject {
     
     /// Adds given crumb to the client store
     public func add(_ crumb: Breadcrumb) {
-        SentryLog.Debug.log("Added breadcrumb: \(crumb.category) \(crumb.type) \(crumb.message)")
+        Log.Debug.log("Added breadcrumb: \(crumb.category) \(crumb.type) \(crumb.message)")
         if crumbs.count >= maxCrumbs {
             crumbs.removeFirst()
         }
