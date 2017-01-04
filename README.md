@@ -27,3 +27,5 @@ SentryClient.shared?.user = User(id: "3",
     - [ViewController.swift](/Examples/SwiftExample/SwiftExample/ViewController.swift) - Implementation
   - [Objective-C Project](/Examples/ObjCExample) - Full project
     - [ViewController.m](/Examples/ObjCExample/ObjCExample/ViewController.m) - Implementation
+
+*Note: Requires Xcode 8*
