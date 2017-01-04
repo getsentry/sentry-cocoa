@@ -15,6 +15,7 @@ release: lint test build-carthage
 
 pod-example-projects:
 	@echo "--> Running pod install on all example projects"
+	pod repo update
 	pod install --project-directory=Examples/SwiftExample
 	pod install --project-directory=Examples/SwiftTVOSExample
 	pod install --project-directory=Examples/SwiftWatchOSExample

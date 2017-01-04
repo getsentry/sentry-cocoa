@@ -74,6 +74,8 @@ internal final class KSCrashHandler: CrashHandler {
         // Install
         installation.install()
         
+        KSCrash.sharedInstance().searchThreadNames = true
+        
         Log.Debug.log("Started Sentry Client \(SentryClient.versionString)")
         
         sendAllReports()

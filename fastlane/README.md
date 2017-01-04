@@ -45,9 +45,14 @@ fastlane test_swift_3_tvos
 fastlane test_swift_3_macos
 ```
 
-### coverage
+### test_swift_3_ios
 ```
-fastlane coverage
+fastlane test_swift_3_ios
+```
+
+### travis_slather
+```
+fastlane travis_slather
 ```
 
 
