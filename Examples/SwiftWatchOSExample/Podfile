@@ -4,11 +4,9 @@
 target 'SwiftWatchOSExample' do
   use_frameworks!
   pod 'SentrySwift', :path => '../../'
-  pod 'KSCrash', :git => 'git@github.com:kstenerud/KSCrash.git', :tag => '1.13.4'
 end
 
 target 'SwiftWatchOSExample WatchKit Extension' do
   use_frameworks!
   pod 'SentrySwift', :path => '../../'
-  pod 'KSCrash', :git => 'git@github.com:kstenerud/KSCrash.git', :tag => '1.13.4'
 end
