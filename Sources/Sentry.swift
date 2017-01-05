@@ -102,16 +102,8 @@ internal enum SentryError: Error {
     
     public lazy var breadcrumbs: BreadcrumbStore = {
         let store = BreadcrumbStore()
-        store.storeUpdated = { breadcrumbStore in
-            #if swift(>=3.0)
-                DispatchQueue(label: SentryClient.queueName).sync {
-                    self.crashHandler?.breadcrumbsSerialized = breadcrumbStore.serialized
-                }
-            #else
-                dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
-                    self.crashHandler?.breadcrumbsSerialized = breadcrumbStore.serialized
-                })
-            #endif
+        store.storeUpdated = {
+            self.crashHandler?.breadcrumbsSerialized = $0.serialized
         }
         return store
     }()
