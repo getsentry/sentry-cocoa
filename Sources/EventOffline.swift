@@ -131,9 +131,11 @@ extension SentryClient {
             return nil
         }
         
-        guard let serverURLString = dsn.url.absoluteString else {
-            return nil
-        }
+        #if swift(>=3.0)
+            let serverURLString = String(describing: dsn.url)
+        #else
+            let serverURLString = String(dsn.url)
+        #endif
         
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"
         
