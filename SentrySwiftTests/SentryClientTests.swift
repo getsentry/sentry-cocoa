@@ -47,7 +47,7 @@ class SentryClientTests: XCTestCase {
 		let dsn = DSN(url: NSURL(), publicKey: nil, secretKey: nil, projectID: "some project")
 		client = SentryClient(dsn: dsn)
 	}
-
+    #if swift(>=3.0)
 	func test_setReleaseVersion_crashHandlerIsPresent_releaseVersionIsPassedOnToCrashHandler() {
 		let crashHandler = TestCrashHandler(client: client)
 		client.crashHandler = crashHandler
@@ -66,4 +66,5 @@ class SentryClientTests: XCTestCase {
 		XCTAssertEqual(releaseVersion, client.releaseVersion)
 		XCTAssertNil(client.crashHandler)
 	}
+    #endif
 }

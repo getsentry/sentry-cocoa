@@ -11,6 +11,7 @@ import XCTest
 
 class SentrySwiftContextsTests: XCTestCase {
 
+    #if swift(>=3.0)
     func testContext() {
         let context = Contexts().serialized
         let os = context["os"] as? SerializedTypeDictionary
@@ -19,5 +20,6 @@ class SentrySwiftContextsTests: XCTestCase {
         XCTAssertNotNil(os?["kernel_version"])
         XCTAssertEqual(device?["simulator"] as? Bool, true)
     }
-
+    #endif
+    
 }
