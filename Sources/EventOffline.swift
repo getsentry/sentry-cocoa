@@ -131,9 +131,7 @@ extension SentryClient {
             return nil
         }
         
-        guard let serverURLString = dsn.url.absoluteString else {
-            return nil
-        }
+        let serverURLString = String(dsn.url)
         
         let directory = "\(directoryNamePrefix)\(serverURLString.hashValue)"
         
