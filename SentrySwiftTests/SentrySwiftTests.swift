@@ -45,8 +45,13 @@ class SentrySwiftTests: XCTestCase {
         
         SentryClient.shared?.beforeSendEventBlock = {
             XCTAssertEqual($0.tags, ["a": "b"])
+            XCTAssertEqual($0.extra["1"] as? String, "2")
             XCTAssertEqual($0.user?.email, "a@b.com")
             asyncExpectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
         }
         
         let asyncExpectation2 = expectation(description: "testSharedProperties2")
@@ -59,6 +64,7 @@ class SentrySwiftTests: XCTestCase {
         
         SentryClient.shared?.beforeSendEventBlock = {
             XCTAssertEqual($0.tags, ["b": "c"])
+            XCTAssertEqual($0.extra["2"] as? String, "3")
             XCTAssertEqual($0.user?.email, "b@c.com")
             asyncExpectation2.fulfill()
         }
