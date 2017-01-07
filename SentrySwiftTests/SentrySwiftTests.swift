@@ -28,6 +28,44 @@ class SentrySwiftTests: XCTestCase {
 		SentryClient.shared = client
 		XCTAssertNotNil(SentryClient.shared)
 	}
+    
+    func testSharedProperties() {
+        let asyncExpectation = expectation(description: "testSharedProperties")
+        
+        SentryClient.shared = client
+        SentryClient.logLevel = .Debug
+        
+        SentryClient.shared?.tags = ["a": "b"]
+        SentryClient.shared?.extra = ["1": "2"]
+        SentryClient.shared?.user = User(id: "1", email: "a@b.com", username: "test", extra: ["x": "y"])
+        
+        SentryClient.shared?.startCrashHandler()
+        SentryClient.shared?.captureMessage("test")
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["a": "b"])
+            XCTAssertEqual($0.user?.email, "a@b.com")
+            asyncExpectation.fulfill()
+        }
+        
+        let asyncExpectation2 = expectation(description: "testSharedProperties2")
+        
+        SentryClient.shared?.tags = ["b": "c"]
+        SentryClient.shared?.extra = ["2": "3"]
+        SentryClient.shared?.user = User(id: "2", email: "b@c.com", username: "test", extra: ["x": "y"])
+        
+        SentryClient.shared?.captureMessage("test")
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["b": "c"])
+            XCTAssertEqual($0.user?.email, "b@c.com")
+            asyncExpectation2.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5) { error in
+           XCTAssertNil(error)
+        }
+    }
 	
 	// MARK: Helpers
 	
