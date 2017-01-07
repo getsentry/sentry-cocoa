@@ -29,6 +29,7 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertNotNil(SentryClient.shared)
 	}
     
+    #if swift(>=3.0)
     func testSharedProperties() {
         let asyncExpectation = expectation(description: "testSharedProperties")
         
@@ -66,7 +67,8 @@ class SentrySwiftTests: XCTestCase {
            XCTAssertNil(error)
         }
     }
-	
+    #endif
+    
 	// MARK: Helpers
 	
 	func testDateSerialization() {
