@@ -94,7 +94,6 @@ class SentrySwiftTests: XCTestCase {
         let asyncExpectation = expectation(description: "testSharedProperties")
         
         SentryClient.shared = client
-        SentryClient.logLevel = .Debug
         
         SentryClient.shared?.tags = ["a": "b"]
         SentryClient.shared?.extra = ["1": "2"]
