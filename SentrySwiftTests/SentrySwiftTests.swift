@@ -38,12 +38,13 @@ class SentrySwiftTests: XCTestCase {
         SentryClient.shared = client
         SentryClient.logLevel = .Debug
         
+        SentryClient.shared?.startCrashHandler()
+        
         SentryClient.shared?.tags = ["a": "b"]
         SentryClient.shared?.extra = ["1": "2"]
         SentryClient.shared?.user = User(id: "1", email: "a@b.com", username: "test", extra: ["x": "y"])
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test1"))
         
-        SentryClient.shared?.startCrashHandler()
         KSCrash.sharedInstance().deleteAllReports()
         
         KSCrash.sharedInstance().reportUserException("", reason: "", language: SentryClient.CrashLanguages.reactNative, lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
@@ -57,6 +58,7 @@ class SentrySwiftTests: XCTestCase {
             XCTAssertEqual($0.tags, ["a": "b"])
             XCTAssertEqual($0.extra["1"] as? String, "2")
             XCTAssertEqual($0.user?.email, "a@b.com")
+            XCTAssertEqual($0.breadcrumbsSerialized?.count, 1)
             asyncExpectation.fulfill()
         }
         
@@ -75,6 +77,7 @@ class SentrySwiftTests: XCTestCase {
             XCTAssertEqual($0.tags, ["b": "c"])
             XCTAssertEqual($0.extra["2"] as? String, "3")
             XCTAssertEqual($0.user?.email, "b@c.com")
+            XCTAssertEqual($0.breadcrumbsSerialized?.count, 2)
             asyncExpectation2.fulfill()
         }
         

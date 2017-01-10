@@ -183,9 +183,6 @@ internal enum SentryError: Error {
         do {
             let dsn = try DSN(dsnString)
             self.init(dsn: dsn)
-        } catch SentryError.InvalidDSN {
-            Log.Error.log("DSN is invalid")
-            return nil
         } catch {
             Log.Error.log("DSN is invalid")
             return nil
@@ -329,7 +326,6 @@ internal enum SentryError: Error {
             breadcrumbs.clear()
         }
 
-        
         sendEvent(event) { [weak self] success in
             completed?(success)
             guard !success else {
