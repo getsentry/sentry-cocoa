@@ -308,7 +308,8 @@ internal enum SentryError: Error {
      - Parameter event: An event struct
      - Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
      */
-    internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: SentryEndpointRequestFinished? = nil) {
+    internal func captureEvent(_ event: Event, useClientProperties: Bool, completed: SentryEndpointRequestFinished? = nil) {
+        
         // Don't allow client attributes to be used when reporting an `Exception`
         if useClientProperties {
             event.user = event.user ?? user
@@ -321,12 +322,13 @@ internal enum SentryError: Error {
             if JSONSerialization.isValidJSONObject(extra) {
                 event.extra.unionInPlace(extra)
             }
+            
+            if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
+                event.breadcrumbsSerialized = breadcrumbs.serialized
+            }
+            breadcrumbs.clear()
         }
 
-        if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
-            event.breadcrumbsSerialized = breadcrumbs.serialized
-        }
-        breadcrumbs.clear()
         
         sendEvent(event) { [weak self] success in
             completed?(success)

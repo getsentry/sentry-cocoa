@@ -142,8 +142,8 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
             DispatchQueue(label: SentryClient.queueName).sync {
                 // Mapping reports
                 let events: [Event] = reports?
-                    .flatMap({$0 as? CrashDictionary})
-                    .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
+                    .flatMap({ $0 as? CrashDictionary })
+                    .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
                 
                 let userReported = events.filter({
                     if let exceptions = $0.exceptions, let exception = exceptions.first {
@@ -169,8 +169,8 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
             dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
                 // Mapping reports
                 let events: [Event] = reports?
-                    .flatMap({$0 as? CrashDictionary})
-                    .flatMap({CrashReportConverter.convertReportToEvent($0)}) ?? []
+                    .flatMap({ $0 as? CrashDictionary })
+                    .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
             
                 let userReported = events.filter({
                     if let exceptions = $0.exceptions, let exception = exceptions.first {
@@ -205,7 +205,10 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
         }
         
         // Send event
-        client.captureEvent(event, useClientProperties: true) { [weak self] eventSuccess in
+        // we have to set useClientProperties: false otherwise the event will be mutated before sending
+        // but we want to have the state where the event has been stored 
+        // see https://github.com/getsentry/sentry-swift/issues/110
+        client.captureEvent(event, useClientProperties: false) { [weak self] eventSuccess in
             self?.sendEvent(reports, events: events, success: success && eventSuccess, onCompletion: onCompletion)
         }
     }
