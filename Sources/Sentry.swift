@@ -110,6 +110,21 @@ internal enum SentryError: Error {
     
     internal var stacktraceSnapshot: Event.StacktraceSnapshot?
     
+    /** If true, attempt to fetch dispatch queue names for each running thread.
+     *
+     * WARNING: There is a chance that this will deadlock on a thread_lock() call!
+     * If that happens, your crash report will be cut short.
+     *
+     * Enable at your own risk.
+     *
+     * Default: false
+     */
+    public var enableThreadNames: Bool = false {
+        didSet {
+            KSCrash.sharedInstance().searchThreadNames = enableThreadNames
+        }
+    }
+    
     #if os(iOS)
     public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
     
@@ -183,9 +198,6 @@ internal enum SentryError: Error {
         do {
             let dsn = try DSN(dsnString)
             self.init(dsn: dsn)
-        } catch SentryError.InvalidDSN {
-            Log.Error.log("DSN is invalid")
-            return nil
         } catch {
             Log.Error.log("DSN is invalid")
             return nil
@@ -308,7 +320,8 @@ internal enum SentryError: Error {
      - Parameter event: An event struct
      - Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
      */
-    internal func captureEvent(_ event: Event, useClientProperties: Bool = true, completed: SentryEndpointRequestFinished? = nil) {
+    internal func captureEvent(_ event: Event, useClientProperties: Bool, completed: SentryEndpointRequestFinished? = nil) {
+        
         // Don't allow client attributes to be used when reporting an `Exception`
         if useClientProperties {
             event.user = event.user ?? user
@@ -321,13 +334,13 @@ internal enum SentryError: Error {
             if JSONSerialization.isValidJSONObject(extra) {
                 event.extra.unionInPlace(extra)
             }
+            
+            if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
+                event.breadcrumbsSerialized = breadcrumbs.serialized
+            }
+            breadcrumbs.clear()
         }
 
-        if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
-            event.breadcrumbsSerialized = breadcrumbs.serialized
-        }
-        breadcrumbs.clear()
-        
         sendEvent(event) { [weak self] success in
             completed?(success)
             guard !success else {

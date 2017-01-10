@@ -76,17 +76,6 @@ instantiate the Sentry client:
         return true
     }
 
-If you do not want to send events in a debug build, you can wrap the above
-code in something like this:
-
-.. sourcecode:: swift
-
-    // Create a Sentry client and start crash handler when not in debug
-    if !DEBUG {
-        SentryClient.shared = SentryClient(dsnString: "___DSN___")
-        SentryClient.shared?.startCrashHandler()
-    }
-
 If you prefer to use Objective-C you can do so like this:
 
 .. sourcecode:: objc
@@ -95,6 +84,9 @@ If you prefer to use Objective-C you can do so like this:
 
     [SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"___DSN___"]];
     [[SentryClient shared] startCrashHandler];
+
+`Note that in case of a real crash make sure to call ``startCrashHandler`` before setting any other properties
+on the client. This guarantees that the stored crash report has the expected properties set.`
 
 Debug Symbols
 -------------

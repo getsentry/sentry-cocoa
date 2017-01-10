@@ -9,6 +9,7 @@
 import XCTest
 import SentrySwift
 @testable import SentrySwift
+@testable import KSCrash
 
 class SentrySwiftTests: XCTestCase {
 	
@@ -28,7 +29,111 @@ class SentrySwiftTests: XCTestCase {
 		SentryClient.shared = client
 		XCTAssertNotNil(SentryClient.shared)
 	}
-	
+    
+    #if swift(>=3.0)
+    
+    func testImmutableCrashProperties() {
+        let asyncExpectation = expectation(description: "testImmutableCrashProperties")
+        
+        SentryClient.shared = client
+        SentryClient.logLevel = .Debug
+        
+        SentryClient.shared?.startCrashHandler()
+        
+        SentryClient.shared?.tags = ["a": "b"]
+        SentryClient.shared?.extra = ["1": "2"]
+        SentryClient.shared?.user = User(id: "1", email: "a@b.com", username: "test", extra: ["x": "y"])
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test1"))
+        
+        KSCrash.sharedInstance().deleteAllReports()
+        
+        KSCrash.sharedInstance().reportUserException("", reason: "", language: SentryClient.CrashLanguages.reactNative, lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
+        
+        SentryClient.shared?.tags = ["b": "c"]
+        SentryClient.shared?.extra = ["2": "3"]
+        SentryClient.shared?.user = User(id: "2", email: "b@c.com", username: "test", extra: ["x": "y"])
+        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "test2"))
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["a": "b"])
+            XCTAssertEqual($0.extra["1"] as? String, "2")
+            XCTAssertEqual($0.user?.email, "a@b.com")
+            XCTAssertEqual($0.breadcrumbsSerialized?.count, 1)
+            asyncExpectation.fulfill()
+        }
+        
+        SentryClient.shared?.crashHandler?.sendAllReports()
+        
+        waitForExpectations(timeout: 5) { error in
+            KSCrash.sharedInstance().deleteAllReports()
+            XCTAssertNil(error)
+        }
+        
+        KSCrash.sharedInstance().reportUserException("", reason: "", language: SentryClient.CrashLanguages.reactNative, lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
+        
+        let asyncExpectation2 = expectation(description: "testSharedProperties2")
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["b": "c"])
+            XCTAssertEqual($0.extra["2"] as? String, "3")
+            XCTAssertEqual($0.user?.email, "b@c.com")
+            XCTAssertEqual($0.breadcrumbsSerialized?.count, 2)
+            asyncExpectation2.fulfill()
+        }
+        
+        SentryClient.shared?.crashHandler?.sendAllReports()
+        
+        waitForExpectations(timeout: 5) { error in
+            KSCrash.sharedInstance().deleteAllReports()
+            XCTAssertNil(error)
+        }
+        
+    }
+    
+    func testSharedProperties() {
+        let asyncExpectation = expectation(description: "testSharedProperties")
+        
+        SentryClient.shared = client
+        
+        SentryClient.shared?.tags = ["a": "b"]
+        SentryClient.shared?.extra = ["1": "2"]
+        SentryClient.shared?.user = User(id: "1", email: "a@b.com", username: "test", extra: ["x": "y"])
+        
+        SentryClient.shared?.startCrashHandler()
+        SentryClient.shared?.captureMessage("test")
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["a": "b"])
+            XCTAssertEqual($0.extra["1"] as? String, "2")
+            XCTAssertEqual($0.user?.email, "a@b.com")
+            asyncExpectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+        }
+        
+        let asyncExpectation2 = expectation(description: "testSharedProperties2")
+        
+        SentryClient.shared?.tags = ["b": "c"]
+        SentryClient.shared?.extra = ["2": "3"]
+        SentryClient.shared?.user = User(id: "2", email: "b@c.com", username: "test", extra: ["x": "y"])
+        
+        SentryClient.shared?.captureMessage("test")
+        
+        SentryClient.shared?.beforeSendEventBlock = {
+            XCTAssertEqual($0.tags, ["b": "c"])
+            XCTAssertEqual($0.extra["2"] as? String, "3")
+            XCTAssertEqual($0.user?.email, "b@c.com")
+            asyncExpectation2.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5) { error in
+           XCTAssertNil(error)
+        }
+    }
+    #endif
+    
 	// MARK: Helpers
 	
 	func testDateSerialization() {
