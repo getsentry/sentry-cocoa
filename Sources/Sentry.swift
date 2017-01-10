@@ -110,6 +110,21 @@ internal enum SentryError: Error {
     
     internal var stacktraceSnapshot: Event.StacktraceSnapshot?
     
+    /** If true, attempt to fetch dispatch queue names for each running thread.
+     *
+     * WARNING: There is a chance that this will deadlock on a thread_lock() call!
+     * If that happens, your crash report will be cut short.
+     *
+     * Enable at your own risk.
+     *
+     * Default: false
+     */
+    public var enableThreadNames: Bool = false {
+        didSet {
+            KSCrash.sharedInstance().searchThreadNames = enableThreadNames
+        }
+    }
+    
     #if os(iOS)
     public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
     
