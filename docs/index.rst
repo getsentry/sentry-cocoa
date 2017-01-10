@@ -85,8 +85,8 @@ If you prefer to use Objective-C you can do so like this:
     [SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"___DSN___"]];
     [[SentryClient shared] startCrashHandler];
 
-`In case a real crash happens make sure to call ``startCrashHandler`` before setting any other properties
-on the client. This makes sure that the stored crash report has the expected properties set correctly.`
+`Note that in case of a real crash make sure to call ``startCrashHandler`` before setting any other properties
+on the client. This guarantees that the stored crash report has the expected properties set.`
 
 Debug Symbols
 -------------
