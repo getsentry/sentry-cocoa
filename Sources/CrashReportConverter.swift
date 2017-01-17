@@ -14,7 +14,8 @@ internal final class CrashReportConverter {
         extra: EventExtra?,
         user: User?,
         breadcrumbsSerialized: BreadcrumbStore.SerializedType?,
-        releaseVersion: String?)
+        releaseVersion: String?,
+        buildNumber: String?)
     
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         // Extract crash timestamp
@@ -70,6 +71,7 @@ internal final class CrashReportConverter {
             $0.user = userInfo.user
             $0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
             $0.releaseVersion = userInfo.releaseVersion
+            $0.buildNumber = userInfo.buildNumber
             
             $0.threads = threads
             $0.exceptions = [exception].flatMap({$0})
@@ -85,7 +87,8 @@ internal final class CrashReportConverter {
             userInfo?[keyEventExtra] as? EventExtra,
             User(dictionary: userInfo?[keyUser] as? [String: AnyObject]),
             userInfo?[keyBreadcrumbsSerialized] as? BreadcrumbStore.SerializedType,
-            userInfo?[keyReleaseVersion] as? String
+            userInfo?[keyReleaseVersion] as? String,
+            userInfo?[keyBuildNumber] as? String
         )
     }
     

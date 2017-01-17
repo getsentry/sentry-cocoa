@@ -56,6 +56,7 @@ public typealias EventFingerprint = [String]
     public var culprit: String?
     public var serverName: String?
     public var releaseVersion: String?
+    public var buildNumber: String?
     public var tags: EventTags = [:]
     public var modules: EventModules?
     public var extra: EventExtra = [:]
@@ -92,6 +93,7 @@ public typealias EventFingerprint = [String]
      - Parameter culprit: A culprit
      - Parameter serverName: A server name
      - Parameter release: A release
+     - Parameter buildNumber: A buildNumber
      - Parameter tags: A dictionary of tags
      - Parameter modules: A dictionary of modules
      - Parameter extras: A dictionary of extras
@@ -107,6 +109,7 @@ public typealias EventFingerprint = [String]
                       culprit: String? = nil,
                       serverName: String? = nil,
                       release: String? = nil,
+                      buildNumber: String? = nil,
                       tags: EventTags = [:],
                       modules: EventModules? = nil,
                       extra: EventExtra = [:],
@@ -125,6 +128,7 @@ public typealias EventFingerprint = [String]
         self.culprit = culprit
         self.serverName = serverName
         self.releaseVersion = release
+        self.buildNumber = buildNumber
         self.tags = tags
         self.modules = modules
         self.extra = extra
@@ -180,6 +184,7 @@ extension Event: EventSerializable {
         attributes.append(("culprit", culprit))
         attributes.append(("server_name", serverName))
         attributes.append(("release", releaseVersion))
+        attributes.append(("buildNumber", buildNumber))
         attributes.append(("modules", modules))
         attributes.append(("fingerprint", fingerprint))
         

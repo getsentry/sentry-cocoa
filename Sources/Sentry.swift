@@ -150,11 +150,12 @@ internal enum SentryError: Error {
     }
     #endif
     
-    internal var buildNumber: String?
-    
     // MARK: EventProperties
     public var releaseVersion: String? {
         didSet { crashHandler?.releaseVersion = releaseVersion }
+    }
+    public var buildNumber: String? {
+        didSet { crashHandler?.buildNumber = buildNumber }
     }
     public var tags: EventTags = [:] {
         didSet { crashHandler?.tags = tags }
@@ -329,12 +330,10 @@ internal enum SentryError: Error {
         if useClientProperties {
             event.user = event.user ?? user
             event.releaseVersion = event.releaseVersion ?? releaseVersion
+            event.buildNumber = event.buildNumber ?? buildNumber
             
             if JSONSerialization.isValidJSONObject(tags) {
                 event.tags.unionInPlace(tags)
-                if let buildNumber = buildNumber {
-                    event.tags.unionInPlace(["build": buildNumber])
-                }
             }
             
             if JSONSerialization.isValidJSONObject(extra) {
