@@ -150,8 +150,9 @@ internal enum SentryError: Error {
     }
     #endif
     
-    // MARK: EventProperties
+    internal var buildNumber: String?
     
+    // MARK: EventProperties
     public var releaseVersion: String? {
         didSet { crashHandler?.releaseVersion = releaseVersion }
     }
@@ -175,9 +176,11 @@ internal enum SentryError: Error {
         
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+            self.buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
             self.requestManager = RequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         #else
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
+            self.buildNumber = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
             self.requestManager = RequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
         #endif
         
@@ -329,6 +332,9 @@ internal enum SentryError: Error {
             
             if JSONSerialization.isValidJSONObject(tags) {
                 event.tags.unionInPlace(tags)
+                if let buildNumber = buildNumber {
+                    event.tags.unionInPlace(["build": buildNumber])
+                }
             }
             
             if JSONSerialization.isValidJSONObject(extra) {
