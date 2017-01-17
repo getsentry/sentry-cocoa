@@ -52,7 +52,7 @@ private final class OSContext {
     var build: String? {
         return info?["osVersion"] as? String
     }
-    
+
     var kernelVersion: String? {
         return info?["kernelVersion"] as? String
     }
@@ -88,6 +88,22 @@ private final class DeviceContext {
     
     var family: String? {
         return extractFamily(model)
+    }
+    
+    var freeMemory: Int? {
+        return info?["freeMemory"] as? Int
+    }
+    
+    var memorySize: Int? {
+        return info?["memorySize"] as? Int
+    }
+    
+    var usableMemory: Int? {
+        return info?["usableMemory"] as? Int
+    }
+    
+    var storageSize: Int? {
+        return info?["storageSize"] as? Int
     }
     
     var machine: String? {
@@ -173,6 +189,10 @@ extension DeviceContext: EventSerializable {
         attributes.append(("arch", architecture))
         attributes.append(("model", model))
         attributes.append(("family", family))
+        attributes.append(("freeMemory", freeMemory))
+        attributes.append(("memorySize", memorySize))
+        attributes.append(("usableMemory", usableMemory))
+        attributes.append(("storageSize", storageSize))
         
         switch (isOSX, isSimulator) {
         // macOS
