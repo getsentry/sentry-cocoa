@@ -184,7 +184,7 @@ extension Event: EventSerializable {
         attributes.append(("culprit", culprit))
         attributes.append(("server_name", serverName))
         attributes.append(("release", releaseVersion))
-        attributes.append(("buildNumber", buildNumber))
+        attributes.append(("build_number", buildNumber))
         attributes.append(("modules", modules))
         attributes.append(("fingerprint", fingerprint))
         

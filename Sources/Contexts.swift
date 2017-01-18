@@ -189,10 +189,10 @@ extension DeviceContext: EventSerializable {
         attributes.append(("arch", architecture))
         attributes.append(("model", model))
         attributes.append(("family", family))
-        attributes.append(("freeMemory", freeMemory))
-        attributes.append(("memorySize", memorySize))
-        attributes.append(("usableMemory", usableMemory))
-        attributes.append(("storageSize", storageSize))
+        attributes.append(("free_memory", freeMemory))
+        attributes.append(("memory_size", memorySize))
+        attributes.append(("usable_memory", usableMemory))
+        attributes.append(("storage_size", storageSize))
         
         switch (isOSX, isSimulator) {
         // macOS
