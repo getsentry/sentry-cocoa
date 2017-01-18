@@ -25,6 +25,7 @@ class TestCrashHandler: CrashHandler {
     
 	var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
 	var releaseVersion: String?
+    var buildNumber: String?
 	var tags: EventTags = [:]
 	var extra: EventExtra = [:]
 	var user: User?
