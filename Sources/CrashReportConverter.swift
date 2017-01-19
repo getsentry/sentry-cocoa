@@ -10,6 +10,13 @@ import Foundation
 
 internal final class CrashReportConverter {
     
+    typealias UserInfo = (tags: EventTags?,
+        extra: EventExtra?,
+        user: User?,
+        breadcrumbsSerialized: BreadcrumbStore.SerializedType?,
+        releaseVersion: String?,
+        buildNumber: String?)
+    
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         // Extract crash timestamp
         let timestamp: NSDate = {
@@ -64,6 +71,7 @@ internal final class CrashReportConverter {
             $0.user = userInfo.user
             $0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
             $0.releaseVersion = userInfo.releaseVersion
+            $0.buildNumber = userInfo.buildNumber
             
             $0.threads = threads
             $0.exceptions = [exception].flatMap({$0})
@@ -73,13 +81,14 @@ internal final class CrashReportConverter {
         return event
     }
     
-    private static func parseUserInfo(_ userInfo: CrashDictionary?) -> (tags: EventTags?, extra: EventExtra?, user: User?, breadcrumbsSerialized: BreadcrumbStore.SerializedType?, releaseVersion: String?) {
+    private static func parseUserInfo(_ userInfo: CrashDictionary?) -> UserInfo {
         return (
             userInfo?[keyEventTags] as? EventTags,
             userInfo?[keyEventExtra] as? EventExtra,
             User(dictionary: userInfo?[keyUser] as? [String: AnyObject]),
             userInfo?[keyBreadcrumbsSerialized] as? BreadcrumbStore.SerializedType,
-            userInfo?[keyReleaseVersion] as? String
+            userInfo?[keyReleaseVersion] as? String,
+            userInfo?[keyBuildNumber] as? String
         )
     }
     

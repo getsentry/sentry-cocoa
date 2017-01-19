@@ -72,6 +72,7 @@
                                            culprit:culprit
                                         serverName:serverName
                                            release:release
+                                       buildNumber:@"2123"
                                               tags:tags
                                            modules:modules
                                              extra:extra
@@ -88,6 +89,7 @@
     XCTAssertEqualObjects(event.culprit, culprit);
     XCTAssertEqualObjects(event.serverName, serverName);
     XCTAssertEqualObjects(event.releaseVersion, release);
+    XCTAssertEqualObjects(event.buildNumber, @"2123");
     XCTAssertEqualObjects(event.tags, tags);
     XCTAssertEqualObjects(event.modules, modules);
     XCTAssertEqualObjects(event.extra, extra);

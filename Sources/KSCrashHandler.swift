@@ -22,6 +22,7 @@ internal let keyEventTags = "event_tags"
 internal let keyEventExtra = "event_extra"
 internal let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
 internal let keyReleaseVersion = "releaseVersion_serialized"
+internal let keyBuildNumber = "buildNumber_serialized"
 
 /// A class to report crashes to Sentry built upon KSCrash
 internal final class KSCrashHandler: CrashHandler {
@@ -36,6 +37,9 @@ internal final class KSCrashHandler: CrashHandler {
     // MARK: - EventProperties
     
     internal var releaseVersion: String? {
+        didSet { updateUserInfo() }
+    }
+    internal var buildNumber: String? {
         didSet { updateUserInfo() }
     }
     internal var tags: EventTags = [:] {
@@ -99,6 +103,7 @@ internal final class KSCrashHandler: CrashHandler {
         userInfo[keyEventTags] = tags
         userInfo[keyEventExtra] = extra
         userInfo[keyReleaseVersion] = releaseVersion
+        userInfo[keyBuildNumber] = buildNumber
         
         if let user = user?.serialized {
             userInfo[keyUser] = user

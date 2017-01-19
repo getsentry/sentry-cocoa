@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentrySwift"
-  s.version      = "1.4.3"
+  s.version      = "1.4.4"
   s.summary      = "Swift client for Sentry"
   s.homepage     = "https://github.com/getsentry/sentry-swift"
   s.license      = "mit"
@@ -19,6 +19,6 @@ Pod::Spec.new do |s|
     'storyboards' => ['Sources/ios/*.{storyboard}'],
     'assets' => ['Sources/ios/*.{xcassets}']
   }
-  
-  s.dependency 'KSCrash', '~> 1.13.6'
+
+  s.dependency 'KSCrash', '~> 1.15.1'
 end

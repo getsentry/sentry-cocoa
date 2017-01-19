@@ -20,10 +20,12 @@ final class BinaryImage {
     var cpuType: Int?
     var imageSize: Int?
     var name: String?
+    var majorVersion: Int?
+    var minorVersion: Int?
+    var revisionVersion: Int?
     
     internal convenience init?(appleCrashBinaryImagesDict: [String: AnyObject]) {
         self.init()
-        
         self.type = "apple"
         self.cpuSubtype = appleCrashBinaryImagesDict["cpu_subtype"] as? Int
         self.uuid = appleCrashBinaryImagesDict["uuid"] as? String
@@ -32,6 +34,9 @@ final class BinaryImage {
         self.cpuType = appleCrashBinaryImagesDict["cpu_type"] as? Int
         self.imageSize = appleCrashBinaryImagesDict["image_size"] as? Int
         self.name = appleCrashBinaryImagesDict["name"] as? String
+        self.majorVersion = appleCrashBinaryImagesDict["major_version"] as? Int
+        self.minorVersion = appleCrashBinaryImagesDict["minor_version"] as? Int
+        self.revisionVersion = appleCrashBinaryImagesDict["revision_version"] as? Int
     }
     
     internal class func getBinaryImage(_ binaryImages: [BinaryImage], address: MemoryAddress) -> BinaryImage? {
@@ -90,6 +95,9 @@ extension BinaryImage: EventSerializable {
         attributes.append(("cpu_type", cpuType))
         attributes.append(("image_size", imageSize))
         attributes.append(("name", name))
+        attributes.append(("major_version", majorVersion))
+        attributes.append(("minor_version", minorVersion))
+        attributes.append(("revision_version", revisionVersion))
         
         return convertAttributes(attributes)
     }
