@@ -211,3 +211,15 @@ extension Event: EventSerializable {
         return convertAttributes(attributes)
     }
 }
+
+#if swift(>=3.0)
+    extension Event {
+        
+        // This is a helper for debug reasons used in the crash test app
+        public func toJsonString() throws -> String? {
+            let data = try JSONSerialization.data(withJSONObject: self.serialized, options: [])
+            return String(data: data, encoding: .utf8)
+        }
+        
+    }
+#endif
