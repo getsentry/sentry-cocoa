@@ -162,6 +162,6 @@ enum SentryEndpoint: Endpoint {
                 return
             }
         #endif
-        Log.Debug.log("body = \(body)")
+        Log.Verbose.log("body = \(body)")
     }
 }

@@ -18,6 +18,8 @@ internal final class CrashReportConverter {
         buildNumber: String?)
     
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
+        Log.Verbose.log("KSCrash Report = \(report)")
+        
         // Extract crash timestamp
         let timestamp: NSDate = {
             var date: NSDate?

@@ -14,13 +14,14 @@ import KSCrash
 
 // This is declared here to keep namespace compatibility with objc
 @objc(SentryLog) public enum Log: Int, CustomStringConvertible {
-    case None, Error, Debug
+    case None, Error, Debug, Verbose
     
     public var description: String {
         switch self {
         case .None: return ""
         case .Error: return "Error"
         case .Debug: return "Debug"
+        case .Verbose: return "Verbose"
         }
     }
     
