@@ -38,8 +38,11 @@ import Foundation
         let current = appleCrashThreadDict["current_thread"] as? Bool ?? false
         let name = appleCrashThreadDict["name"] as? String
         let backtraceDict = appleCrashThreadDict["backtrace"] as? [String: AnyObject]
+        let registerDict = appleCrashThreadDict["registers"] as? [String: AnyObject]
         
-        let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict, binaryImages: binaryImages)
+        let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict,
+                                    registerDict: registerDict,
+                                    binaryImages: binaryImages)
         
         let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
         

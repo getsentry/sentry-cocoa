@@ -48,21 +48,19 @@ import Foundation
     }
     
     internal convenience init?(appleCrashFrameDict frameDict: [String: AnyObject], binaryImages: [BinaryImage]) {
-        
-        if let instructionAddress = BinaryImage.asMemoryAddress(frameDict["instruction_addr"]),
-            let binaryImage = BinaryImage.getBinaryImage(binaryImages, address: instructionAddress) {
-            
-            self.init()
-            
-            self.function = frameDict["symbol_name"] as? String
-            self.package = binaryImage.name
-            
-            self.imageAddress = BinaryImage.getHexAddress(binaryImage.imageAddress)
-            self.instructionAddress = BinaryImage.getHexAddress(frameDict["instruction_addr"])
-            self.symbolAddress = BinaryImage.getHexAddress(frameDict["symbol_addr"])
-        } else {
-            return nil
+        guard let instructionAddress = MemoryAddress(frameDict["instruction_addr"]),
+            let binaryImage = BinaryImage.getBinaryImage(binaryImages, address: instructionAddress) else {
+                return nil
         }
+        
+        self.init()
+        
+        self.function = frameDict["symbol_name"] as? String
+        self.package = binaryImage.name
+        
+        self.imageAddress = binaryImage.imageAddress?.asHex()
+        self.instructionAddress = MemoryAddress(frameDict["instruction_addr"])?.asHex()
+        self.symbolAddress = MemoryAddress(frameDict["symbol_addr"])?.asHex()
     }
     
 }
