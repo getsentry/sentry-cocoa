@@ -15,36 +15,6 @@ class SentrySwiftRegisterTests: XCTestCase {
     let testHelper = SentrySwiftTestHelper()
     
     func testCreateRegister() {
-//        "registers": {
-//            "basic": {
-//                "rax": 4411746352,
-//                "rbx": 105553116331584,
-//                "rcx": 12,
-//                "rdx": 140734683554072,
-//                "rdi": 105553116331584,
-//                "rsi": 4411757873,
-//                "rbp": 140734683554160,
-//                "rsp": 140734683554160,
-//                "r8": 63,
-//                "r9": 105553116331584,
-//                "r10": 1,
-//                "r11": 4411746512,
-//                "r12": 4411224042,
-//                "r13": 105553116601264,
-//                "r14": 4443646656,
-//                "r15": 140721562654368,
-//                "rip": 4411746539,
-//                "rflags": 66118,
-//                "cs": 43,
-//                "fs": 0,
-//                "gs": 0
-//            },
-//            "exception": {
-//                "trapno": 14,
-//                "err": 7,
-//                "faultvaddr": 4411746352
-//            }
-//        },
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-CrashReport-BAB8CCF2-2D03-49C4-B7DF-F64BBB1EC291")!
         
         let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]
@@ -55,6 +25,14 @@ class SentrySwiftRegisterTests: XCTestCase {
         
         var threads = threadDicts.flatMap({ Thread(appleCrashThreadDict: $0, binaryImages: binaryImages) })
         
+        var thread = threads[0].serialized as [String: AnyType]
+        var stacktrace = thread["stacktrace"] as! [String: AnyType]
+        XCTAssertNil(stacktrace["register"])
+        
+        var thread1 = threads[1].serialized as [String: AnyType]
+        var stacktrace1 = thread1["stacktrace"] as! [String: AnyType]
+        var register1 = stacktrace1["register"] as! [String: [String: String]]
+        XCTAssertEqual(register1["basic"]?["r8"], "0x3f")
     }
     
 }

@@ -8,12 +8,12 @@
 
 import Foundation
 
-final class MemoryAddress {
+struct MemoryAddress {
     
     private let hex: String
     private let int: UInt64
     
-    private class func asMemoryAddress(_ object: AnyObject?) -> UInt64? {
+    static private func asMemoryAddress(_ object: AnyObject?) -> UInt64? {
         guard let object = object else { return nil }
         
         switch object {
@@ -30,7 +30,7 @@ final class MemoryAddress {
         }
     }
     
-    private class func getHexAddress(_ address: UInt64?) -> String? {
+    static private func getHexAddress(_ address: UInt64?) -> String? {
         guard let address = address else { return nil }
         return String(format: "0x%x", address)
     }

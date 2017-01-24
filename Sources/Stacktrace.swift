@@ -42,13 +42,17 @@ import Foundation
 extension Stacktrace: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
+        var attributes: [Attribute] = []
+        
         #if swift(>=3.0)
-        return [:]
-            .set("frames", value: frames.reversed().map({ $0.serialized }))
+        attributes.append(("frames", frames.reversed().map({ $0.serialized })))
         #else
-        return [:]
-            .set("frames", value: frames.reverse().map({ $0.serialized }))
+        attributes.append(("frames", frames.reverse().map({ $0.serialized })))
         #endif
+        
+        attributes.append(("register", register?.registers))
+        
+        return convertAttributes(attributes)
     }
 }
 
