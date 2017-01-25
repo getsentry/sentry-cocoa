@@ -11,20 +11,30 @@ import Foundation
 // A class used to represent an exception: `sentry.interfaces.stacktrace.Stacktrace`
 @objc(SentryStacktrace) public final class Stacktrace: NSObject {
     public let frames: [Frame]
+    public let register: Register?
     
-    internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?, binaryImages: [BinaryImage]?) {
+    internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?,
+                               registerDict: [String: AnyObject]?,
+                               binaryImages: [BinaryImage]?) {
         guard let appleCrashTreadBacktraceDict = appleCrashTreadBacktraceDict, let binaryImages = binaryImages else {
             return nil
         }
         
         let frames = (appleCrashTreadBacktraceDict["contents"] as? [[String: AnyObject]])?
             .flatMap({ Frame(appleCrashFrameDict: $0, binaryImages: binaryImages) })
-        self.init(frames: frames)
+        
+        self.init(frames: frames, register: Register(registerDict: registerDict))
         
     }
     
     @objc public init(frames: [Frame]?) {
         self.frames = frames ?? []
+        self.register = nil
+    }
+    
+    @objc public init(frames: [Frame]?, register: Register?) {
+        self.frames = frames ?? []
+        self.register = register
     }
     
 }
@@ -32,13 +42,17 @@ import Foundation
 extension Stacktrace: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
+        var attributes: [Attribute] = []
+        
         #if swift(>=3.0)
-        return [:]
-            .set("frames", value: frames.reversed().map({ $0.serialized }))
+        attributes.append(("frames", frames.reversed().map({ $0.serialized })))
         #else
-        return [:]
-            .set("frames", value: frames.reverse().map({ $0.serialized }))
+        attributes.append(("frames", frames.reverse().map({ $0.serialized })))
         #endif
+        
+        attributes.append(("register", register?.registers))
+        
+        return convertAttributes(attributes)
     }
 }
 
