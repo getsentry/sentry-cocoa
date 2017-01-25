@@ -122,7 +122,7 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
             return
         }
         
-        if let erroredTextField = viewModel.validatedUserFeedback(nameTextField: nameTextField,
+        if let erroredTextField = viewModel.validatedUserFeedback(nameTextField,
                                                                   emailTextField: emailTextField,
                                                                   commentsTextField: commentsTextField) {
             nameTextField.textColor = viewModel.defaultTextColor
@@ -146,17 +146,17 @@ public final class UserFeedbackTableViewController: UITableViewController, UITex
     // MARK: UITextFieldDelegate
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
-        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+        let _ = viewModel?.validatedUserFeedback(nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
     }
     
     #if swift(>=3.0)
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+        let _ = viewModel?.validatedUserFeedback(nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
         return true
     }
     #else
     public func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        viewModel?.validatedUserFeedback(nameTextField: nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
+        viewModel?.validatedUserFeedback(nameTextField, emailTextField: emailTextField, commentsTextField: commentsTextField)
         return true
     }
     #endif

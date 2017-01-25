@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias Mechanism = [String: [String: String]]
+public typealias Mechanism = [String: AnyType]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc(SentryException) public final class Exception: NSObject {
@@ -87,16 +87,30 @@ public typealias Mechanism = [String: [String: String]]
     private func extractMechanism(_ appleCrashErrorDict: [String: AnyObject]) {
         var mechanism = Mechanism()
         
-        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
-            let signal = signalDict["name"] as? String,
-            let code = signalDict["code"] as? Int {
-            mechanism["posix_signal"] = ["name": signal, "signal": "\(code)"]
+        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyType] {
+            var posixSignal: [Attribute] = []
+            posixSignal.append(("name", signalDict["name"] as? String))
+            posixSignal.append(("signal", signalDict["signal"] as? Int))
+            posixSignal.append(("subcode", signalDict["subcode"] as? Int))
+            posixSignal.append(("code", signalDict["code"] as? Int))
+            posixSignal.append(("code_name", signalDict["code_name"] as? String))
+            mechanism["posix_signal"] = convertAttributes(posixSignal)
         }
         
-        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyObject],
-            let name = machDict["exception_name"] as? String,
-            let exception = machDict["exception"] {
-            mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
+        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyType] {
+            var machException: [Attribute] = []
+            machException.append(("exception_name", machDict["exception_name"] as? String))
+            machException.append(("exception", machDict["exception"] as? Int))
+            machException.append(("signal", machDict["signal"] as? Int))
+            machException.append(("subcode", machDict["subcode"] as? Int))
+            machException.append(("code", machDict["code"] as? Int))
+            mechanism["mach_exception"] = convertAttributes(machException)
+        }
+        
+        if let address = MemoryAddress(appleCrashErrorDict["address"]) {
+            if address.asInt() > 0 {
+                mechanism["relevant_address"] = address.asHex()
+            }
         }
         
         self.mechanism = mechanism

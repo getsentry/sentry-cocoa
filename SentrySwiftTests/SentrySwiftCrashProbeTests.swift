@@ -32,6 +32,12 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "SIGABRT")
         XCTAssertEqual(event?.exceptions?.first?.value, "Signal 6, Code 0")
+        let mechanism = event?.exceptions?.first?.mechanism
+        let posixSignal = mechanism?["posix_signal"] as? [String: AnyType]
+        let machException = mechanism?["mach_exception"] as? [String: AnyType]
+        XCTAssertEqual(mechanism?["relevant_address"] as? String, "0x9660f06")
+        XCTAssertEqual(posixSignal?["signal"] as? Int, 6)
+        XCTAssertEqual(machException?["exception"] as? Int, 10)
     }
     
     func testCrashprobeOverwriteLink() { // Overwrite link register, then crash
@@ -42,6 +48,13 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.exceptions?.first?.type, "EXC_BAD_ACCESS")
         XCTAssertEqual(event?.exceptions?.first?.value, "Exception 1, Code 0, Subcode 8")
+        let mechanism = event?.exceptions?.first?.mechanism
+        let posixSignal = mechanism?["posix_signal"] as? [String: AnyType]
+        let machException = mechanism?["mach_exception"] as? [String: AnyType]
+        XCTAssertNil(mechanism?["relevant_address"])
+        XCTAssertEqual(posixSignal?["signal"] as? Int, 10)
+        XCTAssertEqual(posixSignal?["code_name"] as? String, "BUS_NOOP")
+        XCTAssertEqual(machException?["exception"] as? Int, 1)
     }
     
     func testCrashprobeBadPointer() { // Dereference a bad pointer
