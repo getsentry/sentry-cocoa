@@ -68,7 +68,7 @@ protocol ViewModel {
         SentryClient.shared?.sendUserFeedback(userFeedback, finished: finished)
     }
     
-    func validatedUserFeedback(nameTextField nameTextField: UITextField, emailTextField: UITextField, commentsTextField: UITextField) -> UITextField? {
+    func validatedUserFeedback(_ nameTextField: UITextField, emailTextField: UITextField, commentsTextField: UITextField) -> UITextField? {
         defer {
             delegate?.signalUpdate()
         }

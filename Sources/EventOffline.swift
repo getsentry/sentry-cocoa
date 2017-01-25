@@ -48,6 +48,7 @@ extension SentryClient {
         return cachedEvents + documentsEvents
     }
     
+    // swiftlint:disable function_body_length
     // MARK: - Private Helpers
     private func loadSavedEventsFromPath(_ path: String, since now: TimeInterval) -> [SavedEvent] {
         do {
@@ -109,6 +110,7 @@ extension SentryClient {
         }
         return []
     }
+    // swiftlint:enable function_body_length
     
     private func deleteEmptyFolderAtPath(_ path: String) {
         do {

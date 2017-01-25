@@ -6,6 +6,7 @@ end
 
 desc "Test iOS, tvOS, and OSX"
 lane :test do
+    ENV["CI"]="true"
     test_swift_2_ios
     test_swift_2_tvos
     test_swift_2_macos
@@ -20,36 +21,36 @@ lane :localcoverage do
     sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" SentrySwift.xcodeproj')
 end
 
-lane :lint do 
+lane :lint do
     sh('cd .. && swiftlint')
 end
 
 lane :test_swift_2_ios do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (9.3)", xcargs: xcargs, clean: true)
+    scan(scheme: "SentrySwift-iOS", xcargs: xcargs)
 end
 
 lane :test_swift_2_tvos do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-tvOS", device: "Apple TV 1080p", xcargs: xcargs, clean: true)
+    scan(scheme: "SentrySwift-tvOS", xcargs: xcargs)
 end
 
 lane :test_swift_2_macos do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS", xcargs: xcargs, clean: true)
+    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS", xcargs: xcargs)
 end
 
 lane :test_swift_3_tvos do
-    scan(scheme: "SentrySwift-tvOS", device: "Apple TV 1080p", clean: true)
+    scan(scheme: "SentrySwift-tvOS")
 end
 
 lane :test_swift_3_macos do
-    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS", clean: true)
+    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS")
 end
 
 lane :test_swift_3_ios do
     clear_derived_data
-    scan(scheme: "SentrySwift-iOS", device: "iPhone 6 Plus (10.0)", clean: true, code_coverage: true)
+    scan(scheme: "SentrySwift-iOS", code_coverage: true)
     travis_slather
 end
 

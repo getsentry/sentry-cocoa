@@ -63,15 +63,15 @@ class SentrySwiftUserFeedback: XCTestCase {
         let commentsField = UITextField()
         commentsField.text = ""
         
-        XCTAssertEqual(viewModel.validatedUserFeedback(nameTextField: nameField, emailTextField: emailField, commentsTextField: commentsField), emailField)
+        XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), emailField)
         
         emailField.text = "daniel@getsentry.com"
         
-        XCTAssertEqual(viewModel.validatedUserFeedback(nameTextField: nameField, emailTextField: emailField, commentsTextField: commentsField), commentsField)
+        XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), commentsField)
         
         commentsField.text = "Comment"
         
-        XCTAssertEqual(viewModel.validatedUserFeedback(nameTextField: nameField, emailTextField: emailField, commentsTextField: commentsField), nil)
+        XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), nil)
         
         viewModel.sendUserFeedback()
     }
