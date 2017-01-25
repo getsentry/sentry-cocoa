@@ -7,7 +7,6 @@
 //
 
 import XCTest
-import SentrySwift
 @testable import SentrySwift
 @testable import KSCrash
 

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias Mechanism = [String: [String: String]]
+public typealias Mechanism = [String: AnyType]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc(SentryException) public final class Exception: NSObject {
@@ -87,16 +87,28 @@ public typealias Mechanism = [String: [String: String]]
     private func extractMechanism(_ appleCrashErrorDict: [String: AnyObject]) {
         var mechanism = Mechanism()
         
-        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyObject],
-            let signal = signalDict["name"] as? String,
-            let code = signalDict["code"] as? Int {
-            mechanism["posix_signal"] = ["name": signal, "signal": "\(code)"]
+        if let signalDict = appleCrashErrorDict["signal"] as? [String: AnyType] {
+            mechanism["posix_signal"] = [:]
+                .set("name", value: signalDict["name"] as? String)
+                .set("signal", value: signalDict["signal"] as? Int)
+                .set("subcode", value: signalDict["subcode"] as? Int)
+                .set("code", value: signalDict["code"] as? Int)
+                .set("code_name", value: signalDict["code_name"] as? String)
         }
         
-        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyObject],
-            let name = machDict["exception_name"] as? String,
-            let exception = machDict["exception"] {
-            mechanism["mach_exception"] = ["exception_name": name, "exception": "\(exception)"]
+        if let machDict = appleCrashErrorDict["mach"] as? [String: AnyType] {
+            mechanism["mach_exception"] = [:]
+                .set("exception_name", value: machDict["exception_name"] as? String)
+                .set("exception", value: machDict["exception"] as? Int)
+                .set("signal", value: machDict["signal"] as? Int)
+                .set("code", value: machDict["code"] as? Int)
+                .set("subcode", value: machDict["subcode"] as? Int)
+        }
+        
+        if let address = MemoryAddress(appleCrashErrorDict["address"]) {
+            if address.asInt() > 0 {
+                mechanism["relevant_address"] = address.asHex()
+            }
         }
         
         self.mechanism = mechanism

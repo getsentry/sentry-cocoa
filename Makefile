@@ -13,6 +13,11 @@ build-carthage:
 
 release: lint test build-carthage
 
+build-time:
+	@echo "--> Analysing build time"
+	xcodebuild -verbose -project SentrySwift.xcodeproj -scheme SentrySwift-iOS -sdk iphonesimulator clean build OTHER_SWIFT_FLAGS="-Xfrontend -debug-time-function-bodies" | grep ".[0-9]ms" | grep -v "^0.[0-9]ms" | sort -nr > culprits.txt
+	open culprits.txt
+
 pod-example-projects:
 	@echo "--> Running pod install on all example projects"
 	pod repo update
