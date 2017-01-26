@@ -27,12 +27,12 @@ class SentrySwiftRegisterTests: XCTestCase {
         
         var thread = threads[0].serialized as [String: AnyType]
         var stacktrace = thread["stacktrace"] as! [String: AnyType]
-        XCTAssertNil(stacktrace["register"])
+        XCTAssertNil(stacktrace["registers"])
         
         var thread1 = threads[1].serialized as [String: AnyType]
         var stacktrace1 = thread1["stacktrace"] as! [String: AnyType]
-        var register1 = stacktrace1["register"] as! [String: [String: String]]
-        XCTAssertEqual(register1["basic"]?["r8"], "0x3f")
+        var register1 = stacktrace1["registers"] as! [String: String]
+        XCTAssertEqual(register1["r8"], "0x3f")
     }
     
 }

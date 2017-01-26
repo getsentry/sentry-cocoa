@@ -50,7 +50,7 @@ extension Stacktrace: EventSerializable {
         attributes.append(("frames", frames.reverse().map({ $0.serialized })))
         #endif
         
-        attributes.append(("register", register?.registers))
+        attributes.append(("registers", register?.registers))
         
         return convertAttributes(attributes)
     }
