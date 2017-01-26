@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 struct MemoryAddress {
     
     private let hex: String
@@ -15,32 +13,20 @@ struct MemoryAddress {
     
     static private func asMemoryAddress(_ object: AnyObject?) -> UInt64? {
         guard let object = object else { return nil }
-        
-        switch object {
-        case let object as NSNumber:
+        if let number = object as? NSNumber {
             #if swift(>=3.0)
-                return object.uint64Value
+                return number.uint64Value
             #else
-                return object.unsignedLongLongValue
+                return number.unsignedLongLongValue
             #endif
-        case let object as Int64:
-            return UInt64(object)
-        default:
-            return nil
         }
-    }
-    
-    static private func getHexAddress(_ address: UInt64?) -> String? {
-        guard let address = address else { return nil }
-        return String(format: "0x%x", address)
+        return nil
     }
     
     init?(_ object: AnyObject?) {
         guard let int = MemoryAddress.asMemoryAddress(object) else { return nil }
         self.int = int
-        
-        guard let hex = MemoryAddress.getHexAddress(int) else { return nil }
-        self.hex = hex
+        self.hex = String(format: "0x%x", int)
     }
     
     func asInt() -> UInt64 {

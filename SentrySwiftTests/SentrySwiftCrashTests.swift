@@ -25,6 +25,19 @@ class SentrySwiftCrashTests: XCTestCase {
 	func testUInt64ToHex() {
 		let hexAddress = MemoryAddress(827844157 as AnyObject?)
 		XCTAssertEqual(hexAddress?.asHex(), "0x3157e63d")
+        XCTAssertEqual(hexAddress?.asInt(), 827844157)
+        
+        let hexAddress2 = MemoryAddress(nil)
+        XCTAssertNil(hexAddress2)
+        XCTAssertNil(hexAddress2?.asHex())
+        
+        let hexAddress3 = MemoryAddress(String(
+            bytes: [0xD8, 0x00] as [UInt8],
+            encoding: String.Encoding.utf16BigEndian) as? AnyObject)
+        XCTAssertNil(hexAddress3)
+        
+        let hexAddress4 = MemoryAddress("ö" as? AnyObject)
+        XCTAssertNil(hexAddress4)
 	}
     
     func testCorruptKSCrashReports() {

@@ -625,6 +625,7 @@ class SentrySwiftTests: XCTestCase {
     }
     
     func testSaveEvent() {
+        let client = SentrySwiftTestHelper.sentryMockClient
         for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
             event.deleteEvent()
         }
@@ -639,6 +640,9 @@ class SentrySwiftTests: XCTestCase {
         client.saveEvent(event)
         XCTAssertEqual(client.savedEvents().count, 0)
         XCTAssertEqual(client.savedEvents(since: (Date().timeIntervalSince1970 + 100)).count, 1)
+        for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+            event.deleteEvent()
+        }
     }
     
     #if swift(>=3.0)

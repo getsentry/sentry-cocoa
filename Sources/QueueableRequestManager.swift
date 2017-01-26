@@ -32,11 +32,6 @@ class QueueableRequestManager: RequestManager {
             }
             finished?(success)
         })
-        
-        guard !queue.operations.contains(operation) else {
-            return
-        }
-        
         queue.addOperation(operation)
     }
     

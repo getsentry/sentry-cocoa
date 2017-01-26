@@ -43,14 +43,35 @@ class SentrySwiftRequestTests: XCTestCase {
         for i in 1...10 {
             client.captureMessage("TEST \(i)")
         }
-        #if swift(>=3.0)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                asyncExpectation.fulfill()
-            }
-        #endif
+        let event = SentrySwiftTestHelper.demoFatalEvent
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            asyncExpectation.fulfill()
+        }
+        
         waitForExpectations(timeout: 5.0) { error in
             XCTAssertNil(error)
             XCTAssertFalse(client.requestManager.isReady)
+        }
+    }
+    
+    func testRequestSavedEvent() {
+        let client = SentrySwiftTestHelper.sentryMockClient
+        for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+            event.deleteEvent()
+        }
+        let event = SentrySwiftTestHelper.demoFatalEvent
+        client.saveEvent(event)
+        let asyncExpectation = expectation(description: "testRequestSavedEvent")
+        client.sendEvent(client.savedEvents(since: (Date().timeIntervalSince1970 + 100))[0]) { success in
+            XCTAssertTrue(success)
+            asyncExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+            for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+                event.deleteEvent()
+            }
         }
     }
     #endif
