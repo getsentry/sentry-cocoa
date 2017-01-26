@@ -97,9 +97,7 @@ class RequestOperation: AsynchronousOperation {
     }
     
     override func main() {
-        if let task = task {
-            task.resume()
-        }
+        if let task = task { task.resume() }
     }
     
 }
@@ -139,13 +137,9 @@ class AsynchronousOperation: Operation {
     ///
     /// This will result in the appropriate KVN of isFinished and isExecuting
     public func completeOperation() {
-        if isExecuting {
-            _executing = false
-        }
+        if isExecuting { _executing = false }
         
-        if !isFinished {
-            _finished = true
-        }
+        if !isFinished { _finished = true }
     }
     
     override public func start() {

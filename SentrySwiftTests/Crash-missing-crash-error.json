@@ -986,23 +986,6 @@
     ],
     "crash": {
         "diagnosis": "Stack overflow in -[Crasher causeStackOverflow]",
-        "error": {
-            "address": 802529272,
-            "mach": {
-                "code": 1,
-                "code_name": "KERN_INVALID_ADDRESS",
-                "exception": 1,
-                "exception_name": "EXC_BAD_ACCESS",
-                "subcode": 0
-            },
-            "signal": {
-                "code": 0,
-                "code_name": "SEGV_NOOP",
-                "name": "SIGSEGV",
-                "signal": 11
-            },
-            "type": "mach"
-        },
         "threads": [
             {
                 "backtrace": {

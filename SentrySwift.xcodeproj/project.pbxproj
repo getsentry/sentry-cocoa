@@ -101,6 +101,21 @@
 		630271F21E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
 		630271F31E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
 		630271F41E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
+		632033111E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330C1E3A4BCE00E6318F /* Crash-missing-binary-images.json */; };
+		632033121E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330C1E3A4BCE00E6318F /* Crash-missing-binary-images.json */; };
+		632033131E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330C1E3A4BCE00E6318F /* Crash-missing-binary-images.json */; };
+		632033141E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330D1E3A4BCE00E6318F /* Crash-missing-crash-error.json */; };
+		632033151E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330D1E3A4BCE00E6318F /* Crash-missing-crash-error.json */; };
+		632033161E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330D1E3A4BCE00E6318F /* Crash-missing-crash-error.json */; };
+		632033171E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330E1E3A4BCE00E6318F /* Crash-missing-crash-threads.json */; };
+		632033181E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330E1E3A4BCE00E6318F /* Crash-missing-crash-threads.json */; };
+		632033191E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330E1E3A4BCE00E6318F /* Crash-missing-crash-threads.json */; };
+		6320331A1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330F1E3A4BCE00E6318F /* Crash-missing-crash.json */; };
+		6320331B1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330F1E3A4BCE00E6318F /* Crash-missing-crash.json */; };
+		6320331C1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */ = {isa = PBXBuildFile; fileRef = 6320330F1E3A4BCE00E6318F /* Crash-missing-crash.json */; };
+		6320331D1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */ = {isa = PBXBuildFile; fileRef = 632033101E3A4BCE00E6318F /* Crash-missing-user.json */; };
+		6320331E1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */ = {isa = PBXBuildFile; fileRef = 632033101E3A4BCE00E6318F /* Crash-missing-user.json */; };
+		6320331F1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */ = {isa = PBXBuildFile; fileRef = 632033101E3A4BCE00E6318F /* Crash-missing-user.json */; };
 		632496061DEC33EA0014A044 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632495C01DE70EFD0014A044 /* SentrySwizzle.swift */; };
 		6324960D1DEC33EE0014A044 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632495C01DE70EFD0014A044 /* SentrySwizzle.swift */; };
 		633C38171E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633C38161E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift */; };
@@ -374,6 +389,11 @@
 		630271D01E37766F0047DC3B /* SentrySwiftRegisterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftRegisterTests.swift; sourceTree = "<group>"; };
 		630271D41E377ECC0047DC3B /* MemoryAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryAddress.swift; sourceTree = "<group>"; };
 		630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueableRequestManager.swift; sourceTree = "<group>"; };
+		6320330C1E3A4BCE00E6318F /* Crash-missing-binary-images.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Crash-missing-binary-images.json"; sourceTree = "<group>"; };
+		6320330D1E3A4BCE00E6318F /* Crash-missing-crash-error.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Crash-missing-crash-error.json"; sourceTree = "<group>"; };
+		6320330E1E3A4BCE00E6318F /* Crash-missing-crash-threads.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Crash-missing-crash-threads.json"; sourceTree = "<group>"; };
+		6320330F1E3A4BCE00E6318F /* Crash-missing-crash.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Crash-missing-crash.json"; sourceTree = "<group>"; };
+		632033101E3A4BCE00E6318F /* Crash-missing-user.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Crash-missing-user.json"; sourceTree = "<group>"; };
 		632495C01DE70EFD0014A044 /* SentrySwizzle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentrySwizzle.swift; path = ios/SentrySwizzle.swift; sourceTree = "<group>"; };
 		633C38161E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftReactNativeCrashTests.swift; sourceTree = "<group>"; };
 		634EA0201DF85BF000FE83A9 /* Frame.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Frame.swift; sourceTree = "<group>"; };
@@ -497,10 +517,8 @@
 		035242931C988D2F00A65D6D /* SentrySwiftTests */ = {
 			isa = PBXGroup;
 			children = (
+				632033261E3A4BD200E6318F /* res */,
 				6382A7341DCCBF5200065393 /* crashReports */,
-				035242941C988D2F00A65D6D /* Abort.json */,
-				03C1E2791D466EF70004A612 /* NSException.json */,
-				03C1E2721D466CA40004A612 /* StackOverflow.json */,
 				035242951C988D2F00A65D6D /* Info.plist */,
 				035242961C988D2F00A65D6D /* SentrySwiftCrashTests.swift */,
 				035242971C988D2F00A65D6D /* SentrySwiftTests.swift */,
@@ -648,6 +666,21 @@
 				03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */,
 			);
 			name = KSCrash;
+			sourceTree = "<group>";
+		};
+		632033261E3A4BD200E6318F /* res */ = {
+			isa = PBXGroup;
+			children = (
+				035242941C988D2F00A65D6D /* Abort.json */,
+				03C1E2791D466EF70004A612 /* NSException.json */,
+				6320330C1E3A4BCE00E6318F /* Crash-missing-binary-images.json */,
+				6320330D1E3A4BCE00E6318F /* Crash-missing-crash-error.json */,
+				6320330E1E3A4BCE00E6318F /* Crash-missing-crash-threads.json */,
+				6320330F1E3A4BCE00E6318F /* Crash-missing-crash.json */,
+				632033101E3A4BCE00E6318F /* Crash-missing-user.json */,
+				03C1E2721D466CA40004A612 /* StackOverflow.json */,
+			);
+			name = res;
 			sourceTree = "<group>";
 		};
 		632495D91DE866D50014A044 /* Network */ = {
@@ -1097,9 +1130,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6382A73F1DCCBFB300065393 /* crashReports in Resources */,
+				632033161E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */,
 				03C1E2771D466E320004A612 /* StackOverflow.json in Resources */,
+				632033191E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */,
 				03C1E27F1D466EFC0004A612 /* NSException.json in Resources */,
 				03FF07C81CE546B500BA980E /* Abort.json in Resources */,
+				6320331C1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */,
+				6320331F1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */,
+				632033131E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1117,9 +1155,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6382A73D1DCCBFB200065393 /* crashReports in Resources */,
+				632033141E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */,
 				03C1E2761D466E310004A612 /* StackOverflow.json in Resources */,
+				632033171E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */,
 				03C1E27E1D466EFC0004A612 /* NSException.json in Resources */,
 				035242AC1C98959400A65D6D /* Abort.json in Resources */,
+				6320331A1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */,
+				6320331D1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */,
+				632033111E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1137,9 +1180,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6382A73E1DCCBFB200065393 /* crashReports in Resources */,
+				632033151E3A4BCE00E6318F /* Crash-missing-crash-error.json in Resources */,
 				03C1E2781D466E330004A612 /* StackOverflow.json in Resources */,
+				632033181E3A4BCE00E6318F /* Crash-missing-crash-threads.json in Resources */,
 				03C1E27D1D466EFB0004A612 /* NSException.json in Resources */,
 				035242AB1C98958C00A65D6D /* Abort.json in Resources */,
+				6320331B1E3A4BCE00E6318F /* Crash-missing-crash.json in Resources */,
+				6320331E1E3A4BCE00E6318F /* Crash-missing-user.json in Resources */,
+				632033121E3A4BCE00E6318F /* Crash-missing-binary-images.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

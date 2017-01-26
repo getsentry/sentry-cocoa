@@ -26,7 +26,17 @@ class SentrySwiftCrashTests: XCTestCase {
 		let hexAddress = MemoryAddress(827844157 as AnyObject?)
 		XCTAssertEqual(hexAddress?.asHex(), "0x3157e63d")
 	}
-		
+    
+    func testCorruptKSCrashReports() {
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-binary-images")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash-error")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash-threads")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash")!))
+        let event = CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-user")!)
+        XCTAssertEqual(event!.tags.count, 0)
+        XCTAssertEqual(event!.extra.count, 0)
+    }
+    
     func testCrashSignal() {
 		let crashJSON = testHelper.readJSONCrashFile(name: "Abort")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]

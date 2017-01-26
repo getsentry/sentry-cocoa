@@ -1865,14 +1865,5 @@
         "system_name": "iPhone OS",
         "system_version": "4.3.3",
         "time_zone": "JST"
-    },
-    "user": {
-        "\"quoted\" key": "blah",
-        "bslash value": "bslash\\",
-        "bslash\\key": "x",
-        "intl2": "テスト２",
-        "quoted value": "\"quote\"",
-        "test": "test",
-        "テスト": "intl"
     }
 }
