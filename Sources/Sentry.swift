@@ -225,7 +225,7 @@ internal enum SentryError: Error {
      - Parameter level: The severity of the message
      */
     @objc public func captureMessage(_ message: String, level: Severity = .Info) {
-        self.captureEvent(Event(message, level: level))
+        captureEvent(Event(message, level: level))
     }
     
     /// Reports given event to Sentry

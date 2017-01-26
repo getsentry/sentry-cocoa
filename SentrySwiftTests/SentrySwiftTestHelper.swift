@@ -60,6 +60,12 @@ class SentrySwiftTestHelper {
         return client
     }
     
+    static var sentryRealClient: SentryClient {
+        let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+        SentryClient.shared = client
+        return client
+    }
+    
     static let demoFatalEvent = Event.build("FATAL - A bad thing happened", build: {
         $0.level = .Fatal
         $0.tags = ["doot": "doot"]

@@ -15,17 +15,43 @@ class SentrySwiftRequestTests: XCTestCase {
     let frame = Frame(fileName: "a", function: "b", line: 1)
 
     func testExample() {
-        let event = Event.build("Another example 4") {
-            $0.level = .Fatal
-            $0.tags = ["status": "test"]
-            $0.extra = [
-                "name": "Josh Holtz",
-                "favorite_power_ranger": "green/white"
-            ]
-        }
+        let event = SentrySwiftTestHelper.demoFatalEvent
         client.sendEvent(event) { success in
-            
+            XCTAssertTrue(success)
         }
     }
 
+    func testRealRequest() {
+        let client = SentrySwiftTestHelper.sentryRealClient
+        let event = SentrySwiftTestHelper.demoFatalEvent
+        let asyncExpectation = expectation(description: "testRealRequest")
+        client.sendEvent(event) { success in
+            XCTAssertFalse(success)
+            asyncExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testRequestQueue() {
+        SentryClient.logLevel = .Debug
+        let client = SentrySwiftTestHelper.sentryRealClient
+        XCTAssertTrue(client.requestManager.isReady)
+        let asyncExpectation = expectation(description: "testRequestQueue")
+        for i in 1...10 {
+            client.captureMessage("TEST \(i)")
+        }
+        #if swift(>=3.0)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                asyncExpectation.fulfill()
+            }
+        #endif
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+            XCTAssertFalse(client.requestManager.isReady)
+        }
+        
+    }
+    
 }

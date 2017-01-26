@@ -97,6 +97,10 @@
 		630271D61E377ECC0047DC3B /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271D41E377ECC0047DC3B /* MemoryAddress.swift */; };
 		630271D71E377ECC0047DC3B /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271D41E377ECC0047DC3B /* MemoryAddress.swift */; };
 		630271D81E377ECC0047DC3B /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271D41E377ECC0047DC3B /* MemoryAddress.swift */; };
+		630271F11E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
+		630271F21E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
+		630271F31E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
+		630271F41E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */; };
 		632496061DEC33EA0014A044 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632495C01DE70EFD0014A044 /* SentrySwizzle.swift */; };
 		6324960D1DEC33EE0014A044 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632495C01DE70EFD0014A044 /* SentrySwizzle.swift */; };
 		633C38171E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633C38161E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift */; };
@@ -369,6 +373,7 @@
 		630271C51E37701E0047DC3B /* Register.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Register.swift; sourceTree = "<group>"; };
 		630271D01E37766F0047DC3B /* SentrySwiftRegisterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftRegisterTests.swift; sourceTree = "<group>"; };
 		630271D41E377ECC0047DC3B /* MemoryAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryAddress.swift; sourceTree = "<group>"; };
+		630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueableRequestManager.swift; sourceTree = "<group>"; };
 		632495C01DE70EFD0014A044 /* SentrySwizzle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentrySwizzle.swift; path = ios/SentrySwizzle.swift; sourceTree = "<group>"; };
 		633C38161E01952E00A74C63 /* SentrySwiftReactNativeCrashTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentrySwiftReactNativeCrashTests.swift; sourceTree = "<group>"; };
 		634EA0201DF85BF000FE83A9 /* Frame.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Frame.swift; sourceTree = "<group>"; };
@@ -653,6 +658,7 @@
 				63CDAB8B1DDCAAE700B63921 /* SentryEndpoint.swift */,
 				63D54E5B1E0A7D790005B07A /* RequestOperation.swift */,
 				63D54E661E0A7F680005B07A /* RequestManager.swift */,
+				630271F01E3A368D0047DC3B /* QueueableRequestManager.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -1205,6 +1211,7 @@
 				630271C81E37701E0047DC3B /* Register.swift in Sources */,
 				03C715251CE4DB8D0080AE60 /* DSN.swift in Sources */,
 				03C715321CE4DBAE0080AE60 /* KSCrashHandler.swift in Sources */,
+				630271F31E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */,
 				03C7152D1CE4DB940080AE60 /* User.swift in Sources */,
 				03C715291CE4DB910080AE60 /* EventProperties.swift in Sources */,
 				6324960D1DEC33EE0014A044 /* SentrySwizzle.swift in Sources */,
@@ -1233,6 +1240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03817D7E1D301E1D005A674A /* Contexts.swift in Sources */,
+				630271F11E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */,
 				03A89AA11CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				03CFCEC31C612F5300999EB7 /* CrashHandler.swift in Sources */,
 				8092F8E51CF2499600634F3F /* Sentry+Error.swift in Sources */,
@@ -1310,6 +1318,7 @@
 				630271D61E377ECC0047DC3B /* MemoryAddress.swift in Sources */,
 				03E3D1F91C3E1A2800F00547 /* DSN.swift in Sources */,
 				63571EED1DFE99E6001924CD /* BinaryImage.swift in Sources */,
+				630271F21E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */,
 				036378331C227C7900644C01 /* Event.swift in Sources */,
 				03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				632496061DEC33EA0014A044 /* SentrySwizzle.swift in Sources */,
@@ -1346,6 +1355,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				63CDAB3B1DD9D4AE00B63921 /* CrashHandler.swift in Sources */,
+				630271F41E3A368D0047DC3B /* QueueableRequestManager.swift in Sources */,
 				63CDAB2D1DD9D49700B63921 /* Dictionary+Extras.swift in Sources */,
 				63CDAB371DD9D4A800B63921 /* Contexts.swift in Sources */,
 				63CDAB3D1DD9D4AE00B63921 /* CrashReportConverter.swift in Sources */,

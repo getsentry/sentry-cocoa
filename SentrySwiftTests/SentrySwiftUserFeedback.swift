@@ -11,8 +11,6 @@ import XCTest
 
 class SentrySwiftUserFeedback: XCTestCase {
     
-    let client = SentrySwiftTestHelper.sentryMockClient
-    
     func testUserFeedbackObject() {
         let event = Event.build("Another example 4") {
             $0.level = .Fatal
@@ -51,6 +49,16 @@ class SentrySwiftUserFeedback: XCTestCase {
             URLQueryItem(name: "email", value: "%3F%3F><MNBVCXZ~}{POIUYTREWQ|%27"),
             URLQueryItem(name: "eventId", value: event.eventID)
         ])
+        
+        let userFeedbackEncodingFail = UserFeedback()
+        userFeedbackEncodingFail.name = String(
+            bytes: [0xD8, 0x00] as [UInt8],
+            encoding: String.Encoding.utf16BigEndian)!
+        userFeedbackEncodingFail.email = "b"
+        userFeedbackEncodingFail.comments = "c"
+        userFeedbackEncodingFail.event = event
+        
+        XCTAssertNil(userFeedbackEncodingFail.serialized)
     }
     
     func testUserFeedbackViewModel() {
@@ -74,7 +82,6 @@ class SentrySwiftUserFeedback: XCTestCase {
         commentsField.text = "Comment"
         
         XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), nil)
-        
     
         let asyncExpectation = expectation(description: "sendUserFeedback")
         
@@ -82,6 +89,7 @@ class SentrySwiftUserFeedback: XCTestCase {
             XCTAssertTrue(false)
         }
         
+        let client = SentrySwiftTestHelper.sentryMockClient
         client.captureEvent(SentrySwiftTestHelper.demoFatalEvent, useClientProperties: true) { (success) in
             XCTAssertTrue(success)
             viewModel.sendUserFeedback { (success) in
@@ -90,7 +98,7 @@ class SentrySwiftUserFeedback: XCTestCase {
             }
         }
         
-        waitForExpectations(timeout: 0.1) { error in
+        waitForExpectations(timeout: 5.0) { error in
             XCTAssertNil(error)
         }
     }
