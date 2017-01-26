@@ -21,6 +21,7 @@ class SentrySwiftRequestTests: XCTestCase {
         }
     }
 
+    #if swift(>=3.0)
     func testRealRequest() {
         let client = SentrySwiftTestHelper.sentryRealClient
         let event = SentrySwiftTestHelper.demoFatalEvent
@@ -51,7 +52,7 @@ class SentrySwiftRequestTests: XCTestCase {
             XCTAssertNil(error)
             XCTAssertFalse(client.requestManager.isReady)
         }
-        
     }
+    #endif
     
 }

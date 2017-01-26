@@ -61,6 +61,7 @@ class SentrySwiftUserFeedback: XCTestCase {
         XCTAssertNil(userFeedbackEncodingFail.serialized)
     }
     
+    #if swift(>=3.0)
     func testUserFeedbackViewModel() {
         let viewModel = UserFeedbackViewModel()
         
@@ -102,5 +103,6 @@ class SentrySwiftUserFeedback: XCTestCase {
             XCTAssertNil(error)
         }
     }
+    #endif
     
 }
