@@ -11,6 +11,8 @@ import XCTest
 
 class SentrySwiftUserFeedback: XCTestCase {
     
+    let client = SentrySwiftTestHelper.sentryMockClient
+    
     func testUserFeedbackObject() {
         let event = Event.build("Another example 4") {
             $0.level = .Fatal
@@ -73,7 +75,24 @@ class SentrySwiftUserFeedback: XCTestCase {
         
         XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), nil)
         
-        viewModel.sendUserFeedback()
+    
+        let asyncExpectation = expectation(description: "sendUserFeedback")
+        
+        viewModel.sendUserFeedback { (success) in
+            XCTAssertTrue(false)
+        }
+        
+        client.captureEvent(SentrySwiftTestHelper.demoFatalEvent, useClientProperties: true) { (success) in
+            XCTAssertTrue(success)
+            viewModel.sendUserFeedback { (success) in
+                XCTAssertTrue(success)
+                asyncExpectation.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 0.1) { error in
+            XCTAssertNil(error)
+        }
     }
     
 }

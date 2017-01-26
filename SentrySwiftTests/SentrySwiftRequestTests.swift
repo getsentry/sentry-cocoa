@@ -11,7 +11,7 @@ import XCTest
 
 class SentrySwiftRequestTests: XCTestCase {
     
-    let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+    let client = SentrySwiftTestHelper.sentryMockClient
     let frame = Frame(fileName: "a", function: "b", line: 1)
 
     func testExample() {

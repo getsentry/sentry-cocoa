@@ -158,24 +158,32 @@ internal enum SentryError: Error {
     public var beforeSendEventBlock: EventBeforeSend?
     
     /// Creates a Sentry object to use for reporting
-    internal init(dsn: DSN) {
+    internal init(dsn: DSN, requestManager: RequestManager) {
         self.dsn = dsn
+        self.requestManager = requestManager
         
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-            self.requestManager = RequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         #else
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
-            self.requestManager = RequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
         #endif
         
         super.init()
         sendEventsOnDiskInBackground()
     }
     
-    /// Creates a Sentry object iff a valid DSN is provided
+    convenience init(dsn: DSN) {
+        #if swift(>=3.0)
+            let requestManager = QueueableRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
+        #else
+            let requestManager = QueueableRequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
+        #endif
+        self.init(dsn: dsn, requestManager: requestManager)
+    }
+    
+    /// Creates a Sentry object if a valid DSN is provided
     @objc public convenience init?(dsnString: String) {
         // Silently not creating a client if dsnString is empty string
         if dsnString.isEmpty {
@@ -333,7 +341,7 @@ internal enum SentryError: Error {
         }
 
         sendEvent(event) { [weak self] success in
-            completed?(success)
+            defer { completed?(success) }
             guard !success else {
                 #if os(iOS)
                     if event.level == .Fatal {
@@ -347,7 +355,7 @@ internal enum SentryError: Error {
         
         // In the end we check if there are any events still stored on disk and send them
         // If the request queue is ready
-        if requestManager.isQueueReady {
+        if requestManager.isReady {
             sendEventsOnDiskInBackground()
         }
     }

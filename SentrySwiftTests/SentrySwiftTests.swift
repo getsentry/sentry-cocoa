@@ -12,11 +12,11 @@ import XCTest
 
 class SentrySwiftTests: XCTestCase {
 	
-	var client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+	var client = SentrySwiftTestHelper.sentryMockClient
 	
     override func setUp() {
         super.setUp()
-        client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+        client = SentrySwiftTestHelper.sentryMockClient
         SentryClient.shared = client
     }
     
