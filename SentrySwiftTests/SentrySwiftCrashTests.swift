@@ -22,6 +22,7 @@ class SentrySwiftCrashTests: XCTestCase {
         super.tearDown()
     }
 	
+    #if swift(>=3.0)
 	func testUInt64ToHex() {
 		let hexAddress = MemoryAddress(827844157 as AnyObject?)
 		XCTAssertEqual(hexAddress?.asHex(), "0x3157e63d")
@@ -39,6 +40,7 @@ class SentrySwiftCrashTests: XCTestCase {
         let hexAddress4 = MemoryAddress("ö" as? AnyObject)
         XCTAssertNil(hexAddress4)
 	}
+    #endif
     
     func testCorruptKSCrashReports() {
         XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-binary-images")!))

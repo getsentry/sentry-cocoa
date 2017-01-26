@@ -50,6 +50,7 @@ class SentrySwiftUserFeedback: XCTestCase {
             URLQueryItem(name: "eventId", value: event.eventID)
         ])
         
+        #if swift(>=3.0)
         let userFeedbackEncodingFail = UserFeedback()
         userFeedbackEncodingFail.name = String(
             bytes: [0xD8, 0x00] as [UInt8],
@@ -59,6 +60,7 @@ class SentrySwiftUserFeedback: XCTestCase {
         userFeedbackEncodingFail.event = event
         
         XCTAssertNil(userFeedbackEncodingFail.serialized)
+        #endif
     }
     
     #if swift(>=3.0)
