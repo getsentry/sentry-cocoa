@@ -21,16 +21,25 @@ class SentryClientTests: XCTestCase {
 
 		let releaseVersion = "1.2.3"
 		client.releaseVersion = releaseVersion
+        let buildNumber = "321"
+        client.buildNumber = buildNumber
 
 		XCTAssertEqual(releaseVersion, client.releaseVersion)
 		XCTAssertEqual(releaseVersion, crashHandler.releaseVersion)
+        
+        XCTAssertEqual(buildNumber, client.buildNumber)
+        XCTAssertEqual(buildNumber, crashHandler.buildNumber)
 	}
 
 	func test_setReleaseVersion_crashHandlerIsNotSet_releaseVersionIsOnlySetOnClient() {
 		let releaseVersion = "1.2.3"
 		client.releaseVersion = releaseVersion
 
+        let buildNumber = "321"
+        client.buildNumber = buildNumber
+
 		XCTAssertEqual(releaseVersion, client.releaseVersion)
+        XCTAssertEqual(buildNumber, client.buildNumber)
 		XCTAssertNil(client.crashHandler)
 	}
     #endif
