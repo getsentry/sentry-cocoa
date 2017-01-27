@@ -27,7 +27,7 @@ import Foundation
         self.timestamp = timestamp
         self.message = message
         self.type = type
-        self.data = data ?? [:]
+        self.data = (sanitize(data ?? [:]) as? [String: AnyType]) ?? [:]
         self.level = level
         
         super.init()

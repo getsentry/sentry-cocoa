@@ -193,6 +193,14 @@
 		9B02CAFE1CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
 		9B02CAFF1CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
 		9B02CB001CF607A5004F614C /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B02CAFD1CF607A5004F614C /* Exception.swift */; };
+		9BF8E8091E3B5B6900A417AE /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8081E3B5B6900A417AE /* Functions.swift */; };
+		9BF8E80A1E3B5B6900A417AE /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8081E3B5B6900A417AE /* Functions.swift */; };
+		9BF8E80B1E3B5B6900A417AE /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8081E3B5B6900A417AE /* Functions.swift */; };
+		9BF8E80C1E3B5B6900A417AE /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8081E3B5B6900A417AE /* Functions.swift */; };
+		9BF8E8211E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */; };
+		9BF8E8221E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */; };
+		9BF8E8231E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */; };
+		9BF8E8241E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -403,6 +411,8 @@
 		9B02CAB61CF5C20F004F614C /* Dictionary+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extras.swift"; sourceTree = "<group>"; };
 		9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Extras.swift"; sourceTree = "<group>"; };
 		9B02CAFD1CF607A5004F614C /* Exception.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exception.swift; sourceTree = "<group>"; };
+		9BF8E8081E3B5B6900A417AE /* Functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
+		9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSNumber+Extras.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -520,6 +530,7 @@
 		036378271C225D5200644C01 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				9BF8E8011E3B5B5100A417AE /* Utils */,
 				037061841C7615950082CCCE /* CrashHelper */,
 				9B02CAB11CF5C1E8004F614C /* Extensions */,
 				037061831C7615760082CCCE /* Interfaces */,
@@ -732,8 +743,17 @@
 			isa = PBXGroup;
 			children = (
 				9B02CABB1CF5C270004F614C /* NSDate+Extras.swift */,
+				9BF8E8201E3B5C9400A417AE /* NSNumber+Extras.swift */,
 			);
 			name = Foundation;
+			sourceTree = "<group>";
+		};
+		9BF8E8011E3B5B5100A417AE /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				9BF8E8081E3B5B6900A417AE /* Functions.swift */,
+			);
+			name = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1201,10 +1221,12 @@
 				63CDABA41DDF09EC00B63921 /* UserFeedback.swift in Sources */,
 				03C715261CE4DB8D0080AE60 /* Request.swift in Sources */,
 				03C7152F1CE4DB980080AE60 /* CrashHandler.swift in Sources */,
+				9BF8E80B1E3B5B6900A417AE /* Functions.swift in Sources */,
 				63571E951DFAAD42001924CD /* Frame.swift in Sources */,
 				630271C81E37701E0047DC3B /* Register.swift in Sources */,
 				03C715251CE4DB8D0080AE60 /* DSN.swift in Sources */,
 				03C715321CE4DBAE0080AE60 /* KSCrashHandler.swift in Sources */,
+				9BF8E8231E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */,
 				03C7152D1CE4DB940080AE60 /* User.swift in Sources */,
 				03C715291CE4DB910080AE60 /* EventProperties.swift in Sources */,
 				6324960D1DEC33EE0014A044 /* SentrySwizzle.swift in Sources */,
@@ -1240,6 +1262,7 @@
 				63D54E5C1E0A7D790005B07A /* RequestOperation.swift in Sources */,
 				63D54E671E0A7F680005B07A /* RequestManager.swift in Sources */,
 				03E3D21F1C3EB20F00F00547 /* Request.swift in Sources */,
+				9BF8E8211E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */,
 				0363782C1C225D8300644C01 /* Sentry.swift in Sources */,
 				03D4D9F91CA48FA800799CC9 /* Breadcrumb.swift in Sources */,
 				9B02CAB71CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
@@ -1255,6 +1278,7 @@
 				03E3D1F81C3E1A2800F00547 /* DSN.swift in Sources */,
 				033A342C1C60693400BED5AE /* User.swift in Sources */,
 				63CDABA31DDF09EC00B63921 /* UserFeedback.swift in Sources */,
+				9BF8E8091E3B5B6900A417AE /* Functions.swift in Sources */,
 				9B02CABC1CF5C270004F614C /* NSDate+Extras.swift in Sources */,
 				036378321C227C7900644C01 /* Event.swift in Sources */,
 				03B07DC31D089B23007B4758 /* KSCrashHandler.swift in Sources */,
@@ -1289,6 +1313,7 @@
 				03817D7F1D301E1D005A674A /* Contexts.swift in Sources */,
 				03C736E21C474715004428DF /* CrashHandler.swift in Sources */,
 				9B02CAB81CF5C20F004F614C /* Dictionary+Extras.swift in Sources */,
+				9BF8E8221E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */,
 				63D54E5D1E0A7D790005B07A /* RequestOperation.swift in Sources */,
 				6350F6741DCE2F0900B6B596 /* CrashReportConverter.swift in Sources */,
 				033A342A1C605B7E00BED5AE /* EventProperties.swift in Sources */,
@@ -1311,6 +1336,7 @@
 				03E3D1F91C3E1A2800F00547 /* DSN.swift in Sources */,
 				63571EED1DFE99E6001924CD /* BinaryImage.swift in Sources */,
 				036378331C227C7900644C01 /* Event.swift in Sources */,
+				9BF8E80A1E3B5B6900A417AE /* Functions.swift in Sources */,
 				03A89AA21CAACA6F00D94E22 /* BreadcrumbStore.swift in Sources */,
 				632496061DEC33EA0014A044 /* SentrySwizzle.swift in Sources */,
 				63CDAB8D1DDCAAE700B63921 /* SentryEndpoint.swift in Sources */,
@@ -1353,6 +1379,7 @@
 				63D54E5F1E0A7D790005B07A /* RequestOperation.swift in Sources */,
 				63D54E6A1E0A7F680005B07A /* RequestManager.swift in Sources */,
 				63CDAB2F1DD9D4A000B63921 /* EventOffline.swift in Sources */,
+				9BF8E8241E3B5C9400A417AE /* NSNumber+Extras.swift in Sources */,
 				63CDAB381DD9D4A800B63921 /* Stacktrace.swift in Sources */,
 				63CDAB2B1DD9D48E00B63921 /* Request.swift in Sources */,
 				63CDAB391DD9D4A800B63921 /* Thread.swift in Sources */,
@@ -1368,6 +1395,7 @@
 				63CDAB281DD9D48500B63921 /* Sentry.swift in Sources */,
 				63CDABA51DDF09ED00B63921 /* UserFeedback.swift in Sources */,
 				63CDAB361DD9D4A800B63921 /* BreadcrumbStore.swift in Sources */,
+				9BF8E80C1E3B5B6900A417AE /* Functions.swift in Sources */,
 				63CDAB341DD9D4A800B63921 /* Exception.swift in Sources */,
 				63CDAB2E1DD9D49B00B63921 /* Event.swift in Sources */,
 				63CDAB291DD9D48800B63921 /* Sentry+Error.swift in Sources */,

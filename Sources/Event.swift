@@ -129,9 +129,9 @@ public typealias EventFingerprint = [String]
         self.serverName = serverName
         self.releaseVersion = release
         self.buildNumber = buildNumber
-        self.tags = tags
+        self.tags = (sanitize(tags) as? EventTags) ?? [:]
         self.modules = modules
-        self.extra = extra
+        self.extra = (sanitize(extra) as? EventExtra) ?? [:]
         self.fingerprint = fingerprint
         
         // Optional Interfaces
@@ -189,17 +189,8 @@ extension Event: EventSerializable {
         attributes.append(("modules", modules))
         attributes.append(("fingerprint", fingerprint))
         
-        if JSONSerialization.isValidJSONObject(tags) {
-            attributes.append(("tags", tags))
-        } else if !tags.isEmpty {
-            Log.Error.log("event.tags is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
-        }
-        
-        if JSONSerialization.isValidJSONObject(extra) {
-            attributes.append(("extra", extra))
-        } else if !extra.isEmpty {
-            Log.Error.log("event.extra is no valid json object, discarding it -> Check NSJSONSerialization.isValidJSONObject")
-        }
+        attributes.append(("tags", tags))
+        attributes.append(("extra", extra))
         
         // Interfaces
         attributes.append(("user", user?.serialized))

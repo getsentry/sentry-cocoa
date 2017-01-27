@@ -69,7 +69,7 @@ internal final class CrashReportConverter {
             $0.level = .Fatal
             $0.timestamp = timestamp
             $0.tags = userInfo.tags ?? [:]
-            $0.extra = userInfo.extra ?? [:]
+            $0.extra = (sanitize(userInfo.extra ?? [:]) as? [String: AnyType]) ?? [:]
             $0.user = userInfo.user
             $0.breadcrumbsSerialized = userInfo.breadcrumbsSerialized
             $0.releaseVersion = userInfo.releaseVersion
@@ -86,7 +86,7 @@ internal final class CrashReportConverter {
     private static func parseUserInfo(_ userInfo: CrashDictionary?) -> UserInfo {
         return (
             userInfo?[keyEventTags] as? EventTags,
-            userInfo?[keyEventExtra] as? EventExtra,
+            sanitize(userInfo?[keyEventExtra] ?? [:]) as? EventExtra,
             User(dictionary: userInfo?[keyUser] as? [String: AnyObject]),
             userInfo?[keyBreadcrumbsSerialized] as? BreadcrumbStore.SerializedType,
             userInfo?[keyReleaseVersion] as? String,
