@@ -18,7 +18,7 @@ end
 
 lane :localcoverage do
     test_swift_3_ios
-    sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" SentrySwift.xcodeproj')
+    sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata SentrySwift.xcodeproj')
 end
 
 lane :lint do
@@ -55,5 +55,5 @@ lane :test_swift_3_ios do
 end
 
 lane :travis_slather do
-    sh('cd .. && slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" SentrySwift.xcodeproj')
+    sh('cd .. && slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata SentrySwift.xcodeproj')
 end
