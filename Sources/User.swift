@@ -24,7 +24,7 @@ import Foundation
         self.userID = userID
         self.email = email
         self.username = username
-        self.extra = extra
+        self.extra = (sanitize(extra) as? [String: AnyType]) ?? [:]
 
         super.init()
     }

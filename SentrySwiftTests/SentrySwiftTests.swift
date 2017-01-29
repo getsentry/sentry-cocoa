@@ -587,7 +587,7 @@ class SentrySwiftTests: XCTestCase {
     #endif
     
     func testNoValidJSON() {
-        XCTAssertNil(Event.build("Alarm is too far in future") {
+        XCTAssertNotNil(Event.build("Alarm is too far in future") {
                 $0.level = .Warning
                 $0.extra = [
                     "Alarm ID": "12",
@@ -595,7 +595,7 @@ class SentrySwiftTests: XCTestCase {
                     "Local Query Time" : NSDate(),
                     "Local Current Time" : "123",
                     "Seconds Since Query" : "123123",
-                    "Seconds to arrival" : 123.1
+                    "Seconds to arrival" : 123.1,
                 ]
             }.serialized["extra"])
         
@@ -607,7 +607,7 @@ class SentrySwiftTests: XCTestCase {
                 "Local Query Time" : "asda",
                 "Local Current Time" : "123",
                 "Seconds Since Query" : "123123",
-                "Seconds to arrival" : 123.1
+                "Seconds to arrival" : 123.1,
             ]
             }.serialized["extra"])
         
@@ -619,7 +619,7 @@ class SentrySwiftTests: XCTestCase {
                 "Local Query Time" : "asda",
                 "Local Current Time" : "123",
                 "Seconds Since Query" : "123123",
-                "Seconds to arrival" : "123.1"
+                "Seconds to arrival" : "123.1",
             ]
             }.serialized["tags"])
     }
@@ -643,6 +643,25 @@ class SentrySwiftTests: XCTestCase {
         for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
             event.deleteEvent()
         }
+    }
+    
+    func testSanitation() {
+        let url: NSURL! = NSURL(string: "http://getsentry.io")
+        let error = NSError(domain: "domain", code: -1, userInfo: nil)
+        
+        #if swift(>=3.0)
+        let boolNumber = NSNumber(value: true)
+        #else
+        let boolNumber = NSNumber(bool: false)
+        #endif
+        
+        let array = ["string", url, boolNumber, NSDate(), error] as [AnyType]
+        
+        XCTAssert(JSONSerialization.isValidJSONObject(sanitize(array)))
+    
+        let event = Event.build("message") { _ in }
+        let dict: [String: AnyType] = ["key": array, "customObject": event]
+        XCTAssert(JSONSerialization.isValidJSONObject(sanitize(dict)))
     }
     
     #if swift(>=3.0)

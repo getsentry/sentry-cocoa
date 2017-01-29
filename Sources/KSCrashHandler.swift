@@ -101,7 +101,7 @@ internal final class KSCrashHandler: CrashHandler {
     private func updateUserInfo() {
         var userInfo = CrashDictionary()
         userInfo[keyEventTags] = tags
-        userInfo[keyEventExtra] = extra
+        userInfo[keyEventExtra] = sanitize(extra)
         userInfo[keyReleaseVersion] = releaseVersion
         userInfo[keyBuildNumber] = buildNumber
         
