@@ -50,7 +50,7 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
         let largeCrumb = Breadcrumb(category: "category", timestamp: date, message: "b", level: .Error, data: nil, url: "url2", method: "test", statusCode: 3, reason: "yay")
         let largeData = largeCrumb.serialized["data"] as! Dictionary<String, AnyType>
         XCTAssertEqual(largeData["url"] as? String, "url2")
-        XCTAssertEqual(largeData["reason"] as! String, "yay")
+        XCTAssertEqual(largeData["reason"] as? String, "yay")
         
         let smallBreadcrumb = Breadcrumb(category: "test", to: "tooo")
         let smallData = smallBreadcrumb.serialized["data"] as! Dictionary<String, String>

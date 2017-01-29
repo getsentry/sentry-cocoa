@@ -146,8 +146,15 @@ internal enum SentryError: Error {
     public var tags: EventTags = [:] {
         didSet { crashHandler?.tags = tags }
     }
-    public var extra: EventExtra = [:] {
-        didSet { crashHandler?.extra = extra }
+    
+    private var _extra: EventExtra = [:] {
+        didSet { crashHandler?.extra = _extra }
+    }
+    public var extra: EventExtra {
+        get { return _extra }
+        set {
+            _extra = (sanitize(newValue) as? EventExtra) ?? [:]
+        }
     }
     public var user: User? = nil {
         didSet { crashHandler?.user = user }
