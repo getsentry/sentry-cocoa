@@ -44,6 +44,7 @@ enum SentryEndpoint: Endpoint {
                 if let transform = SentryClient.shared?.beforeSendEventBlock {
                     transform(&eventToSend)
                 }
+                // Not very happy with this solution
                 if let transform = SentryClient.shared?.objcBeforeSendEventBlock {
                     transform(&eventToSend)
                 }

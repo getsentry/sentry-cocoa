@@ -53,7 +53,7 @@
     [[SentryClient shared].breadcrumbs add:bcStart];
     [[SentryClient shared].breadcrumbs add:bcMain];
 	
-    [SentryClient shared].beforeSendEventBlock = ^(SentryEvent * _Nonnull * _Null_unspecified event) {
+    [SentryClient shared].objcBeforeSendEventBlock = ^(SentryEvent * _Nonnull * _Null_unspecified event) {
         [*event fetchStacktrace];
     };
     // Step 6: Don't make your app perfect so that you can get a crash ;)
