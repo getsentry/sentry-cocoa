@@ -62,7 +62,7 @@ PODS:
     - KSCrash/Reporting/Tools
   - KSCrash/Reporting/Tools (1.15.2):
     - KSCrash/Recording
-  - Sentry (1.4.5):
+  - Sentry (2.0.0):
     - KSCrash (~> 1.15.2)
 
 DEPENDENCIES:
@@ -74,7 +74,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   KSCrash: 303b25eb0f5796009e9458fc35a55e2ae78b4c9e
-  Sentry: 3c0de07429f8ba3b03f6c98167d14848db5660e3
+  Sentry: 325e75832bf67a813d06ff08fe8315afaca72573
 
 PODFILE CHECKSUM: 6a149bade470704ba4317901492b58978f603305
 

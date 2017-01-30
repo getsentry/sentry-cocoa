@@ -521,7 +521,6 @@
 			children = (
 				035242911C988D2400A65D6D /* Info.plist */,
 			);
-			name = Sentry;
 			path = Sentry;
 			sourceTree = "<group>";
 		};
@@ -548,7 +547,6 @@
 				6380FDD41E07D5E500DDE6F2 /* SentryContextsTests.swift */,
 				630271D01E37766F0047DC3B /* SentryRegisterTests.swift */,
 			);
-			name = SentryTests;
 			path = SentryTests;
 			sourceTree = "<group>";
 		};
