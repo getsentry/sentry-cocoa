@@ -118,23 +118,20 @@ private final class DeviceContext {
     var model: String? {
         if isSimulator {
             return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
-        } else {
-            
-            #if os(OSX)
-                return info?["model"] as? String
-            #else
-                // Reversed for iOS
-                return info?["machine"] as? String
-            #endif
         }
+        #if os(OSX)
+            return info?["model"] as? String
+        #else
+            // Reversed for iOS
+            return info?["machine"] as? String
+        #endif
     }
     
     var modelDetail: String? {
         if isSimulator {
             return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]
-        } else {
-            return info?["model"] as? String
         }
+        return info?["model"] as? String
     }
     
     var isOSX: Bool {
@@ -154,28 +151,23 @@ private final class DeviceContext {
     }
     
     private func extractFamily(_ model: String?) -> String? {
-        guard let model = model else { return nil }
-        
         let pattern = "^\\D+"
-        
-        do {
-            let regex = try NSRegularExpression(pattern: pattern, options: [])
-            let nsString = model as NSString
-            // swiftlint:disable legacy_constructor
-            #if swift(>=3.0)
-                let results = regex.matches(in: model,
-                options: [], range: NSMakeRange(0, nsString.length))
-                return results.map { nsString.substring(with: $0.range)}.first
-            #else
-                let results = regex.matchesInString(model,
-                                                    options: [], range: NSMakeRange(0, nsString.length))
-                return results.map { nsString.substringWithRange($0.range)}.first
-            #endif
-            // swiftlint:enable legacy_constructor
-        } catch let error as NSError {
-            Log.Error.log("Invalid family regeex: \(error.localizedDescription)")
+        guard let model = model, let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
             return nil
         }
+        
+        let nsString = model as NSString
+        // swiftlint:disable legacy_constructor
+        #if swift(>=3.0)
+            let results = regex.matches(in: model,
+                                        options: [], range: NSMakeRange(0, nsString.length))
+            return results.map { nsString.substring(with: $0.range)}.first
+        #else
+            let results = regex.matchesInString(model,
+            options: [], range: NSMakeRange(0, nsString.length))
+            return results.map { nsString.substringWithRange($0.range)}.first
+        #endif
+        // swiftlint:enable legacy_constructor
     }
 }
 

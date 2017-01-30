@@ -15,6 +15,9 @@ class SentrySwiftSourceLocationTests: XCTestCase {
 
     func testCulprit() {
         XCTAssertEqual(frame.culprit, "please:7357 this")
+        
+        let frame2 = Frame(fileName: nil, function: "this", line: 7357)
+        XCTAssertNil(frame2.culprit)
     }
 
     func testStacktrace() {

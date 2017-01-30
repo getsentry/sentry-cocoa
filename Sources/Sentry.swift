@@ -160,29 +160,39 @@ internal enum SentryError: Error {
         didSet { crashHandler?.user = user }
     }
     
+    public typealias ObjcEventBeforeSend = (UnsafeMutablePointer<Event>) -> Void
     public typealias EventBeforeSend = (inout Event) -> Void
     /// Use this block to get the event that will be send with the next
+    @objc public var objcBeforeSendEventBlock: ObjcEventBeforeSend?
     public var beforeSendEventBlock: EventBeforeSend?
     
     /// Creates a Sentry object to use for reporting
-    internal init(dsn: DSN) {
+    internal init(dsn: DSN, requestManager: RequestManager) {
         self.dsn = dsn
+        self.requestManager = requestManager
         
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-            self.requestManager = RequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         #else
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
-            self.requestManager = RequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
         #endif
         
         super.init()
         sendEventsOnDiskInBackground()
     }
     
-    /// Creates a Sentry object iff a valid DSN is provided
+    convenience init(dsn: DSN) {
+        #if swift(>=3.0)
+            let requestManager = QueueableRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
+        #else
+            let requestManager = QueueableRequestManager(session: NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration()))
+        #endif
+        self.init(dsn: dsn, requestManager: requestManager)
+    }
+    
+    /// Creates a Sentry object if a valid DSN is provided
     @objc public convenience init?(dsnString: String) {
         // Silently not creating a client if dsnString is empty string
         if dsnString.isEmpty {
@@ -224,7 +234,7 @@ internal enum SentryError: Error {
      - Parameter level: The severity of the message
      */
     @objc public func captureMessage(_ message: String, level: Severity = .Info) {
-        self.captureEvent(Event(message, level: level))
+        captureEvent(Event(message, level: level))
     }
     
     /// Reports given event to Sentry
@@ -340,7 +350,7 @@ internal enum SentryError: Error {
         }
 
         sendEvent(event) { [weak self] success in
-            completed?(success)
+            defer { completed?(success) }
             guard !success else {
                 #if os(iOS)
                     if event.level == .Fatal {
@@ -354,7 +364,7 @@ internal enum SentryError: Error {
         
         // In the end we check if there are any events still stored on disk and send them
         // If the request queue is ready
-        if requestManager.isQueueReady {
+        if requestManager.isReady {
             sendEventsOnDiskInBackground()
         }
     }

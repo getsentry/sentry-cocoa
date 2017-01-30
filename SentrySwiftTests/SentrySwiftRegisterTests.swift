@@ -11,7 +11,7 @@ import XCTest
 
 class SentrySwiftRegisterTests: XCTestCase {
     
-    let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+    let client = SentrySwiftTestHelper.sentryMockClient
     let testHelper = SentrySwiftTestHelper()
     
     func testCreateRegister() {

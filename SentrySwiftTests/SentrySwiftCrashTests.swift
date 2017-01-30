@@ -11,7 +11,7 @@ import XCTest
 
 class SentrySwiftCrashTests: XCTestCase {
 	
-	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+	let client = SentrySwiftTestHelper.sentryMockClient
 	let testHelper = SentrySwiftTestHelper()
     
     override func setUp() {
@@ -22,11 +22,36 @@ class SentrySwiftCrashTests: XCTestCase {
         super.tearDown()
     }
 	
+    #if swift(>=3.0)
 	func testUInt64ToHex() {
 		let hexAddress = MemoryAddress(827844157 as AnyObject?)
 		XCTAssertEqual(hexAddress?.asHex(), "0x3157e63d")
+        XCTAssertEqual(hexAddress?.asInt(), 827844157)
+        
+        let hexAddress2 = MemoryAddress(nil)
+        XCTAssertNil(hexAddress2)
+        XCTAssertNil(hexAddress2?.asHex())
+        
+        let hexAddress3 = MemoryAddress(String(
+            bytes: [0xD8, 0x00] as [UInt8],
+            encoding: String.Encoding.utf16BigEndian) as? AnyObject)
+        XCTAssertNil(hexAddress3)
+        
+        let hexAddress4 = MemoryAddress("ö" as? AnyObject)
+        XCTAssertNil(hexAddress4)
 	}
-		
+    #endif
+    
+    func testCorruptKSCrashReports() {
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-binary-images")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash-error")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash-threads")!))
+        XCTAssertNil(CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-crash")!))
+        let event = CrashReportConverter.convertReportToEvent(testHelper.readJSONCrashFile(name: "Crash-missing-user")!)
+        XCTAssertEqual(event!.tags.count, 0)
+        XCTAssertEqual(event!.extra.count, 0)
+    }
+    
     func testCrashSignal() {
 		let crashJSON = testHelper.readJSONCrashFile(name: "Abort")!
 		let binaryImagesDicts = crashJSON["binary_images"] as! [[String: AnyObject]]

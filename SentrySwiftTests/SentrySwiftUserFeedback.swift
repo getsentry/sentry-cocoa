@@ -49,13 +49,26 @@ class SentrySwiftUserFeedback: XCTestCase {
             URLQueryItem(name: "email", value: "%3F%3F><MNBVCXZ~}{POIUYTREWQ|%27"),
             URLQueryItem(name: "eventId", value: event.eventID)
         ])
+        
+        #if swift(>=3.0)
+        let userFeedbackEncodingFail = UserFeedback()
+        userFeedbackEncodingFail.name = String(
+            bytes: [0xD8, 0x00] as [UInt8],
+            encoding: String.Encoding.utf16BigEndian)!
+        userFeedbackEncodingFail.email = "b"
+        userFeedbackEncodingFail.comments = "c"
+        userFeedbackEncodingFail.event = event
+        
+        XCTAssertNil(userFeedbackEncodingFail.serialized)
+        #endif
     }
     
+    #if swift(>=3.0)
     func testUserFeedbackViewModel() {
         let viewModel = UserFeedbackViewModel()
         
         let nameField = UITextField()
-        nameField.text = "a"
+        nameField.text = ""
         
         let emailField = UITextField()
         emailField.text = "a"
@@ -63,6 +76,16 @@ class SentrySwiftUserFeedback: XCTestCase {
         let commentsField = UITextField()
         commentsField.text = ""
         
+        XCTAssertFalse(viewModel.submitButtonEnabled)
+        
+        XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), nameField)
+        
+        nameField.text = "a"
+        
+        viewModel.sendUserFeedback { (success) in
+            XCTAssertFalse(success)
+        }
+
         XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), emailField)
         
         emailField.text = "daniel@getsentry.com"
@@ -73,7 +96,27 @@ class SentrySwiftUserFeedback: XCTestCase {
         
         XCTAssertEqual(viewModel.validatedUserFeedback(nameField, emailTextField: emailField, commentsTextField: commentsField), nil)
         
-        viewModel.sendUserFeedback()
+        XCTAssertTrue(viewModel.submitButtonEnabled)
+        
+        let asyncExpectation = expectation(description: "sendUserFeedback")
+        
+        viewModel.sendUserFeedback { (success) in
+            XCTAssertTrue(false)
+        }
+        
+        let client = SentrySwiftTestHelper.sentryMockClient
+        client.captureEvent(SentrySwiftTestHelper.demoFatalEvent, useClientProperties: true) { (success) in
+            XCTAssertTrue(success)
+            viewModel.sendUserFeedback { (success) in
+                XCTAssertTrue(success)
+                asyncExpectation.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
     }
+    #endif
     
 }

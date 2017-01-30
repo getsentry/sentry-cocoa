@@ -12,7 +12,7 @@ import SentrySwift
 
 class SentrySwiftBreadcrumbTests: XCTestCase {
 	
-	let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+	let client = SentrySwiftTestHelper.sentryMockClient
     let testHelper = SentrySwiftTestHelper()
     
     override func setUp() {

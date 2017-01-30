@@ -13,16 +13,8 @@ import KSCrash
 
 class SentrySwiftCrashProbeTests: XCTestCase {
     
-    let client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+    let client = SentrySwiftTestHelper.sentryMockClient
     let testHelper = SentrySwiftTestHelper()
-    
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
     
     func testCrashprobeCallAbort() { // Call abort()
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-CrashReport-3CCB10D2-F43D-45CB-8CB8-71A488F8E480")!

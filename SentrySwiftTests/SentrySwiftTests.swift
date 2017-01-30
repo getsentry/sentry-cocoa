@@ -12,11 +12,11 @@ import XCTest
 
 class SentrySwiftTests: XCTestCase {
 	
-	var client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+	var client = SentrySwiftTestHelper.sentryMockClient
 	
     override func setUp() {
         super.setUp()
-        client = SentryClient(dsnString: "https://username:password@app.getsentry.com/12345")!
+        client = SentrySwiftTestHelper.sentryMockClient
         SentryClient.shared = client
     }
     
@@ -625,6 +625,7 @@ class SentrySwiftTests: XCTestCase {
     }
     
     func testSaveEvent() {
+        let client = SentrySwiftTestHelper.sentryMockClient
         for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
             event.deleteEvent()
         }
@@ -639,6 +640,9 @@ class SentrySwiftTests: XCTestCase {
         client.saveEvent(event)
         XCTAssertEqual(client.savedEvents().count, 0)
         XCTAssertEqual(client.savedEvents(since: (Date().timeIntervalSince1970 + 100)).count, 1)
+        for event in client.savedEvents(since: (Date().timeIntervalSince1970 + 1000)) {
+            event.deleteEvent()
+        }
     }
     
     func testSanitation() {
