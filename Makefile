@@ -11,7 +11,7 @@ build-carthage:
 	carthage build --no-skip-current
 	carthage archive SentrySwift
 
-release: lint test build-carthage
+release: lint test pod-example-projects build-carthage
 
 build-time:
 	@echo "--> Analysing build time"
