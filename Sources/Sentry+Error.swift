@@ -1,6 +1,6 @@
 //
 //  Sentry+Error.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Lukas Stabe on 22.05.16.
 //

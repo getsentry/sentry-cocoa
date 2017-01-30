@@ -1,6 +1,6 @@
 //
 //  Dictionary+Extras.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by David Chavez on 5/25/16.
 //

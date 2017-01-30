@@ -1,6 +1,6 @@
 //
 //  EventOffline.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 1/25/16.
 //

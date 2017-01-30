@@ -1,6 +1,6 @@
 //
 //  EventSerializable.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 12/22/15.
 //

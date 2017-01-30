@@ -1,5 +1,5 @@
 excluded:
-  - SentrySwiftTests
+  - SentryTests
   - Examples
   - iOS
   - Carthage

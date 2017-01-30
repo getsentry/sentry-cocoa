@@ -1,6 +1,6 @@
 //
 //  UIViewController+Extras.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 24/11/2016.
 //

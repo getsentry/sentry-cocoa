@@ -1,6 +1,6 @@
 //
 //  BinaryImage.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 12/12/2016.
 //

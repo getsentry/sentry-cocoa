@@ -6,9 +6,9 @@
 //
 //
 
-#import "SentrySwiftObjCTests.h"
+#import "SentryObjCTests.h"
 
-@import SentrySwift;
+@import Sentry;
 
 @interface SentrySwiftObjCTests()
 

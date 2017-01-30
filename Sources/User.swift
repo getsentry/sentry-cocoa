@@ -1,6 +1,6 @@
 //
 //  User.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 2/1/16.
 //

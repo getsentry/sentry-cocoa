@@ -1,6 +1,6 @@
 //
 //  Functions.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by David Chavez on 1/27/17.
 //

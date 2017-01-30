@@ -1,6 +1,6 @@
 //
 //  RequestManager.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 21/12/2016.
 //

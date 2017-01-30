@@ -9,7 +9,7 @@
 
 import XCTest
 import KSCrash
-@testable import SentrySwift
+@testable import Sentry
 
 class SentrySwiftCrashProbeTests: XCTestCase {
     

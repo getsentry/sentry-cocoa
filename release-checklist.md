@@ -9,6 +9,6 @@
   - [ ] Ensure all needed changes are checked in the master branch
   - [ ] Create a version tag
   - [ ] Update `docs/`
-  - [ ] Push new podspec version to master repo `pod trunk push SentrySwift.podspec --allow-warnings`
+  - [ ] Push new podspec version to master repo `pod trunk push Sentry.podspec --allow-warnings`
   - [ ] Write down changes on github in releases
-  - [ ] Upload SentrySwift.Framework.zip to github release
+  - [ ] Upload Sentry.Framework.zip to github release

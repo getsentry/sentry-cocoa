@@ -1,6 +1,6 @@
 //
 //  CrashHandler.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 1/13/16.
 //

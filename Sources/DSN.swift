@@ -1,6 +1,6 @@
 //
 //  DSN.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 1/6/16.
 //
