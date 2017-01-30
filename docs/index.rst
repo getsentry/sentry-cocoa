@@ -80,7 +80,7 @@ If you prefer to use Objective-C you can do so like this:
 
 .. sourcecode:: objc
 
-    @import Sentry
+    @import Sentry;
 
     [SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"___DSN___"]];
     [[SentryClient shared] startCrashHandler];
