@@ -53,7 +53,10 @@
     [[SentryClient shared].breadcrumbs add:bcStart];
     [[SentryClient shared].breadcrumbs add:bcMain];
 	
-	// Step 6: Don't make your app perfect so that you can get a crash ;)
+    [SentryClient shared].beforeSendEventBlock = ^(SentryEvent * _Nonnull * _Null_unspecified event) {
+        [*event fetchStacktrace];
+    };
+    // Step 6: Don't make your app perfect so that you can get a crash ;)
 	// See the really bad "onClickBreak" function on how to do that
 }
 
@@ -62,6 +65,7 @@
 }
 
 - (IBAction)onClickMessage:(id)sender {
+    [[SentryClient shared] snapshotStacktrace];
 	[[SentryClient shared] captureMessage:@"Some plain message from ObjC" level:SentrySeverityInfo];
 }
 
@@ -73,6 +77,7 @@
 							   culprit:nil
 							serverName:nil
 							   release:nil
+                           buildNumber:nil
 								  tags:nil
 							   modules:nil
 								 extra:nil
@@ -94,6 +99,7 @@
                                culprit:nil
                             serverName:nil
                                release:nil
+                           buildNumber:nil
                                   tags:nil
                                modules:nil
                                  extra:nil

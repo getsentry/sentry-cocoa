@@ -44,7 +44,9 @@ enum SentryEndpoint: Endpoint {
                 if let transform = SentryClient.shared?.beforeSendEventBlock {
                     transform(&eventToSend)
                 }
-                
+                if let transform = SentryClient.shared?.objcBeforeSendEventBlock {
+                    transform(&eventToSend)
+                }
                 let serializedEvent = eventToSend.serialized
                 guard JSONSerialization.isValidJSONObject(serializedEvent) else {
                     Log.Error.log("Could not serialized event")

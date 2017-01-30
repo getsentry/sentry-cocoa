@@ -160,8 +160,10 @@ internal enum SentryError: Error {
         didSet { crashHandler?.user = user }
     }
     
+    public typealias ObjcEventBeforeSend = (UnsafeMutablePointer<Event>) -> Void
     public typealias EventBeforeSend = (inout Event) -> Void
     /// Use this block to get the event that will be send with the next
+    @objc public var objcBeforeSendEventBlock: ObjcEventBeforeSend?
     public var beforeSendEventBlock: EventBeforeSend?
     
     /// Creates a Sentry object to use for reporting

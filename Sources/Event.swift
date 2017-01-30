@@ -144,7 +144,7 @@ public typealias EventFingerprint = [String]
     
     /// This will set threads and debugMeta if not nil with snapshot of stacktrace if called
     /// SentryClient.shared?.snapshotStacktrace()
-    public func fetchStacktrace() {
+    @objc public func fetchStacktrace() {
         if threads == nil {
             threads = SentryClient.shared?.stacktraceSnapshot?.threads
         }
