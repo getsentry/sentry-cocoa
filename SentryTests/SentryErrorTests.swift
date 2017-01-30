@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SentrySwift
+@testable import Sentry
 
 class SentrySwiftErrorTests: XCTestCase {
     let client = SentrySwiftTestHelper.sentryMockClient

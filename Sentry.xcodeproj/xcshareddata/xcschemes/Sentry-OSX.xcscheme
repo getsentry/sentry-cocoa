@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "03E94AEB1C22595B009F8F29"
-               BuildableName = "SentrySwift.framework"
-               BlueprintName = "SentrySwift-OSX"
-               ReferencedContainer = "container:SentrySwift.xcodeproj">
+               BuildableName = "Sentry.framework"
+               BlueprintName = "Sentry-OSX"
+               ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "03E94AF51C22595C009F8F29"
-               BuildableName = "SentrySwiftTests.xctest"
-               BlueprintName = "SentrySwift-OSXTests"
-               ReferencedContainer = "container:SentrySwift.xcodeproj">
+               BuildableName = "SentryTests.xctest"
+               BlueprintName = "Sentry-OSXTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "03E94AEB1C22595B009F8F29"
-            BuildableName = "SentrySwift.framework"
-            BlueprintName = "SentrySwift-OSX"
-            ReferencedContainer = "container:SentrySwift.xcodeproj">
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry-OSX"
+            ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -65,9 +65,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "03E94AEB1C22595B009F8F29"
-            BuildableName = "SentrySwift.framework"
-            BlueprintName = "SentrySwift-OSX"
-            ReferencedContainer = "container:SentrySwift.xcodeproj">
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry-OSX"
+            ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -83,9 +83,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "03E94AEB1C22595B009F8F29"
-            BuildableName = "SentrySwift.framework"
-            BlueprintName = "SentrySwift-OSX"
-            ReferencedContainer = "container:SentrySwift.xcodeproj">
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry-OSX"
+            ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

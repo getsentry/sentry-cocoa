@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import SentrySwift
+@testable import Sentry
 
 class MockRequestManager: RequestManager {
     required init(session: URLSession) {

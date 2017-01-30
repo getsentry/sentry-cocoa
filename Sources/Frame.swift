@@ -1,6 +1,6 @@
 //
 //  Frame.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 07/12/2016.
 //

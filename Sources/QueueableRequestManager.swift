@@ -1,6 +1,6 @@
 //
 //  QueueableRequestManager.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 26/01/2017.
 //

@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-@testable import SentrySwift
+@testable import Sentry
 
 class SentryClientTests: XCTestCase {
 	

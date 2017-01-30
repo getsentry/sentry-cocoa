@@ -1,6 +1,6 @@
 //
 //  NSDate+Extras.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by David Chavez on 25/05/16.
 //

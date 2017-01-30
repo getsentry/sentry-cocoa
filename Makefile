@@ -7,15 +7,15 @@ test:
 	fastlane test
 
 build-carthage:
-	@echo "--> Creating SentrySwift framework package with carthage"
+	@echo "--> Creating Sentry framework package with carthage"
 	carthage build --no-skip-current
-	carthage archive SentrySwift
+	carthage archive Sentry
 
 release: lint test pod-example-projects build-carthage
 
 build-time:
 	@echo "--> Analysing build time"
-	xcodebuild -verbose -project SentrySwift.xcodeproj -scheme SentrySwift-iOS -sdk iphonesimulator clean build OTHER_SWIFT_FLAGS="-Xfrontend -debug-time-function-bodies" | grep ".[0-9]ms" | grep -v "^0.[0-9]ms" | sort -nr > culprits.txt
+	xcodebuild -verbose -project Sentry.xcodeproj -scheme Sentry-iOS -sdk iphonesimulator clean build OTHER_SWIFT_FLAGS="-Xfrontend -debug-time-function-bodies" | grep ".[0-9]ms" | grep -v "^0.[0-9]ms" | sort -nr > culprits.txt
 	open culprits.txt
 
 pod-example-projects:

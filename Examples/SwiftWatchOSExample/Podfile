@@ -3,10 +3,10 @@
 
 target 'SwiftWatchOSExample' do
   use_frameworks!
-  pod 'SentrySwift', :path => '../../'
+  pod 'Sentry', :path => '../../'
 end
 
 target 'SwiftWatchOSExample WatchKit Extension' do
   use_frameworks!
-  pod 'SentrySwift', :path => '../../'
+  pod 'Sentry', :path => '../../'
 end

@@ -1,6 +1,6 @@
 //
 //  MemoryAddress.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 24/01/2017.
 //

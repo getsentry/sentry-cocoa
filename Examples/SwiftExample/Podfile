@@ -2,7 +2,7 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'SwiftExample' do
-    pod 'SentrySwift', :path => '../../'
+    pod 'Sentry', :path => '../../'
 end
 
 post_install do |installer|

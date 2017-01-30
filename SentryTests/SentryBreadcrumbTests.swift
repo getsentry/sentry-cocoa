@@ -7,8 +7,7 @@
 //
 
 import XCTest
-import SentrySwift
-@testable import SentrySwift
+@testable import Sentry
 
 class SentrySwiftBreadcrumbTests: XCTestCase {
 	

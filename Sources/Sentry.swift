@@ -1,6 +1,6 @@
 //
 //  Sentry.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 12/16/15.
 //
@@ -27,7 +27,7 @@ import KSCrash
     
     internal func log(_ message: String) {
         guard rawValue <= SentryClient.logLevel.rawValue else { return }
-        print("SentrySwift - \(description):: \(message)")
+        print("Sentry - \(description):: \(message)")
     }
 }
 
@@ -79,7 +79,7 @@ internal enum SentryError: Error {
     // MARK: - Enums
     
     internal struct Info {
-        static let version: String = "1.4.5"
+        static let version: String = "2.0.0"
         static let sentryVersion: Int = 7
     }
     

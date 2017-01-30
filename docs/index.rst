@@ -25,7 +25,7 @@ it in your `Podfile`:
     use_frameworks!
 
     target 'YourApp' do
-        pod 'SentrySwift', :git => 'https://github.com/getsentry/sentry-swift.git', :tag => '###SENTRY_SWIFT_TAG###'
+        pod 'Sentry', :git => 'https://github.com/getsentry/sentry-swift.git', :tag => '###SENTRY_SWIFT_TAG###'
     end
 
 Afterwards run ``pod install``.  In case you encounter problems with
@@ -64,7 +64,7 @@ instantiate the Sentry client:
 
 .. sourcecode:: swift
 
-    import SentrySwift;
+    import Sentry
 
     func application(application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -72,7 +72,7 @@ instantiate the Sentry client:
         // Create a Sentry client and start crash handler
         SentryClient.shared = SentryClient(dsnString: "___DSN___")
         SentryClient.shared?.startCrashHandler()
-        
+
         return true
     }
 
@@ -80,7 +80,7 @@ If you prefer to use Objective-C you can do so like this:
 
 .. sourcecode:: objc
 
-    @import SentrySwift;
+    @import Sentry;
 
     [SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"___DSN___"]];
     [[SentryClient shared] startCrashHandler];

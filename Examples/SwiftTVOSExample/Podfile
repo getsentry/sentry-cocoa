@@ -3,5 +3,5 @@
 
 target 'SwiftTVOSExample' do
   use_frameworks!
-  pod 'SentrySwift', :path => '../../'
+  pod 'Sentry', :path => '../../'
 end

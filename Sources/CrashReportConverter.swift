@@ -1,6 +1,6 @@
 //
 //  CrashReportConverter.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 05/11/16.
 //

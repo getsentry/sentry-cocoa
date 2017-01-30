@@ -9,7 +9,7 @@
 #import "ViewController.h"
 
 // Step 1: Import the SentrySwift framework
-@import SentrySwift;
+@import Sentry;
 
 @interface ViewController ()
 
@@ -22,16 +22,16 @@
 
 	// Step 1.5: Set logging level to your liking
 	[SentryClient setLogLevel:SentryLogDebug];
-	
+
 	// Step 2: Initialize a SentryClient with your DSN
 	// The DSN is in your Sentry project's settings
 	[SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"your-dsn"]];
-	
+
 	// OPTIONAL (but super useful)
 	// Step 3: Set and start the crash listener using SentryKSCrashHandler
 	// This uses KSCrash under the hood
 	[[SentryClient shared] startCrashHandler];
-	
+
 	// OPTIONAL (but also useful)
 	// Step 4: Set any user or global information to be sent up with every exception/message
 	// This is optional and can also be done at anytime (so when a user logs in/out)
@@ -39,20 +39,20 @@
 
 	// A map or list of tags for this event.
 	[SentryClient shared].tags = @{@"environment": @"production"};
-	
+
 	// An arbitrary mapping of additional metadata to store with the event
 	[SentryClient shared].extra = @{
 									@"a_thing": @3,
 									@"some_things": @[@"green", @"red"],
 									@"foobar": @{@"foo": @"bar"}
 									};
-    
+
     // Step 5: Add breadcrumbs to help you debug errors
     SentryBreadcrumb *bcStart = [[SentryBreadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"app start"}];
     SentryBreadcrumb *bcMain = [[SentryBreadcrumb alloc] initWithCategory:@"test" timestamp:[NSDate new] message:nil type:nil level:SentrySeverityDebug data:@{@"navigation": @"main screen"}];
     [[SentryClient shared].breadcrumbs add:bcStart];
     [[SentryClient shared].breadcrumbs add:bcMain];
-	
+
     [SentryClient shared].objcBeforeSendEventBlock = ^(SentryEvent * _Nonnull * _Null_unspecified event) {
         [*event fetchStacktrace];
     };
@@ -85,13 +85,13 @@
 								  user:nil
 							 exceptions:nil
 							stacktrace:nil];
-	
+
 	[[SentryClient shared] captureEvent:event];
 }
 
 - (IBAction)onClickError:(id)sender {
     NSError *error = [[NSError alloc] initWithDomain:@"test.domain" code:-1 userInfo:nil];
-    
+
     SentryEvent *event = [[SentryEvent alloc] init:error.domain
                              timestamp:[NSDate date]
                                  level:SentrySeverityError
@@ -107,7 +107,7 @@
                                   user:nil
 							 exceptions:nil
 							stacktrace:nil];
-    
+
     [[SentryClient shared] captureEvent:event];
 }
 

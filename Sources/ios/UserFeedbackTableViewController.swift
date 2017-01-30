@@ -1,6 +1,6 @@
 //
 //  UserFeedbackTableViewController.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Daniel Griesser on 16/11/16.
 //

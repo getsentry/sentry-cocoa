@@ -10,7 +10,7 @@
         <!--Root View Controller-->
         <scene sceneID="xRt-Cc-9J1">
             <objects>
-                <tableViewController id="xgF-SM-DmY" customClass="UserFeedbackTableViewController" customModule="SentrySwift" sceneMemberID="viewController">
+                <tableViewController id="xgF-SM-DmY" customClass="UserFeedbackTableViewController" customModule="Sentry" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="interactive" dataMode="static" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="c6m-nC-yFI">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

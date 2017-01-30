@@ -1,6 +1,6 @@
 //
 //  Thread.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 7/25/16.
 //

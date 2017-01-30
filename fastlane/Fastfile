@@ -18,7 +18,7 @@ end
 
 lane :localcoverage do
     test_swift_3_ios
-    sh('cd .. && slather coverage --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata SentrySwift.xcodeproj')
+    sh('cd .. && slather coverage --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
 end
 
 lane :lint do
@@ -27,33 +27,33 @@ end
 
 lane :test_swift_2_ios do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-iOS", xcargs: xcargs)
+    scan(scheme: "Sentry-iOS", xcargs: xcargs)
 end
 
 lane :test_swift_2_tvos do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-tvOS", xcargs: xcargs)
+    scan(scheme: "Sentry-tvOS", xcargs: xcargs)
 end
 
 lane :test_swift_2_macos do
     xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS", xcargs: xcargs)
+    scan(scheme: "Sentry-OSX", destination: "platform=macOS", xcargs: xcargs)
 end
 
 lane :test_swift_3_tvos do
-    scan(scheme: "SentrySwift-tvOS")
+    scan(scheme: "Sentry-tvOS")
 end
 
 lane :test_swift_3_macos do
-    scan(scheme: "SentrySwift-OSX", destination: "platform=macOS")
+    scan(scheme: "Sentry-OSX", destination: "platform=macOS")
 end
 
 lane :test_swift_3_ios do
     clear_derived_data
-    scan(scheme: "SentrySwift-iOS", code_coverage: true)
+    scan(scheme: "Sentry-iOS", code_coverage: true)
     travis_slather
 end
 
 lane :travis_slather do
-    sh('cd .. && slather coverage -x --scheme SentrySwift-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata SentrySwift.xcodeproj')
+    sh('cd .. && slather coverage -x --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
 end

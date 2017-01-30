@@ -1,6 +1,6 @@
 //
 //  Breadcrumb.swift
-//  SentrySwift
+//  Sentry
 //
 //  Created by Josh Holtz on 3/24/16.
 //
