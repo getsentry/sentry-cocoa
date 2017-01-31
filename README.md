@@ -1,4 +1,4 @@
-# Sentry client for iOS/macOS/tvOS/watchOS*
+# Sentry client for iOS/macOS/tvOS/watchOS<sup>(1)</sup>.
 
 [![Travis](https://img.shields.io/travis/getsentry/sentry-swift.svg?maxAge=2592000)](https://travis-ci.org/getsentry/sentry-swift)
 ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20tvOS%20%7C%20OSX-333333.svg)
@@ -42,4 +42,4 @@ SentryClient.shared?.user = User(id: "3",
 - [watchOS Swift 3 Project](/Examples/SwiftWatchOSExample) - Full project
   - [ViewController.swift](/Examples/SwiftWatchOSExample/SwiftWatchOSExample/ViewController.swift) - Implementation
 
-*limited symbolication support
+<sup>(1)</sup>limited symbolication support
