@@ -95,6 +95,7 @@ internal enum SentryError: Error {
         didSet {
             crashHandler?.startCrashReporting()
             crashHandler?.releaseVersion = releaseVersion
+            crashHandler?.buildNumber = buildNumber
             crashHandler?.tags = tags
             crashHandler?.extra = extra
             crashHandler?.user = user
