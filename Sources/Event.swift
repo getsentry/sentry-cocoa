@@ -185,6 +185,8 @@ extension Event: EventSerializable {
         attributes.append(("server_name", serverName))
         if let releaseVersion = releaseVersion, let buildNumber = buildNumber {
             attributes.append(("release", "\(releaseVersion) (\(buildNumber))"))
+        } else {
+            attributes.append(("release", releaseVersion))
         }
         attributes.append(("modules", modules))
         attributes.append(("fingerprint", fingerprint))
