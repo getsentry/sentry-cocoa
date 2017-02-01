@@ -11,10 +11,15 @@ import UIKit
 
 internal class SentrySwizzle {
     
-    
     static private func setNewIMPWithBlock<T>(_ block: T, forSelector selector: Selector, toClass klass: AnyClass) {
         let method = class_getInstanceMethod(klass, selector)
-        let imp = imp_implementationWithBlock(unsafeBitCast(block, AnyObject.self))
+        
+        #if swift(>=3.0)
+            let imp = imp_implementationWithBlock(unsafeBitCast(block, to: AnyObject.self))
+        #else
+            let imp = imp_implementationWithBlock(unsafeBitCast(block, AnyObject.self))
+        #endif
+        
         if !class_addMethod(klass, selector, imp, method_getTypeEncoding(method)) {
             method_setImplementation(method, imp)
         }
@@ -26,23 +31,30 @@ internal class SentrySwizzle {
         let key: StaticString = #function
         guard objc_getAssociatedObject(classToSwizzle, key.utf8Start) == nil else { return }
         
+        let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
+        
         switch classToSwizzle {
         case is UIApplication.Type:
-            let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
-            typealias UIApplicationSendAction = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool
-            let origIMPC = unsafeBitCast(originalIMP, UIApplicationSendAction.self)
             
+            typealias UIApplicationSendAction = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool
+            #if swift(>=3.0)
+                let origIMPC = unsafeBitCast(originalIMP, to: UIApplicationSendAction.self)
+            #else
+                let origIMPC = unsafeBitCast(originalIMP, UIApplicationSendAction.self)
+            #endif
             let block: @convention(block) (AnyObject, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool = {
                 trackSendAction($1, to: $2, from: $3, for: $4)
                 return origIMPC($0, selector, $1, $2, $3, $4)
             }
             setNewIMPWithBlock(block, forSelector: selector, toClass: classToSwizzle)
         case is UIViewController.Type:
-            let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
             typealias UIViewControllerViewDidAppear = @convention(c) (AnyObject, Selector, Bool) -> Void
-            let origIMPC = unsafeBitCast(originalIMP, UIViewControllerViewDidAppear.self)
+            #if swift(>=3.0)
+                let origIMPC = unsafeBitCast(originalIMP, to: UIViewControllerViewDidAppear.self)
+            #else
+                let origIMPC = unsafeBitCast(originalIMP, UIViewControllerViewDidAppear.self)
+            #endif
             let block: @convention(block) (AnyObject, Bool) -> Void = {
-                print("animated: \($1)")
                 if let viewController = $0 as? UIViewController {
                     trackViewDidAppear(viewController)
                 }
@@ -64,6 +76,8 @@ internal class SentrySwizzle {
         
         #if swift(>=3.0)
             Static.token = 1
+            swizzle(class: UIApplication.self, selector: #selector(UIApplication.sendAction))
+            swizzle(class: UIViewController.self, selector: #selector(UIViewController.viewDidAppear(_:)))
         #else
             dispatch_once(&Static.token) {
                 swizzle(class: UIApplication.self, selector: #selector(UIApplication.sendAction(_:to:from:forEvent:)))
@@ -102,7 +116,7 @@ internal class SentrySwizzle {
             data: data))
     }
     
-    static private func trackViewDidAppear(controller: UIViewController) {
+    static private func trackViewDidAppear(_ controller: UIViewController) {
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
             message: "ViewDidAppear",
             type: "navigation",
