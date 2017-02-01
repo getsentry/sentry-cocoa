@@ -10,6 +10,51 @@ import Foundation
 import UIKit
 
 internal class SentrySwizzle {
+    
+    
+    static private func setNewIMPWithBlock<T>(_ block: T, forSelector selector: Selector, toClass klass: AnyClass) {
+        let method = class_getInstanceMethod(klass, selector)
+        let imp = imp_implementationWithBlock(unsafeBitCast(block, AnyObject.self))
+        if !class_addMethod(klass, selector, imp, method_getTypeEncoding(method)) {
+            method_setImplementation(method, imp)
+        }
+    }
+    
+    static private func swizzle(class classToSwizzle: AnyClass, selector: Selector) {
+        objc_sync_enter(classToSwizzle)
+        defer { objc_sync_exit(classToSwizzle) }
+        let key: StaticString = #function
+        guard objc_getAssociatedObject(classToSwizzle, key.utf8Start) == nil else { return }
+        
+        switch classToSwizzle {
+        case is UIApplication.Type:
+            let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
+            typealias UIApplicationSendAction = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool
+            let origIMPC = unsafeBitCast(originalIMP, UIApplicationSendAction.self)
+            
+            let block: @convention(block) (AnyObject, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool = {
+                trackSendAction($1, to: $2, from: $3, for: $4)
+                return origIMPC($0, selector, $1, $2, $3, $4)
+            }
+            setNewIMPWithBlock(block, forSelector: selector, toClass: classToSwizzle)
+        case is UIViewController.Type:
+            let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
+            typealias UIViewControllerViewDidAppear = @convention(c) (AnyObject, Selector, Bool) -> Void
+            let origIMPC = unsafeBitCast(originalIMP, UIViewControllerViewDidAppear.self)
+            let block: @convention(block) (AnyObject, Bool) -> Void = {
+                print("animated: \($1)")
+                if let viewController = $0 as? UIViewController {
+                    trackViewDidAppear(viewController)
+                }
+                origIMPC($0, selector, $1)
+            }
+            setNewIMPWithBlock(block, forSelector: selector, toClass: classToSwizzle)
+        default:
+            break
+        }
+        
+    }
+    
     static func enableAutomaticBreadcrumbTracking() {
         struct Static {
             static var token: Int = 0
@@ -18,49 +63,16 @@ internal class SentrySwizzle {
         guard Static.token == 0 else { return }
         
         #if swift(>=3.0)
-            sentrySwizzle(UIViewController.self, #selector(UIViewController.viewDidAppear(_:)), #selector(UIViewController.sentryClient_viewDidAppear(_:)))
-            sentrySwizzle(UIApplication.self, #selector(UIApplication.sendAction(_:to:from:for:)), #selector(UIApplication.sentryClient_sendAction(_:to:from:for:)))
             Static.token = 1
         #else
             dispatch_once(&Static.token) {
-                let originalSelector = #selector(UIApplication.sendAction(_:to:from:forEvent:))
-                let swizzledSelector = #selector(UIApplication.sentryClient_sendAction(_:to:from:for:))
-                let originalMethod = class_getInstanceMethod(UIApplication.self, originalSelector)
-                let swizzledMethod = class_getInstanceMethod(UIApplication.self, swizzledSelector)
-                
-                let didAddMethod = class_addMethod(UIApplication.self, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-                
-                if didAddMethod {
-                    class_replaceMethod(UIApplication.self, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-                } else {
-                    method_exchangeImplementations(originalMethod, swizzledMethod)
-                }
-                
-                let originalSelectorUIViewController = #selector(UIViewController.viewDidAppear(_:))
-                let swizzledSelectorUIViewController = #selector(UIViewController.sentryClient_viewDidAppear(_:))
-                
-                let originalMethodUIViewController = class_getInstanceMethod(UIViewController.self, originalSelectorUIViewController)
-                let swizzledMethodUIViewController = class_getInstanceMethod(UIViewController.self, swizzledSelectorUIViewController)
-                
-                let didAddMethodUIViewController = class_addMethod(
-                    UIViewController.self,
-                    originalSelectorUIViewController,
-                    method_getImplementation(swizzledMethodUIViewController),
-                    method_getTypeEncoding(swizzledMethodUIViewController)
-                )
-                
-                if didAddMethodUIViewController {
-                    class_replaceMethod(UIViewController.self, swizzledSelectorUIViewController, method_getImplementation(originalMethodUIViewController), method_getTypeEncoding(originalMethodUIViewController))
-                } else {
-                    method_exchangeImplementations(originalMethodUIViewController, swizzledMethodUIViewController)
-                }
+                swizzle(class: UIApplication.self, selector: #selector(UIApplication.sendAction(_:to:from:forEvent:)))
+                swizzle(class: UIViewController.self, selector: #selector(UIViewController.viewDidAppear(_:)))
             }
         #endif
     }
-}
-
-extension UIApplication {
-    @objc func sentryClient_sendAction(_ action: Selector, to target: AnyObject?, from sender: AnyObject?, for event: UIEvent?) -> Bool {
+    
+    static private func trackSendAction(_ action: Selector, to target: AnyObject?, from sender: AnyObject?, for event: UIEvent?) {
         var data: [String: String] = [:]
         #if swift(>=3.0)
             if let touches = event?.allTouches {
@@ -85,30 +97,16 @@ extension UIApplication {
         #endif
         
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "action",
-                                                        message: "\(action)",
-                                                        type: "navigation",
-                                                        data: data))
-        
-        return sentryClient_sendAction(action, to: target, from: sender, for: event)
+            message: "\(action)",
+            type: "navigation",
+            data: data))
     }
-}
-
-extension UIViewController {
-    func sentryClient_viewDidAppear(_ animated: Bool) {
+    
+    static private func trackViewDidAppear(controller: UIViewController) {
         SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
-                                                        message: "ViewDidAppear",
-                                                        type: "navigation",
-                                                        data: ["controller": "\(self)"]))
-        
-        sentryClient_viewDidAppear(animated)
+            message: "ViewDidAppear",
+            type: "navigation",
+            data: ["controller": "\(controller)"]))
     }
+    
 }
-
-#if swift(>=3.0)
-    fileprivate let sentrySwizzle: (AnyClass, Selector, Selector) -> Void = { object, originalSelector, swizzledSelector in
-        let originalMethod = class_getInstanceMethod(object, originalSelector)
-        let swizzledMethod = class_getInstanceMethod(object, swizzledSelector)
-        
-        method_exchangeImplementations(originalMethod, swizzledMethod)
-    }
-#endif
