@@ -35,7 +35,6 @@ internal class SentrySwizzle {
         
         switch classToSwizzle {
         case is UIApplication.Type:
-            
             typealias UIApplicationSendAction = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?, UIEvent?) -> Bool
             #if swift(>=3.0)
                 let origIMPC = unsafeBitCast(originalIMP, to: UIApplicationSendAction.self)
@@ -76,7 +75,7 @@ internal class SentrySwizzle {
         
         #if swift(>=3.0)
             Static.token = 1
-            swizzle(class: UIApplication.self, selector: #selector(UIApplication.sendAction))
+            swizzle(class: UIApplication.self, selector: #selector(UIApplication.sendAction(_:to:from:for:)))
             swizzle(class: UIViewController.self, selector: #selector(UIViewController.viewDidAppear(_:)))
         #else
             dispatch_once(&Static.token) {
