@@ -14,6 +14,6 @@
     }
   },
   "vars": {
-    "SENTRY_SWIFT_TAG": "2.0.0"
+    "SENTRY_SWIFT_TAG": "2.0.1"
   }
 }
