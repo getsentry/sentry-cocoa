@@ -43,8 +43,7 @@ class SentrySwiftRequestTests: XCTestCase {
         for i in 1...10 {
             client.captureMessage("TEST \(i)")
         }
-        let event = SentrySwiftTestHelper.demoFatalEvent
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             asyncExpectation.fulfill()
         }
