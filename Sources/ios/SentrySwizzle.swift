@@ -28,8 +28,6 @@ internal class SentrySwizzle {
     static private func swizzle(class classToSwizzle: AnyClass, selector: Selector) {
         objc_sync_enter(classToSwizzle)
         defer { objc_sync_exit(classToSwizzle) }
-        let key: StaticString = #function
-        guard objc_getAssociatedObject(classToSwizzle, key.utf8Start) == nil else { return }
         
         let originalIMP = class_getMethodImplementation(classToSwizzle, selector)
         
@@ -63,7 +61,6 @@ internal class SentrySwizzle {
         default:
             break
         }
-        
     }
     
     static func enableAutomaticBreadcrumbTracking() {
@@ -109,17 +106,25 @@ internal class SentrySwizzle {
             }
         #endif
         
-        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "action",
-            message: "\(action)",
-            type: "navigation",
-            data: data))
+        SentryClient.shared?.breadcrumbs.add(
+            Breadcrumb(
+                category: "action",
+                message: "\(action)",
+                type: "navigation",
+                data: data
+            )
+        )
     }
     
     static private func trackViewDidAppear(_ controller: UIViewController) {
-        SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation",
-            message: "ViewDidAppear",
-            type: "navigation",
-            data: ["controller": "\(controller)"]))
+        SentryClient.shared?.breadcrumbs.add(
+            Breadcrumb(
+                category: "navigation",
+                message: "ViewDidAppear",
+                type: "navigation",
+                data: ["controller": "\(controller)"]
+            )
+        )
     }
     
 }
