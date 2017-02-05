@@ -225,8 +225,19 @@ internal enum SentryError: Error {
         crashHandler.sendAllReports()
     }
     
-    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [AnyType]) {
-        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, logAllThreads: true, terminateProgram: true)
+    @objc public func reportReactNativeCrash(error: NSError, stacktrace: [AnyType], terminateProgram: Bool) {
+        guard let crashHandler = crashHandler else {
+            Log.Error.log("crashHandler not yet initialized")
+            return
+        }
+        KSCrash.sharedInstance().reportUserException(error.localizedDescription,
+                                                     reason: "",
+                                                     language: CrashLanguages.reactNative,
+                                                     lineOfCode: "",
+                                                     stackTrace: stacktrace,
+                                                     logAllThreads: true,
+                                                     terminateProgram: terminateProgram)
+        crashHandler.sendAllReports()
     }
     
     /*

@@ -56,6 +56,7 @@ public typealias Mechanism = [String: AnyType]
         
         if let stacktrace = userStacktrace {
             let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)
+            _ = threads.map({ $0.crashed = false })
             threads.append(reactNativeThread)
             crashedThread = reactNativeThread
         }
@@ -72,6 +73,7 @@ public typealias Mechanism = [String: AnyType]
     
         if let stacktrace = userStacktrace {
             let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)
+            _ = threads.map({ $0.crashed = false })
             threads.append(reactNativeThread)
             crashedThread = reactNativeThread
         }

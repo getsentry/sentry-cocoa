@@ -67,9 +67,6 @@ extension Stacktrace {
                 continue
             }
             if let file = frame["file"] as? String {
-                if file == "[native code]" {
-                    continue
-                }
                 #if swift(>=3.0)
                     let simpleFilename = (file as NSString).lastPathComponent.components(separatedBy: "?")[0]
                 #else
