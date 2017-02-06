@@ -26,7 +26,15 @@ struct MemoryAddress {
     init?(_ object: AnyObject?) {
         guard let int = MemoryAddress.asMemoryAddress(object) else { return nil }
         self.int = int
-        self.hex = String(format: "0x%x", int)
+        self.hex = "0x\(String(int, radix: 16))"
+    }
+    
+    init?(_ string: String?) {
+        guard let hex = string else { return nil }
+        guard hex.hasPrefix("0x") else { return nil }
+        guard let int = Int(String(hex.characters.dropFirst(2)), radix: 16) else { return nil }
+        self.int = UInt64(int)
+        self.hex = hex
     }
     
     func asInt() -> UInt64 {

@@ -12,6 +12,8 @@ public typealias Mechanism = [String: AnyType]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc(SentryException) public final class Exception: NSObject {
+    typealias ReactNativeInfo = (address: UInt64, stacktrace: Stacktrace)
+    
     static let defaultReason = "UNKNOWN Exception"
     public var value: String
     public var type: String?
@@ -19,7 +21,7 @@ public typealias Mechanism = [String: AnyType]
     public var module: String?
     public var userReported = false
     public var thread: Thread?
-    
+    private var userInfo: CrashReportConverter.UserInfo?
     private var userStacktrace: Stacktrace?
     
     /// Creates `Exception` object
@@ -44,10 +46,42 @@ public typealias Mechanism = [String: AnyType]
         extractReason(appleCrashErrorDict)
     }
     
+    internal convenience init(appleCrashErrorDict: [String: AnyObject], userInfo: CrashReportConverter.UserInfo) {
+        self.init(value: Exception.defaultReason)
+        
+        extractMechanism(appleCrashErrorDict)
+        extractReason(appleCrashErrorDict)
+        self.userInfo = userInfo
+    }
+    
     func update(ksCrashDiagnosis diagnosis: String?) {
         if let diagnosis = diagnosis {
             value = diagnosis
         }
+    }
+
+    private func reactNativeStacktrace() -> ReactNativeInfo? {
+        guard let userInfo = userInfo else { return nil }
+        guard let nativeStracktrace = userInfo.extra?["__sentry_stack"] as? [[String: AnyObject]] else { return nil }
+        guard let address = userInfo.extra?["__sentry_address"] as? UInt64 else { return nil }
+        guard let stacktrace = Stacktrace.convertReactNativeStacktrace(nativeStracktrace) else { return nil }
+        return ReactNativeInfo(address: address, stacktrace: stacktrace)
+    }
+    
+    private func indexOfReactNativeCallFrame(crashedThreadFrames: [Frame]?, nativeCallAddress: UInt64) -> Int? {
+        guard let frames = crashedThreadFrames else { return nil }
+        for frame in frames {
+            if let instructionAddress = MemoryAddress(frame.instructionAddress)?.asInt() {
+                
+                print("\(instructionAddress) | \(nativeCallAddress)")
+                if instructionAddress < nativeCallAddress {
+                    continue
+                }
+                let diff = instructionAddress - nativeCallAddress
+                print("\(diff)")
+            }
+        }
+        return nil
     }
     
     #if swift(>=3.0)
@@ -63,6 +97,14 @@ public typealias Mechanism = [String: AnyType]
         
         if let reason = crashedThread?.reason {
             value = reason
+        }
+        
+        if let reactNativeInfo = reactNativeStacktrace() {
+            let indexOfFrame = indexOfReactNativeCallFrame(crashedThreadFrames: crashedThread?.stacktrace?.frames,
+                                                           nativeCallAddress: reactNativeInfo.address)
+            for frame in reactNativeInfo.stacktrace.frames {
+                crashedThread?.stacktrace?.frames.append(frame)
+            }
         }
         
         thread = crashedThread

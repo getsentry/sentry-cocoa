@@ -47,4 +47,13 @@ class SentrySwiftReactNativeCrashTests: XCTestCase {
         XCTAssertEqual(event?.threads?.last?.name, "React Native")
         XCTAssertEqual(event?.threads?.last?.stacktrace?.frames.first?.fileName, "/index.ios.bundle")
     }
+    
+    func testInjectReactNativeStacktrace() {
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "ReactNativeExample-report-with-stacktrace-and-address")!
+        
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        XCTAssertNotNil(event)
+        
+        
+    }
 }

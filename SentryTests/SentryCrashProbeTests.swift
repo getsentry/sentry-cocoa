@@ -27,7 +27,7 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         let mechanism = event?.exceptions?.first?.mechanism
         let posixSignal = mechanism?["posix_signal"] as? [String: AnyType]
         let machException = mechanism?["mach_exception"] as? [String: AnyType]
-        XCTAssertEqual(mechanism?["relevant_address"] as? String, "0x9660f06")
+        XCTAssertEqual(mechanism?["relevant_address"] as? String, "0x109660f06")
         XCTAssertEqual(posixSignal?["signal"] as? Int, 6)
         XCTAssertEqual(machException?["exception"] as? Int, 10)
     }
