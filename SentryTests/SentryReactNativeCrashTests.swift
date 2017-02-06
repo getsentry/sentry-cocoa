@@ -53,7 +53,6 @@ class SentrySwiftReactNativeCrashTests: XCTestCase {
         
         let event = CrashReportConverter.convertReportToEvent(crashJSON)
         XCTAssertNotNil(event)
-        
-        
+        XCTAssertEqual(event?.exceptions?.first?.thread?.stacktrace?.frames[6].platform, "javascript")
     }
 }

@@ -70,18 +70,23 @@ public typealias Mechanism = [String: AnyType]
     
     private func indexOfReactNativeCallFrame(crashedThreadFrames: [Frame]?, nativeCallAddress: UInt64) -> Int? {
         guard let frames = crashedThreadFrames else { return nil }
+        var smallestDiff: UInt64 = UInt64.max
+        var index = -1
+        var counter = 0
         for frame in frames {
             if let instructionAddress = MemoryAddress(frame.instructionAddress)?.asInt() {
-                
-                print("\(instructionAddress) | \(nativeCallAddress)")
                 if instructionAddress < nativeCallAddress {
                     continue
                 }
                 let diff = instructionAddress - nativeCallAddress
-                print("\(diff)")
+                if diff < smallestDiff {
+                    smallestDiff = diff
+                    index = counter
+                }
+                counter += 1
             }
         }
-        return nil
+        return index > -1 ? index : nil
     }
     
     #if swift(>=3.0)
@@ -99,11 +104,11 @@ public typealias Mechanism = [String: AnyType]
             value = reason
         }
         
-        if let reactNativeInfo = reactNativeStacktrace() {
+        if let reactNativeInfo = reactNativeStacktrace(),
             let indexOfFrame = indexOfReactNativeCallFrame(crashedThreadFrames: crashedThread?.stacktrace?.frames,
-                                                           nativeCallAddress: reactNativeInfo.address)
+                                                           nativeCallAddress: reactNativeInfo.address) {
             for frame in reactNativeInfo.stacktrace.frames {
-                crashedThread?.stacktrace?.frames.append(frame)
+                crashedThread?.stacktrace?.frames.insert(frame, at: indexOfFrame)
             }
         }
         
@@ -122,6 +127,14 @@ public typealias Mechanism = [String: AnyType]
     
         if let reason = crashedThread?.reason {
             value = reason
+        }
+    
+        if let reactNativeInfo = reactNativeStacktrace(),
+            let indexOfFrame = indexOfReactNativeCallFrame(crashedThreadFrames: crashedThread?.stacktrace?.frames,
+                                                           nativeCallAddress: reactNativeInfo.address) {
+            for frame in reactNativeInfo.stacktrace.frames {
+                crashedThread?.stacktrace?.frames.insert(frame, at: indexOfFrame)
+            }
         }
     
         thread = crashedThread
@@ -219,7 +232,6 @@ public typealias Mechanism = [String: AnyType]
     
     private func handleUserException(_ appleCrashErrorDict: [String: AnyObject]) {
         userReported = false
-        
         if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
             let name = context["name"] as? String,
             let language = context["language"] as? String {

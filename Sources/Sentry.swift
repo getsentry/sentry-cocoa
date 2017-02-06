@@ -147,7 +147,6 @@ internal enum SentryError: Error {
     public var tags: EventTags = [:] {
         didSet { crashHandler?.tags = tags }
     }
-    
     private var _extra: EventExtra = [:] {
         didSet { crashHandler?.extra = _extra }
     }
