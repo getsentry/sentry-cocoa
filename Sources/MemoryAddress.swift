@@ -9,15 +9,15 @@
 struct MemoryAddress {
     
     private let hex: String
-    private let int: UInt64
+    private let int: UInt
     
-    static private func asMemoryAddress(_ object: AnyObject?) -> UInt64? {
+    static private func asMemoryAddress(_ object: AnyObject?) -> UInt? {
         guard let object = object else { return nil }
         if let number = object as? NSNumber {
             #if swift(>=3.0)
-                return number.uint64Value
+                return number.uintValue
             #else
-                return number.unsignedLongLongValue
+                return number.unsignedIntegerValue
             #endif
         }
         return nil
@@ -33,11 +33,11 @@ struct MemoryAddress {
         guard let hex = string else { return nil }
         guard hex.hasPrefix("0x") else { return nil }
         guard let int = Int(String(hex.characters.dropFirst(2)), radix: 16) else { return nil }
-        self.int = UInt64(int)
+        self.int = UInt(int)
         self.hex = hex
     }
     
-    func asInt() -> UInt64 {
+    func asInt() -> UInt {
         return int
     }
     

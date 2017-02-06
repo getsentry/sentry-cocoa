@@ -12,7 +12,7 @@ public typealias Mechanism = [String: AnyType]
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 @objc(SentryException) public final class Exception: NSObject {
-    typealias ReactNativeInfo = (address: UInt64, stacktrace: Stacktrace)
+    typealias ReactNativeInfo = (address: UInt, stacktrace: Stacktrace)
     
     static let defaultReason = "UNKNOWN Exception"
     public var value: String
@@ -63,14 +63,14 @@ public typealias Mechanism = [String: AnyType]
     private func reactNativeStacktrace() -> ReactNativeInfo? {
         guard let userInfo = userInfo else { return nil }
         guard let nativeStracktrace = userInfo.extra?["__sentry_stack"] as? [[String: AnyObject]] else { return nil }
-        guard let address = userInfo.extra?["__sentry_address"] as? UInt64 else { return nil }
+        guard let address = userInfo.extra?["__sentry_address"] as? UInt else { return nil }
         guard let stacktrace = Stacktrace.convertReactNativeStacktrace(nativeStracktrace) else { return nil }
         return ReactNativeInfo(address: address, stacktrace: stacktrace)
     }
     
-    private func indexOfReactNativeCallFrame(crashedThreadFrames: [Frame]?, nativeCallAddress: UInt64) -> Int? {
+    private func indexOfReactNativeCallFrame(crashedThreadFrames: [Frame]?, nativeCallAddress: UInt) -> Int? {
         guard let frames = crashedThreadFrames else { return nil }
-        var smallestDiff: UInt64 = UInt64.max
+        var smallestDiff: UInt = UInt.max
         var index = -1
         var counter = 0
         for frame in frames {
@@ -86,7 +86,7 @@ public typealias Mechanism = [String: AnyType]
                 counter += 1
             }
         }
-        return index > -1 ? index : nil
+        return index > -1 ? index + 1 : nil
     }
     
     #if swift(>=3.0)
@@ -107,8 +107,8 @@ public typealias Mechanism = [String: AnyType]
         if let reactNativeInfo = reactNativeStacktrace(),
             let indexOfFrame = indexOfReactNativeCallFrame(crashedThreadFrames: crashedThread?.stacktrace?.frames,
                                                            nativeCallAddress: reactNativeInfo.address) {
-            for frame in reactNativeInfo.stacktrace.frames {
-                crashedThread?.stacktrace?.frames.insert(frame, at: indexOfFrame)
+            for frame in reactNativeInfo.stacktrace.frames.reversed() {
+                crashedThread?.stacktrace?.frames.insert(frame, at: indexOfFrame + 1)
             }
         }
         
@@ -130,10 +130,10 @@ public typealias Mechanism = [String: AnyType]
         }
     
         if let reactNativeInfo = reactNativeStacktrace(),
-            let indexOfFrame = indexOfReactNativeCallFrame(crashedThreadFrames: crashedThread?.stacktrace?.frames,
+            let indexOfFrame = indexOfReactNativeCallFrame(crashedThread?.stacktrace?.frames,
                                                            nativeCallAddress: reactNativeInfo.address) {
-            for frame in reactNativeInfo.stacktrace.frames {
-                crashedThread?.stacktrace?.frames.insert(frame, at: indexOfFrame)
+            for frame in reactNativeInfo.stacktrace.frames.reverse() {
+                crashedThread?.stacktrace?.frames.insert(frame, atIndex: indexOfFrame + 1)
             }
         }
     

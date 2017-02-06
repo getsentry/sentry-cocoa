@@ -42,7 +42,7 @@ final class BinaryImage {
             if let imageStart = binaryImage.imageAddress?.asInt(),
                 let imageSize = binaryImage.imageSize {
                 
-                let imageEnd = imageStart + UInt64(imageSize)
+                let imageEnd = imageStart + UInt(imageSize)
                 if address.asInt() >= imageStart && address.asInt() < imageEnd {
                     return binaryImage
                 }
