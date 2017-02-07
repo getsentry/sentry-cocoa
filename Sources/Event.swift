@@ -171,7 +171,7 @@ extension Event: EventSerializable {
                 #if swift(>=3.0)
                     newExtras.removeValue(forKey: key)
                 #else
-                    newExtras.removeValue(forKey: key)
+                    newExtras.removeValueForKey(key)
                 #endif
             }
         }
