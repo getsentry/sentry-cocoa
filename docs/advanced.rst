@@ -64,7 +64,7 @@ User Feedback (iOS only feature)
 You can activate the User Feedback feature by simply calling `enableUserFeedbackAfterFatalEvent`, which will then in case of an `Fatal` event call a delegate method where you can present the provided User Feedback viewcontroller.
 
 .. sourcecode:: swift
-    
+
     SentryClient.shared?.enableUserFeedbackAfterFatalEvent()
     SentryClient.shared?.delegate = self
 
@@ -79,7 +79,7 @@ Additionally you have to set the `delegate` and implement the `SentryClientUserF
             presentViewController(viewControllers.navigationController, animated: true, completion: nil)
         }
     }
-    
+
     func userFeedbackSent() {
         // Will be called after userFeedback has been sent
     }
@@ -98,12 +98,17 @@ Breadcrumbs are used as a way to trace how an error occured. They will queue up 
 
     SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation", to: "point b", from: "point a"))
 
-The client will queue up a maximum of 20 breadcrumbs by default.
+The client will queue up a maximum of 50 breadcrumbs by default.
+To change the maximum amout of breadcrumbs call:
+
+.. sourcecode:: swift
+
+    SentryClient.shared?.breadcrumbs.maxCrumbs = 100
 
 With version `1.1.0` we added another iOS only feature which tracks breadcrumbs automatically by calling:
 
 .. sourcecode:: swift
-    
+
     SentryClient.shared?.enableAutomaticBreadcrumbTracking()
 
 If called this will track every action sent from a Storyboard and every `viewDidAppear` from an `UIViewController`.
@@ -133,15 +138,15 @@ In version `1.3.0` we also added a new function called: `SentryClient.shared?.sn
 This function captures the stacktrace at the location where its called. So for example if you want to send a simple message to the server and add the stacktrace to it you have to do this.
 
 .. sourcecode:: swift
-    
+
     // This is somewhere in you setup code define the beforeSendEventBlock
     SentryClient.shared?.beforeSendEventBlock = {
         // This function fetches the snapshot of the stacktrace and adds it to the event
         // Be aware that this function only sets the stacktrace if its no real crash
-        // So it will never overwrite an existing 
+        // So it will never overwrite an existing
         $0.fetchStacktrace()
     }
-    
+
     ......
 
     // Somewhere where you want to capture the stacktrace and send a simple message
