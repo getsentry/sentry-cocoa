@@ -10,7 +10,7 @@ import Foundation
 
 // A class used to represent an exception: `sentry.interfaces.stacktrace.Stacktrace`
 @objc(SentryStacktrace) public final class Stacktrace: NSObject {
-    public let frames: [Frame]
+    public var frames: [Frame]
     public let register: Register?
     
     internal convenience init?(appleCrashTreadBacktraceDict: [String: AnyObject]?,
@@ -24,7 +24,6 @@ import Foundation
             .flatMap({ Frame(appleCrashFrameDict: $0, binaryImages: binaryImages) })
         
         self.init(frames: frames, register: Register(registerDict: registerDict))
-        
     }
     
     @objc public init(frames: [Frame]?) {
@@ -67,9 +66,6 @@ extension Stacktrace {
                 continue
             }
             if let file = frame["file"] as? String {
-                if file == "[native code]" {
-                    continue
-                }
                 #if swift(>=3.0)
                     let simpleFilename = (file as NSString).lastPathComponent.components(separatedBy: "?")[0]
                 #else

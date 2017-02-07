@@ -29,6 +29,34 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertNotNil(SentryClient.shared)
 	}
     
+    func testSetExtraAndTags() {
+        let client = SentrySwiftTestHelper.sentryMockClient
+        client.tags = ["1": "2"]
+        client.addTag("a", value: "b")
+        XCTAssertEqual(client.tags["1"], "2")
+        XCTAssertEqual(client.tags["a"], "b")
+        
+        client.extra = ["1": "3"]
+        client.addExtra("a", value: "c")
+        XCTAssertEqual(client.extra["1"] as? String, "3")
+        XCTAssertEqual(client.extra["a"] as? String, "c")
+    }
+    
+    func testRemoveSentryInternalExtras() {
+        let event = SentrySwiftTestHelper.demoFatalEvent
+        event.extra = ["1": "3"]
+        event.addExtra("a", value: "c")
+        event.addExtra("__sentry_stacktrace", value: "c")
+        event.addExtra("__sentryasda", value: "c")
+        
+        let serialized = event.serialized
+        let extra = serialized["extra"] as! EventExtra
+        XCTAssertEqual(extra.count, 2)
+        XCTAssertEqual(extra["1"] as? String, "3")
+        XCTAssertEqual(extra["a"] as? String, "c")
+        XCTAssertNil(extra["__sentry_stacktrace"])
+    }
+    
     #if swift(>=3.0)
     
     func testImmutableCrashProperties() {

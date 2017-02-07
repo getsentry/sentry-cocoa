@@ -28,17 +28,28 @@ class SentrySwiftCrashTests: XCTestCase {
 		XCTAssertEqual(hexAddress?.asHex(), "0x3157e63d")
         XCTAssertEqual(hexAddress?.asInt(), 827844157)
         
-        let hexAddress2 = MemoryAddress(nil)
-        XCTAssertNil(hexAddress2)
-        XCTAssertNil(hexAddress2?.asHex())
-        
         let hexAddress3 = MemoryAddress(String(
             bytes: [0xD8, 0x00] as [UInt8],
-            encoding: String.Encoding.utf16BigEndian) as? AnyObject)
+            encoding: String.Encoding.utf16BigEndian))
         XCTAssertNil(hexAddress3)
         
-        let hexAddress4 = MemoryAddress("ö" as? AnyObject)
+        let hexAddress4 = MemoryAddress("ö")
         XCTAssertNil(hexAddress4)
+        
+        let hexAddress5 = MemoryAddress("0xxx123")
+        XCTAssertNil(hexAddress5)
+        
+        let hexAddress6 = MemoryAddress("0xA")
+        XCTAssertEqual(hexAddress6?.asInt(), 10)
+        
+        let hexAddress7 = MemoryAddress("0x3157e63d")
+        XCTAssertEqual(hexAddress7?.asInt(), 827844157)
+        
+        let hexAddress8 = MemoryAddress(MemoryAddress("0x1035AB510")?.asInt() as AnyObject?)
+        XCTAssertEqual(hexAddress8?.asInt(), 4351243536)
+        
+        let hexAddress9 = MemoryAddress(MemoryAddress(4351243536 as AnyObject?)?.asHex())
+        XCTAssertEqual(hexAddress9?.asInt(), 4351243536)
 	}
     #endif
     

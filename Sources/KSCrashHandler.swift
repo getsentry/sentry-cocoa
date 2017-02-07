@@ -30,8 +30,6 @@ internal final class KSCrashHandler: CrashHandler {
     // MARK: - Attributes
     
     private var installation: KSCrashSentryInstallation
-    
-    private var lock = NSObject()
     private var isInstalled = false
     
     // MARK: - EventProperties
@@ -68,11 +66,10 @@ internal final class KSCrashHandler: CrashHandler {
      */
     internal func startCrashReporting() {
         // Sychrnoizes this function
-        objc_sync_enter(lock)
-        defer { objc_sync_exit(lock) }
+        objc_sync_enter(self)
+        defer { objc_sync_exit(self) }
+        guard !isInstalled else { return }
         
-        // Return out if already installed
-        if isInstalled { return }
         isInstalled = true
         
         // Install

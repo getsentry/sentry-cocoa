@@ -65,7 +65,7 @@ internal final class CrashReportConverter {
         
         var threads = threadDicts.flatMap({ Thread(appleCrashThreadDict: $0, binaryImages: binaryImages) })
         
-        let exception = Exception(appleCrashErrorDict: errorDict)
+        let exception = Exception(appleCrashErrorDict: errorDict, userInfo: userInfo)
         exception.update(threads: &threads) // the order is important for this 2 calls
         exception.update(ksCrashDiagnosis: crashDict["diagnosis"] as? String) // the order is important for this 2 calls
         

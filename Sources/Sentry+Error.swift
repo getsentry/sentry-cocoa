@@ -8,8 +8,12 @@
 
 import Foundation
 
+internal enum SentryError: Error {
+    case InvalidDSN
+    case InvalidCrashReport
+}
+
 extension Event {
-    
     // broken out into a separate function for testability
     internal convenience init(error: NSError, frame: Frame) {
         let message = "\(error.domain).\(error.code) in \(frame.culprit)"

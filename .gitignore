@@ -48,3 +48,4 @@ Carthage/Checkouts
 fastlane/test_output/
 report.xml
 .env
+cobertura.xml

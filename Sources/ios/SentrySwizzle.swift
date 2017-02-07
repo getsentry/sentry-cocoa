@@ -11,8 +11,8 @@ import UIKit
 
 internal class SentrySwizzle {
     
-    static private func setNewIMPWithBlock<T>(_ block: T, forSelector selector: Selector, toClass klass: AnyClass) {
-        let method = class_getInstanceMethod(klass, selector)
+    static private func setNewIMPWithBlock<T>(_ block: T, forSelector selector: Selector, toClass classToSwizzle: AnyClass) {
+        let method = class_getInstanceMethod(classToSwizzle, selector)
         
         #if swift(>=3.0)
             let imp = imp_implementationWithBlock(unsafeBitCast(block, to: AnyObject.self))
@@ -20,7 +20,7 @@ internal class SentrySwizzle {
             let imp = imp_implementationWithBlock(unsafeBitCast(block, AnyObject.self))
         #endif
         
-        if !class_addMethod(klass, selector, imp, method_getTypeEncoding(method)) {
+        if !class_addMethod(classToSwizzle, selector, imp, method_getTypeEncoding(method)) {
             method_setImplementation(method, imp)
         }
     }

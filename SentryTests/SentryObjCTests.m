@@ -42,7 +42,7 @@
                                     @"some_things": @[@"green", @"red"],
                                     @"foobar": @{@"foo": @"bar"}
                                     };
-    
+    [[SentryClient shared] addExtra:@"__sentry_stack" value:@"__sentry_stack"];
     SentryClient *nilClient = nil;
     [nilClient captureMessage:@"Some plain message from ObjC" level:SentrySeverityInfo];
     

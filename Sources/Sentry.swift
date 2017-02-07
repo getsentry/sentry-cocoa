@@ -7,29 +7,7 @@
 //
 
 import Foundation
-#if os(iOS)
-    import UIKit
-#endif
 import KSCrash
-
-// This is declared here to keep namespace compatibility with objc
-@objc(SentryLog) public enum Log: Int, CustomStringConvertible {
-    case None, Error, Debug, Verbose
-    
-    public var description: String {
-        switch self {
-        case .None: return ""
-        case .Error: return "Error"
-        case .Debug: return "Debug"
-        case .Verbose: return "Verbose"
-        }
-    }
-    
-    internal func log(_ message: String) {
-        guard rawValue <= SentryClient.logLevel.rawValue else { return }
-        print("Sentry - \(description):: \(message)")
-    }
-}
 
 #if swift(>=3.0)
     public typealias AnyType = Any
@@ -50,18 +28,6 @@ import KSCrash
     internal typealias Data = NSData
     internal typealias TimeInterval = NSTimeInterval
     internal typealias Date = NSDate
-#endif
-
-internal enum SentryError: Error {
-    case InvalidDSN
-    case InvalidCrashReport
-}
-
-#if os(iOS)
-    @objc public protocol SentryClientUserFeedbackDelegate {
-        func userFeedbackReady()
-        func userFeedbackSent()
-    }
 #endif
 
 @objc public class SentryClient: NSObject, EventProperties {
@@ -113,14 +79,13 @@ internal enum SentryError: Error {
     
     internal var stacktraceSnapshot: Event.StacktraceSnapshot?
     
+    // MARK: UserFeedback
     #if os(iOS)
-    public typealias UserFeedbackViewContollers = (navigationController: UINavigationController, userFeedbackTableViewController: UserFeedbackTableViewController)
-    
-    private var userFeedbackViewControllers: UserFeedbackViewContollers?
+    internal var userFeedbackViewControllers: UserFeedbackViewContollers?
     
     public weak var delegate: SentryClientUserFeedbackDelegate?
-    private(set) var userFeedbackViewModel: UserFeedbackViewModel?
-    private(set) var lastSuccessfullySentEvent: Event? {
+    internal(set) var userFeedbackViewModel: UserFeedbackViewModel?
+    internal(set) var lastSuccessfullySentEvent: Event? {
         didSet {
             guard nil != lastSuccessfullySentEvent else {
                 return
@@ -137,7 +102,7 @@ internal enum SentryError: Error {
         }
     }
     #endif
-    
+    // ------------------
     // MARK: EventProperties
     public var releaseVersion: String? {
         didSet { crashHandler?.releaseVersion = releaseVersion }
@@ -148,7 +113,6 @@ internal enum SentryError: Error {
     public var tags: EventTags = [:] {
         didSet { crashHandler?.tags = tags }
     }
-    
     private var _extra: EventExtra = [:] {
         didSet { crashHandler?.extra = _extra }
     }
@@ -161,6 +125,7 @@ internal enum SentryError: Error {
     public var user: User? = nil {
         didSet { crashHandler?.user = user }
     }
+    // ------------------
     
     public typealias ObjcEventBeforeSend = (UnsafeMutablePointer<Event>) -> Void
     public typealias EventBeforeSend = (inout Event) -> Void
@@ -226,30 +191,19 @@ internal enum SentryError: Error {
         crashHandler.sendAllReports()
     }
     
-    @objc public func reportReactNativeFatalCrash(error: NSError, stacktrace: [AnyType]) {
-        KSCrash.sharedInstance().reportUserException(error.localizedDescription, reason: "", language: CrashLanguages.reactNative, lineOfCode: "", stackTrace: stacktrace, logAllThreads: true, terminateProgram: true)
-    }
-    
-    /*
-     Reports message to Sentry with the given level
-     - Parameter message: The message to send to Sentry
-     - Parameter level: The severity of the message
-     */
-    @objc public func captureMessage(_ message: String, level: Severity = .Info) {
-        captureEvent(Event(message, level: level))
-    }
-    
-    /// Reports given event to Sentry
-    @objc public func captureEvent(_ event: Event) {
-        #if swift(>=3.0)
-            DispatchQueue(label: SentryClient.queueName).async {
-                self.captureEvent(event, useClientProperties: true)
-            }
-        #else
-            dispatch_async(dispatch_queue_create(SentryClient.queueName, nil), {
-                self.captureEvent(event, useClientProperties: true)
-            })
-        #endif
+    @objc public func reportReactNativeCrash(error: NSError, stacktrace: [AnyType], terminateProgram: Bool) {
+        guard let crashHandler = crashHandler else {
+            Log.Error.log("crashHandler not yet initialized")
+            return
+        }
+        KSCrash.sharedInstance().reportUserException(error.localizedDescription,
+                                                     reason: "",
+                                                     language: CrashLanguages.reactNative,
+                                                     lineOfCode: "",
+                                                     stackTrace: stacktrace,
+                                                     logAllThreads: true,
+                                                     terminateProgram: terminateProgram)
+        crashHandler.sendAllReports()
     }
     
     #if os(iOS)
@@ -261,138 +215,5 @@ internal enum SentryError: Error {
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {
         fatalError("TEST - Sentry Client Crash")
-    }
-    
-    #if os(iOS)
-    /// This will return the UserFeedbackControllers
-    public func userFeedbackControllers() -> UserFeedbackViewContollers? {
-        guard userFeedbackViewControllers == nil else {
-            return userFeedbackViewControllers
-        }
-        
-        var bundle: Bundle? = nil
-        #if swift(>=3.0)
-            let frameworkBundle = Bundle(for: type(of: self))
-            bundle = frameworkBundle
-            if let bundleURL = frameworkBundle.url(forResource: "storyboards", withExtension: "bundle") {
-                bundle = Bundle(url: bundleURL)
-            }
-        #else
-            let frameworkBundle = NSBundle(forClass: self.dynamicType)
-            bundle = frameworkBundle
-            if let bundleURL = frameworkBundle.URLForResource("storyboards", withExtension: "bundle") {
-                bundle = NSBundle(URL: bundleURL)
-            }
-        #endif
-        
-        let storyboard = UIStoryboard(name: "UserFeedback", bundle: bundle)
-        if let navigationViewController = storyboard.instantiateInitialViewController() as? UINavigationController,
-            let userFeedbackViewController = navigationViewController.viewControllers.first as? UserFeedbackTableViewController,
-            let viewModel = userFeedbackViewModel {
-            userFeedbackViewController.viewModel = viewModel
-            userFeedbackViewControllers = (navigationViewController, userFeedbackViewController)
-            return userFeedbackViewControllers
-        }
-        return nil
-    }
-    
-    @objc public func userFeedbackTableViewController() -> UserFeedbackTableViewController? {
-        return userFeedbackControllers()?.userFeedbackTableViewController
-    }
-    
-    @objc public func userFeedbackNavigationViewController() -> UINavigationController? {
-        return userFeedbackControllers()?.navigationController
-    }
-    
-    /// Call this with your custom UserFeedbackViewModel to configure the UserFeedbackViewController
-    @objc public func enableUserFeedbackAfterFatalEvent(userFeedbackViewModel: UserFeedbackViewModel = UserFeedbackViewModel()) {
-        self.userFeedbackViewModel = userFeedbackViewModel
-    }
-    
-    internal func sentUserFeedback() {
-        #if swift(>=3.0)
-            DispatchQueue.main.async {
-                self.delegate?.userFeedbackSent()
-            }
-        #else
-            dispatch_async(dispatch_get_main_queue(), {
-                self.delegate?.userFeedbackSent()
-            })
-        #endif
-        lastSuccessfullySentEvent = nil
-    }
-    
-    #endif
-    
-    /*
-     Reports given event to Sentry
-     - Parameter event: An event struct
-     - Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
-     */
-    internal func captureEvent(_ event: Event, useClientProperties: Bool, completed: SentryEndpointRequestFinished? = nil) {
-        
-        // Don't allow client attributes to be used when reporting an `Exception`
-        if useClientProperties {
-            event.user = event.user ?? user
-            event.releaseVersion = event.releaseVersion ?? releaseVersion
-            event.buildNumber = event.buildNumber ?? buildNumber
-            
-            if JSONSerialization.isValidJSONObject(tags) {
-                event.tags.unionInPlace(tags)
-            }
-            
-            if JSONSerialization.isValidJSONObject(extra) {
-                event.extra.unionInPlace(extra)
-            }
-            
-            if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
-                event.breadcrumbsSerialized = breadcrumbs.serialized
-            }
-            breadcrumbs.clear()
-        }
-
-        sendEvent(event) { [weak self] success in
-            defer { completed?(success) }
-            guard !success else {
-                #if os(iOS)
-                    if event.level == .Fatal {
-                        self?.lastSuccessfullySentEvent = event
-                    }
-                #endif
-                return
-            }
-            self?.saveEvent(event)
-        }
-        
-        // In the end we check if there are any events still stored on disk and send them
-        // If the request queue is ready
-        if requestManager.isReady {
-            sendEventsOnDiskInBackground()
-        }
-    }
-    
-    /// Sends events that are stored on disk to the server
-    private func sendEventsOnDiskInBackground() {
-        #if swift(>=3.0)
-            DispatchQueue(label: SentryClient.queueName).sync {
-                self.sendEventsOnDisk()
-            }
-        #else
-            dispatch_sync(dispatch_queue_create(SentryClient.queueName, nil), {
-                self.sendEventsOnDisk()
-            })
-        #endif
-    }
-    
-    /// Attempts to send all events that are saved on disk
-    private func sendEventsOnDisk() {
-        let events = savedEvents()
-        
-        for savedEvent in events {
-            sendEvent(savedEvent) { success in
-                guard success else { return }
-                savedEvent.deleteEvent()
-            }
-        }
     }
 }
