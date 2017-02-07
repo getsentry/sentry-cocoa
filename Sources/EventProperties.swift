@@ -10,7 +10,6 @@ import Foundation
 
 /// Protocol defining common editable properties of Sentry client and Event
 internal protocol EventProperties {
-    
     // MARK: - Attributes
     var releaseVersion: String? { get set }
     var buildNumber: String? { get set }

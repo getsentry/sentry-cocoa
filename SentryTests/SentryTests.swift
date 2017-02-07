@@ -29,6 +29,19 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertNotNil(SentryClient.shared)
 	}
     
+    func testSetExtraAndTags() {
+        var client = SentrySwiftTestHelper.sentryMockClient
+        client.tags = ["1": "2"]
+        client.setTag("a", value: "b")
+        XCTAssertEqual(client.tags["1"], "2")
+        XCTAssertEqual(client.tags["a"], "b")
+        
+        client.extra = ["1": "3"]
+        client.setExtra("a", value: "c")
+        XCTAssertEqual(client.extra["1"] as? String, "3")
+        XCTAssertEqual(client.extra["a"] as? String, "c")
+    }
+    
     #if swift(>=3.0)
     
     func testImmutableCrashProperties() {

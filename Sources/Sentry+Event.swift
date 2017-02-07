@@ -9,6 +9,15 @@
 import Foundation
 
 extension SentryClient {
+    
+    @objc public func setExtra(_ key: String, value: AnyType) {
+        extra = extra.set(key, value: value)
+    }
+    
+    @objc public func setTag(_ key: String, value: String) {
+        tags = tags.set(key, value: value)
+    }
+    
     /*
      Reports message to Sentry with the given level
      - Parameter message: The message to send to Sentry
@@ -26,7 +35,7 @@ extension SentryClient {
             }
         #else
             dispatch_async(dispatch_queue_create(SentryClient.queueName, nil), {
-            self.captureEvent(event, useClientProperties: true)
+                self.captureEvent(event, useClientProperties: true)
             })
         #endif
     }
