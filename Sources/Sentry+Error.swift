@@ -8,6 +8,10 @@
 
 import Foundation
 
+internal enum SentryError: Error {
+    case InvalidDSN
+}
+
 extension Event {
     // broken out into a separate function for testability
     internal convenience init(error: NSError, frame: Frame) {
