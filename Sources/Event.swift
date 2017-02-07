@@ -164,6 +164,20 @@ extension Event: EventSerializable {
         ]
     }
     
+    func stripSentryInternalExtras(_ extra: EventExtra) -> EventExtra? {
+        var newExtras = extra
+        for key in extra.keys {
+            if key.hasPrefix("__sentry") {
+                #if swift(>=3.0)
+                    newExtras.removeValue(forKey: key)
+                #else
+                    newExtras.removeValue(forKey: key)
+                #endif
+            }
+        }
+        return newExtras
+    }
+    
     /// Dictionary version of attributes set in event
     var serialized: SerializedType {
         
@@ -192,7 +206,7 @@ extension Event: EventSerializable {
         attributes.append(("fingerprint", fingerprint))
         
         attributes.append(("tags", tags))
-        attributes.append(("extra", extra))
+        attributes.append(("extra", stripSentryInternalExtras(extra)))
         
         // Interfaces
         attributes.append(("user", user?.serialized))
