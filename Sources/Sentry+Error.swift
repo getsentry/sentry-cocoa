@@ -10,6 +10,7 @@ import Foundation
 
 internal enum SentryError: Error {
     case InvalidDSN
+    case InvalidCrashReport
 }
 
 extension Event {

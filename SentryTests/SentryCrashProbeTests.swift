@@ -240,5 +240,11 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         XCTAssertEqual(event?.exceptions?.first?.value, "P16kaboom_exception")
     }
     
-    
+    func testIncomplete() { // Call abort()
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "incomplete")!
+        
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        
+        XCTAssertNotNil(event)
+    }
 }

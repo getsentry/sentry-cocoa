@@ -17,8 +17,8 @@ import Foundation
     
     private(set) var crumbs: [Breadcrumb] = []
     
-    private var _maxCrumbs: Int = 20
-    internal var maxCrumbs: Int {
+    private var _maxCrumbs: Int = 50
+    public var maxCrumbs: Int {
         get { return _maxCrumbs }
         set { _maxCrumbs = max(0, newValue) }
     }
