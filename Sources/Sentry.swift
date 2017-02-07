@@ -54,6 +54,7 @@ import KSCrash
 
 internal enum SentryError: Error {
     case InvalidDSN
+    case InvalidCrashReport
 }
 
 #if os(iOS)
