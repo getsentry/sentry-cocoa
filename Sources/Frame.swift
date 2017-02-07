@@ -32,9 +32,7 @@ import Foundation
         self.fileName = fileName
         self.function = function
         self.module = module
-        
         self.line = line
-        
         super.init()
     }
     
@@ -57,7 +55,6 @@ import Foundation
         
         self.function = frameDict["symbol_name"] as? String
         self.package = binaryImage.name
-        
         self.imageAddress = binaryImage.imageAddress?.asHex()
         self.instructionAddress = MemoryAddress(frameDict["instruction_addr"])?.asHex()
         self.symbolAddress = MemoryAddress(frameDict["symbol_addr"])?.asHex()

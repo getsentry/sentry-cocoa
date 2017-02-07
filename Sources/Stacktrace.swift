@@ -24,7 +24,6 @@ import Foundation
             .flatMap({ Frame(appleCrashFrameDict: $0, binaryImages: binaryImages) })
         
         self.init(frames: frames, register: Register(registerDict: registerDict))
-        
     }
     
     @objc public init(frames: [Frame]?) {
