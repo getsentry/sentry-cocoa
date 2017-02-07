@@ -20,36 +20,42 @@ internal final class CrashReportConverter {
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         Log.Verbose.log("KSCrash Report = \(report)")
         
+        var crashReport = report
+        if let reCrash = report["recrash_report"] as? CrashDictionary {
+            crashReport = reCrash
+            Log.Debug.log("Found incomplete crash, falling back to recrash_report - Possible not showing all thread information")
+        }
+        
         // Extract crash timestamp
         let timestamp: NSDate = {
             var date: NSDate?
-            if let reportDict = report["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
+            if let reportDict = crashReport["report"] as? CrashDictionary, let timestampStr = reportDict["timestamp"] as? String {
                 date = NSDate.fromISO8601(timestampStr)
             }
             return date as NSDate? ?? NSDate()
         }()
         
         // Populate user info
-        let userInfo = parseUserInfo(report["user"] as? CrashDictionary)
+        let userInfo = parseUserInfo(crashReport["user"] as? CrashDictionary)
         
         // Generating threads, exceptions, and debug meta for crash report
-        guard let binaryImagesDicts = report["binary_images"] as? [[String: AnyObject]] else {
-            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+        guard let binaryImagesDicts = crashReport["binary_images"] as? [[String: AnyObject]] else {
+            Log.Error.log("missing 'binary_images' in crash report: \(crashReport)")
             return nil
         }
         
-        guard let crashDict = report["crash"] as? [String: AnyObject] else {
-            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+        guard let crashDict = crashReport["crash"] as? [String: AnyObject] else {
+            Log.Error.log("missing 'crash' in crash report: \(crashReport)")
             return nil
         }
         
         guard let errorDict = crashDict["error"] as? [String: AnyObject] else {
-            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("missing 'error' in crash report: \(crashReport)")
             return nil
         }
         
         guard let threadDicts = crashDict["threads"] as? [[String: AnyObject]] else {
-            Log.Error.log("Could not make a valid exception stacktrace from crash report: \(report)")
+            Log.Error.log("missing 'threads' in crash report: \(crashReport)")
             return nil
         }
         
