@@ -86,12 +86,20 @@ internal final class KSCrashHandler: CrashHandler {
     internal func sendAllReports() {
         // Maps KSCrash reports in `Events`
         #if swift(>=3.0)
-            installation.sendAllReports { (filteredReports, _, _) -> Void in
+            installation.sendAllReports { (filteredReports, _, error) -> Void in
+                if error != nil {
+                    Log.Error.log("Could not convert crash report to valid event")
+                    return
+                }
                 Log.Debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #else
             installation.sendAllReportsWithCompletion { (filteredReports, completed, error) -> Void in
-                Log.Debug.log("Sent \(filteredReports.count) report(s)")
+                if error != nil {
+                    Log.Error.log("Could not convert crash report to valid event")
+                    return
+                }
+                Log.Debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #endif
     }
@@ -149,7 +157,12 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                 let events: [Event] = reports?
                     .flatMap({ $0 as? CrashDictionary })
                     .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
-                
+            
+                if events.count == 0 {
+                    onCompletion([], true, SentryError.InvalidCrashReport as NSError)
+                    return
+                }
+            
                 let userReported = events.filter({
                     if let exceptions = $0.exceptions, let exception = exceptions.first {
                         return exception.userReported
@@ -176,7 +189,12 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                 let events: [Event] = reports?
                     .flatMap({ $0 as? CrashDictionary })
                     .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
-            
+                
+                if events.count == 0 {
+                    onCompletion([], true, SentryError.InvalidCrashReport as NSError)
+                    return
+                }
+                
                 let userReported = events.filter({
                     if let exceptions = $0.exceptions, let exception = exceptions.first {
                         return exception.userReported
