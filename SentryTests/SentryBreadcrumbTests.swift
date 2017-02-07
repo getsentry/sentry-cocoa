@@ -22,6 +22,26 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
         super.tearDown()
     }
     
+    func testSetMaxBreadcrumbs() {
+        let client = SentrySwiftTestHelper.sentryMockClient
+        client.breadcrumbs.maxCrumbs = 5
+        
+        for i in 1...client.breadcrumbs.maxCrumbs {
+            client.breadcrumbs.add(Breadcrumb(category: "test\(i)", message: "Test 1"))
+        }
+        
+        XCTAssertEqual("\((client.breadcrumbs.serialized.last?["category"])!)", "test5")
+        
+        let client2 = SentrySwiftTestHelper.sentryMockClient
+        client2.breadcrumbs.maxCrumbs = 100
+        
+        for i in 1...client2.breadcrumbs.maxCrumbs {
+            client2.breadcrumbs.add(Breadcrumb(category: "test\(i)", message: "Test 1"))
+        }
+        
+        XCTAssertEqual("\((client2.breadcrumbs.serialized.last?["category"])!)", "test100")
+    }
+    
     func testLoadBreadcrumbsFromCrashreport() {
         let crashJSON = testHelper.readIOSJSONCrashFile(name: "breadcrumbs")!
         let event = CrashReportConverter.convertReportToEvent(crashJSON)
