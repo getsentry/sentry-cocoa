@@ -17,14 +17,18 @@ internal final class CrashReportConverter {
         releaseVersion: String?,
         buildNumber: String?)
     
+    private static func checkIncompleteReport(_ report: CrashDictionary) -> CrashDictionary {
+        if let reCrash = report["recrash_report"] as? CrashDictionary {
+            Log.Debug.log("Found incomplete crash, falling back to recrash_report - Possible not showing all thread information")
+            return reCrash
+        }
+        return report
+    }
+    
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         Log.Verbose.log("KSCrash Report = \(report)")
         
-        var crashReport = report
-        if let reCrash = report["recrash_report"] as? CrashDictionary {
-            crashReport = reCrash
-            Log.Debug.log("Found incomplete crash, falling back to recrash_report - Possible not showing all thread information")
-        }
+        var crashReport = checkIncompleteReport(report)
         
         // Extract crash timestamp
         let timestamp: NSDate = {
@@ -60,9 +64,7 @@ internal final class CrashReportConverter {
         }
         
         let binaryImages = binaryImagesDicts.flatMap({ BinaryImage(appleCrashBinaryImagesDict: $0) })
-        
         let debugMeta = DebugMeta(binaryImages: binaryImages)
-        
         var threads = threadDicts.flatMap({ Thread(appleCrashThreadDict: $0, binaryImages: binaryImages) })
         
         let exception = Exception(appleCrashErrorDict: errorDict, userInfo: userInfo)
