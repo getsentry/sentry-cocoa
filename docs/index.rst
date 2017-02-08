@@ -8,14 +8,14 @@ This is the documentation for our official clients for Cocoa (Swift and Objectiv
 Installation
 ------------
 
-The client (SentrySwift) can be installed using `CocoaPods
+The client (Sentry) can be installed using `CocoaPods
 <http://cocoapods.org>`__ or `Carthage
 <https://github.com/Carthage/Carthage>`__.  This is the recommended client
 for both Swift and Objective-C.  If you need support for old versions of
 iOS that do not support Swift you can use our alternative `Sentry-Objc
 <https://github.com/getsentry/sentry-objc>`_ client.
 
-To integrate SentrySwift into your Xcode project using CocoaPods, specify
+To integrate Sentry into your Xcode project using CocoaPods, specify
 it in your `Podfile`:
 
 .. sourcecode:: ruby
@@ -43,7 +43,7 @@ In case your project still uses Swift 2.3 you can add these lines at the end of 
       end
     end
 
-To integrate SentrySwift into your Xcode project using Carthage, specify
+To integrate Sentry into your Xcode project using Carthage, specify
 it in your `Cartfile`:
 
 .. sourcecode:: ruby
@@ -51,7 +51,7 @@ it in your `Cartfile`:
     github "getsentry/sentry-swift" "###SENTRY_SWIFT_TAG###"
 
 Run ``carthage update`` to build the framework and drag the built
-`SentrySwift.framework` and `KSCrash.framework` into your Xcode project.
+`Sentry.framework` and `KSCrash.framework` into your Xcode project.
 
 We also provide a prebuilt version for every release which you can download in the `releases section on github
 <https://github.com/getsentry/sentry-swift/releases>`__.
