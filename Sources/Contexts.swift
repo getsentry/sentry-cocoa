@@ -106,6 +106,34 @@ private final class DeviceContext {
         return info?["storageSize"] as? Int
     }
     
+    var binaryCPUType: Int? {
+        return info?["binaryCPUType"] as? Int
+    }
+    
+    var binaryCPUSubType: Int? {
+        return info?["binaryCPUSubType"] as? Int
+    }
+    
+    var bootTime: String? {
+        return info?["bootTime"] as? String
+    }
+    
+    var appStartTime: String? {
+        return info?["appStartTime"] as? String
+    }
+    
+    var timezone: String? {
+        return info?["timezone"] as? String
+    }
+    
+    var deviceAppHash: String? {
+        return info?["deviceAppHash"] as? String
+    }
+    
+    var appID: String? {
+        return info?["appID"] as? String
+    }
+    
     var machine: String? {
         #if os(OSX)
             return info?["machine"] as? String
@@ -185,6 +213,13 @@ extension DeviceContext: EventSerializable {
         attributes.append(("memory_size", memorySize))
         attributes.append(("usable_memory", usableMemory))
         attributes.append(("storage_size", storageSize))
+        attributes.append(("binary_cpu_type", binaryCPUType))
+        attributes.append(("binary_sub_cpu_type", binaryCPUSubType))
+        attributes.append(("boot_time", bootTime))
+        attributes.append(("app_start_time", appStartTime))
+        attributes.append(("timezone", timezone))
+        attributes.append(("device_app_hash", deviceAppHash))
+        attributes.append(("app_id", appID))
         
         switch (isOSX, isSimulator) {
         // macOS
