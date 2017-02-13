@@ -34,7 +34,11 @@ protocol ViewModel {
     
     public var submitButtonText = "Submit"
     
-    public var errorTextColor = #colorLiteral(red:0.93, green:0.26, blue:0.22, alpha:1.0)
+    #if swift(>=3.0)
+        public var errorTextColor = #colorLiteral(red:0.93, green:0.26, blue:0.22, alpha:1.0)
+    #else
+        public var errorTextColor = UIColor(red:0.93, green:0.26, blue:0.22, alpha:1.0)
+    #endif
     
     #if swift(>=3.0)
         public var defaultTextColor = UIColor.darkText
