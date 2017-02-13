@@ -10,22 +10,22 @@ import UIKit
 
 public final class UserFeedbackTableViewController: UITableViewController, UITextFieldDelegate, ViewModelDelegate {
     
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var subtitleLabel: UILabel!
+    @IBOutlet private weak var titleLabel: UILabel!
+    @IBOutlet private weak var subtitleLabel: UILabel!
 
-    @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet private weak var nameLabel: UILabel!
+    @IBOutlet private weak var nameTextField: UITextField!
     
-    @IBOutlet weak var emailLabel: UILabel!
-    @IBOutlet weak var emailTextField: UITextField!
+    @IBOutlet private weak var emailLabel: UILabel!
+    @IBOutlet private weak var emailTextField: UITextField!
     
-    @IBOutlet weak var commentsTextField: UITextField!
+    @IBOutlet private weak var commentsTextField: UITextField!
 
-    @IBOutlet weak var sentryLogoImageView: UIImageView!
+    @IBOutlet private weak var sentryLogoImageView: UIImageView!
     
-    @IBOutlet weak var emailTableViewCell: UITableViewCell!
-    @IBOutlet weak var nameTableViewCell: UITableViewCell!
-    @IBOutlet weak var poweredByTableViewCell: UITableViewCell!
+    @IBOutlet private weak var emailTableViewCell: UITableViewCell!
+    @IBOutlet private weak var nameTableViewCell: UITableViewCell!
+    @IBOutlet private weak var poweredByTableViewCell: UITableViewCell!
     
     var viewModel: UserFeedbackViewModel?
     

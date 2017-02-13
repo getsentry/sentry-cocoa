@@ -23,11 +23,16 @@ public typealias EventFingerprint = [String]
     
     public var description: String {
         switch self {
-        case .Fatal: return "fatal"
-        case .Error: return "error"
-        case .Warning: return "warning"
-        case .Info: return "info"
-        case .Debug: return "debug"
+        case .Fatal:
+            return "fatal"
+        case .Error:
+            return "error"
+        case .Warning:
+            return "warning"
+        case .Info:
+            return "info"
+        case .Debug:
+            return "debug"
         }
     }
 }

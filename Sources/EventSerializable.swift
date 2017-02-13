@@ -21,6 +21,11 @@ protocol EventSerializable {
 
 func convertAttributes(_ attributes: [Attribute]) -> SerializedTypeDictionary {
     var ret: SerializedTypeDictionary = [:]
-    attributes.filter { $0.value != nil }.forEach { ret.updateValue($0.value!, forKey: $0.key) }
+    attributes.filter {
+        $0.value != nil
+    }.forEach {
+        guard let value = $0.value else { return }
+        ret.updateValue(value, forKey: $0.key)
+    }
     return ret
 }

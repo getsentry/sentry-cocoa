@@ -77,7 +77,7 @@ extension SentryClient {
                                 Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
-                }
+                    }
             #else
                 guard NSFileManager.defaultManager().fileExistsAtPath(path) else {
                     return []
@@ -103,7 +103,7 @@ extension SentryClient {
                                 Log.Error.log("Failed to delete event at path - \(absolutePath)")
                             }
                         })
-                }
+                    }
             #endif
         } catch let error as NSError {
             Log.Error.log(error.localizedDescription)
@@ -116,11 +116,11 @@ extension SentryClient {
         do {
             #if swift(>=3.0)
                 guard FileManager.default.fileExists(atPath: path) else { return }
-                guard try FileManager.default.contentsOfDirectory(atPath: path).count == 0 else { return }
+                guard try FileManager.default.contentsOfDirectory(atPath: path).isEmpty else { return }
                 try FileManager.default.removeItem(atPath: path)
             #else
                 guard NSFileManager.defaultManager().fileExistsAtPath(path) else { return }
-                guard try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).count == 0 else { return }
+                guard try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).isEmpty else { return }
                 try NSFileManager.defaultManager().removeItemAtPath(path)
             #endif
         } catch let error as NSError {

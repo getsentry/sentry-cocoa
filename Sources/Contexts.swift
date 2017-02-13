@@ -7,12 +7,10 @@
 //
 
 import Foundation
-
+import KSCrash
 #if os(iOS) || os(tvOS)
     import UIKit
 #endif
-
-import KSCrash
 
 // A class used to represent an exception: `sentry.interfaces.exception`
 final class Contexts {}
@@ -189,11 +187,11 @@ private final class DeviceContext {
         #if swift(>=3.0)
             let results = regex.matches(in: model,
                                         options: [], range: NSMakeRange(0, nsString.length))
-            return results.map { nsString.substring(with: $0.range)}.first
+            return results.map { nsString.substring(with: $0.range) }.first
         #else
             let results = regex.matchesInString(model,
             options: [], range: NSMakeRange(0, nsString.length))
-            return results.map { nsString.substringWithRange($0.range)}.first
+            return results.map { nsString.substringWithRange($0.range) }.first
         #endif
         // swiftlint:enable legacy_constructor
     }
