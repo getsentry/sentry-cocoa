@@ -12,22 +12,41 @@ import KSCrash
     import UIKit
 #endif
 
-// A class used to represent an exception: `sentry.interfaces.exception`
-final class Contexts {}
+#if swift(>=3.0)
+internal typealias SystemInfo = [AnyHashable: AnyType]
+#else
+internal typealias SystemInfo = [NSObject: AnyObject]
+#endif
+
+protocol Context {
+    var info: SystemInfo? { get set }
+    init(_ info: SystemInfo?)
+    init()
+}
+
+extension Context {
+    init(_ info: SystemInfo?) {
+        self.init()
+        self.info = info
+    }
+}
+
+internal struct Contexts {}
 
 extension Contexts: EventSerializable {
     internal typealias SerializedType = SerializedTypeDictionary
     internal var serialized: SerializedType {
+        let info = KSCrash.sharedInstance().systemInfo
         return [
-            "os": OSContext().serialized,
-            "device": DeviceContext().serialized
+            "os": OSContext(info).serialized,
+            "device": DeviceContext(info).serialized,
+            "app": AppContext(info).serialized
         ]
     }
 }
 
-private final class OSContext {
-    
-    var info = KSCrash.sharedInstance().systemInfo
+private struct OSContext: Context {
+    var info: SystemInfo?
     
     var name: String? {
         #if os(iOS)
@@ -76,9 +95,8 @@ extension OSContext: EventSerializable {
     }
 }
 
-private final class DeviceContext {
-    
-    var info = KSCrash.sharedInstance().systemInfo
+private struct DeviceContext: Context {
+    var info: SystemInfo?
     
     var architecture: String? {
         return info?["cpuArchitecture"] as? String
@@ -104,32 +122,12 @@ private final class DeviceContext {
         return info?["storageSize"] as? Int
     }
     
-    var binaryCPUType: Int? {
-        return info?["binaryCPUType"] as? Int
-    }
-    
-    var binaryCPUSubType: Int? {
-        return info?["binaryCPUSubType"] as? Int
-    }
-    
     var bootTime: String? {
         return info?["bootTime"] as? String
     }
     
-    var appStartTime: String? {
-        return info?["appStartTime"] as? String
-    }
-    
     var timezone: String? {
         return info?["timezone"] as? String
-    }
-    
-    var deviceAppHash: String? {
-        return info?["deviceAppHash"] as? String
-    }
-    
-    var appID: String? {
-        return info?["appID"] as? String
     }
     
     var machine: String? {
@@ -211,13 +209,8 @@ extension DeviceContext: EventSerializable {
         attributes.append(("memory_size", memorySize))
         attributes.append(("usable_memory", usableMemory))
         attributes.append(("storage_size", storageSize))
-        attributes.append(("binary_cpu_type", binaryCPUType))
-        attributes.append(("binary_sub_cpu_type", binaryCPUSubType))
         attributes.append(("boot_time", bootTime))
-        attributes.append(("app_start_time", appStartTime))
         attributes.append(("timezone", timezone))
-        attributes.append(("device_app_hash", deviceAppHash))
-        attributes.append(("app_id", appID))
         
         switch (isOSX, isSimulator) {
         // macOS
@@ -231,6 +224,46 @@ extension DeviceContext: EventSerializable {
             attributes.append(("model_id", modelDetail))
             attributes.append(("simulator", isSimulator))
         }
+        
+        return convertAttributes(attributes)
+    }
+}
+
+private struct AppContext: Context {
+    var info: SystemInfo?
+    
+    var appStartTime: String? {
+        return info?["appStartTime"] as? String
+    }
+    
+    var appID: String? {
+        return info?["appID"] as? String
+    }
+    
+    var deviceAppHash: String? {
+        return info?["deviceAppHash"] as? String
+    }
+    
+    var binaryCPUType: Int? {
+        return info?["binaryCPUType"] as? Int
+    }
+    
+    var binaryCPUSubType: Int? {
+        return info?["binaryCPUSubType"] as? Int
+    }
+}
+
+extension AppContext: EventSerializable {
+    typealias SerializedType = SerializedTypeDictionary
+    
+    var serialized: SerializedType {
+        var attributes: [Attribute] = []
+        
+        attributes.append(("binary_cpu_type", binaryCPUType))
+        attributes.append(("binary_sub_cpu_type", binaryCPUSubType))
+        attributes.append(("app_start_time", appStartTime))
+        attributes.append(("device_app_hash", deviceAppHash))
+        attributes.append(("app_id", appID))
         
         return convertAttributes(attributes)
     }
