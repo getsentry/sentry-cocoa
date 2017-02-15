@@ -14,10 +14,14 @@ import Foundation
     
     public var description: String {
         switch self {
-        case .None: return ""
-        case .Error: return "Error"
-        case .Debug: return "Debug"
-        case .Verbose: return "Verbose"
+        case .None:
+            return ""
+        case .Error:
+            return "Error"
+        case .Debug:
+            return "Debug"
+        case .Verbose:
+            return "Verbose"
         }
     }
     

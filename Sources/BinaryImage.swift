@@ -9,7 +9,6 @@
 import Foundation
 
 final class BinaryImage {
-    
     var type: String?
     var cpuSubtype: Int?
     var uuid: String?

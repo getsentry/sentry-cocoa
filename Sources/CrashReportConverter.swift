@@ -84,7 +84,7 @@ internal final class CrashReportConverter {
             $0.buildNumber = userInfo.buildNumber
             
             $0.threads = threads
-            $0.exceptions = [exception].flatMap({$0})
+            $0.exceptions = [exception].flatMap({ $0 })
             $0.debugMeta = debugMeta
         }
         

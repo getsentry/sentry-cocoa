@@ -10,7 +10,6 @@ import Foundation
 
 // A class used to represent an exception: `debug_meta`
 final class DebugMeta {
-    
     let images: [BinaryImage]
     
     init(binaryImages: [BinaryImage]) {

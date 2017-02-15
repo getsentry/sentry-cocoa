@@ -6,8 +6,8 @@
 //
 //
 
-import KSCrash
 import Foundation
+import KSCrash
 
 extension SentryClient {
     public func startCrashHandler() {
@@ -155,7 +155,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     .flatMap({ $0 as? CrashDictionary })
                     .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
             
-                if events.count == 0 {
+                if events.isEmpty {
                     onCompletion([], true, SentryError.InvalidCrashReport as NSError)
                     return
                 }
@@ -187,7 +187,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     .flatMap({ $0 as? CrashDictionary })
                     .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
                 
-                if events.count == 0 {
+                if events.isEmpty {
                     onCompletion([], true, SentryError.InvalidCrashReport as NSError)
                     return
                 }

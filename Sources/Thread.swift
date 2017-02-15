@@ -75,21 +75,21 @@ import Foundation
                 }
             #endif
             return false
-            }.map { _, dict in
-                if let value = dict["value"] as? String {
-                    #if swift(>=3.0)
-                        crashReasons.insert(value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
-                    #else
-                        crashReasons.insert(value.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
-                    #endif
-                }
+        }.map { _, dict in
+            if let value = dict["value"] as? String {
+                #if swift(>=3.0)
+                    crashReasons.insert(value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+                #else
+                    crashReasons.insert(value.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
+                #endif
+            }
         }
         #if swift(>=3.0)
             let result = crashReasons.joined(separator: " | ")
         #else
             let result = crashReasons.joinWithSeparator(" | ")
         #endif
-        return result.characters.count == 0 ? nil : result
+        return result.characters.isEmpty ? nil : result
     }
     
     public override var debugDescription: String {

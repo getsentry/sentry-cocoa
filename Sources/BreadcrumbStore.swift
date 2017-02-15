@@ -40,7 +40,7 @@ import Foundation
     
     /// Clears the store if crumbs exist
     public func clear() {
-        guard crumbs.count > 0 else { return }
+        guard !crumbs.isEmpty else { return }
         crumbs.removeAll()
         storeUpdated?(self)
     }

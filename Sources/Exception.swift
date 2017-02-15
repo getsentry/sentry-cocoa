@@ -91,7 +91,7 @@ public typealias Mechanism = [String: AnyType]
     
     #if swift(>=3.0)
     func update(threads: inout [Thread]) {
-        var crashedThread = threads.filter({ $0.crashed ?? false }).first
+        var crashedThread = threads.first(where: { $0.crashed ?? false })
         
         if let stacktrace = userStacktrace {
             let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)

@@ -10,9 +10,7 @@ import Foundation
 
 /// A class used to represent the breadcrumbs leading up to an events
 @objc(SentryBreadcrumb) public final class Breadcrumb: NSObject {
-    
     // MARK: - Attributes
-    
     public let timestamp: NSDate
     public var category: String
     
