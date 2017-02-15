@@ -19,9 +19,6 @@ if regex.match(args[1]) == nil || regex.match(args[2]) == nil {
 let fromVersion = args[1]
 let toVersion = args[2]
 for file in files {
-    //let fileContents = try! String(contentsOfFile: file, encoding: .utf8)
-    //print("\(fileContents.replacingOccurrences(of: " ", with: "+"))")
-
     let readFile = try open(file)
     let contents: String = readFile.read()
     let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
@@ -29,5 +26,3 @@ for file in files {
     overwriteFile.write(newContents)
     overwriteFile.close()
 }
-
-
