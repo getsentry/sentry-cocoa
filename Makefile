@@ -11,7 +11,7 @@ build-carthage:
 	carthage build --no-skip-current
 	carthage archive Sentry
 
-release: bump-version lint test pod-example-projects pod-lint build-carthage git-commit-add
+release: bump-version lint test pod-example-projects pod-lint build-carthage git-commit-add pod-push
 
 build-time:
 	@echo "--> Analysing build time"
@@ -47,3 +47,9 @@ git-commit-add:
 	@echo "\n\n\n--> Commting git ${TO}"
 	git commit -am "Bump version to ${TO}"
 	git tag ${TO}
+	git push
+	git push --tags
+
+pod-push:
+	@echo "--> Updating cocoapod"
+	pod trunk push Sentry.podspec
