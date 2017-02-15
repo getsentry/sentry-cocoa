@@ -244,12 +244,8 @@ private struct AppContext: Context {
         return info?["deviceAppHash"] as? String
     }
     
-    var binaryCPUType: Int? {
-        return info?["binaryCPUType"] as? Int
-    }
-    
-    var binaryCPUSubType: Int? {
-        return info?["binaryCPUSubType"] as? Int
+    var buildType: String? {
+        return info?["buildType"] as? String
     }
 }
 
@@ -259,11 +255,10 @@ extension AppContext: EventSerializable {
     var serialized: SerializedType {
         var attributes: [Attribute] = []
         
-        attributes.append(("binary_cpu_type", binaryCPUType))
-        attributes.append(("binary_sub_cpu_type", binaryCPUSubType))
         attributes.append(("app_start_time", appStartTime))
         attributes.append(("device_app_hash", deviceAppHash))
         attributes.append(("app_id", appID))
+        attributes.append(("build_type", buildType))
         
         return convertAttributes(attributes)
     }
