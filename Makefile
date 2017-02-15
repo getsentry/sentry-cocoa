@@ -4,14 +4,14 @@ lint:
 
 test:
 	@echo "--> Running all tests"
-	fastlane test
+	fastlane test --silent
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
 	carthage build --no-skip-current
 	carthage archive Sentry
 
-release: lint test pod-example-projects pod-lint build-carthage
+release: bump-version lint test pod-example-projects pod-lint build-carthage git-commit-add
 
 build-time:
 	@echo "--> Analysing build time"
@@ -34,3 +34,16 @@ pod-example-projects:
 pod-release:
 	@echo "--> Releasing Pod"
 	pod trunk push Sentry.podspec --allow-warnings
+
+build-version-bump:
+	@echo "--> Building VersionBump"
+	cd Utils/VersionBump && rm -rf .build && swift build
+
+bump-version: build-version-bump
+	@echo "--> Bumping version from ${FROM} to ${TO}"
+	./Utils/VersionBump/.build/debug/VersionBump ${FROM} ${TO}
+
+git-commit-add:
+	@echo "\n\n\n--> Commting git ${TO}"
+	git commit -am "Bump version to ${TO}"
+	git tag ${TO}

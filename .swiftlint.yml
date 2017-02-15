@@ -4,6 +4,7 @@ excluded:
   - iOS
   - Carthage
   - Pods
+  - Utils
 whitelist_rules:
   #- attributes
   - class_delegate_protocol
