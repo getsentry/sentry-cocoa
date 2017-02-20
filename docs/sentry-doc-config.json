@@ -1,8 +1,19 @@
 {
   "support_level": "production",
   "platforms": {
-    "cocoa": {
-      "name": "Cocoa",
+    "swift": {
+      "name": "Swift",
+      "type": "language",
+      "doc_link": "",
+      "wizard": [
+        "index#installation",
+        "index#configuration",
+        "index#debug-symbols",
+        "dsym#upload-symbols-with-sentry-cli"
+      ]
+    },
+    "objc": {
+      "name": "Objective-C",
       "type": "language",
       "doc_link": "",
       "wizard": [
