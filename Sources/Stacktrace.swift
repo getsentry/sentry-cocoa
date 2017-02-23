@@ -74,7 +74,11 @@ extension Stacktrace {
                 if let methodName = frame["methodName"] as? String,
                     let lineNumber = frame["lineNumber"] as? Int,
                     let column = frame["column"] as? Int {
-                    let frame = Frame(fileName: "/\(simpleFilename)", function: methodName, module: nil, line: lineNumber, column: column)
+                    let frame = Frame(fileName: "app:///\(simpleFilename)",
+                        function: methodName,
+                        module: nil,
+                        line: lineNumber,
+                        column: column)
                     frame.platform = "javascript"
                     frames.append(frame)
                 }
