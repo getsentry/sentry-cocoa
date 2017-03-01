@@ -10,7 +10,7 @@
 
 Offical client for [Sentry](https://www.sentry.io/).
 
-This client was writen in Swift but works with both Swift >= 2.3 *and* Objective-C projects.
+This client was written in Swift but works with both Swift >= 2.3 *and* Objective-C projects.
 
 ```swift
 import Sentry
