@@ -4,7 +4,7 @@ lint:
 
 test:
 	@echo "--> Running all tests"
-	fastlane test --silent
+	fastlane test
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"

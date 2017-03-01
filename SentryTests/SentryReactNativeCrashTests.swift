@@ -31,7 +31,7 @@ class SentrySwiftReactNativeCrashTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.threads?.last?.name, "React Native")
-        XCTAssertEqual(event?.threads?.last?.stacktrace?.frames.first?.fileName, "/main.jsbundle")
+        XCTAssertEqual(event?.threads?.last?.stacktrace?.frames.first?.fileName, "app:///main.jsbundle")
         
         let crashedThreads = event?.threads?.filter({ $0.crashed ?? true })
         XCTAssertEqual(crashedThreads?.count, 1)
@@ -45,7 +45,7 @@ class SentrySwiftReactNativeCrashTests: XCTestCase {
         
         XCTAssertNotNil(event)
         XCTAssertEqual(event?.threads?.last?.name, "React Native")
-        XCTAssertEqual(event?.threads?.last?.stacktrace?.frames.first?.fileName, "/index.ios.bundle")
+        XCTAssertEqual(event?.threads?.last?.stacktrace?.frames.first?.fileName, "app:///index.ios.bundle")
     }
     
     func testInjectReactNativeStacktrace() {
