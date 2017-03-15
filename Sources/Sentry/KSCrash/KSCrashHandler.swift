@@ -15,15 +15,6 @@ extension SentryClient {
     }
 }
 
-internal typealias CrashDictionary = [String: AnyType]
-
-internal let keyUser = "user"
-internal let keyEventTags = "event_tags"
-internal let keyEventExtra = "event_extra"
-internal let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
-internal let keyReleaseVersion = "releaseVersion_serialized"
-internal let keyBuildNumber = "buildNumber_serialized"
-
 /// A class to report crashes to Sentry built upon KSCrash
 internal final class KSCrashHandler: CrashHandler {
     

@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 class QueueableRequestManager: RequestManager {
     
     let queue: OperationQueue = {

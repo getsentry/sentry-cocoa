@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 struct MemoryAddress {
     
     private let hex: String

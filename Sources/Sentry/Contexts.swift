@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import KSCrash
+
 #if os(iOS) || os(tvOS)
     import UIKit
 #endif
@@ -32,18 +32,6 @@ extension Context {
 }
 
 internal struct Contexts {}
-
-extension Contexts: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
-    internal var serialized: SerializedType {
-        let info = KSCrash.sharedInstance().systemInfo
-        return [
-            "os": OSContext(info).serialized,
-            "device": DeviceContext(info).serialized,
-            "app": AppContext(info).serialized
-        ]
-    }
-}
 
 private struct OSContext: Context {
     var info: SystemInfo?

@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 protocol RequestManager {
     init(session: URLSession)
     func addRequest(_ request: URLRequest, finished: SentryEndpointRequestFinished?)
