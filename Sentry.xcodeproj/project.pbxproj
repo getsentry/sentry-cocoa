@@ -16,7 +16,6 @@
 		033BFE261E79EDE4002A4015 /* Contexts+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */; };
 		033BFE291E79EE2A002A4015 /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE271E79EE2A002A4015 /* Sentry+Error.swift */; };
 		033BFE2A1E79EE2A002A4015 /* Sentry+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE281E79EE2A002A4015 /* Sentry+Event.swift */; };
-		033BFE2C1E79EE37002A4015 /* Sentry+UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2B1E79EE37002A4015 /* Sentry+UserFeedback.swift */; };
 		033BFE2F1E79EE5F002A4015 /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2D1E79EE5F002A4015 /* NSDate+Extras.swift */; };
 		033BFE301E79EE5F002A4015 /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2E1E79EE5F002A4015 /* NSNumber+Extras.swift */; };
 		033BFE321E79EE6F002A4015 /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE311E79EE6F002A4015 /* Dictionary+Extras.swift */; };
@@ -44,13 +43,128 @@
 		033BFE5F1E79EEF9002A4015 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE591E79EEF9002A4015 /* Request.swift */; };
 		033BFE601E79EEF9002A4015 /* RequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE5A1E79EEF9002A4015 /* RequestOperation.swift */; };
 		033BFE621E79EF0F002A4015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE611E79EF0F002A4015 /* Assets.xcassets */; };
-		033BFE641E79EF23002A4015 /* UserFeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE631E79EF23002A4015 /* UserFeedbackViewModel.swift */; };
-		033BFE661E79EF2E002A4015 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE651E79EF2E002A4015 /* UserFeedbackTableViewController.swift */; };
-		033BFE681E79EF3C002A4015 /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE671E79EF3C002A4015 /* UserFeedback.storyboard */; };
 		033BFE6D1E79EF66002A4015 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE691E79EF66002A4015 /* Sentry.swift */; };
 		033BFE6E1E79EF66002A4015 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6A1E79EF66002A4015 /* Log.swift */; };
-		033BFE6F1E79EF66002A4015 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6B1E79EF66002A4015 /* SentrySwizzle.swift */; };
-		033BFE701E79EF66002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFE6C1E79EF66002A4015 /* Sentry.h */; };
+		033BFE861E79F4C1002A4015 /* SentryEndpoint+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE201E79EDE4002A4015 /* SentryEndpoint+KSCrash.swift */; };
+		033BFE871E79F4C1002A4015 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */; };
+		033BFE881E79F4C1002A4015 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */; };
+		033BFE891E79F4C1002A4015 /* Contexts+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */; };
+		033BFE8A1E79F4C1002A4015 /* SentryEndpoint+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE201E79EDE4002A4015 /* SentryEndpoint+KSCrash.swift */; };
+		033BFE8B1E79F4C1002A4015 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */; };
+		033BFE8C1E79F4C1002A4015 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */; };
+		033BFE8D1E79F4C1002A4015 /* Contexts+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */; };
+		033BFE8E1E79F4C2002A4015 /* SentryEndpoint+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE201E79EDE4002A4015 /* SentryEndpoint+KSCrash.swift */; };
+		033BFE8F1E79F4C2002A4015 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */; };
+		033BFE901E79F4C2002A4015 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */; };
+		033BFE911E79F4C2002A4015 /* Contexts+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */; };
+		033BFE921E79F4E3002A4015 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE181E79ED6B002A4015 /* Functions.swift */; };
+		033BFE931E79F4E3002A4015 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */; };
+		033BFE941E79F4E3002A4015 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1B1E79EDA7002A4015 /* CrashReportConverter.swift */; };
+		033BFE951E79F4E3002A4015 /* Sentry+UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2B1E79EE37002A4015 /* Sentry+UserFeedback.swift */; };
+		033BFE961E79F4E3002A4015 /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE271E79EE2A002A4015 /* Sentry+Error.swift */; };
+		033BFE971E79F4E3002A4015 /* Sentry+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE281E79EE2A002A4015 /* Sentry+Event.swift */; };
+		033BFE981E79F4E3002A4015 /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2D1E79EE5F002A4015 /* NSDate+Extras.swift */; };
+		033BFE991E79F4E3002A4015 /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2E1E79EE5F002A4015 /* NSNumber+Extras.swift */; };
+		033BFE9A1E79F4E3002A4015 /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE311E79EE6F002A4015 /* Dictionary+Extras.swift */; };
+		033BFE9B1E79F4E3002A4015 /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3B1E79EEC9002A4015 /* MemoryAddress.swift */; };
+		033BFE9C1E79F4E3002A4015 /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3C1E79EEC9002A4015 /* Contexts.swift */; };
+		033BFE9D1E79F4E3002A4015 /* BinaryImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3D1E79EEC9002A4015 /* BinaryImage.swift */; };
+		033BFE9E1E79F4E3002A4015 /* Breadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3E1E79EEC9002A4015 /* Breadcrumb.swift */; };
+		033BFE9F1E79F4E3002A4015 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3F1E79EEC9002A4015 /* BreadcrumbStore.swift */; };
+		033BFEA01E79F4E3002A4015 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE401E79EEC9002A4015 /* DebugMeta.swift */; };
+		033BFEA11E79F4E3002A4015 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE411E79EEC9002A4015 /* Exception.swift */; };
+		033BFEA21E79F4E3002A4015 /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE421E79EEC9002A4015 /* Frame.swift */; };
+		033BFEA31E79F4E3002A4015 /* Register.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE431E79EEC9002A4015 /* Register.swift */; };
+		033BFEA41E79F4E3002A4015 /* Stacktrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE441E79EEC9002A4015 /* Stacktrace.swift */; };
+		033BFEA51E79F4E3002A4015 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE451E79EEC9002A4015 /* Thread.swift */; };
+		033BFEA61E79F4E3002A4015 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE461E79EEC9002A4015 /* User.swift */; };
+		033BFEA71E79F4E3002A4015 /* UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE471E79EEC9002A4015 /* UserFeedback.swift */; };
+		033BFEA81E79F4E3002A4015 /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE551E79EEF9002A4015 /* QueueableRequestManager.swift */; };
+		033BFEA91E79F4E3002A4015 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE561E79EEF9002A4015 /* RequestManager.swift */; };
+		033BFEAA1E79F4E3002A4015 /* SentryEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE571E79EEF9002A4015 /* SentryEndpoint.swift */; };
+		033BFEAB1E79F4E3002A4015 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE581E79EEF9002A4015 /* DSN.swift */; };
+		033BFEAC1E79F4E3002A4015 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE591E79EEF9002A4015 /* Request.swift */; };
+		033BFEAD1E79F4E3002A4015 /* RequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE5A1E79EEF9002A4015 /* RequestOperation.swift */; };
+		033BFEAE1E79F4E3002A4015 /* UserFeedbackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE631E79EF23002A4015 /* UserFeedbackViewModel.swift */; };
+		033BFEAF1E79F4E3002A4015 /* UserFeedbackTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE651E79EF2E002A4015 /* UserFeedbackTableViewController.swift */; };
+		033BFEB01E79F4E3002A4015 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE691E79EF66002A4015 /* Sentry.swift */; };
+		033BFEB11E79F4E3002A4015 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6A1E79EF66002A4015 /* Log.swift */; };
+		033BFEB21E79F4E3002A4015 /* SentrySwizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6B1E79EF66002A4015 /* SentrySwizzle.swift */; };
+		033BFEB31E79F4E3002A4015 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE181E79ED6B002A4015 /* Functions.swift */; };
+		033BFEB41E79F4E3002A4015 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */; };
+		033BFEB51E79F4E3002A4015 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1B1E79EDA7002A4015 /* CrashReportConverter.swift */; };
+		033BFEB71E79F4E3002A4015 /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE271E79EE2A002A4015 /* Sentry+Error.swift */; };
+		033BFEB81E79F4E3002A4015 /* Sentry+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE281E79EE2A002A4015 /* Sentry+Event.swift */; };
+		033BFEB91E79F4E3002A4015 /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2D1E79EE5F002A4015 /* NSDate+Extras.swift */; };
+		033BFEBA1E79F4E3002A4015 /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2E1E79EE5F002A4015 /* NSNumber+Extras.swift */; };
+		033BFEBB1E79F4E3002A4015 /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE311E79EE6F002A4015 /* Dictionary+Extras.swift */; };
+		033BFEBC1E79F4E3002A4015 /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3B1E79EEC9002A4015 /* MemoryAddress.swift */; };
+		033BFEBD1E79F4E3002A4015 /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3C1E79EEC9002A4015 /* Contexts.swift */; };
+		033BFEBE1E79F4E3002A4015 /* BinaryImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3D1E79EEC9002A4015 /* BinaryImage.swift */; };
+		033BFEBF1E79F4E3002A4015 /* Breadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3E1E79EEC9002A4015 /* Breadcrumb.swift */; };
+		033BFEC01E79F4E3002A4015 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3F1E79EEC9002A4015 /* BreadcrumbStore.swift */; };
+		033BFEC11E79F4E3002A4015 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE401E79EEC9002A4015 /* DebugMeta.swift */; };
+		033BFEC21E79F4E3002A4015 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE411E79EEC9002A4015 /* Exception.swift */; };
+		033BFEC31E79F4E3002A4015 /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE421E79EEC9002A4015 /* Frame.swift */; };
+		033BFEC41E79F4E3002A4015 /* Register.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE431E79EEC9002A4015 /* Register.swift */; };
+		033BFEC51E79F4E3002A4015 /* Stacktrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE441E79EEC9002A4015 /* Stacktrace.swift */; };
+		033BFEC61E79F4E3002A4015 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE451E79EEC9002A4015 /* Thread.swift */; };
+		033BFEC71E79F4E3002A4015 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE461E79EEC9002A4015 /* User.swift */; };
+		033BFEC81E79F4E3002A4015 /* UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE471E79EEC9002A4015 /* UserFeedback.swift */; };
+		033BFEC91E79F4E3002A4015 /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE551E79EEF9002A4015 /* QueueableRequestManager.swift */; };
+		033BFECA1E79F4E3002A4015 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE561E79EEF9002A4015 /* RequestManager.swift */; };
+		033BFECB1E79F4E3002A4015 /* SentryEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE571E79EEF9002A4015 /* SentryEndpoint.swift */; };
+		033BFECC1E79F4E3002A4015 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE581E79EEF9002A4015 /* DSN.swift */; };
+		033BFECD1E79F4E3002A4015 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE591E79EEF9002A4015 /* Request.swift */; };
+		033BFECE1E79F4E3002A4015 /* RequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE5A1E79EEF9002A4015 /* RequestOperation.swift */; };
+		033BFED11E79F4E3002A4015 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE691E79EF66002A4015 /* Sentry.swift */; };
+		033BFED21E79F4E3002A4015 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6A1E79EF66002A4015 /* Log.swift */; };
+		033BFED41E79F4E4002A4015 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE181E79ED6B002A4015 /* Functions.swift */; };
+		033BFED51E79F4E4002A4015 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */; };
+		033BFED61E79F4E4002A4015 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1B1E79EDA7002A4015 /* CrashReportConverter.swift */; };
+		033BFED81E79F4E4002A4015 /* Sentry+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE271E79EE2A002A4015 /* Sentry+Error.swift */; };
+		033BFED91E79F4E4002A4015 /* Sentry+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE281E79EE2A002A4015 /* Sentry+Event.swift */; };
+		033BFEDA1E79F4E4002A4015 /* NSDate+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2D1E79EE5F002A4015 /* NSDate+Extras.swift */; };
+		033BFEDB1E79F4E4002A4015 /* NSNumber+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE2E1E79EE5F002A4015 /* NSNumber+Extras.swift */; };
+		033BFEDC1E79F4E4002A4015 /* Dictionary+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE311E79EE6F002A4015 /* Dictionary+Extras.swift */; };
+		033BFEDD1E79F4E4002A4015 /* MemoryAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3B1E79EEC9002A4015 /* MemoryAddress.swift */; };
+		033BFEDE1E79F4E4002A4015 /* Contexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3C1E79EEC9002A4015 /* Contexts.swift */; };
+		033BFEDF1E79F4E4002A4015 /* BinaryImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3D1E79EEC9002A4015 /* BinaryImage.swift */; };
+		033BFEE01E79F4E4002A4015 /* Breadcrumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3E1E79EEC9002A4015 /* Breadcrumb.swift */; };
+		033BFEE11E79F4E4002A4015 /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE3F1E79EEC9002A4015 /* BreadcrumbStore.swift */; };
+		033BFEE21E79F4E4002A4015 /* DebugMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE401E79EEC9002A4015 /* DebugMeta.swift */; };
+		033BFEE31E79F4E4002A4015 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE411E79EEC9002A4015 /* Exception.swift */; };
+		033BFEE41E79F4E4002A4015 /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE421E79EEC9002A4015 /* Frame.swift */; };
+		033BFEE51E79F4E4002A4015 /* Register.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE431E79EEC9002A4015 /* Register.swift */; };
+		033BFEE61E79F4E4002A4015 /* Stacktrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE441E79EEC9002A4015 /* Stacktrace.swift */; };
+		033BFEE71E79F4E4002A4015 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE451E79EEC9002A4015 /* Thread.swift */; };
+		033BFEE81E79F4E4002A4015 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE461E79EEC9002A4015 /* User.swift */; };
+		033BFEE91E79F4E4002A4015 /* UserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE471E79EEC9002A4015 /* UserFeedback.swift */; };
+		033BFEEA1E79F4E4002A4015 /* QueueableRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE551E79EEF9002A4015 /* QueueableRequestManager.swift */; };
+		033BFEEB1E79F4E4002A4015 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE561E79EEF9002A4015 /* RequestManager.swift */; };
+		033BFEEC1E79F4E4002A4015 /* SentryEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE571E79EEF9002A4015 /* SentryEndpoint.swift */; };
+		033BFEED1E79F4E4002A4015 /* DSN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE581E79EEF9002A4015 /* DSN.swift */; };
+		033BFEEE1E79F4E4002A4015 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE591E79EEF9002A4015 /* Request.swift */; };
+		033BFEEF1E79F4E4002A4015 /* RequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE5A1E79EEF9002A4015 /* RequestOperation.swift */; };
+		033BFEF21E79F4E4002A4015 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE691E79EF66002A4015 /* Sentry.swift */; };
+		033BFEF31E79F4E4002A4015 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6A1E79EF66002A4015 /* Log.swift */; };
+		033BFEF51E79F4EB002A4015 /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE671E79EF3C002A4015 /* UserFeedback.storyboard */; };
+		033BFEF91E79F556002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		033BFEFA1E79F559002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		033BFEFB1E79F55A002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		033BFEFC1E79F55A002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		033BFEFD1E79F5C9002A4015 /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE351E79EE8C002A4015 /* EventProperties.swift */; };
+		033BFEFE1E79F5CA002A4015 /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE351E79EE8C002A4015 /* EventProperties.swift */; };
+		033BFEFF1E79F5CA002A4015 /* EventProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE351E79EE8C002A4015 /* EventProperties.swift */; };
+		033BFF001E79F5E8002A4015 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE331E79EE8C002A4015 /* Event.swift */; };
+		033BFF011E79F5E8002A4015 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE341E79EE8C002A4015 /* EventOffline.swift */; };
+		033BFF021E79F5E8002A4015 /* EventSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE361E79EE8C002A4015 /* EventSerializable.swift */; };
+		033BFF031E79F5E8002A4015 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE331E79EE8C002A4015 /* Event.swift */; };
+		033BFF041E79F5E8002A4015 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE341E79EE8C002A4015 /* EventOffline.swift */; };
+		033BFF051E79F5E8002A4015 /* EventSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE361E79EE8C002A4015 /* EventSerializable.swift */; };
+		033BFF061E79F5E8002A4015 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE331E79EE8C002A4015 /* Event.swift */; };
+		033BFF071E79F5E8002A4015 /* EventOffline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE341E79EE8C002A4015 /* EventOffline.swift */; };
+		033BFF081E79F5E8002A4015 /* EventSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE361E79EE8C002A4015 /* EventSerializable.swift */; };
 		035242991C988D2F00A65D6D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242951C988D2F00A65D6D /* Info.plist */; };
 		035242A61C9892A700A65D6D /* SentryCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentryCrashTests.swift */; };
 		035242A81C98957800A65D6D /* SentryCrashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035242961C988D2F00A65D6D /* SentryCrashTests.swift */; };
@@ -300,7 +414,7 @@
 		033BFE691E79EF66002A4015 /* Sentry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Sentry.swift; path = Sentry/Sentry.swift; sourceTree = "<group>"; };
 		033BFE6A1E79EF66002A4015 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Log.swift; path = Sentry/Log.swift; sourceTree = "<group>"; };
 		033BFE6B1E79EF66002A4015 /* SentrySwizzle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentrySwizzle.swift; path = Sentry/ios/SentrySwizzle.swift; sourceTree = "<group>"; };
-		033BFE6C1E79EF66002A4015 /* Sentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sentry.h; path = Sentry/Sentry.h; sourceTree = "<group>"; };
+		033BFEF81E79F556002A4015 /* Sentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sentry.h; sourceTree = "<group>"; };
 		035242911C988D2400A65D6D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035242941C988D2F00A65D6D /* Abort.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Abort.json; sourceTree = "<group>"; };
 		035242951C988D2F00A65D6D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -429,8 +543,8 @@
 		033BFE1E1E79EDD5002A4015 /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
-				033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */,
 				033BFE201E79EDE4002A4015 /* SentryEndpoint+KSCrash.swift */,
+				033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */,
 				033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */,
 				033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */,
 			);
@@ -474,6 +588,7 @@
 		036378271C225D5200644C01 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				033BFEF81E79F556002A4015 /* Sentry.h */,
 				033BFE1E1E79EDD5002A4015 /* KSCrash */,
 				9BF8E8011E3B5B5100A417AE /* Utils */,
 				037061841C7615950082CCCE /* CrashHelper */,
@@ -487,7 +602,6 @@
 				033BFE691E79EF66002A4015 /* Sentry.swift */,
 				033BFE6A1E79EF66002A4015 /* Log.swift */,
 				033BFE6B1E79EF66002A4015 /* SentrySwizzle.swift */,
-				033BFE6C1E79EF66002A4015 /* Sentry.h */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -735,6 +849,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEFB1E79F55A002A4015 /* Sentry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -742,7 +857,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				033BFE701E79EF66002A4015 /* Sentry.h in Headers */,
+				033BFEF91E79F556002A4015 /* Sentry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -750,6 +865,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEFA1E79F559002A4015 /* Sentry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -757,6 +873,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEFC1E79F55A002A4015 /* Sentry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1095,7 +1212,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				033BFE621E79EF0F002A4015 /* Assets.xcassets in Resources */,
-				033BFE681E79EF3C002A4015 /* UserFeedback.storyboard in Resources */,
 				035242991C988D2F00A65D6D /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1120,6 +1236,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEF51E79F4EB002A4015 /* UserFeedback.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1179,6 +1296,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEBA1E79F4E3002A4015 /* NSNumber+Extras.swift in Sources */,
+				033BFEC21E79F4E3002A4015 /* Exception.swift in Sources */,
+				033BFF041E79F5E8002A4015 /* EventOffline.swift in Sources */,
+				033BFED21E79F4E3002A4015 /* Log.swift in Sources */,
+				033BFEC71E79F4E3002A4015 /* User.swift in Sources */,
+				033BFEB71E79F4E3002A4015 /* Sentry+Error.swift in Sources */,
+				033BFEC51E79F4E3002A4015 /* Stacktrace.swift in Sources */,
+				033BFEFE1E79F5CA002A4015 /* EventProperties.swift in Sources */,
+				033BFECD1E79F4E3002A4015 /* Request.swift in Sources */,
+				033BFE8B1E79F4C1002A4015 /* KSCrashHandler.swift in Sources */,
+				033BFEBE1E79F4E3002A4015 /* BinaryImage.swift in Sources */,
+				033BFEC61E79F4E3002A4015 /* Thread.swift in Sources */,
+				033BFECC1E79F4E3002A4015 /* DSN.swift in Sources */,
+				033BFECE1E79F4E3002A4015 /* RequestOperation.swift in Sources */,
+				033BFE8A1E79F4C1002A4015 /* SentryEndpoint+KSCrash.swift in Sources */,
+				033BFECB1E79F4E3002A4015 /* SentryEndpoint.swift in Sources */,
+				033BFF051E79F5E8002A4015 /* EventSerializable.swift in Sources */,
+				033BFEC91E79F4E3002A4015 /* QueueableRequestManager.swift in Sources */,
+				033BFECA1E79F4E3002A4015 /* RequestManager.swift in Sources */,
+				033BFEBF1E79F4E3002A4015 /* Breadcrumb.swift in Sources */,
+				033BFEC81E79F4E3002A4015 /* UserFeedback.swift in Sources */,
+				033BFEBB1E79F4E3002A4015 /* Dictionary+Extras.swift in Sources */,
+				033BFEB41E79F4E3002A4015 /* CrashHandler.swift in Sources */,
+				033BFE8C1E79F4C1002A4015 /* Sentry+KSCrash.swift in Sources */,
+				033BFF031E79F5E8002A4015 /* Event.swift in Sources */,
+				033BFEB51E79F4E3002A4015 /* CrashReportConverter.swift in Sources */,
+				033BFEC41E79F4E3002A4015 /* Register.swift in Sources */,
+				033BFEC11E79F4E3002A4015 /* DebugMeta.swift in Sources */,
+				033BFEBC1E79F4E3002A4015 /* MemoryAddress.swift in Sources */,
+				033BFEC01E79F4E3002A4015 /* BreadcrumbStore.swift in Sources */,
+				033BFEBD1E79F4E3002A4015 /* Contexts.swift in Sources */,
+				033BFEB81E79F4E3002A4015 /* Sentry+Event.swift in Sources */,
+				033BFED11E79F4E3002A4015 /* Sentry.swift in Sources */,
+				033BFEB91E79F4E3002A4015 /* NSDate+Extras.swift in Sources */,
+				033BFEC31E79F4E3002A4015 /* Frame.swift in Sources */,
+				033BFEB31E79F4E3002A4015 /* Functions.swift in Sources */,
+				033BFE8D1E79F4C1002A4015 /* Contexts+KSCrash.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1211,13 +1365,10 @@
 				033BFE5B1E79EEF9002A4015 /* QueueableRequestManager.swift in Sources */,
 				033BFE191E79ED6B002A4015 /* Functions.swift in Sources */,
 				033BFE6E1E79EF66002A4015 /* Log.swift in Sources */,
-				033BFE641E79EF23002A4015 /* UserFeedbackViewModel.swift in Sources */,
 				033BFE601E79EEF9002A4015 /* RequestOperation.swift in Sources */,
 				033BFE4A1E79EEC9002A4015 /* BinaryImage.swift in Sources */,
 				033BFE1C1E79EDA7002A4015 /* CrashHandler.swift in Sources */,
 				033BFE4D1E79EEC9002A4015 /* DebugMeta.swift in Sources */,
-				033BFE2C1E79EE37002A4015 /* Sentry+UserFeedback.swift in Sources */,
-				033BFE6F1E79EF66002A4015 /* SentrySwizzle.swift in Sources */,
 				033BFE391E79EE8C002A4015 /* EventProperties.swift in Sources */,
 				033BFE4E1E79EEC9002A4015 /* Exception.swift in Sources */,
 				033BFE321E79EE6F002A4015 /* Dictionary+Extras.swift in Sources */,
@@ -1239,7 +1390,6 @@
 				033BFE541E79EEC9002A4015 /* UserFeedback.swift in Sources */,
 				033BFE5C1E79EEF9002A4015 /* RequestManager.swift in Sources */,
 				033BFE1D1E79EDA7002A4015 /* CrashReportConverter.swift in Sources */,
-				033BFE661E79EF2E002A4015 /* UserFeedbackTableViewController.swift in Sources */,
 				033BFE301E79EE5F002A4015 /* NSNumber+Extras.swift in Sources */,
 				033BFE5E1E79EEF9002A4015 /* DSN.swift in Sources */,
 				033BFE2F1E79EE5F002A4015 /* NSDate+Extras.swift in Sources */,
@@ -1268,6 +1418,47 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFE991E79F4E3002A4015 /* NSNumber+Extras.swift in Sources */,
+				033BFEA11E79F4E3002A4015 /* Exception.swift in Sources */,
+				033BFF011E79F5E8002A4015 /* EventOffline.swift in Sources */,
+				033BFEB11E79F4E3002A4015 /* Log.swift in Sources */,
+				033BFE951E79F4E3002A4015 /* Sentry+UserFeedback.swift in Sources */,
+				033BFEA61E79F4E3002A4015 /* User.swift in Sources */,
+				033BFE961E79F4E3002A4015 /* Sentry+Error.swift in Sources */,
+				033BFEA41E79F4E3002A4015 /* Stacktrace.swift in Sources */,
+				033BFEFD1E79F5C9002A4015 /* EventProperties.swift in Sources */,
+				033BFEAC1E79F4E3002A4015 /* Request.swift in Sources */,
+				033BFE871E79F4C1002A4015 /* KSCrashHandler.swift in Sources */,
+				033BFE9D1E79F4E3002A4015 /* BinaryImage.swift in Sources */,
+				033BFEA51E79F4E3002A4015 /* Thread.swift in Sources */,
+				033BFEAB1E79F4E3002A4015 /* DSN.swift in Sources */,
+				033BFEAD1E79F4E3002A4015 /* RequestOperation.swift in Sources */,
+				033BFE861E79F4C1002A4015 /* SentryEndpoint+KSCrash.swift in Sources */,
+				033BFEAA1E79F4E3002A4015 /* SentryEndpoint.swift in Sources */,
+				033BFF021E79F5E8002A4015 /* EventSerializable.swift in Sources */,
+				033BFEA81E79F4E3002A4015 /* QueueableRequestManager.swift in Sources */,
+				033BFEA91E79F4E3002A4015 /* RequestManager.swift in Sources */,
+				033BFE9E1E79F4E3002A4015 /* Breadcrumb.swift in Sources */,
+				033BFEAE1E79F4E3002A4015 /* UserFeedbackViewModel.swift in Sources */,
+				033BFEA71E79F4E3002A4015 /* UserFeedback.swift in Sources */,
+				033BFE9A1E79F4E3002A4015 /* Dictionary+Extras.swift in Sources */,
+				033BFE931E79F4E3002A4015 /* CrashHandler.swift in Sources */,
+				033BFEB21E79F4E3002A4015 /* SentrySwizzle.swift in Sources */,
+				033BFE881E79F4C1002A4015 /* Sentry+KSCrash.swift in Sources */,
+				033BFF001E79F5E8002A4015 /* Event.swift in Sources */,
+				033BFE941E79F4E3002A4015 /* CrashReportConverter.swift in Sources */,
+				033BFEA31E79F4E3002A4015 /* Register.swift in Sources */,
+				033BFEA01E79F4E3002A4015 /* DebugMeta.swift in Sources */,
+				033BFE9B1E79F4E3002A4015 /* MemoryAddress.swift in Sources */,
+				033BFE9F1E79F4E3002A4015 /* BreadcrumbStore.swift in Sources */,
+				033BFE9C1E79F4E3002A4015 /* Contexts.swift in Sources */,
+				033BFE971E79F4E3002A4015 /* Sentry+Event.swift in Sources */,
+				033BFEB01E79F4E3002A4015 /* Sentry.swift in Sources */,
+				033BFE981E79F4E3002A4015 /* NSDate+Extras.swift in Sources */,
+				033BFEA21E79F4E3002A4015 /* Frame.swift in Sources */,
+				033BFE921E79F4E3002A4015 /* Functions.swift in Sources */,
+				033BFE891E79F4C1002A4015 /* Contexts+KSCrash.swift in Sources */,
+				033BFEAF1E79F4E3002A4015 /* UserFeedbackTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1296,6 +1487,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033BFEDB1E79F4E4002A4015 /* NSNumber+Extras.swift in Sources */,
+				033BFEE31E79F4E4002A4015 /* Exception.swift in Sources */,
+				033BFF071E79F5E8002A4015 /* EventOffline.swift in Sources */,
+				033BFEF31E79F4E4002A4015 /* Log.swift in Sources */,
+				033BFEE81E79F4E4002A4015 /* User.swift in Sources */,
+				033BFED81E79F4E4002A4015 /* Sentry+Error.swift in Sources */,
+				033BFEE61E79F4E4002A4015 /* Stacktrace.swift in Sources */,
+				033BFEFF1E79F5CA002A4015 /* EventProperties.swift in Sources */,
+				033BFEEE1E79F4E4002A4015 /* Request.swift in Sources */,
+				033BFE8F1E79F4C2002A4015 /* KSCrashHandler.swift in Sources */,
+				033BFEDF1E79F4E4002A4015 /* BinaryImage.swift in Sources */,
+				033BFEE71E79F4E4002A4015 /* Thread.swift in Sources */,
+				033BFEED1E79F4E4002A4015 /* DSN.swift in Sources */,
+				033BFEEF1E79F4E4002A4015 /* RequestOperation.swift in Sources */,
+				033BFE8E1E79F4C2002A4015 /* SentryEndpoint+KSCrash.swift in Sources */,
+				033BFEEC1E79F4E4002A4015 /* SentryEndpoint.swift in Sources */,
+				033BFF081E79F5E8002A4015 /* EventSerializable.swift in Sources */,
+				033BFEEA1E79F4E4002A4015 /* QueueableRequestManager.swift in Sources */,
+				033BFEEB1E79F4E4002A4015 /* RequestManager.swift in Sources */,
+				033BFEE01E79F4E4002A4015 /* Breadcrumb.swift in Sources */,
+				033BFEE91E79F4E4002A4015 /* UserFeedback.swift in Sources */,
+				033BFEDC1E79F4E4002A4015 /* Dictionary+Extras.swift in Sources */,
+				033BFED51E79F4E4002A4015 /* CrashHandler.swift in Sources */,
+				033BFE901E79F4C2002A4015 /* Sentry+KSCrash.swift in Sources */,
+				033BFF061E79F5E8002A4015 /* Event.swift in Sources */,
+				033BFED61E79F4E4002A4015 /* CrashReportConverter.swift in Sources */,
+				033BFEE51E79F4E4002A4015 /* Register.swift in Sources */,
+				033BFEE21E79F4E4002A4015 /* DebugMeta.swift in Sources */,
+				033BFEDD1E79F4E4002A4015 /* MemoryAddress.swift in Sources */,
+				033BFEE11E79F4E4002A4015 /* BreadcrumbStore.swift in Sources */,
+				033BFEDE1E79F4E4002A4015 /* Contexts.swift in Sources */,
+				033BFED91E79F4E4002A4015 /* Sentry+Event.swift in Sources */,
+				033BFEF21E79F4E4002A4015 /* Sentry.swift in Sources */,
+				033BFEDA1E79F4E4002A4015 /* NSDate+Extras.swift in Sources */,
+				033BFEE41E79F4E4002A4015 /* Frame.swift in Sources */,
+				033BFED41E79F4E4002A4015 /* Functions.swift in Sources */,
+				033BFE911E79F4C2002A4015 /* Contexts+KSCrash.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1421,6 +1649,7 @@
 		03C715211CE4DB550080AE60 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				INFOPLIST_FILE = SentryTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1434,6 +1663,7 @@
 		03C715221CE4DB550080AE60 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				INFOPLIST_FILE = SentryTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1674,6 +1904,7 @@
 		03E94B201C22596A009F8F29 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";
@@ -1689,6 +1920,7 @@
 		03E94B211C22596A009F8F29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";

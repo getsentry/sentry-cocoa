@@ -33,7 +33,7 @@ extension Context {
 
 internal struct Contexts {}
 
-private struct OSContext: Context {
+internal struct OSContext: Context {
     var info: SystemInfo?
     
     var name: String? {
@@ -83,7 +83,7 @@ extension OSContext: EventSerializable {
     }
 }
 
-private struct DeviceContext: Context {
+internal struct DeviceContext: Context {
     var info: SystemInfo?
     
     var architecture: String? {
@@ -217,7 +217,7 @@ extension DeviceContext: EventSerializable {
     }
 }
 
-private struct AppContext: Context {
+internal struct AppContext: Context {
     var info: SystemInfo?
     
     var appStartTime: String? {
