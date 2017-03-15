@@ -365,6 +365,7 @@
 		03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-iOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/iOS/KSCrash-iOS.xcodeproj"; sourceTree = "<group>"; };
 		033A34281C605B7E00BED5AE /* EventProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventProperties.swift; sourceTree = "<group>"; };
 		033A342B1C60693400BED5AE /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		033BFE111E79E349002A4015 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		035242911C988D2400A65D6D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035242941C988D2F00A65D6D /* Abort.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Abort.json; sourceTree = "<group>"; };
 		035242951C988D2F00A65D6D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -646,6 +647,7 @@
 		03E94AE21C22595B009F8F29 = {
 			isa = PBXGroup;
 			children = (
+				033BFE111E79E349002A4015 /* Package.swift */,
 				036378271C225D5200644C01 /* Sources */,
 				035242901C988D2400A65D6D /* Sentry */,
 				035242931C988D2F00A65D6D /* SentryTests */,
