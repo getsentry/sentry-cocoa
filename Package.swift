@@ -1,7 +1,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Sentry",
+    name: "sentry",
     dependencies : [],
     exclude: [
         "Sources/Sentry/KSCrash",
