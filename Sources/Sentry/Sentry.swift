@@ -59,8 +59,8 @@ public let keyBuildNumber = "buildNumber_serialized"
         static let sentryVersion: Int = 7
     }
     
-    internal struct CrashLanguages {
-        static let reactNative = "react-native"
+    public struct CrashLanguages {
+        public static let reactNative = "react-native"
     }
     
     // MARK: - Attributes
