@@ -127,13 +127,7 @@ enum SentryEndpoint: Endpoint {
         
         switch self {
         case .store(_), .storeSavedEvent(_):
-          // TODO: Replace later with custom gzip stuff from SentryEndpoint+KSCrash.swift
-          #if swift(>=3.0)
-              request.httpBody = data as Data
-          #else
-              request.HTTPBody = data
-          #endif
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+			configureStoreRequestData(data as NSData, request: request)
         case .userFeedback(_):
             #if swift(>=3.0)
                 request.httpBody = data as Data

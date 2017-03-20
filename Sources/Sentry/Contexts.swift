@@ -33,6 +33,13 @@ extension Context {
 
 internal struct Contexts {}
 
+extension Contexts: EventSerializable {
+	internal typealias SerializedType = SerializedTypeDictionary
+	internal var serialized: SerializedType {
+		return Contexts.serialized
+	}
+}
+
 internal struct OSContext: Context {
     var info: SystemInfo?
     

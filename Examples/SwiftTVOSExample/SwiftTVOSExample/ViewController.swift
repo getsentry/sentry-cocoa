@@ -20,7 +20,7 @@ class ViewController: UIViewController {
 
 		// Step 2: Initialize a SentryClient with your DSN
 		// The DSN is in your Sentry project's settings
-		SentryClient.shared = SentryClient(dsnString: "your-dsn")
+		SentryClient.shared = SentryClient(dsnString: "https://4eea36099945477c874a370fb2ef270e:b3273da65f64405696fd7722bfbce84e@sentry.io/149253")
 
 		// OPTIONAL (but super useful)
 		// Step 3: Set and start the crash handler

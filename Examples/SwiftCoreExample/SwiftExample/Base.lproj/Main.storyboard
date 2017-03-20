@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2659" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Zf-Ya-OPg">
+                                <rect key="frame" x="44" y="164" width="287" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="55" id="3JP-1N-nkp"/>
+                                    <constraint firstAttribute="width" constant="287" id="Ydo-Ce-rzr"/>
+                                </constraints>
+                                <state key="normal" title="Click this to break the app"/>
+                                <connections>
+                                    <action selector="onClickBreak:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XGr-d9-DKh"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GRm-GB-b1f">
+                                <rect key="frame" x="44" y="263" width="287" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="287" id="43Z-G8-zNW"/>
+                                    <constraint firstAttribute="height" constant="55" id="NpD-41-ibp"/>
+                                </constraints>
+                                <state key="normal" title="Click this to manually send up a message"/>
+                                <connections>
+                                    <action selector="onClickMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gvb-Cl-06N"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jfu-R7-WiI">
+                                <rect key="frame" x="12.5" y="326" width="350" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="287" id="2xR-qA-Mph"/>
+                                    <constraint firstAttribute="width" constant="350" id="Ctu-bw-UFp"/>
+                                    <constraint firstAttribute="height" constant="55" id="GNc-BN-SA5"/>
+                                </constraints>
+                                <state key="normal" title="Click this to manually send up a complex message"/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="2xR-qA-Mph"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <action selector="onClickComplexMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RqK-lu-Hpf"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SC1-4u-grG">
+                                <rect key="frame" x="140.5" y="427" width="94" height="30"/>
+                                <state key="normal" title="Call fatalError"/>
+                                <connections>
+                                    <action selector="onClickFatalError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iPn-q5-lPJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ca-0p-7z1">
+                                <rect key="frame" x="112" y="478" width="150" height="30"/>
+                                <state key="normal" title="Breadcrumb Message"/>
+                                <connections>
+                                    <action selector="onClickBreadcrumbMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5qs-dk-ycq"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="SC1-4u-grG" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="1ia-LS-N6N"/>
+                            <constraint firstItem="9Zf-Ya-OPg" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="5Jg-Ff-eax"/>
+                            <constraint firstItem="0ca-0p-7z1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="JUM-na-rTB"/>
+                            <constraint firstItem="GRm-GB-b1f" firstAttribute="top" secondItem="9Zf-Ya-OPg" secondAttribute="bottom" constant="44" id="Mug-d8-nCk"/>
+                            <constraint firstItem="SC1-4u-grG" firstAttribute="top" secondItem="jfu-R7-WiI" secondAttribute="bottom" constant="46" id="bZw-j0-XQA"/>
+                            <constraint firstItem="jfu-R7-WiI" firstAttribute="top" secondItem="GRm-GB-b1f" secondAttribute="bottom" constant="8" id="i4G-Pg-Soi"/>
+                            <constraint firstItem="GRm-GB-b1f" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="jiT-Ot-Blg"/>
+                            <constraint firstItem="0ca-0p-7z1" firstAttribute="top" secondItem="SC1-4u-grG" secondAttribute="bottom" constant="21" id="wNJ-JP-fhR"/>
+                            <constraint firstItem="9Zf-Ya-OPg" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="144" id="wRV-SU-XCd"/>
+                            <constraint firstItem="jfu-R7-WiI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="x74-0s-YCt"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="292" y="271.21439280359823"/>
+        </scene>
+    </scenes>
+</document>

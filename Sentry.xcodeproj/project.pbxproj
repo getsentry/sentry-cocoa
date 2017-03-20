@@ -370,6 +370,8 @@
 
 /* Begin PBXFileReference section */
 		03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "KSCrash-iOS.xcodeproj"; path = "Carthage/Checkouts/KSCrash/iOS/KSCrash-iOS.xcodeproj"; sourceTree = "<group>"; };
+		03234F871E800B56001700C3 /* Contexts+Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Contexts+Core.swift"; path = "Sentry/Core/Contexts+Core.swift"; sourceTree = "<group>"; };
+		03234F891E800B56001700C3 /* SentryEndpoint+Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SentryEndpoint+Core.swift"; path = "Sentry/Core/SentryEndpoint+Core.swift"; sourceTree = "<group>"; };
 		033BFE111E79E349002A4015 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		033BFE181E79ED6B002A4015 /* Functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Functions.swift; path = Sentry/Functions.swift; sourceTree = "<group>"; };
 		033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CrashHandler.swift; path = Sentry/CrashHandler.swift; sourceTree = "<group>"; };
@@ -540,13 +542,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		03234F801E800AB1001700C3 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				03234F871E800B56001700C3 /* Contexts+Core.swift */,
+				03234F891E800B56001700C3 /* SentryEndpoint+Core.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
 		033BFE1E1E79EDD5002A4015 /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
+				033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */,
+				033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */,
 				033BFE201E79EDE4002A4015 /* SentryEndpoint+KSCrash.swift */,
 				033BFE1F1E79EDE4002A4015 /* KSCrashHandler.swift */,
-				033BFE211E79EDE4002A4015 /* Sentry+KSCrash.swift */,
-				033BFE221E79EDE4002A4015 /* Contexts+KSCrash.swift */,
 			);
 			name = KSCrash;
 			sourceTree = "<group>";
@@ -589,6 +600,7 @@
 			isa = PBXGroup;
 			children = (
 				033BFEF81E79F556002A4015 /* Sentry.h */,
+				03234F801E800AB1001700C3 /* Core */,
 				033BFE1E1E79EDD5002A4015 /* KSCrash */,
 				9BF8E8011E3B5B5100A417AE /* Utils */,
 				037061841C7615950082CCCE /* CrashHelper */,
