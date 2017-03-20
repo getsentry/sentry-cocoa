@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal final class CrashReportConverter {
+public final class CrashReportConverter {
     
     typealias UserInfo = (tags: EventTags?,
         extra: EventExtra?,
@@ -25,7 +25,7 @@ internal final class CrashReportConverter {
         return report
     }
     
-    internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
+    public static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
         Log.Verbose.log("KSCrash Report = \(report)")
         
         var crashReport = checkIncompleteReport(report)

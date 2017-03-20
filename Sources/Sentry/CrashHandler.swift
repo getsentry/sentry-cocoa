@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol CrashHandler: EventProperties {
+public protocol CrashHandler: EventProperties {
     
     init(client: SentryClient)
     

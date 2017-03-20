@@ -98,8 +98,8 @@ import Foundation
 }
 
 extension Thread: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
-    internal var serialized: SerializedType {
+    public typealias SerializedType = SerializedTypeDictionary
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("id", id))

@@ -41,10 +41,10 @@ public typealias EventFingerprint = [String]
 @objc(SentryEvent) public final class Event: NSObject, EventProperties {
     
     public typealias BuildEvent = (inout Event) -> Void
-    internal typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
-    
+    public typealias StacktraceSnapshot = (threads: [Thread]?, debugMeta: DebugMeta?)
+	
     // MARK: - Required Attributes
-    
+	
     #if swift(>=3.0)
     public var eventID: String = NSUUID().uuidString.replacingOccurrences(of: "-", with: "")
     #else
@@ -73,9 +73,9 @@ public typealias EventFingerprint = [String]
     public var threads: [Thread]?
     public var exceptions: [Exception]?
     public var stacktrace: Stacktrace?
-    internal var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
+    public var breadcrumbsSerialized: BreadcrumbStore.SerializedType?
     
-    internal var debugMeta: DebugMeta?
+    public var debugMeta: DebugMeta?
   
     /*
      Creates an event
@@ -133,21 +133,10 @@ public typealias EventFingerprint = [String]
         
         super.init()
     }
-    
-    /// This will set threads and debugMeta if not nil with snapshot of stacktrace if called
-    /// SentryClient.shared?.snapshotStacktrace()
-    @objc public func fetchStacktrace() {
-        if threads == nil {
-            threads = SentryClient.shared?.stacktraceSnapshot?.threads
-        }
-        if debugMeta == nil {
-            debugMeta = SentryClient.shared?.stacktraceSnapshot?.debugMeta
-        }
-    }
 }
 
 extension Event: EventSerializable {
-    typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
     var sdk: [String: String]? {
         return [
@@ -171,7 +160,7 @@ extension Event: EventSerializable {
     }
     
     /// Dictionary version of attributes set in event
-    var serialized: SerializedType {
+    public var serialized: SerializedType {
         
         // Create attributes list
         var attributes: [Attribute] = []

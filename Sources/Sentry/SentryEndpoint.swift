@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal typealias SentryEndpointRequestFinished = (Bool) -> Void
+public typealias SentryEndpointRequestFinished = (Bool) -> Void
 
 enum HttpMethod: String {
     case post = "POST"

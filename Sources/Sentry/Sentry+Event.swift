@@ -37,7 +37,7 @@ extension SentryClient {
      - Parameter event: An event struct
      - Parameter useClientProperties: Should the client's user, tags and extras also be reported (default is `true`)
      */
-    internal func captureEvent(_ event: Event, useClientProperties: Bool, completed: SentryEndpointRequestFinished? = nil) {
+    public func captureEvent(_ event: Event, useClientProperties: Bool, completed: SentryEndpointRequestFinished? = nil) {
         if useClientProperties {
             event.user = event.user ?? user
             event.releaseVersion = event.releaseVersion ?? releaseVersion

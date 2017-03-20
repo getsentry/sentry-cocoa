@@ -14,7 +14,7 @@ import Foundation
 /// - Parameter object: the object to sanitize.
 /// - Returns: The nearest corellated object that can be converted to JSON. Defaults to string representation.
 /// The force unwrap is there to circumvent a bug in swiftc dealing with optionals and default cases..
-func sanitize(_ object: AnyType) -> AnyType {
+public func sanitize(_ object: AnyType) -> AnyType {
     switch object {
     case let v as [AnyType]:
         return v.map(sanitize)

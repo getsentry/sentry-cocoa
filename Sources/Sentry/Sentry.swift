@@ -31,13 +31,13 @@ import Foundation
 
 // TODO: Josh doesn't like having these here
 // But they might. But they might not belong here.
-internal typealias CrashDictionary = [String: AnyType]
-internal let keyUser = "user"
-internal let keyEventTags = "event_tags"
-internal let keyEventExtra = "event_extra"
-internal let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
-internal let keyReleaseVersion = "releaseVersion_serialized"
-internal let keyBuildNumber = "buildNumber_serialized"
+public typealias CrashDictionary = [String: AnyType]
+public let keyUser = "user"
+public let keyEventTags = "event_tags"
+public let keyEventExtra = "event_extra"
+public let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
+public let keyReleaseVersion = "releaseVersion_serialized"
+public let keyBuildNumber = "buildNumber_serialized"
 
 @objc public class SentryClient: NSObject, EventProperties {
     
@@ -67,7 +67,7 @@ internal let keyBuildNumber = "buildNumber_serialized"
     
     internal let dsn: DSN
     internal let requestManager: RequestManager
-    internal(set) var crashHandler: CrashHandler? {
+    public var crashHandler: CrashHandler? {
         didSet {
             crashHandler?.startCrashReporting()
             crashHandler?.releaseVersion = releaseVersion
@@ -86,7 +86,7 @@ internal let keyBuildNumber = "buildNumber_serialized"
         return store
     }()
     
-    internal var stacktraceSnapshot: Event.StacktraceSnapshot?
+    public var stacktraceSnapshot: Event.StacktraceSnapshot?
     
     // MARK: UserFeedback
     #if os(iOS)

@@ -248,9 +248,9 @@ public typealias Mechanism = [String: AnyType]
 }
 
 extension Exception: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
-    internal var serialized: SerializedType {
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("value", value))

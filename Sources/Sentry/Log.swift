@@ -25,7 +25,7 @@ import Foundation
         }
     }
     
-    internal func log(_ message: String) {
+    public func log(_ message: String) {
         guard rawValue <= SentryClient.logLevel.rawValue else { return }
         print("Sentry - \(description):: \(message)")
     }

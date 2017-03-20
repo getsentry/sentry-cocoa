@@ -55,8 +55,8 @@ import Foundation
 }
 
 extension Stacktrace: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
-    internal var serialized: SerializedType {
+    public typealias SerializedType = SerializedTypeDictionary
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         #if swift(>=3.0)

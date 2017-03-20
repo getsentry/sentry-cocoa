@@ -7,6 +7,8 @@
 //
 
 import Foundation
+
+import Sentry
 import KSCrash
 
 extension SentryClient {
@@ -97,7 +99,7 @@ internal final class KSCrashHandler: CrashHandler {
     private func updateUserInfo() {
         var userInfo = CrashDictionary()
         userInfo[keyEventTags] = tags
-        userInfo[keyEventExtra] = sanitize(extra)
+        userInfo[keyEventExtra] = Sentry.sanitize(extra)
         userInfo[keyReleaseVersion] = releaseVersion
         userInfo[keyBuildNumber] = buildNumber
         
@@ -129,8 +131,10 @@ private class KSCrashSentryInstallation: KSCrashInstallation {
     
 }
 
+private let queueName = "io.sentry.kscrash.queue"
+
 private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
-    
+	
     private let client: SentryClient
     
     init(client: SentryClient) {
@@ -140,7 +144,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
     
     @objc func filterReports(_ reports: [AnyType]!, onCompletion: KSCrashReportFilterCompletion!) {
         #if swift(>=3.0)
-            DispatchQueue(label: SentryClient.queueName).sync {
+            DispatchQueue(label: queueName).sync {
                 // Mapping reports
                 let events: [Event] = reports?
                     .flatMap({ $0 as? CrashDictionary })

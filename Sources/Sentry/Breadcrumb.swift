@@ -60,9 +60,9 @@ import Foundation
 }
 
 extension Breadcrumb: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
-    internal var serialized: SerializedType {
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("category", category))

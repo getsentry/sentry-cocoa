@@ -44,8 +44,8 @@ import Foundation
 }
 
 extension User: EventSerializable {
-    internal typealias SerializedType = SerializedTypeDictionary
-    internal var serialized: SerializedType {
+    public typealias SerializedType = SerializedTypeDictionary
+    public var serialized: SerializedType {
         return extra
             .set("id", value: userID)
             .set("email", value: email)

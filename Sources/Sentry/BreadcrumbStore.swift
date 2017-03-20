@@ -47,8 +47,8 @@ import Foundation
 }
 
 extension BreadcrumbStore: EventSerializable {
-    internal typealias SerializedType = SerializedTypeArray
-    internal var serialized: SerializedType {
+    public typealias SerializedType = SerializedTypeArray
+    public var serialized: SerializedType {
         return crumbs.map { $0.serialized }.flatMap { $0 }
     }
 }

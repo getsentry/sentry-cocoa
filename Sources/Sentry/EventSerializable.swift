@@ -8,13 +8,13 @@
 
 import Foundation
 
-typealias SerializedTypeDictionary = [String: AnyType]
-typealias SerializedTypeArray = [SerializedTypeDictionary]
-typealias Attribute = (key: String, value: AnyType?)
+public typealias SerializedTypeDictionary = [String: AnyType]
+public typealias SerializedTypeArray = [SerializedTypeDictionary]
+public typealias Attribute = (key: String, value: AnyType?)
 
 /// A protocol used for complex structures (ex: Event, User)
 /// on how to serialize them.
-protocol EventSerializable {
+public protocol EventSerializable {
     associatedtype SerializedType
     var serialized: SerializedType { get }
 }

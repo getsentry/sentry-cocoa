@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal enum SentryError: Error {
+public enum SentryError: Error {
     case InvalidDSN
     case InvalidCrashReport
 }
