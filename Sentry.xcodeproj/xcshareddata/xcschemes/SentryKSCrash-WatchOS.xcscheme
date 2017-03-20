@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0323504E1E8081A7001700C3"
+               BlueprintIdentifier = "0323508D1E8087D9001700C3"
                BuildableName = "SentryKSCrash.framework"
-               BlueprintName = "SentryKSCrash-tvOS"
+               BlueprintName = "SentryKSCrash-WatchOS"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0323504E1E8081A7001700C3"
+            BlueprintIdentifier = "0323508D1E8087D9001700C3"
             BuildableName = "SentryKSCrash.framework"
-            BlueprintName = "SentryKSCrash-tvOS"
+            BlueprintName = "SentryKSCrash-WatchOS"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0323504E1E8081A7001700C3"
+            BlueprintIdentifier = "0323508D1E8087D9001700C3"
             BuildableName = "SentryKSCrash.framework"
-            BlueprintName = "SentryKSCrash-tvOS"
+            BlueprintName = "SentryKSCrash-WatchOS"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
