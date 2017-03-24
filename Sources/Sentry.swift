@@ -46,7 +46,7 @@ import KSCrash
     // MARK: - Enums
     
     internal struct Info {
-        static let version: String = "2.1.3"
+        static let version: String = "2.1.4"
         static let sentryVersion: Int = 7
     }
     
