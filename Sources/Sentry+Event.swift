@@ -54,7 +54,6 @@ extension SentryClient {
             if nil == event.breadcrumbsSerialized { // we only want to set the breadcrumbs if there are non in the event
                 event.breadcrumbsSerialized = breadcrumbs.serialized
             }
-            breadcrumbs.clear()
         }
         
         sendEvent(event) { [weak self] success in
