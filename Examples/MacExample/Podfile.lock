@@ -65,7 +65,7 @@ PODS:
   - Sentry (2.1.9):
     - Sentry/KSCrash (= 2.1.9)
   - Sentry/KSCrash (2.1.9):
-    - KSCrash (~> 1.15.3)
+    - KSCrash (~> 1.15.4)
 
 DEPENDENCIES:
   - Sentry (from `../../`)
@@ -76,7 +76,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   KSCrash: 4acb0f9cdb0b1ce7155c608dc175d91d750a8c3a
-  Sentry: c2d3a54b1e4676ef09e25e89a743149d0424bbf0
+  Sentry: 350d44713d1bfb42975b72ed9d9c409da8286b14
 
 PODFILE CHECKSUM: 9a6feca63fe6ed3706b2808f4c85dae0861ba9d2
 
