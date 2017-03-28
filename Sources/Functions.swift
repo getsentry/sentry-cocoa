@@ -29,7 +29,7 @@ func sanitize(_ object: AnyType) -> AnyType {
         return v
     case let v as NSNumber:
         if v.isBool {
-            return v as Bool
+            return v as? Bool ?? false
         } else {
             return v
         }

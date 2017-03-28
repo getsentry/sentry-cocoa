@@ -60,7 +60,7 @@ extension SentryClient {
             defer { completed?(success) }
             guard !success else {
                 #if os(iOS)
-                    if event.level == .Fatal {
+                    if event.level == .fatal {
                         self?.lastSuccessfullySentEvent = event
                     }
                 #endif

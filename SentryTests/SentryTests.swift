@@ -63,7 +63,7 @@ class SentrySwiftTests: XCTestCase {
         let asyncExpectation = expectation(description: "testImmutableCrashProperties")
         
         SentryClient.shared = client
-        SentryClient.logLevel = .Debug
+        SentryClient.logLevel = .debug
         
         SentryClient.shared?.startCrashHandler()
         
@@ -278,7 +278,7 @@ class SentrySwiftTests: XCTestCase {
 		
 		XCTAssertEqual(event.eventID.characters.count, 32)
 		XCTAssertEqual(event.message, message)
-		XCTAssert(event.level == .Error)
+		XCTAssert(event.level == .error)
 		XCTAssertEqual(event.platform, "cocoa")
 	}
 
@@ -291,7 +291,7 @@ class SentrySwiftTests: XCTestCase {
 			XCTFail("timestamp should not be nil")
 			return
 		}
-		let level = Severity.Info
+		let level = Severity.info
 		let platform = "osx"
 		
 		// Optional
@@ -328,13 +328,13 @@ class SentrySwiftTests: XCTestCase {
 	
 	func testEventBuilder() {
 		let event = Event.build("A bad thing happened", build: {
-			$0.level = .Warning
+			$0.level = .warning
 			$0.tags = ["doot": "doot"]
 		})
 		
 		XCTAssertEqual(event.message, "A bad thing happened")
 		XCTAssertEqual(event.tags, ["doot": "doot"])
-		XCTAssert(event.level == .Warning)
+		XCTAssert(event.level == .warning)
 	}
 	
 	// MARK: EventSerializable
@@ -380,7 +380,7 @@ class SentrySwiftTests: XCTestCase {
 			assertionFailure("timestamp should not be nil")
 			return
 		}
-		let level = Severity.Info
+		let level = Severity.info
 		let platform = "osx"
 		
 		// Optional
@@ -571,7 +571,7 @@ class SentrySwiftTests: XCTestCase {
         let asyncExpectation = expectation(description: "testCaptureEvent")
         
         let event = Event.build("Another example 4") {
-            $0.level = .Fatal
+            $0.level = .fatal
             $0.tags = ["status": "test"]
             $0.extra = [
                 "name": "Josh Holtz",
@@ -616,7 +616,7 @@ class SentrySwiftTests: XCTestCase {
     
     func testNoValidJSON() {
         XCTAssertNotNil(Event.build("Alarm is too far in future") {
-                $0.level = .Warning
+                $0.level = .warning
                 $0.extra = [
                     "Alarm ID": "12",
                     "Query Time" : 12,
@@ -628,7 +628,7 @@ class SentrySwiftTests: XCTestCase {
             }.serialized["extra"])
         
         XCTAssertNotNil(Event.build("Alarm is too far in future") {
-            $0.level = .Warning
+            $0.level = .warning
             $0.extra = [
                 "Alarm ID": "12",
                 "Query Time" : 12,
@@ -640,7 +640,7 @@ class SentrySwiftTests: XCTestCase {
             }.serialized["extra"])
         
         XCTAssertNotNil(Event.build("Alarm is too far in future") {
-            $0.level = .Warning
+            $0.level = .warning
             $0.tags = [
                 "Alarm ID": "12",
                 "Query Time" : "12",
@@ -658,7 +658,7 @@ class SentrySwiftTests: XCTestCase {
             event.deleteEvent()
         }
         let event = Event.build("Another example 4") {
-            $0.level = .Fatal
+            $0.level = .fatal
             $0.tags = ["status": "test"]
             $0.extra = [
                 "name": "Josh Holtz",

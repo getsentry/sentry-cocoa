@@ -95,7 +95,7 @@ enum SentryEndpoint: Endpoint {
         var components = URLComponents()
         components.scheme = dsn.url.scheme
         components.host = dsn.url.host
-        components.port = dsn.url.port as Int?
+        components.port = dsn.url.port as? Int
         
         switch self {
         case .store(_), .storeSavedEvent(_):

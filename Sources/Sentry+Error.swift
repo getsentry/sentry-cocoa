@@ -16,7 +16,7 @@ internal enum SentryError: Error {
 extension Event {
     // broken out into a separate function for testability
     internal convenience init(error: NSError, frame: Frame) {
-        let message = "\(error.domain).\(error.code) in \(frame.culprit)"
+        let message = "\(error.domain).\(error.code) in \(String(describing: frame.culprit))"
         
         self.init(message, level: .error)
         stacktrace = Stacktrace(frames: [frame])

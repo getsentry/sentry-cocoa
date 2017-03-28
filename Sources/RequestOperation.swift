@@ -28,7 +28,7 @@ class RequestOperation: AsynchronousOperation {
             // Returns success if we have data and 200 response code
             if let data = data, let response = response as? HTTPURLResponse {
                 Log.debug.log("status = \(response.statusCode)")
-                Log.debug.log("response = \(NSString(data: data, encoding: String.Encoding.utf8.rawValue))")
+                Log.debug.log("response = \(String(describing: NSString(data: data, encoding: String.Encoding.utf8.rawValue)))")
                 if response.statusCode == 429 {
                     Log.error.log("Rate limit reached, event will be stored and sent later")
                 }

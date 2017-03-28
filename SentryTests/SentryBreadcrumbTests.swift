@@ -61,12 +61,12 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
         
         XCTAssertEqual(Breadcrumb(category: "category").serialized["category"] as? String, "category")
         
-        let crumbs = Breadcrumb(category: "test1", timestamp: date, message: "a", level: .Debug, data: ["foo": "bar"], to: "hey", from: "ho")
+        let crumbs = Breadcrumb(category: "test1", timestamp: date, message: "a", level: .debug, data: ["foo": "bar"], to: "hey", from: "ho")
         let data = crumbs.serialized["data"] as! Dictionary<String, String>
         XCTAssertEqual(data["to"], "hey")
         XCTAssertEqual(data["from"], "ho")
         
-        let largeCrumb = Breadcrumb(category: "category", timestamp: date, message: "b", level: .Error, data: nil, url: "url2", method: "test", statusCode: 3, reason: "yay")
+        let largeCrumb = Breadcrumb(category: "category", timestamp: date, message: "b", level: .error, data: nil, url: "url2", method: "test", statusCode: 3, reason: "yay")
         let largeData = largeCrumb.serialized["data"] as! Dictionary<String, AnyType>
         XCTAssertEqual(largeData["url"] as? String, "url2")
         XCTAssertEqual(largeData["reason"] as? String, "yay")
@@ -131,7 +131,7 @@ class SentrySwiftBreadcrumbTests: XCTestCase {
     }
     
     func testBreadcrumbStorageLimits() {
-        SentryClient.logLevel = .None
+        SentryClient.logLevel = .none
         let store = BreadcrumbStore()
         store.maxCrumbs = 500
         

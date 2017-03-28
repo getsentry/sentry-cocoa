@@ -20,7 +20,7 @@ class SentrySwiftErrorTests: XCTestCase {
 
 		let event = Event(error: error, frame: frame)
 
-        XCTAssertEqual(event.message, "\(domain).\(code) in \(frame.culprit)")
+        XCTAssertEqual(event.message, "\(domain).\(code) in \(String(describing: frame.culprit))")
         XCTAssertTrue(event.extra["user_info"] is [String: AnyObject])
         XCTAssert((event.extra["user_info"] as! [String: AnyObject]) == [:])
         XCTAssertEqual(event.culprit, frame.culprit)

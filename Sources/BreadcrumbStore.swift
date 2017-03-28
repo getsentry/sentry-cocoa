@@ -29,7 +29,7 @@ import Foundation
     
     /// Adds given crumb to the client store
     public func add(_ crumb: Breadcrumb) {
-        Log.debug.log("Added breadcrumb: \(crumb.category) \(crumb.type) \(crumb.message)")
+        Log.debug.log("Added breadcrumb: \(crumb.category) \(String(describing: crumb.type)) \(String(describing: crumb.message))")
         if crumbs.count >= maxCrumbs {
             crumbs.removeFirst()
         }

@@ -88,7 +88,7 @@ internal final class KSCrashHandler: CrashHandler {
                     Log.error.log("Could not convert crash report to valid event")
                     return
                 }
-                Log.debug.log("Sent \(filteredReports?.count) report(s)")
+                Log.debug.log("Sent \(String(describing: filteredReports?.count)) report(s)")
             }
         #else
             installation.sendAllReportsWithCompletion { (filteredReports, completed, error) -> Void in

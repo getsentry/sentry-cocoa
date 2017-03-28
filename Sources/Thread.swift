@@ -93,7 +93,8 @@ import Foundation
     }
     
     public override var debugDescription: String {
-        return "id: \(id) \n crashed: \(crashed) \n current: \(current) \n name: \(name) \n reason: \(reason) \n stacktrace: \(stacktrace) \n"
+        return ("id: \(id) \n crashed: \(String(describing: crashed)) \n current: \(String(describing: current))" +
+        "\n name: \(String(describing: name)) \n reason: \(String(describing: reason)) \n stacktrace: \(String(describing: stacktrace)) \n")
     }
 }
 

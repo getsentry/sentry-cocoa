@@ -36,7 +36,7 @@ class SentrySwiftRequestTests: XCTestCase {
     }
     
     func testRequestQueue() {
-        SentryClient.logLevel = .Debug
+        SentryClient.logLevel = .debug
         let client = SentrySwiftTestHelper.sentryRealClient
         XCTAssertTrue(client.requestManager.isReady)
         let asyncExpectation = expectation(description: "testRequestQueue")
