@@ -60,7 +60,7 @@ protocol ViewModel {
     
     func sendUserFeedback(finished: SentryEndpointRequestFinished? = nil) {
         guard let name = self.name, let email = self.email, let comments = self.comments else {
-            Log.Error.log("UserFeedback must be filled")
+            Log.error.log("UserFeedback must be filled")
             return
         }
         

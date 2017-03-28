@@ -9,8 +9,8 @@
 import Foundation
 
 internal enum SentryError: Error {
-    case InvalidDSN
-    case InvalidCrashReport
+    case invalidDSN
+    case invalidCrashReport
 }
 
 extension Event {
@@ -18,14 +18,14 @@ extension Event {
     internal convenience init(error: NSError, frame: Frame) {
         let message = "\(error.domain).\(error.code) in \(frame.culprit)"
         
-        self.init(message, level: .Error)
+        self.init(message, level: .error)
         stacktrace = Stacktrace(frames: [frame])
         culprit = frame.culprit
         
         if let cleanedUserValue = sanitize(error.userInfo) as? [String: AnyType] {
             extra = ["user_info": cleanedUserValue]
         } else {
-            Log.Error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
+            Log.error.log("Failed to capture errors userInfo, since it contained non-string keys: \(error)")
         }
         
         exceptions = [Exception(value: "\(error.domain) (\(error.code))", type: error.domain)]

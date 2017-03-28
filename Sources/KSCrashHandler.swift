@@ -75,7 +75,7 @@ internal final class KSCrashHandler: CrashHandler {
         // Install
         installation.install()
         
-        Log.Debug.log("Started Sentry Client \(SentryClient.versionString)")
+        Log.debug.log("Started Sentry Client \(SentryClient.versionString)")
         
         sendAllReports()
     }
@@ -85,10 +85,10 @@ internal final class KSCrashHandler: CrashHandler {
         #if swift(>=3.0)
             installation.sendAllReports { (filteredReports, _, error) -> Void in
                 if error != nil {
-                    Log.Error.log("Could not convert crash report to valid event")
+                    Log.error.log("Could not convert crash report to valid event")
                     return
                 }
-                Log.Debug.log("Sent \(filteredReports?.count) report(s)")
+                Log.debug.log("Sent \(filteredReports?.count) report(s)")
             }
         #else
             installation.sendAllReportsWithCompletion { (filteredReports, completed, error) -> Void in
@@ -156,7 +156,7 @@ private class KSCrashReportSinkSentry: NSObject, KSCrashReportFilter {
                     .flatMap({ CrashReportConverter.convertReportToEvent($0) }) ?? []
             
                 if events.isEmpty {
-                    onCompletion([], true, SentryError.InvalidCrashReport as NSError)
+                    onCompletion([], true, SentryError.invalidCrashReport as NSError)
                     return
                 }
             

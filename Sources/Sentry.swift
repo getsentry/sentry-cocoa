@@ -35,7 +35,7 @@ import KSCrash
     // MARK: - Static Attributes
     
     public static var shared: SentryClient?
-    public static var logLevel: Log = .Error
+    public static var logLevel: Log = .error
     
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
@@ -163,7 +163,7 @@ import KSCrash
     @objc public convenience init?(dsnString: String) {
         // Silently not creating a client if dsnString is empty string
         if dsnString.isEmpty {
-            Log.Debug.log("DSN provided was empty - not creating a SentryClient object")
+            Log.debug.log("DSN provided was empty - not creating a SentryClient object")
             return nil
         }
         
@@ -173,7 +173,7 @@ import KSCrash
             let dsn = try DSN(dsnString)
             self.init(dsn: dsn)
         } catch {
-            Log.Error.log("DSN is invalid")
+            Log.error.log("DSN is invalid")
             return nil
         }
     }
@@ -184,7 +184,7 @@ import KSCrash
      */
     @objc public func snapshotStacktrace() {
         guard let crashHandler = crashHandler else {
-            Log.Error.log("crashHandler not yet initialized")
+            Log.error.log("crashHandler not yet initialized")
             return
         }
         KSCrash.sharedInstance().reportUserException("", reason: "", language: "", lineOfCode: "", stackTrace: [""], logAllThreads: false, terminateProgram: false)
@@ -193,7 +193,7 @@ import KSCrash
     
     @objc public func reportReactNativeCrash(error: NSError, stacktrace: [AnyType], terminateProgram: Bool) {
         guard let crashHandler = crashHandler else {
-            Log.Error.log("crashHandler not yet initialized")
+            Log.error.log("crashHandler not yet initialized")
             return
         }
         KSCrash.sharedInstance().reportUserException(error.localizedDescription,

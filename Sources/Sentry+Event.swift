@@ -15,7 +15,7 @@ extension SentryClient {
      - Parameter message: The message to send to Sentry
      - Parameter level: The severity of the message
      */
-    @objc public func captureMessage(_ message: String, level: Severity = .Info) {
+    @objc public func captureMessage(_ message: String, level: Severity = .info) {
         captureEvent(Event(message, level: level))
     }
     

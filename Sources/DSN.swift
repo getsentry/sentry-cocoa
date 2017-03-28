@@ -29,7 +29,7 @@ final class DSN {
     internal convenience init(_ dsnString: String) throws {
         guard let url = NSURL(string: dsnString),
             let projectID = DSN.projectID(from: url) else {
-                throw SentryError.InvalidDSN
+                throw SentryError.invalidDSN
         }
         
         self.init(url: url,

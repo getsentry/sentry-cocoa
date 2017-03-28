@@ -19,19 +19,19 @@ public typealias EventFingerprint = [String]
 
 // This is declared here to keep namespace compatibility with objc
 @objc(SentrySeverity) public enum Severity: Int, CustomStringConvertible {
-    case Fatal, Error, Warning, Info, Debug
+    case fatal, error, warning, info, debug
     
     public var description: String {
         switch self {
-        case .Fatal:
+        case .fatal:
             return "fatal"
-        case .Error:
+        case .error:
             return "error"
-        case .Warning:
+        case .warning:
             return "warning"
-        case .Info:
+        case .info:
             return "info"
-        case .Debug:
+        case .debug:
             return "debug"
         }
     }
@@ -52,7 +52,7 @@ public typealias EventFingerprint = [String]
     #endif
     public var message: String
     public var timestamp: NSDate = NSDate()
-    public var level: Severity = .Error
+    public var level: Severity = .error
     public var platform: String = "cocoa"
     
     // MARK: - Optional Attributes
@@ -109,7 +109,7 @@ public typealias EventFingerprint = [String]
      */
     @objc public init(_ message: String,
                       timestamp: NSDate = NSDate(),
-                      level: Severity = .Error,
+                      level: Severity = .error,
                       logger: String? = nil,
                       culprit: String? = nil,
                       serverName: String? = nil,

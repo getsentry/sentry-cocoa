@@ -10,17 +10,17 @@ import Foundation
 
 // This is declared here to keep namespace compatibility with objc
 @objc(SentryLog) public enum Log: Int, CustomStringConvertible {
-    case None, Error, Debug, Verbose
+    case none, error, debug, verbose
     
     public var description: String {
         switch self {
-        case .None:
+        case .none:
             return ""
-        case .Error:
+        case .error:
             return "Error"
-        case .Debug:
+        case .debug:
             return "Debug"
-        case .Verbose:
+        case .verbose:
             return "Verbose"
         }
     }
