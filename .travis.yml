@@ -9,7 +9,7 @@ before_install:
     - brew update
     - brew outdated swiftlint || brew upgrade swiftlint
 script:
-    - travis_retry fastlane $LANE
+    - if [ "$LANE" = "lint" ]; then fastlane $LANE; else travis_retry fastlane $LANE; fi
 after_success:
     - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
