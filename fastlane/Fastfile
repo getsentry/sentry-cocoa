@@ -29,9 +29,8 @@ lane :lint do
             dangerfile: "./Dangerfile",
             verbose: true
         )
-    else
-        sh('cd .. && swiftlint')
     end
+    sh('cd .. && swiftlint')
 end
 
 lane :test_swift_2_ios do
