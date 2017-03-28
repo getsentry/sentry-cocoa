@@ -247,6 +247,23 @@ private struct AppContext: Context {
     var buildType: String? {
         return info?["buildType"] as? String
     }
+    
+    var bundleID: String? {
+        return info?["bundleID"] as? String
+    }
+    
+    var bundleName: String? {
+        return info?["bundleName"] as? String
+    }
+    
+    var bundleVersion: String? {
+        return info?["bundleVersion"] as? String
+    }
+    
+    var bundleShortVersion: String? {
+        return info?["bundleShortVersion"] as? String
+    }
+    
 }
 
 extension AppContext: EventSerializable {
@@ -259,6 +276,10 @@ extension AppContext: EventSerializable {
         attributes.append(("device_app_hash", deviceAppHash))
         attributes.append(("app_id", appID))
         attributes.append(("build_type", buildType))
+        attributes.append(("bundle_id", bundleID))
+        attributes.append(("bundle_name", bundleName))
+        attributes.append(("bundle_version", bundleVersion))
+        attributes.append(("bundle_short_version", bundleShortVersion))
         
         return convertAttributes(attributes)
     }
