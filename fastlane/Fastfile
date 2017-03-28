@@ -22,6 +22,14 @@ lane :localcoverage do
 end
 
 lane :lint do
+    if ENV["DANGER_GITHUB_API_TOKEN"]
+        danger(
+            github_api_token: ENV["DANGER_GITHUB_API_TOKEN"],
+            danger_id: "github",
+            dangerfile: "./Dangerfile",
+            verbose: true
+        )
+    end
     sh('cd .. && swiftlint')
 end
 

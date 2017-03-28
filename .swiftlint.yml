@@ -5,6 +5,7 @@ excluded:
   - Carthage
   - Pods
   - Utils
+  - vendor
 whitelist_rules:
   #- attributes
   - class_delegate_protocol
@@ -76,7 +77,7 @@ whitelist_rules:
   - unused_optional_binding
   - valid_docs
   - valid_ibinspectable
-  - variable_name
+  #- identifier_name
   - vertical_parameter_alignment
   - vertical_whitespace
   - void_return

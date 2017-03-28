@@ -5,14 +5,13 @@ cache:
 rvm:
     - 2.2
 before_install:
-    - gem install fastlane
-    - gem install slather
+    - bundle install
     - brew update
     - brew outdated swiftlint || brew upgrade swiftlint
-script: 
-    - travis_retry fastlane $LANE
+script:
+    - if [ "$LANE" = "lint" ]; then fastlane $LANE; else travis_retry fastlane $LANE; fi
 after_success:
-    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi 
+    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
     matrix:
         - LANE=lint
