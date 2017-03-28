@@ -6,6 +6,7 @@ end
 
 desc "Test iOS, tvOS, and OSX"
 lane :test do
+    xcode_select "/Applications/Xcode-8.2.1.app"
     ENV["CI"]="true"
     test_swift_2_ios
     test_swift_2_tvos

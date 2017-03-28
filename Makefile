@@ -8,7 +8,7 @@ test:
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
-	carthage build --no-skip-current
+	carthage build --no-skip-current --cache-builds
 	carthage archive Sentry KSCrash --output Sentry.framework.zip
 
 release: bump-version lint test pod-example-projects pod-lint build-carthage git-commit-add pod-push
