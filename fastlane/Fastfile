@@ -22,7 +22,11 @@ lane :localcoverage do
 end
 
 lane :lint do
-    sh('cd .. && swiftlint')
+    if ENV["DANGER_GITHUB_API_TOKEN"]
+        danger(github_api_token: ENV["DANGER_GITHUB_API_TOKEN"])
+    else
+        sh('cd .. && swiftlint')
+    end
 end
 
 lane :test_swift_2_ios do
