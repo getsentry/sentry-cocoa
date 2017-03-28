@@ -5,6 +5,7 @@ excluded:
   - Carthage
   - Pods
   - Utils
+  - vendor
 whitelist_rules:
   #- attributes
   - class_delegate_protocol
