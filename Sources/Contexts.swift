@@ -278,8 +278,8 @@ extension AppContext: EventSerializable {
         attributes.append(("build_type", buildType))
         attributes.append(("app_identifier", bundleID))
         attributes.append(("app_name", bundleName))
-        attributes.append(("app_version", bundleVersion))
-        attributes.append(("app_short_version", bundleShortVersion))
+        attributes.append(("app_build", bundleVersion))
+        attributes.append(("app_version", bundleShortVersion))
         
         return convertAttributes(attributes)
     }
