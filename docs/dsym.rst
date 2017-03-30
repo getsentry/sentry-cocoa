@@ -1,3 +1,5 @@
+.. _uploading-dsyms:
+
 Uploading Debug Symbols
 =======================
 
