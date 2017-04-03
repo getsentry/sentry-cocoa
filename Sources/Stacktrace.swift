@@ -36,6 +36,17 @@ import Foundation
         self.register = register
     }
     
+    /// This function fixes duplicate frames and removes the first duplicate 
+    internal func fixDuplicateFrames() {
+        guard self.frames.count >= 2 else {
+            return
+        }
+        if self.frames[1].symbolAddress == self.frames[0].symbolAddress && self.register?.registers["lr"] == self.frames[1].instructionAddress {
+            self.frames.remove(at: 1)
+            Log.Debug.log("Found duplicate frame, removing one with link register")
+        }
+    }
+    
 }
 
 extension Stacktrace: EventSerializable {

@@ -43,7 +43,7 @@ import Foundation
         let stacktrace = Stacktrace(appleCrashTreadBacktraceDict: backtraceDict,
                                     registerDict: registerDict,
                                     binaryImages: binaryImages)
-        
+        stacktrace?.fixDuplicateFrames()
         let reason = Thread.extractCrashReasonFromNotableAddresses(appleCrashThreadDict)
         
         self.init(id: id, crashed: crashed, current: current, name: name, stacktrace: stacktrace, reason: reason)
