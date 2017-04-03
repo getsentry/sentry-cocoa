@@ -43,7 +43,11 @@ import Foundation
             return
         }
         if self.frames[1].symbolAddress == self.frames[0].symbolAddress && self.register?.registers["lr"] == self.frames[1].instructionAddress {
+            #if swift(>=3.0)
             self.frames.remove(at: 1)
+            #else
+            self.frames.removeAtIndex(1)
+            #endif
             Log.Debug.log("Found duplicate frame, removing one with link register")
         }
     }
