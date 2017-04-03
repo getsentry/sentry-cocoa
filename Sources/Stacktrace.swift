@@ -36,6 +36,22 @@ import Foundation
         self.register = register
     }
     
+    /// This function fixes duplicate frames and removes the first duplicate 
+    /// https://github.com/kstenerud/KSCrash/blob/05cdc801cfc578d256f85de2e72ec7877cbe79f8/Source/KSCrash/Recording/Tools/KSStackCursor_MachineContext.c#L84
+    internal func fixDuplicateFrames() {
+        guard self.frames.count >= 2 else {
+            return
+        }
+        if self.frames[1].symbolAddress == self.frames[0].symbolAddress && self.register?.registers["lr"] == self.frames[1].instructionAddress {
+            #if swift(>=3.0)
+            self.frames.remove(at: 1)
+            #else
+            self.frames.removeAtIndex(1)
+            #endif
+            Log.Debug.log("Found duplicate frame, removing one with link register")
+        }
+    }
+    
 }
 
 extension Stacktrace: EventSerializable {

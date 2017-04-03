@@ -247,4 +247,28 @@ class SentrySwiftCrashProbeTests: XCTestCase {
         
         XCTAssertNotNil(event)
     }
+    
+    func testRemoveDuplicateFrames() { // testRemoveDuplicateFrames()
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-report-00000000d3800000")!
+        
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        
+        XCTAssertNotNil(event)
+        let frames = (event?.threads?.first?.stacktrace?.frames)!
+        XCTAssertEqual(frames.count, 23)
+        XCTAssertEqual(frames[0].instructionAddress, "0x10014caa4")
+        XCTAssertEqual(frames[1].instructionAddress, "0x10003d93c")
+    }
+    
+    func testRemoveDuplicateFrames2() { // testRemoveDuplicateFrames()
+        let crashJSON = testHelper.readIOSJSONCrashFile(name: "CrashProbeiOS-CrashReport-215958E1-3CB0-4937-97F0-5BF6DD866F7A")!
+        
+        let event = CrashReportConverter.convertReportToEvent(crashJSON)
+        
+        XCTAssertNotNil(event)
+        let frames = (event?.threads?.first?.stacktrace?.frames)!
+        XCTAssertEqual(frames.count, 26)
+        XCTAssertEqual(frames[0].instructionAddress, "0x100233cdc")
+        XCTAssertEqual(frames[1].instructionAddress, "0x100233d10")
+    }
 }
