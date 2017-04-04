@@ -11,6 +11,12 @@ build-carthage:
 	carthage build --no-skip-current --cache-builds
 	carthage archive Sentry KSCrash --output Sentry.framework.zip
 
+test-carthage:
+	@echo "--> Testing carthage"
+	mkdir -p tmp
+	echo 'github "getsentry/sentry-swift"' > tmp/Cartfile && cd tmp && carthage update && cd ..
+	rm -rf tmp
+
 release: bump-version lint test pod-example-projects pod-lint build-carthage git-commit-add pod-push
 
 build-time:
