@@ -1,47 +1,47 @@
 PODS:
-  - KSCrash (1.15.5):
-    - KSCrash/Installations (= 1.15.5)
-  - KSCrash/Installations (1.15.5):
+  - KSCrash (1.15.6):
+    - KSCrash/Installations (= 1.15.6)
+  - KSCrash/Installations (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting
-  - KSCrash/Recording (1.15.5):
-    - KSCrash/Recording/Tools (= 1.15.5)
-  - KSCrash/Recording/Tools (1.15.5)
-  - KSCrash/Reporting (1.15.5):
+  - KSCrash/Recording (1.15.6):
+    - KSCrash/Recording/Tools (= 1.15.6)
+  - KSCrash/Recording/Tools (1.15.6)
+  - KSCrash/Reporting (1.15.6):
     - KSCrash/Recording
-    - KSCrash/Reporting/Filters (= 1.15.5)
-    - KSCrash/Reporting/MessageUI (= 1.15.5)
-    - KSCrash/Reporting/Sinks (= 1.15.5)
-    - KSCrash/Reporting/Tools (= 1.15.5)
-  - KSCrash/Reporting/Filters (1.15.5):
+    - KSCrash/Reporting/Filters (= 1.15.6)
+    - KSCrash/Reporting/MessageUI (= 1.15.6)
+    - KSCrash/Reporting/Sinks (= 1.15.6)
+    - KSCrash/Reporting/Tools (= 1.15.6)
+  - KSCrash/Reporting/Filters (1.15.6):
     - KSCrash/Recording
-    - KSCrash/Reporting/Filters/Alert (= 1.15.5)
-    - KSCrash/Reporting/Filters/AppleFmt (= 1.15.5)
-    - KSCrash/Reporting/Filters/Base (= 1.15.5)
-    - KSCrash/Reporting/Filters/Basic (= 1.15.5)
-    - KSCrash/Reporting/Filters/GZip (= 1.15.5)
-    - KSCrash/Reporting/Filters/JSON (= 1.15.5)
-    - KSCrash/Reporting/Filters/Sets (= 1.15.5)
-    - KSCrash/Reporting/Filters/Stringify (= 1.15.5)
-    - KSCrash/Reporting/Filters/Tools (= 1.15.5)
-  - KSCrash/Reporting/Filters/Alert (1.15.5):
-    - KSCrash/Recording
-    - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/AppleFmt (1.15.5):
+    - KSCrash/Reporting/Filters/Alert (= 1.15.6)
+    - KSCrash/Reporting/Filters/AppleFmt (= 1.15.6)
+    - KSCrash/Reporting/Filters/Base (= 1.15.6)
+    - KSCrash/Reporting/Filters/Basic (= 1.15.6)
+    - KSCrash/Reporting/Filters/GZip (= 1.15.6)
+    - KSCrash/Reporting/Filters/JSON (= 1.15.6)
+    - KSCrash/Reporting/Filters/Sets (= 1.15.6)
+    - KSCrash/Reporting/Filters/Stringify (= 1.15.6)
+    - KSCrash/Reporting/Filters/Tools (= 1.15.6)
+  - KSCrash/Reporting/Filters/Alert (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Base (1.15.5):
-    - KSCrash/Recording
-  - KSCrash/Reporting/Filters/Basic (1.15.5):
+  - KSCrash/Reporting/Filters/AppleFmt (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/GZip (1.15.5):
+  - KSCrash/Reporting/Filters/Base (1.15.6):
+    - KSCrash/Recording
+  - KSCrash/Reporting/Filters/Basic (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/JSON (1.15.5):
+  - KSCrash/Reporting/Filters/GZip (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Sets (1.15.5):
+  - KSCrash/Reporting/Filters/JSON (1.15.6):
+    - KSCrash/Recording
+    - KSCrash/Reporting/Filters/Base
+  - KSCrash/Reporting/Filters/Sets (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/AppleFmt
     - KSCrash/Reporting/Filters/Base
@@ -49,21 +49,21 @@ PODS:
     - KSCrash/Reporting/Filters/GZip
     - KSCrash/Reporting/Filters/JSON
     - KSCrash/Reporting/Filters/Stringify
-  - KSCrash/Reporting/Filters/Stringify (1.15.5):
+  - KSCrash/Reporting/Filters/Stringify (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters/Base
-  - KSCrash/Reporting/Filters/Tools (1.15.5):
+  - KSCrash/Reporting/Filters/Tools (1.15.6):
     - KSCrash/Recording
-  - KSCrash/Reporting/MessageUI (1.15.5):
+  - KSCrash/Reporting/MessageUI (1.15.6):
     - KSCrash/Recording
-  - KSCrash/Reporting/Sinks (1.15.5):
+  - KSCrash/Reporting/Sinks (1.15.6):
     - KSCrash/Recording
     - KSCrash/Reporting/Filters
     - KSCrash/Reporting/Tools
-  - KSCrash/Reporting/Tools (1.15.5):
+  - KSCrash/Reporting/Tools (1.15.6):
     - KSCrash/Recording
-  - Sentry (2.1.7):
-    - KSCrash (~> 1.15.3)
+  - Sentry (2.1.8):
+    - KSCrash (~> 1.15.5)
 
 DEPENDENCIES:
   - Sentry (from `../../`)
@@ -73,8 +73,8 @@ EXTERNAL SOURCES:
     :path: "../../"
 
 SPEC CHECKSUMS:
-  KSCrash: 061c15c3b979ce441f2664ee18282bd4b340d040
-  Sentry: a4ac5346daa999c5a85f8ba1a4c790f136e9369b
+  KSCrash: 5c172fba986847880b6c609c3d29fc12b7d6d40c
+  Sentry: 28fe96d26f92160132fc6b641b857f97cf0bc00c
 
 PODFILE CHECKSUM: 6e920273a2258e01d891dd3561ac2a73612fe34a
 

@@ -260,13 +260,6 @@
 			remoteGlobalIDString = EDF2BF211CCF15AD004BADF4;
 			remoteInfo = KSCrash_static;
 		};
-		03193CA01CD78E2100E8AB83 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 03DE7B691C84DEF700F789BA;
-			remoteInfo = KSCrash;
-		};
 		03B07D781D0892E3007B4758 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 03B07D6F1D0892E2007B4758 /* KSCrash-Mac.xcodeproj */;
@@ -329,6 +322,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
 			remoteInfo = "RavenSwift-iOS";
+		};
+		63ABFBA21E95394A00A3C595 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 03DE7B691C84DEF700F789BA;
+			remoteInfo = KSCrash;
 		};
 		63CDAB441DD9D7F300B63921 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -942,7 +942,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				03193CA11CD78E2100E8AB83 /* PBXTargetDependency */,
+				63ABFBA31E95394A00A3C595 /* PBXTargetDependency */,
 			);
 			name = "Sentry-iOS";
 			productName = "RavenSwift-iOS";
@@ -1507,11 +1507,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		03193CA11CD78E2100E8AB83 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = KSCrash;
-			targetProxy = 03193CA01CD78E2100E8AB83 /* PBXContainerItemProxy */;
-		};
 		03B07D821D089495007B4758 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = KSCrash;
@@ -1536,6 +1531,11 @@
 			isa = PBXTargetDependency;
 			target = 03E94B0A1C22596A009F8F29 /* Sentry-iOS */;
 			targetProxy = 03E94B161C22596A009F8F29 /* PBXContainerItemProxy */;
+		};
+		63ABFBA31E95394A00A3C595 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KSCrash;
+			targetProxy = 63ABFBA21E95394A00A3C595 /* PBXContainerItemProxy */;
 		};
 		63CDAB4A1DD9D80100B63921 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
