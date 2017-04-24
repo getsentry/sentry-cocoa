@@ -14,7 +14,6 @@ Pod::Spec.new do |s|
   
   s.default_subspecs = 'KSCrash'
   
-  
   s.subspec 'Core' do |cs|
     cs.source_files = ["Sources/Sentry/*.{h,m,swift}", "Sources/Sentry/Core/*.{h,m,swift}"]
     
