@@ -66,6 +66,7 @@
     SentryException *exc = [[SentryException alloc] initWithValue: @"test-value" type: @"Test" mechanism: nil module: nil];
     
     SentryEvent *event = [[SentryEvent alloc] init:message
+                                           eventID:nil
                                          timestamp:[NSDate date]
                                              level:SentrySeverityError
                                             logger:logger

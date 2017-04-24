@@ -473,6 +473,9 @@ class SentrySwiftTests: XCTestCase {
 		XCTAssertEqual(event.user!.userID, "4")
 		XCTAssertEqual(event.user!.email!, "stuff@example.com")
 		XCTAssertEqual(event.user!.username!, "stuff")
+        
+        let event2 = Event("Lalalala", eventID: "123")
+        XCTAssertEqual(event2.eventID, "123")
 	}
 
     func testMergeEmptyEvent() {

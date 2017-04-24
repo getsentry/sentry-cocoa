@@ -46,9 +46,9 @@ public typealias EventFingerprint = [String]
     // MARK: - Required Attributes
     
     #if swift(>=3.0)
-    public let eventID: String = NSUUID().uuidString.replacingOccurrences(of: "-", with: "")
+    public var eventID: String = NSUUID().uuidString.replacingOccurrences(of: "-", with: "")
     #else
-    public let eventID: String = NSUUID().UUIDString.stringByReplacingOccurrencesOfString("-", withString: "")
+    public var eventID: String = NSUUID().UUIDString.stringByReplacingOccurrencesOfString("-", withString: "")
     #endif
     public var message: String
     public var timestamp: NSDate = NSDate()
@@ -88,26 +88,9 @@ public typealias EventFingerprint = [String]
         return event
     }
     
-    /*
-     Creates an event
-     - Parameter message: A message
-     - Parameter timestamp: A timestamp
-     - Parameter level: A severity level
-     - Parameter platform: A platform
-     - Parameter logger: A logger
-     - Parameter culprit: A culprit
-     - Parameter serverName: A server name
-     - Parameter release: A release
-     - Parameter buildNumber: A buildNumber
-     - Parameter tags: A dictionary of tags
-     - Parameter modules: A dictionary of modules
-     - Parameter extras: A dictionary of extras
-     - Parameter fingerprint: A array of fingerprints
-     - Parameter user: A user object
-     - Parameter exceptions: An array of `Exception` objects
-     - Parameter stacktrace: An array of `Stacktrace` objects
-     */
-    @objc public init(_ message: String,
+    @objc public init(_
+                      message: String,
+                      eventID: String? = nil,
                       timestamp: NSDate = NSDate(),
                       level: Severity = .Error,
                       logger: String? = nil,
@@ -129,6 +112,10 @@ public typealias EventFingerprint = [String]
         self.level = level
         
         // Optional
+        if let eventID = eventID {
+            self.eventID = eventID
+        }
+        
         self.logger = logger
         self.culprit = culprit
         self.serverName = serverName
@@ -203,7 +190,8 @@ extension Event: EventSerializable {
         attributes.append(("culprit", culprit))
         attributes.append(("server_name", serverName))
         if let releaseVersion = releaseVersion, let buildNumber = buildNumber {
-            attributes.append(("release", "\(releaseVersion) (\(buildNumber))"))
+            attributes.append(("release", releaseVersion))
+            attributes.append(("dist", buildNumber))
         } else {
             attributes.append(("release", releaseVersion))
         }
