@@ -43,11 +43,15 @@ pod-release:
 
 build-version-bump:
 	@echo "--> Building VersionBump"
-	cd Utils/VersionBump && rm -rf .build && swift build
+	cd Utils/VersionBump && swift build
 
 bump-version: build-version-bump
 	@echo "--> Bumping version from ${FROM} to ${TO}"
 	./Utils/VersionBump/.build/debug/VersionBump ${FROM} ${TO}
+
+clean-version-bump:
+	@echo "--> Clean VersionBump"
+	cd Utils/VersionBump && rm -rf .build && swift build
 
 git-commit-add:
 	@echo "\n\n\n--> Commting git ${TO}"
