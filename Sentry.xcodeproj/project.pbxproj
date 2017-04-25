@@ -384,13 +384,6 @@
 			remoteGlobalIDString = 03E94B0A1C22596A009F8F29;
 			remoteInfo = "RavenSwift-iOS";
 		};
-		63ABFBA21E95394A00A3C595 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03193C911CD78DF600E8AB83 /* KSCrash-iOS.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 03DE7B691C84DEF700F789BA;
-			remoteInfo = KSCrash;
-		};
 		63CDAB441DD9D7F300B63921 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 03C714E01CE4D2090080AE60 /* KSCrash-TVOS.xcodeproj */;
@@ -427,7 +420,6 @@
 		03234FE41E806DF3001700C3 /* Event+KSCrash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Event+KSCrash.swift"; path = "SentryKSCrash/Event+KSCrash.swift"; sourceTree = "<group>"; };
 		0323501C1E807783001700C3 /* SentryKSCrash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryKSCrash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0323507D1E8081A7001700C3 /* SentryKSCrash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryKSCrash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		0323507E1E8081AA001700C3 /* Sentry-tvOS copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Sentry-tvOS copy-Info.plist"; path = "/Users/josh/Projects/sentry-swift/Sentry-tvOS copy-Info.plist"; sourceTree = "<absolute>"; };
 		032350BB1E8087D9001700C3 /* SentryKSCrash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryKSCrash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		032350BC1E8087DA001700C3 /* Sentry-WatchOS copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Sentry-WatchOS copy-Info.plist"; path = "/Users/josh/Projects/sentry-swift/Sentry-WatchOS copy-Info.plist"; sourceTree = "<absolute>"; };
 		033BFE111E79E349002A4015 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -791,7 +783,6 @@
 				63CDAB5F1DDB164500B63921 /* iOS */,
 				217A96211CD67739006C681F /* Frameworks */,
 				03E94AED1C22595B009F8F29 /* Products */,
-				0323507E1E8081AA001700C3 /* Sentry-tvOS copy-Info.plist */,
 				032350BC1E8087DA001700C3 /* Sentry-WatchOS copy-Info.plist */,
 			);
 			sourceTree = "<group>";
@@ -1165,7 +1156,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				63ABFBA31E95394A00A3C595 /* PBXTargetDependency */,
 			);
 			name = "Sentry-iOS";
 			productName = "RavenSwift-iOS";
