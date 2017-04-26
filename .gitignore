@@ -43,7 +43,7 @@ Carthage/Build
 Carthage/Checkouts
 
 # CocoaPods
-**/Pods
+Examples/**/Pods
 
 # Fastlane
 fastlane/test_output/
@@ -51,3 +51,11 @@ report.xml
 .env
 cobertura.xml
 Sentry.framework.zip
+
+# DepTest
+DependencyManagerTests/*/*/Cartfile
+DependencyManagerTests/*/*/Cartfile.resolved
+DependencyManagerTests/*/*/Carthage/
+DependencyManagerTests/*/*/Podfile
+DependencyManagerTests/*/*/Podfile.lock
+DependencyManagerTests/*/*/Pods

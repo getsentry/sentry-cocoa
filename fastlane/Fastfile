@@ -15,13 +15,13 @@ COCOAPODS_PROJECTS = [
 ]
 
 before_all do
-  clear_derived_data
+  clear_derived_data if is_ci?
 end
 
 desc "Test iOS, tvOS, and OSX"
 lane :test do
     xcode_select "/Applications/Xcode-8.2.1.app"
-    ENV["CI"]="true"
+    ENV["CI"]="true" if is_ci?
     test_swift_2_ios
     test_swift_2_tvos
     test_swift_2_macos
@@ -112,7 +112,11 @@ lane :reset_carthage do |options|
     File.delete File.join(dir, "Cartfile.resolved") rescue nil
     FileUtils.rm_rf File.join(dir, "Carthage") rescue nil
     
+    sleep 1
+    
     File.open(File.join(dir, "Cartfile"), 'w') { |file| file.write(cartfile_contents) }
+    
+    sleep 1
   end
 end
 
@@ -158,7 +162,7 @@ lane :do_cocoapods do  |options|
 end
 
 lane :reset_cocoapods do |options|
-  filter_cocoapods_platforms.each do |project|
+  filter_cocoapods_platforms(options).each do |project|
     dir = File.dirname project[:path]
     
     cocoapods_target = project[:target]
@@ -183,7 +187,11 @@ end
     File.delete File.join(dir, "Podfile.lock") rescue nil
     FileUtils.rm_rf File.join(dir, "Pods") rescue nil
     
+    sleep 1
+    
     File.open(File.join(dir, "Podfile"), 'w') { |file| file.write(cocoapod_contents) }
+    
+    sleep 1
   end
 end
 
