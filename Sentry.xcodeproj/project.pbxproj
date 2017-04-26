@@ -1891,7 +1891,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_SWIFT_FLAGS = "-Xfrontend -debug-time-function-bodies";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1917,7 +1917,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1943,7 +1943,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1967,7 +1967,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SKIP_INSTALL = YES;
 			};
@@ -1985,7 +1985,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sentry/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -2007,7 +2007,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sentry/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -2035,7 +2035,7 @@
 				INFOPLIST_FILE = "Sentry-WatchOS copy-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -2063,7 +2063,7 @@
 				INFOPLIST_FILE = "Sentry-WatchOS copy-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryKSCrash;
 				PRODUCT_NAME = SentryKSCrash;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
