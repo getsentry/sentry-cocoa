@@ -30,7 +30,29 @@ import KSCrash
     internal typealias Date = NSDate
 #endif
 
+#if swift(>=3.0)
+protocol NotificationName {
+    var name: Notification.Name { get }
+}
+
+extension NotificationName where Self: RawRepresentable, Self.RawValue == String {
+    var name: Notification.Name {
+        return Notification.Name("Sentry/" + self.rawValue)
+    }
+}
+#endif
+
 @objc public class SentryClient: NSObject, EventProperties {
+    
+    #if swift(>=3.0)
+    private enum Notifications: String, NotificationName {
+        case eventSentSuccessfully // Sentry/eventSentSuccessfully
+    }
+    #else
+    private enum Notifications: String {
+        case eventSentSuccessfully = "Sentry/eventSentSuccessfully"
+    }
+    #endif
     
     // MARK: - Static Attributes
     
@@ -55,7 +77,6 @@ import KSCrash
     }
     
     // MARK: - Attributes
-    
     internal let dsn: DSN
     internal let requestManager: RequestManager
     internal(set) var crashHandler: CrashHandler? {
@@ -78,6 +99,19 @@ import KSCrash
     }()
     
     internal var stacktraceSnapshot: Event.StacktraceSnapshot?
+    internal(set) public var lastEvent: Event? {
+        didSet {
+            guard let event = lastEvent else {
+                return
+            }
+            #if swift(>=3.0)
+            NotificationCenter.default.post(name: Notifications.eventSentSuccessfully.name, object: nil, userInfo: event.serialized)
+            #else
+            NSNotificationCenter.defaultCenter().postNotificationName(Notifications.eventSentSuccessfully.rawValue, object: nil, userInfo: event.serialized)
+            #endif
+            
+        }
+    }
     
     // MARK: UserFeedback
     #if os(iOS)
