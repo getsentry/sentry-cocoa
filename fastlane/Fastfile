@@ -15,7 +15,6 @@ COCOAPODS_PROJECTS = [
 ]
 
 before_all do
-  puts "GIT_MODULE_CONTENTS: #{GIT_MODULE_CONTENTS}"
   clear_derived_data if is_ci?
 end
 
@@ -23,7 +22,7 @@ error do
   undo_gitmodules
 end
 
-private lane :undo_gitmodules do
+private_lane :undo_gitmodules do
   sh "git checkout .gitmodules" rescue nil
 end
 
