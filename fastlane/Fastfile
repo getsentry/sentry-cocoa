@@ -14,21 +14,17 @@ COCOAPODS_PROJECTS = [
   {platform: "watchos", path: File.absolute_path("../DependencyManagerTests/cocoapods/watchOSCocoaPods/watchOSCocoaPods.xcodeproj"), target: "watchOSCocoaPods", can_test: false},
 ]
 
-GIT_MODULE_PATH = File.absolute_path "../.gitmodules"
-GIT_MODULE_CONTENTS = File.open(GIT_MODULE_PATH, "rb").read
-
-def rewrite_gitmodules
-  File.open(GIT_MODULE_PATH, 'w') { |file| file.write(GIT_MODULE_CONTENTS) }
-end
-
 before_all do
   puts "GIT_MODULE_CONTENTS: #{GIT_MODULE_CONTENTS}"
   clear_derived_data if is_ci?
 end
 
 error do
-  sh "git checkout .gitmodules"
-  # rewrite_gitmodules
+  undo_gitmodules
+end
+
+private lane :undo_gitmodules do
+  sh "git checkout .gitmodules" rescue nil
 end
 
 desc "Test iOS, tvOS, and OSX"
@@ -125,11 +121,7 @@ lane :reset_carthage do |options|
     File.delete File.join(dir, "Cartfile.resolved") rescue nil
     FileUtils.rm_rf File.join(dir, "Carthage") rescue nil
     
-    sleep 1
-    
     File.open(File.join(dir, "Cartfile"), 'w') { |file| file.write(cartfile_contents) }
-    
-    sleep 1
   end
 end
 
@@ -144,7 +136,7 @@ lane :build_carthage do  |options|
       use_binaries: false,
       verbose: true
     )
-    sh "git checkout .gitmodules"
+    undo_gitmodules
   end
 end
 
@@ -201,11 +193,7 @@ end
     File.delete File.join(dir, "Podfile.lock") rescue nil
     FileUtils.rm_rf File.join(dir, "Pods") rescue nil
     
-    sleep 1
-    
     File.open(File.join(dir, "Podfile"), 'w') { |file| file.write(cocoapod_contents) }
-    
-    sleep 1
   end
 end
 
