@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'KSCrash' do |ks|
     ks.source_files = ["Sources/Sentry/*.{h,m,swift}", "Sources/Sentry/KSCrash/*.{h,m,swift}"]
-    ks.dependency 'KSCrash', '~> 1.15.4'
+    ks.dependency 'KSCrash', '~> 1.15.8'
     
     ks.ios.source_files = "Sources/Sentry/ios/*.{h,m,swift}"
     ks.ios.resource_bundles = {
