@@ -14,11 +14,20 @@ COCOAPODS_PROJECTS = [
   {platform: "watchos", path: File.absolute_path("../DependencyManagerTests/cocoapods/watchOSCocoaPods/watchOSCocoaPods.xcodeproj"), target: "watchOSCocoaPods", can_test: false},
 ]
 
-GIT_MODULE_CONTENTS = File.open("../.gitmodules", "rb").read
+GIT_MODULE_PATH = File.absolute_path "../.gitmodules"
+GIT_MODULE_CONTENTS = File.open(GIT_MODULE_PATH, "rb").read
+
+def rewrite_gitmodules
+  File.open(File.join(dir, GIT_MODULE_PATH), 'w') { |file| file.write(GIT_MODULE_CONTENTS) }
+end
 
 before_all do
   puts "GIT_MODULE_CONTENTS: #{GIT_MODULE_CONTENTS}"
   clear_derived_data if is_ci?
+end
+
+error do
+  rewrite_gitmodules
 end
 
 desc "Test iOS, tvOS, and OSX"
@@ -134,6 +143,7 @@ lane :build_carthage do  |options|
       use_binaries: false,
       verbose: true
     )
+    rewrite_gitmodules
   end
 end
 
