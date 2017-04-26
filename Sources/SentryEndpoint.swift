@@ -50,7 +50,7 @@ enum SentryEndpoint: Endpoint {
                 }
                 let serializedEvent = eventToSend.serialized
                 guard JSONSerialization.isValidJSONObject(serializedEvent) else {
-                    Log.Error.log("Could not serialized event")
+                    Log.error.log("Could not serialized event")
                     return Data()
                 }
                 #if swift(>=3.0)
@@ -59,14 +59,14 @@ enum SentryEndpoint: Endpoint {
                     return try JSONSerialization.dataWithJSONObject(serializedEvent, options: [])
                 #endif
             } catch {
-                Log.Error.log("Could not serialized event - \(error)")
+                Log.error.log("Could not serialized event - \(error)")
                 return Data()
             }
         case .storeSavedEvent(let savedEvent):
             return savedEvent.data
         case .userFeedback(let userFeedback):
             guard let data = userFeedback.serialized else {
-                Log.Error.log("Could not serialize userFeedback")
+                Log.error.log("Could not serialize userFeedback")
                 return Data()
             }
             return data
@@ -75,7 +75,7 @@ enum SentryEndpoint: Endpoint {
     
     func send(requestManager: RequestManager, dsn: DSN, finished: SentryEndpointRequestFinished? = nil) {
         guard let url = routeForDsn(dsn) else {
-            Log.Error.log("Cannot find route for \(self)")
+            Log.error.log("Cannot find route for \(self)")
             finished?(false)
             return
         }
@@ -95,7 +95,7 @@ enum SentryEndpoint: Endpoint {
         var components = URLComponents()
         components.scheme = dsn.url.scheme
         components.host = dsn.url.host
-        components.port = dsn.url.port as Int?
+        components.port = dsn.url.port as? Int
         
         switch self {
         case .store(_), .storeSavedEvent(_):
@@ -136,7 +136,7 @@ enum SentryEndpoint: Endpoint {
                 #endif
                 request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
             } catch {
-                Log.Error.log("Failed to gzip request data = \(error)")
+                Log.error.log("Failed to gzip request data = \(error)")
                 #if swift(>=3.0)
                     request.httpBody = data as Data
                 #else
@@ -165,6 +165,6 @@ enum SentryEndpoint: Endpoint {
                 return
             }
         #endif
-        Log.Verbose.log("body = \(body)")
+        Log.verbose.log("body = \(body)")
     }
 }

@@ -20,7 +20,7 @@ import Foundation
     public var level: Severity // can't be optional because @objc can't handle optional enums
     
     /// Creates a breadcrumb
-    @objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: Severity = .Info, data: [String: AnyType]? = nil) {
+    @objc public init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, type: String? = nil, level: Severity = .info, data: [String: AnyType]? = nil) {
         self.category = category
         self.timestamp = timestamp
         self.message = message
@@ -32,7 +32,7 @@ import Foundation
     }
     
     /// Conveneince init for a "navigation" type breadcrumb
-    public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: Severity = .Info, data: [String: AnyType]? = nil, to: String, from: String? = nil) {
+    public convenience init(category: String, timestamp: NSDate = NSDate(), message: String? = nil, level: Severity = .info, data: [String: AnyType]? = nil, to: String, from: String? = nil) {
         let navigationData: [String: AnyType] = (data ?? [:])
             .set("to", value: to)
             .set("from", value: from)
@@ -44,7 +44,7 @@ import Foundation
     public convenience init(category: String,
                             timestamp: NSDate = NSDate(),
                             message: String? = nil,
-                            level: Severity = .Info,
+                            level: Severity = .info,
                             data: [String: AnyType]? = nil,
                             url: String, method: String,
                             statusCode: Int = -999,

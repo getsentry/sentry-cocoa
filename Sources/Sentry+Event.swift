@@ -15,7 +15,7 @@ extension SentryClient {
      - Parameter message: The message to send to Sentry
      - Parameter level: The severity of the message
      */
-    @objc public func captureMessage(_ message: String, level: Severity = .Info) {
+    @objc public func captureMessage(_ message: String, level: Severity = .info) {
         captureEvent(Event(message, level: level))
     }
     
@@ -60,7 +60,7 @@ extension SentryClient {
             defer { completed?(success) }
             guard !success else {
                 #if os(iOS)
-                    if event.level == .Fatal {
+                    if event.level == .fatal {
                         self?.lastSuccessfullySentEvent = event
                     }
                 #endif

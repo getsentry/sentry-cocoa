@@ -13,7 +13,7 @@ class SentrySwiftUserFeedback: XCTestCase {
     
     func testUserFeedbackObject() {
         let event = Event.build("Another example 4") {
-            $0.level = .Fatal
+            $0.level = .fatal
             $0.tags = ["status": "test"]
             $0.extra = [
                 "name": "Josh Holtz",

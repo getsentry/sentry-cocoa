@@ -39,7 +39,7 @@ extension UserFeedback {
                 return escapedString
             }
         #endif
-        Log.Error.log("Could not urlencode \(string)")
+        Log.error.log("Could not urlencode \(string)")
         return string
     }
     

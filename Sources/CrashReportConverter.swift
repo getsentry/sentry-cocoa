@@ -19,14 +19,14 @@ internal final class CrashReportConverter {
     
     private static func checkIncompleteReport(_ report: CrashDictionary) -> CrashDictionary {
         if let reCrash = report["recrash_report"] as? CrashDictionary {
-            Log.Debug.log("Found incomplete crash, falling back to recrash_report - Possible not showing all thread information")
+            Log.debug.log("Found incomplete crash, falling back to recrash_report - Possible not showing all thread information")
             return reCrash
         }
         return report
     }
     
     internal static func convertReportToEvent(_ report: CrashDictionary) -> Event? {
-        Log.Verbose.log("KSCrash Report = \(report)")
+        Log.verbose.log("KSCrash Report = \(report)")
         
         var crashReport = checkIncompleteReport(report)
         
@@ -44,22 +44,22 @@ internal final class CrashReportConverter {
         
         // Generating threads, exceptions, and debug meta for crash report
         guard let binaryImagesDicts = crashReport["binary_images"] as? [[String: AnyObject]] else {
-            Log.Error.log("missing 'binary_images' in crash report: \(crashReport)")
+            Log.error.log("missing 'binary_images' in crash report: \(crashReport)")
             return nil
         }
         
         guard let crashDict = crashReport["crash"] as? [String: AnyObject] else {
-            Log.Error.log("missing 'crash' in crash report: \(crashReport)")
+            Log.error.log("missing 'crash' in crash report: \(crashReport)")
             return nil
         }
         
         guard let errorDict = crashDict["error"] as? [String: AnyObject] else {
-            Log.Error.log("missing 'error' in crash report: \(crashReport)")
+            Log.error.log("missing 'error' in crash report: \(crashReport)")
             return nil
         }
         
         guard let threadDicts = crashDict["threads"] as? [[String: AnyObject]] else {
-            Log.Error.log("missing 'threads' in crash report: \(crashReport)")
+            Log.error.log("missing 'threads' in crash report: \(crashReport)")
             return nil
         }
         
@@ -74,7 +74,7 @@ internal final class CrashReportConverter {
         /// Generate event to sent up to API
         /// Sends a blank message because server does stuff
         let event = Event.build("") {
-            $0.level = .Fatal
+            $0.level = .fatal
             $0.timestamp = timestamp
             $0.tags = userInfo.tags ?? [:]
             $0.extra = (sanitize(userInfo.extra ?? [:]) as? [String: AnyType]) ?? [:]

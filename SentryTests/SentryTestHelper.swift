@@ -67,7 +67,7 @@ class SentrySwiftTestHelper {
     }
     
     static let demoFatalEvent = Event.build("FATAL - A bad thing happened", build: {
-        $0.level = .Fatal
+        $0.level = .fatal
         $0.tags = ["doot": "doot"]
     })
     
