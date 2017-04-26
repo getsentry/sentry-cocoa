@@ -27,7 +27,8 @@ before_all do
 end
 
 error do
-  rewrite_gitmodules
+  sh "git checkout .gitmodules"
+  # rewrite_gitmodules
 end
 
 desc "Test iOS, tvOS, and OSX"
@@ -143,7 +144,7 @@ lane :build_carthage do  |options|
       use_binaries: false,
       verbose: true
     )
-    rewrite_gitmodules
+    sh "git checkout .gitmodules"
   end
 end
 
