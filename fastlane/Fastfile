@@ -14,7 +14,10 @@ COCOAPODS_PROJECTS = [
   {platform: "watchos", path: File.absolute_path("../DependencyManagerTests/cocoapods/watchOSCocoaPods/watchOSCocoaPods.xcodeproj"), target: "watchOSCocoaPods", can_test: false},
 ]
 
+GIT_MODULE_CONTENTS = File.open("../.gitmodules", "rb").read
+
 before_all do
+  puts "GIT_MODULE_CONTENTS: #{GIT_MODULE_CONTENTS}"
   clear_derived_data if is_ci?
 end
 
@@ -122,7 +125,7 @@ end
 
 lane :build_carthage do  |options|
   filter_carthage_platforms(options).each do |project|
-    dir = File.dirname project[:path]
+    dir = File.dirname project[:path]  
     carthage(
       command: "update",
       project_directory: dir,
