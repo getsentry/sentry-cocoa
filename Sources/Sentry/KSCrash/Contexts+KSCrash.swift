@@ -2,7 +2,7 @@ import Sentry
 import KSCrash
 
 extension Contexts {
-    static internal var serialized: SerializedType {
+    static internal var serialized: Event.SerializedType {
         let info = KSCrash.sharedInstance().systemInfo
         return [
             "os": OSContext(info).serialized,
