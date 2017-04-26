@@ -36,9 +36,7 @@ protocol NotificationName {
 
 extension NotificationName where Self: RawRepresentable, Self.RawValue == String {
     var name: Notification.Name {
-        get {
-            return Notification.Name("Sentry/" + self.rawValue)
-        }
+        return Notification.Name("Sentry/" + self.rawValue)
     }
 }
 
