@@ -13,12 +13,12 @@ import Foundation
 #endif
 
 #if swift(>=3.0)
-internal typealias SystemInfo = [AnyHashable: AnyType]
+public typealias SystemInfo = [AnyHashable: AnyType]
 #else
-internal typealias SystemInfo = [NSObject: AnyObject]
+public typealias SystemInfo = [NSObject: AnyObject]
 #endif
 
-protocol Context {
+public protocol Context {
     var info: SystemInfo? { get set }
     init(_ info: SystemInfo?)
     init()
