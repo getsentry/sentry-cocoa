@@ -18,7 +18,7 @@ GIT_MODULE_PATH = File.absolute_path "../.gitmodules"
 GIT_MODULE_CONTENTS = File.open(GIT_MODULE_PATH, "rb").read
 
 def rewrite_gitmodules
-  File.open(File.join(dir, GIT_MODULE_PATH), 'w') { |file| file.write(GIT_MODULE_CONTENTS) }
+  File.open(GIT_MODULE_PATH, 'w') { |file| file.write(GIT_MODULE_CONTENTS) }
 end
 
 before_all do
