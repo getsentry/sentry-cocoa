@@ -1,3 +1,4 @@
+import Sentry
 import KSCrash.NSData_GZip
 
 extension SentryEndpoint {
