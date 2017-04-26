@@ -22,7 +22,7 @@ protocol Endpoint {
     func routeForDsn(_ dsn: DSN) -> URL?
 }
 
-enum SentryEndpoint: Endpoint {
+public enum SentryEndpoint: Endpoint {
     
     case store(event: Event)
     case storeSavedEvent(event: SavedEvent)

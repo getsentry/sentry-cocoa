@@ -24,25 +24,27 @@ public protocol Context {
     init()
 }
 
-extension Context {
-    init(_ info: SystemInfo?) {
-        self.init()
-        self.info = info
-    }
-}
-
-internal struct Contexts {}
+public struct Contexts {}
 
 extension Contexts: EventSerializable {
-	internal typealias SerializedType = SerializedTypeDictionary
-	internal var serialized: SerializedType {
+	public typealias SerializedType = SerializedTypeDictionary
+	public var serialized: SerializedType {
 		return Contexts.serialized
 	}
 }
 
-internal struct OSContext: Context {
-    var info: SystemInfo?
-    
+public struct OSContext: Context {
+    public var info: SystemInfo?
+	
+	public init() {
+		self.info = nil
+	}
+	
+	public init(_ info: SystemInfo?) {
+		self.init()
+		self.info = info
+	}
+	
     var name: String? {
         #if os(iOS)
             return "iOS"
@@ -75,9 +77,9 @@ internal struct OSContext: Context {
 }
 
 extension OSContext: EventSerializable {
-    typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
-    var serialized: SerializedType {
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("name", name))
@@ -90,8 +92,17 @@ extension OSContext: EventSerializable {
     }
 }
 
-internal struct DeviceContext: Context {
-    var info: SystemInfo?
+public struct DeviceContext: Context {
+    public var info: SystemInfo?
+	
+	public init() {
+		self.info = nil
+	}
+	
+	public init(_ info: SystemInfo?) {
+		self.init()
+		self.info = info
+	}
     
     var architecture: String? {
         return info?["cpuArchitecture"] as? String
@@ -191,9 +202,9 @@ internal struct DeviceContext: Context {
 }
 
 extension DeviceContext: EventSerializable {
-    typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
-    var serialized: SerializedType {
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("family", family))
@@ -224,8 +235,17 @@ extension DeviceContext: EventSerializable {
     }
 }
 
-internal struct AppContext: Context {
-    var info: SystemInfo?
+public struct AppContext: Context {
+    public var info: SystemInfo?
+	
+	public init() {
+		self.info = nil
+	}
+	
+	public init(_ info: SystemInfo?) {
+		self.init()
+		self.info = info
+	}
     
     var appStartTime: String? {
         return info?["appStartTime"] as? String
@@ -262,9 +282,9 @@ internal struct AppContext: Context {
 }
 
 extension AppContext: EventSerializable {
-    typealias SerializedType = SerializedTypeDictionary
+    public typealias SerializedType = SerializedTypeDictionary
     
-    var serialized: SerializedType {
+    public var serialized: SerializedType {
         var attributes: [Attribute] = []
         
         attributes.append(("app_start_time", appStartTime))
