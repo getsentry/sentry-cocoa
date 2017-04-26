@@ -34,6 +34,8 @@
 		032350C01E80884E001700C3 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F931E8064FB001700C3 /* KSCrashHandler.swift */; };
 		032350C11E80884E001700C3 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F941E8064FB001700C3 /* Sentry+KSCrash.swift */; };
 		032350C21E80884E001700C3 /* Event+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234FE41E806DF3001700C3 /* Event+KSCrash.swift */; };
+		033AE9A01EB0D02300E7B21E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE611E79EF0F002A4015 /* Assets.xcassets */; };
+		033AE9A11EB0D02900E7B21E /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE671E79EF3C002A4015 /* UserFeedback.storyboard */; };
 		033BFE191E79ED6B002A4015 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE181E79ED6B002A4015 /* Functions.swift */; };
 		033BFE1C1E79EDA7002A4015 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */; };
 		033BFE1D1E79EDA7002A4015 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1B1E79EDA7002A4015 /* CrashReportConverter.swift */; };
@@ -1453,6 +1455,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033AE9A11EB0D02900E7B21E /* UserFeedback.storyboard in Resources */,
+				033AE9A01EB0D02300E7B21E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
