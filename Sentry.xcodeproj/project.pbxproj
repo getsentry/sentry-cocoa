@@ -20,7 +20,6 @@
 		03234FE51E806DF3001700C3 /* Event+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234FE41E806DF3001700C3 /* Event+KSCrash.swift */; };
 		03234FE61E806FCF001700C3 /* SentryKSCrash.h in Headers */ = {isa = PBXBuildFile; fileRef = 03234FE21E806811001700C3 /* SentryKSCrash.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		032350131E807783001700C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B07D5D1D087D2F007B4758 /* libz.tbd */; };
-		032350181E807783001700C3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 035242951C988D2F00A65D6D /* Info.plist */; };
 		0323501E1E8077AA001700C3 /* SentryKSCrash.h in Headers */ = {isa = PBXBuildFile; fileRef = 03234FE21E806811001700C3 /* SentryKSCrash.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		032350211E8077DB001700C3 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F941E8064FB001700C3 /* Sentry+KSCrash.swift */; };
 		032350221E8077FA001700C3 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F931E8064FB001700C3 /* KSCrashHandler.swift */; };
@@ -35,6 +34,8 @@
 		032350C01E80884E001700C3 /* KSCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F931E8064FB001700C3 /* KSCrashHandler.swift */; };
 		032350C11E80884E001700C3 /* Sentry+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234F941E8064FB001700C3 /* Sentry+KSCrash.swift */; };
 		032350C21E80884E001700C3 /* Event+KSCrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03234FE41E806DF3001700C3 /* Event+KSCrash.swift */; };
+		033AE99E1EB0CC1100E7B21E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE611E79EF0F002A4015 /* Assets.xcassets */; };
+		033AE99F1EB0CC2300E7B21E /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE671E79EF3C002A4015 /* UserFeedback.storyboard */; };
 		033BFE191E79ED6B002A4015 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE181E79ED6B002A4015 /* Functions.swift */; };
 		033BFE1C1E79EDA7002A4015 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1A1E79EDA7002A4015 /* CrashHandler.swift */; };
 		033BFE1D1E79EDA7002A4015 /* CrashReportConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE1B1E79EDA7002A4015 /* CrashReportConverter.swift */; };
@@ -159,7 +160,6 @@
 		033BFEEF1E79F4E4002A4015 /* RequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE5A1E79EEF9002A4015 /* RequestOperation.swift */; };
 		033BFEF21E79F4E4002A4015 /* Sentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE691E79EF66002A4015 /* Sentry.swift */; };
 		033BFEF31E79F4E4002A4015 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033BFE6A1E79EF66002A4015 /* Log.swift */; };
-		033BFEF51E79F4EB002A4015 /* UserFeedback.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 033BFE671E79EF3C002A4015 /* UserFeedback.storyboard */; };
 		033BFEF91E79F556002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		033BFEFA1E79F559002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		033BFEFB1E79F55A002A4015 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 033BFEF81E79F556002A4015 /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1387,7 +1387,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				032350181E807783001700C3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1456,7 +1455,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				033BFEF51E79F4EB002A4015 /* UserFeedback.storyboard in Resources */,
+				033AE99F1EB0CC2300E7B21E /* UserFeedback.storyboard in Resources */,
+				033AE99E1EB0CC1100E7B21E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
