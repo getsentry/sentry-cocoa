@@ -23,7 +23,7 @@ error do
 end
 
 private_lane :undo_gitmodules do
-  sh "git checkout .gitmodules" rescue nil
+  sh "git reset --hard HEAD" rescue nil if ENV["DO_RESET"] == "true"
 end
 
 desc "Test iOS, tvOS, and OSX"
@@ -125,6 +125,8 @@ lane :reset_carthage do |options|
 end
 
 lane :build_carthage do  |options|
+  ENV["DO_RESET"] = UI.confirm("Cathage will modify files. Do you want to 'git reset' after Carthage does stuff?").to_s
+  
   filter_carthage_platforms(options).each do |project|
     dir = File.dirname project[:path]  
     carthage(
