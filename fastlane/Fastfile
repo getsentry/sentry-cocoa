@@ -109,7 +109,7 @@ lane :do_carthage do  |options|
 end
 
 lane :reset_carthage do |options|
-  carthage_git_url = options[:git_url] || "getsentry/sentry-swift"
+  carthage_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
   carthage_branch = options[:branch] || "master"
   cartfile_contents = "git \"#{carthage_git_url}\" \"#{carthage_branch}\""
   
