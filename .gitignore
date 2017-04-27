@@ -44,6 +44,7 @@ Carthage/Checkouts
 
 # CocoaPods
 Examples/**/Pods
+Pods
 
 # Fastlane
 fastlane/test_output/
