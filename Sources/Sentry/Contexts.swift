@@ -24,12 +24,16 @@ public protocol Context {
     init()
 }
 
-public struct Contexts {}
+struct Contexts {}
 
 extension Contexts: EventSerializable {
 	public typealias SerializedType = SerializedTypeDictionary
 	public var serialized: SerializedType {
-		return Contexts.serialized
+        return [
+            "os": OSContext().serialized,
+            "device": DeviceContext().serialized,
+            "app": AppContext().serialized
+        ]
 	}
 }
 
