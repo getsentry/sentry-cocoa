@@ -1,5 +1,5 @@
-import Sentry
 import KSCrash.NSData_GZip
+import Sentry
 
 extension SentryEndpoint {
 	internal func configureStoreRequestData(_ data: NSData, request: NSMutableURLRequest) {

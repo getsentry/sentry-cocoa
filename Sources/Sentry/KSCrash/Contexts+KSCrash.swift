@@ -1,5 +1,5 @@
-import Sentry
 import KSCrash
+import Sentry
 
 extension Contexts {
     static internal var serialized: Event.SerializedType {

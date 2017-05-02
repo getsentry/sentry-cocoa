@@ -187,8 +187,6 @@ public let keyBuildNumber = "buildNumber_serialized"
         }
     }
     
-  
-    
     #if os(iOS)
     @objc public func enableAutomaticBreadcrumbTracking() {
         SentrySwizzle.enableAutomaticBreadcrumbTracking()

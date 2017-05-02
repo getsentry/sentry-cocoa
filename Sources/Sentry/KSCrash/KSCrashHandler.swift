@@ -8,8 +8,8 @@
 
 import Foundation
 
-import Sentry
 import KSCrash
+import Sentry
 
 extension SentryClient {
     public func startCrashHandler() {
