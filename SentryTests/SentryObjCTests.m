@@ -9,7 +9,7 @@
 #import "SentryObjCTests.h"
 
 @import Sentry;
-
+@import SentryKSCrash;
 @interface SentrySwiftObjCTests()
 
 @property (nonatomic, strong) SentryClient *client;

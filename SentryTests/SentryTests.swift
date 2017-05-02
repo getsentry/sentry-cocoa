@@ -8,6 +8,7 @@
 
 import XCTest
 @testable import Sentry
+@testable import SentryKSCrash
 @testable import KSCrash
 
 class SentrySwiftTests: XCTestCase {
