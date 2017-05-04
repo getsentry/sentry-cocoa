@@ -29,6 +29,7 @@ import Foundation
     internal typealias Date = NSDate
 #endif
 
+
 // TODO: Josh doesn't like having these here
 // But they might. But they might not belong here.
 public typealias CrashDictionary = [String: AnyType]
@@ -39,32 +40,54 @@ public let keyBreadcrumbsSerialized = "breadcrumbs_serialized"
 public let keyReleaseVersion = "releaseVersion_serialized"
 public let keyBuildNumber = "buildNumber_serialized"
 
+#if swift(>=3.0)
+protocol NotificationName {
+    var name: Notification.Name { get }
+}
+
+extension NotificationName where Self: RawRepresentable, Self.RawValue == String {
+    var name: Notification.Name {
+        return Notification.Name("Sentry/" + self.rawValue)
+    }
+}
+#endif
+
+
 @objc public class SentryClient: NSObject, EventProperties {
-    
+
+    #if swift(>=3.0)
+    private enum Notifications: String, NotificationName {
+        case eventSentSuccessfully // Sentry/eventSentSuccessfully
+    }
+    #else
+    private enum Notifications: String {
+        case eventSentSuccessfully = "Sentry/eventSentSuccessfully"
+    }
+    #endif
+
     // MARK: - Static Attributes
-    
+
     public static var shared: SentryClient?
     public static var logLevel: Log = .Error
-    
+
     public static var versionString: String {
         return "\(Info.version) (\(Info.sentryVersion))"
     }
-    
+
     internal static let queueName = "io.sentry.event.queue"
-    
+
     // MARK: - Enums
-    
+
     internal struct Info {
         static let version: String = "2.1.3"
         static let sentryVersion: Int = 7
     }
-    
+
     public struct CrashLanguages {
         public static let reactNative = "react-native"
     }
-    
+
     // MARK: - Attributes
-    
     internal let dsn: DSN
     internal let requestManager: RequestManager
     public var crashHandler: CrashHandler? {
@@ -77,7 +100,7 @@ public let keyBuildNumber = "buildNumber_serialized"
             crashHandler?.user = user
         }
     }
-    
+
     public lazy var breadcrumbs: BreadcrumbStore = {
         let store = BreadcrumbStore()
         store.storeUpdated = {
@@ -85,13 +108,26 @@ public let keyBuildNumber = "buildNumber_serialized"
         }
         return store
     }()
-    
+
     public var stacktraceSnapshot: Event.StacktraceSnapshot?
-    
+    internal(set) public var lastEvent: Event? {
+        didSet {
+            guard let event = lastEvent else {
+                return
+            }
+            #if swift(>=3.0)
+            NotificationCenter.default.post(name: Notifications.eventSentSuccessfully.name, object: nil, userInfo: event.serialized)
+            #else
+            NSNotificationCenter.defaultCenter().postNotificationName(Notifications.eventSentSuccessfully.rawValue, object: nil, userInfo: event.serialized)
+            #endif
+
+        }
+    }
+
     // MARK: UserFeedback
     #if os(iOS)
     internal var userFeedbackViewControllers: UserFeedbackViewContollers?
-    
+
     public weak var delegate: SentryClientUserFeedbackDelegate?
     internal(set) var userFeedbackViewModel: UserFeedbackViewModel?
     internal(set) var lastSuccessfullySentEvent: Event? {
@@ -135,18 +171,18 @@ public let keyBuildNumber = "buildNumber_serialized"
         didSet { crashHandler?.user = user }
     }
     // ------------------
-    
+
     public typealias ObjcEventBeforeSend = (UnsafeMutablePointer<Event>) -> Void
     public typealias EventBeforeSend = (inout Event) -> Void
     /// Use this block to get the event that will be send with the next
     @objc public var objcBeforeSendEventBlock: ObjcEventBeforeSend?
     public var beforeSendEventBlock: EventBeforeSend?
-    
+
     /// Creates a Sentry object to use for reporting
     internal init(dsn: DSN, requestManager: RequestManager) {
         self.dsn = dsn
         self.requestManager = requestManager
-        
+
         #if swift(>=3.0)
             self.releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
@@ -154,11 +190,11 @@ public let keyBuildNumber = "buildNumber_serialized"
             self.releaseVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String
             self.buildNumber = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
         #endif
-        
+
         super.init()
         sendEventsOnDiskInBackground()
     }
-    
+
     convenience init(dsn: DSN) {
         #if swift(>=3.0)
             let requestManager = QueueableRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
@@ -167,7 +203,7 @@ public let keyBuildNumber = "buildNumber_serialized"
         #endif
         self.init(dsn: dsn, requestManager: requestManager)
     }
-    
+
     /// Creates a Sentry object if a valid DSN is provided
     @objc public convenience init?(dsnString: String) {
         // Silently not creating a client if dsnString is empty string
@@ -175,7 +211,7 @@ public let keyBuildNumber = "buildNumber_serialized"
             Log.Debug.log("DSN provided was empty - not creating a SentryClient object")
             return nil
         }
-        
+
         // Try to create a client with a DSN string
         // Log error if cannot make one
         do {
@@ -186,13 +222,13 @@ public let keyBuildNumber = "buildNumber_serialized"
             return nil
         }
     }
-    
+
     #if os(iOS)
     @objc public func enableAutomaticBreadcrumbTracking() {
         SentrySwizzle.enableAutomaticBreadcrumbTracking()
     }
     #endif
-    
+
     /// This will make you app crash, use only for test purposes
     @objc public func crash() {
         fatalError("TEST - Sentry Client Crash")

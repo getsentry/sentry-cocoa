@@ -64,6 +64,7 @@ extension SentryClient {
                         self?.lastSuccessfullySentEvent = event
                     }
                 #endif
+                self?.lastEvent = event
                 return
             }
             self?.saveEvent(event)
