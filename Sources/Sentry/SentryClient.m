@@ -40,6 +40,8 @@ static SentryLogLevel logLevel = kError;
 
 @dynamic logLevel;
 
+#pragma mark Initializer
+
 - (instancetype)initWithDsn:(NSString *)dsn didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
@@ -53,13 +55,7 @@ static SentryLogLevel logLevel = kError;
     return self;
 }
 
-+ (void)setLogLevel:(SentryLogLevel)level {
-    logLevel = level;
-}
-
-+ (SentryLogLevel)logLevel {
-    return logLevel;
-}
+#pragma mark Static Getter/Setter
 
 + (instancetype)sharedClient {
     return sharedClient;
@@ -71,6 +67,14 @@ static SentryLogLevel logLevel = kError;
 
 + (NSString *)versionString {
     return [NSString stringWithFormat:@"%@ (%@)", SentryClientVersionString, SentryServerVersionString];
+}
+
++ (void)setLogLevel:(SentryLogLevel)level {
+    logLevel = level;
+}
+
++ (SentryLogLevel)logLevel {
+    return logLevel;
 }
 
 #if __has_include(<KSCrash/KSCrash.h>)

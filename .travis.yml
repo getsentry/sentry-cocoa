@@ -6,7 +6,8 @@ rvm:
     - 2.2
 script:
     - .travis/run.sh
-#after_success:
+after_success:
+    - .travis/after_success.sh
 #    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
     matrix:
