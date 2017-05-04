@@ -37,10 +37,12 @@ playground.xcworkspace
 
 # Swift Package Manager
 .build/
+Packages
 
 # Carthage
 Carthage/Build
 Carthage/Checkouts
+Carthage
 
 # CocoaPods
 Examples/**/Pods
