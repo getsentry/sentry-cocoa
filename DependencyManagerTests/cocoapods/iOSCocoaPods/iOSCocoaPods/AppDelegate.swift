@@ -13,16 +13,16 @@ import KSCrash
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-	
+
 	var window: UIWindow?
-	
+
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-		
+
 		let client = SentryClient(dsnString: "example-dsn")
 		client?.startCrashHandler()
-		
+
 		return true
 	}
-	
+
 }
 

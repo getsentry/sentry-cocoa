@@ -10,9 +10,15 @@
 #import <KSCrash/KSCrash.h>
 #endif
 
+#if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryDsn.h>
 #import <Sentry/SentryLog.h>
+#import <Sentry/SentryDsn.h>
+#else
+#import "SentryClient.h"
+#import "SentryLog.h"
+#import "SentryDsn.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
