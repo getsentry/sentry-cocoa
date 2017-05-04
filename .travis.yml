@@ -4,12 +4,8 @@ cache:
     - bundler
 rvm:
     - 2.2
-before_install:
-    - bundle install
-    - brew update
-    - brew outdated swiftlint || brew upgrade swiftlint
 script:
-    - if [ "$LANE" = "lint" ]; then fastlane $LANE; else travis_retry fastlane $LANE; fi
+    - .travis/run.sh
 #after_success:
 #    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
