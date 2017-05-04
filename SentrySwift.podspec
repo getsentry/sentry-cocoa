@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name         = "Sentry"
+  s.name         = "SentrySwift"
   s.version      = "3.0.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
@@ -11,14 +11,8 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.10"
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
-  s.module_name  = "Sentry"
-  s.requires_arc = true
-  #s.module_map   = 'Sources/Sentry/Sentry.modulemap'
-  #s.header_mappings_dir = 'Sources/Sentry/include'
 
-  s.source_files = "Sources/Sentry/**/*.{h,m}"
+  s.source_files = "Sources/SentrySwift/*.{swift}"
 
-  s.subspec 'KSCrash' do |ks|
-    ks.dependency 'KSCrash', '~> 1.15.8'
-  end
+  s.dependency 'Sentry', "= #{s.version}"
 end

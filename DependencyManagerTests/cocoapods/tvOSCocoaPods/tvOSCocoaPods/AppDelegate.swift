@@ -6,21 +6,21 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-import Sentry
+import SentrySwift
 import KSCrash
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-	
+
 	var window: UIWindow?
-	
+
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-		
-		let client = SentryClient(dsnString: "example-dsn")
-		client?.startCrashHandler()
-		
+
+		Client.sharedClient = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        try? Client.sharedClient?.startCrashHandler()
+
 		return true
 	}
-	
+
 }
 

@@ -152,7 +152,8 @@ lane :reset_cocoapods do |options|
     cocoapod_contents = <<-STRING
 target '#{cocoapods_target}' do
   use_frameworks!
-  pod 'Sentry', git: '#{cocoapods_git_url}', branch: '#{cocoapods_branch}'
+  pod 'Sentry/KSCrash', :path => "../../../"
+  pod 'SentrySwift', :path => "../../../"
 
   target '#{cocoapods_target}Tests' do
 

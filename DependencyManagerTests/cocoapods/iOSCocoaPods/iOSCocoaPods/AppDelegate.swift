@@ -8,7 +8,7 @@
 
 import UIKit
 
-import Sentry
+import SentrySwift
 import KSCrash
 
 @UIApplicationMain
@@ -18,8 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-		let client = SentryClient(dsnString: "example-dsn")
-		client?.startCrashHandler()
+		Client.sharedClient = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        try? Client.sharedClient?.startCrashHandler()
 
 		return true
 	}
