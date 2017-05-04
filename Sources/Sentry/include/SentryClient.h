@@ -32,9 +32,7 @@ SENTRY_EXTERN NSString *const SentryServerVersionString;
 @property(nonatomic, class, readonly, copy) NSString *versionString;
 @property(nonatomic, class) SentryLogLevel logLevel;
 
-#if __has_include(<KSCrash/KSCrash.h>)
-- (void)startCrashHandler;
-#endif
+- (void)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 

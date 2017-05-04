@@ -21,8 +21,18 @@ class SentrySwiftTests: XCTestCase {
         super.tearDown()
     }
 
-    func testExample() {
+    func testWrongDsn() {
         XCTAssertThrowsError(try Client(dsn: "http://sentry.io"))
+    }
+    
+    func testCorrectDsn() {
+        let client = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        XCTAssertNotNil(client)
+    }
+    
+    func testStartCrashHandler() {
+        Client.sharedClient = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        XCTAssertThrowsError(try Client.sharedClient?.startCrashHandler())
     }
 
 }

@@ -14,10 +14,12 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
+#import <Sentry/SentryError.h>
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
+#import "SentryError.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +44,7 @@ static SentryLogLevel logLevel = kError;
     self = [super init];
     if (self) {
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
-        if (error) {
+        if (*error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kError];
             return nil;
         }
@@ -72,10 +74,16 @@ static SentryLogLevel logLevel = kError;
 }
 
 #if __has_include(<KSCrash/KSCrash.h>)
-- (void)startCrashHandler {
+- (void)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     // TODO add kscrash version
     [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kDebug];
     [[KSCrash sharedInstance] install];
+}
+#else
+- (void)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
+    NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
+    [SentryLog logWithMessage:message andLevel:kError];
+    *error = NSErrorFromSentryError(kKSCrashNotInstalledError, message);
 }
 #endif
 

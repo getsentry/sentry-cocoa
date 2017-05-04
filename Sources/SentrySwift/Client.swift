@@ -13,7 +13,7 @@ public final class Client {
 
     internal var sentryClient: SentryClient?
 
-    public static var sharedClient: SentryClient?
+    public static var sharedClient: Client?
 
     internal init(_ sentryClient: SentryClient) {
         self.sentryClient = sentryClient
@@ -26,6 +26,14 @@ public final class Client {
             throw actualError
         }
         self.init(sentryClient)
+    }
+    
+    public func startCrashHandler() throws {
+        var error: NSError?
+        sentryClient?.startCrashHandlerWithError(&error)
+        if let actualError = error {
+            throw actualError
+        }
     }
 
 }
