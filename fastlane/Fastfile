@@ -51,11 +51,11 @@ lane :lint do
 end
 
 lane :test do
-    scan(scheme: "Sentry")
+    scan(scheme: "Sentry", code_coverage: true)
 end
 
 lane :test_swift do
-    scan(scheme: "SentrySwift")
+    scan(scheme: "SentrySwift", code_coverage: true)
     # travis_slather
 end
 
