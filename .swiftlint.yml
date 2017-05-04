@@ -6,6 +6,7 @@ excluded:
   - Pods
   - Utils
   - vendor
+  - DependencyManagerTests
 whitelist_rules:
   #- attributes
   - class_delegate_protocol

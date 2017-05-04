@@ -1,0 +1,36 @@
+fastlane_version "1.66.0"
+
+default_platform :ios
+
+platform :ios do
+
+  desc "Submit a new beta build to HockeyApp"
+  desc "This will also submit the dsym to Sentry"
+  lane :beta do
+
+    # Build and deliver to ITC
+    match
+    gym
+    deliver(
+      force: true,
+      skip_metadata: true
+    )
+
+    # Only call Sentry here for dev, ad hoc, enterprise builds,
+    # or app store builds that have bitcode disabled
+    #
+    # The dSYM will need to be downloaded from ITC with
+    # the 'refresh_dsyms' lane
+    #sentry
+    
+    clean_build_artifacts
+
+  end
+
+  lane :refresh_dsyms do
+    download_dsyms              # Download dSYM files from iTC
+    upload_symbols_to_sentry                      # Upload them to Sentry
+    clean_build_artifacts       # Delete the local dSYM files
+  end
+
+end

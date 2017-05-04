@@ -1,13 +1,35 @@
 fastlane_version "1.66.0"
 
+CARTHAGE_PROJECTS = [
+  {platform: "ios", path: File.absolute_path("../DependencyManagerTests/carthage/iOSCarthage/iOSCarthage.xcodeproj"), can_test: true},
+  {platform: "mac", path: File.absolute_path("../DependencyManagerTests/carthage/macOSCarthage/macOSCarthage.xcodeproj"), can_test: true},
+  {platform: "tvos", path: File.absolute_path("../DependencyManagerTests/carthage/tvOSCarthage/tvOSCarthage.xcodeproj"), can_test: true},
+  {platform: "watchos", path: File.absolute_path("../DependencyManagerTests/carthage/watchOSCarthage/watchOSCarthage.xcodeproj"), can_test: false},
+]
+
+COCOAPODS_PROJECTS = [
+  {platform: "ios", path: File.absolute_path("../DependencyManagerTests/cocoapods/iOSCocoaPods/iOSCocoaPods.xcodeproj"), target: "iOSCocoaPods", can_test: true},
+  {platform: "mac", path: File.absolute_path("../DependencyManagerTests/cocoapods/macOSCocoaPods/macOSCocoaPods.xcodeproj"), target: "macOSCocoaPods", can_test: true},
+  {platform: "tvos", path: File.absolute_path("../DependencyManagerTests/cocoapods/tvOSCocoaPods/tvOSCocoaPods.xcodeproj"), target: "tvOSCocoaPods", can_test: true},
+  {platform: "watchos", path: File.absolute_path("../DependencyManagerTests/cocoapods/watchOSCocoaPods/watchOSCocoaPods.xcodeproj"), target: "watchOSCocoaPods", can_test: false},
+]
+
 before_all do
-  clear_derived_data
+  clear_derived_data if is_ci?
+end
+
+error do
+  undo_gitmodules
+end
+
+private_lane :undo_gitmodules do
+  sh "git reset --hard HEAD" rescue nil if ENV["DO_RESET"] == "true"
 end
 
 desc "Test iOS, tvOS, and OSX"
 lane :test do
     xcode_select "/Applications/Xcode-8.2.1.app"
-    ENV["CI"]="true"
+    ENV["CI"]="true" if is_ci?
     test_swift_2_ios
     test_swift_2_tvos
     test_swift_2_macos
@@ -65,4 +87,131 @@ end
 
 lane :travis_slather do
     sh('cd .. && slather coverage -x --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
+end
+
+#
+# Carthage
+#
+
+private_lane :filter_carthage_platforms do |options|
+  projects = CARTHAGE_PROJECTS
+  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
+  
+  UI.message "Using Carthage Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
+  
+  projects
+end
+
+lane :do_carthage do  |options|
+  reset_carthage options
+  build_carthage options
+  test_carthage options
+end
+
+lane :reset_carthage do |options|
+  carthage_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
+  carthage_branch = options[:branch] || "master"
+  cartfile_contents = "git \"#{carthage_git_url}\" \"#{carthage_branch}\""
+  
+  filter_carthage_platforms(options).each do |project|
+    dir = File.dirname project[:path]
+    
+    File.delete File.join(dir, "Cartfile") rescue nil
+    File.delete File.join(dir, "Cartfile.resolved") rescue nil
+    FileUtils.rm_rf File.join(dir, "Carthage") rescue nil
+    
+    File.open(File.join(dir, "Cartfile"), 'w') { |file| file.write(cartfile_contents) }
+  end
+end
+
+lane :build_carthage do  |options|
+  ENV["DO_RESET"] = UI.confirm("Cathage will modify files. Do you want to 'git reset' after Carthage does stuff?").to_s
+  
+  filter_carthage_platforms(options).each do |project|
+    dir = File.dirname project[:path]  
+    carthage(
+      command: "update",
+      project_directory: dir,
+      platform: project[:platform],
+      use_submodules: false,
+      use_binaries: false,
+      verbose: true
+    )
+    undo_gitmodules
+  end
+end
+
+lane :test_carthage do  |options|
+  filter_carthage_platforms(options).each do |project|
+    scan(
+      project: project[:path]
+    ) if project[:can_test]
+  end
+end
+
+#
+# CocoaPods
+#
+
+private_lane :filter_cocoapods_platforms do |options|
+  projects = COCOAPODS_PROJECTS
+  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
+  
+  UI.message "Using CocoaPods Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
+  
+  projects
+end
+
+lane :do_cocoapods do  |options|
+  reset_cocoapods options
+  build_cocoapods options
+  test_cocoapods options
+end
+
+lane :reset_cocoapods do |options|
+  filter_cocoapods_platforms(options).each do |project|
+    dir = File.dirname project[:path]
+    
+    cocoapods_target = project[:target]
+    cocoapods_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
+    cocoapods_branch = options[:branch] || "master"
+    cocoapod_contents = <<-STRING
+target '#{cocoapods_target}' do
+  use_frameworks!
+  pod 'Sentry', git: '#{cocoapods_git_url}', branch: '#{cocoapods_branch}'
+  
+  target '#{cocoapods_target}Tests' do
+    
+  end
+  
+  target '#{cocoapods_target}UITests' do
+    
+  end
+end
+    STRING
+    
+    File.delete File.join(dir, "Podfile") rescue nil
+    File.delete File.join(dir, "Podfile.lock") rescue nil
+    FileUtils.rm_rf File.join(dir, "Pods") rescue nil
+    
+    File.open(File.join(dir, "Podfile"), 'w') { |file| file.write(cocoapod_contents) }
+  end
+end
+
+lane :build_cocoapods do  |options|
+  filter_cocoapods_platforms(options).each do |project|
+    dir = File.dirname project[:path]
+    cocoapods(
+      podfile: File.join(dir, "Podfile"),
+    )
+  end
+end
+
+lane :test_cocoapods do  |options|
+  filter_cocoapods_platforms(options).each do |project|
+    scan(
+      workspace: project[:path].sub(".xcodeproj", ".xcworkspace"),
+      scheme: project[:target]
+    ) if project[:can_test]
+  end
 end

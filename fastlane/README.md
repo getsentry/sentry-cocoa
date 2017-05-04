@@ -27,6 +27,7 @@ xcode-select --install
 <td width="33%"><code>sudo gem install fastlane -NV</code></td>
 </tr>
 </table>
+
 # Available Actions
 ### test
 ```
@@ -76,6 +77,46 @@ fastlane test_swift_3_ios
 ### travis_slather
 ```
 fastlane travis_slather
+```
+
+### do_carthage
+```
+fastlane do_carthage
+```
+
+### reset_carthage
+```
+fastlane reset_carthage
+```
+
+### build_carthage
+```
+fastlane build_carthage
+```
+
+### test_carthage
+```
+fastlane test_carthage
+```
+
+### do_cocoapods
+```
+fastlane do_cocoapods
+```
+
+### reset_cocoapods
+```
+fastlane reset_cocoapods
+```
+
+### build_cocoapods
+```
+fastlane build_cocoapods
+```
+
+### test_cocoapods
+```
+fastlane test_cocoapods
 ```
 
 
