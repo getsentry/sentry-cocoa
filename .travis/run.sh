@@ -11,9 +11,8 @@ then
     gem install danger-swiftlint
     brew update
     brew outdated swiftlint || brew upgrade swiftlint
-elif [ "$LANE" = "do_cocoapods" ] ; then
+elif [ "$LANE" = "do_cocoapods" ];
+then
     gem install cocoapods
-else
-    #travis_retry fastlane $LANE;
 fi
 fastlane $LANE;
