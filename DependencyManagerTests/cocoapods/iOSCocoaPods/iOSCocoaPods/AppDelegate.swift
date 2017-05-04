@@ -9,7 +9,6 @@
 import UIKit
 
 import SentrySwift
-import KSCrash
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

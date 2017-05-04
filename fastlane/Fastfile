@@ -136,7 +136,7 @@ private_lane :filter_cocoapods_platforms do |options|
   projects
 end
 
-lane :cocoapods do  |options|
+lane :do_cocoapods do  |options|
   reset_cocoapods options
   build_cocoapods options
   test_cocoapods options
@@ -146,11 +146,19 @@ lane :reset_cocoapods do |options|
   filter_cocoapods_platforms(options).each do |project|
     dir = File.dirname project[:path]
 
+    with_kscrash = options[:kscrash] || false
     cocoapods_target = project[:target]
+
+    if with_kscrash == true
+      sentry_pod = 'Sentry/KSCrash'
+    else
+      sentry_pod = 'Sentry'
+    end
+
     cocoapod_contents = <<-STRING
 target '#{cocoapods_target}' do
   use_frameworks!
-  pod 'Sentry/KSCrash', :path => "../../../"
+  pod '#{sentry_pod}', :path => "../../../"
   pod 'SentrySwift', :path => "../../../"
 
   target '#{cocoapods_target}Tests' do

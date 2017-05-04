@@ -17,6 +17,6 @@ env:
         - LANE=lint
         - LANE=test
         - LANE=test_swift
-        - LANE=cocoapods
+        - LANE=do_cocoapods kscrash:true platform:ios
 notifications:
   email: false

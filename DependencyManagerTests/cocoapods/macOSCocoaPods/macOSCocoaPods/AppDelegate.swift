@@ -9,7 +9,6 @@
 import Cocoa
 
 import SentrySwift
-import KSCrash
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {

@@ -26,7 +26,6 @@
 }
 
 - (void)testVersion {
-    [SentryClient setSharedClient:[[SentryClient alloc] init]];
     NSString *version = [NSString stringWithFormat:@"%@ (%@)", SentryClientVersionString, SentryServerVersionString];
     XCTAssert([version isEqualToString:SentryClient.versionString]);
 }

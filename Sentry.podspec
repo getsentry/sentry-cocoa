@@ -13,10 +13,12 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
-  #s.module_map   = 'Sources/Sentry/Sentry.modulemap'
-  #s.header_mappings_dir = 'Sources/Sentry/include'
 
-  s.source_files = "Sources/Sentry/**/*.{h,m}"
+  s.default_subspecs = 'Core'
+
+  s.subspec 'Core' do |sp|
+    sp.source_files = "Sources/Sentry/**/*.{h,m}"
+  end
 
   s.subspec 'KSCrash' do |ks|
     ks.dependency 'KSCrash', '~> 1.15.8'
