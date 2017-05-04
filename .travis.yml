@@ -17,5 +17,6 @@ env:
         - LANE=lint
         - LANE=test
         - LANE=test_swift
+        - LANE=cocoapods
 notifications:
   email: false

@@ -136,7 +136,7 @@ private_lane :filter_cocoapods_platforms do |options|
   projects
 end
 
-lane :do_cocoapods do  |options|
+lane :cocoapods do  |options|
   reset_cocoapods options
   build_cocoapods options
   test_cocoapods options
@@ -147,8 +147,6 @@ lane :reset_cocoapods do |options|
     dir = File.dirname project[:path]
 
     cocoapods_target = project[:target]
-    cocoapods_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
-    cocoapods_branch = options[:branch] || "master"
     cocoapod_contents = <<-STRING
 target '#{cocoapods_target}' do
   use_frameworks!
