@@ -69,7 +69,7 @@ end
 
 private_lane :filter_carthage_platforms do |options|
   projects = CARTHAGE_PROJECTS
-  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
+  projects = projects.select { |proj| proj[:platform] == ENV["PLATFORM"] } if ENV["PLATFORM"]
 
   UI.message "Using Carthage Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
 
@@ -129,7 +129,7 @@ end
 
 private_lane :filter_cocoapods_platforms do |options|
   projects = COCOAPODS_PROJECTS
-  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
+  projects = projects.select { |proj| proj[:platform] == ENV["PLATFORM"] } if ENV["PLATFORM"]
 
   UI.message "Using CocoaPods Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
 
@@ -146,10 +146,11 @@ lane :reset_cocoapods do |options|
   filter_cocoapods_platforms(options).each do |project|
     dir = File.dirname project[:path]
 
-    with_kscrash = options[:kscrash] || false
+    with_kscrash = ENV["KSCRASH"] || false
+
     cocoapods_target = project[:target]
 
-    if with_kscrash == true
+    if with_kscrash == "true"
       sentry_pod = 'Sentry/KSCrash'
     else
       sentry_pod = 'Sentry'
