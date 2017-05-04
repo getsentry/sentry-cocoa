@@ -1,0 +1,12 @@
+framework module Sentry {
+    umbrella header "Sentry.h"
+
+    export *
+    module * { export * }
+
+    explicit module Private {
+        header "SentryDsn.h"
+        header "SentryLog.h"
+        header "SentryError.h"
+    }
+}
