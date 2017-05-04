@@ -10,5 +10,11 @@ then
 elif [ "$LANE" = "do_cocoapods" ];
 then
     gem install cocoapods
+elif [ "$LANE" = "test" ];
+then
+    gem install slather
+elif [ "$LANE" = "test_swift" ];
+then
+    gem install slather
 fi
 fastlane $LANE;
