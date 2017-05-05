@@ -18,7 +18,7 @@
 - (void)testDsn {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://sentry.io" didFailWithError:&error];
-    XCTAssertEqual(kInvalidDsnError, error.code);
+    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(client);
 }
 

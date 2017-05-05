@@ -18,6 +18,7 @@
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentryNSURLRequest.h>
 
 #else
 #import "SentryClient.h"
@@ -26,6 +27,7 @@
 #import "SentryError.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
+#import "SentryNSURLRequest.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -64,7 +66,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     self = [super init];
     if (self) {
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
-        if (nil != error) {
+        if (nil != error && nil != *error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
@@ -76,7 +78,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 #pragma mark Static Getter/Setter
 
-+ (instancetype)sharedClient {
++ (_Nullable instancetype)sharedClient {
     return sharedClient;
 }
 
@@ -99,13 +101,14 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 #pragma mark Event
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://sentry.io"]];
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn andEvent:event];
+    __block SentryClient* _self = self;
     [self.requestManager addRequest:request completionHandler:^(NSError *_Nullable error) {
         if (completionHandler) {
             completionHandler(error);
         }
         if (nil == error) {
-            self.lastEvent = event;
+            _self.lastEvent = event;
         }
     }];
 }
@@ -123,7 +126,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
     [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
     if (nil != error) {
-        *error = NSErrorFromSentryError(kKSCrashNotInstalledError, message);
+        *error = NSErrorFromSentryError(kSentryErrorKSCrashNotInstalledError, message);
     }
     return NO;
 }

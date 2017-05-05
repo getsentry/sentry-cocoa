@@ -13,7 +13,6 @@ public final class Client {
     
     enum ClientError: Error {
         case notInitialized
-        case ksCrashNotInitialized
     }
     
     internal var sentryClient: SentryClient?
@@ -33,16 +32,11 @@ public final class Client {
         self.init(sentryClient)
     }
     
-    public func startCrashHandler() throws -> Bool {
+    public func startCrashHandler() throws {
         guard let sentryClient = sentryClient else {
             throw ClientError.notInitialized
         }
-        var error: NSError?
-        let result = sentryClient.startCrashHandlerWithError(&error)
-        if nil != error {
-            throw ClientError.ksCrashNotInitialized
-        }
-        return result
+        try sentryClient.startCrashHandler()
     }
 
 }

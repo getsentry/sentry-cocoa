@@ -60,7 +60,7 @@ SENTRY_EXTERN NSString *const SentryServerVersionString;
  */
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
 
-- (void)sendEventWithCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
 /*
  * Return a version string e.g: 1.2.3 (3)

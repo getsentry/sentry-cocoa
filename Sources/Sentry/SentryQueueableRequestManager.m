@@ -7,9 +7,15 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryQueueableRequestManager.h>
+#import <Sentry/SentryRequestOperation.h>
+#import <Sentry/SentryLog.h>
+
 #else
 #import "SentryQueueableRequestManager.h"
+#import "SentryRequestOperation.h"
+#import "SentryLog.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,7 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    
+    SentryRequestOperation *operation = [[SentryRequestOperation alloc] initWithSession:self.session
+                                                                                request:request
+                                                                      completionHandler:^(NSError * _Nullable error) {
+                                                                          [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %lu", self.queue.operationCount - 1] andLevel:kSentryLogLevelDebug];
+                                                                          if (completionHandler) {
+                                                                              completionHandler(error);
+                                                                          }
+                                                                      }];
+    [self.queue addOperation:operation];
 }
 
 @end

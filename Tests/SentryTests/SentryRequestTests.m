@@ -56,7 +56,23 @@
 
 - (void)testAddRequest {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-    [self.client sendEventWithCompletionHandler:^(NSError * _Nullable error) {
+    [self.client sendEvent:[SentryEvent new] withCompletionHandler:^(NSError * _Nullable error) {
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testRealRequest {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    NSError *error = nil;
+    // TODO remove
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"http://bf9398c8660c42ad89fdeac75c11a266:8eeb1d825c3942b384456c4356477ada@dgriesser-7b0957b1732f38a5e205.eu.ngrok.io/1" didFailWithError:&error];
+    [client sendEvent:[SentryEvent new] withCompletionHandler:^(NSError * _Nullable error) {
         [expectation fulfill];
     }];
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {

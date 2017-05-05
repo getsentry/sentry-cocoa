@@ -12,7 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDsn : NSObject
 
-- (instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error;
+@property(nonatomic, strong) NSURL *url;
+
+- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 
