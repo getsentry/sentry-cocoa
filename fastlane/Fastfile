@@ -38,6 +38,11 @@ lane :localcoverage do
     sh('cd .. && slather coverage --input-format profdata Sentry.xcodeproj')
 end
 
+lane :oc_lint do
+  sh('cd .. && xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log && oclint-xcodebuild -output compile_commands.json xcodebuild.log')
+  oclint
+end
+
 lane :lint do
     if ENV["DANGER_GITHUB_API_TOKEN"]
         danger(

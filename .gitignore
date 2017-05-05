@@ -62,3 +62,6 @@ DependencyManagerTests/*/*/Carthage/
 DependencyManagerTests/*/*/Podfile
 DependencyManagerTests/*/*/Podfile.lock
 DependencyManagerTests/*/*/Pods
+compile_commands.json
+oclint_report.html
+xcodebuild.log

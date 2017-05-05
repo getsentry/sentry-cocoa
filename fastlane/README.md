@@ -39,6 +39,11 @@ Run tests
 fastlane localcoverage
 ```
 
+### oc_lint
+```
+fastlane oc_lint
+```
+
 ### lint
 ```
 fastlane lint
