@@ -33,31 +33,36 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
-    dsnString = [dsnString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *trimmedDsnString = [dsnString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
-    NSURL *url = [NSURL URLWithString:dsnString];
+    NSURL *url = [NSURL URLWithString:trimmedDsnString];
+    NSString *errorMessage = nil;
     if (nil == url.scheme) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"URL scheme of DSN is missing");
-        return nil;
+        errorMessage = @"URL scheme of DSN is missing";
+        url = nil;
     }
     if (![allowedSchemes containsObject:url.scheme]) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Unrecognized URL scheme in DSN");
-        return nil;
+        errorMessage = @"Unrecognized URL scheme in DSN";
+        url = nil;
     }
     if (nil == url.host || url.host.length == 0) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Host component of DSN is missing");
-        return nil;
+        errorMessage = @"Host component of DSN is missing";
+        url = nil;
     }
     if (nil == url.user) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"User component of DSN is missing");
-        return nil;
+        errorMessage = @"User component of DSN is missing";
+        url = nil;
     }
     if (nil == url.password) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Password component of DSN is missing");
-        return nil;
+        errorMessage = @"Password component of DSN is missing";
+        url = nil;
     }
     if (url.pathComponents.count < 2) {
-        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Project ID path component of DSN is missing");
+        errorMessage = @"Project ID path component of DSN is missing";
+        url = nil;
+    }
+    if (nil == url) {
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, errorMessage);
         return nil;
     }
     return url;

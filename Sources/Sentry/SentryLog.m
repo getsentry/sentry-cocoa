@@ -34,16 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
     switch (level) {
         case kError:
             return @"Error";
-            break;
         case kDebug:
             return @"Debug";
-            break;
         case kVerbose:
             return @"Verbose";
-            break;
         default:
             return @"";
-            break;
     }
 }
 @end
