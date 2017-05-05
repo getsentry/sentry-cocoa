@@ -16,6 +16,8 @@
 #import "SentryLog.h"
 #endif
 
+@protocol SentryRequestManager;
+
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN NSString *const SentryClientVersionString;
@@ -23,16 +25,23 @@ SENTRY_EXTERN NSString *const SentryServerVersionString;
 
 @interface SentryClient : NSObject
 
-+ (instancetype)sharedClient;
+- (instancetype)initWithDsn:(NSString *)dsn
+           didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+- (instancetype)initWithDsn:(NSString *)dsn
+             requestManager:(id <SentryRequestManager>)requestManager
+           didFailWithError:(NSError *__autoreleasing  _Nullable *)error;
+
++ (instancetype)sharedClient;
 + (void)setSharedClient:(SentryClient *)client;
 
-- (instancetype)initWithDsn:(NSString *)dsn didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @property(nonatomic, class, readonly, copy) NSString *versionString;
 @property(nonatomic, class) SentryLogLevel logLevel;
 
-- (bool)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
+- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
+
+- (void)sendEventWithCompletionHandler:(_Nullable SentryQueueableRequestManagerHandler)completionHandler;
 
 @end
 

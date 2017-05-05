@@ -39,7 +39,7 @@ public final class Client {
         }
         var error: NSError?
         let result = sentryClient.startCrashHandlerWithError(&error)
-        if let _ = error {
+        if nil != error {
             throw ClientError.ksCrashNotInitialized
         }
         return result

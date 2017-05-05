@@ -11,3 +11,5 @@
 #else
 #define SENTRY_EXTERN        extern __attribute__((visibility ("default")))
 #endif
+
+typedef void (^SentryQueueableRequestManagerHandler)(NSError *_Nullable error);

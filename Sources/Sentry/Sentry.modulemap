@@ -8,5 +8,8 @@ framework module Sentry {
         header "SentryDsn.h"
         header "SentryLog.h"
         header "SentryError.h"
+        header "SentryAsynchronousOperation.h"
+        header "SentryRequestOperation.h"
+        header "SentryQueueableRequestManager.h"
     }
 }

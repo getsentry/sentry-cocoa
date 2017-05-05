@@ -15,11 +15,13 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
+#import <Sentry/SentryQueueableRequestManager.h>
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryQueueableRequestManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,6 +35,7 @@ static SentryLogLevel logLevel = kError;
 @interface SentryClient ()
 
 @property(nonatomic, retain) SentryDsn *dsn;
+@property(nonatomic, retain) id<SentryRequestManager> requestManager;
 
 @end
 
@@ -42,14 +45,26 @@ static SentryLogLevel logLevel = kError;
 
 #pragma mark Initializer
 
-- (instancetype)initWithDsn:(NSString *)dsn didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (instancetype)initWithDsn:(NSString *)dsn
+           didFailWithError:(NSError *_Nullable *_Nullable)error {
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+    return [self initWithDsn:dsn
+              requestManager:[[SentryQueueableRequestManager alloc] initWithSession:session]
+            didFailWithError:error];
+}
+
+- (instancetype)initWithDsn:(NSString *)dsn
+             requestManager:(id<SentryRequestManager>)requestManager
+           didFailWithError:(NSError *__autoreleasing  _Nullable *)error {
     self = [super init];
     if (self) {
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
-        if (*error) {
+        if (nil != error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kError];
             return nil;
         }
+        self.requestManager = requestManager;
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kDebug];
     }
     return self;
@@ -77,15 +92,25 @@ static SentryLogLevel logLevel = kError;
     return logLevel;
 }
 
+#pragma mark Event
+
+- (void)sendEventWithCompletionHandler:(_Nullable SentryQueueableRequestManagerHandler)completionHandler {
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://sentry.io"]];
+    [self.requestManager addRequest:request completionHandler:^(NSError * _Nullable error) {
+        NSLog(@"called finish!!!!!");
+        if (completionHandler) completionHandler(error);
+    }];
+}
+
 #if __has_include(<KSCrash/KSCrash.h>)
-- (bool)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
+- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     // TODO add kscrash version
     [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kDebug];
     [[KSCrash sharedInstance] install];
     return YES;
 }
 #else
-- (bool)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
+- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
     [SentryLog logWithMessage:message andLevel:kError];
     if (nil != error) {
