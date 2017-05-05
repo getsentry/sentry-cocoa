@@ -42,9 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         
+    // TODO set and gzip body
 //        [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
 //        body = [body gzippedWithCompressionLevel:-1 error:nil];
-        self.HTTPBody = @"";
+        //self.HTTPBody = @"";
     }
     return self;
 }
