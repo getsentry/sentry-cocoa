@@ -37,27 +37,27 @@ NS_ASSUME_NONNULL_BEGIN
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:dsnString];
     if (nil == url.scheme) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"URL scheme of DSN is missing");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"URL scheme of DSN is missing");
         return nil;
     }
     if (![allowedSchemes containsObject:url.scheme]) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"Unrecognized URL scheme in DSN");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Unrecognized URL scheme in DSN");
         return nil;
     }
     if (nil == url.host || url.host.length == 0) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"Host component of DSN is missing");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Host component of DSN is missing");
         return nil;
     }
     if (nil == url.user) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"User component of DSN is missing");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"User component of DSN is missing");
         return nil;
     }
     if (nil == url.password) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"Password component of DSN is missing");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Password component of DSN is missing");
         return nil;
     }
     if (url.pathComponents.count < 2) {
-        *error = NSErrorFromSentryError(kInvalidDSNError, @"Project ID path component of DSN is missing");
+        if (nil != error) *error = NSErrorFromSentryError(kInvalidDsnError, @"Project ID path component of DSN is missing");
         return nil;
     }
     return url;

@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryError) {
     kUnknownError = -1,
-    kInvalidDSNError = 100,
+    kInvalidDsnError = 100,
     kKSCrashNotInstalledError = 101,
     kInvalidCrashReportError = 102,
 };

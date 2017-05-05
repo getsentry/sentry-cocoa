@@ -10,7 +10,12 @@ import Foundation
 import Sentry
 
 public final class Client {
-
+    
+    enum ClientError: Error {
+        case notInitialized
+        case ksCrashNotInitialized
+    }
+    
     internal var sentryClient: SentryClient?
 
     public static var sharedClient: Client?
@@ -28,12 +33,16 @@ public final class Client {
         self.init(sentryClient)
     }
     
-    public func startCrashHandler() throws {
-        var error: NSError?
-        sentryClient?.startCrashHandlerWithError(&error)
-        if let actualError = error {
-            throw actualError
+    public func startCrashHandler() throws -> Bool {
+        guard let sentryClient = sentryClient else {
+            throw ClientError.notInitialized
         }
+        var error: NSError?
+        let result = sentryClient.startCrashHandlerWithError(&error)
+        if let _ = error {
+            throw ClientError.ksCrashNotInitialized
+        }
+        return result
     }
 
 }

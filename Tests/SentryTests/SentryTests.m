@@ -32,15 +32,9 @@
 
 - (void)testDsn {
     NSError *error = nil;
-    [[SentryClient alloc] initWithDsn:@"https://sentry.io" didFailWithError:&error];
-    XCTAssertEqual(kInvalidDSNError, error.code);
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://sentry.io" didFailWithError:&error];
+    XCTAssertEqual(kInvalidDsnError, error.code);
+    XCTAssertNil(client);
 }
 
 @end
