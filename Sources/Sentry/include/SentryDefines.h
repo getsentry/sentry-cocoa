@@ -13,3 +13,11 @@
 #endif
 
 typedef void (^SentryQueueableRequestManagerHandler)(NSError *_Nullable error);
+
+typedef NS_ENUM(NSInteger, SentrySeverity) {
+    kSentrySeverityFatal = 0,
+    kSentrySeverityError = 1,
+    kSentrySeverityWarning = 2,
+    kSentrySeverityInfo = 3,
+    kSentrySeverityDebug = 4,
+};

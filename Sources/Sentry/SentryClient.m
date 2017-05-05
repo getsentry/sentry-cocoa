@@ -30,7 +30,7 @@ NSString *const SentryClientVersionString = @"3.0.0";
 NSString *const SentryServerVersionString = @"7";
 
 static SentryClient *sharedClient = nil;
-static SentryLogLevel logLevel = kError;
+static SentryLogLevel logLevel = kSentryLogLevelError;
 
 @interface SentryClient ()
 
@@ -65,7 +65,7 @@ static SentryLogLevel logLevel = kError;
             return nil;
         }
         self.requestManager = requestManager;
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kSentryLogLevelDebug];
     }
     return self;
 }
@@ -105,14 +105,14 @@ static SentryLogLevel logLevel = kError;
 #if __has_include(<KSCrash/KSCrash.h>)
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     // TODO add kscrash version
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kSentryLogLevelDebug];
     [[KSCrash sharedInstance] install];
     return YES;
 }
 #else
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
-    [SentryLog logWithMessage:message andLevel:kError];
+    [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
     if (nil != error) {
         *error = NSErrorFromSentryError(kKSCrashNotInstalledError, message);
     }

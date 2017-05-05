@@ -30,6 +30,18 @@
 		638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */; };
 		639FCF931EBC746F00778193 /* SentryDsnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF921EBC746F00778193 /* SentryDsnTests.m */; };
 		639FCF951EBC749B00778193 /* SentryRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF941EBC749B00778193 /* SentryRequestTests.m */; };
+		639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF961EBC7B9700778193 /* SentryEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF971EBC7B9700778193 /* SentryEvent.m */; };
+		639FCF9C1EBC7F9500778193 /* SentryThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9A1EBC7F9500778193 /* SentryThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCF9D1EBC7F9500778193 /* SentryThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF9B1EBC7F9500778193 /* SentryThread.m */; };
+		639FCFA01EBC804600778193 /* SentryException.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9E1EBC804600778193 /* SentryException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCFA11EBC804600778193 /* SentryException.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF9F1EBC804600778193 /* SentryException.m */; };
+		639FCFA41EBC809A00778193 /* SentryStacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA21EBC809A00778193 /* SentryStacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCFA51EBC809A00778193 /* SentryStacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCFA31EBC809A00778193 /* SentryStacktrace.m */; };
+		639FCFA81EBC80CC00778193 /* SentryFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA61EBC80CC00778193 /* SentryFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCFA91EBC80CC00778193 /* SentryFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCFA71EBC80CC00778193 /* SentryFrame.m */; };
+		639FCFAC1EBC811400778193 /* SentryUser.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFAA1EBC811400778193 /* SentryUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		639FCFAD1EBC811400778193 /* SentryUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCFAB1EBC811400778193 /* SentryUser.m */; };
 		63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA75ED1EB8B3C400D153DE /* SentryClient.m */; };
 		63AA766A1EB8CB2F00D153DE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; };
 		63AA76701EB8CB4B00D153DE /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA75951EB8AEDB00D153DE /* SentryTests.m */; };
@@ -81,6 +93,18 @@
 		638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryRequestOperation.m; sourceTree = "<group>"; };
 		639FCF921EBC746F00778193 /* SentryDsnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDsnTests.m; sourceTree = "<group>"; };
 		639FCF941EBC749B00778193 /* SentryRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryRequestTests.m; sourceTree = "<group>"; };
+		639FCF961EBC7B9700778193 /* SentryEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryEvent.h; sourceTree = "<group>"; };
+		639FCF971EBC7B9700778193 /* SentryEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryEvent.m; sourceTree = "<group>"; };
+		639FCF9A1EBC7F9500778193 /* SentryThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryThread.h; sourceTree = "<group>"; };
+		639FCF9B1EBC7F9500778193 /* SentryThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryThread.m; sourceTree = "<group>"; };
+		639FCF9E1EBC804600778193 /* SentryException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryException.h; sourceTree = "<group>"; };
+		639FCF9F1EBC804600778193 /* SentryException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryException.m; sourceTree = "<group>"; };
+		639FCFA21EBC809A00778193 /* SentryStacktrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryStacktrace.h; sourceTree = "<group>"; };
+		639FCFA31EBC809A00778193 /* SentryStacktrace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryStacktrace.m; sourceTree = "<group>"; };
+		639FCFA61EBC80CC00778193 /* SentryFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryFrame.h; sourceTree = "<group>"; };
+		639FCFA71EBC80CC00778193 /* SentryFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryFrame.m; sourceTree = "<group>"; };
+		639FCFAA1EBC811400778193 /* SentryUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryUser.h; sourceTree = "<group>"; };
+		639FCFAB1EBC811400778193 /* SentryUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryUser.m; sourceTree = "<group>"; };
 		63AA75941EB8AEDB00D153DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63AA75951EB8AEDB00D153DE /* SentryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTests.m; sourceTree = "<group>"; };
 		63AA759B1EB8AEF500D153DE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,6 +240,12 @@
 				631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */,
 				638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */,
 				635B3F371EBC6E2500A6176D /* SentryAsynchronousOperation.m */,
+				639FCF971EBC7B9700778193 /* SentryEvent.m */,
+				639FCF9B1EBC7F9500778193 /* SentryThread.m */,
+				639FCF9F1EBC804600778193 /* SentryException.m */,
+				639FCFA31EBC809A00778193 /* SentryStacktrace.m */,
+				639FCFA71EBC80CC00778193 /* SentryFrame.m */,
+				639FCFAB1EBC811400778193 /* SentryUser.m */,
 			);
 			path = Sentry;
 			sourceTree = "<group>";
@@ -232,6 +262,12 @@
 				635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */,
 				638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */,
 				631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */,
+				639FCF961EBC7B9700778193 /* SentryEvent.h */,
+				639FCF9A1EBC7F9500778193 /* SentryThread.h */,
+				639FCF9E1EBC804600778193 /* SentryException.h */,
+				639FCFA21EBC809A00778193 /* SentryStacktrace.h */,
+				639FCFA61EBC80CC00778193 /* SentryFrame.h */,
+				639FCFAA1EBC811400778193 /* SentryUser.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -279,14 +315,20 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				639FCFAC1EBC811400778193 /* SentryUser.h in Headers */,
+				639FCFA41EBC809A00778193 /* SentryStacktrace.h in Headers */,
+				639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */,
 				63AA769A1EB9C1C200D153DE /* SentryLog.h in Headers */,
 				63AA76991EB9C1C200D153DE /* SentryDefines.h in Headers */,
 				635B3F381EBC6E2500A6176D /* SentryAsynchronousOperation.h in Headers */,
 				63AA76981EB9C1C200D153DE /* SentryClient.h in Headers */,
 				63AA76971EB9C1C200D153DE /* Sentry.h in Headers */,
 				631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */,
+				639FCFA01EBC804600778193 /* SentryException.h in Headers */,
+				639FCFA81EBC80CC00778193 /* SentryFrame.h in Headers */,
 				638DC9A01EBC6B6400A66E41 /* SentryRequestOperation.h in Headers */,
 				63AA769D1EB9C57A00D153DE /* SentryError.h in Headers */,
+				639FCF9C1EBC7F9500778193 /* SentryThread.h in Headers */,
 				63AA76A51EB9CBC200D153DE /* SentryDsn.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -491,9 +533,15 @@
 				63AA76A31EB9CBAA00D153DE /* SentryDsn.m in Sources */,
 				63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */,
 				63AA769E1EB9C57A00D153DE /* SentryError.m in Sources */,
+				639FCFA91EBC80CC00778193 /* SentryFrame.m in Sources */,
+				639FCFA11EBC804600778193 /* SentryException.m in Sources */,
 				638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */,
 				63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */,
+				639FCFA51EBC809A00778193 /* SentryStacktrace.m in Sources */,
 				635B3F391EBC6E2500A6176D /* SentryAsynchronousOperation.m in Sources */,
+				639FCF9D1EBC7F9500778193 /* SentryThread.m in Sources */,
+				639FCFAD1EBC811400778193 /* SentryUser.m in Sources */,
+				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

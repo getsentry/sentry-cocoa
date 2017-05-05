@@ -11,10 +11,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, SentryLogLevel) {
-    kNone = 1,
-    kError,
-    kDebug,
-    kVerbose
+    kSentryLogLevelNone = 1,
+    kSentryLogLevelError,
+    kSentryLogLevelDebug,
+    kSentryLogLevelVerbose
 };
 
 @interface SentryLog : NSObject
