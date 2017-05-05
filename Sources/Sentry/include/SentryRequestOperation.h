@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryRequestOperation : SentryAsynchronousOperation
 
-- (instancetype)initWithSession:(NSURLSession *)session request:(NSURLRequest *)request completionHandler:(_Nullable SentryQueueableRequestManagerHandler)completionHandler;
+- (instancetype)initWithSession:(NSURLSession *)session request:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
 @end
 

@@ -28,7 +28,7 @@
     return self.queue.count <= 1;
 }
 
-- (void)addRequest:(NSURLRequest *)request completionHandler:(SentryQueueableRequestManagerHandler)completionHandler {
+- (void)addRequest:(NSURLRequest *)request completionHandler:(SentryRequestFinished)completionHandler {
     [self.queue addObject:request];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.queue removeObject:request];
@@ -54,7 +54,7 @@
                                    didFailWithError:nil];
 }
 
-- (void)testAddRequests {
+- (void)testAddRequest {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     [self.client sendEventWithCompletionHandler:^(NSError * _Nullable error) {
         [expectation fulfill];
@@ -63,8 +63,8 @@
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
         }
+        XCTAssert(YES);
     }];
 }
-
 
 @end

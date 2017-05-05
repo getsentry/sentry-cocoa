@@ -16,8 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryQueueableRequestManager ()
 
-@property(nonatomic, retain) NSOperationQueue *queue;
-@property(nonatomic, retain) NSURLSession *session;
+@property(nonatomic, strong) NSOperationQueue *queue;
+@property(nonatomic, strong) NSURLSession *session;
 
 @end
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self.queue.operationCount <= 1;
 }
 
-- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryQueueableRequestManagerHandler)completionHandler {
+- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
 }
 

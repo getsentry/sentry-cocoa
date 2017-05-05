@@ -8,13 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class SentryFrame;
 
 @interface SentryStacktrace : NSObject
 
-@property (nonatomic, copy) NSArray<SentryFrame *> * _Nonnull frames;
-@property (nonatomic, readonly, strong, getter=register) SentryRegister * _Nullable register_;
-- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> * _Nullable)frames;
-- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> * _Nullable)frames register:(SentryRegister * _Nullable)register_;
+@property(nonatomic, copy) NSArray<SentryFrame *> *frames;
+@property(nonatomic, readonly, strong) NSDictionary<NSString *, NSString *> *registers;
+
+//- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> *_Nullable)frames;
+//
+//- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> *_Nullable)frames
+//                              register:(SentryRegister *_Nullable)register_;
 
 @end
+
+NS_ASSUME_NONNULL_END

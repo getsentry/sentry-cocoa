@@ -11,17 +11,21 @@
 #endif
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryQueueableRequestManager.h>
+#import <Sentry/SentryEvent.h>
+
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryQueueableRequestManager.h"
+#import "SentryEvent.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,8 +38,8 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 @interface SentryClient ()
 
-@property(nonatomic, retain) SentryDsn *dsn;
-@property(nonatomic, retain) id<SentryRequestManager> requestManager;
+@property(nonatomic, strong) SentryDsn *dsn;
+@property(nonatomic, strong) id <SentryRequestManager> requestManager;
 
 @end
 
@@ -55,13 +59,13 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 }
 
 - (instancetype)initWithDsn:(NSString *)dsn
-             requestManager:(id<SentryRequestManager>)requestManager
-           didFailWithError:(NSError *__autoreleasing  _Nullable *)error {
+             requestManager:(id <SentryRequestManager>)requestManager
+           didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         if (nil != error) {
-            [SentryLog logWithMessage:(*error).localizedDescription andLevel:kError];
+            [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
         self.requestManager = requestManager;
@@ -94,11 +98,15 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 #pragma mark Event
 
-- (void)sendEventWithCompletionHandler:(_Nullable SentryQueueableRequestManagerHandler)completionHandler {
+- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://sentry.io"]];
-    [self.requestManager addRequest:request completionHandler:^(NSError * _Nullable error) {
-        NSLog(@"called finish!!!!!");
-        if (completionHandler) completionHandler(error);
+    [self.requestManager addRequest:request completionHandler:^(NSError *_Nullable error) {
+        if (completionHandler) {
+            completionHandler(error);
+        }
+        if (nil == error) {
+            self.lastEvent = event;
+        }
     }];
 }
 
@@ -110,6 +118,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     return YES;
 }
 #else
+
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
     [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
@@ -118,6 +127,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     }
     return NO;
 }
+
 #endif
 
 @end

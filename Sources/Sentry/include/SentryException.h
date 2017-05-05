@@ -8,18 +8,25 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class SentryThread;
 
 @interface SentryException : NSObject
 
-@property (nonatomic, copy) NSString * _Nonnull value;
-@property (nonatomic, copy) NSString * _Nullable type;
-@property (nonatomic, copy) NSDictionary<NSString *, id> * _Nullable mechanism;
-@property (nonatomic, copy, getter=module, setter=setModule:) NSString * _Nullable module_;
-@property (nonatomic) BOOL userReported;
-@property (nonatomic, strong) SentryThread * _Nullable thread;
+@property(nonatomic, copy) NSString *value;
+@property(nonatomic, copy) NSString *_Nullable type;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable mechanism;
+@property(nonatomic, copy) NSString *_Nullable module;
+@property(nonatomic) BOOL userReported;
+@property(nonatomic, strong) SentryThread *_Nullable thread;
 
-- (nonnull instancetype)initWithValue:(NSString * _Nonnull)value type:(NSString * _Nullable)type mechanism:(NSDictionary<NSString *, id> * _Nullable)mechanism module:(NSString * _Nullable)module_;
-- (BOOL)isEqual:(id _Nullable)object;
+//- (nonnull instancetype)initWithValue:(NSString *_Nonnull)value type:(NSString *_Nullable)type
+//                            mechanism:(NSDictionary<NSString *, id> *_Nullable)mechanism
+//                               module:(NSString *_Nullable)module_;
+//
+//- (BOOL)isEqual:(id _Nullable)object;
 
 @end
+
+NS_ASSUME_NONNULL_END

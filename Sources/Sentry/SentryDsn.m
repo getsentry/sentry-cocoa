@@ -8,9 +8,11 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDsn.h>
+#import <Sentry/SentryClient.h>
 #import <Sentry/SentryError.h>
 #else
 #import "SentryDsn.h"
+#import "SentryClient.h"
 #import "SentryError.h"
 #endif
 
@@ -18,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDsn ()
 
-@property(nonatomic, retain) NSURL *dsn;
+@property(nonatomic, strong) NSURL *dsn;
 
 @end
 
@@ -66,6 +68,38 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
     return url;
+}
+
+
+static NSURL *extractURLFromDSN(NSString *dsn)
+{
+    NSURL *url = [NSURL URLWithString:dsn];
+    NSString *projectID = url.pathComponents[1];
+    NSURLComponents *components = [NSURLComponents new];
+    components.scheme = url.scheme;
+    components.host = url.host;
+    components.port = url.port;
+    components.path = [NSString stringWithFormat:@"/api/%@/store/", projectID];
+    return components.URL;
+}
+
+static NSString *newHeaderPart(NSString *key, id value)
+{
+    return [NSString stringWithFormat:@"%@=%@", key, value];
+}
+
+static NSString *newAuthHeader(NSURL *url)
+{
+    NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
+
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-objc/%@", SentryClientVersionString])];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_key", url.user)];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_secret", url.password)];
+
+    [string deleteCharactersInRange:NSMakeRange([string length]-1, 1)]; // We strip the last slash
+    return string;
 }
 
 @end
