@@ -15,6 +15,9 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #import <Sentry/SentryClient.h>
+
+#import <Sentry/SentrySerializable.h>
+
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryException.h>

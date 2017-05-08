@@ -34,7 +34,7 @@ NSString *const SentryServerVersionString = @"7";
 
 @implementation SentryNSURLRequest
 
-- (instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event {
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
     // TODO dont fix timeout here
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
@@ -46,8 +46,16 @@ NSString *const SentryServerVersionString = @"7";
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+        
         NSError *error = nil;
-        self.HTTPBody = [self.HTTPBody gzippedWithCompressionLevel:-1 error:&error];
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:event.serialized
+                                                           options:0
+                                                             error:&error];
+        if (nil != error) {
+            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
+        self.HTTPBody = [jsonData gzippedWithCompressionLevel:-1 error:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
             return nil;

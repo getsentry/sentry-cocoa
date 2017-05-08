@@ -4,6 +4,8 @@ rules:
 disable-rules:
   - GotoStatement
   - UnusedMethodParameter
+  - PreferEarlyExit
+  - TooFewBranchesInSwitchStatement
   - EmptyIfStatement
   - SwitchStatementsDon'TNeedDefaultWhenFullyCovered
 

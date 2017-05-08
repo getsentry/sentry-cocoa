@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)main {
-    NSAssert(![self isMemberOfClass:[SentryAsynchronousOperation class]], @"AsynchronousOperation is abstract class that must be subclassed");
-    NSAssert(false, @"AsynchronousOperation subclasses must override `main`.");
+    // Should be subclassed
+    NSLog(@"AsynchronousOperation subclasses must override `main`.");
 }
 
 - (void)completeOperation {

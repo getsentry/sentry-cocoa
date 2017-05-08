@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
         return [NSData data];
     }
 
+    /// Init empty z_stream
     z_stream stream;
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
@@ -43,8 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
     int err;
 
     err = deflateInit2(&stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
-    if (err != Z_OK && error && *error) {
-        *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
+    if (err != Z_OK) {
+        if (error && *error) {
+            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
+        }
         return nil;
     }
 
@@ -52,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
     Bytef *compressedBytes = [compressedData mutableBytes];
     NSUInteger compressedLength = [compressedData length];
 
+    /// compress
     while (err == Z_OK) {
         stream.next_out = compressedBytes + stream.total_out;
         stream.avail_out = (uInt)(compressedLength - stream.total_out);
@@ -59,7 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (err != Z_STREAM_END) {
-        *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflate error");
+        if (error && *error) {
+            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflate error");
+        }
         deflateEnd(&stream);
         return nil;
     }
