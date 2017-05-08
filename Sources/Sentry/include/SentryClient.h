@@ -23,9 +23,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN NSString *const SentryClientVersionString;
-SENTRY_EXTERN NSString *const SentryServerVersionString;
-
 /**
  * `SentryClient`
  */

@@ -12,15 +12,19 @@
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
+#import <Sentry/NSData+Gzip.h>
 
 #else
 #import "SentryDsn.h"
 #import "SentryNSURLRequest.h"
 #import "SentryClient.h"
 #import "SentryEvent.h"
+#import "NSData+Gzip.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+NSString *const SentryServerVersionString = @"7";
 
 @interface SentryNSURLRequest ()
 
@@ -41,11 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
-        
-    // TODO set and gzip body
-//        [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-//        body = [body gzippedWithCompressionLevel:-1 error:nil];
-        //self.HTTPBody = @"";
+        [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+        NSError *error = nil;
+        self.HTTPBody = [self.HTTPBody gzippedWithCompressionLevel:-1 error:&error];
+        if (nil != error) {
+            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
     }
     return self;
 }
@@ -69,7 +75,7 @@ static NSString *newAuthHeader(NSURL *url) {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
 
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryClientVersionString])];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryClient.versionString])];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger) [[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_key", url.user)];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_secret", url.password)];

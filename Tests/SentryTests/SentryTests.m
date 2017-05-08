@@ -16,7 +16,8 @@
 @implementation SentryTests
 
 - (void)testVersion {
-    NSString *version = [NSString stringWithFormat:@"%@ (%@)", SentryClientVersionString, SentryServerVersionString];
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
     XCTAssert([version isEqualToString:SentryClient.versionString]);
 }
 

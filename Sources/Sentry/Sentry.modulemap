@@ -12,5 +12,6 @@ framework module Sentry {
         header "SentryRequestOperation.h"
         header "SentryQueueableRequestManager.h"
         header "SentryNSURLRequest.h"
+        header "NSData+Gzip.h"
     }
 }

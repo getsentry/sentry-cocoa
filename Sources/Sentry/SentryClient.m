@@ -32,11 +32,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"3.0.0";
-NSString *const SentryServerVersionString = @"7";
-
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
+static NSDictionary<NSString *, id> *infoDictionary = nil;
 
 @interface SentryClient ()
 
@@ -86,8 +84,12 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     sharedClient = client;
 }
 
+
 + (NSString *)versionString {
-    return [NSString stringWithFormat:@"%@ (%@)", SentryClientVersionString, SentryServerVersionString];
+    if (nil == infoDictionary) {
+        infoDictionary = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    }
+    return infoDictionary[@"CFBundleShortVersionString"];
 }
 
 + (void)setLogLevel:(SentryLogLevel)level {
