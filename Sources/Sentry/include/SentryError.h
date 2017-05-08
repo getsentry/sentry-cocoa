@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, SentryError) {
     kSentryErrorKSCrashNotInstalledError = 101,
     kSentryErrorInvalidCrashReportError = 102,
     kSentryErrorCompressionError = 103,
+    kSentryErrorJsonConversionError = 104,
 };
 
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description);

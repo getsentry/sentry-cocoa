@@ -33,27 +33,28 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         self.request = request;
         self.task = [session dataTaskWithRequest:self.request completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
-            if (nil == error) {
-                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
-                NSInteger statusCode = [httpResponse statusCode];
-                [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld", (long) statusCode] andLevel:kSentryLogLevelDebug];
-                [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            NSInteger statusCode = [httpResponse statusCode];
+            
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld", (long) statusCode] andLevel:kSentryLogLevelDebug];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
+            
+            if (nil != error) {
                 if (statusCode >= 400 && statusCode <= 500) {
                     switch (statusCode) {
                         case 429:
                             [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
-                            break;
                         default:
-                            [SentryLog logWithMessage:@"Server returned with and error" andLevel:kSentryLogLevelError];
+                            [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error] andLevel:kSentryLogLevelError];
                             break;
                     }
                 }
-            } else {
-                [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error] andLevel:kSentryLogLevelError];
             }
+            
             if (completionHandler) {
                 completionHandler(error);
             }
+            
             [self completeOperation];
         }];
     }

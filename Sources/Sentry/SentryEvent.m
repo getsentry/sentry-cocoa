@@ -57,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
                                @"name": @"sentry-cocoa",
                                @"version": SentryClient.versionString
                                };
-                               
+    
+    serializedData[@"extra"] = self.extra;
     return serializedData;
 }
 

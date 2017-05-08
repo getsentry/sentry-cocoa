@@ -15,9 +15,30 @@
 
 @implementation SentryDsnTests
 
-- (void)testDsn {
+- (void)testMissingUsernamePassword {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://sentry.io" didFailWithError:&error];
+    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
+    XCTAssertNil(client);
+}
+
+- (void)testMissingScheme {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"sentry.io" didFailWithError:&error];
+    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
+    XCTAssertNil(client);
+}
+
+- (void)testMissingHost {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"http:///1" didFailWithError:&error];
+    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
+    XCTAssertNil(client);
+}
+
+- (void)testUnsupportedProtocol {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"ftp://sentry.io/1" didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(client);
 }

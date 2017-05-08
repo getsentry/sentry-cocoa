@@ -27,6 +27,8 @@
 		6304360B1EC0595B00C4D3FA /* NSData+Compression.m in Sources */ = {isa = PBXBuildFile; fileRef = 630436091EC0595B00C4D3FA /* NSData+Compression.m */; };
 		6304360E1EC05CEF00C4D3FA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6304360D1EC05CEF00C4D3FA /* libz.tbd */; };
 		630436101EC0600A00C4D3FA /* SentrySerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		630436131EC0A17100C4D3FA /* SentryLogTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 630436121EC0A17100C4D3FA /* SentryLogTests.m */; };
+		630436161EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */; };
 		6319A3041EB9F6F500B3B144 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
@@ -97,6 +99,8 @@
 		630436091EC0595B00C4D3FA /* NSData+Compression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Compression.m"; sourceTree = "<group>"; };
 		6304360D1EC05CEF00C4D3FA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6304360F1EC0600A00C4D3FA /* SentrySerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySerializable.h; path = include/SentrySerializable.h; sourceTree = "<group>"; };
+		630436121EC0A17100C4D3FA /* SentryLogTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryLogTests.m; sourceTree = "<group>"; };
+		630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataCompressionTests.m; sourceTree = "<group>"; };
 		631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryQueueableRequestManager.h; path = include/SentryQueueableRequestManager.h; sourceTree = "<group>"; };
 		631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryQueueableRequestManager.m; sourceTree = "<group>"; };
 		635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryAsynchronousOperation.h; path = include/SentryAsynchronousOperation.h; sourceTree = "<group>"; };
@@ -291,6 +295,8 @@
 				63AA75951EB8AEDB00D153DE /* SentryTests.m */,
 				639FCF921EBC746F00778193 /* SentryDsnTests.m */,
 				639FCF941EBC749B00778193 /* SentryRequestTests.m */,
+				630436121EC0A17100C4D3FA /* SentryLogTests.m */,
+				630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -313,12 +319,12 @@
 				630436031EC058FA00C4D3FA /* Categories */,
 				63AA76931EB9C1C200D153DE /* Sentry.h */,
 				63AA76951EB9C1C200D153DE /* SentryDefines.h */,
-				63AA75ED1EB8B3C400D153DE /* SentryClient.m */,
 				63AA76941EB9C1C200D153DE /* SentryClient.h */,
-				63AA769C1EB9C57A00D153DE /* SentryError.m */,
+				63AA75ED1EB8B3C400D153DE /* SentryClient.m */,
 				63AA769B1EB9C57A00D153DE /* SentryError.h */,
-				63AA76781EB8D20500D153DE /* SentryLog.m */,
+				63AA769C1EB9C57A00D153DE /* SentryError.m */,
 				63AA76961EB9C1C200D153DE /* SentryLog.h */,
+				63AA76781EB8D20500D153DE /* SentryLog.m */,
 			);
 			path = Sentry;
 			sourceTree = "<group>";
@@ -605,7 +611,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				630436161EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m in Sources */,
 				639FCF951EBC749B00778193 /* SentryRequestTests.m in Sources */,
+				630436131EC0A17100C4D3FA /* SentryLogTests.m in Sources */,
 				639FCF931EBC746F00778193 /* SentryDsnTests.m in Sources */,
 				63AA76701EB8CB4B00D153DE /* SentryTests.m in Sources */,
 			);

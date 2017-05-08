@@ -12,6 +12,7 @@
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentryError.h>
 #import <Sentry/NSData+Compression.h>
 
 #else
@@ -19,6 +20,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryClient.h"
 #import "SentryEvent.h"
+#import "SentryError.h"
 #import "NSData+Compression.h"
 #endif
 
@@ -34,7 +36,7 @@ NSString *const SentryServerVersionString = @"7";
 
 @implementation SentryNSURLRequest
 
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event {
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
     // TODO dont fix timeout here
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
@@ -47,19 +49,18 @@ NSString *const SentryServerVersionString = @"7";
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:event.serialized
+        NSDictionary *serialized = event.serialized;
+        if (![NSJSONSerialization isValidJSONObject:serialized]) {
+            if (error) {
+                *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
+            }
+            return nil;
+        }
+        
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
                                                            options:0
-                                                             error:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
-            return nil;
-        }
-        self.HTTPBody = [jsonData gzippedWithCompressionLevel:-1 error:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
-            return nil;
-        }
+                                                             error:error];
+        self.HTTPBody = [jsonData gzippedWithCompressionLevel:-1 error:error];
     }
     return self;
 }

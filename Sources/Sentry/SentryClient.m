@@ -84,7 +84,6 @@ static NSDictionary<NSString *, id> *infoDictionary = nil;
     sharedClient = client;
 }
 
-
 + (NSString *)versionString {
     if (nil == infoDictionary) {
         infoDictionary = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
@@ -103,7 +102,13 @@ static NSDictionary<NSString *, id> *infoDictionary = nil;
 #pragma mark Event
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn andEvent:event];
+    NSError *requestError = nil;
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn andEvent:event didFailWithError:&requestError];
+    if (nil != requestError) {
+        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
+        completionHandler(requestError);
+        return;
+    }
     __block SentryClient* _self = self;
     [self.requestManager addRequest:request completionHandler:^(NSError *_Nullable error) {
         if (completionHandler) {

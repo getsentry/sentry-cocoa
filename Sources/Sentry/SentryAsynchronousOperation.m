@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryAsynchronousOperation ()
 
+@property (nonatomic, getter = isCancelled, readwrite)  BOOL cancelled;
 @property (nonatomic, getter = isFinished, readwrite)  BOOL finished;
 @property (nonatomic, getter = isExecuting, readwrite) BOOL executing;
 
@@ -24,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAsynchronousOperation
 
+@synthesize cancelled = _cancelled;
 @synthesize finished  = _finished;
 @synthesize executing = _executing;
 
@@ -32,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         _finished  = NO;
         _executing = NO;
+        _cancelled = NO;
     }
     return self;
 }
@@ -47,9 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self main];
 }
 
-- (void)main {
-    // Should be subclassed
-    NSLog(@"AsynchronousOperation subclasses must override `main`.");
+- (void)cancel {
+    self.executing = NO;
+    self.finished  = YES;
+    self.cancelled = YES;
 }
 
 - (void)completeOperation {
@@ -72,6 +76,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isFinished {
     @synchronized(self) {
         return _finished;
+    }
+}
+
+- (BOOL)isCancelled {
+    @synchronized(self) {
+        return _cancelled;
+    }
+}
+
+- (void)setCancelled:(BOOL)cancelled {
+    if (_cancelled != cancelled) {
+        [self willChangeValueForKey:@"isCancelled"];
+        @synchronized(self) {
+            _cancelled = cancelled;
+        }
+        [self didChangeValueForKey:@"isCancelled"];
     }
 }
 

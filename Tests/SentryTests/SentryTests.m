@@ -21,4 +21,21 @@
     XCTAssert([version isEqualToString:SentryClient.versionString]);
 }
 
+- (void)testStartCrashHandler {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    XCTAssertFalse([client startCrashHandlerWithError:&error]);
+    XCTAssertNotNil(error);
+}
+
+- (void)testSharedClient {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    XCTAssertNil(SentryClient.sharedClient);
+    SentryClient.sharedClient = client;
+    XCTAssertNotNil(SentryClient.sharedClient);
+}
+
 @end

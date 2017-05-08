@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, getter = isReady) BOOL ready;
 
 - (instancetype)initWithSession:(NSURLSession *)session;
-
 - (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (void)cancelAllOperations;
 
 @end
 

@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     err = deflateInit2(&stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
     if (err != Z_OK) {
-        if (error && *error) {
+        if (error) {
             *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
         }
         return nil;
@@ -59,14 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
         stream.next_out = compressedBytes + stream.total_out;
         stream.avail_out = (uInt)(compressedLength - stream.total_out);
         err = deflate(&stream, Z_FINISH);
-    }
-
-    if (err != Z_STREAM_END) {
-        if (error && *error) {
-            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflate error");
-        }
-        deflateEnd(&stream);
-        return nil;
     }
 
     [compressedData setLength:stream.total_out];
