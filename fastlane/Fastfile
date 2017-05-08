@@ -142,9 +142,13 @@ private_lane :filter_cocoapods_platforms do |options|
 end
 
 lane :do_cocoapods do  |options|
-  reset_cocoapods options
-  build_cocoapods options
-  test_cocoapods options
+  if ENV["TRAVIS_EVENT_TYPE"] == "pull_request"
+    reset_cocoapods options
+    build_cocoapods options
+    test_cocoapods options
+  else
+    UI.message "Skipping build of cocoapods because we are just the push"
+  end
 end
 
 lane :reset_cocoapods do |options|
