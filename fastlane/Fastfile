@@ -147,7 +147,7 @@ lane :do_cocoapods do  |options|
     build_cocoapods options
     test_cocoapods options
   else
-    UI.message "Skipping build of cocoapods because we are just the push"
+    UI.important "Skipping build of cocoapods because we are just the push -> look at pull_request"
   end
 end
 

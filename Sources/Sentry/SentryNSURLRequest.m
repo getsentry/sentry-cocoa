@@ -12,14 +12,14 @@
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
-#import <Sentry/NSData+Gzip.h>
+#import <Sentry/NSData+Compression.h>
 
 #else
 #import "SentryDsn.h"
 #import "SentryNSURLRequest.h"
 #import "SentryClient.h"
 #import "SentryEvent.h"
-#import "NSData+Gzip.h"
+#import "NSData+Compression.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

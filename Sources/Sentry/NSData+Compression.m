@@ -1,28 +1,27 @@
 //
-//  NSData+Gzip.m
+//  NSData+Compression.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 08/05/2017.
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#import "NSData+Gzip.h"
 #import <zlib.h>
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/NSData+Gzip.h>
+#import <Sentry/NSData+Compression.h>
 #import <Sentry/SentryError.h>
 
 #else
-#import "NSData+Gzip.h"
+#import "NSData+Compression.h"
 #import "SentryError.h"
 #endif
 
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation NSData (Gzip)
+@implementation NSData (Compression)
 
 - (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                   error:(NSError *_Nullable *_Nullable)error {

@@ -1,5 +1,5 @@
 //
-//  NSData+Gzip.h
+//  NSData+Compression.h
 //  Sentry
 //
 //  Created by Daniel Griesser on 08/05/2017.
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSData (Gzip)
+@interface NSData (Compression)
 
 - (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                            error:(NSError *_Nullable *_Nullable)error;
