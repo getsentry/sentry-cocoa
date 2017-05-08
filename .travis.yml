@@ -14,6 +14,13 @@ env:
         - LANE=test
         - LANE=test_swift
         - LANE=do_cocoapods KSCRASH=true PLATFORM=ios
+        - LANE=do_cocoapods KSCRASH=true PLATFORM=macos
+        - LANE=do_cocoapods KSCRASH=true PLATFORM=tvos
+        - LANE=do_cocoapods KSCRASH=true PLATFORM=watchos
+        - LANE=do_cocoapods KSCRASH=false PLATFORM=ios
+        - LANE=do_cocoapods KSCRASH=false PLATFORM=macos
+        - LANE=do_cocoapods KSCRASH=false PLATFORM=tvos
+        - LANE=do_cocoapods KSCRASH=false PLATFORM=watchos
 notifications:
   email: false
 
