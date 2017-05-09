@@ -94,7 +94,7 @@ public typealias Mechanism = [String: AnyType]
         var crashedThread = threads.first(where: { $0.crashed ?? false })
         
         if let stacktrace = userStacktrace {
-            let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: type)
+            let reactNativeThread = Thread(id: 99, crashed: true, current: true, name: "React Native", stacktrace: stacktrace, reason: value)
             _ = threads.map({ $0.crashed = false })
             threads.append(reactNativeThread)
             crashedThread = reactNativeThread
@@ -235,7 +235,17 @@ public typealias Mechanism = [String: AnyType]
         if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
             let name = context["name"] as? String,
             let language = context["language"] as? String {
-            type = name
+            if name.contains(":") {
+                #if swift(>=3.0)
+                    let exceptions = name.characters.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true).map(String.init)
+                #else
+                    let exceptions = name.characters.split(":", maxSplit: 1).map(String.init)
+                #endif
+                type = exceptions[0]
+                value = exceptions[1]
+            } else {
+                type = name
+            }
             if language == SentryClient.CrashLanguages.reactNative { // We use this syntax here because dont want to have swift 3.0 #if
                 if let backtrace = context["backtrace"] as? [[String: AnyObject]] {
                     userStacktrace = Stacktrace.convertReactNativeStacktrace(backtrace)
