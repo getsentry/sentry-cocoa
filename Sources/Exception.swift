@@ -235,17 +235,26 @@ public typealias Mechanism = [String: AnyType]
         if let context = appleCrashErrorDict["user_reported"] as? [String: AnyObject],
             let name = context["name"] as? String,
             let language = context["language"] as? String {
-            if name.contains(":") {
+            
                 #if swift(>=3.0)
-                    let exceptions = name.characters.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true).map(String.init)
+                    if name.contains(":") {
+                        let exceptions = name.characters.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true).map(String.init)
+                        type = exceptions[0]
+                        value = exceptions[1]
+                    } else {
+                        type = name
+                    }
                 #else
-                    let exceptions = name.characters.split(":", maxSplit: 1).map(String.init)
+                    if name.containsString(":") {
+                        let exceptions = name.characters.split(":", maxSplit: 1).map(String.init)
+                        type = exceptions[0]
+                        value = exceptions[1]
+                    } else {
+                        type = name
+                    }
                 #endif
-                type = exceptions[0]
-                value = exceptions[1]
-            } else {
-                type = name
-            }
+            
+            
             if language == SentryClient.CrashLanguages.reactNative { // We use this syntax here because dont want to have swift 3.0 #if
                 if let backtrace = context["backtrace"] as? [[String: AnyObject]] {
                     userStacktrace = Stacktrace.convertReactNativeStacktrace(backtrace)
