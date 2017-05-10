@@ -17,7 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta;
 
 @interface SentryEvent : NSObject <SentrySerializable>
 
@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSArray<SentryThread *> *_Nullable threads;
 @property(nonatomic, copy) NSArray<SentryException *> *_Nullable exceptions;
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
+@property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
 @property(nonatomic, copy) NSArray<NSDictionary<NSString *, id> *> *_Nullable breadcrumbsSerialized;
 

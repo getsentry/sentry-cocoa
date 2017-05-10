@@ -36,6 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
            didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
+ * This forces a crash, useful to test the KSCrash integration
+ *
+ */
+- (void)crash;
+
+/**
  * Returns the shared sentry client
  * @return sharedClient if it was set before
  */

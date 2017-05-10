@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryKSCrashReportConverter : NSObject
 
 - (instancetype)initWithReport:(NSDictionary *)report;
-- (SentryEvent *)event;
+- (SentryEvent *)convertReportToEvent;
 
 @end
 

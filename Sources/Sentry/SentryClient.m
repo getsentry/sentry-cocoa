@@ -34,7 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryVersionString = @"3.0.0";
+NSString *const SentryClientVersionString = @"3.0.0";
 
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
@@ -79,6 +79,11 @@ static SentryKSCrashInstallation *installation = nil;
     return self;
 }
 
+- (void)crash {
+    int* p = 0;
+    *p = 0;
+}
+
 #pragma mark Static Getter/Setter
 
 + (_Nullable instancetype)sharedClient {
@@ -90,7 +95,7 @@ static SentryKSCrashInstallation *installation = nil;
 }
 
 + (NSString *)versionString {
-    return SentryVersionString;
+    return SentryClientVersionString;
 }
 
 + (void)setLogLevel:(SentryLogLevel)level {

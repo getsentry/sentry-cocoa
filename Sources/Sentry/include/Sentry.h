@@ -24,3 +24,4 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryFrame.h>
 #import <Sentry/SentryUser.h>
+#import <Sentry/SentryDebugMeta.h>
