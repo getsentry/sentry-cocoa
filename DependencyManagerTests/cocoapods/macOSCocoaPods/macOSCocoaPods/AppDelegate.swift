@@ -8,15 +8,14 @@
 
 import Cocoa
 
-import Sentry
-import KSCrash
+import SentrySwift
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
-		let client = SentryClient(dsnString: "example-dsn")
-		client?.startCrashHandler()
+		Client.sharedClient = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        try? Client.sharedClient?.startCrashHandler()
 	}
 
 }

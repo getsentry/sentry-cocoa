@@ -26,22 +26,21 @@ private_lane :undo_gitmodules do
   sh "git reset --hard HEAD" rescue nil if ENV["DO_RESET"] == "true"
 end
 
-desc "Test iOS, tvOS, and OSX"
-lane :test do
-    xcode_select "/Applications/Xcode-8.2.1.app"
+desc "Run tests"
+lane :test_all do
     ENV["CI"]="true" if is_ci?
-    test_swift_2_ios
-    test_swift_2_tvos
-    test_swift_2_macos
-    clear_derived_data
-    test_swift_3_tvos
-    test_swift_3_macos
-    test_swift_3_ios
+    test
+    test_swift
 end
 
 lane :localcoverage do
-    test_swift_3_ios
-    sh('cd .. && slather coverage --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
+    test_swift
+    sh('cd .. && slather coverage --input-format profdata Sentry.xcodeproj')
+end
+
+lane :oc_lint do
+  sh('cd .. && xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log && oclint-xcodebuild -output compile_commands.json xcodebuild.log')
+  oclint
 end
 
 lane :lint do
@@ -56,37 +55,17 @@ lane :lint do
     sh('cd .. && swiftlint')
 end
 
-lane :test_swift_2_ios do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-iOS", xcargs: xcargs)
+lane :test do
+    scan(scheme: "Sentry", code_coverage: true)
 end
 
-lane :test_swift_2_tvos do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-tvOS", xcargs: xcargs)
-end
-
-lane :test_swift_2_macos do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-OSX", destination: "platform=macOS", xcargs: xcargs)
-end
-
-lane :test_swift_3_tvos do
-    scan(scheme: "Sentry-tvOS")
-end
-
-lane :test_swift_3_macos do
-    scan(scheme: "Sentry-OSX", destination: "platform=macOS")
-end
-
-lane :test_swift_3_ios do
-    clear_derived_data
-    scan(scheme: "Sentry-iOS", code_coverage: true)
-    travis_slather
+lane :test_swift do
+    scan(scheme: "SentrySwift", code_coverage: true)
+    # travis_slather
 end
 
 lane :travis_slather do
-    sh('cd .. && slather coverage -x --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
+    sh('cd .. && slather coverage -x --scheme Sentry --input-format profdata Sentry.xcodeproj')
 end
 
 #
@@ -95,10 +74,10 @@ end
 
 private_lane :filter_carthage_platforms do |options|
   projects = CARTHAGE_PROJECTS
-  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
-  
+  projects = projects.select { |proj| proj[:platform] == ENV["PLATFORM"] } if ENV["PLATFORM"]
+
   UI.message "Using Carthage Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
-  
+
   projects
 end
 
@@ -112,23 +91,23 @@ lane :reset_carthage do |options|
   carthage_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
   carthage_branch = options[:branch] || "master"
   cartfile_contents = "git \"#{carthage_git_url}\" \"#{carthage_branch}\""
-  
+
   filter_carthage_platforms(options).each do |project|
     dir = File.dirname project[:path]
-    
+
     File.delete File.join(dir, "Cartfile") rescue nil
     File.delete File.join(dir, "Cartfile.resolved") rescue nil
     FileUtils.rm_rf File.join(dir, "Carthage") rescue nil
-    
+
     File.open(File.join(dir, "Cartfile"), 'w') { |file| file.write(cartfile_contents) }
   end
 end
 
 lane :build_carthage do  |options|
   ENV["DO_RESET"] = UI.confirm("Cathage will modify files. Do you want to 'git reset' after Carthage does stuff?").to_s
-  
+
   filter_carthage_platforms(options).each do |project|
-    dir = File.dirname project[:path]  
+    dir = File.dirname project[:path]
     carthage(
       command: "update",
       project_directory: dir,
@@ -155,45 +134,57 @@ end
 
 private_lane :filter_cocoapods_platforms do |options|
   projects = COCOAPODS_PROJECTS
-  projects = projects.select { |proj| proj[:platform] == options[:platform] } if options[:platform]
-  
+  projects = projects.select { |proj| proj[:platform] == ENV["PLATFORM"] } if ENV["PLATFORM"]
+
   UI.message "Using CocoaPods Projects: #{projects.map{|proj| proj[:platform]}.join(" ,")}"
-  
+
   projects
 end
 
 lane :do_cocoapods do  |options|
-  reset_cocoapods options
-  build_cocoapods options
-  test_cocoapods options
+  if ENV["TRAVIS_EVENT_TYPE"] == "pull_request"
+    reset_cocoapods options
+    build_cocoapods options
+    test_cocoapods options
+  else
+    UI.important "Skipping build of cocoapods because we are just the push -> look at pull_request"
+  end
 end
 
 lane :reset_cocoapods do |options|
   filter_cocoapods_platforms(options).each do |project|
     dir = File.dirname project[:path]
-    
+
+    with_kscrash = ENV["KSCRASH"] || false
+
     cocoapods_target = project[:target]
-    cocoapods_git_url = options[:git_url] || "git@github.com:getsentry/sentry-swift.git"
-    cocoapods_branch = options[:branch] || "master"
+
+    if with_kscrash == "true"
+      sentry_pod = 'Sentry/KSCrash'
+    else
+      sentry_pod = 'Sentry'
+    end
+
     cocoapod_contents = <<-STRING
 target '#{cocoapods_target}' do
   use_frameworks!
-  pod 'Sentry', git: '#{cocoapods_git_url}', branch: '#{cocoapods_branch}'
-  
+  pod '#{sentry_pod}', :path => "../../../"
+  pod 'SentrySwift', :path => "../../../"
+
   target '#{cocoapods_target}Tests' do
-    
+
   end
-  
+
   target '#{cocoapods_target}UITests' do
-    
+
   end
 end
     STRING
-    
+
     File.delete File.join(dir, "Podfile") rescue nil
     File.delete File.join(dir, "Podfile.lock") rescue nil
     FileUtils.rm_rf File.join(dir, "Pods") rescue nil
-    
+
     File.open(File.join(dir, "Podfile"), 'w') { |file| file.write(cocoapod_contents) }
   end
 end

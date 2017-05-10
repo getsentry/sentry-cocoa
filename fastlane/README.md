@@ -29,14 +29,19 @@ xcode-select --install
 </table>
 
 # Available Actions
-### test
+### test_all
 ```
-fastlane test
+fastlane test_all
 ```
-Test iOS, tvOS, and OSX
+Run tests
 ### localcoverage
 ```
 fastlane localcoverage
+```
+
+### oc_lint
+```
+fastlane oc_lint
 ```
 
 ### lint
@@ -44,34 +49,14 @@ fastlane localcoverage
 fastlane lint
 ```
 
-### test_swift_2_ios
+### test
 ```
-fastlane test_swift_2_ios
-```
-
-### test_swift_2_tvos
-```
-fastlane test_swift_2_tvos
+fastlane test
 ```
 
-### test_swift_2_macos
+### test_swift
 ```
-fastlane test_swift_2_macos
-```
-
-### test_swift_3_tvos
-```
-fastlane test_swift_3_tvos
-```
-
-### test_swift_3_macos
-```
-fastlane test_swift_3_macos
-```
-
-### test_swift_3_ios
-```
-fastlane test_swift_3_ios
+fastlane test_swift
 ```
 
 ### travis_slather

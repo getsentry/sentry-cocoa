@@ -37,10 +37,12 @@ playground.xcworkspace
 
 # Swift Package Manager
 .build/
+Packages
 
 # Carthage
 Carthage/Build
 Carthage/Checkouts
+Carthage
 
 # CocoaPods
 Examples/**/Pods
@@ -60,3 +62,6 @@ DependencyManagerTests/*/*/Carthage/
 DependencyManagerTests/*/*/Podfile
 DependencyManagerTests/*/*/Podfile.lock
 DependencyManagerTests/*/*/Pods
+compile_commands.json
+oclint_report.html
+xcodebuild.log
