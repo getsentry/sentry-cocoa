@@ -50,9 +50,14 @@ NSInteger requestShouldReturnCode = 200;
 
 @end
 
-@implementation SentryMockNSURLSession: NSURLSession
+@interface SentryMockNSURLSession: NSURLSession
+
+@end
+
+@implementation SentryMockNSURLSession
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler {
+    NSLog(@"%@", request);
     return [[SentryMockNSURLSessionDataTask alloc] initWithCompletionHandler:completionHandler];
 }
 

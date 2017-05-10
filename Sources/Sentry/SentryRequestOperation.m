@@ -39,16 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld", (long) statusCode] andLevel:kSentryLogLevelDebug];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
             
-            if (nil != error) {
-                if (statusCode >= 400 && statusCode <= 500) {
-                    switch (statusCode) {
-                        case 429:
-                            [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
-                        default:
-                            [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error] andLevel:kSentryLogLevelError];
-                            break;
-                    }
+            if (nil != error && statusCode >= 400 && statusCode <= 500) {
+                if (statusCode == 429) {
+                    [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
                 }
+                [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error] andLevel:kSentryLogLevelError];
             }
             
             if (completionHandler) {

@@ -19,6 +19,7 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
+#import <Sentry/SentryKSCrashInstallation.h>
 
 #else
 #import "SentryClient.h"
@@ -28,13 +29,17 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
+#import "SentryKSCrashInstallation.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const SentryVersionString = @"3.0.0";
+
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
-static NSDictionary<NSString *, id> *infoDictionary = nil;
+
+static SentryKSCrashInstallation *installation = nil;
 
 @interface SentryClient ()
 
@@ -85,13 +90,11 @@ static NSDictionary<NSString *, id> *infoDictionary = nil;
 }
 
 + (NSString *)versionString {
-    if (nil == infoDictionary) {
-        infoDictionary = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
-    }
-    return infoDictionary[@"CFBundleShortVersionString"];
+    return SentryVersionString;
 }
 
 + (void)setLogLevel:(SentryLogLevel)level {
+    NSParameterAssert(level);
     logLevel = level;
 }
 
@@ -102,6 +105,7 @@ static NSDictionary<NSString *, id> *infoDictionary = nil;
 #pragma mark Event
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    NSParameterAssert(event);
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn andEvent:event didFailWithError:&requestError];
     if (nil != requestError) {
@@ -122,9 +126,13 @@ static NSDictionary<NSString *, id> *infoDictionary = nil;
 
 #if __has_include(<KSCrash/KSCrash.h>)
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    // TODO add kscrash version
     [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kSentryLogLevelDebug];
-    [[KSCrash sharedInstance] install];
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        installation = [[SentryKSCrashInstallation alloc] init];
+        [installation install];
+        [installation sendAllReports];
+    });
     return YES;
 }
 #else
