@@ -190,7 +190,19 @@ extension Event: EventSerializable {
         attributes.append(("culprit", culprit))
         attributes.append(("server_name", serverName))
         if let releaseVersion = releaseVersion, let buildNumber = buildNumber {
-            attributes.append(("release", releaseVersion))
+            #if swift(>=3.0)
+                if let bundleIdentifier = Bundle.main.bundleIdentifier {
+                    attributes.append(("release", "\(bundleIdentifier)-\(releaseVersion)"))
+                } else {
+                    attributes.append(("release", releaseVersion))
+                }
+            #else
+                if let bundleIdentifier = Bundle.mainBundle().bundleIdentifier {
+                    attributes.append(("release", "\(bundleIdentifier)-\(releaseVersion)"))
+                } else {
+                    attributes.append(("release", releaseVersion))
+                }
+            #endif
             attributes.append(("dist", buildNumber))
         } else {
             attributes.append(("release", releaseVersion))
