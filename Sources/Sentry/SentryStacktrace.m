@@ -15,6 +15,8 @@
 #import "SentryFrame.h"
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryStacktrace
 
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames registers:(NSDictionary<NSString *,NSString *> *)registers {
@@ -41,3 +43,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

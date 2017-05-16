@@ -54,6 +54,8 @@ NSString *reportPath = @"";
     XCTAssertEqualObjects(firstThread.current, @(NO));
     XCTAssertEqualObjects(firstThread.name, @"com.apple.main-thread");
     XCTAssertEqual(event.threads.count, (unsigned long)10);
+    
+    XCTAssertTrue([NSJSONSerialization isValidJSONObject:event.serialized]);
 }
 
 #pragma mark private helper

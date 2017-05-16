@@ -113,4 +113,63 @@
     XCTAssertEqualObjects(thread2.serialized, serialized2);
 }
 
+- (void)testUser {
+    SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+    XCTAssertNotNil(user.userId);
+    NSDictionary *serialized = @{@"id": @"1"};
+    XCTAssertEqualObjects(user.serialized, serialized);
+    
+    SentryUser *user2 = [[SentryUser alloc] initWithUserId:@"1"];
+    XCTAssertNotNil(user2.userId);
+    user2.email = @"a@b.com";
+    user2.username = @"tony";
+    user2.extra = @{@"test": @"a"};
+    NSDictionary *serialized2 = @{
+                                  @"id": @"1",
+                                  @"email": @"a@b.com",
+                                  @"username": @"tony",
+                                  @"extra": @{@"test": @"a"}
+                                  };
+    XCTAssertEqualObjects(user2.serialized, serialized2);
+}
+
+- (void)testException {
+    SentryException *exception = [[SentryException alloc] initWithValue:@"value" type:@"type"];
+    XCTAssertNotNil(exception.value);
+    XCTAssertNotNil(exception.type);
+    NSDictionary *serialized = @{
+                                 @"value": @"value",
+                                 @"type": @"type",
+                                 };
+    XCTAssertEqualObjects(exception.serialized, serialized);
+    
+    SentryException *exception2 = [[SentryException alloc] initWithValue:@"value" type:@"type"];
+    XCTAssertNotNil(exception2.value);
+    XCTAssertNotNil(exception2.type);
+    
+    SentryThread *thread2 = [[SentryThread alloc] initWithThreadId:@(2)];
+    XCTAssertNotNil(thread2.threadId);
+    thread2.crashed = @(YES);
+    thread2.current = @(NO);
+    thread2.name = @"name";
+    thread2.reason = @"reason";
+    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
+    
+    exception2.thread = thread2;
+    exception2.mechanism = @{@"a": @"b"};
+    exception2.module = @"module";
+    NSDictionary *serialized2 = @{
+                                 @"value": @"value",
+                                 @"type": @"type",
+                                 @"thread_id": @(2),
+                                 @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01"}],
+                                                  @"registers": @{@"a": @"1"}},
+                                 @"module": @"module",
+                                 @"mechanism": @{@"a": @"b"}
+                                 };
+    
+    XCTAssertEqualObjects(exception2.serialized, serialized2);
+    
+}
+
 @end

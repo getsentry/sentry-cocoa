@@ -37,14 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;
 
-@property(nonatomic, copy) NSArray<NSString *> *_Nullable fingerprint;
+@property(nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
 @property(nonatomic, strong) SentryUser *_Nullable user;
-@property(nonatomic, copy) NSArray<SentryThread *> *_Nullable threads;
-@property(nonatomic, copy) NSArray<SentryException *> *_Nullable exceptions;
+@property(nonatomic, strong) NSArray<SentryThread *> *_Nullable threads;
+@property(nonatomic, strong) NSArray<SentryException *> *_Nullable exceptions;
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 @property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
-@property(nonatomic, copy) NSArray<NSDictionary<NSString *, id> *> *_Nullable breadcrumbsSerialized;
+@property(nonatomic, strong) NSArray<NSDictionary<NSString *, id> *> *_Nullable breadcrumbsSerialized;
 
 - (instancetype)initWithMessage:(NSString *)message timestamp:(NSDate *)timestamp level:(enum SentrySeverity)level;
 

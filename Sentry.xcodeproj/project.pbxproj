@@ -227,6 +227,7 @@
 		630436011EBCB8CA00C4D3FA /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				6304360F1EC0600A00C4D3FA /* SentrySerializable.h */,
 				639FCF961EBC7B9700778193 /* SentryEvent.h */,
 				639FCF971EBC7B9700778193 /* SentryEvent.m */,
 				639FCF9E1EBC804600778193 /* SentryException.h */,
@@ -239,7 +240,6 @@
 				639FCF9B1EBC7F9500778193 /* SentryThread.m */,
 				639FCFAA1EBC811400778193 /* SentryUser.h */,
 				639FCFAB1EBC811400778193 /* SentryUser.m */,
-				6304360F1EC0600A00C4D3FA /* SentrySerializable.h */,
 				63B818F71EC34639002FDF4C /* SentryDebugMeta.h */,
 				63B818F81EC34639002FDF4C /* SentryDebugMeta.m */,
 			);

@@ -32,13 +32,12 @@
 @property(nonatomic, strong) NSArray *binaryImages;
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
-@property(nonatomic, strong) NSDictionary *reportContext;
-@property(nonatomic, copy) NSString *platform;
 
 @end
 
 @implementation SentryKSCrashReportConverter
 
+// TODO refactor
 static inline NSString *hexAddress(NSNumber *value) {
     return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }
@@ -47,10 +46,8 @@ static inline NSString *hexAddress(NSNumber *value) {
     self = [super init];
     if (self) {
         self.report = report;
-//        self.platform = @"cocoa";
         self.binaryImages = report[@"binary_images"];
 //        self.systemContext = report[@"system"];
-//        self.reportContext = report[@"report"];
         NSDictionary *crashContext = report[@"crash"];
         self.exceptionContext = crashContext[@"error"];
         self.threads = crashContext[@"threads"];
@@ -66,10 +63,10 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryEvent *)convertReportToEvent {
-    // TODO return converted Report
     SentryEvent *event = [[SentryEvent alloc] initWithMessage:@"test" timestamp:[NSDate date] level:kSentrySeverityDebug];
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
+    event.exceptions = [self convertExceptions];
     return event;
 }
 
@@ -130,10 +127,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
         [registers setValue:hexAddress(thread[@"registers"][@"basic"][key]) forKey:key];
     }
-//    [thread[@"registers"][@"basic"] enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent
-//                                                            usingBlock:^(id key, id object, BOOL *stop) {
-//                                                                [registers setValue:hexAddress(object) forKey:key];
-//                                                            }];
     return registers;
 }
 
@@ -237,7 +230,26 @@ static inline NSString *hexAddress(NSNumber *value) {
     return @{@"values": @[result]};
 }
 
-- (NSDictionary *)exceptionInterface {
+- (NSArray<SentryException *> *)convertExceptions {
+    /*g_interpreterClasses = @{@"nsexception": [NSExceptionReportInterpreter class],
+                             @"cpp_exception": [CPPExceptionReportInterpreter class],
+                             @"mach": [MachExceptionReportInterpreter class],
+                             @"signal": [SignalExceptionReportInterpreter class],
+                             @"user": [UserExceptionReportInterpreter class],
+                             };*/
+    NSString *exceptionType = self.exceptionContext[@"type"];
+    if ([exceptionType isEqualToString:@"nsexception"]) {
+        
+    } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
+        
+    } else if ([exceptionType isEqualToString:@"mach"]) {
+        
+    } else if ([exceptionType isEqualToString:@"signal"]) {
+        
+    } else if ([exceptionType isEqualToString:@"user"]) {
+        
+    }
+    
     return nil;
 }
 
