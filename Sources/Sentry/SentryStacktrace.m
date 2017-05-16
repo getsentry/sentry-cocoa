@@ -35,7 +35,7 @@
     for (SentryFrame *frame in self.frames) {
         [frames addObject:frame.serialized];
     }
-    [serializedData setValue:frames forKey:@"frames"];
+    [serializedData setValue:[[frames reverseObjectEnumerator] allObjects] forKey:@"frames"];
     
     return serializedData;
 }

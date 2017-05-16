@@ -42,6 +42,18 @@ NSString *reportPath = @"";
     XCTAssertEqualObjects(firstDebugImage.majorVersion, @(0));
     XCTAssertEqualObjects(firstDebugImage.minorVersion, @(0));
     XCTAssertEqualObjects(firstDebugImage.revisionVersion, @(0));
+    
+    SentryThread *firstThread = event.threads.firstObject;
+    XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
+    XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
+    XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
+    XCTAssertEqualObjects(firstThread.stacktrace.registers[@"x4"], @"0x0000000102468000");
+    XCTAssertEqualObjects(firstThread.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
+    
+    XCTAssertEqualObjects(firstThread.crashed, @(YES));
+    XCTAssertEqualObjects(firstThread.current, @(NO));
+    XCTAssertEqualObjects(firstThread.name, @"com.apple.main-thread");
+    XCTAssertEqual(event.threads.count, (unsigned long)10);
 }
 
 #pragma mark private helper

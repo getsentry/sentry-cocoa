@@ -18,19 +18,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryFrame : NSObject <SentrySerializable>
 
-@property(nonatomic, copy) NSString *fileName;
-@property(nonatomic, copy) NSString *function;
-@property(nonatomic, copy) NSString *module;
+@property(nonatomic, copy) NSString *symbolAddress;
+@property(nonatomic, copy) NSString *_Nullable fileName;
+@property(nonatomic, copy) NSString *_Nullable function;
+@property(nonatomic, copy) NSString *_Nullable module;
 @property(nonatomic, copy) NSString *_Nullable package;
 @property(nonatomic, copy) NSString *_Nullable imageAddress;
 @property(nonatomic, copy) NSString *_Nullable platform;
 @property(nonatomic, copy) NSString *_Nullable instructionAddress;
-@property(nonatomic, copy) NSString *_Nullable symbolAddress;
 @property(nonatomic, copy) NSNumber *_Nullable lineNumber;
 @property(nonatomic, copy) NSNumber *_Nullable columnNumber;
 
-- (instancetype)initWithFileName:(NSString *)fileName function:(NSString *)function
-                          module:(NSString *)module;
+- (instancetype)initWithSymbolAddress:(NSString *)symbolAddress;
 
 @end
 

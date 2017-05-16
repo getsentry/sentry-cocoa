@@ -11,11 +11,17 @@
 #import <Sentry/SentryKSCrashReportConverter.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryDebugMeta.h>
+#import <Sentry/SentryThread.h>
+#import <Sentry/SentryStacktrace.h>
+#import <Sentry/SentryFrame.h>
 
 #else
 #import "SentryKSCrashReportConverter.h"
 #import "SentryEvent.h"
 #import "SentryDebugMeta.h"
+#import "SentryThread.h"
+#import "SentryStacktrace.h"
+#import "SentryFrame.h"
 #endif
 
 @interface SentryKSCrashReportConverter ()
@@ -34,7 +40,7 @@
 @implementation SentryKSCrashReportConverter
 
 static inline NSString *hexAddress(NSNumber *value) {
-    return [NSString stringWithFormat:@"0x%016llx", value.unsignedLongLongValue];
+    return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }
 
 - (instancetype)initWithReport:(NSDictionary *)report {
@@ -42,21 +48,19 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (self) {
         self.report = report;
 //        self.platform = @"cocoa";
-//        self.binaryImages = report[@"binary_images"];
+        self.binaryImages = report[@"binary_images"];
 //        self.systemContext = report[@"system"];
 //        self.reportContext = report[@"report"];
-//        NSDictionary *crashContext = report[@"crash"];
-//        self.exceptionContext = crashContext[@"error"];
-//        self.threads = crashContext[@"threads"];
-//        for(NSUInteger i = 0; i < self.threads.count; i++)
-//        {
-//            NSDictionary *thread = self.threads[i];
-//            if(thread[@"crashed"])
-//            {
-//                self.crashedThreadIndex = (NSInteger)i;
-//                break;
-//            }
-//        }
+        NSDictionary *crashContext = report[@"crash"];
+        self.exceptionContext = crashContext[@"error"];
+        self.threads = crashContext[@"threads"];
+        for(NSUInteger i = 0; i < self.threads.count; i++) {
+            NSDictionary *thread = self.threads[i];
+            if (thread[@"crashed"]) {
+                self.crashedThreadIndex = (NSInteger)i;
+                break;
+            }
+        }
     }
     return self;
 }
@@ -65,6 +69,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     // TODO return converted Report
     SentryEvent *event = [[SentryEvent alloc] initWithMessage:@"test" timestamp:[NSDate date] level:kSentrySeverityDebug];
     event.debugMeta = [self convertDebugMeta];
+    event.threads = [self convertThreads];
     return event;
 }
 
@@ -115,23 +120,27 @@ static inline NSString *hexAddress(NSNumber *value) {
 //}
 //
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
-    NSDictionary *thread = self.threads[(NSUInteger) threadIndex];
+    NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
     return thread[@"backtrace"][@"contents"];
 }
 
 - (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex {
-    NSDictionary *thread = self.threads[(NSUInteger) threadIndex];
-    return thread[@"registers"][@"basic"];
+    NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
+    NSMutableDictionary *registers = [NSMutableDictionary new];
+    for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
+        [registers setValue:hexAddress(thread[@"registers"][@"basic"][key]) forKey:key];
+    }
+//    [thread[@"registers"][@"basic"] enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent
+//                                                            usingBlock:^(id key, id object, BOOL *stop) {
+//                                                                [registers setValue:hexAddress(object) forKey:key];
+//                                                            }];
+    return registers;
 }
 
 - (NSDictionary *)binaryImageForAddress:(uintptr_t)address {
     for (NSDictionary *binaryImage in self.binaryImages) {
-        uintptr_t
-                imageStart = (uintptr_t)
-        [binaryImage[@"image_addr"] unsignedLongLongValue];
-        uintptr_t
-                imageEnd = imageStart + (uintptr_t)
-        [binaryImage[@"image_size"] unsignedLongLongValue];
+        uintptr_t imageStart = (uintptr_t) [binaryImage[@"image_addr"] unsignedLongLongValue];
+        uintptr_t imageEnd = imageStart + (uintptr_t) [binaryImage[@"image_size"] unsignedLongLongValue];
         if (address >= imageStart && address < imageEnd) {
             return binaryImage;
         }
@@ -139,79 +148,63 @@ static inline NSString *hexAddress(NSNumber *value) {
     return nil;
 }
 
-- (NSDictionary *)threadAtIndex:(NSInteger)threadIndex includeStacktrace:(BOOL)includeStacktrace {
-    NSMutableDictionary *result = [NSMutableDictionary new];
-    NSDictionary *thread = self.threads[(NSUInteger) threadIndex];
-    if (includeStacktrace) {
-        result[@"stacktrace"] = [self stackTraceForThreadIndex:threadIndex showRegisters:YES];
+- (SentryThread *)threadAtIndex:(NSInteger)threadIndex {
+    NSDictionary *threadDictionary = [self.threads objectAtIndex:threadIndex];
+    
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
+    // TODO reason?
+    thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
+    thread.crashed = threadDictionary[@"crashed"];
+    thread.current = threadDictionary[@"current_thread"];
+    thread.name = threadDictionary[@"name"];
+    if (nil == thread.name) {
+        thread.name = threadDictionary[@"dispatch_queue"];
     }
-    result[@"id"] = thread[@"index"];
-    result[@"crashed"] = thread[@"crashed"];
-    result[@"current"] = thread[@"current_thread"];
-    result[@"name"] = thread[@"name"];
-    if (!result[@"name"]) {
-        result[@"name"] = thread[@"dispatch_queue"];
-    }
-    return result;
+    return thread;
 }
 
-- (NSDictionary *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex {
-    NSDictionary *frame = [self rawStackTraceForThreadIndex:threadIndex][(NSUInteger) frameIndex];
-    uintptr_t
-            instructionAddress = (uintptr_t)
-    [frame[@"instruction_addr"] unsignedLongLongValue];
+- (SentryFrame *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex {
+    NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
+    uintptr_t instructionAddress = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
-    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
-    NSString *function = frame[@"symbol_name"];
+//    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
+    NSString *function = frameDictionary[@"symbol_name"];
     if (function == nil) {
         function = @"<redacted>";
     }
-    NSMutableDictionary *result = [NSMutableDictionary new];
-    result[@"function"] = function;
-    result[@"package"] = binaryImage[@"name"];
-    result[@"image_addr"] = hexAddress(binaryImage[@"image_addr"]);
-    result[@"platform"] = self.platform;
-    result[@"instruction_addr"] = hexAddress(frame[@"instruction_addr"]);
-    result[@"symbol_addr"] = hexAddress(frame[@"symbol_addr"]);
-    result[@"in_app"] = [NSNumber numberWithBool:isAppImage];
-
-    return result;
+    SentryFrame *frame = [[SentryFrame alloc] initWithSymbolAddress:hexAddress(frameDictionary[@"symbol_addr"])];
+    frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
+    frame.platform = @"cocoa";
+    frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
+    frame.package = binaryImage[@"name"];
+    frame.function = function;
+    return frame;
 }
 
-- (NSMutableArray *)stackFramesForThreadIndex:(NSInteger)threadIndex {
-    int frameCount = (int) [self rawStackTraceForThreadIndex:threadIndex].count;
+- (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex {
+    NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
         return nil;
     }
 
-    NSMutableArray *frames = [NSMutableArray arrayWithCapacity:(NSUInteger) frameCount];
+    NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
     for (NSInteger i = frameCount - 1; i >= 0; i--) {
         [frames addObject:[self stackFrameAtIndex:i inThreadIndex:threadIndex]];
     }
     return frames;
 }
 
-- (NSDictionary *)stackTraceForThreadIndex:(NSInteger)threadIndex showRegisters:(BOOL)showRegisters {
-    NSArray *frames = [self stackFramesForThreadIndex:threadIndex];
+- (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex {
+    NSArray<SentryFrame *> *frames = [self stackFramesForThreadIndex:threadIndex];
     if (frames == nil) {
         return nil;
     }
-    NSMutableDictionary *result = [NSMutableDictionary new];
-    result[@"frames"] = frames;
-    int skipped = (int) [self.threads[(NSUInteger) threadIndex][@"backtrace"][@"skipped"] integerValue];
-    if (skipped > 0) {
-        result[@"frames_omitted"] = @[@"1", [NSString stringWithFormat:@"%d", skipped + 1]];
-    }
-
-    if (showRegisters) {
-        result[@"registers"] = [self registersForThreadIndex:threadIndex];
-    }
-
-    return result;
+    return [[SentryStacktrace alloc] initWithFrames:frames
+                                          registers:[self registersForThreadIndex:threadIndex]];
 }
 
 - (NSDictionary *)crashedThread {
-    return self.threads[(NSUInteger) self.crashedThreadIndex];
+    return [self.threads objectAtIndex:self.crashedThreadIndex];
 }
 
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta {
@@ -248,11 +241,10 @@ static inline NSString *hexAddress(NSNumber *value) {
     return nil;
 }
 
-- (NSArray *)threadsInterface {
+- (NSArray *)convertThreads {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger) self.threads.count; threadIndex++) {
-        BOOL includeStacktrace = threadIndex != self.crashedThreadIndex;
-        [result addObject:[self threadAtIndex:threadIndex includeStacktrace:includeStacktrace]];
+        [result addObject:[self threadAtIndex:threadIndex]];
     }
     return result;
 }
