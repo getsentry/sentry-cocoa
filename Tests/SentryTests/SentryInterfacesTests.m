@@ -99,14 +99,12 @@
     thread2.crashed = @(YES);
     thread2.current = @(NO);
     thread2.name = @"name";
-    thread2.reason = @"reason";
     thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
     NSDictionary *serialized2 = @{
                                   @"id": @(2),
                                   @"crashed": @(YES),
                                   @"current": @(NO),
                                   @"name": @"name",
-                                  @"reason": @"reason",
                                   @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01"}],
                                                    @"registers": @{@"a": @"1"}}
                                   };
@@ -152,7 +150,6 @@
     thread2.crashed = @(YES);
     thread2.current = @(NO);
     thread2.name = @"name";
-    thread2.reason = @"reason";
     thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
     
     exception2.thread = thread2;

@@ -34,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.crashed forKey:@"crashed"];
     [serializedData setValue:self.current forKey:@"current"];
     [serializedData setValue:self.name forKey:@"name"];
-    [serializedData setValue:self.reason forKey:@"reason"];
     [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
     
     return serializedData;

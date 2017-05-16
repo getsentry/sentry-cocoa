@@ -14,6 +14,7 @@
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryFrame.h>
+#import <Sentry/SentryException.h>
 
 #else
 #import "SentryKSCrashReportConverter.h"
@@ -22,6 +23,7 @@
 #import "SentryThread.h"
 #import "SentryStacktrace.h"
 #import "SentryFrame.h"
+#import "SentryException.h"
 #endif
 
 @interface SentryKSCrashReportConverter ()
@@ -145,7 +147,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     NSDictionary *threadDictionary = [self.threads objectAtIndex:threadIndex];
     
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
-    // TODO reason?
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
@@ -161,16 +162,12 @@ static inline NSString *hexAddress(NSNumber *value) {
     uintptr_t instructionAddress = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
 //    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
-    NSString *function = frameDictionary[@"symbol_name"];
-    if (function == nil) {
-        function = @"<redacted>";
-    }
     SentryFrame *frame = [[SentryFrame alloc] initWithSymbolAddress:hexAddress(frameDictionary[@"symbol_addr"])];
     frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
     frame.platform = @"cocoa";
     frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    frame.function = function;
+    frame.function = frameDictionary[@"symbol_name"];
     return frame;
 }
 
@@ -238,19 +235,62 @@ static inline NSString *hexAddress(NSNumber *value) {
                              @"user": [UserExceptionReportInterpreter class],
                              };*/
     NSString *exceptionType = self.exceptionContext[@"type"];
+    SentryException *exception;
     if ([exceptionType isEqualToString:@"nsexception"]) {
-        
+        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"reason"]
+                                                      type:self.exceptionContext[@"nsexception"][@"name"]];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
-        
+        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"reason"]
+                                                      type:self.exceptionContext[@"cpp_exception"][@"name"]];
     } else if ([exceptionType isEqualToString:@"mach"]) {
-        
+        exception = [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",
+                                                            self.exceptionContext[@"mach"][@"exception"],
+                                                            self.exceptionContext[@"mach"][@"code"],
+                                                            self.exceptionContext[@"mach"][@"subcode"]]
+                                                      type:self.exceptionContext[@"mach"][@"exception_name"]];
     } else if ([exceptionType isEqualToString:@"signal"]) {
-        
+        exception = [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
+                                                            self.exceptionContext[@"signal"][@"signal"],
+                                                            self.exceptionContext[@"signal"][@"code"]]
+                                                      type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
-        
+        // TOOD
     }
     
-    return nil;
+    exception.mechanism = [self extractMechanismForExceptionType:exceptionType];
+    
+    return @[exception];
+}
+
+- (NSDictionary<NSString *, id> *)extractMechanismForExceptionType:(NSString *)exceptionType {
+    NSMutableDictionary<NSString *, id> *mechanism = [NSMutableDictionary new];
+    if ([exceptionType isEqualToString:@"signal"]) {
+        NSMutableDictionary *content = [NSMutableDictionary new];
+        [content setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
+        [content setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"signal"];
+        [content setValue:self.exceptionContext[@"signal"][@"subcode"] forKey:@"subcode"];
+        [content setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
+        [content setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
+        mechanism = @{
+                      @"posix_signal": content
+                      }.mutableCopy;
+    } else if ([exceptionType isEqualToString:@"mach"]) {
+        NSMutableDictionary *content = [NSMutableDictionary new];
+        [content setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"exception_name"];
+        [content setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
+        [content setValue:self.exceptionContext[@"mach"][@"signal"] forKey:@"signal"];
+        [content setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
+        [content setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
+        mechanism = @{
+                      @"mach_exception": content
+                      }.mutableCopy;
+    }
+    
+    if (nil != self.exceptionContext[@"address"]) {
+        mechanism[@"relevant_address"] = hexAddress(self.exceptionContext[@"address"]);
+    }
+
+    return mechanism;
 }
 
 - (NSArray *)convertThreads {

@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSNumber *threadId;
 @property(nonatomic, copy) NSString *_Nullable name;
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
-@property(nonatomic, copy) NSString *_Nullable reason;
 @property(nonatomic, copy) NSNumber *_Nullable crashed;
 @property(nonatomic, copy) NSNumber *_Nullable current;
 
