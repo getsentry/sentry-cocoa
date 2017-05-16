@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentrySerializable.h>
@@ -29,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy) NSString *_Nullable logger;
 @property(nonatomic, copy) NSString *_Nullable serverName;
-@property(nonatomic, copy) NSString *_Nullable releaseVersion;
-@property(nonatomic, copy) NSString *_Nullable buildNumber;
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+@property(nonatomic, copy) NSString *_Nullable dist;
 
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;

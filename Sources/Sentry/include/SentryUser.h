@@ -8,9 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentrySerializable.h>
+#else
+#import "SentrySerializable.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUser : NSObject
+@interface SentryUser : NSObject <SentrySerializable>
 
 @property(nonatomic, copy) NSString *userID;
 @property(nonatomic, copy) NSString *_Nullable email;

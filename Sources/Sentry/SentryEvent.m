@@ -9,9 +9,17 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryUser.h>
+#import <Sentry/SentryThread.h>
+#import <Sentry/SentryException.h>
+#import <Sentry/SentryStacktrace.h>
 #else
 #import "SentryEvent.h"
 #import "SentryClient.h"
+#import "SentryUser.h"
+#import "SentryThread.h"
+#import "SentryException.h"
+#import "SentryStacktrace.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,7 +66,43 @@ NS_ASSUME_NONNULL_BEGIN
                                @"version": SentryClient.versionString
                                };
     
-    serializedData[@"extra"] = self.extra;
+//    attributes.append(("contexts", Contexts().serialized))
+    // Optional
+
+    [serializedData setValue:self.logger forKey:@"logger"];
+    [serializedData setValue:self.serverName forKey:@"server_name"];
+    
+    [serializedData setValue:self.extra forKey:@"extra"];
+    [serializedData setValue:self.tags forKey:@"tags"];
+    
+    [serializedData setValue:self.releaseName forKey:@"release"];
+    [serializedData setValue:self.dist forKey:@"dist"];
+    
+    [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
+    
+    [serializedData setValue:self.user.serialized forKey:@"user"];
+    [serializedData setValue:self.modules forKey:@"modules"];
+    
+    [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
+    
+    NSMutableArray *threads = [NSMutableArray new];
+    for (SentryThread *thread in self.threads) {
+        [threads addObject:thread.serialized];
+    }
+    [serializedData setValue:threads forKey:@"threads"];
+    
+    NSMutableArray *exceptions = [NSMutableArray new];
+    for (SentryThread *exception in self.exceptions) {
+        [exceptions addObject:exception.serialized];
+    }
+    [serializedData setValue:exceptions forKey:@"exception"];
+    
+    NSMutableArray *debugImages = [NSMutableArray new];
+    for (SentryThread *debugImage in self.debugMeta) {
+        [debugImages addObject:debugImage.serialized];
+    }
+    [serializedData setValue:debugImages forKey:@"debug_meta"];
+
     return serializedData;
 }
 

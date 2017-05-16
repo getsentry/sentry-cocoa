@@ -36,12 +36,12 @@ NSString *reportPath = @"";
     XCTAssertTrue([firstDebugImage.uuid isEqualToString:@"363F8E49-2D2A-3A26-BF90-60D6A8896CF0"]);
     XCTAssertTrue([firstDebugImage.imageAddress isEqualToString:@"0x0000000100034000"]);
     XCTAssertTrue([firstDebugImage.imageVmAddress isEqualToString:@"0x0000000100000000"]);
-    XCTAssertEqual(firstDebugImage.imageSize, (long)65536);
-    XCTAssertEqual(firstDebugImage.cpuType, (long)16777228);
-    XCTAssertEqual(firstDebugImage.cpuSubType, (long)0);
-    XCTAssertEqual(firstDebugImage.majorVersion, (long)0);
-    XCTAssertEqual(firstDebugImage.minorVersion, (long)0);
-    XCTAssertEqual(firstDebugImage.revisionVersion, (long)0);
+    XCTAssertEqualObjects(firstDebugImage.imageSize, @(65536));
+    XCTAssertEqualObjects(firstDebugImage.cpuType, @(16777228));
+    XCTAssertEqualObjects(firstDebugImage.cpuSubType, @(0));
+    XCTAssertEqualObjects(firstDebugImage.majorVersion, @(0));
+    XCTAssertEqualObjects(firstDebugImage.minorVersion, @(0));
+    XCTAssertEqualObjects(firstDebugImage.revisionVersion, @(0));
 }
 
 #pragma mark private helper

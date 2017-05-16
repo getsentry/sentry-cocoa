@@ -23,17 +23,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *uuid;
 
 @property(nonatomic, copy) NSString *_Nullable type;
-@property(nonatomic, assign) NSInteger cpuType;
-@property(nonatomic, assign) NSInteger cpuSubType;
+@property(nonatomic, assign) NSNumber *_Nullable cpuType;
+@property(nonatomic, assign) NSNumber *_Nullable cpuSubType;
 
 @property(nonatomic, copy) NSString *_Nullable name;
-@property(nonatomic, assign) NSInteger imageSize;
+@property(nonatomic, assign) NSNumber *_Nullable imageSize;
 @property(nonatomic, copy) NSString *_Nullable imageVmAddress;
 @property(nonatomic, copy) NSString *_Nullable imageAddress;
 
-@property(nonatomic, assign) NSInteger majorVersion;
-@property(nonatomic, assign) NSInteger minorVersion;
-@property(nonatomic, assign) NSInteger revisionVersion;
+@property(nonatomic, assign) NSNumber *_Nullable majorVersion;
+@property(nonatomic, assign) NSNumber *_Nullable minorVersion;
+@property(nonatomic, assign) NSNumber *_Nullable revisionVersion;
 
 - (instancetype)initWithUuid:(NSString *)uuid;
 

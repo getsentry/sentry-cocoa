@@ -219,12 +219,15 @@ static inline NSString *hexAddress(NSNumber *value) {
     for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] initWithUuid:sourceImage[@"uuid"]];
         debugMeta.type = @"apple";
-        debugMeta.cpuType = [sourceImage[@"cpu_type"] integerValue];
-        debugMeta.cpuSubType = [sourceImage[@"cpu_subtype"] integerValue];
+        debugMeta.cpuType = sourceImage[@"cpu_type"];
+        debugMeta.cpuSubType = sourceImage[@"cpu_subtype"];
         debugMeta.imageAddress = hexAddress(sourceImage[@"image_addr"]);
-        debugMeta.imageSize = [sourceImage[@"image_size"] integerValue];
+        debugMeta.imageSize = sourceImage[@"image_size"];
         debugMeta.imageVmAddress = hexAddress(sourceImage[@"image_vmaddr"]);
         debugMeta.name = sourceImage[@"name"];
+        debugMeta.majorVersion = sourceImage[@"major_version"];
+        debugMeta.minorVersion = sourceImage[@"minor_version"];
+        debugMeta.revisionVersion = sourceImage[@"revision_version"];
         [result addObject:debugMeta];
     }
     return result;
