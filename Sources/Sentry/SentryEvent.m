@@ -26,12 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
 
-- (instancetype)initWithMessage:(NSString *)message timestamp:(NSDate *)timestamp level:(enum SentrySeverity)level {
+- (instancetype)initWithLevel:(enum SentrySeverity)level {
     self = [super init];
     if (self) {
         self.eventId = [[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
-        self.message = message;
-        self.timestamp = timestamp;
         self.level = level;
         self.platform = @"cocoa";
     }
@@ -54,9 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<NSString *, id> *)serialized {
+    if (nil == self.timestamp) {
+        self.timestamp = [NSDate date];
+    }
     NSMutableDictionary *serializedData = @{
                                             @"event_id": self.eventId,
-                                            @"message": self.message,
                                             @"timestamp": @((NSInteger) [self.timestamp timeIntervalSince1970]),
                                             @"level": [self convertSentrySeverityToString:self.level],
                                             @"platform": @"cocoa",
@@ -67,8 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
                                };
     
 //    attributes.append(("contexts", Contexts().serialized))
-    // Optional
 
+    [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
     
@@ -89,13 +89,13 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryThread *thread in self.threads) {
         [threads addObject:thread.serialized];
     }
-    [serializedData setValue:threads forKey:@"threads"];
+    [serializedData setValue:@{@"values": threads} forKey:@"threads"];
     
     NSMutableArray *exceptions = [NSMutableArray new];
     for (SentryThread *exception in self.exceptions) {
         [exceptions addObject:exception.serialized];
     }
-    [serializedData setValue:exceptions forKey:@"exception"];
+    [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
     
     NSMutableArray *debugImages = [NSMutableArray new];
     for (SentryThread *debugImage in self.debugMeta) {

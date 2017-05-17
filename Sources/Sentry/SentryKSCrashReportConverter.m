@@ -49,8 +49,16 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (self) {
         self.report = report;
         self.binaryImages = report[@"binary_images"];
-//        self.systemContext = report[@"system"];
-        NSDictionary *crashContext = report[@"crash"];
+        self.systemContext = report[@"system"];
+        
+        NSDictionary *crashContext;
+        // This is an incomplete crash report
+        if (nil != report[@"recrash_report"]) {
+            crashContext = report[@"recrash_report"];
+        } else {
+            crashContext = report[@"crash"];
+        }
+        
         self.exceptionContext = crashContext[@"error"];
         self.threads = crashContext[@"threads"];
         for(NSUInteger i = 0; i < self.threads.count; i++) {
@@ -65,7 +73,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryEvent *)convertReportToEvent {
-    SentryEvent *event = [[SentryEvent alloc] initWithMessage:@"test" timestamp:[NSDate date] level:kSentrySeverityDebug];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
@@ -193,8 +201,8 @@ static inline NSString *hexAddress(NSNumber *value) {
                                           registers:[self registersForThreadIndex:threadIndex]];
 }
 
-- (NSDictionary *)crashedThread {
-    return [self.threads objectAtIndex:self.crashedThreadIndex];
+- (SentryThread *)crashedThread {
+    return [self threadAtIndex:self.crashedThreadIndex];
 }
 
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta {
@@ -216,24 +224,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (NSDictionary *)makeExceptionInterfaceWithType:(NSString *)type
-                                           value:(NSString *)value
-                                      stackTrace:(NSDictionary *)stackTrace {
-    NSMutableDictionary *result = [NSMutableDictionary new];
-    result[@"type"] = type;
-    result[@"value"] = value;
-    result[@"stacktrace"] = stackTrace;
-    result[@"thread_id"] = self.crashedThread[@"index"];
-    return @{@"values": @[result]};
-}
-
 - (NSArray<SentryException *> *)convertExceptions {
-    /*g_interpreterClasses = @{@"nsexception": [NSExceptionReportInterpreter class],
-                             @"cpp_exception": [CPPExceptionReportInterpreter class],
-                             @"mach": [MachExceptionReportInterpreter class],
-                             @"signal": [SignalExceptionReportInterpreter class],
-                             @"user": [UserExceptionReportInterpreter class],
-                             };*/
     NSString *exceptionType = self.exceptionContext[@"type"];
     SentryException *exception;
     if ([exceptionType isEqualToString:@"nsexception"]) {
@@ -257,37 +248,37 @@ static inline NSString *hexAddress(NSNumber *value) {
         // TOOD
     }
     
-    exception.mechanism = [self extractMechanismForExceptionType:exceptionType];
+    exception.mechanism = [self extractMechanism];
+    exception.thread = [self crashedThread];
     
     return @[exception];
 }
 
-- (NSDictionary<NSString *, id> *)extractMechanismForExceptionType:(NSString *)exceptionType {
+- (NSDictionary<NSString *, id> *)extractMechanism {
     NSMutableDictionary<NSString *, id> *mechanism = [NSMutableDictionary new];
-    if ([exceptionType isEqualToString:@"signal"]) {
+    // This is important we want both signal an mach in mechanism
+    if (nil != [self.exceptionContext objectForKey:@"signal"]) {
         NSMutableDictionary *content = [NSMutableDictionary new];
         [content setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
         [content setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"signal"];
         [content setValue:self.exceptionContext[@"signal"][@"subcode"] forKey:@"subcode"];
         [content setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
         [content setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
-        mechanism = @{
-                      @"posix_signal": content
-                      }.mutableCopy;
-    } else if ([exceptionType isEqualToString:@"mach"]) {
+        [mechanism setValue:content forKey:@"posix_signal"];
+    }
+    // This is important we want both signal an mach in mechanism
+    if (nil != [self.exceptionContext objectForKey:@"mach"]) {
         NSMutableDictionary *content = [NSMutableDictionary new];
         [content setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"exception_name"];
         [content setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [content setValue:self.exceptionContext[@"mach"][@"signal"] forKey:@"signal"];
         [content setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
         [content setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
-        mechanism = @{
-                      @"mach_exception": content
-                      }.mutableCopy;
+        [mechanism setValue:content forKey:@"mach_exception"];
     }
     
     if (nil != self.exceptionContext[@"address"]) {
-        mechanism[@"relevant_address"] = hexAddress(self.exceptionContext[@"address"]);
+        [mechanism setValue:hexAddress(self.exceptionContext[@"address"]) forKey:@"relevant_address"];
     }
 
     return mechanism;

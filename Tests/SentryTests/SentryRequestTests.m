@@ -132,7 +132,7 @@ NSInteger requestShouldReturnCode = 200;
     self.client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
                                      requestManager:self.requestManager
                                    didFailWithError:nil];
-    self.event = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityDebug];
+    self.event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
 }
 
 - (void)testRealRequest {
@@ -246,28 +246,28 @@ NSInteger requestShouldReturnCode = 200;
 
 - (void)testRequestQueueWithDifferentEvents {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish"];
-    SentryEvent *event1 = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityError];
+    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation1 fulfill];
     }];
     
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish"];
-    SentryEvent *event2 = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityInfo];
+    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     [self.client sendEvent:event2 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation2 fulfill];
     }];
     
     XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish"];
-    SentryEvent *event3 = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityFatal];
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
     [self.client sendEvent:event3 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation3 fulfill];
     }];
     
     XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish"];
-    SentryEvent *event4 = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityWarning];
+    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     [self.client sendEvent:event4 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation4 fulfill];
@@ -283,7 +283,7 @@ NSInteger requestShouldReturnCode = 200;
 
 - (void)testRequestQueueWithDifferentFailingEvents {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish"];
-    SentryEvent *event1 = [[SentryEvent alloc] initWithMessage:@"bayoom" timestamp:[NSDate date] level:kSentrySeverityError];
+    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     event1.extra = @{@"1": event1};
     [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNotNil(error);

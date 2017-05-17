@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong) NSArray<NSDictionary<NSString *, id> *> *_Nullable breadcrumbsSerialized;
 
-- (instancetype)initWithMessage:(NSString *)message timestamp:(NSDate *)timestamp level:(enum SentrySeverity)level;
+- (instancetype)initWithLevel:(enum SentrySeverity)level;
 
 @end
 

@@ -55,7 +55,16 @@ NSString *reportPath = @"";
     XCTAssertEqualObjects(firstThread.name, @"com.apple.main-thread");
     XCTAssertEqual(event.threads.count, (unsigned long)10);
     
+    XCTAssertEqual(event.exceptions.count, (unsigned long)1);
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
+    XCTAssertEqualObjects(exception.mechanism[@"posix_signal"][@"name"], @"SIGBUS");
+    XCTAssertEqualObjects(exception.mechanism[@"mach_exception"][@"exception_name"], @"EXC_BAD_ACCESS");
+    XCTAssertEqualObjects(exception.mechanism[@"relevant_address"], @"0x0000000102468000");
+    
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:event.serialized]);
+    XCTAssertNotNil([event.serialized valueForKeyPath:@"exception.values"]);
+    XCTAssertNotNil([event.serialized valueForKeyPath:@"threads.values"]);
 }
 
 #pragma mark private helper
