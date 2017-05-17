@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryThread *debugImage in self.debugMeta) {
         [debugImages addObject:debugImage.serialized];
     }
-    [serializedData setValue:debugImages forKey:@"debug_meta"];
+    [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
 
     return serializedData;
 }

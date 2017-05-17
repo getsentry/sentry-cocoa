@@ -67,7 +67,67 @@ NSString *reportPath = @"";
     XCTAssertNotNil([event.serialized valueForKeyPath:@"threads.values"]);
 }
 
+- (void)testRawWithCrashReport {
+    reportPath = @"Resources/raw-crash";
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    NSDictionary *serializedEvent = event.serialized;
+    
+    reportPath = @"Resources/converted-event";
+    NSDictionary *eventJson = [self getCrashReport];
+    
+    // If this line succeeds we are golden
+    //[self compareDict:eventJson withDict:serializedEvent];
+    
+    NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
+    NSArray *serializedDebugImages = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
+    XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
+    for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
+        [self compareDict:[convertedDebugImages objectAtIndex:i] withDict:[serializedDebugImages objectAtIndex:i]];
+    }
+    
+    NSArray *convertedThreads = ((NSArray *)[eventJson valueForKeyPath:@"threads.values"]);
+    NSArray *serializedThreads = ((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]);
+    
+    XCTAssertEqual(convertedThreads.count, serializedThreads.count);
+    for (NSUInteger i = 0; i < convertedThreads.count; i++) {
+        [self compareDict:[convertedThreads objectAtIndex:i] withDict:[serializedThreads objectAtIndex:i]];
+    }
+    
+    NSArray *convertedStacktrace = [((NSArray *)[eventJson valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
+    NSArray *serializedStacktrace = [((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
+    
+    XCTAssertEqual(convertedStacktrace.count, serializedStacktrace.count);
+    for (NSUInteger i = 0; i < convertedStacktrace.count; i++) {
+        [self compareDict:[convertedStacktrace objectAtIndex:i] withDict:[serializedStacktrace objectAtIndex:i]];
+    }
+}
+
 #pragma mark private helper
+
+- (void)compareDict:(NSDictionary *)one withDict:(NSDictionary *)two {
+    XCTAssertEqual([one allKeys].count, [two allKeys].count, @"one: %@, two: %@", one, two);
+    for (NSString *key in [one allKeys]) {
+        if ([[one valueForKey:key] isKindOfClass:NSString.class] && [[one valueForKey:key] hasPrefix:@"0x"]) {
+            unsigned long long result1;
+            unsigned long long result2;
+            [[NSScanner scannerWithString:[one valueForKey:key]] scanHexLongLong:&result1];
+            [[NSScanner scannerWithString:[two valueForKey:key]] scanHexLongLong:&result2];
+            XCTAssertEqual(result1, result2);
+        } else if ([[one valueForKey:key] isKindOfClass:NSArray.class]) {
+            NSArray *oneArray = [one valueForKey:key];
+            NSArray *twoArray = [two valueForKey:key];
+            for (NSUInteger i = 0; i < oneArray.count; i++) {
+                [self compareDict:[oneArray objectAtIndex:i] withDict:[twoArray objectAtIndex:i]];
+            }
+        } else if ([[one valueForKey:key] isKindOfClass:NSDictionary.class]) {
+            [self compareDict:[one valueForKey:key] withDict:[two valueForKey:key]];
+        } else {
+            XCTAssertEqualObjects([one valueForKey:key], [two valueForKey:key]);
+        }
+    }
+}
 
 - (NSDictionary *)getCrashReport {
     NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:reportPath ofType:@"json"];

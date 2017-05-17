@@ -29,16 +29,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<NSString *,id> *)serialized {
-    NSMutableDictionary *serializedData = @{
-                                            @"registers": self.registers
-                                            }.mutableCopy;
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
     
     NSMutableArray *frames = [NSMutableArray new];
     for (SentryFrame *frame in self.frames) {
         [frames addObject:frame.serialized];
     }
-    [serializedData setValue:[[frames reverseObjectEnumerator] allObjects] forKey:@"frames"];
+    [serializedData setValue:frames forKey:@"frames"];
     
+    // This is here because we wanted to be conform with the old json
+    if (self.registers.count > 0) {
+        [serializedData setValue:self.registers forKey:@"registers"];
+    }
     return serializedData;
 }
 

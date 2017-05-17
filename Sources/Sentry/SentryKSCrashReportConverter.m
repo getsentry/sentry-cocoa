@@ -74,6 +74,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (SentryEvent *)convertReportToEvent {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
+    // TODO timestamp
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
@@ -172,7 +173,6 @@ static inline NSString *hexAddress(NSNumber *value) {
 //    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
     SentryFrame *frame = [[SentryFrame alloc] initWithSymbolAddress:hexAddress(frameDictionary[@"symbol_addr"])];
     frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
-    frame.platform = @"cocoa";
     frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
     frame.function = frameDictionary[@"symbol_name"];
@@ -182,7 +182,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
-        return nil;
+        return @[];
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
