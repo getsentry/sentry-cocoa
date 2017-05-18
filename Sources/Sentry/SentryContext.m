@@ -16,6 +16,10 @@
 #import "SentryDefines.h"
 #endif
 
+#if __has_include(<KSCrash/KSCrash.h>)
+#import <KSCrash/KSCrash.h>
+#endif
+
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>
 #endif
@@ -56,10 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *,id> *)generatedOsContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     
-//    attributes.append(("build", build)) osVersion
-//    attributes.append(("kernel_version", kernelVersion))
-//    attributes.append(("rooted", jailbroken))
-    
 #if TARGET_OS_IPHONE
     [serializedData setValue:@"iOS" forKey:@"name"];
 #elif TARGET_OS_OSX
@@ -78,41 +78,35 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:systemVersion forKey:@"version"];
 #endif
     
+#if __has_include(<KSCrash/KSCrash.h>)
+    NSDictionary *systemInfo = [self systemInfo];
+    [serializedData setValue:systemInfo[@"osVersion"] forKey:@"build"];
+    [serializedData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
+    [serializedData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
+#endif
     return serializedData;
 }
 
 - (NSDictionary<NSString *,id> *)generatedDeviceContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    
-    /*
-     attributes.append(("family", family))
-     attributes.append(("arch", architecture))
-     attributes.append(("model", model))
-     attributes.append(("family", family))
-     attributes.append(("free_memory", freeMemory))
-     attributes.append(("memory_size", memorySize))
-     attributes.append(("usable_memory", usableMemory))
-     attributes.append(("storage_size", storageSize))
-     attributes.append(("boot_time", bootTime))
-     attributes.append(("timezone", timezone))
-     
-     switch (isOSX, isSimulator) {
-     // macOS
-     case (true, _):
-     attributes.append(("model", machine))
-     // iOS/tvOS/watchOS Sim
-     case (false, true):
-     
-     // iOS/tvOS/watchOS Device
-     default:
-     attributes.append(("model_id", modelDetail))
-     
-     }
-     */
+
 #if TARGET_OS_SIMULATOR
     [serializedData setValue:@(YES) forKey:@"simulator"];
 #endif
     
+#if __has_include(<KSCrash/KSCrash.h>)
+    NSDictionary *systemInfo = [self systemInfo];
+    [serializedData setValue:[[systemInfo[@"systemName"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject] forKey:@"family"];
+    [serializedData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
+    [serializedData setValue:systemInfo[@"machine"] forKey:@"model"];
+    [serializedData setValue:systemInfo[@"model"] forKey:@"model_id"];
+    [serializedData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+    [serializedData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
+    [serializedData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
+    [serializedData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
+    [serializedData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
+    [serializedData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
+#endif
     
     return serializedData;
 }
@@ -121,19 +115,32 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 
-    /*attributes.append(("app_start_time", appStartTime))
-    attributes.append(("device_app_hash", deviceAppHash))
-    attributes.append(("app_id", appID))
-    attributes.append(("build_type", buildType))
-    */
-    
     [serializedData setValue:infoDict[@"CFBundleIdentifier"] forKey:@"app_identifier"];
     [serializedData setValue:infoDict[@"CFBundleName"] forKey:@"app_name"];
     [serializedData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
     [serializedData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
     
+#if __has_include(<KSCrash/KSCrash.h>)
+    NSDictionary *systemInfo = [self systemInfo];
+    [serializedData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
+    [serializedData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
+    [serializedData setValue:systemInfo[@"appID"] forKey:@"app_id"];
+    [serializedData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
+#endif
+    
     return serializedData;
 }
+
+#if __has_include(<KSCrash/KSCrash.h>)
+- (NSDictionary *)systemInfo {
+    static NSDictionary *sharedInfo = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInfo = KSCrash.sharedInstance.systemInfo;
+    });
+    return sharedInfo;
+}
+#endif
 
 @end
 

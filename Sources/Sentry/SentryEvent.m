@@ -68,6 +68,9 @@ NS_ASSUME_NONNULL_BEGIN
                                @"version": SentryClient.versionString
                                };
 
+    if (nil == self.context) {
+        self.context = [SentryContext new];
+    }
     [serializedData setValue:self.context.serialized forKey:@"contexts"];
     
     [serializedData setValue:self.message forKey:@"message"];
@@ -91,19 +94,25 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryThread *thread in self.threads) {
         [threads addObject:thread.serialized];
     }
-    [serializedData setValue:@{@"values": threads} forKey:@"threads"];
+    if (threads.count > 0) {
+        [serializedData setValue:@{@"values": threads} forKey:@"threads"];
+    }
     
     NSMutableArray *exceptions = [NSMutableArray new];
     for (SentryThread *exception in self.exceptions) {
         [exceptions addObject:exception.serialized];
     }
-    [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
+    if (exceptions.count > 0) {
+        [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
+    }
     
     NSMutableArray *debugImages = [NSMutableArray new];
     for (SentryThread *debugImage in self.debugMeta) {
         [debugImages addObject:debugImage.serialized];
     }
-    [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
+    if (debugImages.count > 0) {
+        [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
+    }
 
     return serializedData;
 }

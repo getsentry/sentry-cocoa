@@ -81,7 +81,7 @@ static SentryKSCrashInstallation *installation = nil;
 
 - (void)crash {
 #ifdef DEBUG
-    [SentryLog logWithMessage:@"Would have crashed - but since we run in  test right now we do nothing." andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"Would have crashed - but since we run in DEBUG we do nothing." andLevel:kSentryLogLevelDebug];
 #else
     int* p = 0;
     *p = 0;

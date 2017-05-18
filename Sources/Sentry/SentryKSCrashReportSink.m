@@ -32,7 +32,7 @@
         for (NSDictionary *report in reports) {
             SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
             if (nil != SentryClient.sharedClient) {
-                [SentryClient.sharedClient sendEvent:[reportConverter converReportToEvent] withCompletionHandler:NULL];
+                [SentryClient.sharedClient sendEvent:[reportConverter convertReportToEvent] withCompletionHandler:NULL];
             }
         }
         // TODO we need todo more here
