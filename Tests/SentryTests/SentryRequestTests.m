@@ -252,6 +252,13 @@ NSInteger requestShouldReturnCode = 200;
         [expectation1 fulfill];
     }];
     
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+    
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish2"];
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     [self.client sendEvent:event2 withCompletionHandler:^(NSError * _Nullable error) {
@@ -259,11 +266,25 @@ NSInteger requestShouldReturnCode = 200;
         [expectation2 fulfill];
     }];
     
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+    
     XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish3"];
     SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
     [self.client sendEvent:event3 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation3 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
     }];
     
     XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
