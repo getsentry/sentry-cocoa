@@ -13,6 +13,7 @@
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
+#import <Sentry/SentryContext.h>
 #else
 #import "SentryEvent.h"
 #import "SentryClient.h"
@@ -20,6 +21,7 @@
 #import "SentryThread.h"
 #import "SentryException.h"
 #import "SentryStacktrace.h"
+#import "SentryContext.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -65,9 +67,9 @@ NS_ASSUME_NONNULL_BEGIN
                                @"name": @"sentry-cocoa",
                                @"version": SentryClient.versionString
                                };
-    
-//    attributes.append(("contexts", Contexts().serialized))
 
+    [serializedData setValue:self.context.serialized forKey:@"contexts"];
+    
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];

@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "SentryContext.h"
 
 @interface SentryInterfacesTests : XCTestCase
 
@@ -166,7 +167,12 @@
                                  };
     
     XCTAssertEqualObjects(exception2.serialized, serialized2);
-    
+}
+
+- (void)testContext {
+    SentryContext *context = [SentryContext new];
+    XCTAssertNotNil(context);
+    XCTAssertEqual(context.serialized.count, (unsigned long)3);
 }
 
 @end
