@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "SentryKSCrashInstallation.h"
 
 @interface SentryTests : XCTestCase
 
@@ -36,6 +37,17 @@
     XCTAssertNil(SentryClient.sharedClient);
     SentryClient.sharedClient = client;
     XCTAssertNotNil(SentryClient.sharedClient);
+}
+
+- (void)testCrash {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    [client crash];
+}
+
+- (void)testInstallation {
+    SentryKSCrashInstallation *installation = [[SentryKSCrashInstallation alloc] init];
+    [installation sendAllReports];
 }
 
 @end

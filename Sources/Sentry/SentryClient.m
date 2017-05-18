@@ -80,8 +80,12 @@ static SentryKSCrashInstallation *installation = nil;
 }
 
 - (void)crash {
+#ifdef DEBUG
+    [SentryLog logWithMessage:@"Would have crashed - but since we run in  test right now we do nothing." andLevel:kSentryLogLevelDebug];
+#else
     int* p = 0;
     *p = 0;
+#endif
 }
 
 #pragma mark Static Getter/Setter

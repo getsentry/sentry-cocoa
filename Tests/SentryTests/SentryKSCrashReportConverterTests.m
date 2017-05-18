@@ -104,7 +104,64 @@ NSString *reportPath = @"";
     }
 }
 
+- (void)testAbort {
+    reportPath = @"Resources/Abort";
+    [self isValidReport];
+}
+
+- (void)testMissingBinary {
+    reportPath = @"Resources/Crash-missing-binary-images";
+    [self isValidReport];
+}
+
+- (void)testMissingCrashError {
+    reportPath = @"Resources/Crash-missing-crash-error";
+    [self isValidReport];
+}
+
+- (void)testMissingThreads {
+    reportPath = @"Resources/Crash-missing-crash-threads";
+    [self isValidReport];
+}
+
+- (void)testMissingCrash {
+    reportPath = @"Resources/Crash-missing-crash";
+    [self isValidReport];
+}
+
+- (void)testMissingUser {
+    reportPath = @"Resources/Crash-missing-user";
+    [self isValidReport];
+}
+
+- (void)testNSException {
+    reportPath = @"Resources/NSException";
+    [self isValidReport];
+}
+
+- (void)testStackoverflow {
+    reportPath = @"Resources/StackOverflow";
+    [self isValidReport];
+}
+
+- (void)testCPPException {
+    reportPath = @"Resources/CPPException";
+    [self isValidReport];
+}
+
+- (void)testReactNative {
+    reportPath = @"Resources/ReactNative";
+    [self isValidReport];
+}
+
 #pragma mark private helper
+
+- (void)isValidReport {
+    NSDictionary *report = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertTrue([NSJSONSerialization isValidJSONObject:event.serialized]);
+}
 
 - (void)compareDict:(NSDictionary *)one withDict:(NSDictionary *)two {
     XCTAssertEqual([one allKeys].count, [two allKeys].count, @"one: %@, two: %@", one, two);

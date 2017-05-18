@@ -74,12 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-    NSString *systemVersion;
-    if (version.patchVersion == 0) {
-        systemVersion = [NSString stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
-    } else {
-        systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion, (int)version.minorVersion, (int)version.patchVersion];
-    }
+    NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion, (int)version.minorVersion, (int)version.patchVersion];
     [serializedData setValue:systemVersion forKey:@"version"];
 #endif
     

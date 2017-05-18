@@ -16,19 +16,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDebugMeta
 
-- (instancetype)initWithUuid:(NSString *)uuid {
-    self = [super init];
-    if (self) {
-        self.uuid = uuid;
-    }
-    return self;
+- (instancetype)init {
+    return [super init];
+}
+
++ (instancetype)new {
+    return [super new];
 }
 
 - (NSDictionary<NSString *, id> *)serialized {
-    NSMutableDictionary *serializedData = @{
-                                            @"uuid": self.uuid
-                                            }.mutableCopy;
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
     
+    [serializedData setValue:self.uuid forKey:@"uuid"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.cpuType forKey:@"cpu_type"];
     [serializedData setValue:self.cpuSubType forKey:@"cpu_subtype"];

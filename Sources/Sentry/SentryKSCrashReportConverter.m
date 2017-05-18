@@ -189,6 +189,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         uintptr_t imageEnd = imageStart + (uintptr_t) [binaryImage[@"image_size"] unsignedLongLongValue];
         if (address >= imageStart && address < imageEnd) {
             result = binaryImage;
+            break;
         }
     }
     return result;
@@ -247,7 +248,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
     for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
-        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] initWithUuid:sourceImage[@"uuid"]];
+        SentryDebugMeta *debugMeta = [SentryDebugMeta new];
+        debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
         debugMeta.cpuType = sourceImage[@"cpu_type"];
         debugMeta.cpuSubType = sourceImage[@"cpu_subtype"];
@@ -263,11 +265,14 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (NSArray<SentryException *> *)convertExceptions {
+- (NSArray<SentryException *> *_Nullable)convertExceptions {
+    if (nil == self.exceptionContext) {
+        return nil;
+    }
     NSString *exceptionType = self.exceptionContext[@"type"];
     SentryException *exception;
     if ([exceptionType isEqualToString:@"nsexception"]) {
-        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"reason"]
+        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
         exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"reason"]
@@ -284,7 +289,15 @@ static inline NSString *hexAddress(NSNumber *value) {
                                                                                       self.exceptionContext[@"signal"][@"code"]]
                                                       type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
-        // TOOD
+        NSString *exceptionName = self.exceptionContext[@"user_reported"][@"name"];
+        exception = [[SentryException alloc] initWithValue:exceptionName
+                                                      type:@"User Reported"];
+        
+        NSRange match = [exceptionName rangeOfString:@":"];
+        if (match.location != NSNotFound) {
+            exception = [[SentryException alloc] initWithValue:[exceptionName substringWithRange: NSMakeRange (match.location+match.length, (exceptionName.length-match.location)-match.length)]
+                                                          type:[exceptionName substringWithRange: NSMakeRange (0, match.location)]];
+        }
     }
 
     exception.mechanism = [self extractMechanism];
@@ -316,7 +329,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         [mechanism setValue:content forKey:@"mach_exception"];
     }
 
-    if (nil != self.exceptionContext[@"address"]) {
+    if (nil != self.exceptionContext[@"address"] && [self.exceptionContext[@"address"] integerValue] > 0) {
         [mechanism setValue:hexAddress(self.exceptionContext[@"address"]) forKey:@"relevant_address"];
     }
 

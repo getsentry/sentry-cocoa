@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDebugMeta : NSObject <SentrySerializable>
 
-@property(nonatomic, copy) NSString *uuid;
+@property(nonatomic, copy) NSString *_Nullable uuid;
 
 @property(nonatomic, copy) NSString *_Nullable type;
 @property(nonatomic, assign) NSNumber *_Nullable cpuType;
@@ -35,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) NSNumber *_Nullable minorVersion;
 @property(nonatomic, assign) NSNumber *_Nullable revisionVersion;
 
-- (instancetype)initWithUuid:(NSString *)uuid;
+- (instancetype)init;
++ (instancetype)new;
 
 @end
 
