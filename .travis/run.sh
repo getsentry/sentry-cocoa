@@ -13,10 +13,10 @@ then
 elif [ "$LANE" = "test" ];
 then
     gem install slather
-    fastlane snapshot reset_simulators
+    echo y | fastlane snapshot reset_simulators
 elif [ "$LANE" = "test_swift" ];
 then
     gem install slather
-    fastlane snapshot reset_simulators
+    echo y | fastlane snapshot reset_simulators
 fi
 fastlane $LANE;
