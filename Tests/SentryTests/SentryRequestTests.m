@@ -244,7 +244,7 @@ NSInteger requestShouldReturnCode = 200;
     }];
 }
 
-- (void)testRequestQueueWithDifferentEvents {
+- (void)testRequestQueueWithDifferentEvents1 {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
     SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
@@ -258,7 +258,9 @@ NSInteger requestShouldReturnCode = 200;
         }
         XCTAssert(YES);
     }];
-    
+}
+
+- (void)testRequestQueueWithDifferentEvents2 {
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish2"];
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     [self.client sendEvent:event2 withCompletionHandler:^(NSError * _Nullable error) {
@@ -272,7 +274,9 @@ NSInteger requestShouldReturnCode = 200;
         }
         XCTAssert(YES);
     }];
-    
+}
+
+- (void)testRequestQueueWithDifferentEvents3 {
     XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish3"];
     SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
     [self.client sendEvent:event3 withCompletionHandler:^(NSError * _Nullable error) {
@@ -286,7 +290,9 @@ NSInteger requestShouldReturnCode = 200;
         }
         XCTAssert(YES);
     }];
-    
+}
+
+- (void)testRequestQueueWithDifferentEvents4 {
     XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     [self.client sendEvent:event4 withCompletionHandler:^(NSError * _Nullable error) {
