@@ -79,8 +79,6 @@
 		63B819141EC352A7002FDF4C /* SentryInterfacesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B819131EC352A7002FDF4C /* SentryInterfacesTests.m */; };
 		63BE856C1ECD8F2C00DC44F5 /* SentryContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 63BE856A1ECD8F2C00DC44F5 /* SentryContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		63BE856D1ECD8F2C00DC44F5 /* SentryContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 63BE856B1ECD8F2C00DC44F5 /* SentryContext.m */; };
-		63BE85701ECEC6DE00DC44F5 /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		63BE85711ECEC6DE00DC44F5 /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 63BE856F1ECEC6DE00DC44F5 /* NSDate+Extras.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -175,8 +173,6 @@
 		63B819131EC352A7002FDF4C /* SentryInterfacesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryInterfacesTests.m; sourceTree = "<group>"; };
 		63BE856A1ECD8F2C00DC44F5 /* SentryContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryContext.h; path = include/SentryContext.h; sourceTree = "<group>"; };
 		63BE856B1ECD8F2C00DC44F5 /* SentryContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryContext.m; sourceTree = "<group>"; };
-		63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Extras.h"; sourceTree = "<group>"; };
-		63BE856F1ECEC6DE00DC44F5 /* NSDate+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Extras.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,8 +265,6 @@
 			children = (
 				630436081EC0595B00C4D3FA /* NSData+Compression.h */,
 				630436091EC0595B00C4D3FA /* NSData+Compression.m */,
-				63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */,
-				63BE856F1ECEC6DE00DC44F5 /* NSDate+Extras.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -439,7 +433,6 @@
 				6304360A1EC0595B00C4D3FA /* NSData+Compression.h in Headers */,
 				639FCFA01EBC804600778193 /* SentryException.h in Headers */,
 				6344DDB41EC309E000D9160D /* SentryKSCrashReportSink.h in Headers */,
-				63BE85701ECEC6DE00DC44F5 /* NSDate+Extras.h in Headers */,
 				639FCFA81EBC80CC00778193 /* SentryFrame.h in Headers */,
 				638DC9A01EBC6B6400A66E41 /* SentryRequestOperation.h in Headers */,
 				6344DDB01EC308E400D9160D /* SentryKSCrashInstallation.h in Headers */,
@@ -660,7 +653,6 @@
 				638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */,
 				63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */,
 				6344DDBA1EC3115C00D9160D /* SentryKSCrashReportConverter.m in Sources */,
-				63BE85711ECEC6DE00DC44F5 /* NSDate+Extras.m in Sources */,
 				639FCFA51EBC809A00778193 /* SentryStacktrace.m in Sources */,
 				6304360B1EC0595B00C4D3FA /* NSData+Compression.m in Sources */,
 				635B3F391EBC6E2500A6176D /* SentryAsynchronousOperation.m in Sources */,
