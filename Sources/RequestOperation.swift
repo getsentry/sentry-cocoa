@@ -9,22 +9,22 @@
 import Foundation
 
 class RequestOperation: AsynchronousOperation {
-    
+
     var task: URLSessionTask?
     var request: URLRequest?
-    
+
     init(session: URLSession, request: URLRequest, finished: SentryEndpointRequestFinished? = nil) {
         super.init()
-        
+
         self.request = request
         #if swift(>=3.0)
-        task = session.dataTask(with: request) { data, response, error in
+        task = session.dataTask(with: request) { [weak self] data, response, error in
             defer {
-                self.completeOperation()
+                self?.completeOperation()
             }
-            
+
             var success = false
-            
+
             // Returns success if we have data and 200 response code
             if let data = data, let response = response as? HTTPURLResponse {
                 Log.Debug.log("status = \(response.statusCode)")
@@ -36,20 +36,20 @@ class RequestOperation: AsynchronousOperation {
             }
             if let error = error {
                 Log.Error.log("error = \(error)")
-                
+
                 success = false
             }
-            
+
             finished?(success)
         }
         #else
-        task = session.dataTaskWithRequest(request) { data, response, error in
+        task = session.dataTaskWithRequest(request) { [weak self] data, response, error in
             defer {
-                self.completeOperation()
+                self?.completeOperation()
             }
-            
+
             var success = false
-            
+
             // Returns success if we have data and 200 response code
             if let data = data, let response = response as? NSHTTPURLResponse {
                 Log.Debug.log("status = \(response.statusCode)")
@@ -63,32 +63,32 @@ class RequestOperation: AsynchronousOperation {
                 Log.Error.log("error = \(error)")
                 success = false
             }
-            
+
             finished?(success)
         }
         #endif
     }
-    
+
     override func cancel() {
         if let task = task {
             task.cancel()
         }
         super.cancel()
     }
-    
+
     override func main() {
         if let task = task { task.resume() }
     }
-    
+
 }
 
 #if swift(>=3.0)
 class AsynchronousOperation: Operation {
-    
+
     override public var isAsynchronous: Bool { return true }
-    
+
     private let stateLock = NSLock()
-    
+
     private var _executing: Bool = false
     override private(set) public var isExecuting: Bool {
         get {
@@ -100,7 +100,7 @@ class AsynchronousOperation: Operation {
             didChangeValue(forKey: "isExecuting")
         }
     }
-    
+
     private var _finished: Bool = false
     override private(set) public var isFinished: Bool {
         get {
@@ -112,37 +112,37 @@ class AsynchronousOperation: Operation {
             didChangeValue(forKey: "isFinished")
         }
     }
-    
+
     /// Complete the operation
     ///
     /// This will result in the appropriate KVN of isFinished and isExecuting
     public func completeOperation() {
-        if isExecuting { _executing = false }
-        if !isFinished { _finished = true }
+        if isExecuting { isExecuting = false }
+        if !isFinished { isFinished = true }
     }
-    
+
     override public func start() {
         if isCancelled {
-            _finished = true
+            isFinished = true
             return
         }
-        
-        _executing = true
-        
+
+        isExecuting = true
+
         main()
     }
-    
+
     override public func main() {
         fatalError("subclasses must override `main`")
     }
 }
 #else
 public class AsynchronousOperation : NSOperation {
-    
+
     override public var asynchronous: Bool { return true }
-    
+
     private let stateLock = NSLock()
-    
+
     private var _executing: Bool = false
     override private(set) public var executing: Bool {
         get {
@@ -154,7 +154,7 @@ public class AsynchronousOperation : NSOperation {
             didChangeValueForKey("isExecuting")
         }
     }
-    
+
     private var _finished: Bool = false
     override private(set) public var finished: Bool {
         get {
@@ -166,32 +166,32 @@ public class AsynchronousOperation : NSOperation {
             didChangeValueForKey("isFinished")
         }
     }
-    
+
     /// Complete the operation
     ///
     /// This will result in the appropriate KVN of isFinished and isExecuting
-    
+
     public func completeOperation() {
         if executing {
             executing = false
         }
-        
+
         if !finished {
             finished = true
         }
     }
-    
+
     override public func start() {
         if cancelled {
             finished = true
             return
         }
-        
+
         executing = true
-        
+
         main()
     }
-    
+
     override public func main() {
         fatalError("subclasses must override `main`")
     }
@@ -199,13 +199,13 @@ public class AsynchronousOperation : NSOperation {
 #endif
 
 extension NSLock {
-    
+
     /// Perform closure within lock.
     ///
     /// An extension to `NSLock` to simplify executing critical code.
     ///
     /// - parameter block: The closure to be performed.
-    
+
     func withCriticalScope<T>( block: (Void) -> T) -> T {
         lock()
         let value = block()
