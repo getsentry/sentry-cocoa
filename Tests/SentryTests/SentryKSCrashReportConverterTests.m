@@ -30,6 +30,7 @@ NSString *reportPath = @"";
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertNotNil(event);
+    XCTAssertEqualObjects([NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
     XCTAssertEqual(event.debugMeta.count, (unsigned long)256);
     SentryDebugMeta *firstDebugImage = event.debugMeta.firstObject;
     XCTAssertTrue([firstDebugImage.name isEqualToString:@"/var/containers/Bundle/Application/94765405-4249-4E20-B1E7-9801C14D5645/CrashProbeiOS.app/CrashProbeiOS"]);

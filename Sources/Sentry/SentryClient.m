@@ -80,12 +80,17 @@ static SentryKSCrashInstallation *installation = nil;
 }
 
 - (void)crash {
-#ifdef DEBUG
-    [SentryLog logWithMessage:@"Would have crashed - but since we run in DEBUG we do nothing." andLevel:kSentryLogLevelDebug];
-#else
-    int* p = 0;
-    *p = 0;
-#endif
+    if ([self.class isTesting]) {
+        [SentryLog logWithMessage:@"Would have crashed - but since we run in DEBUG we do nothing." andLevel:kSentryLogLevelDebug];
+    } else {
+        int* p = 0;
+        *p = 0;
+    }
+}
+
++ (BOOL)isTesting {
+    NSDictionary* environment = [[NSProcessInfo processInfo] environment];
+    return [environment objectForKey:@"TESTING"] != nil;
 }
 
 #pragma mark Static Getter/Setter

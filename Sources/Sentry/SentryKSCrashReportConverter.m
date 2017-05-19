@@ -75,8 +75,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryEvent *)convertReportToEvent {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
-    // TODO timestamp
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+    event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
@@ -104,7 +104,8 @@ static inline NSString *hexAddress(NSNumber *value) {
     [deviceContext setValue:self.systemContext[@"memory"][@"usable"] forKey:@"usable_memory"];
     [deviceContext setValue:self.systemContext[@"memory"][@"free"] forKey:@"free_memory"];
     [deviceContext setValue:self.systemContext[@"storage"] forKey:@"storage_size"];
-    
+    [deviceContext setValue:self.systemContext[@"machine"] forKey:@"model"];
+    [deviceContext setValue:self.systemContext[@"model"] forKey:@"model_id"];
     context.deviceContext = deviceContext;
     
     NSMutableDictionary *appContext = [NSMutableDictionary new];
@@ -116,10 +117,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     [appContext setValue:self.systemContext[@"CFBundleShortVersionString"] forKey:@"app_version"];
     [appContext setValue:self.systemContext[@"CFBundleExecutablePath"] forKey:@"executable_path"];
     [appContext setValue:self.systemContext[@"build_type"] forKey:@"build_type"];
-    [appContext setValue:self.systemContext[@"application_stats"] forKey:@"stats"];
-    [appContext setValue:self.systemContext[@"machine"] forKey:@"model"];
-    [appContext setValue:self.systemContext[@"model"] forKey:@"model_id"];
-    
     context.appContext = appContext;
     
     return context;
@@ -131,43 +128,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     return components[0];
 }
 
-//
-//- (NSDictionary *)deviceContext {
-//    NSMutableDictionary *result = [NSMutableDictionary new];
-//    result[@"name"] = self.deviceName;
-//    result[@"model"] = self.model;
-//    result[@"model_id"] = self.modelID;
-//    result[@"arch"] = self.systemContext[@"cpu_arch"];
-//    result[@"battery_level"] = self.batteryLevel;
-//    result[@"orientation"] = self.orientation;
-//    if ([self.systemContext valueForKeyPath:@"memory.free"]) {
-//        long free_memory = [[self.systemContext valueForKeyPath:@"memory.free"] longValue];
-//        result[@"free_memory"] = [NSByteCountFormatter stringFromByteCount:free_memory countStyle:NSByteCountFormatterCountStyleMemory];
-//    }
-//    if ([self.systemContext valueForKeyPath:@"memory.size"]) {
-//        long memory_size = [[self.systemContext valueForKeyPath:@"memory.size"] longValue];
-//        result[@"memory_size"] = [NSByteCountFormatter stringFromByteCount:memory_size countStyle:NSByteCountFormatterCountStyleMemory];
-//    }
-//    if (self.systemContext[@"storage"]) {
-//        long storage_size = [self.systemContext[@"storage"] longValue];
-//        result[@"storage_size"] = [NSByteCountFormatter stringFromByteCount:storage_size countStyle:NSByteCountFormatterCountStyleMemory];
-//    }
-//    if ([self.systemContext valueForKeyPath:@"memory.usable"]) {
-//        long usable_memory = [[self.systemContext valueForKeyPath:@"memory.usable"] longValue];
-//        result[@"usable_memory"] = [NSByteCountFormatter stringFromByteCount:usable_memory countStyle:NSByteCountFormatterCountStyleMemory];
-//    }
-//    return result;
-//}
-//
-
-//
-//- (NSDictionary *)runtimeContext {
-//    NSMutableDictionary *result = [NSMutableDictionary new];
-//    result[@"name"] = self.systemContext[@"CFBundleName"];
-//    result[@"version"] = self.systemContext[@"CFBundleVersion"];
-//    return result;
-//}
-//
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
     NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
     return thread[@"backtrace"][@"contents"];

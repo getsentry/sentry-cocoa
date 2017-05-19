@@ -80,6 +80,15 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
     
+    if (nil == self.releaseName || nil == self.dist) {
+        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+        if (nil == self.releaseName) {
+            self.releaseName = [NSString stringWithFormat:@"%@-%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"]];
+        }
+        if (nil == self.dist) {
+            self.dist = infoDict[@"CFBundleVersion"];
+        }
+    }
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     
