@@ -56,4 +56,12 @@
     [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:@[] logAllThreads:YES terminateProgram:NO];
 }
 
+- (void)testSeverity {
+    XCTAssertEqualObjects(@"fatal", SentrySeverityNames[kSentrySeverityFatal]);
+    XCTAssertEqualObjects(@"error", SentrySeverityNames[kSentrySeverityError]);
+    XCTAssertEqualObjects(@"warning", SentrySeverityNames[kSentrySeverityWarning]);
+    XCTAssertEqualObjects(@"info", SentrySeverityNames[kSentrySeverityInfo]);
+    XCTAssertEqualObjects(@"debug", SentrySeverityNames[kSentrySeverityDebug]);
+}
+
 @end

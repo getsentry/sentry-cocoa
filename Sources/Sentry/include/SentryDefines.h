@@ -33,3 +33,12 @@ typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityInfo = 3,
     kSentrySeverityDebug = 4,
 };
+
+static NSString *_Nonnull const SentrySeverityNames[] = {
+    @"fatal",
+    @"error",
+    @"warning",
+    @"info",
+    @"debug",
+};
+

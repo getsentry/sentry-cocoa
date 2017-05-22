@@ -38,21 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSString *)convertSentrySeverityToString:(SentrySeverity)severity {
-    switch (severity) {
-        case kSentrySeverityFatal:
-            return @"fatal";
-        case kSentrySeverityError:
-            return @"error";
-        case kSentrySeverityWarning:
-            return @"warning";
-        case kSentrySeverityDebug:
-            return @"debug";
-        default:
-            return @"info";
-    }
-}
-
 - (NSDictionary<NSString *, id> *)serialized {
     if (nil == self.timestamp) {
         self.timestamp = [NSDate date];
@@ -60,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = @{
                                             @"event_id": self.eventId,
                                             @"timestamp": @((NSInteger) [self.timestamp timeIntervalSince1970]),
-                                            @"level": [self convertSentrySeverityToString:self.level],
+                                            @"level": SentrySeverityNames[self.level],
                                             @"platform": @"cocoa",
                                             }.mutableCopy;
     serializedData[@"sdk"] = @{
