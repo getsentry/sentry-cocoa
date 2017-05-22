@@ -50,4 +50,10 @@
     [installation sendAllReports];
 }
 
+- (void)testUserException {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:@[] logAllThreads:YES terminateProgram:NO];
+}
+
 @end

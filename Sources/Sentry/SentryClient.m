@@ -79,20 +79,6 @@ static SentryKSCrashInstallation *installation = nil;
     return self;
 }
 
-- (void)crash {
-    if ([self.class isTesting]) {
-        [SentryLog logWithMessage:@"Would have crashed - but since we run in DEBUG we do nothing." andLevel:kSentryLogLevelDebug];
-    } else {
-        int* p = 0;
-        *p = 0;
-    }
-}
-
-+ (BOOL)isTesting {
-    NSDictionary* environment = [[NSProcessInfo processInfo] environment];
-    return [environment objectForKey:@"TESTING"] != nil;
-}
-
 #pragma mark Static Getter/Setter
 
 + (_Nullable instancetype)sharedClient {
@@ -140,7 +126,7 @@ static SentryKSCrashInstallation *installation = nil;
 
 #if __has_include(<KSCrash/KSCrash.h>)
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"KSCrashHandler started"] andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"KSCrashHandler started" andLevel:kSentryLogLevelDebug];
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
         installation = [[SentryKSCrashInstallation alloc] init];
@@ -149,7 +135,43 @@ static SentryKSCrashInstallation *installation = nil;
     });
     return YES;
 }
+
+- (void)crash {
+    int* p = 0;
+    *p = 0;
+}
+
+- (void)reportUserException:(NSString *)name
+                     reason:(NSString *)reason
+                   language:(NSString *)language
+                 lineOfCode:(NSString *)lineOfCode
+                 stackTrace:(NSArray *)stackTrace
+              logAllThreads:(BOOL)logAllThreads
+           terminateProgram:(BOOL)terminateProgram {
+    if (nil == installation) {
+        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        return;
+    }
+    [KSCrash.sharedInstance reportUserException:name
+                                         reason:reason
+                                       language:language
+                                     lineOfCode:lineOfCode stackTrace:stackTrace
+                                  logAllThreads:logAllThreads
+                               terminateProgram:terminateProgram];
+    [installation sendAllReports];
+}
+
 #else
+
+- (void)reportUserException:(NSString *)name
+                     reason:(NSString *)reason
+                   language:(NSString *)language
+                 lineOfCode:(NSString *)lineOfCode
+                 stackTrace:(NSArray *)stackTrace
+              logAllThreads:(BOOL)logAllThreads
+           terminateProgram:(BOOL)terminateProgram {
+    [SentryLog logWithMessage:@"Cannot report userException without KSCrash dependency" andLevel:kSentryLogLevelError];
+}
 
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
@@ -158,6 +180,10 @@ static SentryKSCrashInstallation *installation = nil;
         *error = NSErrorFromSentryError(kSentryErrorKSCrashNotInstalledError, message);
     }
     return NO;
+}
+
+- (void)crash {
+    [SentryLog logWithMessage:@"Would have crashed - but since KSCrash is not linked we do nothing." andLevel:kSentryLogLevelDebug];
 }
 
 #endif
