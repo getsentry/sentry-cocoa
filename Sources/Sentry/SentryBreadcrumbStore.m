@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    if (self.maxBreadcrumbs >= self.breadcrumbs.count) {
+    if (self.breadcrumbs.count >= self.maxBreadcrumbs) {
         [SentryLog logWithMessage:@"Dropped first breadcrumb due limit" andLevel:kSentryLogLevelDebug];
         [self.breadcrumbs removeObjectAtIndex:0];
     }

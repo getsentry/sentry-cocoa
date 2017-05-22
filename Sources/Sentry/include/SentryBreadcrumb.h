@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *_Nullable message;
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
-- (instancetype)initWithLevel:(enum SentrySeverity)level;
+- (instancetype)initWithLevel:(enum SentrySeverity)level category:(NSString *)category;
 
 @end
 

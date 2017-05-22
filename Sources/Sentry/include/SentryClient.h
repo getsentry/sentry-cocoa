@@ -18,7 +18,7 @@
 #import "SentryLog.h"
 #endif
 
-@class SentryEvent;
+@class SentryEvent, SentryBreadcrumbStore;
 @protocol SentryRequestManager;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,6 +27,37 @@ NS_ASSUME_NONNULL_BEGIN
  * `SentryClient`
  */
 @interface SentryClient : NSObject
+
+/*
+ * Return a version string e.g: 1.2.3 (3)
+ */
+@property(nonatomic, class, readonly, copy) NSString *versionString;
+
+/*
+ * Set logLevel for the current client default kSentryLogLevelError
+ */
+@property(nonatomic, class) SentryLogLevel logLevel;
+
+/*
+ * Set global tags -> these will be sent with every event
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
+
+/*
+ * Set global extra -> these will be sent with every event
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+
+/*
+ * Contains the last successfully sent event
+ */
+@property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
+
+/*
+ * Contains the last successfully sent event
+ */
+@property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
+
 
 - (instancetype)initWithDsn:(NSString *)dsn
            didFailWithError:(NSError *_Nullable *_Nullable)error;
@@ -50,27 +81,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
-/*
- * Return a version string e.g: 1.2.3 (3)
- */
-@property(nonatomic, class, readonly, copy) NSString *versionString;
-/*
- * Set logLevel for the current client default kSentryLogLevelError
- */
-@property(nonatomic, class) SentryLogLevel logLevel;
-
-/*
- * Set global tags -> these will be sent with every event
- */
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
-/*
- * Set global extra -> these will be sent with every event
- */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
-/*
- * Contains the last successfully sent event
- */
-@property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
 /// KSCrash
 

@@ -16,6 +16,8 @@
 
 @implementation SentryInterfacesTests
 
+// TODO test event
+
 - (void)testDebugMeta {
     SentryDebugMeta *debugMeta = [SentryDebugMeta new];
     debugMeta.uuid = @"abcd";
@@ -175,6 +177,37 @@
     SentryContext *context = [SentryContext new];
     XCTAssertNotNil(context);
     XCTAssertEqual(context.serialized.count, (unsigned long)3);
+}
+
+- (void)testBreadcrumb {
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
+    XCTAssertTrue(crumb.level >= 0);
+    XCTAssertNotNil(crumb.category);
+    NSDate *date = [NSDate date];
+    crumb.timestamp = date;
+    NSDictionary *serialized = @{
+                                 @"level": @"info",
+                                 @"timestamp": [date toIso8601String],
+                                 @"category": @"http",
+                                 };
+    XCTAssertEqualObjects(crumb.serialized, serialized);
+    
+    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
+    XCTAssertTrue(crumb2.level >= 0);
+    XCTAssertNotNil(crumb2.category);
+    crumb2.data = @{@"bla": @"1"};
+    crumb2.type = @"type";
+    crumb2.timestamp = date;
+    crumb2.message = @"message";
+    NSDictionary *serialized2 = @{
+                                 @"level": @"info",
+                                 @"type": @"type",
+                                 @"message": @"message",
+                                 @"timestamp": [date toIso8601String],
+                                 @"category": @"http",
+                                 @"data": @{@"bla": @"1"},
+                                 };
+    XCTAssertEqualObjects(crumb2.serialized, serialized2);
 }
 
 @end

@@ -14,6 +14,7 @@
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
+#import <Sentry/NSDate+Extras.h>
 #else
 #import "SentryEvent.h"
 #import "SentryClient.h"
@@ -22,6 +23,7 @@
 #import "SentryException.h"
 #import "SentryStacktrace.h"
 #import "SentryContext.h"
+#import "NSDate+Extras.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -44,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     NSMutableDictionary *serializedData = @{
                                             @"event_id": self.eventId,
-                                            @"timestamp": @((NSInteger) [self.timestamp timeIntervalSince1970]),
+                                            @"timestamp": [self.timestamp toIso8601String],
                                             @"level": SentrySeverityNames[self.level],
                                             @"platform": @"cocoa",
                                             }.mutableCopy;

@@ -20,6 +20,7 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryKSCrashInstallation.h>
+#import <Sentry/SentryBreadcrumbStore.h>
 
 #else
 #import "SentryClient.h"
@@ -30,6 +31,7 @@
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryKSCrashInstallation.h"
+#import "SentryBreadcrumbStore.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -75,6 +77,7 @@ static SentryKSCrashInstallation *installation = nil;
         }
         self.requestManager = requestManager;
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kSentryLogLevelDebug];
+        self.breadcrumbs = [[SentryBreadcrumbStore alloc] init];
     }
     return self;
 }

@@ -64,4 +64,9 @@
     XCTAssertEqualObjects(@"debug", SentrySeverityNames[kSentrySeverityDebug]);
 }
 
+- (void)testDateCategory {
+    NSDate *date = [NSDate date];
+    XCTAssertEqual((NSInteger)[[NSDate fromIso8601String:[date toIso8601String]] timeIntervalSince1970], (NSInteger)[date timeIntervalSince1970]);
+}
+
 @end

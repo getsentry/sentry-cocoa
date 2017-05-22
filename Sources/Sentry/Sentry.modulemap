@@ -18,5 +18,6 @@ framework module Sentry {
         header "SentryKSCrashReportConverter.h"
         header "SentryDebugMeta.h"
         header "SentryContext.h"
+        header "NSDate+Extras.h"
     }
 }

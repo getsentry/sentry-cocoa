@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBreadcrumbStore : NSObject <SentrySerializable>
 
+@property (nonatomic, strong, readonly) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 - (instancetype)init;
