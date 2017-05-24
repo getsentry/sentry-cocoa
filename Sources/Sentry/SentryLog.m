@@ -19,8 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryLog
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level {
-    NSParameterAssert(message);
-    NSParameterAssert(level);
     SentryLogLevel defaultLevel = kSentryLogLevelError;
     if (SentryClient.logLevel > 0) {
         defaultLevel = SentryClient.logLevel;
@@ -31,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSString *)logLevelToString:(SentryLogLevel)level {
-    NSParameterAssert(level);
     switch (level) {
         case kSentryLogLevelDebug:
             return @"Debug";

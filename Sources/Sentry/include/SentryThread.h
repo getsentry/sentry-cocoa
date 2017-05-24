@@ -8,23 +8,26 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentrySerializable.h>
+#else
+#import "SentrySerializable.h"
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
+
 @class SentryStacktrace;
 
-@interface SentryThread : NSObject
+@interface SentryThread : NSObject <SentrySerializable>
 
-@property(nonatomic, readonly) NSInteger id;
-@property(nonatomic, readonly, copy) NSString *_Nullable name;
-@property(nonatomic, readonly, strong) SentryStacktrace *_Nullable stacktrace;
-@property(nonatomic, readonly, copy) NSString *_Nullable reason;
+@property(nonatomic, copy) NSNumber *threadId;
+@property(nonatomic, copy) NSString *_Nullable name;
+@property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
+@property(nonatomic, copy) NSNumber *_Nullable crashed;
+@property(nonatomic, copy) NSNumber *_Nullable current;
 
-//- (nonnull instancetype)initWithId:(NSInteger)threadId
-//                           crashed:(BOOL)crashed
-//                           current:(BOOL)current
-//                              name:(NSString * _Nullable)name
-//                        stacktrace:(SentryStacktrace * _Nullable)stacktrace
-//                            reason:(NSString * _Nullable)reason;
-//
-//@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
-
+- (instancetype)initWithThreadId:(NSNumber *)threadId;
 
 @end
+
+NS_ASSUME_NONNULL_END

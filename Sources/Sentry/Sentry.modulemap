@@ -13,5 +13,11 @@ framework module Sentry {
         header "SentryQueueableRequestManager.h"
         header "SentryNSURLRequest.h"
         header "NSData+Compression.h"
+        header "SentryKSCrashInstallation.h"
+        header "SentryKSCrashReportSink.h"
+        header "SentryKSCrashReportConverter.h"
+        header "SentryDebugMeta.h"
+        header "SentryContext.h"
+        header "NSDate+Extras.h"
     }
 }

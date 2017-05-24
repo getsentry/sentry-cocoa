@@ -8,24 +8,26 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentrySerializable.h>
+#else
+#import "SentrySerializable.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread;
 
-@interface SentryException : NSObject
+@interface SentryException : NSObject <SentrySerializable>
 
 @property(nonatomic, copy) NSString *value;
-@property(nonatomic, copy) NSString *_Nullable type;
+@property(nonatomic, copy) NSString *type;
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable mechanism;
 @property(nonatomic, copy) NSString *_Nullable module;
-@property(nonatomic) BOOL userReported;
+@property(nonatomic, copy) NSNumber *_Nullable userReported;
 @property(nonatomic, strong) SentryThread *_Nullable thread;
 
-//- (nonnull instancetype)initWithValue:(NSString *_Nonnull)value type:(NSString *_Nullable)type
-//                            mechanism:(NSDictionary<NSString *, id> *_Nullable)mechanism
-//                               module:(NSString *_Nullable)module_;
-//
-//- (BOOL)isEqual:(id _Nullable)object;
+- (instancetype)initWithValue:(NSString *)value type:(NSString *)type;
 
 @end
 

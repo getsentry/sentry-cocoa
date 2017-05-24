@@ -8,19 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentrySerializable.h>
+#else
+#import "SentrySerializable.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryFrame;
 
-@interface SentryStacktrace : NSObject
+@interface SentryStacktrace : NSObject <SentrySerializable>
 
-@property(nonatomic, copy) NSArray<SentryFrame *> *frames;
-@property(nonatomic, readonly, strong) NSDictionary<NSString *, NSString *> *registers;
+@property(nonatomic, strong) NSArray<SentryFrame *> *frames;
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *registers;
 
-//- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> *_Nullable)frames;
-//
-//- (nonnull instancetype)initWithFrames:(NSArray<SentryFrame *> *_Nullable)frames
-//                              register:(SentryRegister *_Nullable)register_;
+- (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
+                     registers:(NSDictionary<NSString *, NSString *>*)registers;
 
 @end
 

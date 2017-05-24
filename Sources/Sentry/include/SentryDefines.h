@@ -12,6 +12,18 @@
 #define SENTRY_EXTERN        extern __attribute__((visibility ("default")))
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+#define SENTRY_HAS_UIDEVICE 1
+#else
+#define SENTRY_HAS_UIDEVICE 0
+#endif
+
+#if SENTRY_HAS_UIDEVICE || TARGET_OS_WATCH
+#define SENTRY_HAS_UIKIT 1
+#else
+#define SENTRY_HAS_UIKIT 0
+#endif
+
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
 
 typedef NS_ENUM(NSInteger, SentrySeverity) {
@@ -21,3 +33,12 @@ typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityInfo = 3,
     kSentrySeverityDebug = 4,
 };
+
+static NSString *_Nonnull const SentrySeverityNames[] = {
+    @"fatal",
+    @"error",
+    @"warning",
+    @"info",
+    @"debug",
+};
+

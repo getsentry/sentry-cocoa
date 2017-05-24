@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "SentryKSCrashInstallation.h"
 
 @interface SentryTests : XCTestCase
 
@@ -36,6 +37,36 @@
     XCTAssertNil(SentryClient.sharedClient);
     SentryClient.sharedClient = client;
     XCTAssertNotNil(SentryClient.sharedClient);
+}
+
+- (void)testCrash {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    [client crash];
+}
+
+- (void)testInstallation {
+    SentryKSCrashInstallation *installation = [[SentryKSCrashInstallation alloc] init];
+    [installation sendAllReports];
+}
+
+- (void)testUserException {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:@[] logAllThreads:YES terminateProgram:NO];
+}
+
+- (void)testSeverity {
+    XCTAssertEqualObjects(@"fatal", SentrySeverityNames[kSentrySeverityFatal]);
+    XCTAssertEqualObjects(@"error", SentrySeverityNames[kSentrySeverityError]);
+    XCTAssertEqualObjects(@"warning", SentrySeverityNames[kSentrySeverityWarning]);
+    XCTAssertEqualObjects(@"info", SentrySeverityNames[kSentrySeverityInfo]);
+    XCTAssertEqualObjects(@"debug", SentrySeverityNames[kSentrySeverityDebug]);
+}
+
+- (void)testDateCategory {
+    NSDate *date = [NSDate date];
+    XCTAssertEqual((NSInteger)[[NSDate fromIso8601String:[date toIso8601String]] timeIntervalSince1970], (NSInteger)[date timeIntervalSince1970]);
 }
 
 @end

@@ -5,7 +5,7 @@ cache:
 rvm:
     - 2.2
 script:
-    - .travis/run.sh
+    - travis_retry .travis/run.sh
 after_success:
     - if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml; elif [ "$LANE" = "test_swift" ]; then slather coverage --scheme SentrySwift &&  bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
@@ -23,4 +23,3 @@ env:
         - LANE=do_cocoapods KSCRASH=false PLATFORM=watchos
 notifications:
   email: false
-
