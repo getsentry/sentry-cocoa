@@ -47,9 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #else
+
 - (void)sendAllReports {
     [SentryLog logWithMessage:@"This function does nothing if there is no KSCrash" andLevel:kSentryLogLevelError];
 }
+
 #endif
 
 @end

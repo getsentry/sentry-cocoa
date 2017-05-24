@@ -7,7 +7,9 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryFrame.h>
+
 #else
 #import "SentryFrame.h"
 #endif
@@ -27,9 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = @{
-                                            @"symbol_addr": self.symbolAddress
-                                            }.mutableCopy;
-    
+            @"symbol_addr": self.symbolAddress
+    }.mutableCopy;
+
     [serializedData setValue:self.fileName forKey:@"filename"];
     [serializedData setValue:self.function forKey:@"function"];
     [serializedData setValue:self.module forKey:@"module"];

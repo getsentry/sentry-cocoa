@@ -35,10 +35,10 @@ typedef NS_ENUM(NSInteger, SentrySeverity) {
 };
 
 static NSString *_Nonnull const SentrySeverityNames[] = {
-    @"fatal",
-    @"error",
-    @"warning",
-    @"info",
-    @"debug",
+        @"fatal",
+        @"error",
+        @"warning",
+        @"info",
+        @"debug",
 };
 

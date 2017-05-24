@@ -7,7 +7,9 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryAsynchronousOperation.h>
+
 #else
 #import "SentryAsynchronousOperation.h"
 #endif
@@ -17,22 +19,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryAsynchronousOperation ()
 
-@property (nonatomic, getter = isCancelled, readwrite) BOOL cancelled;
-@property (nonatomic, getter = isFinished, readwrite) BOOL finished;
-@property (nonatomic, getter = isExecuting, readwrite) BOOL executing;
+@property(nonatomic, getter = isCancelled, readwrite) BOOL cancelled;
+@property(nonatomic, getter = isFinished, readwrite) BOOL finished;
+@property(nonatomic, getter = isExecuting, readwrite) BOOL executing;
 
 @end
 
 @implementation SentryAsynchronousOperation
 
 @synthesize cancelled = _cancelled;
-@synthesize finished  = _finished;
+@synthesize finished = _finished;
 @synthesize executing = _executing;
 
 - (id)init {
     self = [super init];
     if (self) {
-        _finished  = NO;
+        _finished = NO;
         _executing = NO;
         _cancelled = NO;
     }
@@ -44,21 +46,21 @@ NS_ASSUME_NONNULL_BEGIN
         self.finished = YES;
         return;
     }
-    
+
     self.executing = YES;
-    
+
     [self main];
 }
 
 - (void)cancel {
     self.executing = NO;
-    self.finished  = YES;
+    self.finished = YES;
     self.cancelled = YES;
 }
 
 - (void)completeOperation {
     self.executing = NO;
-    self.finished  = YES;
+    self.finished = YES;
 }
 
 #pragma mark - NSOperation methods
@@ -68,19 +70,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)isExecuting {
-    @synchronized(self) {
+    @synchronized (self) {
         return _executing;
     }
 }
 
 - (BOOL)isFinished {
-    @synchronized(self) {
+    @synchronized (self) {
         return _finished;
     }
 }
 
 - (BOOL)isCancelled {
-    @synchronized(self) {
+    @synchronized (self) {
         return _cancelled;
     }
 }
@@ -88,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setCancelled:(BOOL)cancelled {
     if (_cancelled != cancelled) {
         [self willChangeValueForKey:@"isCancelled"];
-        @synchronized(self) {
+        @synchronized (self) {
             _cancelled = cancelled;
         }
         [self didChangeValueForKey:@"isCancelled"];
@@ -98,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setExecuting:(BOOL)executing {
     if (_executing != executing) {
         [self willChangeValueForKey:@"isExecuting"];
-        @synchronized(self) {
+        @synchronized (self) {
             _executing = executing;
         }
         [self didChangeValueForKey:@"isExecuting"];
@@ -107,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setFinished:(BOOL)finished {
     [self willChangeValueForKey:@"isFinished"];
-    @synchronized(self) {
+    @synchronized (self) {
         if (_finished != finished) {
             _finished = finished;
         }

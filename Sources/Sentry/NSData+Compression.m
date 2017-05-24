@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation NSData (Compression)
 
 - (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
-                                  error:(NSError *_Nullable *_Nullable)error {
+                                           error:(NSError *_Nullable *_Nullable)error {
     uInt length = (uInt) [self length];
     if (length == 0) {
         return [NSData data];
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
-    stream.next_in = (Bytef *)(void *)self.bytes;
+    stream.next_in = (Bytef *) (void *) self.bytes;
     stream.total_out = 0;
     stream.avail_out = 0;
     stream.avail_in = length;
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
     /// compress
     while (err == Z_OK) {
         stream.next_out = compressedBytes + stream.total_out;
-        stream.avail_out = (uInt)(compressedLength - stream.total_out);
+        stream.avail_out = (uInt) (compressedLength - stream.total_out);
         err = deflate(&stream, Z_FINISH);
     }
 

@@ -36,30 +36,30 @@ NS_ASSUME_NONNULL_BEGIN
     return [super new];
 }
 
-- (NSDictionary<NSString *,id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-   
+
     if (nil == self.osContext) {
         self.osContext = [self generatedOsContext];
     }
     [serializedData setValue:self.osContext forKey:@"os"];
-    
+
     if (nil == self.appContext) {
         self.appContext = [self generatedAppContext];
     }
     [serializedData setValue:self.appContext forKey:@"app"];
-    
+
     if (nil == self.deviceContext) {
         self.deviceContext = [self generatedDeviceContext];
     }
     [serializedData setValue:self.deviceContext forKey:@"device"];
-    
+
     return serializedData;
 }
 
-- (NSDictionary<NSString *,id> *)generatedOsContext {
+- (NSDictionary<NSString *, id> *)generatedOsContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    
+
 #if TARGET_OS_IPHONE
     [serializedData setValue:@"iOS" forKey:@"name"];
 #elif TARGET_OS_OSX
@@ -69,15 +69,15 @@ NS_ASSUME_NONNULL_BEGIN
 #elif TARGET_OS_WATCH
     [serializedData setValue:@"watchOS" forKey:@"name"];
 #endif
-    
+
 #if SENTRY_HAS_UIDEVICE
     [serializedData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-    NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion, (int)version.minorVersion, (int)version.patchVersion];
+    NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int) version.majorVersion, (int) version.minorVersion, (int) version.patchVersion];
     [serializedData setValue:systemVersion forKey:@"version"];
 #endif
-    
+
 #if __has_include(<KSCrash/KSCrash.h>)
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:systemInfo[@"osVersion"] forKey:@"build"];
@@ -87,13 +87,13 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (NSDictionary<NSString *,id> *)generatedDeviceContext {
+- (NSDictionary<NSString *, id> *)generatedDeviceContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
 #if TARGET_OS_SIMULATOR
     [serializedData setValue:@(YES) forKey:@"simulator"];
 #endif
-    
+
 #if __has_include(<KSCrash/KSCrash.h>)
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:[[systemInfo[@"systemName"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject] forKey:@"family"];
@@ -107,11 +107,11 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
     [serializedData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 #endif
-    
+
     return serializedData;
 }
 
-- (NSDictionary<NSString *,id> *)generatedAppContext {
+- (NSDictionary<NSString *, id> *)generatedAppContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 
@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:infoDict[@"CFBundleName"] forKey:@"app_name"];
     [serializedData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
     [serializedData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
-    
+
 #if __has_include(<KSCrash/KSCrash.h>)
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
@@ -127,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:systemInfo[@"appID"] forKey:@"app_id"];
     [serializedData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 #endif
-    
+
     return serializedData;
 }
 

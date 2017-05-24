@@ -7,7 +7,9 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryUser.h>
+
 #else
 #import "SentryUser.h"
 #endif
@@ -24,15 +26,15 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *,id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = @{
-                                            @"id": self.userId
-                                            }.mutableCopy;
-    
+            @"id": self.userId
+    }.mutableCopy;
+
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
     [serializedData setValue:self.extra forKey:@"extra"];
-    
+
     return serializedData;
 }
 

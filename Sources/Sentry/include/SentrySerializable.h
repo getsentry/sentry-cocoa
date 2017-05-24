@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentrySerializable <NSObject>
 
 - (instancetype)init NS_UNAVAILABLE;
+
 + (instancetype)new NS_UNAVAILABLE;
 
 - (NSDictionary<NSString *, id> *)serialized;

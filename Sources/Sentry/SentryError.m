@@ -7,7 +7,9 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryError.h>
+
 #else
 #import "SentryError.h"
 #endif

@@ -6,7 +6,6 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryBreadcrumbStore.h>
@@ -23,9 +22,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryBreadcrumbStore()
+@interface SentryBreadcrumbStore ()
 
-@property (nonatomic, strong) SentryFileManager *fileManager;
+@property(nonatomic, strong) SentryFileManager *fileManager;
 
 @end
 
@@ -42,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    NSArray<NSDictionary<NSString *, id>*> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
+    NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
     if (breadCrumbs.count >= self.maxBreadcrumbs) {
         [SentryLog logWithMessage:@"Dropped first breadcrumb due limit" andLevel:kSentryLogLevelDebug];
         [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:0][@"path"]];
@@ -58,11 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
     [self.fileManager deleteAllStoredBreadcrumbs];
 }
 
-- (NSDictionary<NSString *,id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    
-    NSArray<NSDictionary<NSString *, id>*> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
-    
+
+    NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
+
     NSMutableArray *crumbs = [NSMutableArray new];
     for (NSDictionary<NSString *, id> *crumb in breadCrumbs) {
         [crumbs addObject:[NSJSONSerialization JSONObjectWithData:crumb[@"data"] options:0 error:nil]];
@@ -70,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
-    
+
     return serializedData;
 }
 

@@ -35,29 +35,29 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         self.request = request;
         self.task = [session dataTaskWithRequest:self.request completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
             NSInteger statusCode = [httpResponse statusCode];
-            
+
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld", (long) statusCode] andLevel:kSentryLogLevelDebug];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
-            
+
             if (nil != error) {
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error] andLevel:kSentryLogLevelError];
             }
-            
+
             NSError *requestError = nil;
             if (statusCode >= 400 && statusCode <= 500) {
-                requestError = NSErrorFromSentryError(kSentryErrorRequestError, [NSString stringWithFormat:@"Request errored with %ld", (long)statusCode]);
+                requestError = NSErrorFromSentryError(kSentryErrorRequestError, [NSString stringWithFormat:@"Request errored with %ld", (long) statusCode]);
                 if (statusCode == 429) {
                     [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
                 }
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Request failed: %@", requestError] andLevel:kSentryLogLevelError];
             }
-            
+
             if (completionHandler) {
                 completionHandler(error ? error : requestError);
             }
-            
+
             [self completeOperation];
         }];
     }

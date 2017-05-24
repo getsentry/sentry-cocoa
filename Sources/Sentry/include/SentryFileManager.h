@@ -15,18 +15,29 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryFileManager : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
+
 + (instancetype)new NS_UNAVAILABLE;
 
 - (_Nullable instancetype)initWithError:(NSError **)error;
+
 - (void)storeEvent:(SentryEvent *)event;
+
 - (void)storeBreadcrumb:(SentryBreadcrumb *)crumb;
+
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
+
 - (void)deleteAllStoredEvents;
+
 - (void)deleteAllStoredBreadcrumbs;
+
 - (void)deleteAllFolders;
-- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredEvents;
-- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredBreadcrumbs;
+
+- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEvents;
+
+- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredBreadcrumbs;
+
 - (BOOL)removeFileAtPath:(NSString *)path;
+
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
 @end

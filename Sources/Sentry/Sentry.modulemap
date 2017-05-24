@@ -19,5 +19,6 @@ framework module Sentry {
         header "SentryDebugMeta.h"
         header "SentryContext.h"
         header "NSDate+Extras.h"
+        header "SentryFileManager.h"
     }
 }

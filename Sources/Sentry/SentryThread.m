@@ -7,8 +7,10 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryStacktrace.h>
+
 #else
 #import "SentryThread.h"
 #import "SentryStacktrace.h"
@@ -26,16 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *,id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = @{
-                                            @"id": self.threadId
-                                            }.mutableCopy;
-    
+            @"id": self.threadId
+    }.mutableCopy;
+
     [serializedData setValue:self.crashed forKey:@"crashed"];
     [serializedData setValue:self.current forKey:@"current"];
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
-    
+
     return serializedData;
 }
 

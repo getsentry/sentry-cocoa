@@ -37,7 +37,8 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
 @implementation SentryNSURLRequest
 
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event
+                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSDictionary *serialized = event.serialized;
     if (![NSJSONSerialization isValidJSONObject:serialized]) {
         if (error) {
@@ -45,26 +46,27 @@ NSTimeInterval const SentryRequestTimeout = 15;
         }
         return nil;
     }
-    
+
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
                                                        options:0
                                                          error:error];
-    
+
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
 
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andData:(NSData *)data didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andData:(NSData *)data
+                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
         NSString *authHeader = newAuthHeader(dsn.url);
-        
+
         self.HTTPMethod = @"POST";
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-  
+
         self.HTTPBody = [data gzippedWithCompressionLevel:-1 error:error];
     }
     return self;

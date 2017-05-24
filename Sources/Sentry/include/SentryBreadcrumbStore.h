@@ -22,14 +22,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBreadcrumbStore : NSObject <SentrySerializable>
 
-@property (nonatomic, assign) NSUInteger maxBreadcrumbs;
+@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 - (instancetype)init NS_UNAVAILABLE;
+
 + (instancetype)new NS_UNAVAILABLE;
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager;
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
+
 - (void)clear;
+
 - (NSUInteger)count;
 
 @end

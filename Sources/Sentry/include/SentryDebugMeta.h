@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) NSNumber *_Nullable revisionVersion;
 
 - (instancetype)init;
+
 + (instancetype)new;
 
 @end

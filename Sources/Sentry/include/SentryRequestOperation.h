@@ -9,8 +9,10 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryAsynchronousOperation.h>
+
 #else
 #import "SentryQueueableRequestManager.h"
 #import "SentryAsynchronousOperation.h"
@@ -20,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryRequestOperation : SentryAsynchronousOperation
 
-- (instancetype)initWithSession:(NSURLSession *)session request:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (instancetype)initWithSession:(NSURLSession *)session request:(NSURLRequest *)request
+              completionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
 @end
 

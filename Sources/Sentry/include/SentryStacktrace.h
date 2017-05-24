@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentrySerializable.h>
+
 #else
 #import "SentrySerializable.h"
 #endif
@@ -24,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *registers;
 
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
-                     registers:(NSDictionary<NSString *, NSString *>*)registers;
+                     registers:(NSDictionary<NSString *, NSString *> *)registers;
 
 @end
 

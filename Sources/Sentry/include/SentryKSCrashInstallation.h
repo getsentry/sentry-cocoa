@@ -14,6 +14,7 @@
 
 @interface SentryKSCrashInstallation : KSCrashInstallation
 #else
+
 @interface SentryKSCrashInstallation : NSObject
 #endif
 

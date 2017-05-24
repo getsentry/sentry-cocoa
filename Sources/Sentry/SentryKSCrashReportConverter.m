@@ -86,7 +86,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (SentryContext *)convertContext {
     SentryContext *context = [SentryContext new];
-    
+
     NSMutableDictionary *osContext = [NSMutableDictionary new];
     [osContext setValue:self.systemContext[@"system_name"] forKey:@"name"];
     [osContext setValue:self.systemContext[@"system_version"] forKey:@"version"];
@@ -94,7 +94,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     [osContext setValue:self.systemContext[@"kernel_version"] forKey:@"kernel_version"];
     [osContext setValue:self.systemContext[@"jailbroken"] forKey:@"rooted"];
     context.osContext = osContext;
-    
+
     NSMutableDictionary *deviceContext = [NSMutableDictionary new];
     [deviceContext setValue:self.family forKey:@"family"];
     [deviceContext setValue:self.systemContext[@"cpu_arch"] forKey:@"arch"];
@@ -107,7 +107,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     [deviceContext setValue:self.systemContext[@"machine"] forKey:@"model"];
     [deviceContext setValue:self.systemContext[@"model"] forKey:@"model_id"];
     context.deviceContext = deviceContext;
-    
+
     NSMutableDictionary *appContext = [NSMutableDictionary new];
     [appContext setValue:self.systemContext[@"app_start_time"] forKey:@"app_start_time"];
     [appContext setValue:self.systemContext[@"device_app_hash"] forKey:@"device_app_hash"];
@@ -118,7 +118,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     [appContext setValue:self.systemContext[@"CFBundleExecutablePath"] forKey:@"executable_path"];
     [appContext setValue:self.systemContext[@"build_type"] forKey:@"build_type"];
     context.appContext = appContext;
-    
+
     return context;
 }
 
@@ -252,11 +252,11 @@ static inline NSString *hexAddress(NSNumber *value) {
         NSString *exceptionName = self.exceptionContext[@"user_reported"][@"name"];
         exception = [[SentryException alloc] initWithValue:exceptionName
                                                       type:@"User Reported"];
-        
+
         NSRange match = [exceptionName rangeOfString:@":"];
         if (match.location != NSNotFound) {
-            exception = [[SentryException alloc] initWithValue:[exceptionName substringWithRange: NSMakeRange (match.location+match.length, (exceptionName.length-match.location)-match.length)]
-                                                          type:[exceptionName substringWithRange: NSMakeRange (0, match.location)]];
+            exception = [[SentryException alloc] initWithValue:[exceptionName substringWithRange:NSMakeRange(match.location + match.length, (exceptionName.length - match.location) - match.length)]
+                                                          type:[exceptionName substringWithRange:NSMakeRange(0, match.location)]];
         }
     }
 

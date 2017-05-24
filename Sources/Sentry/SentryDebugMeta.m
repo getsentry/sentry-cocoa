@@ -7,7 +7,9 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryDebugMeta.h>
+
 #else
 #import "SentryDebugMeta.h"
 #endif
@@ -26,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    
+
     [serializedData setValue:self.uuid forKey:@"uuid"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.cpuType forKey:@"cpu_type"];

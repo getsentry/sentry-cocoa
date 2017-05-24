@@ -9,9 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentrySerializable.h>
-
 #else
 #import "SentrySerializable.h"
 #endif

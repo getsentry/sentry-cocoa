@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
     static NSDateFormatter *isoFormatter = nil;
     if (nil == isoFormatter) {
         isoFormatter = [[NSDateFormatter alloc] init];
-        [isoFormatter setLocale: [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
-        isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation: @"UTC"];
+        [isoFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
+        isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
         [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
     }
     return isoFormatter;

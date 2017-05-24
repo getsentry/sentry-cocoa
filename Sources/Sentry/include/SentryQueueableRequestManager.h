@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryDefines.h>
+
 #else
 #import "SentryDefines.h"
 #endif
@@ -21,12 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, getter = isReady) BOOL ready;
 
 - (instancetype)initWithSession:(NSURLSession *)session;
+
 - (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler;
+
 - (void)cancelAllOperations;
 
 @end
 
-@interface SentryQueueableRequestManager : NSObject<SentryRequestManager>
+@interface SentryQueueableRequestManager : NSObject <SentryRequestManager>
 
 @end
 

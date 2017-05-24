@@ -12,6 +12,7 @@
 #import <KSCrash/KSCrash.h>
 @interface SentryKSCrashReportSink : NSObject <KSCrashReportFilter>
 #else
+
 @interface SentryKSCrashReportSink : NSObject
 #endif
 

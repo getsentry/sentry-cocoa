@@ -7,9 +7,11 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryError.h>
+
 #else
 #import "SentryDsn.h"
 #import "SentryClient.h"

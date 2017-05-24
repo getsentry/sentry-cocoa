@@ -7,6 +7,7 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryUser.h>
@@ -15,6 +16,7 @@
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
 #import <Sentry/NSDate+Extras.h>
+
 #else
 #import "SentryEvent.h"
 #import "SentryClient.h"
@@ -45,28 +47,28 @@ NS_ASSUME_NONNULL_BEGIN
         self.timestamp = [NSDate date];
     }
     NSMutableDictionary *serializedData = @{
-                                            @"event_id": self.eventId,
-                                            @"timestamp": [self.timestamp toIso8601String],
-                                            @"level": SentrySeverityNames[self.level],
-                                            @"platform": @"cocoa",
-                                            }.mutableCopy;
+            @"event_id": self.eventId,
+            @"timestamp": [self.timestamp toIso8601String],
+            @"level": SentrySeverityNames[self.level],
+            @"platform": @"cocoa",
+    }.mutableCopy;
     serializedData[@"sdk"] = @{
-                               @"name": @"sentry-cocoa",
-                               @"version": SentryClient.versionString
-                               };
+            @"name": @"sentry-cocoa",
+            @"version": SentryClient.versionString
+    };
 
     if (nil == self.context) {
         self.context = [SentryContext new];
     }
     [serializedData setValue:self.context.serialized forKey:@"contexts"];
-    
+
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
-    
+
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-    
+
     if (nil == self.releaseName || nil == self.dist) {
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         if (nil == self.releaseName) {
@@ -75,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil == self.dist) {
             self.dist = infoDict[@"CFBundleVersion"];
         }
-        
+
         // If we run tests self.dist is nil we also sent releaseName to nil since we don't ever
         // want a (null)-(null) release
         if (nil == self.dist) {
@@ -84,14 +86,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
-    
+
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
-    
+
     [serializedData setValue:self.user.serialized forKey:@"user"];
     [serializedData setValue:self.modules forKey:@"modules"];
-    
+
     [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
-    
+
     NSMutableArray *threads = [NSMutableArray new];
     for (SentryThread *thread in self.threads) {
         [threads addObject:thread.serialized];
@@ -99,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (threads.count > 0) {
         [serializedData setValue:@{@"values": threads} forKey:@"threads"];
     }
-    
+
     NSMutableArray *exceptions = [NSMutableArray new];
     for (SentryThread *exception in self.exceptions) {
         [exceptions addObject:exception.serialized];
@@ -107,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (exceptions.count > 0) {
         [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
     }
-    
+
     NSMutableArray *debugImages = [NSMutableArray new];
     for (SentryThread *debugImage in self.debugMeta) {
         [debugImages addObject:debugImage.serialized];
@@ -115,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (debugImages.count > 0) {
         [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
     }
-    
+
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
 
     return serializedData;

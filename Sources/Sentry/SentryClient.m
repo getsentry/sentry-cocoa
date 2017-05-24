@@ -115,8 +115,8 @@ static SentryKSCrashInstallation *installation = nil;
     [self sendEvent:event useClientProperties:YES withCompletionHandler:completionHandler];
 }
 
-- (void)sendEvent:(SentryEvent *)event
-useClientProperties:(BOOL)useClientProperties
+- (void)    sendEvent:(SentryEvent *)event
+  useClientProperties:(BOOL)useClientProperties
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     NSParameterAssert(event);
     if (useClientProperties) {
@@ -131,8 +131,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         completionHandler(requestError);
         return;
     }
-    __block SentryClient* _self = self;
-    [self sendRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+    __block SentryClient *_self = self;
+    [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
         if (nil == error) {
             _self.lastEvent = event;
         } else {
@@ -144,7 +144,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }];
 }
 
-- (void)sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+- (void)  sendRequest:(SentryNSURLRequest *)request
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self.requestManager addRequest:request completionHandler:completionHandler];
     // Send all stored events in background if the queue is ready
     if ([self.requestManager isReady]) {
@@ -157,7 +158,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
-        [self sendRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
             if (nil == error) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }

@@ -7,11 +7,13 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryBreadcrumb.h>
+
 #else
 #import "SentryFileManager.h"
 #import "SentryError.h"
@@ -22,12 +24,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryFileManager()
+@interface SentryFileManager ()
 
-@property (nonatomic, copy) NSString *sentryPath;
-@property (nonatomic, copy) NSString *breadcrumbsPath;
-@property (nonatomic, copy) NSString *eventsPath;
-@property (nonatomic, assign) NSUInteger currentFileCounter;
+@property(nonatomic, copy) NSString *sentryPath;
+@property(nonatomic, copy) NSString *breadcrumbsPath;
+@property(nonatomic, copy) NSString *eventsPath;
+@property(nonatomic, assign) NSUInteger currentFileCounter;
 
 @end
 
@@ -42,17 +44,17 @@ NS_ASSUME_NONNULL_BEGIN
         if (![fileManager fileExistsAtPath:self.sentryPath]) {
             [self.class createDirectoryAtPath:self.sentryPath withError:error];
         }
-        
+
         self.breadcrumbsPath = [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs"];
         if (![fileManager fileExistsAtPath:self.breadcrumbsPath]) {
             [self.class createDirectoryAtPath:self.breadcrumbsPath withError:error];
         }
-        
+
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         if (![fileManager fileExistsAtPath:self.eventsPath]) {
             [self.class createDirectoryAtPath:self.eventsPath withError:error];
         }
-        
+
         self.currentFileCounter = 0;
     }
     return self;
@@ -67,20 +69,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)uniqueAcendingJsonName {
     return [NSString stringWithFormat:@"%f-%lu-%@.json",
-            [[NSDate date] timeIntervalSince1970],
-            (unsigned long)self.currentFileCounter++,
-            [NSUUID UUID].UUIDString];
+                                      [[NSDate date] timeIntervalSince1970],
+                                      (unsigned long) self.currentFileCounter++,
+                                      [NSUUID UUID].UUIDString];
 }
 
-- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredEvents {
+- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEvents {
     return [self allFilesContentInFolder:self.eventsPath];
 }
 
-- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredBreadcrumbs {
+- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredBreadcrumbs {
     return [self allFilesContentInFolder:self.breadcrumbsPath];
 }
 
-- (NSArray<NSDictionary<NSString *, id>*> *)allFilesContentInFolder:(NSString *)path {
+- (NSArray<NSDictionary<NSString *, id> *> *)allFilesContentInFolder:(NSString *)path {
     NSMutableArray *contents = [NSMutableArray new];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     for (NSString *filePath in [self allFilesInFolder:path]) {
@@ -105,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
-    NSArray<NSString *> *storedEvents = [fileManager contentsOfDirectoryAtPath:path error:&error];
+    NSArray < NSString * > *storedEvents = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (nil != error) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't load files in folder %@: %@", path, error] andLevel:kSentryLogLevelError];
         return @[];
