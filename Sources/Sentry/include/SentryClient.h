@@ -81,6 +81,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
+- (void)sendEvent:(SentryEvent *)event
+useClientProperties:(BOOL)useClientProperties
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
+
 
 /// KSCrash
 

@@ -115,6 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (debugImages.count > 0) {
         [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
     }
+    
+    [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
 
     return serializedData;
 }

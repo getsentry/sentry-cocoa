@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 @property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
-@property(nonatomic, strong) NSArray<NSDictionary<NSString *, id> *> *_Nullable breadcrumbsSerialized;
+@property(nonatomic, strong) NSDictionary<NSString *,id> *_Nullable breadcrumbsSerialized;
 
 - (instancetype)initWithLevel:(enum SentrySeverity)level;
 

@@ -12,51 +12,64 @@
 #import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryLog.h>
+#import <Sentry/SentryFileManager.h>
 
 #else
 #import "SentryBreadcrumbStore.h"
 #import "SentryBreadcrumb.h"
 #import "SentryLog.h"
+#import "SentryFileManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBreadcrumbStore()
 
-@property (nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
+@property (nonatomic, strong) SentryFileManager *fileManager;
 
 @end
 
 @implementation SentryBreadcrumbStore
 
-- (instancetype)init {
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager {
     self = [super init];
     if (self) {
         self.maxBreadcrumbs = 50;
-        self.breadcrumbs = [NSMutableArray new];
+        self.fileManager = fileManager;
     }
     return self;
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    if (self.breadcrumbs.count >= self.maxBreadcrumbs) {
+    NSArray<NSDictionary<NSString *, id>*> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
+    if (breadCrumbs.count >= self.maxBreadcrumbs) {
         [SentryLog logWithMessage:@"Dropped first breadcrumb due limit" andLevel:kSentryLogLevelDebug];
-        [self.breadcrumbs removeObjectAtIndex:0];
+        [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:0][@"path"]];
     }
-    [self.breadcrumbs addObject:crumb];
+    NSError *error = nil;
+    [self.fileManager storeBreadcrumb:crumb didFailWithError:&error];
+    if (nil != error) {
+        [SentryLog logWithMessage:@"Failed storing breadcrumb" andLevel:kSentryLogLevelError];
+    }
+}
+
+- (NSUInteger)count {
+    return [self.fileManager getAllStoredBreadcrumbs].count;
 }
 
 - (void)clear {
-    self.breadcrumbs = [NSMutableArray new];
+    [self.fileManager deleteAllStoredBreadcrumbs];
 }
 
 - (NSDictionary<NSString *,id> *)serialized {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     
+    NSArray<NSDictionary<NSString *, id>*> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
+    
     NSMutableArray *crumbs = [NSMutableArray new];
-    for (SentryBreadcrumb *crumb in self.breadcrumbs) {
-        [crumbs addObject:crumb.serialized];
+    for (NSDictionary<NSString *, id> *crumb in breadCrumbs) {
+        [crumbs addObject:[NSJSONSerialization JSONObjectWithData:crumb[@"data"] options:0 error:nil]];
     }
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];

@@ -76,8 +76,8 @@ static SentryKSCrashInstallation *installation = nil;
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kSentryLogLevelDebug];
-        self.breadcrumbs = [[SentryBreadcrumbStore alloc] init];
         self.fileManager = [[SentryFileManager alloc] initWithError:error];
+        self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
         if (nil != error && nil != *error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
@@ -112,9 +112,20 @@ static SentryKSCrashInstallation *installation = nil;
 #pragma mark Event
 
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    [self sendEvent:event useClientProperties:YES withCompletionHandler:completionHandler];
+}
+
+- (void)sendEvent:(SentryEvent *)event
+useClientProperties:(BOOL)useClientProperties
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     NSParameterAssert(event);
+    if (useClientProperties) {
+        event.breadcrumbsSerialized = self.breadcrumbs.serialized;
+    }
     NSError *requestError = nil;
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn andEvent:event didFailWithError:&requestError];
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
+                                                                             andEvent:event
+                                                                     didFailWithError:&requestError];
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
         completionHandler(requestError);

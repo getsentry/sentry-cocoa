@@ -19,27 +19,30 @@
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     XCTAssertNil(error);
+    [client.breadcrumbs clear];
     [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
-    XCTAssertTrue(client.breadcrumbs.breadcrumbs.count == 1);
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)1);
 }
 
 - (void)testBreadcumbLimit {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     XCTAssertNil(error);
+    [client.breadcrumbs clear];
     for (NSInteger i = 0; i <= 100; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
-    XCTAssertTrue(client.breadcrumbs.breadcrumbs.count == 50);
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
 }
 
 - (void)testClearBreadcumb {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     XCTAssertNil(error);
+    [client.breadcrumbs clear];
     [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     [client.breadcrumbs clear];
-    XCTAssertTrue(client.breadcrumbs.breadcrumbs.count == 0);
+    XCTAssertTrue(client.breadcrumbs.count == 0);
 }
 
 - (SentryBreadcrumb *)getBreadcrumb {

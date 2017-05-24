@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryContext.h"
+#import "SentryFileManager.h"
 
 @interface SentryInterfacesTests : XCTestCase
 
@@ -211,7 +212,7 @@
 }
 
 - (void)testBreadcrumbStore {
-    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] init];
+    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithError:nil]];
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
     [store addBreadcrumb:crumb];
     NSDate *date = [NSDate date];
