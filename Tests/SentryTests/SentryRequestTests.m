@@ -199,8 +199,6 @@ NSInteger requestShouldReturnCode = 200;
     
     [client sendEvent:self.event withCompletionHandler:NULL];
     
-    XCTAssertTrue(requestManager.isReady);
-    
     for (NSInteger i = 0; i <= 5; i++) {
         [client sendEvent:self.event withCompletionHandler:NULL];
     }

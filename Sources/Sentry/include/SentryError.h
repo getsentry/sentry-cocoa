@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger, SentryError) {
     kSentryErrorCompressionError = 103,
     kSentryErrorJsonConversionError = 104,
     kSentryErrorCouldNotFindDirectory = 105,
+    kSentryErrorRequestError = 106,
 };
 
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description);

@@ -21,6 +21,7 @@
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryKSCrashInstallation.h>
 #import <Sentry/SentryBreadcrumbStore.h>
+#import <Sentry/SentryFileManager.h>
 
 #else
 #import "SentryClient.h"
@@ -32,6 +33,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryKSCrashInstallation.h"
 #import "SentryBreadcrumbStore.h"
+#import "SentryFileManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,6 +48,7 @@ static SentryKSCrashInstallation *installation = nil;
 @interface SentryClient ()
 
 @property(nonatomic, strong) SentryDsn *dsn;
+@property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
 
 @end
@@ -71,13 +74,14 @@ static SentryKSCrashInstallation *installation = nil;
     self = [super init];
     if (self) {
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
+        self.requestManager = requestManager;
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kSentryLogLevelDebug];
+        self.breadcrumbs = [[SentryBreadcrumbStore alloc] init];
+        self.fileManager = [[SentryFileManager alloc] initWithError:error];
         if (nil != error && nil != *error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
-        self.requestManager = requestManager;
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Started -- Version: %@", self.class.versionString] andLevel:kSentryLogLevelDebug];
-        self.breadcrumbs = [[SentryBreadcrumbStore alloc] init];
     }
     return self;
 }
@@ -117,14 +121,38 @@ static SentryKSCrashInstallation *installation = nil;
         return;
     }
     __block SentryClient* _self = self;
-    [self.requestManager addRequest:request completionHandler:^(NSError *_Nullable error) {
+    [self sendRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        if (nil == error) {
+            _self.lastEvent = event;
+        } else {
+            NSError *storeError = nil;
+            [_self.fileManager storeEvent:event didFailWithError:&storeError];
+        }
         if (completionHandler) {
             completionHandler(error);
         }
-        if (nil == error) {
-            _self.lastEvent = event;
-        }
     }];
+}
+
+- (void)sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    [self.requestManager addRequest:request completionHandler:completionHandler];
+    // Send all stored events in background if the queue is ready
+    if ([self.requestManager isReady]) {
+        [self sendAllStoredEvents];
+    }
+}
+
+- (void)sendAllStoredEvents {
+    for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
+        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
+                                                                                  andData:fileDictionary[@"data"]
+                                                                         didFailWithError:nil];
+        [self sendRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (nil == error) {
+                [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
+            }
+        }];
+    }
 }
 
 #if __has_include(<KSCrash/KSCrash.h>)

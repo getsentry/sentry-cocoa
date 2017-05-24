@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryFileManager()
 
+@property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *breadcrumbsPath;
 @property (nonatomic, copy) NSString *eventsPath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
@@ -37,17 +38,17 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-        NSString *sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
-        if (![fileManager fileExistsAtPath:sentryPath]) {
-            [self.class createDirectoryAtPath:sentryPath withError:error];
+        self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
+        if (![fileManager fileExistsAtPath:self.sentryPath]) {
+            [self.class createDirectoryAtPath:self.sentryPath withError:error];
         }
         
-        self.breadcrumbsPath = [sentryPath stringByAppendingPathComponent:@"breadcrumbs"];
+        self.breadcrumbsPath = [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs"];
         if (![fileManager fileExistsAtPath:self.breadcrumbsPath]) {
             [self.class createDirectoryAtPath:self.breadcrumbsPath withError:error];
         }
         
-        self.eventsPath = [sentryPath stringByAppendingPathComponent:@"events"];
+        self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         if (![fileManager fileExistsAtPath:self.eventsPath]) {
             [self.class createDirectoryAtPath:self.eventsPath withError:error];
         }
@@ -57,6 +58,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)deleteAllFolders {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:self.breadcrumbsPath error:nil];
+    [fileManager removeItemAtPath:self.eventsPath error:nil];
+    [fileManager removeItemAtPath:self.sentryPath error:nil];
+}
+
 - (NSString *)uniqueAcendingJsonName {
     return [NSString stringWithFormat:@"%f-%lu-%@.json",
             [[NSDate date] timeIntervalSince1970],
@@ -64,19 +72,20 @@ NS_ASSUME_NONNULL_BEGIN
             [NSUUID UUID].UUIDString];
 }
 
-- (NSArray<NSData *> *)getAllStoredEvents {
+- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredEvents {
     return [self allFilesContentInFolder:self.eventsPath];
 }
 
-- (NSArray<NSData *> *)getAllStoredBreadcrumbs {
+- (NSArray<NSDictionary<NSString *, id>*> *)getAllStoredBreadcrumbs {
     return [self allFilesContentInFolder:self.breadcrumbsPath];
 }
 
-- (NSArray<NSData *> *)allFilesContentInFolder:(NSString *)path {
+- (NSArray<NSDictionary<NSString *, id>*> *)allFilesContentInFolder:(NSString *)path {
     NSMutableArray *contents = [NSMutableArray new];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     for (NSString *filePath in [self allFilesInFolder:path]) {
-        [contents addObject:[fileManager contentsAtPath:[path stringByAppendingPathComponent:filePath]]];
+        NSString *finalPath = [path stringByAppendingPathComponent:filePath];
+        [contents addObject:@{@"path": finalPath, @"data": [fileManager contentsAtPath:finalPath]}];
     }
     return contents;
 }

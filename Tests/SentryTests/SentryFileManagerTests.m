@@ -31,6 +31,7 @@
     SentryClient.logLevel = kSentryLogLevelError;
     [self.fileManager deleteAllStoredEvents];
     [self.fileManager deleteAllStoredBreadcrumbs];
+    [self.fileManager deleteAllFolders];
 }
 
 - (void)testEventStoring {
@@ -38,12 +39,12 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     [self.fileManager storeEvent:event didFailWithError:&error];
     XCTAssertNil(error);
-    NSArray<NSData *> *events = [self.fileManager getAllStoredEvents];
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertTrue(events.count == 1);
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:event.serialized
                                                        options:0
                                                          error:nil];
-    XCTAssertEqualObjects(events.firstObject, jsonData);
+    XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
 }
 
 - (void)testBreadcrumbStoring {
@@ -51,12 +52,23 @@
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
     [self.fileManager storeBreadcrumb:crumb didFailWithError:&error];
     XCTAssertNil(error);
-    NSArray<NSData *> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
+    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
     XCTAssertTrue(crumbs.count == 1);
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb.serialized
                                                        options:0
                                                          error:nil];
-    XCTAssertEqualObjects(crumbs.firstObject, jsonData);
+    XCTAssertEqualObjects(((NSDictionary *)crumbs.firstObject)[@"data"], jsonData);
+}
+
+- (void)testCreateDir {
+    NSError *error = nil;
+    [SentryFileManager createDirectoryAtPath:@"a" withError:&error];
+    XCTAssertNil(error);
+}
+
+- (void)testAllFilesInFolder {
+    NSArray<NSString *> *files = [self.fileManager allFilesInFolder:@"x"];
+    XCTAssertTrue(files.count == 0);
 }
 
 @end
