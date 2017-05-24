@@ -35,10 +35,8 @@
 }
 
 - (void)testEventStoring {
-    NSError *error = nil;
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
-    [self.fileManager storeEvent:event didFailWithError:&error];
-    XCTAssertNil(error);
+    [self.fileManager storeEvent:event];
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertTrue(events.count == 1);
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:event.serialized
@@ -48,10 +46,8 @@
 }
 
 - (void)testBreadcrumbStoring {
-    NSError *error = nil;
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
-    [self.fileManager storeBreadcrumb:crumb didFailWithError:&error];
-    XCTAssertNil(error);
+    [self.fileManager storeBreadcrumb:crumb];
     NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
     XCTAssertTrue(crumbs.count == 1);
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb.serialized

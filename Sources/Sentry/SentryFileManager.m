@@ -126,21 +126,21 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
 }
 
-- (void)storeEvent:(SentryEvent *)event didFailWithError:(NSError **)error {
-    [self storeDictionary:event.serialized toPath:self.eventsPath didFailWithError:error];
+- (void)storeEvent:(SentryEvent *)event {
+    [self storeDictionary:event.serialized toPath:self.eventsPath];
 }
 
-- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb didFailWithError:(NSError **)error {
-    [self storeDictionary:crumb.serialized toPath:self.breadcrumbsPath didFailWithError:error];
+- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb {
+    [self storeDictionary:crumb.serialized toPath:self.breadcrumbsPath];
 }
 
-- (void)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path didFailWithError:(NSError **)error {
-    NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
-    if (nil != saveData && nil == *error) {
+- (void)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
+    NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
+    if (nil != saveData) {
         @synchronized (self) {
             NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
-            [saveData writeToFile:finalPath options:NSDataWritingAtomic error:error];
+            [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
         }
     }
 }

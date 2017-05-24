@@ -47,11 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog logWithMessage:@"Dropped first breadcrumb due limit" andLevel:kSentryLogLevelDebug];
         [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:0][@"path"]];
     }
-    NSError *error = nil;
-    [self.fileManager storeBreadcrumb:crumb didFailWithError:&error];
-    if (nil != error) {
-        [SentryLog logWithMessage:@"Failed storing breadcrumb" andLevel:kSentryLogLevelError];
-    }
+    [self.fileManager storeBreadcrumb:crumb];
 }
 
 - (NSUInteger)count {

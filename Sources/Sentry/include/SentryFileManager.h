@@ -18,8 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 - (_Nullable instancetype)initWithError:(NSError **)error;
-- (void)storeEvent:(SentryEvent *)event didFailWithError:(NSError **)error;
-- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb didFailWithError:(NSError **)error;
+- (void)storeEvent:(SentryEvent *)event;
+- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb;
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 - (void)deleteAllStoredEvents;
 - (void)deleteAllStoredBreadcrumbs;

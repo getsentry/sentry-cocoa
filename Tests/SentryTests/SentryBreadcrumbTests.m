@@ -8,12 +8,19 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "SentryBreadcrumbStore.h"
+#import "SentryFileManager.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
 
 @end
 
 @implementation SentryBreadcrumbTests
+
+- (void)testFailAdd {
+    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithError:nil]];
+    [breadcrumbStore addBreadcrumb:[self getBreadcrumb]];
+}
 
 - (void)testAddBreadcumb {
     NSError *error = nil;

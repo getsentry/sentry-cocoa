@@ -136,8 +136,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         if (nil == error) {
             _self.lastEvent = event;
         } else {
-            NSError *storeError = nil;
-            [_self.fileManager storeEvent:event didFailWithError:&storeError];
+            [_self.fileManager storeEvent:event];
         }
         if (completionHandler) {
             completionHandler(error);
