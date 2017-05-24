@@ -75,6 +75,12 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil == self.dist) {
             self.dist = infoDict[@"CFBundleVersion"];
         }
+        
+        // If we run tests self.dist is nil we also sent releaseName to nil since we don't ever
+        // want a (null)-(null) release
+        if (nil == self.dist) {
+            self.releaseName = nil;
+        }
     }
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];

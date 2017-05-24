@@ -9,11 +9,11 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 
-@interface SentryBreadcrumbs : XCTestCase
+@interface SentryBreadcrumbTests : XCTestCase
 
 @end
 
-@implementation SentryBreadcrumbs
+@implementation SentryBreadcrumbTests
 
 - (void)testAddBreadcumb {
     NSError *error = nil;
@@ -31,6 +31,15 @@
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertTrue(client.breadcrumbs.breadcrumbs.count == 50);
+}
+
+- (void)testClearBreadcumb {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
+    [client.breadcrumbs clear];
+    XCTAssertTrue(client.breadcrumbs.breadcrumbs.count == 0);
 }
 
 - (SentryBreadcrumb *)getBreadcrumb {

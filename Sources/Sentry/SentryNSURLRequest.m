@@ -27,6 +27,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const SentryServerVersionString = @"7";
+NSTimeInterval const SentryRequestTimeout = 15;
 
 @interface SentryNSURLRequest ()
 
@@ -37,9 +38,24 @@ NSString *const SentryServerVersionString = @"7";
 @implementation SentryNSURLRequest
 
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event didFailWithError:(NSError *_Nullable *_Nullable)error {
+    NSDictionary *serialized = event.serialized;
+    if (![NSJSONSerialization isValidJSONObject:serialized]) {
+        if (error) {
+            *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
+        }
+        return nil;
+    }
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
+                                                       options:0
+                                                         error:error];
+    
+    return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
+}
+
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andData:(NSData *)data didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
-    // TODO dont fix timeout here
-    self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+    self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
         NSString *authHeader = newAuthHeader(dsn.url);
         
@@ -48,19 +64,8 @@ NSString *const SentryServerVersionString = @"7";
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        
-        NSDictionary *serialized = event.serialized;
-        if (![NSJSONSerialization isValidJSONObject:serialized]) {
-            if (error) {
-                *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
-            }
-            return nil;
-        }
-        
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                           options:0
-                                                             error:error];
-        self.HTTPBody = [jsonData gzippedWithCompressionLevel:-1 error:error];
+  
+        self.HTTPBody = [data gzippedWithCompressionLevel:-1 error:error];
     }
     return self;
 }

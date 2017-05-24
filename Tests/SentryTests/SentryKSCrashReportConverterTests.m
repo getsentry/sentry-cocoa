@@ -155,6 +155,11 @@ NSString *reportPath = @"";
     [self isValidReport];
 }
 
+- (void)testIncomplete {
+    reportPath = @"Resources/incomplete";
+    [self isValidReport];
+}
+
 #pragma mark private helper
 
 - (void)isValidReport {

@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryKSCrashInstallation
 
 #if __has_include(<KSCrash/KSCrash.h>)
+
 - (id)init {
     return [super initWithRequiredProperties:@[]];
 }

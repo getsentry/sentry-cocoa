@@ -210,4 +210,22 @@
     XCTAssertEqualObjects(crumb2.serialized, serialized2);
 }
 
+- (void)testBreadcrumbStore {
+    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] init];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
+    [store addBreadcrumb:crumb];
+    NSDate *date = [NSDate date];
+    crumb.timestamp = date;
+    NSDictionary *serialized = @{
+                                 @"breadcrumbs": @[
+                                        @{
+                                            @"level": @"info",
+                                            @"category": @"http",
+                                            @"timestamp": date.toIso8601String
+                                            }
+                                        ]
+                                 };
+    XCTAssertEqualObjects(store.serialized, serialized);
+}
+
 @end

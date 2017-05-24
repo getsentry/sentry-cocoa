@@ -55,8 +55,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 
         NSDictionary *crashContext;
         // This is an incomplete crash report
-        if (nil != report[@"recrash_report"]) {
-            crashContext = report[@"recrash_report"];
+        if (nil != report[@"recrash_report"][@"crash"]) {
+            crashContext = report[@"recrash_report"][@"crash"];
         } else {
             crashContext = report[@"crash"];
         }
@@ -235,8 +235,8 @@ static inline NSString *hexAddress(NSNumber *value) {
         exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
-        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"reason"]
-                                                      type:self.exceptionContext[@"cpp_exception"][@"name"]];
+        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"cpp_exception"][@"name"]
+                                                      type:@"C++ Exception"];
     } else if ([exceptionType isEqualToString:@"mach"]) {
         exception = [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",
                                                                                       self.exceptionContext[@"mach"][@"exception"],
