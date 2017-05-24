@@ -13,12 +13,30 @@
 
 @interface SentryBreadcrumbTests : XCTestCase
 
+@property (nonatomic, strong) SentryFileManager *fileManager;
+
 @end
 
 @implementation SentryBreadcrumbTests
 
+- (void)setUp {
+    [super setUp];
+    NSError *error = nil;
+    self.fileManager = [[SentryFileManager alloc] initWithError:&error];
+    XCTAssertNil(error);
+}
+
+- (void)tearDown {
+    [super tearDown];
+    SentryClient.logLevel = kSentryLogLevelError;
+    [self.fileManager deleteAllStoredEvents];
+    [self.fileManager deleteAllStoredBreadcrumbs];
+    [self.fileManager deleteAllFolders];
+}
+
+
 - (void)testFailAdd {
-    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithError:nil]];
+    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
     [breadcrumbStore addBreadcrumb:[self getBreadcrumb]];
 }
 

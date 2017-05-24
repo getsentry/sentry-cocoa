@@ -306,6 +306,133 @@ NSInteger requestShouldReturnCode = 200;
     }];
 }
 
+- (void)testUseClientProperties {
+    self.client.tags = @{@"a": @"b"};
+    self.client.extra = @{@"c": @"d"};
+    self.client.user = [[SentryUser alloc] initWithUserId:@"XXXXXX"];
+    NSDate *date = [NSDate date];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+    crumb.timestamp = date;
+    [self.client.breadcrumbs addBreadcrumb:crumb];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    crumb.timestamp = date;
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        SentryContext *context = [[SentryContext alloc] init];
+        NSDictionary *serialized = @{@"breadcrumbs": @[ @{
+                                                            @"category": @"you",
+                                                            @"level": @"info",
+                                                            @"timestamp": date.toIso8601String
+                                                            }
+                                                        ],
+                                     @"user": @{@"id": @"XXXXXX"},
+                                     @"contexts": context.serialized,
+                                     @"event_id": event.eventId,
+                                     @"extra": @{@"c": @"d"},
+                                     @"level": @"warning",
+                                     @"platform": @"cocoa",
+                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                     @"tags": @{@"a": @"b"},
+                                     @"timestamp": date.toIso8601String};
+        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        [self.client.breadcrumbs clear];
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testUseClientPropertiesMerge {
+    self.client.tags = @{@"a": @"b"};
+    self.client.extra = @{@"c": @"d"};
+    NSDate *date = [NSDate date];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+    crumb.timestamp = date;
+    [self.client.breadcrumbs addBreadcrumb:crumb];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.timestamp = date;
+    event.tags = @{@"1": @"2"};
+    event.extra = @{@"3": @"4"};
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        SentryContext *context = [[SentryContext alloc] init];
+        NSDictionary *serialized = @{@"breadcrumbs": @[ @{
+                                                            @"category": @"you",
+                                                            @"level": @"info",
+                                                            @"timestamp": date.toIso8601String
+                                                            }
+                                                        ],
+                                     @"contexts": context.serialized,
+                                     @"event_id": event.eventId,
+                                     @"extra": @{@"c": @"d", @"3": @"4"},
+                                     @"level": @"warning",
+                                     @"platform": @"cocoa",
+                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                     @"tags": @{@"a": @"b", @"1": @"2"},
+                                     @"timestamp": date.toIso8601String};
+        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        [self.client.breadcrumbs clear];
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+
+- (void)testEventPropsAreStrongerThanClientProperties {
+    self.client.tags = @{@"a": @"b"};
+    self.client.extra = @{@"c": @"d"};
+    NSDate *date = [NSDate date];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+    crumb.timestamp = date;
+    [self.client.breadcrumbs addBreadcrumb:crumb];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.timestamp = date;
+    event.tags = @{@"a": @"1"};
+    event.extra = @{@"c": @"2"};
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        SentryContext *context = [[SentryContext alloc] init];
+        NSDictionary *serialized = @{@"breadcrumbs": @[ @{
+                                                            @"category": @"you",
+                                                            @"level": @"info",
+                                                            @"timestamp": date.toIso8601String
+                                                            }
+                                                        ],
+                                     @"contexts": context.serialized,
+                                     @"event_id": event.eventId,
+                                     @"extra": @{@"c": @"2"},
+                                     @"level": @"warning",
+                                     @"platform": @"cocoa",
+                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                     @"tags": @{@"a": @"1"},
+                                     @"timestamp": date.toIso8601String};
+        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        [self.client.breadcrumbs clear];
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
 - (void)testRequestQueueWithDifferentFailingEvents {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];

@@ -120,7 +120,7 @@ static SentryKSCrashInstallation *installation = nil;
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     NSParameterAssert(event);
     if (useClientProperties) {
-        event.breadcrumbsSerialized = self.breadcrumbs.serialized;
+        [self setSharedPropertiesOnEvent:event];
     }
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
@@ -163,6 +163,40 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
         }];
+    }
+}
+
+- (void)setSharedPropertiesOnEvent:(SentryEvent *)event {
+    if (nil != self.tags) {
+        if (nil == event.tags) {
+            event.tags = self.tags;
+        } else {
+            NSMutableDictionary *newTags = [NSMutableDictionary new];
+            [newTags addEntriesFromDictionary:self.tags];
+            [newTags addEntriesFromDictionary:event.tags];
+            event.tags = newTags;
+        }
+    }
+    
+    if (nil != self.extra) {
+        if (nil == event.extra) {
+            event.extra = self.extra;
+        } else {
+            NSMutableDictionary *newExtra = [NSMutableDictionary new];
+            [newExtra addEntriesFromDictionary:self.extra];
+            [newExtra addEntriesFromDictionary:event.extra];
+            event.extra = newExtra;
+        }
+    }
+    
+    if (nil != self.user) {
+        if (nil == event.user) {
+            event.user = self.user;
+        }
+    }
+    
+    if (nil == event.breadcrumbsSerialized) {
+        event.breadcrumbsSerialized = self.breadcrumbs.serialized;
     }
 }
 

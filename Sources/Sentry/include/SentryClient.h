@@ -18,7 +18,7 @@
 #import "SentryLog.h"
 #endif
 
-@class SentryEvent, SentryBreadcrumbStore;
+@class SentryEvent, SentryBreadcrumbStore, SentryUser;
 @protocol SentryRequestManager;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,40 +28,60 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryClient : NSObject
 
-/*
+/**
  * Return a version string e.g: 1.2.3 (3)
  */
 @property(nonatomic, class, readonly, copy) NSString *versionString;
 
-/*
+/**
  * Set logLevel for the current client default kSentryLogLevelError
  */
 @property(nonatomic, class) SentryLogLevel logLevel;
 
-/*
+/**
+ * Set global user -> thus will be sent with every event
+ */
+@property(nonatomic, strong) SentryUser *_Nullable user;
+
+/**
  * Set global tags -> these will be sent with every event
  */
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
-/*
+/**
  * Set global extra -> these will be sent with every event
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
-/*
+/**
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
-/*
+/**
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
 
-
+/**
+ * Initializes a SentryClient, internally calls @selector(initWithDsn:requestManager:didFailWithError:) with a
+ * SentryQueueableRequestManager.
+ *
+ * @param dsn DSN string of sentry
+ * @param error NSError reference object
+ * @return SentryClient
+ */
 - (instancetype)initWithDsn:(NSString *)dsn
            didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+/**
+ * Initializes a SentryClient which can be used for sending events to sentry.
+ *
+ * @param dsn DSN string of sentry
+ * @param requestManager Object conforming SentryRequestManager protocol
+ * @param error NSError reference object
+ * @return SentryClient
+ */
 - (instancetype)initWithDsn:(NSString *)dsn
              requestManager:(id <SentryRequestManager>)requestManager
            didFailWithError:(NSError *_Nullable *_Nullable)error;
@@ -72,15 +92,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (_Nullable instancetype)sharedClient;
 
-/*
+/**
  * Set the shared sentry client which will be available via sharedClient
  *
  * @param client set the sharedClient to the SentryClient class
  */
 + (void)setSharedClient:(SentryClient *)client;
 
+/**
+ * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
+ * useClientProperties: YES. CompletionHandler will be called if set.
+ * @param event SentryEvent that should be sent
+ * @param completionHandler SentryRequestFinished
+ */
 - (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
+/**
+ * Sends and event to sentry.
+ * @param event SentryEvent that should be sent
+ * @param useClientProperties should breadcrumbs, tags, context be set on the event
+ * @param completionHandler SentryRequestFinished
+ */
 - (void)    sendEvent:(SentryEvent *)event
   useClientProperties:(BOOL)useClientProperties
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
@@ -103,9 +135,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
  */
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
 
-
 /** 
- * Report a custom, user defined exception.
+ * Report a custom, user defined exception. Only works if KSCrash is linked.
  * This can be useful when dealing with scripting languages.
  *
  * If terminateProgram is true, all sentries will be uninstalled and the application will

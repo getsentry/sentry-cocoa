@@ -227,6 +227,7 @@
                                         ]
                                  };
     XCTAssertEqualObjects(store.serialized, serialized);
+    [store clear];
 }
 
 @end
