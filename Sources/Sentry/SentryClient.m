@@ -131,10 +131,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         completionHandler(requestError);
         return;
     }
+    
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
         if (nil == error) {
             _self.lastEvent = event;
+            [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
+                                                              object:nil
+                                                            userInfo:event.serialized];
         } else {
             [_self.fileManager storeEvent:event];
         }

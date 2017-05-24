@@ -160,6 +160,16 @@ NSString *reportPath = @"";
     [self isValidReport];
 }
 
+- (void)testDuplicateFrame {
+    reportPath = @"Resources/dup-frame";
+    // There are 23 frames in the report but it should remove the duplicate
+    [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqual(event.threads.firstObject.stacktrace.frames.count, (unsigned long)22);
+}
+
 #pragma mark private helper
 
 - (void)isValidReport {

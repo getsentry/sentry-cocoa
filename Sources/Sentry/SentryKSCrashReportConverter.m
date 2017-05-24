@@ -182,6 +182,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     return frame;
 }
 
+// We already get all the frames in the right order
 - (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
@@ -197,8 +198,10 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex {
     NSArray<SentryFrame *> *frames = [self stackFramesForThreadIndex:threadIndex];
-    return [[SentryStacktrace alloc] initWithFrames:frames
-                                          registers:[self registersForThreadIndex:threadIndex]];
+    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames
+                                                                  registers:[self registersForThreadIndex:threadIndex]];
+    [stacktrace fixDuplicateFrames];
+    return stacktrace;
 }
 
 - (SentryThread *)crashedThread {

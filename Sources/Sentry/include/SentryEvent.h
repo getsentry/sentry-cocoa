@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *_Nullable serverName;
 @property(nonatomic, copy) NSString *_Nullable releaseName;
 @property(nonatomic, copy) NSString *_Nullable dist;
+@property(nonatomic, copy) NSString *_Nullable environment;
 
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;

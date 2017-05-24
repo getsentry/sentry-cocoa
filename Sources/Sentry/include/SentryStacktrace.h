@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
                      registers:(NSDictionary<NSString *, NSString *> *)registers;
+- (void)fixDuplicateFrames;
 
 @end
 

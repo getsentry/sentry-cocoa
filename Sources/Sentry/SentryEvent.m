@@ -42,6 +42,19 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)stripInternalExtraParameters {
+    if (nil == self.extra) {
+        return;
+    }
+    NSMutableDictionary<NSString *, id> *newExtra = self.extra.mutableCopy;
+    for (NSString *key in self.extra.allKeys) {
+        if ([key hasPrefix:@"__sentry"]) {
+            [newExtra removeObjectForKey:key];
+        }
+    }
+    self.extra = newExtra;
+}
+
 - (NSDictionary<NSString *, id> *)serialized {
     if (nil == self.timestamp) {
         self.timestamp = [NSDate date];
@@ -66,6 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
 
+    [self stripInternalExtraParameters];
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
 
@@ -86,6 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
+    [serializedData setValue:self.environment forKey:@"environment"];
 
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
 

@@ -10,6 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryContext.h"
 #import "SentryFileManager.h"
+#import "NSDate+Extras.h"
 
 @interface SentryInterfacesTests : XCTestCase
 
@@ -85,10 +86,28 @@
     XCTAssertEqualObjects(frame2.serialized, serialized2);
 }
 
+- (void)testEvent {
+    NSDate *date = [NSDate date];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event.timestamp = date;
+    event.environment = @"bla";
+    event.extra = @{@"__sentry_stacktrace": @"f"};
+    NSDictionary *serialized = @{@"contexts": [[SentryContext alloc] init].serialized,
+                                 @"event_id": event.eventId,
+                                 @"extra": @{},
+                                 @"level": @"info",
+                                 @"environment": @"bla",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                 @"timestamp": date.toIso8601String};
+    XCTAssertEqualObjects(event.serialized, serialized);
+}
+
 - (void)testStacktrace {
     SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
     XCTAssertNotNil(stacktrace.frames);
     XCTAssertNotNil(stacktrace.registers);
+    [stacktrace fixDuplicateFrames];
     NSDictionary *serialized = @{@"frames": @[@{@"symbol_addr": @"0x01"}],
                                  @"registers": @{@"a": @"1"}};
     XCTAssertEqualObjects(stacktrace.serialized, serialized);
