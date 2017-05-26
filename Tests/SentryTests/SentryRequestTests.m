@@ -9,7 +9,6 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryQueueableRequestManager.h"
-#import "SentryFileManager.h"
 
 NSInteger requestShouldReturnCode = 200;
 NSInteger requestsSuccessfullyFinished = 0;

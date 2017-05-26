@@ -169,7 +169,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 - (void)sendAllStoredEvents {
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
-                                                                                  andData:fileDictionary[@"data"]];
+                                                                                  andData:fileDictionary[@"data"]
+                                                                         didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
             if (nil == error) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
