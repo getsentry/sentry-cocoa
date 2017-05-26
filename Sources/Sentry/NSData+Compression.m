@@ -6,7 +6,11 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
+#if __has_include(<zlib.h>)
+
 #import <zlib.h>
+
+#endif 
 
 #if __has_include(<Sentry/Sentry.h>)
 
