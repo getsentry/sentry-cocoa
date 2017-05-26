@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "NSData+Compression.h"
 
 @interface SentryNSDataCompressionTests : XCTestCase
 

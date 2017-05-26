@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
+#import "SentryError.h"
 
 @interface SentryDsnTests : XCTestCase
 
