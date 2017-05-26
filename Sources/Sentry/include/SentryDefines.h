@@ -24,7 +24,11 @@
 #define SENTRY_HAS_UIKIT 0
 #endif
 
+@class SentryEvent, SentryNSURLRequest;
+
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
+typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
+typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
 
 typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityFatal = 0,

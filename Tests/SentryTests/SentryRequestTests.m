@@ -11,6 +11,8 @@
 #import "SentryQueueableRequestManager.h"
 
 NSInteger requestShouldReturnCode = 200;
+NSInteger requestsSuccessfullyFinished = 0;
+NSInteger requestsWithErrors = 0;
 
 @interface SentryMockNSURLSessionDataTask: NSURLSessionDataTask
 
@@ -34,9 +36,11 @@ NSInteger requestShouldReturnCode = 200;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if (!self.isCancelled) {
             if (requestShouldReturnCode != 200) {
+                requestsWithErrors++;
                 NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] initWithString:@"https://username:password@app.getsentry.com/12345"] statusCode:requestShouldReturnCode HTTPVersion:nil headerFields:nil];
                 self.completionHandler(nil, response, [NSError errorWithDomain:@"" code:requestShouldReturnCode userInfo:nil]);
             } else {
+                requestsSuccessfullyFinished++;
                 self.completionHandler(nil, nil, nil);
             }
         }
@@ -89,6 +93,14 @@ NSInteger requestShouldReturnCode = 200;
 }
 
 - (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    
+    if (request.allHTTPHeaderFields[@"X-TEST"]) {
+        if (completionHandler) {
+            completionHandler([NSError errorWithDomain:@"" code:9898 userInfo:nil]);
+            return;
+        }
+    }
+    
     self.lastOperation = [[SentryRequestOperation alloc] initWithSession:self.session
                                                                                 request:request
                                                                       completionHandler:^(NSError * _Nullable error) {
@@ -121,13 +133,25 @@ NSInteger requestShouldReturnCode = 200;
 
 @implementation SentryRequestTests
 
+- (void)clearAllFiles {
+    NSError *error = nil;
+    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithError:&error];
+    [fileManager deleteAllStoredEvents];
+    [fileManager deleteAllStoredBreadcrumbs];
+    [fileManager deleteAllFolders];
+}
+
 - (void)tearDown {
     [super tearDown];
     requestShouldReturnCode = 200;
+    requestsSuccessfullyFinished = 0;
+    requestsWithErrors = 0;
+    [self clearAllFiles];
 }
 
 - (void)setUp {
     [super setUp];
+    [self clearAllFiles];
     self.requestManager = [[SentryMockRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
     self.client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
                                      requestManager:self.requestManager
@@ -170,14 +194,9 @@ NSInteger requestShouldReturnCode = 200;
 
 - (void)testRequestFailed {
     requestShouldReturnCode = 429;
-    
-    SentryQueueableRequestManager *requestManager = [[SentryQueueableRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
-                                              requestManager:requestManager
-                                            didFailWithError:nil];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should fail"];
-    [client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
+    [self.client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNotNil(error);
         [expectation fulfill];
     }];
@@ -187,6 +206,24 @@ NSInteger requestShouldReturnCode = 200;
         }
         XCTAssert(YES);
     }];
+}
+
+- (void)testRequestFailedSerialization {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
+    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    event1.extra = @{@"a": event1};
+    [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNotNil(error);
+        [expectation1 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+
 }
 
 - (void)testRequestQueueReady {
@@ -291,6 +328,36 @@ NSInteger requestShouldReturnCode = 200;
 }
 
 - (void)testRequestQueueWithDifferentEvents4 {
+    XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
+    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    [self.client sendEvent:event4 withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation4 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testRequestQueueMultipleEvents {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
+    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation1 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+    
     XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     [self.client sendEvent:event4 withCompletionHandler:^(NSError * _Nullable error) {
@@ -434,12 +501,53 @@ NSInteger requestShouldReturnCode = 200;
 }
 
 - (void)testRequestQueueWithDifferentFailingEvents {
+    requestShouldReturnCode = 429;
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event1.extra = @{@"1": event1};
     [self.client sendEvent:event1 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNotNil(error);
         [expectation1 fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation1] timeout:5];
+    XCTAssertEqual(requestsWithErrors, 1);
+    requestShouldReturnCode = 200;
+    
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    [self.client sendEvent:event2 withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation2 fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation2] timeout:5];
+    XCTAssertEqual(requestsSuccessfullyFinished, 1);
+    XCTAssertEqual(requestsWithErrors, 1);
+    requestShouldReturnCode = 200;
+    
+    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    [self.client sendEvent:event3 withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation3 fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation3] timeout:5];
+    XCTAssertEqual(requestsSuccessfullyFinished, 3);
+}
+
+- (void)testBlockBeforeSerializeEvent {
+    NSDictionary *tags = @{@"a": @"b"};
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
+        event.tags = tags;
+    };
+    XCTAssertNil(event.tags);
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertEqualObjects(self.client.lastEvent.tags, tags);
+        XCTAssertNil(error);
+        [expectation fulfill];
     }];
     
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
@@ -449,5 +557,27 @@ NSInteger requestShouldReturnCode = 200;
         XCTAssert(YES);
     }];
 }
+
+- (void)testBlockBeforeSendRequest {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    self.client.beforeSendRequest = ^(SentryNSURLRequest * _Nonnull request) {
+        [request setValue:@"12345" forHTTPHeaderField:@"X-TEST"];
+    };
+    
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, 9898);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
 
 @end

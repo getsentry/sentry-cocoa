@@ -36,6 +36,7 @@
 @property(nonatomic, strong) NSArray *binaryImages;
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
+@property(nonatomic, strong) NSString *diagnosis;
 
 @end
 
@@ -60,7 +61,8 @@ static inline NSString *hexAddress(NSNumber *value) {
         } else {
             crashContext = report[@"crash"];
         }
-
+        
+        self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
         self.threads = crashContext[@"threads"];
         for (NSUInteger i = 0; i < self.threads.count; i++) {
@@ -265,6 +267,9 @@ static inline NSString *hexAddress(NSNumber *value) {
 
     exception.mechanism = [self extractMechanism];
     exception.thread = [self crashedThread];
+    if (nil != self.diagnosis && self.diagnosis.length > 0) {
+        exception.value = self.diagnosis;
+    }
 
     return @[exception];
 }

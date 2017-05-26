@@ -64,6 +64,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
 
 /**
+ * This block can be used to modify the event before it will be serialized and sent
+ */
+@property(nonatomic, copy) SentryBeforeSerializeEvent _Nullable beforeSerializeEvent;
+
+/**
+ * This block can be used to modify the request before its put on the request queue.
+ * Can be used e.g. to set additional http headers before sending
+ */
+@property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
+
+/**
  * Initializes a SentryClient, internally calls @selector(initWithDsn:requestManager:didFailWithError:) with a
  * SentryQueueableRequestManager.
  *

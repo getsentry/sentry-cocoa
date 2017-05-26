@@ -67,4 +67,8 @@
     XCTAssertTrue(files.count == 0);
 }
 
+- (void)testDeleteFileNotExsists {
+    XCTAssertFalse([self.fileManager removeFileAtPath:@"x"]);
+}
+
 @end

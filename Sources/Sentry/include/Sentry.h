@@ -16,6 +16,8 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #import <Sentry/SentryClient.h>
 
+#import <Sentry/SentryNSURLRequest.h>
+
 #import <Sentry/SentrySerializable.h>
 
 #import <Sentry/SentryEvent.h>
@@ -28,3 +30,4 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import <Sentry/SentryContext.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryBreadcrumbStore.h>
+

@@ -122,6 +122,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (useClientProperties) {
         [self setSharedPropertiesOnEvent:event];
     }
+    
+    if (nil != self.beforeSerializeEvent) {
+        self.beforeSerializeEvent(event);
+    }
+    
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                              andEvent:event
@@ -139,6 +144,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
                                                             userInfo:event.serialized];
+            
+            // Send all stored events in background if the queue is ready
+            if ([_self.requestManager isReady]) {
+                [_self sendAllStoredEvents];
+            }
         } else {
             [_self.fileManager storeEvent:event];
         }
@@ -150,11 +160,10 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 - (void)  sendRequest:(SentryNSURLRequest *)request
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    [self.requestManager addRequest:request completionHandler:completionHandler];
-    // Send all stored events in background if the queue is ready
-    if ([self.requestManager isReady]) {
-        [self sendAllStoredEvents];
+    if (nil != self.beforeSendRequest) {
+        self.beforeSendRequest(request);
     }
+    [self.requestManager addRequest:request completionHandler:completionHandler];
 }
 
 - (void)sendAllStoredEvents {
