@@ -6,20 +6,16 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<zlib.h>)
-
-#import <zlib.h>
-
-#endif 
-
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/NSData+Compression.h>
 #import <Sentry/SentryError.h>
+#import <Sentry/miniz.h>
 
 #else
 #import "NSData+Compression.h"
 #import "SentryError.h"
+#import "miniz.h"
 #endif
 
 
@@ -27,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSData (Compression)
 
-- (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
-                                           error:(NSError *_Nullable *_Nullable)error {
+- (NSData *_Nullable)gzipped {
     uInt length = (uInt) [self length];
     if (length == 0) {
         return [NSData data];
@@ -43,16 +38,10 @@ NS_ASSUME_NONNULL_BEGIN
     stream.total_out = 0;
     stream.avail_out = 0;
     stream.avail_in = length;
-
-    int err;
-
-    err = deflateInit2(&stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
-    if (err != Z_OK) {
-        if (error) {
-            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
-        }
-        return nil;
-    }
+    
+    int err = 0;
+    
+    deflateInit2(&stream, 7, Z_DEFLATED, Z_DEFAULT_WINDOW_BITS, 9, Z_DEFAULT_STRATEGY);
 
     NSMutableData *compressedData = [NSMutableData dataWithLength:(NSUInteger) (length * 1.02 + 50)];
     Bytef *compressedBytes = [compressedData mutableBytes];

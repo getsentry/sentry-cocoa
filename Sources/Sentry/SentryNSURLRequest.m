@@ -13,10 +13,7 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryError.h>
-
-#if __has_include(<zlib.h>)
 #import <Sentry/NSData+Compression.h>
-#endif
 
 #else
 #import "SentryDsn.h"
@@ -24,11 +21,7 @@
 #import "SentryClient.h"
 #import "SentryEvent.h"
 #import "SentryError.h"
-
-#if __has_include(<zlib.h>)
 #import "NSData+Compression.h"
-#endif
-
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -56,13 +49,12 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
                                                        options:0
-                                                         error:error];
+                                                         error:nil];
 
-    return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
+    return [self initStoreRequestWithDsn:dsn andData:jsonData];
 }
 
-- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andData:(NSData *)data
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andData:(NSData *)data {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
@@ -73,7 +65,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = [data gzipped];
     }
     return self;
 }
