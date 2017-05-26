@@ -13,7 +13,6 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
-  s.libraries = 'z'
 
   s.default_subspecs = 'Core'
 
