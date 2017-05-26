@@ -30,6 +30,13 @@ typedef void (^SentryRequestFinished)(NSError *_Nullable error);
 typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
 typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
 
+typedef NS_ENUM(NSInteger, SentryLogLevel) {
+    kSentryLogLevelNone = 1,
+    kSentryLogLevelError,
+    kSentryLogLevelDebug,
+    kSentryLogLevelVerbose
+};
+
 typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityFatal = 0,
     kSentrySeverityError = 1,

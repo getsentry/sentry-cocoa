@@ -8,14 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#if __has_include(<Sentry/Sentry.h>)
 
-typedef NS_ENUM(NSInteger, SentryLogLevel) {
-    kSentryLogLevelNone = 1,
-    kSentryLogLevelError,
-    kSentryLogLevelDebug,
-    kSentryLogLevelVerbose
-};
+#import <Sentry/SentryDefines.h>
+
+#else
+#import "SentryDefines.h"
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryLog : NSObject
 
