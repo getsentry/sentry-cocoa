@@ -127,11 +127,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (useClientProperties) {
         [self setSharedPropertiesOnEvent:event];
     }
-    
+
     if (nil != self.beforeSerializeEvent) {
         self.beforeSerializeEvent(event);
     }
-    
+
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                              andEvent:event
@@ -141,7 +141,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         completionHandler(requestError);
         return;
     }
-    
+
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
         if (nil == error) {
@@ -149,7 +149,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
                                                             userInfo:event.serialized];
-            
+
             // Send all stored events in background if the queue is ready
             if ([_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
@@ -195,7 +195,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             event.tags = newTags;
         }
     }
-    
+
     if (nil != self.extra) {
         if (nil == event.extra) {
             event.extra = self.extra;
@@ -206,13 +206,13 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             event.extra = newExtra;
         }
     }
-    
+
     if (nil != self.user) {
         if (nil == event.user) {
             event.user = self.user;
         }
     }
-    
+
     if (nil == event.breadcrumbsSerialized) {
         event.breadcrumbsSerialized = self.breadcrumbs.serialized;
     }
