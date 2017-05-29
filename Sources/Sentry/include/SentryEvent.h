@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *_Nullable environment;
 
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable extra;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;
 
 @property(nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 @property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
-@property(nonatomic, strong) NSDictionary<NSString *,id> *_Nullable breadcrumbsSerialized;
+@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable breadcrumbsSerialized;
 
 - (instancetype)initWithLevel:(enum SentrySeverity)level;
 

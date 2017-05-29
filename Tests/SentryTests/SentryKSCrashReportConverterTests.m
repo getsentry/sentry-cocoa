@@ -170,6 +170,25 @@ NSString *reportPath = @"";
     XCTAssertEqual(event.threads.firstObject.stacktrace.frames.count, (unsigned long)22);
 }
 
+- (void)testUserInfo {
+    reportPath = @"Resources/CrashUserInfo";
+    [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    NSDictionary *serializedUser = @{
+                                     @"email": @"john@apple.com",
+                                     @"extra":     @{
+                                         @"is_admin": @(NO)
+                                     },
+                                     @"id": @"12341",
+                                     @"username": @"username"
+                                     };
+    [self compareDict:serializedUser withDict:event.user.serialized];
+    XCTAssertEqual(event.tags.count, (unsigned long)2);
+    XCTAssertEqual(event.extra.count, (unsigned long)7);
+}
+
 #pragma mark private helper
 
 - (void)isValidReport {

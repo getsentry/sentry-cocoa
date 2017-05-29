@@ -18,24 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryUser
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:self.userId forKey:@"userId"];
-    [encoder encodeObject:self.email forKey:@"email"];
-    [encoder encodeObject:self.extra forKey:@"extra"];
-    [encoder encodeObject:self.username forKey:@"username"];
-}
-
-- (nullable instancetype)initWithCoder:(NSCoder *)decoder {
-    self = [super init];
-    if (self) {
-        self.userId  = [decoder decodeObjectForKey:@"userId"];
-        self.email = [decoder decodeObjectForKey:@"email"];
-        self.extra = [decoder decodeObjectForKey:@"extra"];
-        self.username = [decoder decodeObjectForKey:@"username"];
-    }
-    return self;
-}
-
 - (instancetype)initWithUserId:(NSString *)userId {
     self = [super init];
     if (self) {

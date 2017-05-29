@@ -16,6 +16,7 @@
 #import <Sentry/SentryFrame.h>
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryContext.h>
+#import <Sentry/SentryUser.h>
 
 #else
 #import "SentryKSCrashReportConverter.h"
@@ -26,6 +27,7 @@
 #import "SentryFrame.h"
 #import "SentryException.h"
 #import "SentryContext.h"
+#import "SentryUser.h"
 #endif
 
 @interface SentryKSCrashReportConverter ()
@@ -37,6 +39,7 @@
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
 @property(nonatomic, strong) NSString *diagnosis;
+@property(nonatomic, strong) NSDictionary *userContext;
 
 @end
 
@@ -62,6 +65,7 @@ static inline NSString *hexAddress(NSNumber *value) {
             crashContext = report[@"crash"];
         }
         
+        self.userContext = report[@"user"];
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
         self.threads = crashContext[@"threads"];
@@ -83,7 +87,29 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
     event.context = [self convertContext];
+    event.extra = [self convertExtra];
+    event.tags = [self convertTags];
+    event.user = [self convertUser];
     return event;
+}
+
+- (NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)convertExtra {
+    return self.userContext[@"extra"];
+}
+
+- (NSDictionary<NSString *, NSString *> *_Nullable)convertTags {
+    return self.userContext[@"tags"];
+}
+
+- (SentryUser *_Nullable)convertUser {
+    SentryUser *user = nil;
+    if (nil != self.userContext[@"user"]) {
+        user = [[SentryUser alloc] initWithUserId:self.userContext[@"user"][@"id"]];
+        user.email = self.userContext[@"user"][@"email"];
+        user.username = self.userContext[@"user"][@"username"];
+        user.extra = self.userContext[@"user"][@"extra"];
+    }
+    return user;
 }
 
 - (SentryContext *)convertContext {
