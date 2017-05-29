@@ -16,6 +16,7 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
+#import <Sentry/SentryUser.h>
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
@@ -28,6 +29,7 @@
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryUser.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
@@ -55,9 +57,9 @@ static SentryKSCrashInstallation *installation = nil;
 
 @implementation SentryClient
 
-@synthesize tags;
-@synthesize user;
-@synthesize extra;
+@synthesize tags = _tags;
+@synthesize extra = _extra;
+@synthesize user = _user;
 @dynamic logLevel;
 
 #pragma mark Initializer
@@ -219,40 +221,57 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 #pragma mark Global properties
 
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
-    [NSUserDefaults.standardUserDefaults setObject:tags forKey:@"io.sentry.tags"];
-    [NSUserDefaults.standardUserDefaults synchronize];
-}
-
-- (NSDictionary<NSString *, NSString *> *_Nullable)tags {
-    return [NSUserDefaults.standardUserDefaults dictionaryForKey:@"io.sentry.tags"];
+    [self setCrashUserInfo:tags forKey:@"tags"];
+    _tags = tags;
 }
 
 - (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
-    [NSUserDefaults.standardUserDefaults setObject:extra forKey:@"io.sentry.extra"];
-    [NSUserDefaults.standardUserDefaults synchronize];
-}
-
-- (NSDictionary<NSString *, id> *_Nullable)extra {
-    return [NSUserDefaults.standardUserDefaults dictionaryForKey:@"io.sentry.extra"];
+    [self setCrashUserInfo:extra forKey:@"extra"];
+    _extra = extra;
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    [NSUserDefaults.standardUserDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:user] forKey:@"io.sentry.user"];
-    [NSUserDefaults.standardUserDefaults synchronize];
-}
-
-- (SentryUser *_Nullable)user {
-    return [NSKeyedUnarchiver unarchiveObjectWithData:[NSUserDefaults.standardUserDefaults objectForKey:@"io.sentry.user"]];
+    [self setCrashUserInfo:user.serialized forKey:@"user"];
+    _user = user;
 }
 
 - (void)clearContext {
-    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.tags"];
-    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.extra"];
-    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.user"];
-    [NSUserDefaults.standardUserDefaults synchronize];
+    [self setUser:nil];
+    [self setExtra:nil];
+    [self setTags:nil];
 }
 
 #if __has_include(<KSCrash/KSCrash.h>)
+- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
+    if (nil == KSCrash.sharedInstance) {
+        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        return;
+    }
+    NSMutableDictionary *userInfo = nil;
+    if (nil != KSCrash.sharedInstance.userInfo) {
+        userInfo = KSCrash.sharedInstance.userInfo.mutableCopy;
+    } else {
+        userInfo = [NSMutableDictionary new];
+    }
+    if (nil == dict) {
+        [userInfo removeObjectForKey:key];
+    } else {
+        [userInfo setValue:dict forKey:key];
+    }
+    KSCrash.sharedInstance.userInfo = userInfo;
+}
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
+    // We need to do nothing here without KSCrash
+}
+#pragma GCC diagnostic pop
+#endif
+
+#if __has_include(<KSCrash/KSCrash.h>)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     [SentryLog logWithMessage:@"KSCrashHandler started" andLevel:kSentryLogLevelDebug];
     static dispatch_once_t onceToken = 0;
@@ -263,6 +282,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     });
     return YES;
 }
+#pragma GCC diagnostic pop
 
 - (void)crash {
     int* p = 0;
