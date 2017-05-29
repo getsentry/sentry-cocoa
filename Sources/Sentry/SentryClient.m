@@ -55,9 +55,6 @@ static SentryKSCrashInstallation *installation = nil;
 
 @implementation SentryClient
 
-@synthesize tags;
-@synthesize user;
-@synthesize extra;
 @dynamic logLevel;
 
 #pragma mark Initializer
