@@ -18,20 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryFrame
 
-- (instancetype)initWithSymbolAddress:(NSString *)symbolAddress {
-    self = [super init];
-    if (self) {
-        self.symbolAddress = symbolAddress;
-    }
-    return self;
-}
-
-
 - (NSDictionary<NSString *, id> *)serialized {
-    NSMutableDictionary *serializedData = @{
-            @"symbol_addr": self.symbolAddress
-    }.mutableCopy;
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
+    [serializedData setValue:self.symbolAddress forKey:@"symbol_addr"];
     [serializedData setValue:self.fileName forKey:@"filename"];
     [serializedData setValue:self.function forKey:@"function"];
     [serializedData setValue:self.module forKey:@"module"];

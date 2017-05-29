@@ -20,7 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryFrame : NSObject <SentrySerializable>
 
-@property(nonatomic, copy) NSString *symbolAddress;
+- (instancetype)init;
++ (instancetype)new;
+
+@property(nonatomic, copy) NSString *_Nullable symbolAddress;
 @property(nonatomic, copy) NSString *_Nullable fileName;
 @property(nonatomic, copy) NSString *_Nullable function;
 @property(nonatomic, copy) NSString *_Nullable module;
@@ -30,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *_Nullable instructionAddress;
 @property(nonatomic, copy) NSNumber *_Nullable lineNumber;
 @property(nonatomic, copy) NSNumber *_Nullable columnNumber;
-
-- (instancetype)initWithSymbolAddress:(NSString *)symbolAddress;
 
 @end
 

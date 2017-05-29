@@ -17,6 +17,7 @@
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryContext.h>
 #import <Sentry/SentryUser.h>
+#import <Sentry/NSDate+Extras.h>
 
 #else
 #import "SentryKSCrashReportConverter.h"
@@ -28,6 +29,7 @@
 #import "SentryException.h"
 #import "SentryContext.h"
 #import "SentryUser.h"
+#import "NSDate+Extras.h"
 #endif
 
 @interface SentryKSCrashReportConverter ()
@@ -82,7 +84,11 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (SentryEvent *)convertReportToEvent {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
-    event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
+    if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
+        event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
+    } else {
+        event.timestamp = [NSDate fromIso8601String:self.report[@"report"][@"timestamp"]];
+    }
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
@@ -202,7 +208,8 @@ static inline NSString *hexAddress(NSNumber *value) {
     uintptr_t instructionAddress = (uintptr_t) [frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
 //    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
-    SentryFrame *frame = [[SentryFrame alloc] initWithSymbolAddress:hexAddress(frameDictionary[@"symbol_addr"])];
+    SentryFrame *frame = [[SentryFrame alloc] init];
+    frame.symbolAddress = hexAddress(frameDictionary[@"symbol_addr"]);
     frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];

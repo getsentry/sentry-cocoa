@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
         isoFormatter = [[NSDateFormatter alloc] init];
         [isoFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
-        [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
+        [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
     }
     return isoFormatter;
 }
