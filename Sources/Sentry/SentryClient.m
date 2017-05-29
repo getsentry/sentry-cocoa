@@ -252,6 +252,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 #else
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (void)reportUserException:(NSString *)name
                      reason:(NSString *)reason
                    language:(NSString *)language
@@ -261,6 +263,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
            terminateProgram:(BOOL)terminateProgram {
     [SentryLog logWithMessage:@"Cannot report userException without KSCrash dependency" andLevel:kSentryLogLevelError];
 }
+#pragma GCC diagnostic pop
 
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
     NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
