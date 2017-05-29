@@ -88,7 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil == self.releaseName) {
             self.releaseName = [NSString stringWithFormat:@"%@-%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"]];
         }
-        if (nil == self.dist) {
+        
+        if ([self.dist isEqualToString:@""]) {
+            self.dist = nil;
+        } else if (nil == self.dist) {
             self.dist = infoDict[@"CFBundleVersion"];
         }
 
@@ -98,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
             self.releaseName = nil;
         }
     }
+
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
