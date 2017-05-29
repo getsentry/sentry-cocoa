@@ -126,6 +126,10 @@ NS_ASSUME_NONNULL_BEGIN
   useClientProperties:(BOOL)useClientProperties
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
+/**
+ * Clears all context releated varialbes tags, extra and user
+ */
+- (void)clearContext;
 
 /// KSCrash
 

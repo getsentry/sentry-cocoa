@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUser : NSObject <SentrySerializable>
+@interface SentryUser : NSObject <SentrySerializable, NSCoding>
 
 @property(nonatomic, copy) NSString *userId;
 @property(nonatomic, copy) NSString *_Nullable email;

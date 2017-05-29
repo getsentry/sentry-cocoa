@@ -148,6 +148,7 @@ NSInteger requestsWithErrors = 0;
     requestShouldReturnCode = 200;
     requestsSuccessfullyFinished = 0;
     requestsWithErrors = 0;
+    [self.client clearContext];
     [self clearAllFiles];
 }
 

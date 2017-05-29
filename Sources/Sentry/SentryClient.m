@@ -55,6 +55,9 @@ static SentryKSCrashInstallation *installation = nil;
 
 @implementation SentryClient
 
+@synthesize tags;
+@synthesize user;
+@synthesize extra;
 @dynamic logLevel;
 
 #pragma mark Initializer
@@ -211,6 +214,42 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (nil == event.breadcrumbsSerialized) {
         event.breadcrumbsSerialized = self.breadcrumbs.serialized;
     }
+}
+
+#pragma mark Global properties
+
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
+    [NSUserDefaults.standardUserDefaults setObject:tags forKey:@"io.sentry.tags"];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+- (NSDictionary<NSString *, NSString *> *_Nullable)tags {
+    return [NSUserDefaults.standardUserDefaults dictionaryForKey:@"io.sentry.tags"];
+}
+
+- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
+    [NSUserDefaults.standardUserDefaults setObject:extra forKey:@"io.sentry.extra"];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+- (NSDictionary<NSString *, id> *_Nullable)extra {
+    return [NSUserDefaults.standardUserDefaults dictionaryForKey:@"io.sentry.extra"];
+}
+
+- (void)setUser:(SentryUser *_Nullable)user {
+    [NSUserDefaults.standardUserDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:user] forKey:@"io.sentry.user"];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+- (SentryUser *_Nullable)user {
+    return [NSKeyedUnarchiver unarchiveObjectWithData:[NSUserDefaults.standardUserDefaults objectForKey:@"io.sentry.user"]];
+}
+
+- (void)clearContext {
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.tags"];
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.extra"];
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"io.sentry.user"];
+    [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 #if __has_include(<KSCrash/KSCrash.h>)
