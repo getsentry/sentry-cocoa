@@ -59,73 +59,37 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil == self.timestamp) {
         self.timestamp = [NSDate date];
     }
+    
     NSMutableDictionary *serializedData = @{
             @"event_id": self.eventId,
             @"timestamp": [self.timestamp toIso8601String],
             @"level": SentrySeverityNames[self.level],
             @"platform": @"cocoa",
     }.mutableCopy;
-    serializedData[@"sdk"] = @{
-            @"name": @"sentry-cocoa",
-            @"version": SentryClient.versionString
-    };
 
-    if (nil == self.context) {
-        self.context = [SentryContext new];
+    if (nil == self.releaseName && nil == self.dist && nil != self.infoDict) {
+        self.releaseName = [NSString stringWithFormat:@"%@-%@", self.infoDict[@"CFBundleIdentifier"], self.infoDict[@"CFBundleShortVersionString"]];
+        self.dist = self.infoDict[@"CFBundleVersion"];
     }
-    [serializedData setValue:self.context.serialized forKey:@"contexts"];
-
-    [serializedData setValue:self.message forKey:@"message"];
-    [serializedData setValue:self.logger forKey:@"logger"];
-    [serializedData setValue:self.serverName forKey:@"server_name"];
-
+    
+    [self addSimpleProperties:serializedData];
+    
     [self stripInternalExtraParameters];
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
 
-    if (nil == self.releaseName && (nil == self.dist || [self.dist isEqualToString:@""])) {
-        NSDictionary *infoDict = self.infoDict;
-        if (nil == self.releaseName && nil != infoDict[@"CFBundleIdentifier"] && nil != infoDict[@"CFBundleShortVersionString"]) {
-            self.releaseName = [NSString stringWithFormat:@"%@-%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"]];
-        }
-        
-        if (nil == self.dist && nil != infoDict[@"CFBundleVersion"]) {
-            self.dist = infoDict[@"CFBundleVersion"];
-        }
-    }
-    
-    // This is for setting dist nil on purpose
-    if ([self.dist isEqualToString:@""]) {
-        self.dist = nil;
-    }
-    
-    [serializedData setValue:self.releaseName forKey:@"release"];
-    [serializedData setValue:self.dist forKey:@"dist"];
-    [serializedData setValue:self.environment forKey:@"environment"];
+    [self addOptionalListProperties:serializedData];
 
-    [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
+    return serializedData;
+}
 
-    [serializedData setValue:self.user.serialized forKey:@"user"];
-    [serializedData setValue:self.modules forKey:@"modules"];
+- (void)addOptionalListProperties:(NSMutableDictionary *)serializedData {
+    [self addThreads:serializedData];
+    [self addExceptions:serializedData];
+    [self addDebugImages:serializedData];
+}
 
-    [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
-
-    NSMutableArray *threads = [NSMutableArray new];
-    for (SentryThread *thread in self.threads) {
-        [threads addObject:thread.serialized];
-    }
-    if (threads.count > 0) {
-        [serializedData setValue:@{@"values": threads} forKey:@"threads"];
-    }
-
-    NSMutableArray *exceptions = [NSMutableArray new];
-    for (SentryThread *exception in self.exceptions) {
-        [exceptions addObject:exception.serialized];
-    }
-    if (exceptions.count > 0) {
-        [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
-    }
-
+- (void)addDebugImages:(NSMutableDictionary *)serializedData {
     NSMutableArray *debugImages = [NSMutableArray new];
     for (SentryThread *debugImage in self.debugMeta) {
         [debugImages addObject:debugImage.serialized];
@@ -133,10 +97,55 @@ NS_ASSUME_NONNULL_BEGIN
     if (debugImages.count > 0) {
         [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
     }
+}
 
+- (void)addExceptions:(NSMutableDictionary *)serializedData {
+    NSMutableArray *exceptions = [NSMutableArray new];
+    for (SentryThread *exception in self.exceptions) {
+        [exceptions addObject:exception.serialized];
+    }
+    if (exceptions.count > 0) {
+        [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
+    }
+}
+
+- (void)addThreads:(NSMutableDictionary *)serializedData {
+    NSMutableArray *threads = [NSMutableArray new];
+    for (SentryThread *thread in self.threads) {
+        [threads addObject:thread.serialized];
+    }
+    if (threads.count > 0) {
+        [serializedData setValue:@{@"values": threads} forKey:@"threads"];
+    }
+}
+
+- (void)addSimpleProperties:(NSMutableDictionary *)serializedData {
+    [serializedData setValue:self.releaseName forKey:@"release"];
+    [serializedData setValue:self.dist forKey:@"dist"];
+    [serializedData setValue:self.environment forKey:@"environment"];
+    
+    [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
+    
+    [serializedData setValue:self.user.serialized forKey:@"user"];
+    [serializedData setValue:self.modules forKey:@"modules"];
+    
+    [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
+    
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
-
-    return serializedData;
+    
+    serializedData[@"sdk"] = @{
+                               @"name": @"sentry-cocoa",
+                               @"version": SentryClient.versionString
+                               };
+    
+    if (nil == self.context) {
+        self.context = [SentryContext new];
+    }
+    [serializedData setValue:self.context.serialized forKey:@"contexts"];
+    
+    [serializedData setValue:self.message forKey:@"message"];
+    [serializedData setValue:self.logger forKey:@"logger"];
+    [serializedData setValue:self.serverName forKey:@"server_name"];
 }
 
 @end

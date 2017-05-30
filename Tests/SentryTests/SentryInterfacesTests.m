@@ -119,11 +119,9 @@
 }
 
 - (void)testSetDistToNil {
-    // This test is for codepush
     SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     eventEmptyDist.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     eventEmptyDist.releaseName = @"abc";
-    eventEmptyDist.dist = @"";
     XCTAssertNil([eventEmptyDist.serialized objectForKey:@"dist"]);
     XCTAssertEqualObjects([eventEmptyDist.serialized objectForKey:@"release"], @"abc");
 }

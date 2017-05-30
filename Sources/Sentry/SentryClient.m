@@ -207,17 +207,17 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         }
     }
 
-    if (nil != self.user) {
-        if (nil == event.user) {
-            event.user = self.user;
-        }
+    if (nil != self.user && nil == event.user) {
+        event.user = self.user;
     }
 
     if (nil == event.breadcrumbsSerialized) {
         event.breadcrumbsSerialized = self.breadcrumbs.serialized;
     }
     
-    event.infoDict = [[NSBundle mainBundle] infoDictionary];
+    if (nil == event.infoDict) {
+        event.infoDict = [[NSBundle mainBundle] infoDictionary];
+    }
 }
 
 #pragma mark Global properties

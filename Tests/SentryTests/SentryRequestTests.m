@@ -388,6 +388,7 @@ NSInteger requestsWithErrors = 0;
     [self.client.breadcrumbs addBreadcrumb:crumb];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     crumb.timestamp = date;
     [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
@@ -404,6 +405,8 @@ NSInteger requestsWithErrors = 0;
                                      @"extra": @{@"c": @"d"},
                                      @"level": @"warning",
                                      @"platform": @"cocoa",
+                                     @"release": @"a-b",
+                                     @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b"},
                                      @"timestamp": date.toIso8601String};
@@ -429,6 +432,7 @@ NSInteger requestsWithErrors = 0;
     [self.client.breadcrumbs addBreadcrumb:crumb];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     event.timestamp = date;
     event.tags = @{@"1": @"2"};
     event.extra = @{@"3": @"4"};
@@ -446,6 +450,8 @@ NSInteger requestsWithErrors = 0;
                                      @"extra": @{@"c": @"d", @"3": @"4"},
                                      @"level": @"warning",
                                      @"platform": @"cocoa",
+                                     @"release": @"a-b",
+                                     @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b", @"1": @"2"},
                                      @"timestamp": date.toIso8601String};
@@ -472,6 +478,7 @@ NSInteger requestsWithErrors = 0;
     [self.client.breadcrumbs addBreadcrumb:crumb];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     event.timestamp = date;
     event.tags = @{@"a": @"1"};
     event.extra = @{@"c": @"2"};
@@ -489,6 +496,8 @@ NSInteger requestsWithErrors = 0;
                                      @"extra": @{@"c": @"2"},
                                      @"level": @"warning",
                                      @"platform": @"cocoa",
+                                     @"release": @"a-b",
+                                     @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"1"},
                                      @"timestamp": date.toIso8601String};

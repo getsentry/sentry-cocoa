@@ -47,7 +47,6 @@
 
 @implementation SentryKSCrashReportConverter
 
-// TODO refactor
 static inline NSString *hexAddress(NSNumber *value) {
     return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }
@@ -121,14 +120,27 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (SentryContext *)convertContext {
     SentryContext *context = [SentryContext new];
 
-    NSMutableDictionary *osContext = [NSMutableDictionary new];
-    [osContext setValue:self.systemContext[@"system_name"] forKey:@"name"];
-    [osContext setValue:self.systemContext[@"system_version"] forKey:@"version"];
-    [osContext setValue:self.systemContext[@"os_version"] forKey:@"build"];
-    [osContext setValue:self.systemContext[@"kernel_version"] forKey:@"kernel_version"];
-    [osContext setValue:self.systemContext[@"jailbroken"] forKey:@"rooted"];
-    context.osContext = osContext;
+    [self addOsContext:context];
+    [self addDeviceContext:context];
+    [self addAppContext:context];
 
+    return context;
+}
+
+- (void)addAppContext:(SentryContext *)context {
+    NSMutableDictionary *appContext = [NSMutableDictionary new];
+    [appContext setValue:self.systemContext[@"app_start_time"] forKey:@"app_start_time"];
+    [appContext setValue:self.systemContext[@"device_app_hash"] forKey:@"device_app_hash"];
+    [appContext setValue:self.systemContext[@"CFBundleIdentifier"] forKey:@"app_identifier"];
+    [appContext setValue:self.systemContext[@"CFBundleName"] forKey:@"app_name"];
+    [appContext setValue:self.systemContext[@"CFBundleVersion"] forKey:@"app_build"];
+    [appContext setValue:self.systemContext[@"CFBundleShortVersionString"] forKey:@"app_version"];
+    [appContext setValue:self.systemContext[@"CFBundleExecutablePath"] forKey:@"executable_path"];
+    [appContext setValue:self.systemContext[@"build_type"] forKey:@"build_type"];
+    context.appContext = appContext;
+}
+
+- (void)addDeviceContext:(SentryContext *)context {
     NSMutableDictionary *deviceContext = [NSMutableDictionary new];
     [deviceContext setValue:self.family forKey:@"family"];
     [deviceContext setValue:self.systemContext[@"cpu_arch"] forKey:@"arch"];
@@ -141,19 +153,16 @@ static inline NSString *hexAddress(NSNumber *value) {
     [deviceContext setValue:self.systemContext[@"machine"] forKey:@"model"];
     [deviceContext setValue:self.systemContext[@"model"] forKey:@"model_id"];
     context.deviceContext = deviceContext;
+}
 
-    NSMutableDictionary *appContext = [NSMutableDictionary new];
-    [appContext setValue:self.systemContext[@"app_start_time"] forKey:@"app_start_time"];
-    [appContext setValue:self.systemContext[@"device_app_hash"] forKey:@"device_app_hash"];
-    [appContext setValue:self.systemContext[@"CFBundleIdentifier"] forKey:@"app_identifier"];
-    [appContext setValue:self.systemContext[@"CFBundleName"] forKey:@"app_name"];
-    [appContext setValue:self.systemContext[@"CFBundleVersion"] forKey:@"app_build"];
-    [appContext setValue:self.systemContext[@"CFBundleShortVersionString"] forKey:@"app_version"];
-    [appContext setValue:self.systemContext[@"CFBundleExecutablePath"] forKey:@"executable_path"];
-    [appContext setValue:self.systemContext[@"build_type"] forKey:@"build_type"];
-    context.appContext = appContext;
-
-    return context;
+- (void)addOsContext:(SentryContext *)context {
+    NSMutableDictionary *osContext = [NSMutableDictionary new];
+    [osContext setValue:self.systemContext[@"system_name"] forKey:@"name"];
+    [osContext setValue:self.systemContext[@"system_version"] forKey:@"version"];
+    [osContext setValue:self.systemContext[@"os_version"] forKey:@"build"];
+    [osContext setValue:self.systemContext[@"kernel_version"] forKey:@"kernel_version"];
+    [osContext setValue:self.systemContext[@"jailbroken"] forKey:@"rooted"];
+    context.osContext = osContext;
 }
 
 - (NSString *)family {
@@ -268,7 +277,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         return nil;
     }
     NSString *exceptionType = self.exceptionContext[@"type"];
-    SentryException *exception;
+    SentryException *exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:@"Unknown Exception"];
     if ([exceptionType isEqualToString:@"nsexception"]) {
         exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
@@ -303,7 +312,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (nil != self.diagnosis && self.diagnosis.length > 0) {
         exception.value = self.diagnosis;
     }
-
     return @[exception];
 }
 
