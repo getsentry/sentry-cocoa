@@ -247,6 +247,7 @@ NSInteger requestsWithErrors = 0;
 }
 
 - (void)testRequestQueueCancel {
+    SentryClient.logLevel = kSentryLogLevelVerbose;
     SentryQueueableRequestManager *requestManager = [[SentryQueueableRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"http://a:b@sentry.io/1"
                                               requestManager:requestManager
@@ -264,6 +265,7 @@ NSInteger requestsWithErrors = 0;
         }
         XCTAssert(YES);
     }];
+    SentryClient.logLevel = kSentryLogLevelError;
 }
 
 - (void)testRequestQueueCancelWithMock {
