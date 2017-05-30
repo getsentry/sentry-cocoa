@@ -55,12 +55,14 @@
 }
 
 - (void)testFrame {
-    SentryFrame *frame = [[SentryFrame alloc] initWithSymbolAddress:@"0x01"];
+    SentryFrame *frame = [[SentryFrame alloc] init];
+    frame.symbolAddress = @"0x01";
     XCTAssertNotNil(frame.symbolAddress);
     NSDictionary *serialized = @{@"symbol_addr": @"0x01"};
     XCTAssertEqualObjects(frame.serialized, serialized);
     
-    SentryFrame *frame2 = [[SentryFrame alloc] initWithSymbolAddress:@"0x01"];
+    SentryFrame *frame2 = [[SentryFrame alloc] init];
+    frame2.symbolAddress = @"0x01";
     XCTAssertNotNil(frame2.symbolAddress);
     
     frame2.fileName = @"file://b.swift";
@@ -91,6 +93,7 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event.timestamp = date;
     event.environment = @"bla";
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     event.extra = @{@"__sentry_stacktrace": @"f"};
     NSDictionary *serialized = @{@"contexts": [[SentryContext alloc] init].serialized,
                                  @"event_id": event.eventId,
@@ -98,13 +101,37 @@
                                  @"level": @"info",
                                  @"environment": @"bla",
                                  @"platform": @"cocoa",
+                                 @"release": @"a-b",
+                                 @"dist": @"c",
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                  @"timestamp": date.toIso8601String};
     XCTAssertEqualObjects(event.serialized, serialized);
+    
+    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event2.timestamp = date;
+    NSDictionary *serialized2 = @{@"contexts": [[SentryContext alloc] init].serialized,
+                                 @"event_id": event2.eventId,
+                                 @"level": @"info",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                 @"timestamp": date.toIso8601String};
+    XCTAssertEqualObjects(event2.serialized, serialized2);
+}
+
+- (void)testSetDistToNil {
+    // This test is for codepush
+    SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    eventEmptyDist.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
+    eventEmptyDist.releaseName = @"abc";
+    eventEmptyDist.dist = @"";
+    XCTAssertNil([eventEmptyDist.serialized objectForKey:@"dist"]);
+    XCTAssertEqualObjects([eventEmptyDist.serialized objectForKey:@"release"], @"abc");
 }
 
 - (void)testStacktrace {
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
+    SentryFrame *frame = [SentryFrame new];
+    frame.symbolAddress = @"0x01";
+    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
     XCTAssertNotNil(stacktrace.frames);
     XCTAssertNotNil(stacktrace.registers);
     [stacktrace fixDuplicateFrames];
@@ -124,7 +151,9 @@
     thread2.crashed = @(YES);
     thread2.current = @(NO);
     thread2.name = @"name";
-    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
+    SentryFrame *frame = [[SentryFrame alloc] init];
+    frame.symbolAddress = @"0x01";
+    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
     NSDictionary *serialized2 = @{
                                   @"id": @(2),
                                   @"crashed": @(YES),
@@ -175,7 +204,9 @@
     thread2.crashed = @(YES);
     thread2.current = @(NO);
     thread2.name = @"name";
-    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[[[SentryFrame alloc] initWithSymbolAddress:@"0x01"]] registers:@{@"a": @"1"}];
+    SentryFrame *frame = [[SentryFrame alloc] init];
+    frame.symbolAddress = @"0x01";
+    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
     
     exception2.thread = thread2;
     exception2.mechanism = @{@"a": @"b"};

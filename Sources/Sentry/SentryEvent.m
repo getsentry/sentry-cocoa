@@ -83,25 +83,22 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
 
-    if (nil == self.releaseName || nil == self.dist) {
-        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-        if (nil == self.releaseName) {
+    if (nil == self.releaseName && (nil == self.dist || [self.dist isEqualToString:@""])) {
+        NSDictionary *infoDict = self.infoDict;
+        if (nil == self.releaseName && nil != infoDict[@"CFBundleIdentifier"] && nil != infoDict[@"CFBundleShortVersionString"]) {
             self.releaseName = [NSString stringWithFormat:@"%@-%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"]];
         }
         
-        if ([self.dist isEqualToString:@""]) {
-            self.dist = nil;
-        } else if (nil == self.dist) {
+        if (nil == self.dist && nil != infoDict[@"CFBundleVersion"]) {
             self.dist = infoDict[@"CFBundleVersion"];
         }
-
-        // If we run tests self.dist is nil we also sent releaseName to nil since we don't ever
-        // want a (null)-(null) release
-        if (nil == self.dist) {
-            self.releaseName = nil;
-        }
     }
-
+    
+    // This is for setting dist nil on purpose
+    if ([self.dist isEqualToString:@""]) {
+        self.dist = nil;
+    }
+    
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];

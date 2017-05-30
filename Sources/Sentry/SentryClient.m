@@ -216,6 +216,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (nil == event.breadcrumbsSerialized) {
         event.breadcrumbsSerialized = self.breadcrumbs.serialized;
     }
+    
+    event.infoDict = [[NSBundle mainBundle] infoDictionary];
 }
 
 #pragma mark Global properties

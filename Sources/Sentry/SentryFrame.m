@@ -18,6 +18,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryFrame
 
+- (instancetype)init {
+    return [super init];
+}
+
++ (instancetype)new {
+    return [super new];
+}
+
 - (NSDictionary<NSString *, id> *)serialized {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 

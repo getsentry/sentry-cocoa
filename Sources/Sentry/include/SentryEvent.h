@@ -48,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable breadcrumbsSerialized;
 
+/**
+ * This property is there for setting main bundle of the app
+ */
+@property(nonatomic, strong) NSDictionary *infoDict;
+
 - (instancetype)initWithLevel:(enum SentrySeverity)level;
 
 @end
