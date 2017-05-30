@@ -78,6 +78,8 @@ static SentryKSCrashInstallation *installation = nil;
            didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
+        [self setExtra:@{}];
+        [self setTags:@{}];
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
         NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
