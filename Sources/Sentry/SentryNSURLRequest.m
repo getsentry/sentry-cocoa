@@ -13,10 +13,8 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryError.h>
-
-#if __has_include(<zlib.h>)
+#import <Sentry/SentryLog.h>
 #import <Sentry/NSData+Compression.h>
-#endif
 
 #else
 #import "SentryDsn.h"
@@ -24,10 +22,8 @@
 #import "SentryClient.h"
 #import "SentryEvent.h"
 #import "SentryError.h"
-
-#if __has_include(<zlib.h>)
+#import "SentryLog.h"
 #import "NSData+Compression.h"
-#endif
 
 #endif
 
@@ -57,7 +53,12 @@ NSTimeInterval const SentryRequestTimeout = 15;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
                                                        options:0
                                                          error:error];
-
+    
+    if (SentryClient.logLevel == kSentryLogLevelVerbose) {
+        [SentryLog logWithMessage:@"Sending JSON -------------------------------" andLevel:kSentryLogLevelVerbose];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
+        [SentryLog logWithMessage:@"--------------------------------------------" andLevel:kSentryLogLevelVerbose];
+    }
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
 
