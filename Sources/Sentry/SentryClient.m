@@ -23,6 +23,7 @@
 #import <Sentry/SentryKSCrashInstallation.h>
 #import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryFileManager.h>
+#import <Sentry/SentrySwizzle.h>
 
 #else
 #import "SentryClient.h"
@@ -36,6 +37,7 @@
 #import "SentryKSCrashInstallation.h"
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
+#import "SentrySwizzle.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -91,6 +93,10 @@ static SentryKSCrashInstallation *installation = nil;
         }
     }
     return self;
+}
+
+- (void)enableAutomaticBreadcrumbTracking {
+    [[SentrySwizzle alloc] swizzle];
 }
 
 #pragma mark Static Getter/Setter

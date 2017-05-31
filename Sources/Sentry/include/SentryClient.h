@@ -96,6 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
            didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
+ * This automatically adds breadcrumbs for differenct user actions.
+ */
+- (void)enableAutomaticBreadcrumbTracking;
+
+/**
  * Returns the shared sentry client
  * @return sharedClient if it was set before
  */

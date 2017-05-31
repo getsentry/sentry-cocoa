@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryKSCrashInstallation.h"
+#import "NSDate+Extras.h"
 
 @interface SentryTests : XCTestCase
 
@@ -49,6 +50,17 @@
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     XCTAssertFalse([client crashedLastLaunch]);
+}
+
+- (void)testBreadCrumbTracking {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    [client enableAutomaticBreadcrumbTracking];
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)0);
+    [SentryClient setSharedClient:client];
+    [SentryClient.sharedClient enableAutomaticBreadcrumbTracking];
+    XCTAssertEqual(SentryClient.sharedClient.breadcrumbs.count, (unsigned long)1);
+    [SentryClient setSharedClient:nil];
 }
 
 - (void)testInstallation {

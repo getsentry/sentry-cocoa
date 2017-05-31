@@ -14,7 +14,9 @@ framework module Sentry {
         header "SentryKSCrashReportSink.h"
         header "SentryKSCrashReportConverter.h"
         header "SentryLog.h"
+        header "SentrySwizzle.h"
 
+        header "RSSwizzle.h"
         header "NSData+Compression.h"
         header "NSDate+Extras.h"
     }
