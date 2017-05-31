@@ -32,11 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<NSString *, id> *)serialized {
-    NSMutableDictionary *serializedData = @{
-            @"value": self.value,
-            @"type": self.type
-    }.mutableCopy;
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
+    [serializedData setValue:self.value forKey:@"value"];
+    [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.mechanism forKey:@"mechanism"];
     [serializedData setValue:self.module forKey:@"module"];
     [serializedData setValue:self.thread.threadId forKey:@"thread_id"];

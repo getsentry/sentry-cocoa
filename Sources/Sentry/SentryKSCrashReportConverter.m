@@ -296,9 +296,9 @@ static inline NSString *hexAddress(NSNumber *value) {
                                                                                       self.exceptionContext[@"signal"][@"code"]]
                                                       type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
-        NSString *exceptionReason = self.exceptionContext[@"user_reported"][@"reason"];
+        NSString *exceptionReason = [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
         exception = [[SentryException alloc] initWithValue:exceptionReason
-                                                      type:@"User Reported"];
+                                                      type:self.exceptionContext[@"user_reported"][@"name"]];
 
         NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {

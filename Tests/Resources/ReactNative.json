@@ -3804,10 +3804,9 @@
                 "code": 0
             },
             "address": 0,
-            "reason": "",
+            "reason": "Error: SentryClient: Test throw error",
             "type": "user",
             "user_reported": {
-                "reason": "Error: SentryClient: Test throw error",
                 "name": "Error: SentryClient: Test throw error",
                 "language": "react-native",
                 "line_of_code": "",
