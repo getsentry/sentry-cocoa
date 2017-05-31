@@ -13,6 +13,10 @@ class SentrySwiftTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        let fileManager = try! SentryFileManager(error: ())
+        fileManager.deleteAllStoredEvents()
+        fileManager.deleteAllStoredBreadcrumbs()
+        fileManager.deleteAllFolders()
         Client.shared = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
     }
     
@@ -35,10 +39,22 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertThrowsError(try Client.shared?.startCrashHandler())
     }
     
-    func testSendEvent() {
+    func testFunctionCalls() {
         let event2 = Event(level: .debug)
-        event2.extra = ["a": "b" as NSSecureCoding]
+        event2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
+        
+        Client.shared?.beforeSerializeEvent = { event in
+            event.extra = ["b": "c"]
+        }
+        
+        Client.shared?.send(event2) { (error) in
+            XCTAssertNil(error)
+        }
+        
+        Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
+        XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
+//        Client.shared.s
     }
     
 }

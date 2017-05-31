@@ -16,6 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(Context)
 @interface SentryContext : NSObject <SentrySerializable>
 
 - (instancetype)init;

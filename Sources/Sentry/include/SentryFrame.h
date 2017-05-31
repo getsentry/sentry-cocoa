@@ -18,6 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(Frame)
 @interface SentryFrame : NSObject <SentrySerializable>
 
 - (instancetype)init;

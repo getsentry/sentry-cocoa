@@ -371,6 +371,22 @@
 			name = Vendor;
 			sourceTree = "<group>";
 		};
+		639889D51EDF10BE00EA7442 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				63AA76951EB9C1C200D153DE /* SentryDefines.h */,
+				63AA769B1EB9C57A00D153DE /* SentryError.h */,
+				63AA769C1EB9C57A00D153DE /* SentryError.m */,
+				63AA76961EB9C1C200D153DE /* SentryLog.h */,
+				63AA76781EB8D20500D153DE /* SentryLog.m */,
+				636085111ED47BE600E8599E /* SentryFileManager.h */,
+				636085121ED47BE600E8599E /* SentryFileManager.m */,
+				639889B51EDECFA800EA7442 /* SentrySwizzle.h */,
+				639889B61EDECFA800EA7442 /* SentrySwizzle.m */,
+			);
+			name = Helper;
+			sourceTree = "<group>";
+		};
 		63AA756E1EB8AEDB00D153DE /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -426,18 +442,10 @@
 				630436001EBCB87500C4D3FA /* Networking */,
 				630436031EC058FA00C4D3FA /* Categories */,
 				6344DDB61EC3113C00D9160D /* KSCrash */,
+				639889D51EDF10BE00EA7442 /* Helper */,
 				63AA76931EB9C1C200D153DE /* Sentry.h */,
-				63AA76951EB9C1C200D153DE /* SentryDefines.h */,
 				63AA76941EB9C1C200D153DE /* SentryClient.h */,
 				63AA75ED1EB8B3C400D153DE /* SentryClient.m */,
-				63AA769B1EB9C57A00D153DE /* SentryError.h */,
-				63AA769C1EB9C57A00D153DE /* SentryError.m */,
-				63AA76961EB9C1C200D153DE /* SentryLog.h */,
-				63AA76781EB8D20500D153DE /* SentryLog.m */,
-				636085111ED47BE600E8599E /* SentryFileManager.h */,
-				636085121ED47BE600E8599E /* SentryFileManager.m */,
-				639889B51EDECFA800EA7442 /* SentrySwizzle.h */,
-				639889B61EDECFA800EA7442 /* SentrySwizzle.m */,
 			);
 			path = Sentry;
 			sourceTree = "<group>";

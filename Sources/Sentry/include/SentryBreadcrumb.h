@@ -18,7 +18,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(Breadcrumb)
 @interface SentryBreadcrumb : NSObject <SentrySerializable>
+SENTRY_NO_INIT
 
 @property(nonatomic) enum SentrySeverity level;
 @property(nonatomic, copy) NSString *category;

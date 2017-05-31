@@ -59,11 +59,6 @@ lane :test do
     scan(scheme: "Sentry", code_coverage: true)
 end
 
-lane :test_swift do
-    scan(scheme: "SentrySwift", code_coverage: true)
-    # travis_slather
-end
-
 lane :travis_slather do
     sh('cd .. && slather coverage -x --scheme Sentry --input-format profdata Sentry.xcodeproj')
 end
