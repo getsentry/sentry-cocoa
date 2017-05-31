@@ -245,7 +245,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self setTags:nil];
 }
 
+#pragma mark KSCrash
+
 #if __has_include(<KSCrash/KSCrash.h>)
+
+- (BOOL)crashedLastLaunch {
+    return KSCrash.sharedInstance.crashedLastLaunch;
+}
+
 - (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
     if (nil == KSCrash.sharedInstance) {
         [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
@@ -264,16 +271,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
     KSCrash.sharedInstance.userInfo = userInfo;
 }
-#else
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
-    // We need to do nothing here without KSCrash
-}
-#pragma GCC diagnostic pop
-#endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
@@ -317,6 +315,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
 - (void)reportUserException:(NSString *)name
                      reason:(NSString *)reason
                    language:(NSString *)language
@@ -326,6 +325,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
            terminateProgram:(BOOL)terminateProgram {
     [SentryLog logWithMessage:@"Cannot report userException without KSCrash dependency" andLevel:kSentryLogLevelError];
 }
+
+- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
+    // We need to do nothing here without KSCrash
+}
+
 #pragma GCC diagnostic pop
 
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
@@ -338,7 +342,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)crash {
-    [SentryLog logWithMessage:@"Would have crashed - but since KSCrash is not linked we do nothing." andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"Would have crashed - but since KSCrash is not linked we do nothing." andLevel:kSentryLogLevelError];
+}
+
+- (BOOL)crashedLastLaunch {
+    [SentryLog logWithMessage:@"KSCrash is not linked we cannot tell if app crashed." andLevel:kSentryLogLevelError];
+    return NO;
 }
 
 #endif

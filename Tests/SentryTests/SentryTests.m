@@ -45,6 +45,12 @@
     [client crash];
 }
 
+- (void)testCrashedLastLaunch {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertFalse([client crashedLastLaunch]);
+}
+
 - (void)testInstallation {
     SentryKSCrashInstallation *installation = [[SentryKSCrashInstallation alloc] init];
     [installation sendAllReports];

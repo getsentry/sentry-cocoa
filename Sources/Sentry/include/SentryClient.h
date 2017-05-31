@@ -172,6 +172,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
               logAllThreads:(BOOL)logAllThreads
            terminateProgram:(BOOL)terminateProgram;
 
+/**
+ * Returns true if the app crashed before launching now
+ */
+- (BOOL)crashedLastLaunch;
+
 @end
 
 NS_ASSUME_NONNULL_END
