@@ -129,11 +129,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)storeEvent:(SentryEvent *)event {
-    [self storeDictionary:event.serialized toPath:self.eventsPath];
+    [self storeDictionary:[event serialize] toPath:self.eventsPath];
 }
 
 - (void)storeBreadcrumb:(SentryBreadcrumb *)crumb {
-    [self storeDictionary:crumb.serialized toPath:self.breadcrumbsPath];
+    [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
 }
 
 - (void)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {

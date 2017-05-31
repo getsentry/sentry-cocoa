@@ -25,8 +25,8 @@
     debugMeta.uuid = @"abcd";
     XCTAssertNotNil(debugMeta.uuid);
     NSDictionary *serialized = @{@"uuid": @"abcd"};
-    XCTAssertEqualObjects(debugMeta.serialized, serialized);
-    
+    XCTAssertEqualObjects([debugMeta serialize], serialized);
+
     SentryDebugMeta *debugMeta2 = [SentryDebugMeta new];
     debugMeta2.uuid = @"abcde";
     debugMeta2.imageAddress = @"0x0000000100034000";
@@ -51,7 +51,7 @@
                                   @"minor_version": @(20),
                                   @"major_version": @(30),
                                   @"uuid": @"abcde"};
-    XCTAssertEqualObjects(debugMeta2.serialized, serialized2);
+    XCTAssertEqualObjects([debugMeta2 serialize], serialized2);
 }
 
 - (void)testFrame {
@@ -59,12 +59,12 @@
     frame.symbolAddress = @"0x01";
     XCTAssertNotNil(frame.symbolAddress);
     NSDictionary *serialized = @{@"symbol_addr": @"0x01"};
-    XCTAssertEqualObjects(frame.serialized, serialized);
-    
+    XCTAssertEqualObjects([frame serialize], serialized);
+
     SentryFrame *frame2 = [[SentryFrame alloc] init];
     frame2.symbolAddress = @"0x01";
     XCTAssertNotNil(frame2.symbolAddress);
-    
+
     frame2.fileName = @"file://b.swift";
     frame2.function = @"[hey2 alloc]";
     frame2.module = @"b";
@@ -85,7 +85,7 @@
                                   @"platform": @"platform",
                                   @"lineno": @(100),
                                   @"colno": @(200)};
-    XCTAssertEqualObjects(frame2.serialized, serialized2);
+    XCTAssertEqualObjects([frame2 serialize], serialized2);
 }
 
 - (void)testEvent {
@@ -95,7 +95,7 @@
     event.environment = @"bla";
     event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     event.extra = @{@"__sentry_stacktrace": @"f"};
-    NSDictionary *serialized = @{@"contexts": [[SentryContext alloc] init].serialized,
+    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                  @"event_id": event.eventId,
                                  @"extra": @{},
                                  @"level": @"info",
@@ -105,25 +105,25 @@
                                  @"dist": @"c",
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                  @"timestamp": date.toIso8601String};
-    XCTAssertEqualObjects(event.serialized, serialized);
-    
+    XCTAssertEqualObjects([event serialize], serialized);
+
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event2.timestamp = date;
-    NSDictionary *serialized2 = @{@"contexts": [[SentryContext alloc] init].serialized,
+    NSDictionary *serialized2 = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                  @"event_id": event2.eventId,
                                  @"level": @"info",
                                  @"platform": @"cocoa",
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                  @"timestamp": date.toIso8601String};
-    XCTAssertEqualObjects(event2.serialized, serialized2);
+    XCTAssertEqualObjects([event2 serialize], serialized2);
 }
 
 - (void)testSetDistToNil {
     SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     eventEmptyDist.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
     eventEmptyDist.releaseName = @"abc";
-    XCTAssertNil([eventEmptyDist.serialized objectForKey:@"dist"]);
-    XCTAssertEqualObjects([eventEmptyDist.serialized objectForKey:@"release"], @"abc");
+    XCTAssertNil([[eventEmptyDist serialize] objectForKey:@"dist"]);
+    XCTAssertEqualObjects([[eventEmptyDist serialize] objectForKey:@"release"], @"abc");
 }
 
 - (void)testStacktrace {
@@ -135,15 +135,15 @@
     [stacktrace fixDuplicateFrames];
     NSDictionary *serialized = @{@"frames": @[@{@"symbol_addr": @"0x01"}],
                                  @"registers": @{@"a": @"1"}};
-    XCTAssertEqualObjects(stacktrace.serialized, serialized);
+    XCTAssertEqualObjects([stacktrace serialize], serialized);
 }
 
 - (void)testThread {
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(1)];
     XCTAssertNotNil(thread.threadId);
     NSDictionary *serialized = @{@"id": @(1)};
-    XCTAssertEqualObjects(thread.serialized, serialized);
-    
+    XCTAssertEqualObjects([thread serialize], serialized);
+
     SentryThread *thread2 = [[SentryThread alloc] initWithThreadId:@(2)];
     XCTAssertNotNil(thread2.threadId);
     thread2.crashed = @(YES);
@@ -160,15 +160,15 @@
                                   @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01"}],
                                                    @"registers": @{@"a": @"1"}}
                                   };
-    XCTAssertEqualObjects(thread2.serialized, serialized2);
+    XCTAssertEqualObjects([thread2 serialize], serialized2);
 }
 
 - (void)testUser {
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
     XCTAssertNotNil(user.userId);
     NSDictionary *serialized = @{@"id": @"1"};
-    XCTAssertEqualObjects(user.serialized, serialized);
-    
+    XCTAssertEqualObjects([user serialize], serialized);
+
     SentryUser *user2 = [[SentryUser alloc] initWithUserId:@"1"];
     XCTAssertNotNil(user2.userId);
     user2.email = @"a@b.com";
@@ -180,7 +180,7 @@
                                   @"username": @"tony",
                                   @"extra": @{@"test": @"a"}
                                   };
-    XCTAssertEqualObjects(user2.serialized, serialized2);
+    XCTAssertEqualObjects([user2 serialize], serialized2);
 }
 
 - (void)testException {
@@ -191,12 +191,12 @@
                                  @"value": @"value",
                                  @"type": @"type",
                                  };
-    XCTAssertEqualObjects(exception.serialized, serialized);
-    
+    XCTAssertEqualObjects([exception serialize], serialized);
+
     SentryException *exception2 = [[SentryException alloc] initWithValue:@"value" type:@"type"];
     XCTAssertNotNil(exception2.value);
     XCTAssertNotNil(exception2.type);
-    
+
     SentryThread *thread2 = [[SentryThread alloc] initWithThreadId:@(2)];
     XCTAssertNotNil(thread2.threadId);
     thread2.crashed = @(YES);
@@ -205,7 +205,7 @@
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
     thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
-    
+
     exception2.thread = thread2;
     exception2.mechanism = @{@"a": @"b"};
     exception2.module = @"module";
@@ -218,14 +218,14 @@
                                  @"module": @"module",
                                  @"mechanism": @{@"a": @"b"}
                                  };
-    
-    XCTAssertEqualObjects(exception2.serialized, serialized2);
+
+    XCTAssertEqualObjects([exception2 serialize], serialized2);
 }
 
 - (void)testContext {
     SentryContext *context = [SentryContext new];
     XCTAssertNotNil(context);
-    XCTAssertEqual(context.serialized.count, (unsigned long)3);
+    XCTAssertEqual([context serialize].count, (unsigned long)3);
 }
 
 - (void)testBreadcrumb {
@@ -239,8 +239,8 @@
                                  @"timestamp": [date toIso8601String],
                                  @"category": @"http",
                                  };
-    XCTAssertEqualObjects(crumb.serialized, serialized);
-    
+    XCTAssertEqualObjects([crumb serialize], serialized);
+
     SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
     XCTAssertTrue(crumb2.level >= 0);
     XCTAssertNotNil(crumb2.category);
@@ -256,7 +256,7 @@
                                  @"category": @"http",
                                  @"data": @{@"bla": @"1"},
                                  };
-    XCTAssertEqualObjects(crumb2.serialized, serialized2);
+    XCTAssertEqualObjects([crumb2 serialize], serialized2);
 }
 
 - (void)testBreadcrumbStore {
@@ -274,7 +274,7 @@
                                             }
                                         ]
                                  };
-    XCTAssertEqualObjects(store.serialized, serialized);
+    XCTAssertEqualObjects([store serialize], serialized);
     [store clear];
 }
 

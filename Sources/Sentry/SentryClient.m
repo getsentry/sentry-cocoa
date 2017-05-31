@@ -66,8 +66,8 @@ static SentryKSCrashInstallation *installation = nil;
 
 #pragma mark Initializer
 
-- (instancetype)initWithDsn:(NSString *)dsn
-           didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
     return [self initWithDsn:dsn
@@ -75,9 +75,9 @@ static SentryKSCrashInstallation *installation = nil;
             didFailWithError:error];
 }
 
-- (instancetype)initWithDsn:(NSString *)dsn
-             requestManager:(id <SentryRequestManager>)requestManager
-           didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                       requestManager:(id <SentryRequestManager>)requestManager
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         [self setExtra:@{}];
@@ -105,7 +105,7 @@ static SentryKSCrashInstallation *installation = nil;
     return sharedClient;
 }
 
-+ (void)setSharedClient:(SentryClient *)client {
++ (void)setSharedClient:(SentryClient *_Nullable)client {
     sharedClient = client;
 }
 
@@ -156,7 +156,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             _self.lastEvent = event;
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
-                                                            userInfo:event.serialized];
+                                                            userInfo:[event serialize]];
 
             // Send all stored events in background if the queue is ready
             if ([_self.requestManager isReady]) {
@@ -220,7 +220,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = self.breadcrumbs.serialized;
+        event.breadcrumbsSerialized = [self.breadcrumbs serialize];
     }
     
     if (nil == event.infoDict) {
@@ -241,7 +241,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    [self setCrashUserInfo:user.serialized forKey:@"user"];
+    [self setCrashUserInfo:[user serialize] forKey:@"user"];
     _user = user;
 }
 

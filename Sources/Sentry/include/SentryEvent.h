@@ -20,7 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext;
 
+NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
+SENTRY_NO_INIT
 
 @property(nonatomic, copy) NSString *eventId;
 @property(nonatomic, copy) NSString *message;
@@ -35,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *_Nullable environment;
 
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
-@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable extra;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;
 
 @property(nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
@@ -46,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 @property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
-@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable breadcrumbsSerialized;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable breadcrumbsSerialized;
 
 /**
  * This property is there for setting main bundle of the app

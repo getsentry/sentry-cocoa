@@ -24,6 +24,10 @@
 #define SENTRY_HAS_UIKIT 0
 #endif
 
+#define SENTRY_NO_INIT \
+- (instancetype)init NS_UNAVAILABLE; \
++ (instancetype)new NS_UNAVAILABLE;
+
 @class SentryEvent, SentryNSURLRequest;
 
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);

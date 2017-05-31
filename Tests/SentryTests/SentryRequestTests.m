@@ -16,6 +16,22 @@ NSInteger requestShouldReturnCode = 200;
 NSInteger requestsSuccessfullyFinished = 0;
 NSInteger requestsWithErrors = 0;
 
+@interface SentryClient (Private)
+
+/**
+ * Initializes a SentryClient which can be used for sending events to sentry.
+ *
+ * @param dsn DSN string of sentry
+ * @param requestManager Object conforming SentryRequestManager protocol
+ * @param error NSError reference object
+ * @return SentryClient
+ */
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                       requestManager:(id <SentryRequestManager>)requestManager
+                     didFailWithError:(NSError *_Nullable *_Nullable)error;
+
+@end
+
 @interface SentryMockNSURLSessionDataTask: NSURLSessionDataTask
 
 @property (nonatomic, assign) BOOL isCancelled;
@@ -95,14 +111,14 @@ NSInteger requestsWithErrors = 0;
 }
 
 - (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    
+
     if (request.allHTTPHeaderFields[@"X-TEST"]) {
         if (completionHandler) {
             completionHandler([NSError errorWithDomain:@"" code:9898 userInfo:nil]);
             return;
         }
     }
-    
+
     self.lastOperation = [[SentryRequestOperation alloc] initWithSession:self.session
                                                                                 request:request
                                                                       completionHandler:^(NSError * _Nullable error) {
@@ -167,7 +183,7 @@ NSInteger requestsWithErrors = 0;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
                        requestManager:requestManager
                      didFailWithError:nil];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     [client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
@@ -219,7 +235,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNotNil(error);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -234,15 +250,15 @@ NSInteger requestsWithErrors = 0;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
                                               requestManager:requestManager
                                             didFailWithError:nil];
-    
+
     XCTAssertTrue(requestManager.isReady);
-    
+
     [client sendEvent:self.event withCompletionHandler:NULL];
-    
+
     for (NSInteger i = 0; i <= 5; i++) {
         [client sendEvent:self.event withCompletionHandler:NULL];
     }
-    
+
     XCTAssertFalse(requestManager.isReady);
 }
 
@@ -252,7 +268,7 @@ NSInteger requestsWithErrors = 0;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"http://a:b@sentry.io/1"
                                               requestManager:requestManager
                                             didFailWithError:nil];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should fail"];
     [client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNotNil(error);
@@ -291,7 +307,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -307,7 +323,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation2 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -323,7 +339,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation3 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -339,7 +355,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation4 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -355,21 +371,21 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
         }
         XCTAssert(YES);
     }];
-    
+
     XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     [self.client sendEvent:event4 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation4 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -400,7 +416,7 @@ NSInteger requestsWithErrors = 0;
                                                             }
                                                         ],
                                      @"user": @{@"id": @"XXXXXX"},
-                                     @"contexts": context.serialized,
+                                     @"contexts": [context serialize],
                                      @"event_id": event.eventId,
                                      @"extra": @{@"c": @"d"},
                                      @"level": @"warning",
@@ -410,11 +426,11 @@ NSInteger requestsWithErrors = 0;
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b"},
                                      @"timestamp": date.toIso8601String};
-        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -445,7 +461,7 @@ NSInteger requestsWithErrors = 0;
                                                             @"timestamp": date.toIso8601String
                                                             }
                                                         ],
-                                     @"contexts": context.serialized,
+                                     @"contexts": [context serialize],
                                      @"event_id": event.eventId,
                                      @"extra": @{@"c": @"d", @"3": @"4"},
                                      @"level": @"warning",
@@ -455,11 +471,11 @@ NSInteger requestsWithErrors = 0;
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b", @"1": @"2"},
                                      @"timestamp": date.toIso8601String};
-        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -491,7 +507,7 @@ NSInteger requestsWithErrors = 0;
                                                             @"timestamp": date.toIso8601String
                                                             }
                                                         ],
-                                     @"contexts": context.serialized,
+                                     @"contexts": [context serialize],
                                      @"event_id": event.eventId,
                                      @"extra": @{@"c": @"2"},
                                      @"level": @"warning",
@@ -501,11 +517,11 @@ NSInteger requestsWithErrors = 0;
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"1"},
                                      @"timestamp": date.toIso8601String};
-        XCTAssertEqualObjects(self.client.lastEvent.serialized, serialized);
+        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -522,11 +538,11 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNotNil(error);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation1] timeout:5];
     XCTAssertEqual(requestsWithErrors, 1);
     requestShouldReturnCode = 200;
-    
+
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     [self.client sendEvent:event2 withCompletionHandler:^(NSError * _Nullable error) {
@@ -538,14 +554,14 @@ NSInteger requestsWithErrors = 0;
     XCTAssertEqual(requestsSuccessfullyFinished, 1);
     XCTAssertEqual(requestsWithErrors, 1);
     requestShouldReturnCode = 200;
-    
+
     XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     [self.client sendEvent:event3 withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation3 fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation3] timeout:5];
     XCTAssertEqual(requestsSuccessfullyFinished, 3);
 }
@@ -563,7 +579,7 @@ NSInteger requestsWithErrors = 0;
         XCTAssertNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -578,7 +594,7 @@ NSInteger requestsWithErrors = 0;
     self.client.beforeSendRequest = ^(SentryNSURLRequest * _Nonnull request) {
         [request setValue:@"12345" forHTTPHeaderField:@"X-TEST"];
     };
-    
+
     [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, 9898);

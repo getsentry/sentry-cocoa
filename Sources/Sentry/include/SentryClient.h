@@ -17,14 +17,14 @@
 #endif
 
 @class SentryEvent, SentryBreadcrumbStore, SentryUser;
-@protocol SentryRequestManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * `SentryClient`
- */
+NS_SWIFT_NAME(Client)
 @interface SentryClient : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /**
  * Return a version string e.g: 1.2.3 (3)
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable extra;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
  * Contains the last successfully sent event
@@ -73,45 +73,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
 
 /**
- * Initializes a SentryClient, internally calls @selector(initWithDsn:requestManager:didFailWithError:) with a
- * SentryQueueableRequestManager.
- *
- * @param dsn DSN string of sentry
- * @param error NSError reference object
- * @return SentryClient
+ * Returns the shared sentry client
+ * @return sharedClient if it was set before
  */
-- (instancetype)initWithDsn:(NSString *)dsn
-           didFailWithError:(NSError *_Nullable *_Nullable)error;
+@property(class) SentryClient *_Nullable sharedClient;
 
 /**
- * Initializes a SentryClient which can be used for sending events to sentry.
+ * Initializes a SentryClient. Pass your private DSN string.
  *
  * @param dsn DSN string of sentry
- * @param requestManager Object conforming SentryRequestManager protocol
  * @param error NSError reference object
  * @return SentryClient
  */
-- (instancetype)initWithDsn:(NSString *)dsn
-             requestManager:(id <SentryRequestManager>)requestManager
-           didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * This automatically adds breadcrumbs for differenct user actions.
  */
 - (void)enableAutomaticBreadcrumbTracking;
-
-/**
- * Returns the shared sentry client
- * @return sharedClient if it was set before
- */
-+ (_Nullable instancetype)sharedClient;
-
-/**
- * Set the shared sentry client which will be available via sharedClient
- *
- * @param client set the sharedClient to the SentryClient class
- */
-+ (void)setSharedClient:(SentryClient *)client;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with

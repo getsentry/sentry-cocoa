@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.fileManager deleteAllStoredBreadcrumbs];
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
