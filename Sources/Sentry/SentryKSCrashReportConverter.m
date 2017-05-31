@@ -296,14 +296,14 @@ static inline NSString *hexAddress(NSNumber *value) {
                                                                                       self.exceptionContext[@"signal"][@"code"]]
                                                       type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
-        NSString *exceptionName = self.exceptionContext[@"user_reported"][@"name"];
-        exception = [[SentryException alloc] initWithValue:exceptionName
+        NSString *exceptionReason = self.exceptionContext[@"user_reported"][@"reason"];
+        exception = [[SentryException alloc] initWithValue:exceptionReason
                                                       type:@"User Reported"];
 
-        NSRange match = [exceptionName rangeOfString:@":"];
+        NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {
-            exception = [[SentryException alloc] initWithValue:[exceptionName substringWithRange:NSMakeRange(match.location + match.length, (exceptionName.length - match.location) - match.length)]
-                                                          type:[exceptionName substringWithRange:NSMakeRange(0, match.location)]];
+            exception = [[SentryException alloc] initWithValue:[[exceptionReason substringWithRange:NSMakeRange(match.location + match.length, (exceptionReason.length - match.location) - match.length)] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                                                          type:[exceptionReason substringWithRange:NSMakeRange(0, match.location)]];
         }
     }
 

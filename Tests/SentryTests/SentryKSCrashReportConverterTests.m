@@ -152,6 +152,12 @@ NSString *reportPath = @"";
 
 - (void)testReactNative {
     reportPath = @"Resources/ReactNative";
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+//    Error: SentryClient: Test throw error
+    XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"SentryClient: Test throw error");
     [self isValidReport];
 }
 
