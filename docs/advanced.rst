@@ -111,6 +111,18 @@ You have to set the block somewhere in you code.
 
 This block is meant to be used for stripping sensitive data or add additional data for every event.
 
+Change request before sending it
+--------------------------------
+
+You can change the `NSURLRequest` before it will be send. This is helpful e.g.: for adding
+additional headers to the request.
+
+.. sourcecode:: swift
+
+    Client.shared?.beforeSendRequest = { request in
+        request.addValue("my-token", forHTTPHeaderField: "Authorization")
+    }
+
 Adding stacktrace to message
 ----------------------------
 

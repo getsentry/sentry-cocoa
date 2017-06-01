@@ -88,6 +88,9 @@ class SentrySwiftTests: XCTestCase {
             event.message = "Test Message"
             Client.shared?.send(event: event)
         }
+        Client.shared?.beforeSendRequest = { request in
+            request.addValue("my-token", forHTTPHeaderField: "Authorization")
+        }
     }
     
 }
