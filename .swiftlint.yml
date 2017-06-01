@@ -1,13 +1,9 @@
 excluded:
-  - SentryTests
-  - Examples
-  - iOS
+  - Tests
   - Carthage
   - Pods
   - Utils
-  - vendor
   - DependencyManagerTests
-  - deprecated
 whitelist_rules:
   #- attributes
   - class_delegate_protocol

@@ -8,14 +8,15 @@
 
 import Cocoa
 
-import SentrySwift
+import Sentry
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
-		Client.sharedClient = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
-        try? Client.sharedClient?.startCrashHandler()
+		Client.shared = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+    try? Client.shared?.startCrashHandler()
 	}
 
 }
+
