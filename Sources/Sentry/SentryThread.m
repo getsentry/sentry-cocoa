@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = @{
             @"id": self.threadId
     }.mutableCopy;
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.crashed forKey:@"crashed"];
     [serializedData setValue:self.current forKey:@"current"];
     [serializedData setValue:self.name forKey:@"name"];
-    [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
+    [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
 
     return serializedData;
 }

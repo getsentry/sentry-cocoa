@@ -29,7 +29,7 @@
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:SentrySeverityNames[self.level] forKey:@"level"];

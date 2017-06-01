@@ -42,7 +42,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn andEvent:(SentryEvent *)event
                                  didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSDictionary *serialized = event.serialized;
+    NSDictionary *serialized = [event serialize];
     if (![NSJSONSerialization isValidJSONObject:serialized]) {
         if (error) {
             *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");

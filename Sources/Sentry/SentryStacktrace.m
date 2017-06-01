@@ -52,12 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     NSMutableArray *frames = [NSMutableArray new];
     for (SentryFrame *frame in self.frames) {
-        [frames addObject:frame.serialized];
+        [frames addObject:[frame serialize]];
     }
     [serializedData setValue:frames forKey:@"frames"];
 

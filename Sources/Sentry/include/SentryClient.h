@@ -16,20 +16,25 @@
 #import "SentryDefines.h"
 #endif
 
-@class SentryEvent, SentryBreadcrumbStore, SentryUser;
-@protocol SentryRequestManager;
+@class SentryEvent, SentryBreadcrumbStore, SentryUser, SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * `SentryClient`
- */
+NS_SWIFT_NAME(Client)
 @interface SentryClient : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /**
  * Return a version string e.g: 1.2.3 (3)
  */
 @property(nonatomic, class, readonly, copy) NSString *versionString;
+
+/**
+ * Return a string sentry-cocoa
+ */
+@property(nonatomic, class, readonly, copy) NSString *sdkName;
 
 /**
  * Set logLevel for the current client default kSentryLogLevelError
@@ -49,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable extra;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
  * Contains the last successfully sent event
@@ -73,45 +78,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
 
 /**
- * Initializes a SentryClient, internally calls @selector(initWithDsn:requestManager:didFailWithError:) with a
- * SentryQueueableRequestManager.
- *
- * @param dsn DSN string of sentry
- * @param error NSError reference object
- * @return SentryClient
- */
-- (instancetype)initWithDsn:(NSString *)dsn
-           didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * Initializes a SentryClient which can be used for sending events to sentry.
- *
- * @param dsn DSN string of sentry
- * @param requestManager Object conforming SentryRequestManager protocol
- * @param error NSError reference object
- * @return SentryClient
- */
-- (instancetype)initWithDsn:(NSString *)dsn
-             requestManager:(id <SentryRequestManager>)requestManager
-           didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * This automatically adds breadcrumbs for differenct user actions.
- */
-- (void)enableAutomaticBreadcrumbTracking;
-
-/**
  * Returns the shared sentry client
  * @return sharedClient if it was set before
  */
-+ (_Nullable instancetype)sharedClient;
+@property(nonatomic, class) SentryClient *_Nullable sharedClient;
 
 /**
- * Set the shared sentry client which will be available via sharedClient
+ * Initializes a SentryClient. Pass your private DSN string.
  *
- * @param client set the sharedClient to the SentryClient class
+ * @param dsn DSN string of sentry
+ * @param error NSError reference object
+ * @return SentryClient
  */
-+ (void)setSharedClient:(SentryClient *)client;
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error;
+
+/**
+ * This automatically adds breadcrumbs for different user actions.
+ */
+- (void)enableAutomaticBreadcrumbTracking;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
@@ -119,24 +104,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+NS_SWIFT_NAME(send(event:completion:));
 
 /**
- * Sends and event to sentry.
- * @param event SentryEvent that should be sent
- * @param useClientProperties should breadcrumbs, tags, context be set on the event
- * @param completionHandler SentryRequestFinished
- */
-- (void)    sendEvent:(SentryEvent *)event
-  useClientProperties:(BOOL)useClientProperties
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
-
-/**
- * Clears all context releated varialbes tags, extra and user
+ * Clears all context related variables tags, extra and user
  */
 - (void)clearContext;
 
 /// KSCrash
+/// Functions below will only do something if KSCrash is linked
 
 /**
  * This forces a crash, useful to test the KSCrash integration
@@ -181,6 +158,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
  * Returns true if the app crashed before launching now
  */
 - (BOOL)crashedLastLaunch;
+
+/**
+ * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
+ */
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted;
 
 @end
 

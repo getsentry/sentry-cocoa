@@ -39,7 +39,7 @@
     [self.fileManager storeEvent:event];
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertTrue(events.count == 1);
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:event.serialized
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[event serialize]
                                                        options:0
                                                          error:nil];
     XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
@@ -50,7 +50,7 @@
     [self.fileManager storeBreadcrumb:crumb];
     NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
     XCTAssertTrue(crumbs.count == 1);
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb.serialized
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[crumb serialize]
                                                        options:0
                                                          error:nil];
     XCTAssertEqualObjects(((NSDictionary *)crumbs.firstObject)[@"data"], jsonData);

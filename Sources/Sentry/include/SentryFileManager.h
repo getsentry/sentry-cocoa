@@ -8,15 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentryDefines.h>
+#else
+#import "SentryDefines.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryEvent, SentryBreadcrumb;
 
 @interface SentryFileManager : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-+ (instancetype)new NS_UNAVAILABLE;
+SENTRY_NO_INIT
 
 - (_Nullable instancetype)initWithError:(NSError **)error;
 

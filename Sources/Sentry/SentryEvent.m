@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.extra = newExtra;
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     if (nil == self.timestamp) {
         self.timestamp = [NSDate date];
     }
@@ -73,12 +73,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     [self addSimpleProperties:serializedData];
-    
+
+    [self addOptionalListProperties:serializedData];
+
+    // This is important here, since we probably use __sentry internal extras before
     [self stripInternalExtraParameters];
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-
-    [self addOptionalListProperties:serializedData];
 
     return serializedData;
 }
@@ -92,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addDebugImages:(NSMutableDictionary *)serializedData {
     NSMutableArray *debugImages = [NSMutableArray new];
     for (SentryThread *debugImage in self.debugMeta) {
-        [debugImages addObject:debugImage.serialized];
+        [debugImages addObject:[debugImage serialize]];
     }
     if (debugImages.count > 0) {
         [serializedData setValue:@{@"images": debugImages} forKey:@"debug_meta"];
@@ -102,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addExceptions:(NSMutableDictionary *)serializedData {
     NSMutableArray *exceptions = [NSMutableArray new];
     for (SentryThread *exception in self.exceptions) {
-        [exceptions addObject:exception.serialized];
+        [exceptions addObject:[exception serialize]];
     }
     if (exceptions.count > 0) {
         [serializedData setValue:@{@"values": exceptions} forKey:@"exception"];
@@ -112,36 +113,43 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addThreads:(NSMutableDictionary *)serializedData {
     NSMutableArray *threads = [NSMutableArray new];
     for (SentryThread *thread in self.threads) {
-        [threads addObject:thread.serialized];
+        [threads addObject:[thread serialize]];
     }
     if (threads.count > 0) {
         [serializedData setValue:@{@"values": threads} forKey:@"threads"];
     }
 }
 
+- (void)addSdkInformation:(NSMutableDictionary *)serializedData {
+    NSString *sdkName = SentryClient.sdkName;
+    if (self.extra[@"__sentry_sdk_detail"]) {
+        sdkName = [NSString stringWithFormat:@"%@:%@", SentryClient.sdkName, self.extra[@"__sentry_sdk_detail"]];
+    }
+    serializedData[@"sdk"] = @{
+            @"name": sdkName,
+            @"version": SentryClient.versionString
+    };
+}
+
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData {
+    [self addSdkInformation:serializedData];
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
     
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
     
-    [serializedData setValue:self.user.serialized forKey:@"user"];
+    [serializedData setValue:[self.user serialize] forKey:@"user"];
     [serializedData setValue:self.modules forKey:@"modules"];
     
-    [serializedData setValue:self.stacktrace.serialized forKey:@"stacktrace"];
+    [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
     
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
-    
-    serializedData[@"sdk"] = @{
-                               @"name": @"sentry-cocoa",
-                               @"version": SentryClient.versionString
-                               };
     
     if (nil == self.context) {
         self.context = [SentryContext new];
     }
-    [serializedData setValue:self.context.serialized forKey:@"contexts"];
+    [serializedData setValue:[self.context serialize] forKey:@"contexts"];
     
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];

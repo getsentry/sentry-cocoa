@@ -13,6 +13,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -27,6 +28,7 @@
 
 #else
 #import "SentryClient.h"
+#import "SentryClient+Internal.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -43,6 +45,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const SentryClientVersionString = @"3.0.0";
+NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
@@ -66,8 +69,8 @@ static SentryKSCrashInstallation *installation = nil;
 
 #pragma mark Initializer
 
-- (instancetype)initWithDsn:(NSString *)dsn
-           didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
     return [self initWithDsn:dsn
@@ -75,9 +78,9 @@ static SentryKSCrashInstallation *installation = nil;
             didFailWithError:error];
 }
 
-- (instancetype)initWithDsn:(NSString *)dsn
-             requestManager:(id <SentryRequestManager>)requestManager
-           didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                       requestManager:(id <SentryRequestManager>)requestManager
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         [self setExtra:@{}];
@@ -105,12 +108,16 @@ static SentryKSCrashInstallation *installation = nil;
     return sharedClient;
 }
 
-+ (void)setSharedClient:(SentryClient *)client {
++ (void)setSharedClient:(SentryClient *_Nullable)client {
     sharedClient = client;
 }
 
 + (NSString *)versionString {
     return SentryClientVersionString;
+}
+
++ (NSString *)sdkName {
+    return SentryClientSdkName;
 }
 
 + (void)setLogLevel:(SentryLogLevel)level {
@@ -156,7 +163,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             _self.lastEvent = event;
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
-                                                            userInfo:event.serialized];
+                                                            userInfo:[event serialize]];
 
             // Send all stored events in background if the queue is ready
             if ([_self.requestManager isReady]) {
@@ -220,11 +227,16 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = self.breadcrumbs.serialized;
+        event.breadcrumbsSerialized = [self.breadcrumbs serialize];
     }
     
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
+    }
+    
+    if (nil == event.threads && nil != self._snapshotThreads) {
+        event.threads = self._snapshotThreads;
+        self._snapshotThreads = nil;
     }
 }
 
@@ -241,7 +253,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    [self setCrashUserInfo:user.serialized forKey:@"user"];
+    [self setCrashUserInfo:[user serialize] forKey:@"user"];
     _user = user;
 }
 
@@ -311,10 +323,28 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [KSCrash.sharedInstance reportUserException:name
                                          reason:reason
                                        language:language
-                                     lineOfCode:lineOfCode stackTrace:stackTrace
+                                     lineOfCode:lineOfCode
+                                     stackTrace:stackTrace
                                   logAllThreads:logAllThreads
                                terminateProgram:terminateProgram];
     [installation sendAllReports];
+}
+
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+    if (nil == installation) {
+        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        return;
+    }
+    [KSCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
+                                         reason:@"SENTRY_SNAPSHOT"
+                                       language:@""
+                                     lineOfCode:@""
+                                     stackTrace:@[]
+                                  logAllThreads:NO
+                               terminateProgram:NO];
+    [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
+        snapshotCompleted();
+    }];
 }
 
 #else
@@ -354,6 +384,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 - (BOOL)crashedLastLaunch {
     [SentryLog logWithMessage:@"KSCrash is not linked we cannot tell if app crashed." andLevel:kSentryLogLevelError];
     return NO;
+}
+
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+    [SentryLog logWithMessage:@"KSCrash is not linked snapshot the stacktrace." andLevel:kSentryLogLevelError];
+    snapshotCompleted();
 }
 
 #endif

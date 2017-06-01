@@ -26,7 +26,7 @@ NSString *reportPath = @"";
 - (void)testConvertReport {
     reportPath = @"Resources/crash-report-1";
     NSDictionary *report = [self getCrashReport];
-    
+
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertNotNil(event);
@@ -43,29 +43,29 @@ NSString *reportPath = @"";
     XCTAssertEqualObjects(firstDebugImage.majorVersion, @(0));
     XCTAssertEqualObjects(firstDebugImage.minorVersion, @(0));
     XCTAssertEqualObjects(firstDebugImage.revisionVersion, @(0));
-    
+
     SentryThread *firstThread = event.threads.firstObject;
     XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
     XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
     XCTAssertEqualObjects(firstThread.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
     XCTAssertEqualObjects(firstThread.stacktrace.registers[@"x4"], @"0x0000000102468000");
     XCTAssertEqualObjects(firstThread.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
-    
+
     XCTAssertEqualObjects(firstThread.crashed, @(YES));
     XCTAssertEqualObjects(firstThread.current, @(NO));
     XCTAssertEqualObjects(firstThread.name, @"com.apple.main-thread");
     XCTAssertEqual(event.threads.count, (unsigned long)10);
-    
+
     XCTAssertEqual(event.exceptions.count, (unsigned long)1);
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
     XCTAssertEqualObjects(exception.mechanism[@"posix_signal"][@"name"], @"SIGBUS");
     XCTAssertEqualObjects(exception.mechanism[@"mach_exception"][@"exception_name"], @"EXC_BAD_ACCESS");
     XCTAssertEqualObjects(exception.mechanism[@"relevant_address"], @"0x0000000102468000");
-    
-    XCTAssertTrue([NSJSONSerialization isValidJSONObject:event.serialized]);
-    XCTAssertNotNil([event.serialized valueForKeyPath:@"exception.values"]);
-    XCTAssertNotNil([event.serialized valueForKeyPath:@"threads.values"]);
+
+    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
+    XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
+    XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
 }
 
 - (void)testRawWithCrashReport {
@@ -73,32 +73,32 @@ NSString *reportPath = @"";
     NSDictionary *rawCrash = [self getCrashReport];
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
-    NSDictionary *serializedEvent = event.serialized;
-    
+    NSDictionary *serializedEvent = [event serialize];
+
     reportPath = @"Resources/converted-event";
     NSDictionary *eventJson = [self getCrashReport];
-    
+
     // If this line succeeds we are golden
     //[self compareDict:eventJson withDict:serializedEvent];
-    
+
     NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
     NSArray *serializedDebugImages = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
     XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
     for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
         [self compareDict:[convertedDebugImages objectAtIndex:i] withDict:[serializedDebugImages objectAtIndex:i]];
     }
-    
+
     NSArray *convertedThreads = ((NSArray *)[eventJson valueForKeyPath:@"threads.values"]);
     NSArray *serializedThreads = ((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]);
-    
+
     XCTAssertEqual(convertedThreads.count, serializedThreads.count);
     for (NSUInteger i = 0; i < convertedThreads.count; i++) {
         [self compareDict:[convertedThreads objectAtIndex:i] withDict:[serializedThreads objectAtIndex:i]];
     }
-    
+
     NSArray *convertedStacktrace = [((NSArray *)[eventJson valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
     NSArray *serializedStacktrace = [((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
-    
+
     XCTAssertEqual(convertedStacktrace.count, serializedStacktrace.count);
     for (NSUInteger i = 0; i < convertedStacktrace.count; i++) {
         [self compareDict:[convertedStacktrace objectAtIndex:i] withDict:[serializedStacktrace objectAtIndex:i]];
@@ -190,7 +190,7 @@ NSString *reportPath = @"";
                                      @"id": @"12341",
                                      @"username": @"username"
                                      };
-    [self compareDict:serializedUser withDict:event.user.serialized];
+    [self compareDict:serializedUser withDict:[event.user serialize]];
     XCTAssertEqual(event.tags.count, (unsigned long)2);
     XCTAssertEqual(event.extra.count, (unsigned long)7);
 }
@@ -201,7 +201,7 @@ NSString *reportPath = @"";
     NSDictionary *report = [self getCrashReport];
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
     SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertTrue([NSJSONSerialization isValidJSONObject:event.serialized]);
+    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
 }
 
 - (void)compareDict:(NSDictionary *)one withDict:(NSDictionary *)two {

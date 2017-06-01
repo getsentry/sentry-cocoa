@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = @{
             @"id": self.userId
     }.mutableCopy;

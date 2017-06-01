@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [super new];
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     if (nil == self.osContext) {

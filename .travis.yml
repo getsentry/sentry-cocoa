@@ -12,7 +12,6 @@ env:
     matrix:
         - LANE=lint
         - LANE=test
-        - LANE=test_swift
         - LANE=do_cocoapods KSCRASH=true PLATFORM=ios
         - LANE=do_cocoapods KSCRASH=true PLATFORM=macos
         - LANE=do_cocoapods KSCRASH=true PLATFORM=tvos

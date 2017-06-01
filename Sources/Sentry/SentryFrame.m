@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [super new];
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:self.symbolAddress forKey:@"symbol_addr"];

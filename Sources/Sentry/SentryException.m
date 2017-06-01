@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialized {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:self.value forKey:@"value"];
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.mechanism forKey:@"mechanism"];
     [serializedData setValue:self.module forKey:@"module"];
     [serializedData setValue:self.thread.threadId forKey:@"thread_id"];
-    [serializedData setValue:self.thread.stacktrace.serialized forKey:@"stacktrace"];
+    [serializedData setValue:[self.thread.stacktrace serialize] forKey:@"stacktrace"];
 
     return serializedData;
 }

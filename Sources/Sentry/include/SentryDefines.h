@@ -24,12 +24,28 @@
 #define SENTRY_HAS_UIKIT 0
 #endif
 
+#define SENTRY_NO_INIT \
+- (instancetype)init NS_UNAVAILABLE; \
++ (instancetype)new NS_UNAVAILABLE;
+
 @class SentryEvent, SentryNSURLRequest;
 
+/**
+ * Block used for returning after a request finished
+ */
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
+/**
+ * Block can be used to mutate event before its send
+ */
 typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
+/**
+ * Block can be used to mutate NSURLRequest e.g.: add headers before request is executed
+ */
 typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
 
+/**
+ * Loglevel
+ */
 typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelNone = 1,
     kSentryLogLevelError,
@@ -37,6 +53,9 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelVerbose
 };
 
+/**
+ * Level of severity
+ */
 typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityFatal = 0,
     kSentrySeverityError = 1,
@@ -45,6 +64,9 @@ typedef NS_ENUM(NSInteger, SentrySeverity) {
     kSentrySeverityDebug = 4,
 };
 
+/**
+ * Static internal helper to convert enum to string
+ */
 static NSString *_Nonnull const SentrySeverityNames[] = {
         @"fatal",
         @"error",
