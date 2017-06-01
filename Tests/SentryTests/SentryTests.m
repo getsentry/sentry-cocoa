@@ -34,13 +34,9 @@
 - (void)testSharedClient {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryClient.sharedClient = client;
-    [SentryClient.sharedClient startCrashHandlerWithError:&error];
-    if (nil != error) {
-        NSLog(@"%@", error);
-    }
     XCTAssertNil(error);
     XCTAssertNil(SentryClient.sharedClient);
+    SentryClient.sharedClient = client;
     XCTAssertNotNil(SentryClient.sharedClient);
 }
 

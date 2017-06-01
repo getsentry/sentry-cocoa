@@ -63,7 +63,12 @@ User Feedback
 
 The `User Feedback` feature has been removed as of version ``3.0.0``.
 But if you want to show you own Controller or handle stuff after a crash you can use
-our
+our :ref:`before-serialize-event` callback.
+We are now also sending a notification whenever an event has been sent.
+The name of the notifcation is ``Sentry/eventSentSuccessfully`` and it contains the
+serialzed event as ``userInfo``.
+Additionally the Client has a new property ``Client.shared?.lastEvent`` which always
+contains the most recent event.
 
 Breadcrumbs
 -----------
@@ -90,12 +95,12 @@ With version `1.1.0` we added another iOS only feature which tracks breadcrumbs 
 If called this will track every action sent from a Storyboard and every `viewDidAppear` from an `UIViewController`.
 We use method swizzling for this feature, so in case your app also overwrites one of these methods be sure to checkout our implementation in our repo.
 
-.. _cocoa-before-send-event:
+.. _before-serialize-event:
 
 Change event before sending it
 ------------------------------
 
-With version `1.3.0` we added the possiblity to change an event before it gets send to the server.
+With version `1.3.0` we added the possiblity to change an event before it will be sent to the server.
 You have to set the block somewhere in you code.
 
 .. sourcecode:: swift
@@ -109,22 +114,14 @@ This block is meant to be used for stripping sensitive data or add additional da
 Adding stacktrace to message
 ----------------------------
 
-In version `1.3.0` we also added a new function called: `SentryClient.shared?.snapshotStacktrace()`
+You can also add a Stacktrace to your event by using the `snapshotStacktrace` function.
 
-This function captures the stacktrace at the location where its called. So for example if you want to send a simple message to the server and add the stacktrace to it you have to do this.
+This function captures the stacktrace at the location where it's called. So for example if you want to send a simple message to the server and add the stacktrace to it you have to do this.
 
 .. sourcecode:: swift
 
-    // This is somewhere in you setup code define the beforeSendEventBlock
-    SentryClient.shared?.beforeSendEventBlock = {
-        // This function fetches the snapshot of the stacktrace and adds it to the event
-        // Be aware that this function only sets the stacktrace if its no real crash
-        // So it will never overwrite an existing
-        $0.fetchStacktrace()
+    Client.shared?.snapshotStacktrace {
+        let event = Event(level: .debug)
+        event.message = "Test Message"
+        Client.shared?.send(event: event)
     }
-
-    ......
-
-    // Somewhere where you want to capture the stacktrace and send a simple message
-    SentryClient.shared?.snapshotStacktrace()
-    SentryClient.shared?.captureMessage("This is my simple message but with a stacktrace")

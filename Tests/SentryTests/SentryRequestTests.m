@@ -609,5 +609,27 @@ NSInteger requestsWithErrors = 0;
     }];
 }
 
-
+- (void)testSnapshotStacktrace {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    [self.client snapshotStacktrace:^{
+        XCTAssertTrue(YES);
+    }];
+    self.client._snapshotThreads = @[[[SentryThread alloc] initWithThreadId:@(9999)]];
+    self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
+        XCTAssertEqualObjects(event.threads.firstObject.threadId, @(9999));
+    };
+    
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
 @end

@@ -14,12 +14,20 @@
 
 #import <Sentry/SentryKSCrashReportSink.h>
 #import <Sentry/SentryKSCrashReportConverter.h>
+#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryEvent.h>
+#import <Sentry/SentryException.h>
+#import <Sentry/SentryLog.h>
 
 #else
 #import "SentryKSCrashReportSink.h"
 #import "SentryKSCrashReportConverter.h"
 #import "SentryClient.h"
+#import "SentryClient+Internal.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryLog.h"
 #endif
 
 @implementation SentryKSCrashReportSink
@@ -29,15 +37,22 @@
           onCompletion:(KSCrashReportFilterCompletion)onCompletion {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
     dispatch_async(queue, ^{
+        NSMutableArray *sentReports = [NSMutableArray new];
         for (NSDictionary *report in reports) {
             SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
             if (nil != SentryClient.sharedClient) {
-                [SentryClient.sharedClient sendEvent:[reportConverter convertReportToEvent] withCompletionHandler:NULL];
+                SentryEvent *event = [reportConverter convertReportToEvent];
+                if (nil != event.exceptions.firstObject && [event.exceptions.firstObject.value isEqualToString:@"SENTRY_SNAPSHOT"]) {
+                    [SentryLog logWithMessage:@"Snapshotting stacktrace" andLevel:kSentryLogLevelDebug];
+                    SentryClient.sharedClient._snapshotThreads = event.threads;
+                } else {
+                    [sentReports addObject:report];
+                    [SentryClient.sharedClient sendEvent:event withCompletionHandler:NULL];
+                }
             }
         }
-        // TODO we need todo more here
         if (onCompletion) {
-            onCompletion(reports, YES, nil);
+            onCompletion(sentReports, TRUE, nil);
         }
     });
     

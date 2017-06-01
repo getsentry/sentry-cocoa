@@ -16,7 +16,7 @@
 #import "SentryDefines.h"
 #endif
 
-@class SentryEvent, SentryBreadcrumbStore, SentryUser;
+@class SentryEvent, SentryBreadcrumbStore, SentryUser, SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,17 +104,8 @@ NS_SWIFT_NAME(Client)
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler NS_SWIFT_NAME(send(event:completion:));
-
-/**
- * Sends and event to sentry.
- * @param event SentryEvent that should be sent
- * @param useClientProperties should breadcrumbs, tags, context be set on the event
- * @param completionHandler SentryRequestFinished
- */
-- (void)    sendEvent:(SentryEvent *)event
-  useClientProperties:(BOOL)useClientProperties
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+NS_SWIFT_NAME(send(event:completion:));
 
 /**
  * Clears all context related variables tags, extra and user
@@ -167,6 +158,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
  * Returns true if the app crashed before launching now
  */
 - (BOOL)crashedLastLaunch;
+
+/**
+ * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
+ */
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted;
 
 @end
 

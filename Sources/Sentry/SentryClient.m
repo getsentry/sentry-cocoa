@@ -13,6 +13,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -27,6 +28,7 @@
 
 #else
 #import "SentryClient.h"
+#import "SentryClient+Internal.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -231,6 +233,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
+    
+    if (nil == event.threads && nil != self._snapshotThreads) {
+        event.threads = self._snapshotThreads;
+        self._snapshotThreads = nil;
+    }
 }
 
 #pragma mark Global properties
@@ -316,10 +323,28 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [KSCrash.sharedInstance reportUserException:name
                                          reason:reason
                                        language:language
-                                     lineOfCode:lineOfCode stackTrace:stackTrace
+                                     lineOfCode:lineOfCode
+                                     stackTrace:stackTrace
                                   logAllThreads:logAllThreads
                                terminateProgram:terminateProgram];
     [installation sendAllReports];
+}
+
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+    if (nil == installation) {
+        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        return;
+    }
+    [KSCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
+                                         reason:@"SENTRY_SNAPSHOT"
+                                       language:@""
+                                     lineOfCode:@""
+                                     stackTrace:@[]
+                                  logAllThreads:NO
+                               terminateProgram:NO];
+    [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
+        snapshotCompleted();
+    }];
 }
 
 #else
@@ -359,6 +384,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 - (BOOL)crashedLastLaunch {
     [SentryLog logWithMessage:@"KSCrash is not linked we cannot tell if app crashed." andLevel:kSentryLogLevelError];
     return NO;
+}
+
+- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+    [SentryLog logWithMessage:@"KSCrash is not linked snapshot the stacktrace." andLevel:kSentryLogLevelError];
+    snapshotCompleted();
 }
 
 #endif

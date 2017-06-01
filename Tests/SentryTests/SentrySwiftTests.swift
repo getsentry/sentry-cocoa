@@ -66,6 +66,7 @@ class SentrySwiftTests: XCTestCase {
         Client.shared?.send(event: event2) { (error) in
             XCTAssertNil(error)
         }
+        
         Client.logLevel = .debug
         Client.shared?.clearContext()
         // Client.shared?.lastEvent
@@ -81,6 +82,12 @@ class SentrySwiftTests: XCTestCase {
         Client.shared?.tags = ["iphone": "true"]
         
         Client.shared?.clearContext()
+        
+        Client.shared?.snapshotStacktrace {
+            let event = Event(level: .debug)
+            event.message = "Test Message"
+            Client.shared?.send(event: event)
+        }
     }
     
 }
