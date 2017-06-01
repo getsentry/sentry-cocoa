@@ -164,7 +164,6 @@ lane :reset_cocoapods do |options|
 target '#{cocoapods_target}' do
   use_frameworks!
   pod '#{sentry_pod}', :path => "../../../"
-  pod 'SentrySwift', :path => "../../../"
 
   target '#{cocoapods_target}Tests' do
 
