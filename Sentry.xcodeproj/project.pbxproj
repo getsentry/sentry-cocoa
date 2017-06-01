@@ -985,9 +985,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "";
 				MACH_O_TYPE = staticlib;
 				OTHER_LDFLAGS = "-ObjC";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include/Sentry;
-				SDKROOT = "";
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = "$(inherited)";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1011,9 +1012,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "";
 				MACH_O_TYPE = staticlib;
 				OTHER_LDFLAGS = "-ObjC";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include/Sentry;
-				SDKROOT = "";
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = "$(inherited)";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
