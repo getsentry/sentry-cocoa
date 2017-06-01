@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentrySerializable.h>
+
 #else
 #import "SentrySerializable.h"
 #endif
@@ -19,12 +21,23 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Context)
 @interface SentryContext : NSObject <SentrySerializable>
 
+/**
+ * Operating System information in contexts
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable osContext;
+
+/**
+ * Device information in contexts
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable deviceContext;
+
+/**
+ * App information in contexts
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable appContext;
+
 - (instancetype)init;
 + (instancetype)new;
-
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable osContext;
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable deviceContext;
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable appContext;
 
 @end
 

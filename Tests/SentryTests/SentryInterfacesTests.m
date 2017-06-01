@@ -278,4 +278,25 @@
     [store clear];
 }
 
+- (void)testEventSdkDetail {
+    NSDate *date = [NSDate date];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event.timestamp = date;
+    event.environment = @"bla";
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
+    event.extra = @{@"__sentry_stacktrace": @"f", @"__sentry_sdk_detail": @"react-native"};
+    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
+                                 @"event_id": event.eventId,
+                                 @"extra": @{},
+                                 @"level": @"info",
+                                 @"environment": @"bla",
+                                 @"platform": @"cocoa",
+                                 @"release": @"a-b",
+                                 @"dist": @"c",
+                                 @"sdk": @{@"name": @"sentry-cocoa:react-native", @"version": SentryClient.versionString},
+                                 @"timestamp": date.toIso8601String};
+    XCTAssertEqualObjects([event serialize], serialized);
+
+}
+
 @end

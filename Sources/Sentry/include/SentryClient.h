@@ -32,6 +32,11 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, class, readonly, copy) NSString *versionString;
 
 /**
+ * Return a string sentry-cocoa
+ */
+@property(nonatomic, class, readonly, copy) NSString *sdkName;
+
+/**
  * Set logLevel for the current client default kSentryLogLevelError
  */
 @property(nonatomic, class) SentryLogLevel logLevel;
@@ -76,7 +81,7 @@ NS_SWIFT_NAME(Client)
  * Returns the shared sentry client
  * @return sharedClient if it was set before
  */
-@property(class) SentryClient *_Nullable sharedClient;
+@property(nonatomic, class) SentryClient *_Nullable sharedClient;
 
 /**
  * Initializes a SentryClient. Pass your private DSN string.
@@ -89,7 +94,7 @@ NS_SWIFT_NAME(Client)
                      didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
- * This automatically adds breadcrumbs for differenct user actions.
+ * This automatically adds breadcrumbs for different user actions.
  */
 - (void)enableAutomaticBreadcrumbTracking;
 
@@ -112,11 +117,12 @@ NS_SWIFT_NAME(Client)
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
 
 /**
- * Clears all context releated varialbes tags, extra and user
+ * Clears all context related variables tags, extra and user
  */
 - (void)clearContext;
 
 /// KSCrash
+/// Functions below will only do something if KSCrash is linked
 
 /**
  * This forces a crash, useful to test the KSCrash integration

@@ -9,8 +9,10 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
+
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentrySerializable.h>
+
 #else
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
@@ -24,14 +26,35 @@ NS_SWIFT_NAME(BreadcrumbStore)
 @interface SentryBreadcrumbStore : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
+/*
+ * This property defines how many breadcrumbs should be stored.
+ * Change this to reflect you needs.
+ */
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
+/**
+ * Init SentryBreadcrumbStore, should only be used internally
+ *
+ * @param fileManager SentryFileManager
+ * @return SentryBreadcrumbStore
+ */
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager;
 
+/**
+ * Add a SentryBreadcrumb to the store
+ * @param crumb SentryBreadcrumb
+ */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
+/**
+ * Deletes all stored SentryBreadcrumb s
+ */
 - (void)clear;
 
+/**
+ * Returns the number of stored SentryBreadcrumb s
+ * @return number of SentryBreadcrumb
+ */
 - (NSUInteger)count;
 
 @end

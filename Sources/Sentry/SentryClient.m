@@ -43,6 +43,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const SentryClientVersionString = @"3.0.0";
+NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
@@ -111,6 +112,10 @@ static SentryKSCrashInstallation *installation = nil;
 
 + (NSString *)versionString {
     return SentryClientVersionString;
+}
+
++ (NSString *)sdkName {
+    return SentryClientSdkName;
 }
 
 + (void)setLogLevel:(SentryLogLevel)level {

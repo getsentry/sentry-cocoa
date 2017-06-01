@@ -51,7 +51,9 @@ class SentrySwiftTests: XCTestCase {
         Client.shared?.send(event2) { (error) in
             XCTAssertNil(error)
         }
-        
+        Client.logLevel = .debug
+        Client.shared?.clearContext()
+        // Client.shared?.lastEvent
         Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
         XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
 //        Client.shared.s

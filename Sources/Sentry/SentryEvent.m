@@ -73,12 +73,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     [self addSimpleProperties:serializedData];
-    
+
+    [self addOptionalListProperties:serializedData];
+
+    // This is important here, since we probably use __sentry internal extras before
     [self stripInternalExtraParameters];
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-
-    [self addOptionalListProperties:serializedData];
 
     return serializedData;
 }
@@ -119,7 +120,19 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)addSdkInformation:(NSMutableDictionary *)serializedData {
+    NSString *sdkName = SentryClient.sdkName;
+    if (self.extra[@"__sentry_sdk_detail"]) {
+        sdkName = [NSString stringWithFormat:@"%@:%@", SentryClient.sdkName, self.extra[@"__sentry_sdk_detail"]];
+    }
+    serializedData[@"sdk"] = @{
+            @"name": sdkName,
+            @"version": SentryClient.versionString
+    };
+}
+
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData {
+    [self addSdkInformation:serializedData];
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
@@ -132,11 +145,6 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
     
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
-    
-    serializedData[@"sdk"] = @{
-                               @"name": @"sentry-cocoa",
-                               @"version": SentryClient.versionString
-                               };
     
     if (nil == self.context) {
         self.context = [SentryContext new];
