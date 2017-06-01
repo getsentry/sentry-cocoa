@@ -110,6 +110,35 @@
 		639889BF1EDED18A00EA7442 /* SentrySwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889B61EDECFA800EA7442 /* SentrySwizzle.m */; };
 		639889C01EDED18D00EA7442 /* SentrySwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentrySwizzle.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		639889D41EDF06C100EA7442 /* SentrySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639889D31EDF06C100EA7442 /* SentrySwiftTests.swift */; };
+		63988A0B1EDFF8E900EA7442 /* RSSwizzle.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* RSSwizzle.h */; };
+		63988A0C1EDFF8E900EA7442 /* SentrySerializable.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; };
+		63988A0D1EDFF8E900EA7442 /* SentryEvent.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCF961EBC7B9700778193 /* SentryEvent.h */; };
+		63988A0E1EDFF8E900EA7442 /* SentryException.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9E1EBC804600778193 /* SentryException.h */; };
+		63988A0F1EDFF8E900EA7442 /* SentryFrame.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA61EBC80CC00778193 /* SentryFrame.h */; };
+		63988A101EDFF8E900EA7442 /* SentryStacktrace.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA21EBC809A00778193 /* SentryStacktrace.h */; };
+		63988A111EDFF8E900EA7442 /* SentryThread.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9A1EBC7F9500778193 /* SentryThread.h */; };
+		63988A121EDFF8E900EA7442 /* SentryUser.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639FCFAA1EBC811400778193 /* SentryUser.h */; };
+		63988A131EDFF8E900EA7442 /* SentryDebugMeta.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63B818F71EC34639002FDF4C /* SentryDebugMeta.h */; };
+		63988A141EDFF8E900EA7442 /* SentryContext.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63BE856A1ECD8F2C00DC44F5 /* SentryContext.h */; };
+		63988A151EDFF8E900EA7442 /* SentryBreadcrumb.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */; };
+		63988A161EDFF8E900EA7442 /* SentryBreadcrumbStore.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 636085071ED2AFA700E8599E /* SentryBreadcrumbStore.h */; };
+		63988A171EDFF8E900EA7442 /* SentryAsynchronousOperation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */; };
+		63988A181EDFF8E900EA7442 /* SentryDsn.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76A41EB9CBC200D153DE /* SentryDsn.h */; };
+		63988A191EDFF8E900EA7442 /* SentryNSURLRequest.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */; };
+		63988A1A1EDFF8E900EA7442 /* SentryQueueableRequestManager.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; };
+		63988A1B1EDFF8E900EA7442 /* SentryRequestOperation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */; };
+		63988A1C1EDFF8E900EA7442 /* NSData+Compression.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* NSData+Compression.h */; };
+		63988A1D1EDFF8E900EA7442 /* NSDate+Extras.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */; };
+		63988A1E1EDFF8E900EA7442 /* SentryKSCrashInstallation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */; };
+		63988A1F1EDFF8E900EA7442 /* SentryKSCrashReportSink.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */; };
+		63988A201EDFF8E900EA7442 /* SentryKSCrashReportConverter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6344DDB71EC3115C00D9160D /* SentryKSCrashReportConverter.h */; };
+		63988A211EDFF8E900EA7442 /* SentryDefines.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76951EB9C1C200D153DE /* SentryDefines.h */; };
+		63988A221EDFF8E900EA7442 /* SentryError.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA769B1EB9C57A00D153DE /* SentryError.h */; };
+		63988A231EDFF8E900EA7442 /* SentryLog.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76961EB9C1C200D153DE /* SentryLog.h */; };
+		63988A241EDFF8E900EA7442 /* SentryFileManager.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 636085111ED47BE600E8599E /* SentryFileManager.h */; };
+		63988A251EDFF8E900EA7442 /* SentrySwizzle.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentrySwizzle.h */; };
+		63988A261EDFF8E900EA7442 /* Sentry.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; };
+		63988A271EDFF8E900EA7442 /* SentryClient.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76941EB9C1C200D153DE /* SentryClient.h */; };
 		639FCF931EBC746F00778193 /* SentryDsnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF921EBC746F00778193 /* SentryDsnTests.m */; };
 		639FCF951EBC749B00778193 /* SentryRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF941EBC749B00778193 /* SentryRequestTests.m */; };
 		639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF961EBC7B9700778193 /* SentryEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -155,6 +184,48 @@
 			remoteInfo = "Sentry-iOS";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		63988A0A1EDFF8C800EA7442 /* Copy Headers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = include/Sentry;
+			dstSubfolderSpec = 16;
+			files = (
+				63988A0B1EDFF8E900EA7442 /* RSSwizzle.h in Copy Headers */,
+				63988A0C1EDFF8E900EA7442 /* SentrySerializable.h in Copy Headers */,
+				63988A0D1EDFF8E900EA7442 /* SentryEvent.h in Copy Headers */,
+				63988A0E1EDFF8E900EA7442 /* SentryException.h in Copy Headers */,
+				63988A0F1EDFF8E900EA7442 /* SentryFrame.h in Copy Headers */,
+				63988A101EDFF8E900EA7442 /* SentryStacktrace.h in Copy Headers */,
+				63988A111EDFF8E900EA7442 /* SentryThread.h in Copy Headers */,
+				63988A121EDFF8E900EA7442 /* SentryUser.h in Copy Headers */,
+				63988A131EDFF8E900EA7442 /* SentryDebugMeta.h in Copy Headers */,
+				63988A141EDFF8E900EA7442 /* SentryContext.h in Copy Headers */,
+				63988A151EDFF8E900EA7442 /* SentryBreadcrumb.h in Copy Headers */,
+				63988A161EDFF8E900EA7442 /* SentryBreadcrumbStore.h in Copy Headers */,
+				63988A171EDFF8E900EA7442 /* SentryAsynchronousOperation.h in Copy Headers */,
+				63988A181EDFF8E900EA7442 /* SentryDsn.h in Copy Headers */,
+				63988A191EDFF8E900EA7442 /* SentryNSURLRequest.h in Copy Headers */,
+				63988A1A1EDFF8E900EA7442 /* SentryQueueableRequestManager.h in Copy Headers */,
+				63988A1B1EDFF8E900EA7442 /* SentryRequestOperation.h in Copy Headers */,
+				63988A1C1EDFF8E900EA7442 /* NSData+Compression.h in Copy Headers */,
+				63988A1D1EDFF8E900EA7442 /* NSDate+Extras.h in Copy Headers */,
+				63988A1E1EDFF8E900EA7442 /* SentryKSCrashInstallation.h in Copy Headers */,
+				63988A1F1EDFF8E900EA7442 /* SentryKSCrashReportSink.h in Copy Headers */,
+				63988A201EDFF8E900EA7442 /* SentryKSCrashReportConverter.h in Copy Headers */,
+				63988A211EDFF8E900EA7442 /* SentryDefines.h in Copy Headers */,
+				63988A221EDFF8E900EA7442 /* SentryError.h in Copy Headers */,
+				63988A231EDFF8E900EA7442 /* SentryLog.h in Copy Headers */,
+				63988A241EDFF8E900EA7442 /* SentryFileManager.h in Copy Headers */,
+				63988A251EDFF8E900EA7442 /* SentrySwizzle.h in Copy Headers */,
+				63988A261EDFF8E900EA7442 /* Sentry.h in Copy Headers */,
+				63988A271EDFF8E900EA7442 /* SentryClient.h in Copy Headers */,
+			);
+			name = "Copy Headers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
@@ -550,10 +621,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6387B7C81ED84F910045A84C /* Build configuration list for PBXNativeTarget "SentryStatic" */;
 			buildPhases = (
-				6387B7BE1ED84F910045A84C /* Sources */,
 				6387B7BF1ED84F910045A84C /* Frameworks */,
 				6387B8131ED850480045A84C /* Headers */,
-				6387B85D1ED852EB0045A84C /* ShellScript */,
+				63988A0A1EDFF8C800EA7442 /* Copy Headers */,
+				6387B7BE1ED84F910045A84C /* Sources */,
 			);
 			buildRules = (
 			);
@@ -683,19 +754,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "fastlane oc_lint\noclint-json-compilation-database -- -report-type xcode\n";
-		};
-		6387B85D1ED852EB0045A84C /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd \"${BUILT_PRODUCTS_DIR}\"\nif [ ! -e \"include\" ]\nthen\nln -s \"${INSTALL_ROOT}/include\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -928,7 +986,7 @@
 				MACH_O_TYPE = staticlib;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = /include/Sentry;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include/Sentry;
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 			};
@@ -954,7 +1012,7 @@
 				MACH_O_TYPE = staticlib;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = /include/Sentry;
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include/Sentry;
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 			};
