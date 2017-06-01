@@ -1,119 +1,96 @@
 Advanced Usage
 ==============
 
-Here are some advanced topics:
+With Senty ``3.0.0`` we introduced some breaking changes.
+We removed some of the functions that were available before and added a few
+for more flexibility.
+KSCrash is optional with ``3.0.0`` so if you call ``startCrashHandler`` it will only
+do something if you also have KSCrash installed.
+We've switched our code from Swift to Objective-C, so the code below shows mostly
+Swift code. Even though Sentry is perfectly compatible with Objective-C all classes
+are prefixed with `Sentry`.
 
+Sending Events
+--------------
 
-Sending Messages
-----------------
-
-Sending a basic message (no stacktrace) can be done with `captureMessage`.
-
-.. sourcecode:: swift
-
-    SentryClient.shared?.captureMessage("TEST 1 2 3", level: .Debug)
-
-If more detailed information is required, `Event` has a large constructor
-that allows for passing in of all the information or a `build` function
-can be called to build the `Event` object like below.
+Sending a basic event can be done with `send`.
 
 .. sourcecode:: swift
-
-    let event = Event.build("TEST 1 2 3") {
-        $0.level = .Debug
-        $0.tags = ["context": "production"]
-        $0.extra = [
-            "my_key": 1,
-            "some_other_value": "foo bar"
-        ]
+    let event = Event(level: .debug)
+    event.message = "Test Message"
+    Client.shared?.send(event: event) { (error) in
+        // Optional callback after event has been send
     }
-    SentryClient.shared?.captureEvent(event)
+
+If more detailed information is required, `Event` has many more properties to be
+filled.
+
+.. sourcecode:: swift
+
+    let event = Event(level: .debug)
+    event.message = "Test Message"
+    event.environment = "staging"
+    event.extra = ["ios": true]
+    Client.shared?.send(event: event)
 
 Client Information
 ------------------
 
-A user, tags, and extra information can be stored on a `SentryClient`.
-This information will get sent with every message/exception in which that
-`SentryClient` sends up the Sentry. They can be used like...
+A user, tags, and extra information can be stored on a `Client`.
+This information will be sent with every event. They can be used like...
 
 .. sourcecode:: swift
 
-    SentryClient.shared?.user = User(id: "3",
-        email: "example@example.com",
-        username: "Example",
-        extra: ["is_admin": false]
-    )
+    let user = User(userId: "1234")
+    user.email = "hello@sentry.io"
+    user.extra = ["is_admin": true]
+    Client.shared?.user = user
 
-    SentryClient.shared?.tags = [
-        "context": "production"
-    ]
+    Client.shared?.tags = ["iphone": "true"]
 
-    SentryClient.shared?.extra = [
+    Client.shared?.extra = [
         "my_key": 1,
         "some_other_value": "foo bar"
     ]
 
-All of the above (`user`, `tags`, and `extra`) can all be set at anytime
-and can also be set to `nil` to clear.
+All of the above (`user`, `tags`, and `extra`) can be set at anytime.
+Call ``Client.shared?.clearContext()`` to clear all set variables.
 
 .. _cocoa-user-feedback:
 
-User Feedback (iOS only feature)
---------------------------------
+User Feedback
+-------------
 
-You can activate the User Feedback feature by simply calling `enableUserFeedbackAfterFatalEvent`, which will then in case of an `Fatal` event call a delegate method where you can present the provided User Feedback viewcontroller.
-
-.. sourcecode:: swift
-
-    SentryClient.shared?.enableUserFeedbackAfterFatalEvent()
-    SentryClient.shared?.delegate = self
-
-Additionally you have to set the `delegate` and implement the `SentryClientUserFeedbackDelegate` protocol. It is your responsability to present the UserFeedback viewcontroller according to your needs, below you'll find the code to present the viewcontroller modally.
-
-.. sourcecode:: swift
-
-    // MARK: SentryClientUserFeedbackDelegate
-
-    func userFeedbackReady() {
-        if let viewControllers = SentryClient.shared?.userFeedbackControllers() {
-            presentViewController(viewControllers.navigationController, animated: true, completion: nil)
-        }
-    }
-
-    func userFeedbackSent() {
-        // Will be called after userFeedback has been sent
-    }
-
-You can pass a `UserFeedbackViewModel` to the `enableUserFeedbackAfterFatalEvent` to customize the labels of the controller. Alternatively you'll get the complete viewcontrollers with this function `SentryClient.shared?.userFeedbackControllers()`.
-
-Please take a look at our example projects if you need more details on how to integrate it.
-
+The `User Feedback` feature has been removed as of version ``3.0.0``.
+But if you want to show you own Controller or handle stuff after a crash you can use
+our
 
 Breadcrumbs
 -----------
 
-Breadcrumbs are used as a way to trace how an error occured. They will queue up on a `SentryClient` and will be sent up with the next event.
+Breadcrumbs are used as a way to trace how an error occured. They will queue up in a`Client` and will be sent with every event.
 
 .. sourcecode:: swift
 
-    SentryClient.shared?.breadcrumbs.add(Breadcrumb(category: "navigation", to: "point b", from: "point a"))
+    Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
 
 The client will queue up a maximum of 50 breadcrumbs by default.
 To change the maximum amout of breadcrumbs call:
 
 .. sourcecode:: swift
 
-    SentryClient.shared?.breadcrumbs.maxCrumbs = 100
+    Client.shared?.breadcrumbs.maxBreadcrumbs = 100
 
 With version `1.1.0` we added another iOS only feature which tracks breadcrumbs automatically by calling:
 
 .. sourcecode:: swift
 
-    SentryClient.shared?.enableAutomaticBreadcrumbTracking()
+    Client.shared?.enableAutomaticBreadcrumbTracking()
 
 If called this will track every action sent from a Storyboard and every `viewDidAppear` from an `UIViewController`.
 We use method swizzling for this feature, so in case your app also overwrites one of these methods be sure to checkout our implementation in our repo.
 
+.. _cocoa-before-send-event:
 
 Change event before sending it
 ------------------------------
@@ -123,9 +100,8 @@ You have to set the block somewhere in you code.
 
 .. sourcecode:: swift
 
-    SentryClient.shared?.beforeSendEventBlock = {
-        // $0 == Event
-        $0.message = "Add" + $0.message
+    Client.shared?.beforeSerializeEvent = { event in
+        event.extra = ["b": "c"]
     }
 
 This block is meant to be used for stripping sensitive data or add additional data for every event.

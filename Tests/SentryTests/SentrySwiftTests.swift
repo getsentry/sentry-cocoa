@@ -37,9 +37,24 @@ class SentrySwiftTests: XCTestCase {
     func testStartCrashHandler() {
         Client.shared = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
         XCTAssertThrowsError(try Client.shared?.startCrashHandler())
+        
+        do {
+            Client.shared = try Client(dsn: "https://username:password@app.getsentry.com/12345")
+            try Client.shared?.startCrashHandler()
+        } catch let error {
+            print("\(error)")
+            // Wrong DSN or KSCrash not installed
+        }
+        
     }
     
     func testFunctionCalls() {
+        let event = Event(level: .debug)
+        event.message = "Test Message"
+        event.environment = "staging"
+        event.extra = ["ios": true]
+        XCTAssertNotNil(event.serialize())
+        Client.shared?.send(event: event)
         let event2 = Event(level: .debug)
         event2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
@@ -48,15 +63,24 @@ class SentrySwiftTests: XCTestCase {
             event.extra = ["b": "c"]
         }
         
-        Client.shared?.send(event2) { (error) in
+        Client.shared?.send(event: event2) { (error) in
             XCTAssertNil(error)
         }
         Client.logLevel = .debug
         Client.shared?.clearContext()
         // Client.shared?.lastEvent
+        Client.shared?.breadcrumbs.maxBreadcrumbs = 100
         Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
         XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
-//        Client.shared.s
+        Client.shared?.enableAutomaticBreadcrumbTracking()
+        let user = User(userId: "1234")
+        user.email = "hello@sentry.io"
+        user.extra = ["is_admin": true]
+        Client.shared?.user = user
+        
+        Client.shared?.tags = ["iphone": "true"]
+        
+        Client.shared?.clearContext()
     }
     
 }

@@ -4,6 +4,9 @@ Cocoa
 =====
 
 This is the documentation for our official clients for Cocoa (Swift and Objective-C).
+Starting with version ``3.0.0`` we've switched our interal code from Swift to Objective-C
+to maximize compatiblity. Also we trimmed the public API of our sdk to a minimum.
+Some of the lesser used features that where present before are gone now, check :ref:`advanced` for details.
 
 Installation
 ------------
@@ -11,9 +14,7 @@ Installation
 The client (Sentry) can be installed using `CocoaPods
 <http://cocoapods.org>`__ or `Carthage
 <https://github.com/Carthage/Carthage>`__.  This is the recommended client
-for both Swift and Objective-C.  If you need support for old versions of
-iOS that do not support Swift you can use our alternative `Sentry-Objc
-<https://github.com/getsentry/sentry-objc>`_ client.
+for both Swift and Objective-C.
 
 To integrate Sentry into your Xcode project using CocoaPods, specify
 it in your `Podfile`:
@@ -22,39 +23,34 @@ it in your `Podfile`:
 
     source 'https://github.com/CocoaPods/Specs.git'
     platform :ios, '8.0'
-    use_frameworks!
 
     target 'YourApp' do
-        pod 'Sentry', :git => 'https://github.com/getsentry/sentry-swift.git', :tag => '###SENTRY_SWIFT_TAG###'
+        pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :subspecs => ['Core', 'KSCrash'], :tag => '###SENTRY_COCOA_TAG###'
     end
+
+If you want to use Sentry without KSCrash you can just remove it from the subspecs.
+Keep in mind that if you are not using KSCrash no events will be reported whenever you app crashes.
+Also some function might do nothing if they are related to KSCrash.
 
 Afterwards run ``pod install``.  In case you encounter problems with
 dependencies and you are on a newer CocoaPods you might have to run
 ``pod repo update`` first.
-
-In case your project still uses Swift 2.3 you can add these lines at the end of your Podfile which tells your Pods to use Swift 2.3.
-
-.. sourcecode:: ruby
-
-    post_install do |installer|
-      installer.pods_project.build_configurations.each do |config|
-        config.build_settings['SWIFT_VERSION'] = '2.3'
-        config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'NO'
-      end
-    end
 
 To integrate Sentry into your Xcode project using Carthage, specify
 it in your `Cartfile`:
 
 .. sourcecode:: ruby
 
-    github "getsentry/sentry-swift" "###SENTRY_SWIFT_TAG###"
+    github "getsentry/sentry-cocoa" "###SENTRY_COCOA_TAG###"
+    github "kstenerud/KSCrash" "1.15.8"
 
 Run ``carthage update`` to build the framework and drag the built
 `Sentry.framework` and `KSCrash.framework` into your Xcode project.
 
+KSCrash is still optional, you can run Sentry without it.
+
 We also provide a prebuilt version for every release which you can download in the `releases section on github
-<https://github.com/getsentry/sentry-swift/releases>`__.
+<https://github.com/getsentry/sentry-cocoa/releases>`__.
 
 Configuration
 -------------
@@ -70,8 +66,13 @@ instantiate the Sentry client:
         didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 
         // Create a Sentry client and start crash handler
-        SentryClient.shared = SentryClient(dsnString: "___DSN___")
-        SentryClient.shared?.startCrashHandler()
+        do {
+            Client.shared = try Client(dsn: "___DSN___")
+            try Client.shared?.startCrashHandler()
+        } catch let error {
+            print("\(error)")
+            // Wrong DSN or KSCrash not installed
+        }
 
         return true
     }
@@ -80,15 +81,19 @@ If you prefer to use Objective-C you can do so like this:
 
 .. sourcecode:: objc
 
-    @import Sentry;
+    #import <Sentry/Sentry.h>
 
-    [SentryClient setShared:[[SentryClient alloc] initWithDsnString:@"___DSN___"]];
-    [[SentryClient shared] startCrashHandler];
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"___DSN___" didFailWithError:&error];
+    SentryClient.sharedClient = client;
+    [SentryClient.sharedClient startCrashHandlerWithError:&error];
+    if (nil != error) {
+        NSLog(@"%@", error);
+    }
 
-Note that in case of a real crash make sure to call ``startCrashHandler`` before setting any other properties
-on the client. This guarantees that the stored crash report has the expected properties set.
+Note that if you call ``startCrashHandler`` will only catch errors if KSCrash is present.
 
-.. _sentry-swift-debug-symbols:
+.. _sentry-cocoa-debug-symbols:
 
 Debug Symbols
 -------------
@@ -114,13 +119,13 @@ You can use the following methods to cause a crash:
 
     .. sourcecode:: swift
 
-        SentryClient.shared?.crash()
+        Client.shared?.crash()
 
 *   Objective-C:
 
     .. sourcecode:: objc
 
-        [[SentryClient shared] crash];
+        [SentryClient.sharedClient crash];
 
 *Note that if you crash with a debugger attached nothing will happen.*
 

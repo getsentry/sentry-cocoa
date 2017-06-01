@@ -104,7 +104,7 @@ NS_SWIFT_NAME(Client)
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler;
+- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler NS_SWIFT_NAME(send(event:completion:));
 
 /**
  * Sends and event to sentry.
