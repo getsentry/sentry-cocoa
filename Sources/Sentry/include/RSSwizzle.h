@@ -43,9 +43,9 @@
         // Returning modified return value.
         return res + 1;
     }), 0, NULL);
- 
+
  @endcode
- 
+
  Swizzling frequently goes along with checking whether this particular class (or one of its superclasses) has been already swizzled. Here the `RSSwizzleMode` and `key` parameters can help. See +[RSSwizzle swizzleInstanceMethod:inClass:newImpFactory:mode:key:] for details.
 
  Swizzling is fully thread-safe.
@@ -53,15 +53,15 @@
  @param classToSwizzle The class with the method that should be swizzled.
 
  @param selector Selector of the method that should be swizzled.
- 
+
  @param RSSWReturnType The return type of the swizzled method wrapped in the RSSWReturnType macro.
- 
+
  @param RSSWArguments The arguments of the swizzled method wrapped in the RSSWArguments macro.
- 
+
  @param RSSWReplacement The code of the new implementation of the swizzled method wrapped in the RSSWReplacement macro.
- 
+
  @param RSSwizzleMode The mode is used in combination with the key to indicate whether the swizzling should be done for the given class. You can pass 0 for RSSwizzleModeAlways.
- 
+
  @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is RSSwizzleModeAlways.
 
  @return YES if successfully swizzled and NO if swizzling has been already done for given key and class (or one of superclasses, depends on the mode).
@@ -102,7 +102,7 @@
         // Returning modified return value.
         return res + 1;
     }));
- 
+
  @endcode
 
  Swizzling is fully thread-safe.
@@ -110,13 +110,13 @@
  @param classToSwizzle The class with the method that should be swizzled.
 
  @param selector Selector of the method that should be swizzled.
- 
+
  @param RSSWReturnType The return type of the swizzled method wrapped in the RSSWReturnType macro.
- 
+
  @param RSSWArguments The arguments of the swizzled method wrapped in the RSSWArguments macro.
- 
+
  @param RSSWReplacement The code of the new implementation of the swizzled method wrapped in the RSSWReplacement macro.
- 
+
  */
 #define RSSwizzleClassMethod(classToSwizzle, \
                              selector, \
@@ -145,9 +145,9 @@ typedef void (*RSSwizzleOriginalIMP)(void /* id, SEL, ... */ );
  Returns the original implementation of the swizzled method.
 
  It is actually either an original implementation if the swizzled class implements the method itself; or a super implementation fetched from one of the superclasses.
- 
+
  @note You must always cast returned implementation to the appropriate function pointer when calling.
- 
+
  @return A function pointer to the original implementation of the swizzled method.
  */
 -(RSSwizzleOriginalIMP)getOriginalImplementation;
@@ -161,11 +161,11 @@ typedef void (*RSSwizzleOriginalIMP)(void /* id, SEL, ... */ );
  A factory block returning the block for the new implementation of the swizzled method.
 
  You must always obtain original implementation with swizzleInfo and call it from the new implementation.
- 
+
  @param swizzleInfo An info used to get and call the original implementation of the swizzled method.
 
  @return A block that implements a method.
-    Its signature should be: `method_return_type ^(id self, method_args...)`. 
+    Its signature should be: `method_return_type ^(id self, method_args...)`.
     The selector is not available as a parameter to this block.
  */
 typedef id (^RSSwizzleImpFactoryBlock)(RSSwizzleInfo *swizzleInfo);
@@ -192,7 +192,7 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
  You should pass a factory block that returns the block for the new implementation of the swizzled method. And use swizzleInfo argument to retrieve and call original implementation.
 
  Example for swizzling `-(int)calculate:(int)number;` method:
- 
+
  @code
 
     SEL selector = @selector(calculate:);
@@ -213,15 +213,15 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
      }
      mode:RSSwizzleModeAlways
      key:NULL];
- 
+
  @endcode
 
  Swizzling frequently goes along with checking whether this particular class (or one of its superclasses) has been already swizzled. Here the `mode` and `key` parameters can help.
 
  Here is an example of swizzling `-(void)dealloc;` only in case when neither class and no one of its superclasses has been already swizzled with our key. However "Deallocating ..." message still may be logged multiple times per method call if swizzling was called primarily for an inherited class and later for one of its superclasses.
- 
+
  @code
- 
+
     static const void *key = &key;
     SEL selector = NSSelectorFromString(@"dealloc");
     [RSSwizzle
@@ -230,7 +230,7 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
      newImpFactory:^id(RSSWizzleInfo *swizzleInfo) {
          return ^void(__unsafe_unretained id self){
              NSLog(@"Deallocating %@.",self);
-             
+
              void (*originalIMP)(__unsafe_unretained id, SEL);
              originalIMP = (__typeof(originalIMP))[swizzleInfo getOriginalImplementation];
              originalIMP(self,selector);
@@ -238,19 +238,19 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
      }
      mode:RSSwizzleModeOncePerClassAndSuperclasses
      key:key];
- 
+
  @endcode
 
  Swizzling is fully thread-safe.
- 
+
  @param selector Selector of the method that should be swizzled.
 
  @param classToSwizzle The class with the method that should be swizzled.
- 
+
  @param factoryBlock The factory block returning the block for the new implementation of the swizzled method.
- 
+
  @param mode The mode is used in combination with the key to indicate whether the swizzling should be done for the given class.
- 
+
  @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is RSSwizzleModeAlways.
 
  @return YES if successfully swizzled and NO if swizzling has been already done for given key and class (or one of superclasses, depends on the mode).
@@ -271,7 +271,7 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
  You should pass a factory block that returns the block for the new implementation of the swizzled method. And use swizzleInfo argument to retrieve and call original implementation.
 
  Example for swizzling `+(int)calculate:(int)number;` method:
- 
+
  @code
 
     SEL selector = @selector(calculate:);
@@ -290,15 +290,15 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
              return res + 1;
          };
      }];
- 
+
  @endcode
 
  Swizzling is fully thread-safe.
- 
+
  @param selector Selector of the method that should be swizzled.
 
  @param classToSwizzle The class with the method that should be swizzled.
- 
+
  @param factoryBlock The factory block returning the block for the new implementation of the swizzled method.
  */
 +(void)swizzleClassMethod:(SEL)selector
