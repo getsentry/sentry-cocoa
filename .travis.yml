@@ -1,17 +1,33 @@
 language: objective-c
 osx_image: xcode8.3
 cache:
-    - bundler
+- bundler
 rvm:
-    - 2.2
+- 2.2
 script:
-    - travis_retry .travis/run.sh
+- travis_retry .travis/run.sh
 after_success:
-    - if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
+- if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s
+  https://codecov.io/bash) -f cobertura.xml; fi
 env:
-    matrix:
-        - LANE=lint
-        - LANE=test
-        - LANE=pod
+  matrix:
+  - LANE=lint
+  - LANE=test
+  - LANE=pod
+  global:
+    secure: hp4ptv1WRpOzjhhI3Tfz+6xX79DdQG7bh73w2bUN85Vb/GZj8FbMYWX40I2QK4SE6Gr1hCXXF6HgN+g4Tn32WtepGngOyAq3+15evkJ6UwsjtmYQQT/InNcbiiOTz2TirM07SATepdtQ1iXlnoFq1XH/1qVxH+NJt8PdDfNks2VkbSJuIorx5vZMX07uXjiAs9dzYIlE42E+TgPRwzmP974ftiG7JUY63ksgByZkS9OJnWb/o2VrQAevsQ89W4KqtK6LWQw+W0jO8gGDdRqc3dNs5jquPMGyGQtgoBGw1zmJq+wjdQcS+jFQVudZIjNZb4n4exVydMFg2ZWlDtBIgT9o8+IQHgWMt4bo+Kz5o60q6TM6acJwhyr7eJPXg5AXjZv7pRDao5fOeO6cyYhNhgALonGIz0rVqaYX/7x3pCZaGfyYxIN/GH7fl/KAy6ZRiFaiMrSXYrpNaM5oBvkND+AqS+F9bqrYWAlI2Kh4EIDPrId2arvZtanbIYhOtQmPaDGuuYTrWSDbLIAzpCq6fknn5pBcQqbNSKNd1klPhMOJyOdAEYgj5rTaSdrQ5ZccZG3pT7/l1wYk0eD730sChREtl1SZYW17DtRNMY9dP88rkxpr8Pu0dpVBkq3dUmHAs5J/mzRFn02RP4e5cfqZenAbi3UI7knLvihezhZg/lc=
 notifications:
   email: false
+jobs:
+  include:
+  - stage: deploy
+    script: pod trunk push Sentry.podspec
+    deploy:
+      provider: releases
+      api_key:
+        secure: UPtjZAVqtO3TPBXR9T7WF7h+vONPc++7/yIa8r8zhRu7IT47S0A3c4g3tkjqD/3gBTUsASbKPmoNwkI2Z3CLvfmv70FPkBEdCpFNZVLBvuEGuIN6e/lpVOjRU79ZudbU6xSqVk682RJhYLlOlWwxdX+jVfbpAbsJSgCw1XcvDBj35cRB/fEfuxRxUwxkpUQWPorj8V+B5QfX0qnZ2GlRHHV1PQiD99bb2jwcNvqRLkFJLD/zBE9owE/QKcXdjPaIEZrkq1k3jPkMQr4VvBjoUrabCiyFjMTKVIbi2ucHER+m5stcg/lMBYoy/0NCVyrEqVb5BUymEK2QOwLURAYmra4DvzizDwYFoebN2/hEkFZVbol+UzbE9Ws9HuC00Rep6xdVhvgoDJw6XE/b+Rkz2OrsjHnK/aWNXvY6scqP+vJpyo9hUgtETNHhJWSXsCZiHptwX67PpB0agx5dkhH/fZ6tZdjkrFFC7AafA2vjxRJU0Y0bjYEJGT/7IEqV8d7KQKhFeDION2asMMQ20z3MlLcsTrR7bGqsKIGphQer2GFlxMuVWu4BnL0Hr8ohB9tBmHIndSXAwBI6EZyUIBW7abraYixnZW8mb4emskMH/VBoq04IBFklmI7rFO4ZVqGN2a3ENxBvUkpXYV8yu+b9pP1cZQ2Kyuk0sTISwRy06Xs=
+      file: Sentry.framework.zip
+      skip_cleanup: true
+      on:
+        repo: getsentry/sentry-cocoa
+        tags: true
