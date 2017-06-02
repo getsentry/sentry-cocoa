@@ -31,6 +31,7 @@ func application(application: UIApplication,
 }
 ```
 
+- [Installation](https://docs.sentry.io/clients/cocoa/#installation)
 - [Documentation](https://docs.sentry.io/clients/cocoa/)
 
 <sup>(1)</sup>limited symbolication support
