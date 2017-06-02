@@ -18,6 +18,7 @@ Sending Events
 Sending a basic event can be done with `send`.
 
 .. sourcecode:: swift
+
     let event = Event(level: .debug)
     event.message = "Test Message"
     Client.shared?.send(event: event) { (error) in
