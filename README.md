@@ -10,36 +10,27 @@
 
 Offical client for [Sentry](https://www.sentry.io/).
 
-This client was written in Swift but works with both Swift >= 2.3 *and* Objective-C projects.
+This client is written in Objective-C but also works for Swift projects.
 
 ```swift
 import Sentry
 
-// Create client and start crash handler
-SentryClient.shared = SentryClient(dsnString: "your-dsn")
-SentryClient.shared?.startCrashHandler()
+func application(application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 
-// Set
-SentryClient.shared?.user = User(id: "3",
-	email: "example@example.com",
-	username: "some_user",
-	extra: ["is_admin": false]
-)
+    // Create a Sentry client and start crash handler
+    do {
+        Client.shared = try Client(dsn: "___DSN___")
+        try Client.shared?.startCrashHandler()
+    } catch let error {
+        print("\(error)")
+        // Wrong DSN or KSCrash not installed
+    }
+
+    return true
+}
 ```
 
 - [Documentation](https://docs.sentry.io/clients/cocoa/)
-
-**Example Projects**
-
-- [iOS Swift 2.3 Project](/Examples/SwiftExample) - Full project
-  - [ViewController.swift](/Examples/SwiftExample/SwiftExample/ViewController.swift) - Implementation
-- [Objective-C Project](/Examples/ObjCExample) - Full project
-  - [ViewController.m](/Examples/ObjCExample/ObjCExample/ViewController.m) - Implementation
-- [tvOS Swift 3 Project](/Examples/SwiftTVOSExample) - Full project
-  - [ViewController.swift](/Examples/SwiftTVOSExample/SwiftTVOSExample/ViewController.swift) - Implementation
-- [macOS Swift 3 Project](/Examples/MacExample) - Full project
-  - [ViewController.swift](/Examples/MacExample/MacExample/ViewController.swift) - Implementation
-- [watchOS Swift 3 Project](/Examples/SwiftWatchOSExample) - Full project
-  - [ViewController.swift](/Examples/SwiftWatchOSExample/SwiftWatchOSExample/ViewController.swift) - Implementation
 
 <sup>(1)</sup>limited symbolication support
