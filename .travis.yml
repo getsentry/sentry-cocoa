@@ -7,18 +7,10 @@ rvm:
 script:
     - travis_retry .travis/run.sh
 after_success:
-    - if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml; elif [ "$LANE" = "test_swift" ]; then slather coverage --scheme SentrySwift &&  bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
+    - if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
     matrix:
         - LANE=lint
         - LANE=test
-        - LANE=do_cocoapods KSCRASH=true PLATFORM=ios
-        - LANE=do_cocoapods KSCRASH=true PLATFORM=macos
-        - LANE=do_cocoapods KSCRASH=true PLATFORM=tvos
-        - LANE=do_cocoapods KSCRASH=true PLATFORM=watchos
-        - LANE=do_cocoapods KSCRASH=false PLATFORM=ios
-        - LANE=do_cocoapods KSCRASH=false PLATFORM=macos
-        - LANE=do_cocoapods KSCRASH=false PLATFORM=tvos
-        - LANE=do_cocoapods KSCRASH=false PLATFORM=watchos
 notifications:
   email: false

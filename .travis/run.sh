@@ -7,9 +7,6 @@ then
     gem install danger-swiftlint
     brew update
     brew outdated swiftlint || brew upgrade swiftlint
-elif [ "$LANE" = "do_cocoapods" ];
-then
-    gem install cocoapods
 elif [ "$LANE" = "test" ];
 then
     gem install slather
