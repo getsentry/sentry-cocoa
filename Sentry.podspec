@@ -1,24 +1,27 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "2.1.11"
-  s.summary      = "Swift client for Sentry"
-  s.homepage     = "https://github.com/getsentry/sentry-swift"
+  s.version      = "3.0.0"
+  s.summary      = "Sentry client for cocoa"
+  s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
   s.authors      = "Sentry"
-  s.source       = { :git => "https://github.com/getsentry/sentry-swift.git", :tag => s.version.to_s }
+  s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git", :tag => s.version.to_s }
 
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.10"
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
+  s.module_name  = "Sentry"
+  s.requires_arc = true
+  s.libraries = 'z'
 
-  s.source_files = "Sources/*.{h,m,swift}"
-  s.ios.source_files = "Sources/ios/*.{h,m,swift}"
+  s.default_subspecs = 'Core'
 
-  s.ios.resource_bundles = {
-    'storyboards' => ['Sources/ios/*.{storyboard}'],
-    'assets' => ['Sources/ios/*.{xcassets}']
-  }
+  s.subspec 'Core' do |sp|
+    sp.source_files = "Sources/Sentry/**/*.{h,m}"
+  end
 
-  s.dependency 'KSCrash', '~> 1.15.5'
+  s.subspec 'KSCrash' do |ks|
+    ks.dependency 'KSCrash', '~> 1.15.8'
+  end
 end

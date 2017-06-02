@@ -1,11 +1,11 @@
-_Platform:_ 
-- [ ]  iOS 
+_Platform:_
+- [ ]  iOS
 - [ ]  tvOS
-- [ ]  MacOS 
+- [ ]  MacOS
 - [ ]  watchOS
 
 _Swift:_
-- [ ]  Yes -> If yes, which version? 
+- [ ]  Yes -> If yes, which version?
 - [ ]  No
 
 _sentry-swift installed with:_
@@ -14,7 +14,7 @@ _sentry-swift installed with:_
 - [ ] Manually
 
 Version of sentry-swift:
-**2.x.x**
+**3.x.x**
 
 ---
 I have following issue:

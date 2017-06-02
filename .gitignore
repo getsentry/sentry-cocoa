@@ -37,17 +37,32 @@ playground.xcworkspace
 
 # Swift Package Manager
 .build/
+Packages
 
 # Carthage
 Carthage/Build
 Carthage/Checkouts
+Carthage
 
 # CocoaPods
-**/Pods
+Examples/**/Pods
+Pods
 
 # Fastlane
 fastlane/test_output/
+fastlane/README.md
 report.xml
 .env
 cobertura.xml
 Sentry.framework.zip
+
+# DepTest
+DependencyManagerTests/*/*/Cartfile
+DependencyManagerTests/*/*/Cartfile.resolved
+DependencyManagerTests/*/*/Carthage/
+DependencyManagerTests/*/*/Podfile
+DependencyManagerTests/*/*/Podfile.lock
+DependencyManagerTests/*/*/Pods
+compile_commands.json
+oclint_report.html
+xcodebuild.log

@@ -1,25 +1,15 @@
-fastlane_version "1.66.0"
-
 before_all do
-  clear_derived_data
-end
-
-desc "Test iOS, tvOS, and OSX"
-lane :test do
-    xcode_select "/Applications/Xcode-8.2.1.app"
-    ENV["CI"]="true"
-    test_swift_2_ios
-    test_swift_2_tvos
-    test_swift_2_macos
-    clear_derived_data
-    test_swift_3_tvos
-    test_swift_3_macos
-    test_swift_3_ios
+  clear_derived_data if is_ci?
 end
 
 lane :localcoverage do
-    test_swift_3_ios
-    sh('cd .. && slather coverage --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
+    test_swift
+    sh('cd .. && slather coverage --input-format profdata Sentry.xcodeproj')
+end
+
+lane :oc_lint do
+  sh('cd .. && xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log && oclint-xcodebuild -output compile_commands.json xcodebuild.log')
+  oclint
 end
 
 lane :lint do
@@ -34,35 +24,10 @@ lane :lint do
     sh('cd .. && swiftlint')
 end
 
-lane :test_swift_2_ios do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-iOS", xcargs: xcargs)
+lane :test do
+    scan(scheme: "Sentry", code_coverage: true)
 end
 
-lane :test_swift_2_tvos do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-tvOS", xcargs: xcargs)
-end
-
-lane :test_swift_2_macos do
-    xcargs = "SWIFT_VERSION=\"2.3\""
-    scan(scheme: "Sentry-OSX", destination: "platform=macOS", xcargs: xcargs)
-end
-
-lane :test_swift_3_tvos do
-    scan(scheme: "Sentry-tvOS")
-end
-
-lane :test_swift_3_macos do
-    scan(scheme: "Sentry-OSX", destination: "platform=macOS")
-end
-
-lane :test_swift_3_ios do
-    clear_derived_data
-    scan(scheme: "Sentry-iOS", code_coverage: true)
-    travis_slather
-end
-
-lane :travis_slather do
-    sh('cd .. && slather coverage -x --scheme Sentry-iOS --ignore "*ViewController.swift" --ignore "AppDelegate.swift" --ignore "SentrySwizzle.swift" --input-format profdata Sentry.xcodeproj')
+lane :pod do
+    sh('cd .. && pod lib lint')
 end

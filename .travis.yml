@@ -1,23 +1,17 @@
 language: objective-c
-osx_image: xcode8.2
+osx_image: xcode8.3
 cache:
     - bundler
 rvm:
     - 2.2
-before_install:
-    - bundle install
-    - brew update
-    - brew outdated swiftlint || brew upgrade swiftlint
 script:
-    - if [ "$LANE" = "lint" ]; then fastlane $LANE; else travis_retry fastlane $LANE; fi
+    - travis_retry .travis/run.sh
 after_success:
-    - if [ "$LANE" = "test_swift_3_ios" ]; then bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
+    - if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml; fi
 env:
     matrix:
         - LANE=lint
-        - LANE=test_swift_2_ios
-        - LANE=test_swift_2_tvos
-        - LANE=test_swift_2_macos
-        - LANE=test_swift_3_tvos
-        - LANE=test_swift_3_macos
-        - LANE=test_swift_3_ios
+        - LANE=test
+        - LANE=pod
+notifications:
+  email: false

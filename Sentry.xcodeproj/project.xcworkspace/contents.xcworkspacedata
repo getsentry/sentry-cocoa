@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/haza/Projects/sentry-swift/Sentry.xcodeproj">
+      location = "self:Sentry.xcodeproj">
    </FileRef>
 </Workspace>
