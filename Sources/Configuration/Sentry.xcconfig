@@ -7,7 +7,6 @@
 //
 
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
-SDK_ROOT = $(inherited)
 TARGETED_DEVICE_FAMILY = 1,2,3,4
 SKIP_INSTALL = YES
 

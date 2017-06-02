@@ -994,7 +994,7 @@
 				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = "$(inherited)";
+				SDKROOT = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1021,7 +1021,7 @@
 				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = "$(inherited)";
+				SDKROOT = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -1052,7 +1052,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = "$(inherited)";
+				SDKROOT = "";
 				SKIP_INSTALL = NO;
 				USE_HEADERMAP = YES;
 			};
@@ -1084,7 +1084,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = "$(inherited)";
+				SDKROOT = "";
 				SKIP_INSTALL = NO;
 				USE_HEADERMAP = YES;
 			};
