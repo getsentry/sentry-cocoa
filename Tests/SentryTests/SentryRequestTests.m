@@ -615,8 +615,11 @@ NSInteger requestsWithErrors = 0;
     [self.client snapshotStacktrace:^{
         XCTAssertTrue(YES);
     }];
-    self.client._snapshotThreads = @[[[SentryThread alloc] initWithThreadId:@(9999)]];
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
+    self.client._snapshotThreads = @[thread];
+    __weak id weakSelf = self;
     self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
+        id self = weakSelf;
         XCTAssertEqualObjects(event.threads.firstObject.threadId, @(9999));
     };
     

@@ -12,5 +12,6 @@ env:
     matrix:
         - LANE=lint
         - LANE=test
+        - LANE=pod
 notifications:
   email: false

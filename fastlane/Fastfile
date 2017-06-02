@@ -28,6 +28,6 @@ lane :test do
     scan(scheme: "Sentry", code_coverage: true)
 end
 
-lane :travis_slather do
-    sh('cd .. && slather coverage -x --scheme Sentry --input-format profdata Sentry.xcodeproj')
+lane :pod do
+    sh('cd .. && pod lib lint')
 end
