@@ -14,17 +14,22 @@ env:
   - LANE=lint
   - LANE=test
   - LANE=pod
-  global:
-    secure: hp4ptv1WRpOzjhhI3Tfz+6xX79DdQG7bh73w2bUN85Vb/GZj8FbMYWX40I2QK4SE6Gr1hCXXF6HgN+g4Tn32WtepGngOyAq3+15evkJ6UwsjtmYQQT/InNcbiiOTz2TirM07SATepdtQ1iXlnoFq1XH/1qVxH+NJt8PdDfNks2VkbSJuIorx5vZMX07uXjiAs9dzYIlE42E+TgPRwzmP974ftiG7JUY63ksgByZkS9OJnWb/o2VrQAevsQ89W4KqtK6LWQw+W0jO8gGDdRqc3dNs5jquPMGyGQtgoBGw1zmJq+wjdQcS+jFQVudZIjNZb4n4exVydMFg2ZWlDtBIgT9o8+IQHgWMt4bo+Kz5o60q6TM6acJwhyr7eJPXg5AXjZv7pRDao5fOeO6cyYhNhgALonGIz0rVqaYX/7x3pCZaGfyYxIN/GH7fl/KAy6ZRiFaiMrSXYrpNaM5oBvkND+AqS+F9bqrYWAlI2Kh4EIDPrId2arvZtanbIYhOtQmPaDGuuYTrWSDbLIAzpCq6fknn5pBcQqbNSKNd1klPhMOJyOdAEYgj5rTaSdrQ5ZccZG3pT7/l1wYk0eD730sChREtl1SZYW17DtRNMY9dP88rkxpr8Pu0dpVBkq3dUmHAs5J/mzRFn02RP4e5cfqZenAbi3UI7knLvihezhZg/lc=
 notifications:
   email: false
 jobs:
   include:
-  - stage: deploy
-    script: pod trunk push Sentry.podspec
+  - stage: cocoapods
+    script: skip
+    deploy:
+      provider: script
+      global:
+        secure: hp4ptv1WRpOzjhhI3Tfz+6xX79DdQG7bh73w2bUN85Vb/GZj8FbMYWX40I2QK4SE6Gr1hCXXF6HgN+g4Tn32WtepGngOyAq3+15evkJ6UwsjtmYQQT/InNcbiiOTz2TirM07SATepdtQ1iXlnoFq1XH/1qVxH+NJt8PdDfNks2VkbSJuIorx5vZMX07uXjiAs9dzYIlE42E+TgPRwzmP974ftiG7JUY63ksgByZkS9OJnWb/o2VrQAevsQ89W4KqtK6LWQw+W0jO8gGDdRqc3dNs5jquPMGyGQtgoBGw1zmJq+wjdQcS+jFQVudZIjNZb4n4exVydMFg2ZWlDtBIgT9o8+IQHgWMt4bo+Kz5o60q6TM6acJwhyr7eJPXg5AXjZv7pRDao5fOeO6cyYhNhgALonGIz0rVqaYX/7x3pCZaGfyYxIN/GH7fl/KAy6ZRiFaiMrSXYrpNaM5oBvkND+AqS+F9bqrYWAlI2Kh4EIDPrId2arvZtanbIYhOtQmPaDGuuYTrWSDbLIAzpCq6fknn5pBcQqbNSKNd1klPhMOJyOdAEYgj5rTaSdrQ5ZccZG3pT7/l1wYk0eD730sChREtl1SZYW17DtRNMY9dP88rkxpr8Pu0dpVBkq3dUmHAs5J/mzRFn02RP4e5cfqZenAbi3UI7knLvihezhZg/lc=
+      script: pod trunk push Sentry.podspec
       on:
         repo: getsentry/sentry-cocoa
         tags: true
+  - stage: carthage
+    script: skip
     deploy:
       provider: releases
       api_key:
