@@ -22,6 +22,9 @@ jobs:
   include:
   - stage: deploy
     script: pod trunk push Sentry.podspec
+      on:
+        repo: getsentry/sentry-cocoa
+        tags: true
     deploy:
       provider: releases
       api_key:
