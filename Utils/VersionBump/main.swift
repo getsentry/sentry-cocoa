@@ -5,8 +5,8 @@ import Regex
 let files = [
     "./Sentry.podspec",
     "./docs/sentry-doc-config.json",
-    "./Sentry/Info.plist",
-    "./Sources/Sentry.swift",
+    "./Sources/Sentry/SentryClient.m",
+    "./Sources/Configuration/Sentry.xcconfig",
 ]
 
 let args = CommandLine.arguments
