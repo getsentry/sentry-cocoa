@@ -19,7 +19,7 @@ notifications:
 jobs:
   include:
   - stage: cocoapods
-    script: skip
+    script: gem install cocoapods
     deploy:
       provider: script
       global:
@@ -29,7 +29,7 @@ jobs:
         repo: getsentry/sentry-cocoa
         tags: true
   - stage: carthage
-    script: skip
+    script: brew update && brew outdated carthage || brew upgrade carthage
     deploy:
       provider: releases
       api_key:
