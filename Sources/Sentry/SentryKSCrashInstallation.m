@@ -6,7 +6,7 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 #import <KSCrash/KSCrashInstallation+Private.h>
 #endif
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryKSCrashInstallation
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 
 - (id)init {
     return [super initWithRequiredProperties:@[]];

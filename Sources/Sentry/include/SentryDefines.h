@@ -24,6 +24,15 @@
 #define SENTRY_HAS_UIKIT 0
 #endif
 
+#ifdef LINK_KSCRASH
+#define KSCRASH 1
+#else
+#define KSCRASH 0
+#endif
+
+#define WITH_KSCRASH \
+(WITH_KSCRASH || KSCRASH)
+
 #define SENTRY_NO_INIT \
 - (instancetype)init NS_UNAVAILABLE; \
 + (instancetype)new NS_UNAVAILABLE;

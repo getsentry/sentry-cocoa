@@ -6,7 +6,7 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 #endif
 
@@ -32,7 +32,7 @@
 
 @implementation SentryKSCrashReportSink
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 - (void)filterReports:(NSArray *)reports
           onCompletion:(KSCrashReportFilterCompletion)onCompletion {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);

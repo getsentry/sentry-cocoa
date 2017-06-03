@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 @interface SentryKSCrashReportSink : NSObject <KSCrashReportFilter>
 #else

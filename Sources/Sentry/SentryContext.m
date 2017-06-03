@@ -16,7 +16,7 @@
 #import "SentryDefines.h"
 #endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 #endif
 
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:systemVersion forKey:@"version"];
 #endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:systemInfo[@"osVersion"] forKey:@"build"];
     [serializedData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:@(YES) forKey:@"simulator"];
 #endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:[[systemInfo[@"systemName"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject] forKey:@"family"];
     [serializedData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
     [serializedData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
     NSDictionary *systemInfo = [self systemInfo];
     [serializedData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
     [serializedData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 - (NSDictionary *)systemInfo {
     static NSDictionary *sharedInfo = nil;
     static dispatch_once_t onceToken;

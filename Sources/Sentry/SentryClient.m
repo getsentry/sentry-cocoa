@@ -6,7 +6,8 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<KSCrash/KSCrash.h>)
+
+#if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 #endif
 
@@ -265,7 +266,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 #pragma mark KSCrash
 
-#if __has_include(<KSCrash/KSCrash.h>)
+#if WITH_KSCRASH
 
 - (BOOL)crashedLastLaunch {
     return KSCrash.sharedInstance.crashedLastLaunch;

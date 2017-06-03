@@ -1038,7 +1038,7 @@
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
-				DYLIB_INSTALL_NAME_BASE = "$(INSTALL_PATH)";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -1047,8 +1047,9 @@
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
-				LD_RUNPATH_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1070,7 +1071,7 @@
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
-				DYLIB_INSTALL_NAME_BASE = "$(INSTALL_PATH)";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -1079,8 +1080,9 @@
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
-				LD_RUNPATH_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
