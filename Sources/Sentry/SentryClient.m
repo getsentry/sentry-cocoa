@@ -6,11 +6,6 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-
-#if WITH_KSCRASH
-#import <KSCrash/KSCrash.h>
-#endif
-
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
@@ -41,6 +36,12 @@
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
 #import "SentrySwizzle.h"
+#endif
+
+#if __has_include(<KSCrash/KSCrash.h>)
+#import <KSCrash/KSCrash.h>
+#elif __has_include("KSCrash.h")
+#import "KSCrash.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

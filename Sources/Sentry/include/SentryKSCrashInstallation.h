@@ -8,14 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
-#if WITH_KSCRASH
+#if __has_include(<KSCrash/KSCrash.h>)
 #import <KSCrash/KSCrash.h>
 #import <KSCrash/KSCrashInstallation.h>
+#elif __has_include("KSCrash.h")
+#import "KSCrash.h"
+#import "KSCrashInstallation.h"
+#endif
 
+#if WITH_KSCRASH
 @interface SentryKSCrashInstallation : KSCrashInstallation
 #else
-
-@interface SentryKSCrashInstallation : KSCrashInstallation
+@interface SentryKSCrashInstallation : NSObject
 #endif
 
 - (void)sendAllReports;

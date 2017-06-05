@@ -26,14 +26,8 @@
 #define SENTRY_HAS_UIKIT 0
 #endif
 
-#ifdef LINKED_KSCRASH
-#define KSCRASH 1
-#else
-#define KSCRASH 0
-#endif
-
 #define WITH_KSCRASH \
-(__has_include(<KSCrash/KSCrash.h>) || KSCRASH)
+(__has_include(<KSCrash/KSCrash.h>) || __has_include("KSCrash.h"))
 
 #define SENTRY_NO_INIT \
 - (instancetype)init NS_UNAVAILABLE; \

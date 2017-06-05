@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "632ABD8E1EE5438600B6E263"
-               BuildableName = "SentryKSCrash.framework"
-               BlueprintName = "SentryKSCrash"
-               ReferencedContainer = "container:Sentry.xcodeproj">
+               BlueprintIdentifier = "632ABF3C1EE5AEC700B6E263"
+               BuildableName = "Sentry.framework"
+               BlueprintName = "Sentry"
+               ReferencedContainer = "container:Sentry-KSCrash.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,10 +45,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "632ABD8E1EE5438600B6E263"
-            BuildableName = "SentryKSCrash.framework"
-            BlueprintName = "SentryKSCrash"
-            ReferencedContainer = "container:Sentry.xcodeproj">
+            BlueprintIdentifier = "632ABF3C1EE5AEC700B6E263"
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry"
+            ReferencedContainer = "container:Sentry-KSCrash.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -63,10 +63,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "632ABD8E1EE5438600B6E263"
-            BuildableName = "SentryKSCrash.framework"
-            BlueprintName = "SentryKSCrash"
-            ReferencedContainer = "container:Sentry.xcodeproj">
+            BlueprintIdentifier = "632ABF3C1EE5AEC700B6E263"
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry"
+            ReferencedContainer = "container:Sentry-KSCrash.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

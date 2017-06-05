@@ -20,9 +20,12 @@
 #import "SentryLog.h"
 #endif
 
-#if WITH_KSCRASH
+#if __has_include(<KSCrash/KSCrash.h>)
 #import <KSCrash/KSCrash.h>
 #import <KSCrash/KSCrashInstallation+Private.h>
+#elif __has_include("KSCrash.h")
+#import "KSCrash.h"
+#import "KSCrashInstallation+Private.h"
 #endif
 
 
