@@ -15,7 +15,7 @@
 @interface SentryKSCrashInstallation : KSCrashInstallation
 #else
 
-@interface SentryKSCrashInstallation : NSObject
+@interface SentryKSCrashInstallation : KSCrashInstallation
 #endif
 
 - (void)sendAllReports;

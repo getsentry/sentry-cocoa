@@ -10,6 +10,9 @@
 #import <KSCrash/KSCrash.h>
 #import <KSCrash/KSCrashInstallation+Private.h>
 #endif
+#import "KSCrash.h"
+#import "KSCrashInstallation+Private.h"
+
 
 #if __has_include(<Sentry/Sentry.h>)
 

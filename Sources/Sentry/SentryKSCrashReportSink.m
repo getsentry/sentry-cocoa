@@ -9,6 +9,7 @@
 #if WITH_KSCRASH
 #import <KSCrash/KSCrash.h>
 #endif
+#import "KSCrash.h"
 
 #if __has_include(<Sentry/Sentry.h>)
 
