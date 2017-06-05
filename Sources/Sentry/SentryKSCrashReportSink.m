@@ -6,12 +6,10 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if WITH_KSCRASH
-#import <KSCrash/KSCrash.h>
-#endif
 
 #if __has_include(<Sentry/Sentry.h>)
 
+#import <Sentry/SentryDefines.h>
 #import <Sentry/SentryKSCrashReportSink.h>
 #import <Sentry/SentryKSCrashReportConverter.h>
 #import <Sentry/SentryClient+Internal.h>
@@ -21,6 +19,7 @@
 #import <Sentry/SentryLog.h>
 
 #else
+#import "SentryDefines.h"
 #import "SentryKSCrashReportSink.h"
 #import "SentryKSCrashReportConverter.h"
 #import "SentryClient.h"
@@ -28,6 +27,10 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryLog.h"
+#endif
+
+#if WITH_KSCRASH
+#import <KSCrash/KSCrash.h>
 #endif
 
 @implementation SentryKSCrashReportSink
