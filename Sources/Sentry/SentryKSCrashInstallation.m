@@ -6,25 +6,25 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if WITH_KSCRASH
-#import <KSCrash/KSCrash.h>
-#import <KSCrash/KSCrashInstallation+Private.h>
-#endif
-#import "KSCrash.h"
-#import "KSCrashInstallation+Private.h"
-
-
 #if __has_include(<Sentry/Sentry.h>)
 
+#import <Sentry/SentryDefines.h>
 #import <Sentry/SentryKSCrashInstallation.h>
 #import <Sentry/SentryKSCrashReportSink.h>
 #import <Sentry/SentryLog.h>
 
 #else
+#import "SentryDefines.h"
 #import "SentryKSCrashInstallation.h"
 #import "SentryKSCrashReportSink.h"
 #import "SentryLog.h"
 #endif
+
+#if WITH_KSCRASH
+#import <KSCrash/KSCrash.h>
+#import <KSCrash/KSCrashInstallation+Private.h>
+#endif
+
 
 NS_ASSUME_NONNULL_BEGIN
 

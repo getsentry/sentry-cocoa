@@ -8,12 +8,12 @@ _Swift:_
 - [ ]  Yes -> If yes, which version?
 - [ ]  No
 
-_sentry-swift installed with:_
-- [ ] Cocoapods
+_sentry-cocoa installed with:_
+- [ ] CocoaPods
 - [ ] Carthage
 - [ ] Manually
 
-Version of sentry-swift:
+Version of sentry-cocoa:
 **3.x.x**
 
 ---

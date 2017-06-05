@@ -6,6 +6,8 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #ifdef __cplusplus
 #define SENTRY_EXTERN        extern "C" __attribute__((visibility ("default")))
 #else
