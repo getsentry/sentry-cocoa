@@ -34,10 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
     return [super init];
 }
 
-+ (instancetype)new {
-    return [super new];
-}
-
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 

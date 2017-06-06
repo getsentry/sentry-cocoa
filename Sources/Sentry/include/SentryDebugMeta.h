@@ -75,7 +75,7 @@ NS_SWIFT_NAME(DebugMeta)
 @property(nonatomic, assign) NSNumber *_Nullable revisionVersion;
 
 - (instancetype)init;
-+ (instancetype)new;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

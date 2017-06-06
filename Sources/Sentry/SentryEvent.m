@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
     
     if (nil == self.context) {
-        self.context = [SentryContext new];
+        self.context = [[SentryContext alloc] init];
     }
     [serializedData setValue:[self.context serialize] forKey:@"contexts"];
     

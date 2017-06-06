@@ -57,7 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableArray *frames = [NSMutableArray new];
     for (SentryFrame *frame in self.frames) {
-        [frames addObject:[frame serialize]];
+        NSDictionary *serialized = [frame serialize];
+        if (serialized.allKeys.count > 0) {
+            [frames addObject:[frame serialize]];
+        }
     }
     [serializedData setValue:frames forKey:@"frames"];
 

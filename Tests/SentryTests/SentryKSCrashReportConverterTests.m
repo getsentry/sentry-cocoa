@@ -78,30 +78,11 @@ NSString *reportPath = @"";
     reportPath = @"Resources/converted-event";
     NSDictionary *eventJson = [self getCrashReport];
 
-    // If this line succeeds we are golden
-    //[self compareDict:eventJson withDict:serializedEvent];
-
     NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
     NSArray *serializedDebugImages = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
     XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
     for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
         [self compareDict:[convertedDebugImages objectAtIndex:i] withDict:[serializedDebugImages objectAtIndex:i]];
-    }
-
-    NSArray *convertedThreads = ((NSArray *)[eventJson valueForKeyPath:@"threads.values"]);
-    NSArray *serializedThreads = ((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]);
-
-    XCTAssertEqual(convertedThreads.count, serializedThreads.count);
-    for (NSUInteger i = 0; i < convertedThreads.count; i++) {
-        [self compareDict:[convertedThreads objectAtIndex:i] withDict:[serializedThreads objectAtIndex:i]];
-    }
-
-    NSArray *convertedStacktrace = [((NSArray *)[eventJson valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
-    NSArray *serializedStacktrace = [((NSArray *)[serializedEvent valueForKeyPath:@"threads.values"]).firstObject valueForKeyPath:@"stacktrace.frames"];
-
-    XCTAssertEqual(convertedStacktrace.count, serializedStacktrace.count);
-    for (NSUInteger i = 0; i < convertedStacktrace.count; i++) {
-        [self compareDict:[convertedStacktrace objectAtIndex:i] withDict:[serializedStacktrace objectAtIndex:i]];
     }
 }
 
@@ -148,6 +129,15 @@ NSString *reportPath = @"";
 - (void)testCPPException {
     reportPath = @"Resources/CPPException";
     [self isValidReport];
+}
+
+- (void)testNXPage {
+    reportPath = @"Resources/NX-Page";
+    [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.threads.firstObject.stacktrace.frames.lastObject.function, @"<redacted>");
 }
 
 - (void)testReactNative {
@@ -231,6 +221,14 @@ NSString *reportPath = @"";
     NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:reportPath ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+}
+
+- (void)printJson:(SentryEvent *)event {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[event serialize]
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:nil];
+    
+    NSLog(@"%@", [NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
 }
 
 @end

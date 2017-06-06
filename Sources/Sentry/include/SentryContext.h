@@ -37,7 +37,7 @@ NS_SWIFT_NAME(Context)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable appContext;
 
 - (instancetype)init;
-+ (instancetype)new;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

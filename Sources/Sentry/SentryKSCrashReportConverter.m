@@ -118,7 +118,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryContext *)convertContext {
-    SentryContext *context = [SentryContext new];
+    SentryContext *context = [[SentryContext alloc] init];
 
     [self addOsContext:context];
     [self addDeviceContext:context];
@@ -222,7 +222,9 @@ static inline NSString *hexAddress(NSNumber *value) {
     frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    frame.function = frameDictionary[@"symbol_name"];
+    if (frameDictionary[@"symbol_name"]) {
+        frame.function = frameDictionary[@"symbol_name"];
+    }
     return frame;
 }
 
@@ -255,7 +257,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
     for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
-        SentryDebugMeta *debugMeta = [SentryDebugMeta new];
+        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
         debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
         debugMeta.cpuType = sourceImage[@"cpu_type"];

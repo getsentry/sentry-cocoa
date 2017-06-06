@@ -21,13 +21,13 @@
 // TODO test event
 
 - (void)testDebugMeta {
-    SentryDebugMeta *debugMeta = [SentryDebugMeta new];
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
     debugMeta.uuid = @"abcd";
     XCTAssertNotNil(debugMeta.uuid);
     NSDictionary *serialized = @{@"uuid": @"abcd"};
     XCTAssertEqualObjects([debugMeta serialize], serialized);
 
-    SentryDebugMeta *debugMeta2 = [SentryDebugMeta new];
+    SentryDebugMeta *debugMeta2 = [[SentryDebugMeta alloc] init];
     debugMeta2.uuid = @"abcde";
     debugMeta2.imageAddress = @"0x0000000100034000";
     debugMeta2.type = @"1";
@@ -58,7 +58,7 @@
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
     XCTAssertNotNil(frame.symbolAddress);
-    NSDictionary *serialized = @{@"symbol_addr": @"0x01"};
+    NSDictionary *serialized = @{@"symbol_addr": @"0x01", @"function": @"<redacted>"};
     XCTAssertEqualObjects([frame serialize], serialized);
 
     SentryFrame *frame2 = [[SentryFrame alloc] init];
@@ -127,13 +127,13 @@
 }
 
 - (void)testStacktrace {
-    SentryFrame *frame = [SentryFrame new];
+    SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
     SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
     XCTAssertNotNil(stacktrace.frames);
     XCTAssertNotNil(stacktrace.registers);
     [stacktrace fixDuplicateFrames];
-    NSDictionary *serialized = @{@"frames": @[@{@"symbol_addr": @"0x01"}],
+    NSDictionary *serialized = @{@"frames": @[@{@"symbol_addr": @"0x01", @"function": @"<redacted>"}],
                                  @"registers": @{@"a": @"1"}};
     XCTAssertEqualObjects([stacktrace serialize], serialized);
 }
@@ -157,7 +157,7 @@
                                   @"crashed": @(YES),
                                   @"current": @(NO),
                                   @"name": @"name",
-                                  @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01"}],
+                                  @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01", @"function": @"<redacted>"}],
                                                    @"registers": @{@"a": @"1"}}
                                   };
     XCTAssertEqualObjects([thread2 serialize], serialized2);
@@ -213,7 +213,7 @@
                                  @"value": @"value",
                                  @"type": @"type",
                                  @"thread_id": @(2),
-                                 @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01"}],
+                                 @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01", @"function": @"<redacted>"}],
                                                   @"registers": @{@"a": @"1"}},
                                  @"module": @"module",
                                  @"mechanism": @{@"a": @"b"}
@@ -223,7 +223,7 @@
 }
 
 - (void)testContext {
-    SentryContext *context = [SentryContext new];
+    SentryContext *context = [[SentryContext alloc] init];
     XCTAssertNotNil(context);
     XCTAssertEqual([context serialize].count, (unsigned long)3);
 }

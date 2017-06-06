@@ -73,7 +73,7 @@ NS_SWIFT_NAME(Frame)
 @property(nonatomic, copy) NSNumber *_Nullable columnNumber;
 
 - (instancetype)init;
-+ (instancetype)new;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
