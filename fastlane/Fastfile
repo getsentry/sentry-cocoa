@@ -1,5 +1,6 @@
 before_all do
   clear_derived_data if is_ci?
+  reset_simulators if is_ci?
 end
 
 lane :localcoverage do
