@@ -93,7 +93,7 @@
 		632ABF901EE5AEC700B6E263 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE841EE543BD00B6E263 /* Demangle.cpp */; };
 		632ABF911EE5AEC700B6E263 /* KSHTTPRequestSender.m in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE7B1EE543BD00B6E263 /* KSHTTPRequestSender.m */; };
 		632ABF921EE5AEC700B6E263 /* SentryKSCrashReportSink.m in Sources */ = {isa = PBXBuildFile; fileRef = 6344DDB31EC309E000D9160D /* SentryKSCrashReportSink.m */; };
-		632ABF931EE5AEC700B6E263 /* RSSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889BA1EDED18400EA7442 /* RSSwizzle.m */; };
+		632ABF931EE5AEC700B6E263 /* SentrySwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889BA1EDED18400EA7442 /* SentrySwizzle.m */; };
 		632ABF941EE5AEC700B6E263 /* KSDynamicLinker.c in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE291EE543BD00B6E263 /* KSDynamicLinker.c */; };
 		632ABF951EE5AEC700B6E263 /* KSCrashInstallationConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = 632ABDD81EE543BD00B6E263 /* KSCrashInstallationConsole.m */; };
 		632ABF961EE5AEC700B6E263 /* KSCrashInstallationQuincyHockey.m in Sources */ = {isa = PBXBuildFile; fileRef = 632ABDDC1EE543BD00B6E263 /* KSCrashInstallationQuincyHockey.m */; };
@@ -186,7 +186,7 @@
 		632ABFF01EE5AEC700B6E263 /* KSCrashInstallationConsole.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDD71EE543BD00B6E263 /* KSCrashInstallationConsole.h */; };
 		632ABFF11EE5AEC700B6E263 /* SentryFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA61EBC80CC00778193 /* SentryFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFF21EE5AEC700B6E263 /* SwiftStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE8D1EE543BD00B6E263 /* SwiftStrings.h */; };
-		632ABFF31EE5AEC700B6E263 /* RSSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* RSSwizzle.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		632ABFF31EE5AEC700B6E263 /* SentrySwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* SentrySwizzle.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABFF41EE5AEC700B6E263 /* KSStackCursor_SelfThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE481EE543BD00B6E263 /* KSStackCursor_SelfThread.h */; };
 		632ABFF51EE5AEC700B6E263 /* None.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE31EE543BD00B6E263 /* None.h */; };
 		632ABFF61EE5AEC700B6E263 /* SentryRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -443,8 +443,8 @@
 		6387B82F1ED851970045A84C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryRequestOperation.h; path = include/SentryRequestOperation.h; sourceTree = "<group>"; };
 		638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryRequestOperation.m; sourceTree = "<group>"; };
-		639889B91EDED18400EA7442 /* RSSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RSSwizzle.h; path = include/RSSwizzle.h; sourceTree = "<group>"; };
-		639889BA1EDED18400EA7442 /* RSSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSSwizzle.m; sourceTree = "<group>"; };
+		639889B91EDED18400EA7442 /* SentrySwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySwizzle.h; path = include/SentrySwizzle.h; sourceTree = "<group>"; };
+		639889BA1EDED18400EA7442 /* SentrySwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySwizzle.m; sourceTree = "<group>"; };
 		639FCF961EBC7B9700778193 /* SentryEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryEvent.h; path = include/SentryEvent.h; sourceTree = "<group>"; };
 		639FCF971EBC7B9700778193 /* SentryEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryEvent.m; sourceTree = "<group>"; };
 		639FCF9A1EBC7F9500778193 /* SentryThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryThread.h; path = include/SentryThread.h; sourceTree = "<group>"; };
@@ -891,15 +891,6 @@
 			name = KSCrash;
 			sourceTree = "<group>";
 		};
-		639889CF1EDEE2A800EA7442 /* Vendor */ = {
-			isa = PBXGroup;
-			children = (
-				639889B91EDED18400EA7442 /* RSSwizzle.h */,
-				639889BA1EDED18400EA7442 /* RSSwizzle.m */,
-			);
-			name = Vendor;
-			sourceTree = "<group>";
-		};
 		639889D51EDF10BE00EA7442 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
@@ -912,6 +903,8 @@
 				636085121ED47BE600E8599E /* SentryFileManager.m */,
 				631501B81EE6F00600512C5B /* SentryBreadcrumbTracker.h */,
 				631501B61EE6EFFD00512C5B /* SentryBreadcrumbTracker.m */,
+				639889B91EDED18400EA7442 /* SentrySwizzle.h */,
+				639889BA1EDED18400EA7442 /* SentrySwizzle.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -938,7 +931,6 @@
 		63AA75C61EB8B06100D153DE /* Sentry */ = {
 			isa = PBXGroup;
 			children = (
-				639889CF1EDEE2A800EA7442 /* Vendor */,
 				63AA769F1EB9C89800D153DE /* Supporting Files */,
 				630436011EBCB8CA00C4D3FA /* Interfaces */,
 				630436001EBCB87500C4D3FA /* Networking */,
@@ -1043,7 +1035,7 @@
 				632ABFF01EE5AEC700B6E263 /* KSCrashInstallationConsole.h in Headers */,
 				632ABFF11EE5AEC700B6E263 /* SentryFrame.h in Headers */,
 				632ABFF21EE5AEC700B6E263 /* SwiftStrings.h in Headers */,
-				632ABFF31EE5AEC700B6E263 /* RSSwizzle.h in Headers */,
+				632ABFF31EE5AEC700B6E263 /* SentrySwizzle.h in Headers */,
 				632ABFF41EE5AEC700B6E263 /* KSStackCursor_SelfThread.h in Headers */,
 				632ABFF51EE5AEC700B6E263 /* None.h in Headers */,
 				632ABFF61EE5AEC700B6E263 /* SentryRequestOperation.h in Headers */,
@@ -1247,7 +1239,7 @@
 				632ABF901EE5AEC700B6E263 /* Demangle.cpp in Sources */,
 				632ABF911EE5AEC700B6E263 /* KSHTTPRequestSender.m in Sources */,
 				632ABF921EE5AEC700B6E263 /* SentryKSCrashReportSink.m in Sources */,
-				632ABF931EE5AEC700B6E263 /* RSSwizzle.m in Sources */,
+				632ABF931EE5AEC700B6E263 /* SentrySwizzle.m in Sources */,
 				632ABF941EE5AEC700B6E263 /* KSDynamicLinker.c in Sources */,
 				632ABF951EE5AEC700B6E263 /* KSCrashInstallationConsole.m in Sources */,
 				632ABF961EE5AEC700B6E263 /* KSCrashInstallationQuincyHockey.m in Sources */,

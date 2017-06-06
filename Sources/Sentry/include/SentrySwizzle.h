@@ -1,27 +1,27 @@
 //
-//  RSSwizzle.h
-//  RSSwizzleTests
+//  SentrySwizzle.h
+//  Sentry
 //
-//  Created by Yan Rabovik on 05.09.13.
-//
-//
+//  Created by Daniel Griesser on 31/05/2017.
+//  Copyright © 2017 Sentry. All rights reserved.
+//  Original implementation by Yan Rabovik on 05.09.13 https://github.com/rabovik/RSSwizzle
 
 #import <Foundation/Foundation.h>
 
 #pragma mark - Macros Based API
 
 /// A macro for wrapping the return type of the swizzled method.
-#define RSSWReturnType(type) type
+#define SentrySWReturnType(type) type
 
 /// A macro for wrapping arguments of the swizzled method.
-#define RSSWArguments(arguments...) _RSSWArguments(arguments)
+#define SentrySWArguments(arguments...) _SentrySWArguments(arguments)
 
 /// A macro for wrapping the replacement code for the swizzled method.
-#define RSSWReplacement(code...) code
+#define SentrySWReplacement(code...) code
 
 /// A macro for casting and calling original implementation.
-/// May be used only in RSSwizzleInstanceMethod or RSSwizzleClassMethod macros.
-#define RSSWCallOriginal(arguments...) _RSSWCallOriginal(arguments)
+/// May be used only in SentrySwizzleInstanceMethod or SentrySwizzleClassMethod macros.
+#define SentrySWCallOriginal(arguments...) _SentrySWCallOriginal(arguments)
 
 #pragma mark └ Swizzle Instance Method
 
@@ -32,21 +32,21 @@
 
  @code
 
-    RSSwizzleInstanceMethod(classToSwizzle,
+    SentrySwizzleInstanceMethod(classToSwizzle,
                             @selector(calculate:),
-                            RSSWReturnType(int),
-                            RSSWArguments(int number),
-                            RSSWReplacement(
+                            SentrySWReturnType(int),
+                            SentrySWArguments(int number),
+                            SentrySWReplacement(
     {
         // Calling original implementation.
-        int res = RSSWCallOriginal(number);
+        int res = SentrySWCallOriginal(number);
         // Returning modified return value.
         return res + 1;
     }), 0, NULL);
 
  @endcode
 
- Swizzling frequently goes along with checking whether this particular class (or one of its superclasses) has been already swizzled. Here the `RSSwizzleMode` and `key` parameters can help. See +[RSSwizzle swizzleInstanceMethod:inClass:newImpFactory:mode:key:] for details.
+ Swizzling frequently goes along with checking whether this particular class (or one of its superclasses) has been already swizzled. Here the `SentrySwizzleMode` and `key` parameters can help. See +[SentrySwizzle swizzleInstanceMethod:inClass:newImpFactory:mode:key:] for details.
 
  Swizzling is fully thread-safe.
 
@@ -54,32 +54,32 @@
 
  @param selector Selector of the method that should be swizzled.
 
- @param RSSWReturnType The return type of the swizzled method wrapped in the RSSWReturnType macro.
+ @param SentrySWReturnType The return type of the swizzled method wrapped in the SentrySWReturnType macro.
 
- @param RSSWArguments The arguments of the swizzled method wrapped in the RSSWArguments macro.
+ @param SentrySWArguments The arguments of the swizzled method wrapped in the SentrySWArguments macro.
 
- @param RSSWReplacement The code of the new implementation of the swizzled method wrapped in the RSSWReplacement macro.
+ @param SentrySWReplacement The code of the new implementation of the swizzled method wrapped in the SentrySWReplacement macro.
 
- @param RSSwizzleMode The mode is used in combination with the key to indicate whether the swizzling should be done for the given class. You can pass 0 for RSSwizzleModeAlways.
+ @param SentrySwizzleMode The mode is used in combination with the key to indicate whether the swizzling should be done for the given class. You can pass 0 for SentrySwizzleModeAlways.
 
- @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is RSSwizzleModeAlways.
+ @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is SentrySwizzleModeAlways.
 
  @return YES if successfully swizzled and NO if swizzling has been already done for given key and class (or one of superclasses, depends on the mode).
 
  */
-#define RSSwizzleInstanceMethod(classToSwizzle, \
+#define SentrySwizzleInstanceMethod(classToSwizzle, \
                                 selector, \
-                                RSSWReturnType, \
-                                RSSWArguments, \
-                                RSSWReplacement, \
-                                RSSwizzleMode, \
+                                SentrySWReturnType, \
+                                SentrySWArguments, \
+                                SentrySWReplacement, \
+                                SentrySwizzleMode, \
                                 key) \
-    _RSSwizzleInstanceMethod(classToSwizzle, \
+    _SentrySwizzleInstanceMethod(classToSwizzle, \
                              selector, \
-                             RSSWReturnType, \
-                             _RSSWWrapArg(RSSWArguments), \
-                             _RSSWWrapArg(RSSWReplacement), \
-                             RSSwizzleMode, \
+                             SentrySWReturnType, \
+                             _SentrySWWrapArg(SentrySWArguments), \
+                             _SentrySWWrapArg(SentrySWReplacement), \
+                             SentrySwizzleMode, \
                              key)
 
 #pragma mark └ Swizzle Class Method
@@ -91,14 +91,14 @@
 
  @code
 
-    RSSwizzleClassMethod(classToSwizzle,
+    SentrySwizzleClassMethod(classToSwizzle,
                          @selector(calculate:),
-                         RSSWReturnType(int),
-                         RSSWArguments(int number),
-                         RSSWReplacement(
+                         SentrySWReturnType(int),
+                         SentrySWArguments(int number),
+                         SentrySWReplacement(
     {
         // Calling original implementation.
-        int res = RSSWCallOriginal(number);
+        int res = SentrySWCallOriginal(number);
         // Returning modified return value.
         return res + 1;
     }));
@@ -111,35 +111,35 @@
 
  @param selector Selector of the method that should be swizzled.
 
- @param RSSWReturnType The return type of the swizzled method wrapped in the RSSWReturnType macro.
+ @param SentrySWReturnType The return type of the swizzled method wrapped in the SentrySWReturnType macro.
 
- @param RSSWArguments The arguments of the swizzled method wrapped in the RSSWArguments macro.
+ @param SentrySWArguments The arguments of the swizzled method wrapped in the SentrySWArguments macro.
 
- @param RSSWReplacement The code of the new implementation of the swizzled method wrapped in the RSSWReplacement macro.
+ @param SentrySWReplacement The code of the new implementation of the swizzled method wrapped in the SentrySWReplacement macro.
 
  */
-#define RSSwizzleClassMethod(classToSwizzle, \
+#define SentrySwizzleClassMethod(classToSwizzle, \
                              selector, \
-                             RSSWReturnType, \
-                             RSSWArguments, \
-                             RSSWReplacement) \
-    _RSSwizzleClassMethod(classToSwizzle, \
+                             SentrySWReturnType, \
+                             SentrySWArguments, \
+                             SentrySWReplacement) \
+    _SentrySwizzleClassMethod(classToSwizzle, \
                           selector, \
-                          RSSWReturnType, \
-                          _RSSWWrapArg(RSSWArguments), \
-                          _RSSWWrapArg(RSSWReplacement))
+                          SentrySWReturnType, \
+                          _SentrySWWrapArg(SentrySWArguments), \
+                          _SentrySWWrapArg(SentrySWReplacement))
 
 #pragma mark - Main API
 
 /**
  A function pointer to the original implementation of the swizzled method.
  */
-typedef void (*RSSwizzleOriginalIMP)(void /* id, SEL, ... */ );
+typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 
 /**
- RSSwizzleInfo is used in the new implementation block to get and call original implementation of the swizzled method.
+ SentrySwizzleInfo is used in the new implementation block to get and call original implementation of the swizzled method.
  */
-@interface RSSwizzleInfo : NSObject
+@interface SentrySwizzleInfo : NSObject
 
 /**
  Returns the original implementation of the swizzled method.
@@ -150,10 +150,10 @@ typedef void (*RSSwizzleOriginalIMP)(void /* id, SEL, ... */ );
 
  @return A function pointer to the original implementation of the swizzled method.
  */
--(RSSwizzleOriginalIMP)getOriginalImplementation;
+- (SentrySwizzleOriginalIMP)getOriginalImplementation;
 
 /// The selector of the swizzled method.
-@property (nonatomic, readonly) SEL selector;
+@property(nonatomic, readonly) SEL selector;
 
 @end
 
@@ -168,19 +168,19 @@ typedef void (*RSSwizzleOriginalIMP)(void /* id, SEL, ... */ );
     Its signature should be: `method_return_type ^(id self, method_args...)`.
     The selector is not available as a parameter to this block.
  */
-typedef id (^RSSwizzleImpFactoryBlock)(RSSwizzleInfo *swizzleInfo);
+typedef id (^SentrySwizzleImpFactoryBlock)(SentrySwizzleInfo *swizzleInfo);
 
-typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
-    /// RSSwizzle always does swizzling.
-    RSSwizzleModeAlways = 0,
-    /// RSSwizzle does not do swizzling if the same class has been swizzled earlier with the same key.
-    RSSwizzleModeOncePerClass = 1,
-    /// RSSwizzle does not do swizzling if the same class or one of its superclasses have been swizzled earlier with the same key.
+typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
+    /// SentrySwizzle always does swizzling.
+            SentrySwizzleModeAlways = 0,
+    /// SentrySwizzle does not do swizzling if the same class has been swizzled earlier with the same key.
+            SentrySwizzleModeOncePerClass = 1,
+    /// SentrySwizzle does not do swizzling if the same class or one of its superclasses have been swizzled earlier with the same key.
     /// @note There is no guarantee that your implementation will be called only once per method call. If the order of swizzling is: first inherited class, second superclass, then both swizzlings will be done and the new implementation will be called twice.
-    RSSwizzleModeOncePerClassAndSuperclasses = 2
+            SentrySwizzleModeOncePerClassAndSuperclasses = 2
 };
 
-@interface RSSwizzle : NSObject
+@interface SentrySwizzle : NSObject
 
 #pragma mark └ Swizzle Instance Method
 
@@ -196,10 +196,10 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
  @code
 
     SEL selector = @selector(calculate:);
-    [RSSwizzle
+    [SentrySwizzle
      swizzleInstanceMethod:selector
      inClass:classToSwizzle
-     newImpFactory:^id(RSSWizzleInfo *swizzleInfo) {
+     newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
          // This block will be used as the new implementation.
          return ^int(__unsafe_unretained id self, int num){
              // You MUST always cast implementation to the correct function pointer.
@@ -211,7 +211,7 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
              return res + 1;
          };
      }
-     mode:RSSwizzleModeAlways
+     mode:SentrySwizzleModeAlways
      key:NULL];
 
  @endcode
@@ -224,10 +224,10 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
 
     static const void *key = &key;
     SEL selector = NSSelectorFromString(@"dealloc");
-    [RSSwizzle
+    [SentrySwizzle
      swizzleInstanceMethod:selector
      inClass:classToSwizzle
-     newImpFactory:^id(RSSWizzleInfo *swizzleInfo) {
+     newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
          return ^void(__unsafe_unretained id self){
              NSLog(@"Deallocating %@.",self);
 
@@ -236,7 +236,7 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
              originalIMP(self,selector);
          };
      }
-     mode:RSSwizzleModeOncePerClassAndSuperclasses
+     mode:SentrySwizzleModeOncePerClassAndSuperclasses
      key:key];
 
  @endcode
@@ -251,15 +251,15 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
 
  @param mode The mode is used in combination with the key to indicate whether the swizzling should be done for the given class.
 
- @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is RSSwizzleModeAlways.
+ @param key The key is used in combination with the mode to indicate whether the swizzling should be done for the given class. May be NULL if the mode is SentrySwizzleModeAlways.
 
  @return YES if successfully swizzled and NO if swizzling has been already done for given key and class (or one of superclasses, depends on the mode).
  */
-+(BOOL)swizzleInstanceMethod:(SEL)selector
-                     inClass:(Class)classToSwizzle
-               newImpFactory:(RSSwizzleImpFactoryBlock)factoryBlock
-                        mode:(RSSwizzleMode)mode
-                         key:(const void *)key;
++ (BOOL)swizzleInstanceMethod:(SEL)selector
+                      inClass:(Class)classToSwizzle
+                newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock
+                         mode:(SentrySwizzleMode)mode
+                          key:(const void *)key;
 
 #pragma mark └ Swizzle Class method
 
@@ -275,10 +275,10 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
  @code
 
     SEL selector = @selector(calculate:);
-    [RSSwizzle
+    [SentrySwizzle
      swizzleClassMethod:selector
      inClass:classToSwizzle
-     newImpFactory:^id(RSSWizzleInfo *swizzleInfo) {
+     newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
          // This block will be used as the new implementation.
          return ^int(__unsafe_unretained id self, int num){
              // You MUST always cast implementation to the correct function pointer.
@@ -301,9 +301,9 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
 
  @param factoryBlock The factory block returning the block for the new implementation of the swizzled method.
  */
-+(void)swizzleClassMethod:(SEL)selector
-                  inClass:(Class)classToSwizzle
-            newImpFactory:(RSSwizzleImpFactoryBlock)factoryBlock;
++ (void)swizzleClassMethod:(SEL)selector
+                   inClass:(Class)classToSwizzle
+             newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock;
 
 @end
 
@@ -311,60 +311,60 @@ typedef NS_ENUM(NSUInteger, RSSwizzleMode) {
 // Do not write code that depends on anything below this line.
 
 // Wrapping arguments to pass them as a single argument to another macro.
-#define _RSSWWrapArg(args...) args
+#define _SentrySWWrapArg(args...) args
 
-#define _RSSWDel2Arg(a1, a2, args...) a1, ##args
-#define _RSSWDel3Arg(a1, a2, a3, args...) a1, a2, ##args
+#define _SentrySWDel2Arg(a1, a2, args...) a1, ##args
+#define _SentrySWDel3Arg(a1, a2, a3, args...) a1, a2, ##args
 
 // To prevent comma issues if there are no arguments we add one dummy argument
 // and remove it later.
-#define _RSSWArguments(arguments...) DEL, ##arguments
+#define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#define _RSSwizzleInstanceMethod(classToSwizzle, \
+#define _SentrySwizzleInstanceMethod(classToSwizzle, \
                                  selector, \
-                                 RSSWReturnType, \
-                                 RSSWArguments, \
-                                 RSSWReplacement, \
-                                 RSSwizzleMode, \
+                                 SentrySWReturnType, \
+                                 SentrySWArguments, \
+                                 SentrySWReplacement, \
+                                 SentrySwizzleMode, \
                                  KEY) \
-    [RSSwizzle \
+    [SentrySwizzle \
      swizzleInstanceMethod:selector \
      inClass:[classToSwizzle class] \
-     newImpFactory:^id(RSSwizzleInfo *swizzleInfo) { \
-        RSSWReturnType (*originalImplementation_)(_RSSWDel3Arg(__unsafe_unretained id, \
+     newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) { \
+        SentrySWReturnType (*originalImplementation_)(_SentrySWDel3Arg(__unsafe_unretained id, \
                                                                SEL, \
-                                                               RSSWArguments)); \
+                                                               SentrySWArguments)); \
         SEL selector_ = selector; \
-        return ^RSSWReturnType (_RSSWDel2Arg(__unsafe_unretained id self, \
-                                             RSSWArguments)) \
+        return ^SentrySWReturnType (_SentrySWDel2Arg(__unsafe_unretained id self, \
+                                             SentrySWArguments)) \
         { \
-            RSSWReplacement \
+            SentrySWReplacement \
         }; \
      } \
-     mode:RSSwizzleMode \
+     mode:SentrySwizzleMode \
      key:KEY];
 
-#define _RSSwizzleClassMethod(classToSwizzle, \
+#define _SentrySwizzleClassMethod(classToSwizzle, \
                               selector, \
-                              RSSWReturnType, \
-                              RSSWArguments, \
-                              RSSWReplacement) \
-    [RSSwizzle \
+                              SentrySWReturnType, \
+                              SentrySWArguments, \
+                              SentrySWReplacement) \
+    [SentrySwizzle \
      swizzleClassMethod:selector \
      inClass:[classToSwizzle class] \
-     newImpFactory:^id(RSSwizzleInfo *swizzleInfo) { \
-        RSSWReturnType (*originalImplementation_)(_RSSWDel3Arg(__unsafe_unretained id, \
+     newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) { \
+        SentrySWReturnType (*originalImplementation_)(_SentrySWDel3Arg(__unsafe_unretained id, \
                                                                SEL, \
-                                                               RSSWArguments)); \
+                                                               SentrySWArguments)); \
         SEL selector_ = selector; \
-        return ^RSSWReturnType (_RSSWDel2Arg(__unsafe_unretained id self, \
-                                             RSSWArguments)) \
+        return ^SentrySWReturnType (_SentrySWDel2Arg(__unsafe_unretained id self, \
+                                             SentrySWArguments)) \
         { \
-            RSSWReplacement \
+            SentrySWReplacement \
         }; \
      }];
 
-#define _RSSWCallOriginal(arguments...) \
+#define _SentrySWCallOriginal(arguments...) \
     ((__typeof(originalImplementation_))[swizzleInfo \
                                          getOriginalImplementation])(self, \
                                                                      selector_, \

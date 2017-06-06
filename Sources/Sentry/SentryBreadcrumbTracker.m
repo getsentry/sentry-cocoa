@@ -12,13 +12,13 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/RSSwizzle.h>
+#import <Sentry/SentrySwizzle.h>
 #import <Sentry/SentryBreadcrumbStore.h>
 
 #else
 #import "SentryClient.h"
 #import "SentryDefines.h"
-#import "RSSwizzle.h"
+#import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbStore.h"
@@ -51,11 +51,11 @@
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     //    - (BOOL)sendAction:(SEL)action to:(nullable id)target from:(nullable id)sender forEvent:(nullable UIEvent *)event;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    RSSwizzleInstanceMethod(UIApplication.class,
+    SentrySwizzleInstanceMethod(UIApplication.class,
             selector,
-            RSSWReturnType(BOOL),
-            RSSWArguments(SEL action, id target, id sender, UIEvent * event),
-            RSSWReplacement({
+            SentrySWReturnType(BOOL),
+            SentrySWArguments(SEL action, id target, id sender, UIEvent * event),
+            SentrySWReplacement({
                     if (nil != SentryClient.sharedClient) {
                         NSDictionary *data = [NSDictionary new];
                         for (UITouch *touch in event.allTouches) {
@@ -69,8 +69,8 @@
                         crumb.data = data;
                         [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
                     }
-                    return RSSWCallOriginal(action, target, sender, event);
-            }), RSSwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+                    return SentrySWCallOriginal(action, target, sender, event);
+            }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
 #endif
 }
 
@@ -79,11 +79,11 @@
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     // -(void)viewDidAppear:(BOOL)animated
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    RSSwizzleInstanceMethod(UIViewController.class,
+    SentrySwizzleInstanceMethod(UIViewController.class,
             selector,
-            RSSWReturnType(void),
-            RSSWArguments(BOOL animated),
-            RSSWReplacement({
+            SentrySWReturnType(void),
+            SentrySWArguments(BOOL animated),
+            SentrySWReplacement({
                     if (nil != SentryClient.sharedClient) {
                         SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"UIViewController"];
                         crumb.type = @"navigation";
@@ -91,8 +91,8 @@
                         crumb.data = @{@"controller": [NSString stringWithFormat:@"%@", self]};
                         [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
                     }
-                    RSSWCallOriginal(animated);
-            }), RSSwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+                    SentrySWCallOriginal(animated);
+            }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
 #endif
 }
 
