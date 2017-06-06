@@ -21,7 +21,7 @@ build-version-bump:
 	@echo "--> Building VersionBump"
 	cd Utils/VersionBump && swift build
 
-bump-version: build-version-bump
+bump-version: clean-version-bump
 	@echo "--> Bumping version from ${FROM} to ${TO}"
 	./Utils/VersionBump/.build/debug/VersionBump ${FROM} ${TO}
 
