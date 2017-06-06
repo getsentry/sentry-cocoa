@@ -1,5 +1,5 @@
 //
-//  SentrySwizzle.h
+//  SentryBreadcrumbTracker.h
 //  Sentry
 //
 //  Created by Daniel Griesser on 31/05/2017.
@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SentrySwizzle : NSObject
+@interface SentryBreadcrumbTracker : NSObject
 
-- (void)swizzle;
+- (void)start;
 
 @end

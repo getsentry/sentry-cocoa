@@ -1,5 +1,5 @@
 //
-//  SentrySwizzle.m
+//  SentryBreadcrumbTracker.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 31/05/2017.
@@ -11,7 +11,7 @@
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryDefines.h>
-#import <Sentry/SentrySwizzle.h>
+#import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/RSSwizzle.h>
 #import <Sentry/SentryBreadcrumbStore.h>
 
@@ -19,7 +19,7 @@
 #import "SentryClient.h"
 #import "SentryDefines.h"
 #import "RSSwizzle.h"
-#import "SentrySwizzle.h"
+#import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbStore.h"
 #endif
@@ -29,9 +29,9 @@
 #endif
 
 
-@implementation SentrySwizzle
+@implementation SentryBreadcrumbTracker
 
-- (void)swizzle {
+- (void)start {
     [self addEnabledCrumb];
     [self swizzleSendAction];
     [self swizzleViewDidAppear];

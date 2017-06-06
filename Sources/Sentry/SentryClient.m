@@ -20,7 +20,7 @@
 #import <Sentry/SentryKSCrashInstallation.h>
 #import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryFileManager.h>
-#import <Sentry/SentrySwizzle.h>
+#import <Sentry/SentryBreadcrumbTracker.h>
 
 #else
 #import "SentryClient.h"
@@ -35,7 +35,7 @@
 #import "SentryKSCrashInstallation.h"
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
-#import "SentrySwizzle.h"
+#import "SentryBreadcrumbTracker.h"
 #endif
 
 #if __has_include(<KSCrash/KSCrash.h>)
@@ -101,7 +101,7 @@ static SentryKSCrashInstallation *installation = nil;
 }
 
 - (void)enableAutomaticBreadcrumbTracking {
-    [[SentrySwizzle alloc] swizzle];
+    [[SentryBreadcrumbTracker alloc] start];
 }
 
 #pragma mark Static Getter/Setter
