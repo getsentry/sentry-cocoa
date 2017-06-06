@@ -1,0 +1,3 @@
+[submodule "Sources/KSCrash"]
+	path = Sources/KSCrash
+	url = https://github.com/kstenerud/KSCrash
