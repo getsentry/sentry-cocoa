@@ -25,6 +25,7 @@ it in your `Podfile`:
 
     source 'https://github.com/CocoaPods/Specs.git'
     platform :ios, '8.0'
+    use_frameworks!
 
     target 'YourApp' do
         pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :subspecs => ['Core', 'KSCrash'], :tag => '###SENTRY_COCOA_TAG###'
