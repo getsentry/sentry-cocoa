@@ -6,15 +6,17 @@ Cocoa
 This is the documentation for our official clients for Cocoa (Swift and Objective-C).
 Starting with version ``3.0.0`` we've switched our interal code from Swift to Objective-C
 to maximize compatiblity. Also we trimmed the public API of our sdk to a minimum.
-Some of the lesser used features that where present before are gone now, check :ref:`advanced` for details.
+Some of the lesser used features that where present before are gone now, check out  :ref:`migration` or :ref:`advanced` for details.
 
 Installation
 ------------
 
 The client (Sentry) can be installed using `CocoaPods
 <http://cocoapods.org>`__ or `Carthage
-<https://github.com/Carthage/Carthage>`__.  This is the recommended client
-for both Swift and Objective-C.
+<https://github.com/Carthage/Carthage>`__.
+This is the recommended client for both Swift and Objective-C.
+
+We recommend installing Sentry with CocoaPods.
 
 To integrate Sentry into your Xcode project using CocoaPods, specify
 it in your `Podfile`:
@@ -42,14 +44,13 @@ it in your `Cartfile`:
 .. sourcecode:: ruby
 
     github "getsentry/sentry-cocoa" "###SENTRY_COCOA_TAG###"
-    github "kstenerud/KSCrash" "1.15.8"
 
-Run ``carthage update`` to build the framework and drag the built
-`Sentry.framework` and `KSCrash.framework` into your Xcode project.
+Run ``carthage update`` to download the framework and drag the built
+`Sentry.framework` into your Xcode project.
 
-KSCrash is still optional, you can run Sentry without it.
+*Please note that with Carthage we had to bundle KSCrash into the `Sentry.framework` to make everything work.*
 
-We also provide a prebuilt version for every release which you can download in the `releases section on github
+We also provide a prebuilt version for every release which can be downloaded at `releases on github
 <https://github.com/getsentry/sentry-cocoa/releases>`__.
 
 Configuration
@@ -91,7 +92,7 @@ If you prefer to use Objective-C you can do so like this:
         NSLog(@"%@", error);
     }
 
-Note that if you call ``startCrashHandler`` will only catch errors if KSCrash is present.
+*Note that if you call ``startCrashHandler`` will only catch errors if KSCrash is present.*
 
 .. _sentry-cocoa-debug-symbols:
 
@@ -139,5 +140,6 @@ Deep Dive
 .. toctree::
    :maxdepth: 2
 
+   migration
    dsym
    advanced

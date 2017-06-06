@@ -2,4 +2,3 @@
   - [ ] Update `docs/`
   - [ ] Run `make release FROM=x.x.x TO=x.x.x`
   - [ ] Write down changes on github in releases
-  - [ ] Upload Sentry.Framework.zip to github release
