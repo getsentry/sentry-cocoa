@@ -31,6 +31,7 @@
 		630C01941EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 630C01931EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m */; };
 		630C01961EC341D600C52CEF /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
 		631501BB1EE6F30B00512C5B /* SentrySwizzleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 631501BA1EE6F30B00512C5B /* SentrySwizzleTests.m */; };
+		631501BD1EE7E22900512C5B /* SentryClient+Internal.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63D50BC81EE049B1008902A3 /* SentryClient+Internal.h */; };
 		631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
 		6344DDB01EC308E400D9160D /* SentryKSCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -222,6 +223,7 @@
 				63988A231EDFF8E900EA7442 /* SentryLog.h in Copy Headers */,
 				63988A241EDFF8E900EA7442 /* SentryFileManager.h in Copy Headers */,
 				63988A251EDFF8E900EA7442 /* SentryBreadcrumbTracker.h in Copy Headers */,
+				631501BD1EE7E22900512C5B /* SentryClient+Internal.h in Copy Headers */,
 				63988A261EDFF8E900EA7442 /* Sentry.h in Copy Headers */,
 				63988A271EDFF8E900EA7442 /* SentryClient.h in Copy Headers */,
 			);
