@@ -89,6 +89,10 @@ NSString *reportPath = @"";
 - (void)testAbort {
     reportPath = @"Resources/Abort";
     [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects([[event serialize] valueForKeyPath:@"contexts.os.name"], @"iOS");
 }
 
 - (void)testMissingBinary {

@@ -41,7 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
         self.osContext = [self generatedOsContext];
     }
     [serializedData setValue:self.osContext forKey:@"os"];
-
+    [self fixSystemName];
+    
     if (nil == self.appContext) {
         self.appContext = [self generatedAppContext];
     }
@@ -53,6 +54,13 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.deviceContext forKey:@"device"];
 
     return serializedData;
+}
+
+- (void)fixSystemName {
+    // This fixes iPhone OS to iOS because apple messed up the naming
+    if (nil != self.osContext && [self.osContext[@"name"] isEqualToString:@"iPhone OS"]) {
+        [self.osContext setValue:@"iOS" forKey:@"name"];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)generatedOsContext {
