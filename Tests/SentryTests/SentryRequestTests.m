@@ -122,7 +122,7 @@ NSInteger requestsWithErrors = 0;
     self.lastOperation = [[SentryRequestOperation alloc] initWithSession:self.session
                                                                                 request:request
                                                                       completionHandler:^(NSError * _Nullable error) {
-                                                                          [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %lu", self.queue.operationCount - 1] andLevel:kSentryLogLevelDebug];
+                                                                          [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %lu", (unsigned long)(self.queue.operationCount - 1)] andLevel:kSentryLogLevelDebug];
                                                                           if (completionHandler) {
                                                                               completionHandler(error);
                                                                           }
