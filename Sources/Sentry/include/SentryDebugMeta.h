@@ -32,12 +32,12 @@ NS_SWIFT_NAME(DebugMeta)
 /**
  * CPU type of image
  */
-@property(nonatomic, assign) NSNumber *_Nullable cpuType;
+@property(nonatomic, copy) NSNumber *_Nullable cpuType;
 
 /**
  * CPU Sub type of image
  */
-@property(nonatomic, assign) NSNumber *_Nullable cpuSubType;
+@property(nonatomic, copy) NSNumber *_Nullable cpuSubType;
 
 /**
  * Name of the image
@@ -47,7 +47,7 @@ NS_SWIFT_NAME(DebugMeta)
 /**
  * Image size
  */
-@property(nonatomic, assign) NSNumber *_Nullable imageSize;
+@property(nonatomic, copy) NSNumber *_Nullable imageSize;
 
 /**
  * Image VM address
@@ -62,17 +62,17 @@ NS_SWIFT_NAME(DebugMeta)
 /**
  * Major version of the image
  */
-@property(nonatomic, assign) NSNumber *_Nullable majorVersion;
+@property(nonatomic, copy) NSNumber *_Nullable majorVersion;
 
 /**
  * Minor version of the image
  */
-@property(nonatomic, assign) NSNumber *_Nullable minorVersion;
+@property(nonatomic, copy) NSNumber *_Nullable minorVersion;
 
 /**
  * Revision version of the image
  */
-@property(nonatomic, assign) NSNumber *_Nullable revisionVersion;
+@property(nonatomic, copy) NSNumber *_Nullable revisionVersion;
 
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
