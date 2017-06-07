@@ -14,5 +14,5 @@ elif [ "$LANE" = "test" ];
 then
     gem install slather
 fi
-fastlane $LANE;
+fastlane $LANE
 

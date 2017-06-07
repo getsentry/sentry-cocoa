@@ -20,10 +20,7 @@ notifications:
 jobs:
   include:
   - stage: cocoapods
-    script:
-    - if [ -n "TRAVIS_TAG" ]; then
-    - gem install cocoapods
-    - fi
+    script: .travis/stage-cocoapods.sh
     deploy:
       provider: script
       script: pod trunk push Sentry.podspec
@@ -31,14 +28,7 @@ jobs:
       on:
         tags: true
   - stage: carthage
-    script:
-    - if [ -n "TRAVIS_TAG" ]; then
-    - brew update
-    - brew outdated carthage || brew upgrade carthage
-    - cd KSCrash
-    - carthage build --no-skip-current
-    - carthage archive --output Sentry.framework.zip
-    - fi
+    script: .travis/stage-carthage.sh
     deploy:
       provider: releases
       api_key:
