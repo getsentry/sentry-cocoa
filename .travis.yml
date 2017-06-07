@@ -7,8 +7,9 @@ rvm:
 script:
 - travis_retry .travis/run.sh
 after_success:
-- if [ "$LANE" = "test" ]; then slather coverage --scheme Sentry && bash <(curl -s
-  https://codecov.io/bash) -f cobertura.xml; fi
+- if [ "$LANE" = "test" ]; then
+- slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml;
+- fi
 env:
   matrix:
   - LANE=lint
@@ -19,7 +20,10 @@ notifications:
 jobs:
   include:
   - stage: cocoapods
-    script: gem install cocoapods
+    script:
+    - if [ -n "TRAVIS_TAG" ]; then
+    - gem install cocoapods
+    - fi
     deploy:
       provider: script
       script: pod trunk push Sentry.podspec
@@ -28,10 +32,13 @@ jobs:
         tags: true
   - stage: carthage
     script:
+    - if [ -n "TRAVIS_TAG" ]; then
     - brew update
     - brew outdated carthage || brew upgrade carthage
-    - cd KSCrash && carthage build --no-skip-current
-    - cd KSCrash && carthage archive --output Sentry.framework.zip
+    - cd KSCrash
+    - carthage build --no-skip-current
+    - carthage archive --output Sentry.framework.zip
+    - fi
     deploy:
       provider: releases
       api_key:
