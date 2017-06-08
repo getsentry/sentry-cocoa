@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		631501B71EE6EFFD00512C5B /* SentryBreadcrumbTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 631501B61EE6EFFD00512C5B /* SentryBreadcrumbTracker.m */; };
-		631501B91EE6F00600512C5B /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 631501B81EE6F00600512C5B /* SentryBreadcrumbTracker.h */; };
+		631501B91EE6F00600512C5B /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 631501B81EE6F00600512C5B /* SentryBreadcrumbTracker.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABF3E1EE5AEC700B6E263 /* KSCrashMonitor_User.c in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE121EE543BD00B6E263 /* KSCrashMonitor_User.c */; };
 		632ABF3F1EE5AEC700B6E263 /* NSMutableData+AppendUTF8.m in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE7F1EE543BD00B6E263 /* NSMutableData+AppendUTF8.m */; };
 		632ABF401EE5AEC700B6E263 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };

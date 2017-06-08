@@ -4,6 +4,7 @@ let package = Package(
     name: "Sentry",
     exclude: [
         "Tests",
-        "Sources/Configuration"
+        "Sources/Configuration",
+        "Sources/KSCrash"
     ]
 )
