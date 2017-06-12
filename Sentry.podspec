@@ -22,6 +22,6 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'KSCrash' do |ks|
-    ks.dependency 'KSCrash', '~> 1.15.8'
+    ks.dependency 'KSCrash/Core', '~> 1.15.9'
   end
 end
