@@ -10,6 +10,7 @@ then
 elif [ "$LANE" = "pod" ];
 then
     gem install cocoapods
+    pod repo update
 elif [ "$LANE" = "test" ];
 then
     gem install slather
