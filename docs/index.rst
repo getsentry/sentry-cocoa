@@ -49,7 +49,7 @@ it in your `Cartfile`:
 Run ``carthage update`` to download the framework and drag the built
 `Sentry.framework` into your Xcode project.
 
-*Please note that with Carthage we had to bundle KSCrash into the `Sentry.framework` to make everything work.*
+*Please note that for Carthage we had to bundle KSCrash into the ``Sentry.framework`` to make everything work.  So you will always get KSCrash with Sentry when using Carthage.*
 
 We also provide a prebuilt version for every release which can be downloaded at `releases on github
 <https://github.com/getsentry/sentry-cocoa/releases>`__.
