@@ -63,10 +63,11 @@ static NSMutableString *_logString = nil;
 - (BOOL)methodReturningBOOL {
     return YES;
 };
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (void)methodWithArgument:(id)arg {
 };
-
+#pragma GCC diagnostic pop
 - (void)methodForAlwaysSwizzling {
 };
 

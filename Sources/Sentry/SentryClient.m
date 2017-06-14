@@ -388,7 +388,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     return NO;
 }
 
-- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
     [SentryLog logWithMessage:@"KSCrash is not linked snapshot the stacktrace." andLevel:kSentryLogLevelError];
     snapshotCompleted();
 }

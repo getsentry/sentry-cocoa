@@ -162,7 +162,7 @@ NS_SWIFT_NAME(send(event:completion:));
 /**
  * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
  */
-- (void)snapshotStacktrace:(void (^)())snapshotCompleted;
+- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted;
 
 @end
 
