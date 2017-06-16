@@ -11,6 +11,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryFileManager.h"
 #import "NSDate+Extras.h"
+#import "SentryClient+Internal.h"
 
 NSInteger requestShouldReturnCode = 200;
 NSInteger requestsSuccessfullyFinished = 0;
@@ -617,10 +618,13 @@ NSInteger requestsWithErrors = 0;
     }];
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
     self.client._snapshotThreads = @[thread];
+    self.client._debugMeta = @[[[SentryDebugMeta alloc] init]];
     __weak id weakSelf = self;
     self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
         id self = weakSelf;
         XCTAssertEqualObjects(event.threads.firstObject.threadId, @(9999));
+        XCTAssertNotNil(event.debugMeta);
+        XCTAssertTrue(event.debugMeta.count > 0);
     };
     
     [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
