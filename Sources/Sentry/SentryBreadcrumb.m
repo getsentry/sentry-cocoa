@@ -10,10 +10,12 @@
 
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/NSDate+Extras.h>
+#import <Sentry/NSDictionary+Sanitize.h>
 
 #else
 #import "SentryBreadcrumb.h"
 #import "NSDate+Extras.h"
+#import "NSDictionary+Sanitize.h"
 #endif
 
 
@@ -37,7 +39,7 @@
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
-    [serializedData setValue:self.data forKey:@"data"];
+    [serializedData setValue:[self.data sanitize] forKey:@"data"];
 
     return serializedData;
 }
