@@ -236,8 +236,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
     
-    if (nil == event.threads && nil != self._snapshotThreads) {
+    if (nil == event.threads && nil != self._snapshotThreads && nil != self._debugMeta) {
         event.threads = self._snapshotThreads;
+        event.debugMeta = self._debugMeta;
         self._snapshotThreads = nil;
     }
 }

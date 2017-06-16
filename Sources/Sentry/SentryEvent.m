@@ -15,11 +15,13 @@
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
+#import <Sentry/SentryDebugMeta.h>
 #import <Sentry/NSDate+Extras.h>
 #import <Sentry/NSDictionary+Sanitize.h>
 
 #else
 #import "SentryEvent.h"
+#import "SentryDebugMeta.m"
 #import "SentryClient.h"
 #import "SentryUser.h"
 #import "SentryThread.h"
@@ -94,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addDebugImages:(NSMutableDictionary *)serializedData {
     NSMutableArray *debugImages = [NSMutableArray new];
-    for (SentryThread *debugImage in self.debugMeta) {
+    for (SentryDebugMeta *debugImage in self.debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }
     if (debugImages.count > 0) {

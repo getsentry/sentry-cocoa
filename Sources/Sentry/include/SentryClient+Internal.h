@@ -10,13 +10,16 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryDebugMeta.h>
 
 #else
 #import "SentryClient.h"
+#import "SentryDebugMeta.h"
 #endif
 
 @interface SentryClient ()
 
 @property(nonatomic, strong) NSArray<SentryThread *> *_Nullable _snapshotThreads;
+@property(nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable _debugMeta;
 
 @end

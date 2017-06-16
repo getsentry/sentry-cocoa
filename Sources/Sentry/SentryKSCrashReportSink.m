@@ -53,6 +53,7 @@
             }
         }
         SentryClient.sharedClient._snapshotThreads = crashedThreads;
+        SentryClient.sharedClient._debugMeta = event.debugMeta;
     } else {
         [sentReports addObject:report];
         [SentryClient.sharedClient sendEvent:event withCompletionHandler:NULL];
