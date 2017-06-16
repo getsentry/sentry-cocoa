@@ -332,7 +332,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [installation sendAllReports];
 }
 
-- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
     if (nil == installation) {
         [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
         return;
