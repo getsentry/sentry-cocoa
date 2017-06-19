@@ -21,7 +21,7 @@
 
 #else
 #import "SentryEvent.h"
-#import "SentryDebugMeta.m"
+#import "SentryDebugMeta.h"
 #import "SentryClient.h"
 #import "SentryUser.h"
 #import "SentryThread.h"
