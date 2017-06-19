@@ -16,6 +16,7 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryLog.h>
+#import <Sentry/SentryThread.h>
 
 #else
 #import "SentryDefines.h"
@@ -26,6 +27,7 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryLog.h"
+#import "SentryThread.h"
 #endif
 
 #if __has_include(<KSCrash/KSCrash.h>)
@@ -37,6 +39,27 @@
 @implementation SentryKSCrashReportSink
 
 #if WITH_KSCRASH
+
+- (void)handleConvertedEvent:(SentryEvent *)event report:(NSDictionary *)report sentReports:(NSMutableArray *)sentReports {
+    if (nil != event.exceptions.firstObject && [event.exceptions.firstObject.value isEqualToString:@"SENTRY_SNAPSHOT"]) {
+        [SentryLog logWithMessage:@"Snapshotting stacktrace" andLevel:kSentryLogLevelDebug];
+        NSMutableArray <SentryThread *> *crashedThreads = [NSMutableArray new];
+        for (SentryThread *thread in event.threads) {
+            if (thread) {
+                if ([thread.crashed boolValue]) {
+                    [crashedThreads addObject:thread];
+                    break;
+                }
+            }
+        }
+        SentryClient.sharedClient._snapshotThreads = crashedThreads;
+        SentryClient.sharedClient._debugMeta = event.debugMeta;
+    } else {
+        [sentReports addObject:report];
+        [SentryClient.sharedClient sendEvent:event withCompletionHandler:NULL];
+    }
+}
+
 - (void)filterReports:(NSArray *)reports
           onCompletion:(KSCrashReportFilterCompletion)onCompletion {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
@@ -46,13 +69,7 @@
             SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
             if (nil != SentryClient.sharedClient) {
                 SentryEvent *event = [reportConverter convertReportToEvent];
-                if (nil != event.exceptions.firstObject && [event.exceptions.firstObject.value isEqualToString:@"SENTRY_SNAPSHOT"]) {
-                    [SentryLog logWithMessage:@"Snapshotting stacktrace" andLevel:kSentryLogLevelDebug];
-                    SentryClient.sharedClient._snapshotThreads = event.threads;
-                } else {
-                    [sentReports addObject:report];
-                    [SentryClient.sharedClient sendEvent:event withCompletionHandler:NULL];
-                }
+                [self handleConvertedEvent:event report:report sentReports:sentReports];
             }
         }
         if (onCompletion) {

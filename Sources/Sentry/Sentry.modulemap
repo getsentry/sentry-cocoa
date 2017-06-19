@@ -19,5 +19,6 @@ framework module Sentry {
 
         header "NSData+Compression.h"
         header "NSDate+Extras.h"
+        header "NSDictionary+Sanitize.h"
     }
 }

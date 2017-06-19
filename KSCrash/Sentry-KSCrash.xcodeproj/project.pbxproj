@@ -16,6 +16,8 @@
 		6315029D1EE986D600512C5B /* Container+DeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 631502981EE986D600512C5B /* Container+DeepSearch.h */; };
 		6315029E1EE986D600512C5B /* Container+DeepSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 631502991EE986D600512C5B /* Container+DeepSearch.m */; };
 		6315029F1EE986D600512C5B /* KSVarArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6315029A1EE986D600512C5B /* KSVarArgs.h */; };
+		63295AFA1EF3CD8F002D4490 /* NSDictionary+Sanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 63295AF91EF3CD8F002D4490 /* NSDictionary+Sanitize.m */; };
+		63295AFC1EF3CD97002D4490 /* NSDictionary+Sanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AFB1EF3CD97002D4490 /* NSDictionary+Sanitize.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABF3E1EE5AEC700B6E263 /* KSCrashMonitor_User.c in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE121EE543BD00B6E263 /* KSCrashMonitor_User.c */; };
 		632ABF401EE5AEC700B6E263 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
 		632ABF421EE5AEC700B6E263 /* SentryDsn.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA76A11EB9CBAA00D153DE /* SentryDsn.m */; };
@@ -211,6 +213,8 @@
 		6315029A1EE986D600512C5B /* KSVarArgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSVarArgs.h; sourceTree = "<group>"; };
 		631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryQueueableRequestManager.h; path = include/SentryQueueableRequestManager.h; sourceTree = "<group>"; };
 		631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryQueueableRequestManager.m; sourceTree = "<group>"; };
+		63295AF91EF3CD8F002D4490 /* NSDictionary+Sanitize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+Sanitize.m"; sourceTree = "<group>"; };
+		63295AFB1EF3CD97002D4490 /* NSDictionary+Sanitize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+Sanitize.h"; path = "include/NSDictionary+Sanitize.h"; sourceTree = "<group>"; };
 		632ABDD41EE543BD00B6E263 /* KSCrashInstallation+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KSCrashInstallation+Private.h"; sourceTree = "<group>"; };
 		632ABDD51EE543BD00B6E263 /* KSCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSCrashInstallation.h; sourceTree = "<group>"; };
 		632ABDD61EE543BD00B6E263 /* KSCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSCrashInstallation.m; sourceTree = "<group>"; };
@@ -448,6 +452,8 @@
 				630436091EC0595B00C4D3FA /* NSData+Compression.m */,
 				63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */,
 				63BE856F1ECEC6DE00DC44F5 /* NSDate+Extras.m */,
+				63295AFB1EF3CD97002D4490 /* NSDictionary+Sanitize.h */,
+				63295AF91EF3CD8F002D4490 /* NSDictionary+Sanitize.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -905,6 +911,7 @@
 				632AC0181EE5AEC700B6E263 /* Optional.h in Headers */,
 				632AC0191EE5AEC700B6E263 /* KSMach.h in Headers */,
 				632AC01B1EE5AEC700B6E263 /* SentryKSCrashReportConverter.h in Headers */,
+				63295AFC1EF3CD97002D4490 /* NSDictionary+Sanitize.h in Headers */,
 				632AC01D1EE5AEC700B6E263 /* KSString.h in Headers */,
 				631502871EE9861500512C5B /* KSCString.h in Headers */,
 				632AC01E1EE5AEC700B6E263 /* KSCrashMonitor_NSException.h in Headers */,
@@ -992,6 +999,7 @@
 				632ABF491EE5AEC700B6E263 /* SentryError.m in Sources */,
 				632ABF4A1EE5AEC700B6E263 /* SentryBreadcrumbStore.m in Sources */,
 				632ABF4B1EE5AEC700B6E263 /* KSCrashMonitor_NSException.m in Sources */,
+				63295AFA1EF3CD8F002D4490 /* NSDictionary+Sanitize.m in Sources */,
 				632ABF4C1EE5AEC700B6E263 /* KSCrash.m in Sources */,
 				632ABF4D1EE5AEC700B6E263 /* NSError+SimpleConstructor.m in Sources */,
 				632ABF4E1EE5AEC700B6E263 /* KSCrashReport.c in Sources */,

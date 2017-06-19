@@ -15,10 +15,13 @@
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
+#import <Sentry/SentryDebugMeta.h>
 #import <Sentry/NSDate+Extras.h>
+#import <Sentry/NSDictionary+Sanitize.h>
 
 #else
 #import "SentryEvent.h"
+#import "SentryDebugMeta.h"
 #import "SentryClient.h"
 #import "SentryUser.h"
 #import "SentryThread.h"
@@ -26,6 +29,7 @@
 #import "SentryStacktrace.h"
 #import "SentryContext.h"
 #import "NSDate+Extras.h"
+#import "NSDictionary+Sanitize.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -78,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // This is important here, since we probably use __sentry internal extras before
     [self stripInternalExtraParameters];
-    [serializedData setValue:self.extra forKey:@"extra"];
+    [serializedData setValue:[self.extra sanitize] forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
 
     return serializedData;
@@ -92,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addDebugImages:(NSMutableDictionary *)serializedData {
     NSMutableArray *debugImages = [NSMutableArray new];
-    for (SentryThread *debugImage in self.debugMeta) {
+    for (SentryDebugMeta *debugImage in self.debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }
     if (debugImages.count > 0) {

@@ -94,10 +94,10 @@
     event.timestamp = date;
     event.environment = @"bla";
     event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
-    event.extra = @{@"__sentry_stacktrace": @"f"};
+    event.extra = @{@"__sentry_stacktrace": @"f", @"date": date};
     NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                  @"event_id": event.eventId,
-                                 @"extra": @{},
+                                 @"extra": @{@"date": date.toIso8601String},
                                  @"level": @"info",
                                  @"environment": @"bla",
                                  @"platform": @"cocoa",

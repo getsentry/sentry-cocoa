@@ -9,9 +9,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryUser.h>
+#import <Sentry/NSDictionary+Sanitize.h>
 
 #else
 #import "SentryUser.h"
+#import "NSDictionary+Sanitize.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
-    [serializedData setValue:self.extra forKey:@"extra"];
+    [serializedData setValue:[self.extra sanitize] forKey:@"extra"];
 
     return serializedData;
 }

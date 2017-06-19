@@ -46,7 +46,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"3.0.9";
+NSString *const SentryClientVersionString = @"3.0.11";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;
@@ -237,8 +237,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
     
-    if (nil == event.threads && nil != self._snapshotThreads) {
+    if (nil == event.threads && nil != self._snapshotThreads && nil != self._debugMeta) {
         event.threads = self._snapshotThreads;
+        event.debugMeta = self._debugMeta;
         self._snapshotThreads = nil;
     }
 }
@@ -333,7 +334,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [installation sendAllReports];
 }
 
-- (void)snapshotStacktrace:(void (^)())snapshotCompleted {
+- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
     if (nil == installation) {
         [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
         return;

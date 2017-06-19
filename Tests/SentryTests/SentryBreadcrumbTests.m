@@ -10,6 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
+#import "NSDate+Extras.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
 
@@ -68,6 +69,30 @@
     [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     [client.breadcrumbs clear];
     XCTAssertTrue(client.breadcrumbs.count == 0);
+}
+
+- (void)testSerialize {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    NSDate *date = [NSDate date];
+    crumb.timestamp = date;
+    crumb.data = @{@"data": date, @"dict": @{@"date": date}};
+    [client.breadcrumbs addBreadcrumb:crumb];
+    NSDictionary *serialized = @{@"breadcrumbs": @[@{
+                                 @"category": @"http",
+                                 @"data": @{
+                                         @"data": date.toIso8601String,
+                                         @"dict": @{
+                                                 @"date": date.toIso8601String
+                                                 }
+                                         },
+                                 @"level": @"debug",
+                                 @"timestamp": date.toIso8601String
+                                 }]
+                                 };
+    XCTAssertEqualObjects([client.breadcrumbs serialize], serialized);
 }
 
 - (SentryBreadcrumb *)getBreadcrumb {
