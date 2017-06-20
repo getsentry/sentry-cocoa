@@ -5,11 +5,11 @@ end
 
 lane :localcoverage do
     test_swift
-    sh('cd .. && slather coverage --input-format profdata Sentry.xcodeproj')
+    sh('cd ..; slather coverage --input-format profdata Sentry.xcodeproj')
 end
 
 lane :oc_lint do
-  sh('cd .. && xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log && oclint-xcodebuild -output compile_commands.json xcodebuild.log')
+  sh('cd ..; xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log; oclint-xcodebuild -output compile_commands.json xcodebuild.log')
   oclint
 end
 
@@ -22,7 +22,7 @@ lane :lint do
             verbose: true
         )
     end
-    sh('cd .. && swiftlint')
+    sh('cd ..; swiftlint')
 end
 
 lane :test do
@@ -36,5 +36,9 @@ lane :test do
 end
 
 lane :pod do
-    sh('cd .. && pod lib lint')
+    sh('cd ..; pod lib lint')
+end
+
+lane :swiftpm do
+    sh('cd ..; swift build -Xlinker -lz')
 end
