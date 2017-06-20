@@ -78,6 +78,12 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
 
 /**
+ * This block can be used to prevent the event from being sent.
+ * @return BOOL
+ */
+@property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
+
+/**
  * Returns the shared sentry client
  * @return sharedClient if it was set before
  */

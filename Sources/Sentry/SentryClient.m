@@ -148,14 +148,25 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (nil != self.beforeSerializeEvent) {
         self.beforeSerializeEvent(event);
     }
-
+    
+    if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
+        NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
+        [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
+        if (completionHandler) {
+            completionHandler(NSErrorFromSentryError(kSentryErrorEventNotSent, message));
+        }
+        return;
+    }
+    
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                              andEvent:event
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
-        completionHandler(requestError);
+        if (completionHandler) {
+            completionHandler(requestError);
+        }
         return;
     }
 

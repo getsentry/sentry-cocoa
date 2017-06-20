@@ -47,7 +47,10 @@ typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
  * Block can be used to mutate NSURLRequest e.g.: add headers before request is executed
  */
 typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
-
+/**
+ * Block can to prevent the event from being sent
+ */
+typedef BOOL (^SentryShouldSendEvent)(SentryEvent *_Nonnull event);
 /**
  * Loglevel
  */

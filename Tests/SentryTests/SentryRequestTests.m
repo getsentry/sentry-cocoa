@@ -639,4 +639,59 @@ NSInteger requestsWithErrors = 0;
         XCTAssert(YES);
     }];
 }
+
+- (void)testShouldSendEventNo {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    __weak id weakSelf = self;
+    self.client.shouldSendEvent = ^BOOL(SentryEvent * _Nonnull event) {
+        id self = weakSelf;
+        if ([event.message isEqualToString:@"abc"]) {
+            XCTAssertTrue(YES);
+        } else {
+            XCTAssertTrue(NO);
+        }
+        return NO;
+    };
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNotNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testShouldSendEventYes {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    __weak id weakSelf = self;
+    self.client.shouldSendEvent = ^BOOL(SentryEvent * _Nonnull event) {
+        id self = weakSelf;
+        if ([event.message isEqualToString:@"abc"]) {
+            XCTAssertTrue(YES);
+        } else {
+            XCTAssertTrue(NO);
+        }
+        return YES;
+    };
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
 @end
