@@ -170,6 +170,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return;
     }
 
+    NSString *storedEventPath = [self.fileManager storeEvent:event];
+
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
         if (nil == error) {
@@ -177,13 +179,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
                                                             userInfo:[event serialize]];
+            [_self.fileManager removeFileAtPath:storedEventPath];
 
             // Send all stored events in background if the queue is ready
             if ([_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
-        } else {
-            [_self.fileManager storeEvent:event];
         }
         if (completionHandler) {
             completionHandler(error);

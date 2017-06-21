@@ -128,23 +128,25 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
 }
 
-- (void)storeEvent:(SentryEvent *)event {
-    [self storeDictionary:[event serialize] toPath:self.eventsPath];
+- (NSString *)storeEvent:(SentryEvent *)event {
+    return [self storeDictionary:[event serialize] toPath:self.eventsPath];
 }
 
-- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb {
-    [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
+- (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb {
+    return [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
 }
 
-- (void)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
+- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
     NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
     if (nil != saveData) {
         @synchronized (self) {
             NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
             [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
+            return finalPath;
         }
     }
+    return nil;
 }
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error {

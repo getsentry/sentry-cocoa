@@ -23,9 +23,9 @@ SENTRY_NO_INIT
 
 - (_Nullable instancetype)initWithError:(NSError **)error;
 
-- (void)storeEvent:(SentryEvent *)event;
+- (NSString *)storeEvent:(SentryEvent *)event;
 
-- (void)storeBreadcrumb:(SentryBreadcrumb *)crumb;
+- (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb;
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
