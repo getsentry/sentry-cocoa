@@ -71,4 +71,8 @@
     XCTAssertFalse([self.fileManager removeFileAtPath:@"x"]);
 }
 
+- (void)testFailingStoreDictionary {
+    XCTAssertNil([self.fileManager storeDictionary:@{@"date": [NSDate date]} toPath:@""]);
+}
+
 @end

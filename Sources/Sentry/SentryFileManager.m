@@ -137,16 +137,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
-    NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
-    if (nil != saveData) {
-        @synchronized (self) {
-            NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
-            [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
-            return finalPath;
-        }
+    if (![NSJSONSerialization isValidJSONObject:dictionary]) {
+        return nil;
     }
-    return nil;
+    NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
+    @synchronized (self) {
+        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
+        [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
+        return finalPath;
+    }
 }
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error {

@@ -43,6 +43,8 @@ SENTRY_NO_INIT
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
+- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
+
 @end
 
 NS_ASSUME_NONNULL_END
