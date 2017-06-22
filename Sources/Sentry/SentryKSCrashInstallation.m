@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if WITH_KSCRASH
 
 - (id)init {
-    return [super initWithRequiredProperties:@[]];
+    return [super initWithRequiredProperties:[NSArray new]];
 }
 
 - (id<KSCrashReportFilter>)sink {

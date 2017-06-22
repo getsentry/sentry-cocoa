@@ -232,7 +232,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
-        return @[];
+        return [NSArray new];
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];

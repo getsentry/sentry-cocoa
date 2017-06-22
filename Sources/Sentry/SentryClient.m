@@ -85,8 +85,8 @@ static SentryKSCrashInstallation *installation = nil;
                      didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
-        [self setExtra:@{}];
-        [self setTags:@{}];
+        [self setExtra:[NSDictionary new]];
+        [self setTags:[NSDictionary new]];
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
         NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
@@ -354,7 +354,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                          reason:@"SENTRY_SNAPSHOT"
                                        language:@""
                                      lineOfCode:@""
-                                     stackTrace:@[]
+                                     stackTrace:[NSArray new]
                                   logAllThreads:NO
                                terminateProgram:NO];
     [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {

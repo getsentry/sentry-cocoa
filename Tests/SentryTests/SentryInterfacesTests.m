@@ -287,7 +287,7 @@
     event.extra = @{@"__sentry_stacktrace": @"f", @"__sentry_sdk_detail": @"react-native"};
     NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                  @"event_id": event.eventId,
-                                 @"extra": @{},
+                                 @"extra": [NSDictionary new],
                                  @"level": @"info",
                                  @"environment": @"bla",
                                  @"platform": @"cocoa",

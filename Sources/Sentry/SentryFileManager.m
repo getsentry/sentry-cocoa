@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray < NSString * > *storedEvents = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (nil != error) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't load files in folder %@: %@", path, error] andLevel:kSentryLogLevelError];
-        return @[];
+        return [NSArray new];
     }
     return storedEvents;
 }
