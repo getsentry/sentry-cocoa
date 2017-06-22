@@ -84,7 +84,7 @@
 
 - (void)testDateCategory {
     NSDate *date = [NSDate date];
-    XCTAssertEqual((NSInteger)[[NSDate fromIso8601String:[date toIso8601String]] timeIntervalSince1970], (NSInteger)[date timeIntervalSince1970]);
+    XCTAssertEqual((NSInteger)[[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970], (NSInteger)[date timeIntervalSince1970]);
 }
 
 @end

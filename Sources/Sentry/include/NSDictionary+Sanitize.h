@@ -10,6 +10,6 @@
 
 @interface NSDictionary (Sanitize)
 
-- (NSDictionary *)sanitize;
+- (NSDictionary *)sentry_sanitize;
 
 @end

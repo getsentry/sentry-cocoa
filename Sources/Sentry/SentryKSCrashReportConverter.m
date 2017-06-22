@@ -86,7 +86,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
         event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
     } else {
-        event.timestamp = [NSDate fromIso8601String:self.report[@"report"][@"timestamp"]];
+        event.timestamp = [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
     }
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];

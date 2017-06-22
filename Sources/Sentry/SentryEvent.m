@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     NSMutableDictionary *serializedData = @{
             @"event_id": self.eventId,
-            @"timestamp": [self.timestamp toIso8601String],
+            @"timestamp": [self.timestamp sentry_toIso8601String],
             @"level": SentrySeverityNames[self.level],
             @"platform": @"cocoa",
     }.mutableCopy;
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // This is important here, since we probably use __sentry internal extras before
     [self stripInternalExtraParameters];
-    [serializedData setValue:[self.extra sanitize] forKey:@"extra"];
+    [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
 
     return serializedData;

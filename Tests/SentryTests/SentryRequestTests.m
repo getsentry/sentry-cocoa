@@ -413,7 +413,7 @@ NSInteger requestsWithErrors = 0;
         NSDictionary *serialized = @{@"breadcrumbs": @[ @{
                                                             @"category": @"you",
                                                             @"level": @"info",
-                                                            @"timestamp": date.toIso8601String
+                                                            @"timestamp": [date sentry_toIso8601String]
                                                             }
                                                         ],
                                      @"user": @{@"id": @"XXXXXX"},
@@ -426,7 +426,7 @@ NSInteger requestsWithErrors = 0;
                                      @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b"},
-                                     @"timestamp": date.toIso8601String};
+                                     @"timestamp": [date sentry_toIso8601String]};
         XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];
@@ -459,7 +459,7 @@ NSInteger requestsWithErrors = 0;
         NSDictionary *serialized = @{@"breadcrumbs": @[ @{
                                                             @"category": @"you",
                                                             @"level": @"info",
-                                                            @"timestamp": date.toIso8601String
+                                                            @"timestamp": [date sentry_toIso8601String]
                                                             }
                                                         ],
                                      @"contexts": [context serialize],
@@ -471,7 +471,7 @@ NSInteger requestsWithErrors = 0;
                                      @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"b", @"1": @"2"},
-                                     @"timestamp": date.toIso8601String};
+                                     @"timestamp": [date sentry_toIso8601String]};
         XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];
@@ -505,7 +505,7 @@ NSInteger requestsWithErrors = 0;
         NSDictionary *serialized = @{@"breadcrumbs": @[ @{
                                                             @"category": @"you",
                                                             @"level": @"info",
-                                                            @"timestamp": date.toIso8601String
+                                                            @"timestamp": [date sentry_toIso8601String]
                                                             }
                                                         ],
                                      @"contexts": [context serialize],
@@ -517,7 +517,7 @@ NSInteger requestsWithErrors = 0;
                                      @"dist": @"c",
                                      @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                      @"tags": @{@"a": @"1"},
-                                     @"timestamp": date.toIso8601String};
+                                     @"timestamp": [date sentry_toIso8601String]};
         XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
         [self.client.breadcrumbs clear];
         [expectation fulfill];

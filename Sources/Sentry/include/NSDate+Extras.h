@@ -12,9 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSDate (Extras)
 
-+ (NSDate *)fromIso8601String:(NSString *)string;
++ (NSDate *)sentry_fromIso8601String:(NSString *)string;
 
-- (NSString *)toIso8601String;
+- (NSString *)sentry_toIso8601String;
 
 @end
 

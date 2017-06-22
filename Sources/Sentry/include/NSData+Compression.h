@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSData (Compression)
 
-- (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
+- (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                            error:(NSError *_Nullable *_Nullable)error;
 
 @end

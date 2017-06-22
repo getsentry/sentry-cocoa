@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSData (Compression)
 
-- (NSData *_Nullable)gzippedWithCompressionLevel:(NSInteger)compressionLevel
+- (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                            error:(NSError *_Nullable *_Nullable)error {
     uInt length = (uInt) [self length];
     if (length == 0) {

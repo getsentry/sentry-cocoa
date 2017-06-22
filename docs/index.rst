@@ -11,7 +11,7 @@ Some of the lesser used features that where present before are gone now, check o
 Installation
 ------------
 
-The client (Sentry) can be installed using `CocoaPods
+The SDK can be installed using `CocoaPods
 <http://cocoapods.org>`__ or `Carthage
 <https://github.com/Carthage/Carthage>`__.
 This is the recommended client for both Swift and Objective-C.

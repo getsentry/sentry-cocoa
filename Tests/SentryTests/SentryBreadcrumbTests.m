@@ -83,13 +83,13 @@
     NSDictionary *serialized = @{@"breadcrumbs": @[@{
                                  @"category": @"http",
                                  @"data": @{
-                                         @"data": date.toIso8601String,
+                                         @"data": [date sentry_toIso8601String],
                                          @"dict": @{
-                                                 @"date": date.toIso8601String
+                                                 @"date": [date sentry_toIso8601String]
                                                  }
                                          },
                                  @"level": @"debug",
-                                 @"timestamp": date.toIso8601String
+                                 @"timestamp": [date sentry_toIso8601String]
                                  }]
                                  };
     XCTAssertEqualObjects([client.breadcrumbs serialize], serialized);

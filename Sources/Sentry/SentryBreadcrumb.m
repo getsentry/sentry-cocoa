@@ -35,11 +35,11 @@
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:SentrySeverityNames[self.level] forKey:@"level"];
-    [serializedData setValue:[self.timestamp toIso8601String] forKey:@"timestamp"];
+    [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
-    [serializedData setValue:[self.data sanitize] forKey:@"data"];
+    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
 
     return serializedData;
 }

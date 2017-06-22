@@ -74,7 +74,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
     return self;
 }

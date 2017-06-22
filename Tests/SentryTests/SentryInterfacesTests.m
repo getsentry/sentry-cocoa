@@ -97,14 +97,14 @@
     event.extra = @{@"__sentry_stacktrace": @"f", @"date": date};
     NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                  @"event_id": event.eventId,
-                                 @"extra": @{@"date": date.toIso8601String},
+                                 @"extra": @{@"date": [date sentry_toIso8601String]},
                                  @"level": @"info",
                                  @"environment": @"bla",
                                  @"platform": @"cocoa",
                                  @"release": @"a-b",
                                  @"dist": @"c",
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
-                                 @"timestamp": date.toIso8601String};
+                                 @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
 
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
@@ -114,7 +114,7 @@
                                  @"level": @"info",
                                  @"platform": @"cocoa",
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
-                                 @"timestamp": date.toIso8601String};
+                                 @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event2 serialize], serialized2);
 }
 
@@ -236,7 +236,7 @@
     crumb.timestamp = date;
     NSDictionary *serialized = @{
                                  @"level": @"info",
-                                 @"timestamp": [date toIso8601String],
+                                 @"timestamp": [date sentry_toIso8601String],
                                  @"category": @"http",
                                  };
     XCTAssertEqualObjects([crumb serialize], serialized);
@@ -252,7 +252,7 @@
                                  @"level": @"info",
                                  @"type": @"type",
                                  @"message": @"message",
-                                 @"timestamp": [date toIso8601String],
+                                 @"timestamp": [date sentry_toIso8601String],
                                  @"category": @"http",
                                  @"data": @{@"bla": @"1"},
                                  };
@@ -270,7 +270,7 @@
                                         @{
                                             @"level": @"info",
                                             @"category": @"http",
-                                            @"timestamp": date.toIso8601String
+                                            @"timestamp": [date sentry_toIso8601String]
                                             }
                                         ]
                                  };
@@ -294,7 +294,7 @@
                                  @"release": @"a-b",
                                  @"dist": @"c",
                                  @"sdk": @{@"name": @"sentry-cocoa:react-native", @"version": SentryClient.versionString},
-                                 @"timestamp": date.toIso8601String};
+                                 @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
 
 }

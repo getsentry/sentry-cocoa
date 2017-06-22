@@ -18,13 +18,13 @@
 
 @implementation NSDictionary (Sanitize)
 
-- (NSDictionary *)sanitize {
+- (NSDictionary *)sentry_sanitize {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     for (NSString *key in self.allKeys) {
         if ([[self objectForKey:key] isKindOfClass:NSDictionary.class]) {
-            [dict setValue:[((NSDictionary *)[self objectForKey:key]) sanitize] forKey:key];
+            [dict setValue:[((NSDictionary *)[self objectForKey:key]) sentry_sanitize] forKey:key];
         } else if ([[self objectForKey:key] isKindOfClass:NSDate.class]) {
-            [dict setValue:[((NSDate *)[self objectForKey:key]) toIso8601String] forKey:key];
+            [dict setValue:[((NSDate *)[self objectForKey:key]) sentry_toIso8601String] forKey:key];
         } else {
             [dict setValue:[self objectForKey:key] forKey:key];
         }

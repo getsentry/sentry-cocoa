@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
     return isoFormatter;
 }
 
-+ (NSDate *)fromIso8601String:(NSString *)string {
++ (NSDate *)sentry_fromIso8601String:(NSString *)string {
     return [[self.class getIso8601Formatter] dateFromString:string];
 }
 
-- (NSString *)toIso8601String {
+- (NSString *)sentry_toIso8601String {
     return [[self.class getIso8601Formatter] stringFromDate:self];
 }
 
