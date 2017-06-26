@@ -125,14 +125,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addSdkInformation:(NSMutableDictionary *)serializedData {
-    NSString *sdkName = SentryClient.sdkName;
-    if (self.extra[@"__sentry_sdk_detail"]) {
-        sdkName = [NSString stringWithFormat:@"%@:%@", SentryClient.sdkName, self.extra[@"__sentry_sdk_detail"]];
+    NSMutableDictionary *sdk = @{
+                                 @"name": SentryClient.sdkName,
+                                 @"version": SentryClient.versionString
+                                 }.mutableCopy;
+    if (self.extra[@"__sentry_sdk_integrations"] && [self.extra[@"__sentry_sdk_integrations"] isKindOfClass:NSArray.class]) {
+        [sdk setValue:self.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
     }
-    serializedData[@"sdk"] = @{
-            @"name": sdkName,
-            @"version": SentryClient.versionString
-    };
+    serializedData[@"sdk"] = sdk;
 }
 
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData {
