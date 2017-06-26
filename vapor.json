@@ -1,10 +1,10 @@
 {
-    "name": "sentry-cocoa",
+    "name": "Sentry",
     "flags": {
         "build": {
-            "macos": [
+            "mac": [
                 "-Xlinker",
-                "-Lz"
+                "-lz"
             ],
             "linux": [
             ]
