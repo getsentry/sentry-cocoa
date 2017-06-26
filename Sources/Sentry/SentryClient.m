@@ -274,8 +274,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 - (void)clearContext {
     [self setUser:nil];
-    [self setExtra:nil];
-    [self setTags:nil];
+    [self setExtra:[NSDictionary new]];
+    [self setTags:[NSDictionary new]];
 }
 
 #pragma mark KSCrash
