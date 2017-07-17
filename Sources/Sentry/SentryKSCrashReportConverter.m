@@ -308,13 +308,34 @@ static inline NSString *hexAddress(NSNumber *value) {
                                                           type:[exceptionReason substringWithRange:NSMakeRange(0, match.location)]];
         }
     }
-
+    
+    [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanism];
     exception.thread = [self crashedThread];
     if (nil != self.diagnosis && self.diagnosis.length > 0) {
         exception.value = self.diagnosis;
     }
     return @[exception];
+}
+
+- (void)enhanceValueFromNotableAddresses:(SentryException *)exception {
+    NSDictionary *crashedThread = [self.threads objectAtIndex:self.crashedThreadIndex];
+    NSDictionary *notableAddresses = [crashedThread objectForKey:@"notable_addresses"];
+    NSMutableOrderedSet *reasons = [[NSMutableOrderedSet alloc] init];
+    if (nil != notableAddresses) {
+        for(id key in notableAddresses) {
+            NSDictionary *content = [notableAddresses objectForKey:key];
+            if ([[content objectForKey:@"type"] isEqualToString:@"string"]) {
+                // if there are less than 3 slashes it shouldn't be a filepath
+                if ([[[content objectForKey:@"value"] componentsSeparatedByString:@"/"] count] < 3) {
+                    [reasons addObject:[content objectForKey:@"value"]];
+                }
+            }
+        }
+    }
+    if (reasons.count > 0) {
+        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" | "];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)extractMechanism {

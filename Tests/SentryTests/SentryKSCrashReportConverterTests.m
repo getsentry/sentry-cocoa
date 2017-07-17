@@ -170,6 +170,15 @@ NSString *reportPath = @"";
     XCTAssertEqual(event.threads.firstObject.stacktrace.frames.count, (unsigned long)22);
 }
 
+- (void)testFatalError {
+    reportPath = @"Resources/fatalError";
+    [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: | hello my crash is here | fatal error");
+}
+
 - (void)testUserInfo {
     reportPath = @"Resources/CrashUserInfo";
     [self isValidReport];
