@@ -176,7 +176,7 @@ NSString *reportPath = @"";
     NSDictionary *rawCrash = [self getCrashReport];
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: | hello my crash is here | fatal error");
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: | fatal error | hello my crash is here");
 }
 
 - (void)testUserInfo {
