@@ -247,11 +247,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
-    
-    if (nil == event.threads && nil != self._snapshotThreads && nil != self._debugMeta) {
+}
+
+- (void)appendStacktraceToEvent:(SentryEvent *)event {
+    if (nil != self._snapshotThreads && nil != self._debugMeta) {
         event.threads = self._snapshotThreads;
         event.debugMeta = self._debugMeta;
-        self._snapshotThreads = nil;
     }
 }
 
@@ -354,7 +355,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                          reason:@"SENTRY_SNAPSHOT"
                                        language:@""
                                      lineOfCode:@""
-                                     stackTrace:[NSArray new]
+                                     stackTrace:[[NSArray alloc] init]
                                   logAllThreads:NO
                                terminateProgram:NO];
     [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
