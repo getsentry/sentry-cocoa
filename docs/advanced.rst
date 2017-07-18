@@ -129,14 +129,17 @@ additional headers to the request.
 Adding stacktrace to message
 ----------------------------
 
-You can also add a Stacktrace to your event by using the `snapshotStacktrace` function.
+You can also add a Stacktrace to your event by using the `snapshotStacktrace` callback and calling `appendStacktrace` and pass the event.
 
-This function captures the stacktrace at the location where it's called. So for example if you want to send a simple message to the server and add the stacktrace to it you have to do this.
+`snapshotStacktrace` captures the stacktrace at the location where it's called.
+After that you have to append the stacktrace to the event you want to send with `appendStacktrace`.
+So for example if you want to send a simple message to the server and add the stacktrace to it you have to do this.
 
 .. sourcecode:: swift
 
     Client.shared?.snapshotStacktrace {
         let event = Event(level: .debug)
         event.message = "Test Message"
+        Client.shared?.appendStacktrace(to: event)
         Client.shared?.send(event: event)
     }

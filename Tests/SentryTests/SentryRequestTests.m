@@ -613,12 +613,16 @@ NSInteger requestsWithErrors = 0;
 - (void)testSnapshotStacktrace {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
-    [self.client snapshotStacktrace:^{
-        XCTAssertTrue(YES);
-    }];
+    
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
     self.client._snapshotThreads = @[thread];
     self.client._debugMeta = @[[[SentryDebugMeta alloc] init]];
+    
+    [self.client snapshotStacktrace:^{
+        [self.client appendStacktraceToEvent:event];
+        XCTAssertTrue(YES);
+    }];
+    
     __weak id weakSelf = self;
     self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
         id self = weakSelf;

@@ -103,7 +103,7 @@ NS_SWIFT_NAME(Client)
  * This automatically adds breadcrumbs for different user actions.
  */
 - (void)enableAutomaticBreadcrumbTracking;
-
+    
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
  * useClientProperties: YES. CompletionHandler will be called if set.
@@ -167,8 +167,16 @@ NS_SWIFT_NAME(send(event:completion:));
 
 /**
  * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
+ * Please note to also call appendStacktraceToEvent in the callback in order to send the stacktrace with the event.
  */
 - (void)snapshotStacktrace:(void (^)(void))snapshotCompleted;
+
+/**
+ * This appends the stored stacktrace (if existant) to the event.
+ *
+ * @param event SentryEvent event
+ */
+- (void)appendStacktraceToEvent:(SentryEvent *)event;
 
 @end
 
