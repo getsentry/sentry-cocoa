@@ -25,6 +25,6 @@
     }
   },
   "vars": {
-    "SENTRY_COCOA_TAG": "3.1.3"
+    "SENTRY_COCOA_TAG": "3.2.0"
   }
 }
