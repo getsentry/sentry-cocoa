@@ -3,6 +3,11 @@ gem install fastlane
 
 if [ "$LANE" = "lint" ];
 then
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ];
+    then
+        echo "We don't run linter for PRs, because Danger!"
+        exit 0;
+    fi
     gem install danger
     gem install danger-swiftlint
     brew update
