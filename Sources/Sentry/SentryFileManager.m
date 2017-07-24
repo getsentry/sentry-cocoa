@@ -83,9 +83,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSArray<NSDictionary<NSString *, id> *> *)allFilesContentInFolder:(NSString *)path {
-    NSMutableArray *contents = [NSMutableArray new];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized (self) {
+        NSMutableArray *contents = [NSMutableArray new];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *filePath in [self allFilesInFolder:path]) {
             NSString *finalPath = [path stringByAppendingPathComponent:filePath];
             NSData *content = [fileManager contentsAtPath:finalPath];
@@ -93,8 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
                 [contents addObject:@{@"path": finalPath, @"data": content}];
             }
         }
+        return contents;
     }
-    return contents;
 }
 
 - (void)deleteAllStoredEvents {
