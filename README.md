@@ -1,4 +1,10 @@
-# Sentry client for iOS/macOS/tvOS/watchOS<sup>(1)</sup>.
+<p align="center">
+    <a href="https://sentry.io" target="_blank" align="center">
+        <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
+    </a>
+<br/>
+    <h1>Sentry client for iOS/macOS/tvOS/watchOS<sup>(1)</sup>.</h1>
+</p>
 
 [![Travis](https://img.shields.io/travis/getsentry/sentry-cocoa.svg?maxAge=2592000)](https://travis-ci.org/getsentry/sentry-cocoa)
 ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20tvOS%20%7C%20OSX-333333.svg)
