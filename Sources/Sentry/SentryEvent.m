@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  @"name": SentryClient.sdkName,
                                  @"version": SentryClient.versionString
                                  }.mutableCopy;
-    if (self.extra[@"__sentry_sdk_integrations"] && [self.extra[@"__sentry_sdk_integrations"] isKindOfClass:NSArray.class]) {
+    if (self.extra[@"__sentry_sdk_integrations"]) {
         [sdk setValue:self.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
     }
     serializedData[@"sdk"] = sdk;
