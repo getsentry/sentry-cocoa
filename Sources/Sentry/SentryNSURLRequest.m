@@ -51,7 +51,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
     }
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                       options:0
+                                                       options:SentryClient.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
                                                          error:error];
     
     if (SentryClient.logLevel == kSentryLogLevelVerbose) {
