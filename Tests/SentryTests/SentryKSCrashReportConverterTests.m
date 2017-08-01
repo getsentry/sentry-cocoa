@@ -180,10 +180,20 @@ NSString *reportPath = @"";
 }
 
 - (void)testUserInfo {
-    reportPath = @"Resources/CrashUserInfo";
+    reportPath = @"Resources/fatalError";
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
     SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    reportConverter.userContext = @{@"tags": @{@"a": @"b",@"c": @"d"},
+                                    @"extra": @{@"a": @"b",@"c": @"d",@"e": @"f"},
+                                    @"user": @{
+                                            @"email": @"john@apple.com",
+                                            @"extra":     @{
+                                                    @"is_admin": @(NO)
+                                                    },
+                                            @"id": @"12341",
+                                            @"username": @"username"
+                                            }};
     SentryEvent *event = [reportConverter convertReportToEvent];
     NSDictionary *serializedUser = @{
                                      @"email": @"john@apple.com",
@@ -195,7 +205,7 @@ NSString *reportPath = @"";
                                      };
     [self compareDict:serializedUser withDict:[event.user serialize]];
     XCTAssertEqual(event.tags.count, (unsigned long)2);
-    XCTAssertEqual(event.extra.count, (unsigned long)7);
+    XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
 #pragma mark private helper

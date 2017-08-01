@@ -41,7 +41,6 @@
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
 @property(nonatomic, strong) NSString *diagnosis;
-@property(nonatomic, strong) NSDictionary *userContext;
 
 @end
 
@@ -66,7 +65,6 @@ static inline NSString *hexAddress(NSNumber *value) {
             crashContext = report[@"crash"];
         }
         
-        self.userContext = report[@"user"];
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
         self.threads = crashContext[@"threads"];
