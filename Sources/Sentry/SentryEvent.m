@@ -46,19 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)stripInternalExtraParameters {
-    if (nil == self.extra) {
-        return;
-    }
-    NSMutableDictionary<NSString *, id> *newExtra = self.extra.mutableCopy;
-    for (NSString *key in self.extra.allKeys) {
-        if ([key hasPrefix:@"__sentry"]) {
-            [newExtra removeObjectForKey:key];
-        }
-    }
-    self.extra = newExtra;
-}
-
 - (NSDictionary<NSString *, id> *)serialize {
     if (nil == self.timestamp) {
         self.timestamp = [NSDate date];
@@ -77,14 +64,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     [self addSimpleProperties:serializedData];
-
+    
     [self addOptionalListProperties:serializedData];
-
+    
     // This is important here, since we probably use __sentry internal extras before
-    [self stripInternalExtraParameters];
     [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-
+    
     return serializedData;
 }
 
