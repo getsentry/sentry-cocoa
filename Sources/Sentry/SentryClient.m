@@ -85,6 +85,7 @@ static SentryKSCrashInstallation *installation = nil;
                      didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
+        [self restoreContextBeforeCrash];
         [self setExtra:[NSDictionary new]];
         [self setTags:[NSDictionary new]];
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
@@ -96,7 +97,6 @@ static SentryKSCrashInstallation *installation = nil;
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
-        [self restoreContextBeforeCrash];
     }
     return self;
 }
