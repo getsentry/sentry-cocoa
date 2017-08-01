@@ -57,6 +57,12 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
+ * This will be filled on every startup with a dictionary with extra, tags, user which will be used
+ * when sending the crashreport
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
+
+/**
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;

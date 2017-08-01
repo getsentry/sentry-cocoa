@@ -96,6 +96,7 @@ static SentryKSCrashInstallation *installation = nil;
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
+        [self restoreContextBeforeCrash];
     }
     return self;
 }
@@ -259,17 +260,20 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 #pragma mark Global properties
 
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
-    [self setCrashUserInfo:tags forKey:@"tags"];
+    [[NSUserDefaults standardUserDefaults] setObject:tags forKey:@"sentry.io.tags"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     _tags = tags;
 }
 
 - (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
-    [self setCrashUserInfo:extra forKey:@"extra"];
+    [[NSUserDefaults standardUserDefaults] setObject:extra forKey:@"sentry.io.extra"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     _extra = extra;
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    [self setCrashUserInfo:[user serialize] forKey:@"user"];
+    [[NSUserDefaults standardUserDefaults] setObject:[user serialize] forKey:@"sentry.io.user"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     _user = user;
 }
 
@@ -279,31 +283,19 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self setTags:[NSDictionary new]];
 }
 
+- (void)restoreContextBeforeCrash {
+    self.lastContext = [[NSDictionary alloc] initWithObjectsAndKeys:
+                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"], @"tags",
+                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"], @"extra",
+                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"], @"user", nil];
+}
+
 #pragma mark KSCrash
 
 #if WITH_KSCRASH
 
 - (BOOL)crashedLastLaunch {
     return KSCrash.sharedInstance.crashedLastLaunch;
-}
-
-- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
-    if (nil == KSCrash.sharedInstance) {
-        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    NSMutableDictionary *userInfo = nil;
-    if (nil != KSCrash.sharedInstance.userInfo) {
-        userInfo = KSCrash.sharedInstance.userInfo.mutableCopy;
-    } else {
-        userInfo = [NSMutableDictionary new];
-    }
-    if (nil == dict) {
-        [userInfo removeObjectForKey:key];
-    } else {
-        [userInfo setValue:dict forKey:key];
-    }
-    KSCrash.sharedInstance.userInfo = userInfo;
 }
 
 #pragma GCC diagnostic push
@@ -376,10 +368,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
               logAllThreads:(BOOL)logAllThreads
            terminateProgram:(BOOL)terminateProgram {
     [SentryLog logWithMessage:@"Cannot report userException without KSCrash dependency" andLevel:kSentryLogLevelError];
-}
-
-- (void)setCrashUserInfo:(NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)dict forKey:(NSString *)key {
-    // We need to do nothing here without KSCrash
 }
 
 #pragma GCC diagnostic pop
