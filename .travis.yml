@@ -18,9 +18,6 @@ env:
   - LANE=pod
 notifications:
   email: false
-branches:
-  only:
-    - master
 jobs:
   include:
   - stage: cocoapods
