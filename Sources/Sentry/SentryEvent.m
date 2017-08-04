@@ -111,6 +111,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addSdkInformation:(NSMutableDictionary *)serializedData {
+    // If sdk was set, we don't take the default
+    if (nil != self.sdk) {
+        serializedData[@"sdk"] = self.sdk;
+        return;
+    }
     NSMutableDictionary *sdk = @{
                                  @"name": SentryClient.sdkName,
                                  @"version": SentryClient.versionString

@@ -85,6 +85,20 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
+ * Information about the sdk can be something like this. This will be set for you
+ * Don't touch it if you not know what you are doing.
+ *
+ * {
+ *  version: "3.3.3",
+ *  name: "sentry-cocoa",
+ *  integrations: [
+ *      "react-native"
+ *  ]
+ * }
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable sdk;
+
+/**
  * Modules of the event
  */
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;

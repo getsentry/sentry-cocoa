@@ -116,6 +116,18 @@
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event2 serialize], serialized2);
+    
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event3.timestamp = date;
+    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized3 = @{@"contexts": [[[SentryContext alloc] init] serialize],
+                                  @"event_id": event3.eventId,
+                                  @"level": @"info",
+                                  @"platform": @"cocoa",
+                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                            @"integrations": @[@"sentry-cocoa"]},
+                                  @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event3 serialize], serialized3);
 }
 
 - (void)testSetDistToNil {
