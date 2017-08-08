@@ -323,7 +323,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (nil != notableAddresses) {
         for(id key in notableAddresses) {
             NSDictionary *content = [notableAddresses objectForKey:key];
-            if ([[content objectForKey:@"type"] isEqualToString:@"string"]) {
+            if ([[content objectForKey:@"type"] isEqualToString:@"string"] && nil != [content objectForKey:@"value"]) {
                 // if there are less than 3 slashes it shouldn't be a filepath
                 if ([[[content objectForKey:@"value"] componentsSeparatedByString:@"/"] count] < 3) {
                     [reasons addObject:[content objectForKey:@"value"]];
