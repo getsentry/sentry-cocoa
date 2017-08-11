@@ -86,8 +86,8 @@ static SentryKSCrashInstallation *installation = nil;
     self = [super init];
     if (self) {
         [self restoreContextBeforeCrash];
-        [self setExtra:[NSDictionary new]];
-        [self setTags:[NSDictionary new]];
+        _extra = [NSDictionary new];
+        _tags = [NSDictionary new];
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
         NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
