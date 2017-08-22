@@ -284,10 +284,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)restoreContextBeforeCrash {
-    self.lastContext = [[NSDictionary alloc] initWithObjectsAndKeys:
-                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"], @"tags",
-                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"], @"extra",
-                        [[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"], @"user", nil];
+    NSMutableDictionary *context = [[NSMutableDictionary alloc] init];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"] forKey:@"tags"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"] forKey:@"extra"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"] forKey:@"user"];
+    self.lastContext = context;
 }
 
 #pragma mark KSCrash
