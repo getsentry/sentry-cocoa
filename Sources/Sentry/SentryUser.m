@@ -28,17 +28,21 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
-    NSMutableDictionary *serializedData = @{
-            @"id": self.userId
-    }.mutableCopy;
+- (instancetype)init {
+    return [super init];
+}
 
+- (NSDictionary<NSString *, id> *)serialize {
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
+    
+    [serializedData setValue:self.userId forKey:@"id"];
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
     [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
-
+    
     return serializedData;
 }
+
 
 @end
 

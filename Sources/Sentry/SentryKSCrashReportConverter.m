@@ -107,7 +107,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (SentryUser *_Nullable)convertUser {
     SentryUser *user = nil;
     if (nil != self.userContext[@"user"]) {
-        user = [[SentryUser alloc] initWithUserId:self.userContext[@"user"][@"id"]];
+        user = [[SentryUser alloc] init];
+        user.userId = self.userContext[@"user"][@"id"];
         user.email = self.userContext[@"user"][@"email"];
         user.username = self.userContext[@"user"][@"username"];
         user.extra = self.userContext[@"user"][@"extra"];
