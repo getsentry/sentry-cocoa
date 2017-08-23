@@ -20,10 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(User)
 @interface SentryUser : NSObject <SentrySerializable>
-SENTRY_NO_INIT
 
 /**
- * Id of the user
+ * Optional: Id of the user
  */
 @property(nonatomic, copy) NSString *userId;
 
@@ -42,12 +41,8 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
-/**
- * Initializes a SentryUser with the id
- * @param userId NSString
- * @return SentryUser
- */
-- (instancetype)initWithUserId:(NSString *)userId;
+- (instancetype)init;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

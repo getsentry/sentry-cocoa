@@ -176,12 +176,14 @@
 }
 
 - (void)testUser {
-    SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+    SentryUser *user = [[SentryUser alloc] init];
+    user.userId = @"1";
     XCTAssertNotNil(user.userId);
     NSDictionary *serialized = @{@"id": @"1"};
     XCTAssertEqualObjects([user serialize], serialized);
 
-    SentryUser *user2 = [[SentryUser alloc] initWithUserId:@"1"];
+    SentryUser *user2 = [[SentryUser alloc] init];
+    user2.userId = @"1";
     XCTAssertNotNil(user2.userId);
     user2.email = @"a@b.com";
     user2.username = @"tony";
