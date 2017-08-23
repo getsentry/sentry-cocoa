@@ -398,9 +398,7 @@ NSInteger requestsWithErrors = 0;
 - (void)testUseClientProperties {
     self.client.tags = @{@"a": @"b"};
     self.client.extra = @{@"c": @"d"};
-    SentryUser *user = [[SentryUser alloc] init];
-    user.userId = @"XXXXXX";
-    self.client.user = user;
+    self.client.user = [[SentryUser alloc] initWithUserId:@"XXXXXX"];
     NSDate *date = [NSDate date];
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
     crumb.timestamp = date;

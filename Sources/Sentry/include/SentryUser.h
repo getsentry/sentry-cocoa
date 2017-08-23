@@ -41,6 +41,13 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
+/**
+ * Initializes a SentryUser with the id
+ * @param userId NSString
+ * @return SentryUser
+ */
+- (instancetype)initWithUserId:(NSString *)userId;
+
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
