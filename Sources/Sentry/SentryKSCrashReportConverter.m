@@ -70,7 +70,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         self.threads = crashContext[@"threads"];
         for (NSUInteger i = 0; i < self.threads.count; i++) {
             NSDictionary *thread = self.threads[i];
-            if (thread[@"crashed"]) {
+            if ([thread[@"crashed"] boolValue]) {
                 self.crashedThreadIndex = (NSInteger) i;
                 break;
             }
@@ -197,11 +197,15 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (SentryThread *)threadAtIndex:(NSInteger)threadIndex {
+- (SentryThread *)threadAtIndex:(NSInteger)threadIndex stripCrashedStacktrace:(BOOL)stripCrashedStacktrace {
     NSDictionary *threadDictionary = [self.threads objectAtIndex:threadIndex];
-
+    
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
+    // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
+    if (stripCrashedStacktrace && [threadDictionary[@"crashed"] boolValue]) {
+        thread.stacktrace = nil;
+    }
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
@@ -250,7 +254,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryThread *)crashedThread {
-    return [self threadAtIndex:self.crashedThreadIndex];
+    return [self threadAtIndex:self.crashedThreadIndex stripCrashedStacktrace:NO];
 }
 
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta {
@@ -370,7 +374,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray *)convertThreads {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger) self.threads.count; threadIndex++) {
-        [result addObject:[self threadAtIndex:threadIndex]];
+        [result addObject:[self threadAtIndex:threadIndex stripCrashedStacktrace:YES]];
     }
     return result;
 }
