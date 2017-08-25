@@ -45,6 +45,20 @@
     XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
 }
 
+- (void)testEventStore {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    [client storeEvent:event];
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
+    XCTAssertTrue(events.count == 1);
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[event serialize]
+                                                       options:0
+                                                         error:nil];
+    XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
+}
+
 - (void)testBreadcrumbStoring {
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
     [self.fileManager storeBreadcrumb:crumb];

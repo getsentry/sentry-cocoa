@@ -129,7 +129,6 @@ NSInteger requestsWithErrors = 0;
                                                                           }
                                                                       }];
     [self.queue addOperation:self.lastOperation];
-    NSLog(@"%d", self.lastOperation.isAsynchronous);
 }
 
 - (void)cancelAllOperations {

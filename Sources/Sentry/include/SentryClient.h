@@ -120,6 +120,13 @@ NS_SWIFT_NAME(Client)
 NS_SWIFT_NAME(send(event:completion:));
 
 /**
+ * This function stores an event to disk. It will be send with the next batch.
+ * This function is mainly used for react native.
+ * @param event SentryEvent that should be sent
+ */
+- (void)storeEvent:(SentryEvent *)event;
+
+/**
  * Clears all context related variables tags, extra and user
  */
 - (void)clearContext;

@@ -138,17 +138,27 @@ static SentryKSCrashInstallation *installation = nil;
     [self sendEvent:event useClientProperties:YES withCompletionHandler:completionHandler];
 }
 
-- (void)    sendEvent:(SentryEvent *)event
-  useClientProperties:(BOOL)useClientProperties
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+- (void)prepareEvent:(SentryEvent *)event
+ useClientProperties:(BOOL)useClientProperties {
     NSParameterAssert(event);
     if (useClientProperties) {
         [self setSharedPropertiesOnEvent:event];
     }
-
+    
     if (nil != self.beforeSerializeEvent) {
         self.beforeSerializeEvent(event);
     }
+}
+
+- (void)storeEvent:(SentryEvent *)event {
+    [self prepareEvent:event useClientProperties:YES];
+    [self.fileManager storeEvent:event];
+}
+
+- (void)    sendEvent:(SentryEvent *)event
+  useClientProperties:(BOOL)useClientProperties
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    [self prepareEvent:event useClientProperties:useClientProperties];
     
     if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
         NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
