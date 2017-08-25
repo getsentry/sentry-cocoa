@@ -97,6 +97,10 @@ static SentryKSCrashInstallation *installation = nil;
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
+        // We want to send all stored events on start up
+        if ([self.requestManager isReady]) {
+            [self sendAllStoredEvents];
+        }
     }
     return self;
 }
@@ -218,6 +222,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                                          didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
             if (nil == error) {
+                NSDictionary *serializedEvent = [NSJSONSerialization JSONObjectWithData:fileDictionary[@"data"]
+                                                                                 options:0
+                                                                                   error:nil];
+                if (nil != serializedEvent) {
+                    [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
+                                                                      object:nil
+                                                                    userInfo:serializedEvent];
+                }
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
         }];
