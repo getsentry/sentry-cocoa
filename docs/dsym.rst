@@ -85,7 +85,7 @@ Use Fastlane
 
 If you are already using Fastlane you can use it in this situation as
 well.  If you are not, you might prefer the `sentry-cli` integerated into
-X-Code.
+Xcode.
 
 .. sourcecode:: ruby
 
