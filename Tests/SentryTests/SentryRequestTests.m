@@ -129,6 +129,9 @@ NSInteger requestsWithErrors = 0;
                                                                           }
                                                                       }];
     [self.queue addOperation:self.lastOperation];
+    // leave this here, we ask for it because NSOperation isAsynchronous
+    // because it needs to be overwritten
+    NSLog(@"%d", self.lastOperation.isAsynchronous);
 }
 
 - (void)cancelAllOperations {
