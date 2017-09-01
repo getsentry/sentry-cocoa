@@ -193,6 +193,8 @@
 		632AC0231EE5AEC700B6E263 /* KSCrashReportFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE551EE543BD00B6E263 /* KSCrashReportFilter.h */; };
 		632AC0241EE5AEC700B6E263 /* KSDynamicLinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2A1EE543BD00B6E263 /* KSDynamicLinker.h */; };
 		632AC0261EE5AEC700B6E263 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 632ABE8C1EE543BD00B6E263 /* LICENSE.txt */; };
+		632F43551F5826D600A18A36 /* SentryCrashExceptionApplication.m in Headers */ = {isa = PBXBuildFile; fileRef = 632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */; };
+		632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -336,6 +338,8 @@
 		632ABE8C1EE543BD00B6E263 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		632ABE8D1EE543BD00B6E263 /* SwiftStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftStrings.h; sourceTree = "<group>"; };
 		632AC02B1EE5AEC700B6E263 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplication.m; sourceTree = "<group>"; };
+		632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplication.h; path = include/SentryCrashExceptionApplication.h; sourceTree = "<group>"; };
 		6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashInstallation.h; path = include/SentryKSCrashInstallation.h; sourceTree = "<group>"; };
 		6344DDAF1EC308E400D9160D /* SentryKSCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashInstallation.m; sourceTree = "<group>"; };
 		6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashReportSink.h; path = include/SentryKSCrashReportSink.h; sourceTree = "<group>"; };
@@ -762,6 +766,8 @@
 				631501B61EE6EFFD00512C5B /* SentryBreadcrumbTracker.m */,
 				639889B91EDED18400EA7442 /* SentrySwizzle.h */,
 				639889BA1EDED18400EA7442 /* SentrySwizzle.m */,
+				632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */,
+				632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -832,6 +838,7 @@
 				632ABFB61EE5AEC700B6E263 /* KSDate.h in Headers */,
 				632ABFB71EE5AEC700B6E263 /* Punycode.h in Headers */,
 				632ABFB81EE5AEC700B6E263 /* SentryEvent.h in Headers */,
+				632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */,
 				632ABFB91EE5AEC700B6E263 /* KSCrashMonitor.h in Headers */,
 				632ABFBA1EE5AEC700B6E263 /* SentryLog.h in Headers */,
 				632ABFBD1EE5AEC700B6E263 /* KSSystemCapabilities.h in Headers */,
@@ -907,6 +914,7 @@
 				632AC0121EE5AEC700B6E263 /* KSObjCApple.h in Headers */,
 				632AC0131EE5AEC700B6E263 /* KSMachineContext_Apple.h in Headers */,
 				632AC0151EE5AEC700B6E263 /* SentryFileManager.h in Headers */,
+				632F43551F5826D600A18A36 /* SentryCrashExceptionApplication.m in Headers */,
 				632AC0171EE5AEC700B6E263 /* KSSysCtl.h in Headers */,
 				632AC0181EE5AEC700B6E263 /* Optional.h in Headers */,
 				632AC0191EE5AEC700B6E263 /* KSMach.h in Headers */,
