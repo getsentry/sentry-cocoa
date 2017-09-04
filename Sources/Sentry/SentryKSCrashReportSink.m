@@ -43,16 +43,7 @@
 - (void)handleConvertedEvent:(SentryEvent *)event report:(NSDictionary *)report sentReports:(NSMutableArray *)sentReports {
     if (nil != event.exceptions.firstObject && [event.exceptions.firstObject.value isEqualToString:@"SENTRY_SNAPSHOT"]) {
         [SentryLog logWithMessage:@"Snapshotting stacktrace" andLevel:kSentryLogLevelDebug];
-        NSMutableArray <SentryThread *> *crashedThreads = [NSMutableArray new];
-        for (SentryThread *thread in event.threads) {
-            if (thread) {
-                if ([thread.crashed boolValue]) {
-                    [crashedThreads addObject:thread];
-                    break;
-                }
-            }
-        }
-        SentryClient.sharedClient._snapshotThreads = crashedThreads;
+        SentryClient.sharedClient._snapshotThreads = @[event.exceptions.firstObject.thread];
         SentryClient.sharedClient._debugMeta = event.debugMeta;
     } else {
         [sentReports addObject:report];

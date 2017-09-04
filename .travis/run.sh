@@ -21,4 +21,3 @@ then
     gem install slather
 fi
 fastlane $LANE
-

@@ -9,13 +9,13 @@
 /* Begin PBXBuildFile section */
 		631501B71EE6EFFD00512C5B /* SentryBreadcrumbTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 631501B61EE6EFFD00512C5B /* SentryBreadcrumbTracker.m */; };
 		631501B91EE6F00600512C5B /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 631501B81EE6F00600512C5B /* SentryBreadcrumbTracker.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		631502871EE9861500512C5B /* KSCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 6315027B1EE9861500512C5B /* KSCString.h */; };
+		631502871EE9861500512C5B /* KSCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 6315027B1EE9861500512C5B /* KSCString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		631502881EE9861500512C5B /* KSCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6315027C1EE9861500512C5B /* KSCString.m */; };
-		631502951EE9868800512C5B /* KSCrashReportFilterBasic.h in Headers */ = {isa = PBXBuildFile; fileRef = 631502931EE9868800512C5B /* KSCrashReportFilterBasic.h */; };
+		631502951EE9868800512C5B /* KSCrashReportFilterBasic.h in Headers */ = {isa = PBXBuildFile; fileRef = 631502931EE9868800512C5B /* KSCrashReportFilterBasic.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		631502961EE9868800512C5B /* KSCrashReportFilterBasic.m in Sources */ = {isa = PBXBuildFile; fileRef = 631502941EE9868800512C5B /* KSCrashReportFilterBasic.m */; };
-		6315029D1EE986D600512C5B /* Container+DeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 631502981EE986D600512C5B /* Container+DeepSearch.h */; };
+		6315029D1EE986D600512C5B /* Container+DeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 631502981EE986D600512C5B /* Container+DeepSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6315029E1EE986D600512C5B /* Container+DeepSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 631502991EE986D600512C5B /* Container+DeepSearch.m */; };
-		6315029F1EE986D600512C5B /* KSVarArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6315029A1EE986D600512C5B /* KSVarArgs.h */; };
+		6315029F1EE986D600512C5B /* KSVarArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6315029A1EE986D600512C5B /* KSVarArgs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63295AFA1EF3CD8F002D4490 /* NSDictionary+Sanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 63295AF91EF3CD8F002D4490 /* NSDictionary+Sanitize.m */; };
 		63295AFC1EF3CD97002D4490 /* NSDictionary+Sanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AFB1EF3CD97002D4490 /* NSDictionary+Sanitize.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABF3E1EE5AEC700B6E263 /* KSCrashMonitor_User.c in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE121EE543BD00B6E263 /* KSCrashMonitor_User.c */; };
@@ -95,107 +95,119 @@
 		632ABFA31EE5AEC700B6E263 /* KSFileUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 632ABE2B1EE543BD00B6E263 /* KSFileUtils.c */; };
 		632ABFA51EE5AEC700B6E263 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6304360D1EC05CEF00C4D3FA /* libz.tbd */; };
 		632ABFA71EE5AEC700B6E263 /* SentryUser.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFAA1EBC811400778193 /* SentryUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFA81EE5AEC700B6E263 /* KSCrashReportFields.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF91EE543BD00B6E263 /* KSCrashReportFields.h */; };
-		632ABFA91EE5AEC700B6E263 /* KSCrashReportStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFD1EE543BD00B6E263 /* KSCrashReportStore.h */; };
-		632ABFAA1EE5AEC700B6E263 /* KSCrashMonitor_CPPException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE071EE543BD00B6E263 /* KSCrashMonitor_CPPException.h */; };
-		632ABFAB1EE5AEC700B6E263 /* KSCrashReportWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFF1EE543BD00B6E263 /* KSCrashReportWriter.h */; };
+		632ABFA81EE5AEC700B6E263 /* KSCrashReportFields.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF91EE543BD00B6E263 /* KSCrashReportFields.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFA91EE5AEC700B6E263 /* KSCrashReportStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFD1EE543BD00B6E263 /* KSCrashReportStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFAA1EE5AEC700B6E263 /* KSCrashMonitor_CPPException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE071EE543BD00B6E263 /* KSCrashMonitor_CPPException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFAB1EE5AEC700B6E263 /* KSCrashReportWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFF1EE543BD00B6E263 /* KSCrashReportWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFAC1EE5AEC700B6E263 /* SentryClient+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 63D50BC81EE049B1008902A3 /* SentryClient+Internal.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFAD1EE5AEC700B6E263 /* KSCrashC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF21EE543BD00B6E263 /* KSCrashC.h */; };
-		632ABFAF1EE5AEC700B6E263 /* DemangleNodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE861EE543BD00B6E263 /* DemangleNodes.h */; };
-		632ABFB11EE5AEC700B6E263 /* KSCPU_Apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE1C1EE543BD00B6E263 /* KSCPU_Apple.h */; };
-		632ABFB31EE5AEC700B6E263 /* KSFileUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2C1EE543BD00B6E263 /* KSFileUtils.h */; };
+		632ABFAD1EE5AEC700B6E263 /* KSCrashC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF21EE543BD00B6E263 /* KSCrashC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFAF1EE5AEC700B6E263 /* DemangleNodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE861EE543BD00B6E263 /* DemangleNodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFB11EE5AEC700B6E263 /* KSCPU_Apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE1C1EE543BD00B6E263 /* KSCPU_Apple.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFB31EE5AEC700B6E263 /* KSFileUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2C1EE543BD00B6E263 /* KSFileUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFB41EE5AEC700B6E263 /* SentryStacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA21EBC809A00778193 /* SentryStacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFB51EE5AEC700B6E263 /* KSMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3B1EE543BD00B6E263 /* KSMemory.h */; };
-		632ABFB61EE5AEC700B6E263 /* KSDate.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE221EE543BD00B6E263 /* KSDate.h */; };
-		632ABFB71EE5AEC700B6E263 /* Punycode.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE8B1EE543BD00B6E263 /* Punycode.h */; };
+		632ABFB51EE5AEC700B6E263 /* KSMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3B1EE543BD00B6E263 /* KSMemory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFB61EE5AEC700B6E263 /* KSDate.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE221EE543BD00B6E263 /* KSDate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFB71EE5AEC700B6E263 /* Punycode.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE8B1EE543BD00B6E263 /* Punycode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFB81EE5AEC700B6E263 /* SentryEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF961EBC7B9700778193 /* SentryEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFB91EE5AEC700B6E263 /* KSCrashMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE031EE543BD00B6E263 /* KSCrashMonitor.h */; };
+		632ABFB91EE5AEC700B6E263 /* KSCrashMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE031EE543BD00B6E263 /* KSCrashMonitor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFBA1EE5AEC700B6E263 /* SentryLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76961EB9C1C200D153DE /* SentryLog.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFBD1EE5AEC700B6E263 /* KSSystemCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE001EE543BD00B6E263 /* KSSystemCapabilities.h */; };
-		632ABFBE1EE5AEC700B6E263 /* Demangle.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE851EE543BD00B6E263 /* Demangle.h */; };
+		632ABFBD1EE5AEC700B6E263 /* KSSystemCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE001EE543BD00B6E263 /* KSSystemCapabilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFBE1EE5AEC700B6E263 /* Demangle.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE851EE543BD00B6E263 /* Demangle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFBF1EE5AEC700B6E263 /* SentryDebugMeta.h in Headers */ = {isa = PBXBuildFile; fileRef = 63B818F71EC34639002FDF4C /* SentryDebugMeta.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFC01EE5AEC700B6E263 /* SentryBreadcrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFC11EE5AEC700B6E263 /* SentryDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76951EB9C1C200D153DE /* SentryDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFC21EE5AEC700B6E263 /* LLVM.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE881EE543BD00B6E263 /* LLVM.h */; };
+		632ABFC21EE5AEC700B6E263 /* LLVM.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE881EE543BD00B6E263 /* LLVM.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFC31EE5AEC700B6E263 /* SentryAsynchronousOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFC71EE5AEC700B6E263 /* KSThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE501EE543BD00B6E263 /* KSThread.h */; };
+		632ABFC71EE5AEC700B6E263 /* KSThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE501EE543BD00B6E263 /* KSThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFC81EE5AEC700B6E263 /* SentrySerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFC91EE5AEC700B6E263 /* KSCrashDoctor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF51EE543BD00B6E263 /* KSCrashDoctor.h */; };
-		632ABFCA1EE5AEC700B6E263 /* KSCrash.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEF1EE543BD00B6E263 /* KSCrash.h */; };
-		632ABFCB1EE5AEC700B6E263 /* KSDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE241EE543BD00B6E263 /* KSDebug.h */; };
-		632ABFCC1EE5AEC700B6E263 /* KSStackCursor_MachineContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE461EE543BD00B6E263 /* KSStackCursor_MachineContext.h */; };
-		632ABFCD1EE5AEC700B6E263 /* Casting.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEB1EE543BD00B6E263 /* Casting.h */; };
-		632ABFCE1EE5AEC700B6E263 /* NSError+SimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE511EE543BD00B6E263 /* NSError+SimpleConstructor.h */; };
-		632ABFCF1EE5AEC700B6E263 /* KSCrashMonitorType.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE181EE543BD00B6E263 /* KSCrashMonitorType.h */; };
-		632ABFD01EE5AEC700B6E263 /* KSJSONCodecObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE311EE543BD00B6E263 /* KSJSONCodecObjC.h */; };
-		632ABFD11EE5AEC700B6E263 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEC1EE543BD00B6E263 /* Compiler.h */; };
+		632ABFC91EE5AEC700B6E263 /* KSCrashDoctor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF51EE543BD00B6E263 /* KSCrashDoctor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCA1EE5AEC700B6E263 /* KSCrash.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEF1EE543BD00B6E263 /* KSCrash.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCB1EE5AEC700B6E263 /* KSDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE241EE543BD00B6E263 /* KSDebug.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCC1EE5AEC700B6E263 /* KSStackCursor_MachineContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE461EE543BD00B6E263 /* KSStackCursor_MachineContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCD1EE5AEC700B6E263 /* Casting.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEB1EE543BD00B6E263 /* Casting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCE1EE5AEC700B6E263 /* NSError+SimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE511EE543BD00B6E263 /* NSError+SimpleConstructor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFCF1EE5AEC700B6E263 /* KSCrashMonitorType.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE181EE543BD00B6E263 /* KSCrashMonitorType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFD01EE5AEC700B6E263 /* KSJSONCodecObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE311EE543BD00B6E263 /* KSJSONCodecObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFD11EE5AEC700B6E263 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEC1EE543BD00B6E263 /* Compiler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFD21EE5AEC700B6E263 /* SentryClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76941EB9C1C200D153DE /* SentryClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFD31EE5AEC700B6E263 /* KSCrashMonitor_Deadlock.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE081EE543BD00B6E263 /* KSCrashMonitor_Deadlock.h */; };
+		632ABFD31EE5AEC700B6E263 /* KSCrashMonitor_Deadlock.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE081EE543BD00B6E263 /* KSCrashMonitor_Deadlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFD51EE5AEC700B6E263 /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFD61EE5AEC700B6E263 /* KSCrashCachedData.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF41EE543BD00B6E263 /* KSCrashCachedData.h */; };
-		632ABFD71EE5AEC700B6E263 /* KSCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDD51EE543BD00B6E263 /* KSCrashInstallation.h */; };
-		632ABFD81EE5AEC700B6E263 /* KSCrashMonitor_MachException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0B1EE543BD00B6E263 /* KSCrashMonitor_MachException.h */; };
-		632ABFD91EE5AEC700B6E263 /* KSLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE341EE543BD00B6E263 /* KSLogger.h */; };
+		632ABFD61EE5AEC700B6E263 /* KSCrashCachedData.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF41EE543BD00B6E263 /* KSCrashCachedData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFD71EE5AEC700B6E263 /* KSCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDD51EE543BD00B6E263 /* KSCrashInstallation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFD81EE5AEC700B6E263 /* KSCrashMonitor_MachException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0B1EE543BD00B6E263 /* KSCrashMonitor_MachException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFD91EE5AEC700B6E263 /* KSLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE341EE543BD00B6E263 /* KSLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFDA1EE5AEC700B6E263 /* SentryQueueableRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABFDB1EE5AEC700B6E263 /* NSData+Compression.h in Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* NSData+Compression.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFDC1EE5AEC700B6E263 /* KSJSONCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE301EE543BD00B6E263 /* KSJSONCodec.h */; };
-		632ABFDD1EE5AEC700B6E263 /* StringRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE51EE543BD00B6E263 /* StringRef.h */; };
+		632ABFDC1EE5AEC700B6E263 /* KSJSONCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE301EE543BD00B6E263 /* KSJSONCodec.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFDD1EE5AEC700B6E263 /* StringRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE51EE543BD00B6E263 /* StringRef.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFDF1EE5AEC700B6E263 /* SentryException.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9E1EBC804600778193 /* SentryException.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFE01EE5AEC700B6E263 /* Fallthrough.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE871EE543BD00B6E263 /* Fallthrough.h */; };
-		632ABFE11EE5AEC700B6E263 /* KSCrashMonitor_Signal.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0F1EE543BD00B6E263 /* KSCrashMonitor_Signal.h */; };
-		632ABFE21EE5AEC700B6E263 /* KSMachineContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE381EE543BD00B6E263 /* KSMachineContext.h */; };
+		632ABFE01EE5AEC700B6E263 /* Fallthrough.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE871EE543BD00B6E263 /* Fallthrough.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFE11EE5AEC700B6E263 /* KSCrashMonitor_Signal.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0F1EE543BD00B6E263 /* KSCrashMonitor_Signal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFE21EE5AEC700B6E263 /* KSMachineContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE381EE543BD00B6E263 /* KSMachineContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFE41EE5AEC700B6E263 /* SentryKSCrashReportSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFE51EE5AEC700B6E263 /* KSCrashMonitor_User.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE131EE543BD00B6E263 /* KSCrashMonitor_User.h */; };
-		632ABFE61EE5AEC700B6E263 /* KSCrashReportFixer.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFB1EE543BD00B6E263 /* KSCrashReportFixer.h */; };
+		632ABFE51EE5AEC700B6E263 /* KSCrashMonitor_User.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE131EE543BD00B6E263 /* KSCrashMonitor_User.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFE61EE5AEC700B6E263 /* KSCrashReportFixer.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFB1EE543BD00B6E263 /* KSCrashReportFixer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFE71EE5AEC700B6E263 /* SentryBreadcrumbStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 636085071ED2AFA700E8599E /* SentryBreadcrumbStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFE91EE5AEC700B6E263 /* KSObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3D1EE543BD00B6E263 /* KSObjC.h */; };
-		632ABFEB1EE5AEC700B6E263 /* KSCPU.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE1B1EE543BD00B6E263 /* KSCPU.h */; };
-		632ABFEC1EE5AEC700B6E263 /* type_traits.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDED1EE543BD00B6E263 /* type_traits.h */; };
+		632ABFE91EE5AEC700B6E263 /* KSObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3D1EE543BD00B6E263 /* KSObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFEB1EE5AEC700B6E263 /* KSCPU.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE1B1EE543BD00B6E263 /* KSCPU.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFEC1EE5AEC700B6E263 /* type_traits.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDED1EE543BD00B6E263 /* type_traits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFED1EE5AEC700B6E263 /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFEE1EE5AEC700B6E263 /* AlignOf.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEA1EE543BD00B6E263 /* AlignOf.h */; };
+		632ABFEE1EE5AEC700B6E263 /* AlignOf.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDEA1EE543BD00B6E263 /* AlignOf.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFF11EE5AEC700B6E263 /* SentryFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA61EBC80CC00778193 /* SentryFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFF21EE5AEC700B6E263 /* SwiftStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE8D1EE543BD00B6E263 /* SwiftStrings.h */; };
+		632ABFF21EE5AEC700B6E263 /* SwiftStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE8D1EE543BD00B6E263 /* SwiftStrings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFF31EE5AEC700B6E263 /* SentrySwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* SentrySwizzle.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFF41EE5AEC700B6E263 /* KSStackCursor_SelfThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE481EE543BD00B6E263 /* KSStackCursor_SelfThread.h */; };
-		632ABFF51EE5AEC700B6E263 /* None.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE31EE543BD00B6E263 /* None.h */; };
+		632ABFF41EE5AEC700B6E263 /* KSStackCursor_SelfThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE481EE543BD00B6E263 /* KSStackCursor_SelfThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFF51EE5AEC700B6E263 /* None.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE31EE543BD00B6E263 /* None.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFF61EE5AEC700B6E263 /* SentryRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABFF71EE5AEC700B6E263 /* SentryKSCrashInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		632ABFFA1EE5AEC700B6E263 /* SentryContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 63BE856A1ECD8F2C00DC44F5 /* SentryContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632ABFFB1EE5AEC700B6E263 /* llvm-config.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE71EE543BD00B6E263 /* llvm-config.h */; };
+		632ABFFB1EE5AEC700B6E263 /* llvm-config.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE71EE543BD00B6E263 /* llvm-config.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFFC1EE5AEC700B6E263 /* SentryNSURLRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632ABFFD1EE5AEC700B6E263 /* SentryError.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA769B1EB9C57A00D153DE /* SentryError.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632ABFFE1EE5AEC700B6E263 /* KSCrashInstallation+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDD41EE543BD00B6E263 /* KSCrashInstallation+Private.h */; };
-		632ABFFF1EE5AEC700B6E263 /* KSCrashMonitor_System.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE101EE543BD00B6E263 /* KSCrashMonitor_System.h */; };
+		632ABFFE1EE5AEC700B6E263 /* KSCrashInstallation+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDD41EE543BD00B6E263 /* KSCrashInstallation+Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632ABFFF1EE5AEC700B6E263 /* KSCrashMonitor_System.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE101EE543BD00B6E263 /* KSCrashMonitor_System.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632AC0001EE5AEC700B6E263 /* SentryThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF9A1EBC7F9500778193 /* SentryThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		632AC0021EE5AEC700B6E263 /* KSStackCursor_Backtrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE441EE543BD00B6E263 /* KSStackCursor_Backtrace.h */; };
-		632AC0041EE5AEC700B6E263 /* KSCrashMonitor_Zombie.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE151EE543BD00B6E263 /* KSCrashMonitor_Zombie.h */; };
-		632AC0051EE5AEC700B6E263 /* KSSymbolicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4C1EE543BD00B6E263 /* KSSymbolicator.h */; };
-		632AC0081EE5AEC700B6E263 /* KSCrashMonitorContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE161EE543BD00B6E263 /* KSCrashMonitorContext.h */; };
-		632AC0091EE5AEC700B6E263 /* KSCrashMonitor_AppState.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE051EE543BD00B6E263 /* KSCrashMonitor_AppState.h */; };
-		632AC00A1EE5AEC700B6E263 /* KSID.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2E1EE543BD00B6E263 /* KSID.h */; };
-		632AC00B1EE5AEC700B6E263 /* KSDemangle_Swift.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE281EE543BD00B6E263 /* KSDemangle_Swift.h */; };
+		632AC0021EE5AEC700B6E263 /* KSStackCursor_Backtrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE441EE543BD00B6E263 /* KSStackCursor_Backtrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0041EE5AEC700B6E263 /* KSCrashMonitor_Zombie.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE151EE543BD00B6E263 /* KSCrashMonitor_Zombie.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0051EE5AEC700B6E263 /* KSSymbolicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4C1EE543BD00B6E263 /* KSSymbolicator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0081EE5AEC700B6E263 /* KSCrashMonitorContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE161EE543BD00B6E263 /* KSCrashMonitorContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0091EE5AEC700B6E263 /* KSCrashMonitor_AppState.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE051EE543BD00B6E263 /* KSCrashMonitor_AppState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC00A1EE5AEC700B6E263 /* KSID.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2E1EE543BD00B6E263 /* KSID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC00B1EE5AEC700B6E263 /* KSDemangle_Swift.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE281EE543BD00B6E263 /* KSDemangle_Swift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632AC00C1EE5AEC700B6E263 /* SentryDsn.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76A41EB9CBC200D153DE /* SentryDsn.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632AC00D1EE5AEC700B6E263 /* KSCrashReport.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF81EE543BD00B6E263 /* KSCrashReport.h */; };
-		632AC00F1EE5AEC700B6E263 /* KSSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE401EE543BD00B6E263 /* KSSignalInfo.h */; };
-		632AC0101EE5AEC700B6E263 /* KSDemangle_CPP.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE261EE543BD00B6E263 /* KSDemangle_CPP.h */; };
-		632AC0121EE5AEC700B6E263 /* KSObjCApple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3E1EE543BD00B6E263 /* KSObjCApple.h */; };
-		632AC0131EE5AEC700B6E263 /* KSMachineContext_Apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE391EE543BD00B6E263 /* KSMachineContext_Apple.h */; };
+		632AC00D1EE5AEC700B6E263 /* KSCrashReport.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDF81EE543BD00B6E263 /* KSCrashReport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC00F1EE5AEC700B6E263 /* KSSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE401EE543BD00B6E263 /* KSSignalInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0101EE5AEC700B6E263 /* KSDemangle_CPP.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE261EE543BD00B6E263 /* KSDemangle_CPP.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0121EE5AEC700B6E263 /* KSObjCApple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE3E1EE543BD00B6E263 /* KSObjCApple.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0131EE5AEC700B6E263 /* KSMachineContext_Apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE391EE543BD00B6E263 /* KSMachineContext_Apple.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632AC0151EE5AEC700B6E263 /* SentryFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 636085111ED47BE600E8599E /* SentryFileManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632AC0171EE5AEC700B6E263 /* KSSysCtl.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4E1EE543BD00B6E263 /* KSSysCtl.h */; };
-		632AC0181EE5AEC700B6E263 /* Optional.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE41EE543BD00B6E263 /* Optional.h */; };
-		632AC0191EE5AEC700B6E263 /* KSMach.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE361EE543BD00B6E263 /* KSMach.h */; };
+		632AC0171EE5AEC700B6E263 /* KSSysCtl.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4E1EE543BD00B6E263 /* KSSysCtl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0181EE5AEC700B6E263 /* Optional.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDE41EE543BD00B6E263 /* Optional.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0191EE5AEC700B6E263 /* KSMach.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE361EE543BD00B6E263 /* KSMach.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632AC01B1EE5AEC700B6E263 /* SentryKSCrashReportConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6344DDB71EC3115C00D9160D /* SentryKSCrashReportConverter.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		632AC01D1EE5AEC700B6E263 /* KSString.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4A1EE543BD00B6E263 /* KSString.h */; };
-		632AC01E1EE5AEC700B6E263 /* KSCrashMonitor_NSException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0C1EE543BD00B6E263 /* KSCrashMonitor_NSException.h */; };
-		632AC01F1EE5AEC700B6E263 /* Malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE891EE543BD00B6E263 /* Malloc.h */; };
-		632AC0201EE5AEC700B6E263 /* KSStackCursor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE421EE543BD00B6E263 /* KSStackCursor.h */; };
-		632AC0211EE5AEC700B6E263 /* KSCrashReportVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFE1EE543BD00B6E263 /* KSCrashReportVersion.h */; };
-		632AC0231EE5AEC700B6E263 /* KSCrashReportFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE551EE543BD00B6E263 /* KSCrashReportFilter.h */; };
-		632AC0241EE5AEC700B6E263 /* KSDynamicLinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2A1EE543BD00B6E263 /* KSDynamicLinker.h */; };
+		632AC01D1EE5AEC700B6E263 /* KSString.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE4A1EE543BD00B6E263 /* KSString.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC01E1EE5AEC700B6E263 /* KSCrashMonitor_NSException.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE0C1EE543BD00B6E263 /* KSCrashMonitor_NSException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC01F1EE5AEC700B6E263 /* Malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE891EE543BD00B6E263 /* Malloc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0201EE5AEC700B6E263 /* KSStackCursor.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE421EE543BD00B6E263 /* KSStackCursor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0211EE5AEC700B6E263 /* KSCrashReportVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABDFE1EE543BD00B6E263 /* KSCrashReportVersion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0231EE5AEC700B6E263 /* KSCrashReportFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE551EE543BD00B6E263 /* KSCrashReportFilter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632AC0241EE5AEC700B6E263 /* KSDynamicLinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 632ABE2A1EE543BD00B6E263 /* KSDynamicLinker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632AC0261EE5AEC700B6E263 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 632ABE8C1EE543BD00B6E263 /* LICENSE.txt */; };
-		632F43551F5826D600A18A36 /* SentryCrashExceptionApplication.m in Headers */ = {isa = PBXBuildFile; fileRef = 632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */; };
+		632F43551F5826D600A18A36 /* SentryCrashExceptionApplication.m in Headers */ = {isa = PBXBuildFile; fileRef = 632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */; settings = {ATTRIBUTES = (Public, ); }; };
 		632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		632F436D1F5D415B00A18A36 /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 632F436C1F5D415B00A18A36 /* SentryTests.m */; };
+		632F43751F5D44A300A18A36 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 632AC02B1EE5AEC700B6E263 /* Sentry.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		632F43731F5D436D00A18A36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 632ABF3C1EE5AEC700B6E263;
+			remoteInfo = Sentry;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
@@ -340,6 +352,9 @@
 		632AC02B1EE5AEC700B6E263 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplication.m; sourceTree = "<group>"; };
 		632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplication.h; path = include/SentryCrashExceptionApplication.h; sourceTree = "<group>"; };
+		632F436A1F5D415B00A18A36 /* SentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		632F436C1F5D415B00A18A36 /* SentryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTests.m; sourceTree = "<group>"; };
+		632F436E1F5D415B00A18A36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashInstallation.h; path = include/SentryKSCrashInstallation.h; sourceTree = "<group>"; };
 		6344DDAF1EC308E400D9160D /* SentryKSCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashInstallation.m; sourceTree = "<group>"; };
 		6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashReportSink.h; path = include/SentryKSCrashReportSink.h; sourceTree = "<group>"; };
@@ -398,6 +413,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				632ABFA51EE5AEC700B6E263 /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		632F43671F5D415B00A18A36 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				632F43751F5D44A300A18A36 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +517,7 @@
 			isa = PBXGroup;
 			children = (
 				63AA756E1EB8AEDB00D153DE /* Sources */,
+				632F436B1F5D415B00A18A36 /* SentryTests */,
 				6327C5D41EB8A783004E799B /* Products */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 			);
@@ -503,6 +527,7 @@
 			isa = PBXGroup;
 			children = (
 				632AC02B1EE5AEC700B6E263 /* Sentry.framework */,
+				632F436A1F5D415B00A18A36 /* SentryTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -739,6 +764,15 @@
 			path = Basic;
 			sourceTree = "<group>";
 		};
+		632F436B1F5D415B00A18A36 /* SentryTests */ = {
+			isa = PBXGroup;
+			children = (
+				632F436C1F5D415B00A18A36 /* SentryTests.m */,
+				632F436E1F5D415B00A18A36 /* Info.plist */,
+			);
+			path = SentryTests;
+			sourceTree = "<group>";
+		};
 		6344DDB61EC3113C00D9160D /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
@@ -824,34 +858,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				632ABFA71EE5AEC700B6E263 /* SentryUser.h in Headers */,
+				632ABFAC1EE5AEC700B6E263 /* SentryClient+Internal.h in Headers */,
+				632ABFB41EE5AEC700B6E263 /* SentryStacktrace.h in Headers */,
+				632ABFB81EE5AEC700B6E263 /* SentryEvent.h in Headers */,
+				632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */,
+				632ABFBA1EE5AEC700B6E263 /* SentryLog.h in Headers */,
 				632ABFA81EE5AEC700B6E263 /* KSCrashReportFields.h in Headers */,
 				632ABFA91EE5AEC700B6E263 /* KSCrashReportStore.h in Headers */,
 				632ABFAA1EE5AEC700B6E263 /* KSCrashMonitor_CPPException.h in Headers */,
 				632ABFAB1EE5AEC700B6E263 /* KSCrashReportWriter.h in Headers */,
-				632ABFAC1EE5AEC700B6E263 /* SentryClient+Internal.h in Headers */,
 				632ABFAD1EE5AEC700B6E263 /* KSCrashC.h in Headers */,
 				632ABFAF1EE5AEC700B6E263 /* DemangleNodes.h in Headers */,
 				632ABFB11EE5AEC700B6E263 /* KSCPU_Apple.h in Headers */,
 				632ABFB31EE5AEC700B6E263 /* KSFileUtils.h in Headers */,
-				632ABFB41EE5AEC700B6E263 /* SentryStacktrace.h in Headers */,
 				632ABFB51EE5AEC700B6E263 /* KSMemory.h in Headers */,
 				632ABFB61EE5AEC700B6E263 /* KSDate.h in Headers */,
 				632ABFB71EE5AEC700B6E263 /* Punycode.h in Headers */,
-				632ABFB81EE5AEC700B6E263 /* SentryEvent.h in Headers */,
-				632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */,
 				632ABFB91EE5AEC700B6E263 /* KSCrashMonitor.h in Headers */,
-				632ABFBA1EE5AEC700B6E263 /* SentryLog.h in Headers */,
 				632ABFBD1EE5AEC700B6E263 /* KSSystemCapabilities.h in Headers */,
 				632ABFBE1EE5AEC700B6E263 /* Demangle.h in Headers */,
-				632ABFBF1EE5AEC700B6E263 /* SentryDebugMeta.h in Headers */,
-				632ABFC01EE5AEC700B6E263 /* SentryBreadcrumb.h in Headers */,
-				632ABFC11EE5AEC700B6E263 /* SentryDefines.h in Headers */,
 				632ABFC21EE5AEC700B6E263 /* LLVM.h in Headers */,
-				632ABFC31EE5AEC700B6E263 /* SentryAsynchronousOperation.h in Headers */,
 				632ABFC71EE5AEC700B6E263 /* KSThread.h in Headers */,
-				632ABFC81EE5AEC700B6E263 /* SentrySerializable.h in Headers */,
 				632ABFC91EE5AEC700B6E263 /* KSCrashDoctor.h in Headers */,
-				632ABFCA1EE5AEC700B6E263 /* KSCrash.h in Headers */,
 				632ABFCB1EE5AEC700B6E263 /* KSDebug.h in Headers */,
 				632ABFCC1EE5AEC700B6E263 /* KSStackCursor_MachineContext.h in Headers */,
 				632ABFCD1EE5AEC700B6E263 /* Casting.h in Headers */,
@@ -859,67 +887,45 @@
 				632ABFCF1EE5AEC700B6E263 /* KSCrashMonitorType.h in Headers */,
 				632ABFD01EE5AEC700B6E263 /* KSJSONCodecObjC.h in Headers */,
 				632ABFD11EE5AEC700B6E263 /* Compiler.h in Headers */,
-				632ABFD21EE5AEC700B6E263 /* SentryClient.h in Headers */,
 				632ABFD31EE5AEC700B6E263 /* KSCrashMonitor_Deadlock.h in Headers */,
-				632ABFD51EE5AEC700B6E263 /* Sentry.h in Headers */,
 				632ABFD61EE5AEC700B6E263 /* KSCrashCachedData.h in Headers */,
-				632ABFD71EE5AEC700B6E263 /* KSCrashInstallation.h in Headers */,
 				6315029D1EE986D600512C5B /* Container+DeepSearch.h in Headers */,
 				632ABFD81EE5AEC700B6E263 /* KSCrashMonitor_MachException.h in Headers */,
 				632ABFD91EE5AEC700B6E263 /* KSLogger.h in Headers */,
-				632ABFDA1EE5AEC700B6E263 /* SentryQueueableRequestManager.h in Headers */,
-				632ABFDB1EE5AEC700B6E263 /* NSData+Compression.h in Headers */,
 				632ABFDC1EE5AEC700B6E263 /* KSJSONCodec.h in Headers */,
 				632ABFDD1EE5AEC700B6E263 /* StringRef.h in Headers */,
-				632ABFDF1EE5AEC700B6E263 /* SentryException.h in Headers */,
 				632ABFE01EE5AEC700B6E263 /* Fallthrough.h in Headers */,
 				632ABFE11EE5AEC700B6E263 /* KSCrashMonitor_Signal.h in Headers */,
 				632ABFE21EE5AEC700B6E263 /* KSMachineContext.h in Headers */,
-				632ABFE41EE5AEC700B6E263 /* SentryKSCrashReportSink.h in Headers */,
 				632ABFE51EE5AEC700B6E263 /* KSCrashMonitor_User.h in Headers */,
 				632ABFE61EE5AEC700B6E263 /* KSCrashReportFixer.h in Headers */,
-				632ABFE71EE5AEC700B6E263 /* SentryBreadcrumbStore.h in Headers */,
 				632ABFE91EE5AEC700B6E263 /* KSObjC.h in Headers */,
 				632ABFEB1EE5AEC700B6E263 /* KSCPU.h in Headers */,
 				632ABFEC1EE5AEC700B6E263 /* type_traits.h in Headers */,
-				632ABFED1EE5AEC700B6E263 /* NSDate+Extras.h in Headers */,
 				632ABFEE1EE5AEC700B6E263 /* AlignOf.h in Headers */,
-				632ABFF11EE5AEC700B6E263 /* SentryFrame.h in Headers */,
 				632ABFF21EE5AEC700B6E263 /* SwiftStrings.h in Headers */,
-				632ABFF31EE5AEC700B6E263 /* SentrySwizzle.h in Headers */,
 				632ABFF41EE5AEC700B6E263 /* KSStackCursor_SelfThread.h in Headers */,
 				632ABFF51EE5AEC700B6E263 /* None.h in Headers */,
-				632ABFF61EE5AEC700B6E263 /* SentryRequestOperation.h in Headers */,
-				632ABFF71EE5AEC700B6E263 /* SentryKSCrashInstallation.h in Headers */,
-				632ABFFA1EE5AEC700B6E263 /* SentryContext.h in Headers */,
 				632ABFFB1EE5AEC700B6E263 /* llvm-config.h in Headers */,
-				632ABFFC1EE5AEC700B6E263 /* SentryNSURLRequest.h in Headers */,
-				632ABFFD1EE5AEC700B6E263 /* SentryError.h in Headers */,
 				632ABFFE1EE5AEC700B6E263 /* KSCrashInstallation+Private.h in Headers */,
 				6315029F1EE986D600512C5B /* KSVarArgs.h in Headers */,
 				632ABFFF1EE5AEC700B6E263 /* KSCrashMonitor_System.h in Headers */,
-				632AC0001EE5AEC700B6E263 /* SentryThread.h in Headers */,
 				632AC0021EE5AEC700B6E263 /* KSStackCursor_Backtrace.h in Headers */,
 				632AC0041EE5AEC700B6E263 /* KSCrashMonitor_Zombie.h in Headers */,
-				631501B91EE6F00600512C5B /* SentryBreadcrumbTracker.h in Headers */,
 				632AC0051EE5AEC700B6E263 /* KSSymbolicator.h in Headers */,
 				632AC0081EE5AEC700B6E263 /* KSCrashMonitorContext.h in Headers */,
 				632AC0091EE5AEC700B6E263 /* KSCrashMonitor_AppState.h in Headers */,
 				632AC00A1EE5AEC700B6E263 /* KSID.h in Headers */,
 				632AC00B1EE5AEC700B6E263 /* KSDemangle_Swift.h in Headers */,
-				632AC00C1EE5AEC700B6E263 /* SentryDsn.h in Headers */,
 				632AC00D1EE5AEC700B6E263 /* KSCrashReport.h in Headers */,
 				632AC00F1EE5AEC700B6E263 /* KSSignalInfo.h in Headers */,
 				632AC0101EE5AEC700B6E263 /* KSDemangle_CPP.h in Headers */,
 				632AC0121EE5AEC700B6E263 /* KSObjCApple.h in Headers */,
 				632AC0131EE5AEC700B6E263 /* KSMachineContext_Apple.h in Headers */,
-				632AC0151EE5AEC700B6E263 /* SentryFileManager.h in Headers */,
 				632F43551F5826D600A18A36 /* SentryCrashExceptionApplication.m in Headers */,
 				632AC0171EE5AEC700B6E263 /* KSSysCtl.h in Headers */,
 				632AC0181EE5AEC700B6E263 /* Optional.h in Headers */,
 				632AC0191EE5AEC700B6E263 /* KSMach.h in Headers */,
-				632AC01B1EE5AEC700B6E263 /* SentryKSCrashReportConverter.h in Headers */,
-				63295AFC1EF3CD97002D4490 /* NSDictionary+Sanitize.h in Headers */,
 				632AC01D1EE5AEC700B6E263 /* KSString.h in Headers */,
 				631502871EE9861500512C5B /* KSCString.h in Headers */,
 				632AC01E1EE5AEC700B6E263 /* KSCrashMonitor_NSException.h in Headers */,
@@ -929,6 +935,34 @@
 				632AC0211EE5AEC700B6E263 /* KSCrashReportVersion.h in Headers */,
 				632AC0231EE5AEC700B6E263 /* KSCrashReportFilter.h in Headers */,
 				632AC0241EE5AEC700B6E263 /* KSDynamicLinker.h in Headers */,
+				632ABFBF1EE5AEC700B6E263 /* SentryDebugMeta.h in Headers */,
+				632ABFC01EE5AEC700B6E263 /* SentryBreadcrumb.h in Headers */,
+				632ABFC11EE5AEC700B6E263 /* SentryDefines.h in Headers */,
+				632ABFC31EE5AEC700B6E263 /* SentryAsynchronousOperation.h in Headers */,
+				632ABFC81EE5AEC700B6E263 /* SentrySerializable.h in Headers */,
+				632ABFCA1EE5AEC700B6E263 /* KSCrash.h in Headers */,
+				632ABFD21EE5AEC700B6E263 /* SentryClient.h in Headers */,
+				632ABFD51EE5AEC700B6E263 /* Sentry.h in Headers */,
+				632ABFD71EE5AEC700B6E263 /* KSCrashInstallation.h in Headers */,
+				632ABFDA1EE5AEC700B6E263 /* SentryQueueableRequestManager.h in Headers */,
+				632ABFDB1EE5AEC700B6E263 /* NSData+Compression.h in Headers */,
+				632ABFDF1EE5AEC700B6E263 /* SentryException.h in Headers */,
+				632ABFE41EE5AEC700B6E263 /* SentryKSCrashReportSink.h in Headers */,
+				632ABFE71EE5AEC700B6E263 /* SentryBreadcrumbStore.h in Headers */,
+				632ABFED1EE5AEC700B6E263 /* NSDate+Extras.h in Headers */,
+				632ABFF11EE5AEC700B6E263 /* SentryFrame.h in Headers */,
+				632ABFF31EE5AEC700B6E263 /* SentrySwizzle.h in Headers */,
+				632ABFF61EE5AEC700B6E263 /* SentryRequestOperation.h in Headers */,
+				632ABFF71EE5AEC700B6E263 /* SentryKSCrashInstallation.h in Headers */,
+				632ABFFA1EE5AEC700B6E263 /* SentryContext.h in Headers */,
+				632ABFFC1EE5AEC700B6E263 /* SentryNSURLRequest.h in Headers */,
+				632ABFFD1EE5AEC700B6E263 /* SentryError.h in Headers */,
+				632AC0001EE5AEC700B6E263 /* SentryThread.h in Headers */,
+				631501B91EE6F00600512C5B /* SentryBreadcrumbTracker.h in Headers */,
+				632AC00C1EE5AEC700B6E263 /* SentryDsn.h in Headers */,
+				632AC0151EE5AEC700B6E263 /* SentryFileManager.h in Headers */,
+				632AC01B1EE5AEC700B6E263 /* SentryKSCrashReportConverter.h in Headers */,
+				63295AFC1EF3CD97002D4490 /* NSDictionary+Sanitize.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -953,6 +987,24 @@
 			productReference = 632AC02B1EE5AEC700B6E263 /* Sentry.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		632F43691F5D415B00A18A36 /* SentryTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 632F43711F5D415C00A18A36 /* Build configuration list for PBXNativeTarget "SentryTests" */;
+			buildPhases = (
+				632F43661F5D415B00A18A36 /* Sources */,
+				632F43671F5D415B00A18A36 /* Frameworks */,
+				632F43681F5D415B00A18A36 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				632F43741F5D436D00A18A36 /* PBXTargetDependency */,
+			);
+			name = SentryTests;
+			productName = SentryTests;
+			productReference = 632F436A1F5D415B00A18A36 /* SentryTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -962,6 +1014,11 @@
 				LastSwiftUpdateCheck = 0830;
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = Sentry;
+				TargetAttributes = {
+					632F43691F5D415B00A18A36 = {
+						CreatedOnToolsVersion = 9.0;
+					};
+				};
 			};
 			buildConfigurationList = 6327C5CD1EB8A783004E799B /* Build configuration list for PBXProject "Sentry-KSCrash" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -976,6 +1033,7 @@
 			projectRoot = "";
 			targets = (
 				632ABF3C1EE5AEC700B6E263 /* Sentry */,
+				632F43691F5D415B00A18A36 /* SentryTests */,
 			);
 		};
 /* End PBXProject section */
@@ -986,6 +1044,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				632AC0261EE5AEC700B6E263 /* LICENSE.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		632F43681F5D415B00A18A36 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1079,7 +1144,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		632F43661F5D415B00A18A36 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				632F436D1F5D415B00A18A36 /* SentryTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		632F43741F5D436D00A18A36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 632ABF3C1EE5AEC700B6E263 /* Sentry */;
+			targetProxy = 632F43731F5D436D00A18A36 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		6327C5E51EB8A783004E799B /* Debug */ = {
@@ -1253,6 +1334,62 @@
 			};
 			name = Release;
 		};
+		632F436F1F5D415B00A18A36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = SentryTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		632F43701F5D415B00A18A36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = SentryTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1270,6 +1407,15 @@
 			buildConfigurations = (
 				632AC0291EE5AEC700B6E263 /* Debug */,
 				632AC02A1EE5AEC700B6E263 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		632F43711F5D415C00A18A36 /* Build configuration list for PBXNativeTarget "SentryTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				632F436F1F5D415B00A18A36 /* Debug */,
+				632F43701F5D415B00A18A36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
