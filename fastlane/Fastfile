@@ -26,13 +26,11 @@ lane :lint do
 end
 
 lane :test do
-    # devices = [
-    #     "iPhone 7 (10.3)",
-    #     "iPhone 6 (9.3)",
-    # ]
-    # devices.push("iPhone 5 (8.3)") if is_ci?
-    # scan(scheme: "Sentry", code_coverage: true, devices: devices)
     scan(scheme: "Sentry", code_coverage: true)
+end
+
+lane :kscrash do
+    scan(project: "KSCrash/Sentry-KSCrash.xcodeproj", scheme: "Sentry")
 end
 
 lane :pod do
