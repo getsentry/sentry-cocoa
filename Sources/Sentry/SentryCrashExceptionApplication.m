@@ -26,14 +26,15 @@
 @implementation SentryCrashExceptionApplication
 
 #if TARGET_OS_OSX
+
 - (void)reportException:(NSException *)exception {
-    [super reportException:exception];
     #if WITH_KSCRASH
-    if (nil != KSCrash.sharedInstance.uncaughtExceptionHandler) {
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NSApplicationCrashOnExceptions": @YES }];
+    if (nil != KSCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
         KSCrash.sharedInstance.uncaughtExceptionHandler(exception);
-        exit(0);
     }
     #endif
+    [super reportException:exception];
 }
 #endif
 
