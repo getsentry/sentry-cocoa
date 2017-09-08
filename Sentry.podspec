@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.libraries = 'z'
 
-  s.default_subspecs = 'Core'
+  s.default_subspecs = ['Core', 'KSCrash']
 
   s.subspec 'Core' do |sp|
     sp.source_files = "Sources/Sentry/**/*.{h,m}"

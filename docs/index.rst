@@ -28,7 +28,7 @@ it in your `Podfile`:
     use_frameworks!
 
     target 'YourApp' do
-        pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :subspecs => ['Core', 'KSCrash'], :tag => '###SENTRY_COCOA_TAG###'
+        pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '###SENTRY_COCOA_TAG###'
     end
 
 If you want to use Sentry without KSCrash you can just remove it from the subspecs.
