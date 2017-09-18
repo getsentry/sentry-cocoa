@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryError.h"
+#import "SentryDsn.h"
 
 @interface SentryDsnTests : XCTestCase
 
@@ -21,6 +22,28 @@
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://sentry.io" didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(client);
+}
+
+- (void)testDsnHeaderUsernameAndPassword {
+    NSError *error = nil;
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@sentry.io/1" didFailWithError:&error];
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:dsn andData:[NSData data] didFailWithError:&error];
+    
+    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/3.7.1,sentry_timestamp=%@,sentry_key=username,sentry_secret=password", @((NSInteger) [[NSDate date] timeIntervalSince1970])];
+    
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
+    XCTAssertNil(error);
+}
+
+- (void)testDsnHeaderUsername {
+    NSError *error = nil;
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username@sentry.io/1" didFailWithError:&error];
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:dsn andData:[NSData data] didFailWithError:&error];
+    
+    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/3.7.1,sentry_timestamp=%@,sentry_key=username", @((NSInteger) [[NSDate date] timeIntervalSince1970])];
+    
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
+    XCTAssertNil(error);
 }
 
 - (void)testMissingScheme {
