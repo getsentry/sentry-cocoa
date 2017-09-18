@@ -58,10 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
         errorMessage = @"User component of DSN is missing";
         url = nil;
     }
-    if (nil == url.password) {
-        errorMessage = @"Password component of DSN is missing";
-        url = nil;
-    }
     if (url.pathComponents.count < 2) {
         errorMessage = @"Project ID path component of DSN is missing";
         url = nil;
