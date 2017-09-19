@@ -96,6 +96,12 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, class) SentryClient *_Nullable sharedClient;
 
 /**
+ * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
+ * Setting this property sets shouldSendEvent callback and applies a random event sampler.
+ */
+@property(nonatomic) float sampleRate;
+
+/**
  * Initializes a SentryClient. Pass your private DSN string.
  *
  * @param dsn DSN string of sentry

@@ -55,6 +55,7 @@ class SentrySwiftTests: XCTestCase {
         event.extra = ["ios": true]
         XCTAssertNotNil(event.serialize())
         Client.shared?.send(event: event)
+//        Client.shared?.sampleRate = 0.75
         let event2 = Event(level: .debug)
         event2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())

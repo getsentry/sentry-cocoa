@@ -151,3 +151,14 @@ So for example if you want to send a simple message to the server and add the st
         Client.shared?.appendStacktrace(to: event)
         Client.shared?.send(event: event)
     }
+
+Event Sampling
+--------------
+
+If you are sending to many events and want to not send all events you can set the ``sampleRate`` parameter.
+It's a number between 0 and 1 where when you set it to 1, all events will be sent.
+Notice that ``shouldSendEvent`` will set for this.
+
+.. sourcecode:: swift
+
+    Client.shared?.sampleRate = 0.75 // 75% of all events will be sent
