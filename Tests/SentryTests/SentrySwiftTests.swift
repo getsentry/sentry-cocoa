@@ -55,7 +55,6 @@ class SentrySwiftTests: XCTestCase {
         event.extra = ["ios": true]
         XCTAssertNotNil(event.serialize())
         Client.shared?.send(event: event)
-//        Client.shared?.sampleRate = 0.75
         let event2 = Event(level: .debug)
         event2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
@@ -70,7 +69,6 @@ class SentrySwiftTests: XCTestCase {
         
         Client.logLevel = .debug
         Client.shared?.clearContext()
-        // Client.shared?.lastEvent
         Client.shared?.breadcrumbs.maxBreadcrumbs = 100
         Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
         XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
