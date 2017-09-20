@@ -69,7 +69,6 @@ class SentrySwiftTests: XCTestCase {
         
         Client.logLevel = .debug
         Client.shared?.clearContext()
-        // Client.shared?.lastEvent
         Client.shared?.breadcrumbs.maxBreadcrumbs = 100
         Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
         XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)

@@ -67,6 +67,7 @@ static SentryKSCrashInstallation *installation = nil;
 @synthesize tags = _tags;
 @synthesize extra = _extra;
 @synthesize user = _user;
+@synthesize sampleRate = _sampleRate;
 @dynamic logLevel;
 
 #pragma mark Initializer
@@ -311,6 +312,17 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"] forKey:@"extra"];
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"] forKey:@"user"];
     self.lastContext = context;
+}
+
+- (void)setSampleRate:(float)sampleRate {
+    if (sampleRate < 0 || sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
+        return;
+    }
+    _sampleRate = sampleRate;
+    self.shouldSendEvent = ^BOOL(SentryEvent *_Nonnull event) {
+        return (sampleRate >= ((double)arc4random() / 0x100000000));
+    };
 }
 
 #pragma mark KSCrash

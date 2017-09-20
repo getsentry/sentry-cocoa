@@ -700,4 +700,61 @@ NSInteger requestsWithErrors = 0;
     }];
 }
 
+- (void)testSamplingZero {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    self.client.sampleRate = 0.0;
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNotNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testSamplingOne {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    self.client.sampleRate = 1.0;
+    XCTAssertEqual(self.client.sampleRate, 1.0);
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+- (void)testSamplingBogus {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    self.client.sampleRate = -123.0;
+    [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"waitForExpectationsWithTimeout errored");
+        }
+        XCTAssert(YES);
+    }];
+}
+
+
+
 @end
