@@ -315,7 +315,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)setSampleRate:(float)sampleRate {
-    if (sampleRate < 0 && sampleRate > 1) {
+    if (sampleRate < 0 || sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
         return;
     }
     _sampleRate = sampleRate;
