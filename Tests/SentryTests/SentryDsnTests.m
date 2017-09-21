@@ -29,7 +29,10 @@
     SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@sentry.io/1" didFailWithError:&error];
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:dsn andData:[NSData data] didFailWithError:&error];
     
-    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/3.7.1,sentry_timestamp=%@,sentry_key=username,sentry_secret=password", @((NSInteger) [[NSDate date] timeIntervalSince1970])];
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    
+    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/%@,sentry_timestamp=%@,sentry_key=username,sentry_secret=password", version, @((NSInteger) [[NSDate date] timeIntervalSince1970])];
     
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
@@ -40,7 +43,10 @@
     SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username@sentry.io/1" didFailWithError:&error];
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:dsn andData:[NSData data] didFailWithError:&error];
     
-    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/3.7.1,sentry_timestamp=%@,sentry_key=username", @((NSInteger) [[NSDate date] timeIntervalSince1970])];
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    
+    NSString *authHeader = [[NSString alloc] initWithFormat: @"Sentry sentry_version=7,sentry_client=sentry-cocoa/%@,sentry_timestamp=%@,sentry_key=username", version, @((NSInteger) [[NSDate date] timeIntervalSince1970])];
     
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
