@@ -90,6 +90,10 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
     event.context = [self convertContext];
+    if (event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"] && event.context.appContext[@"app_build"]) {
+        event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
+        event.dist = event.context.appContext[@"app_build"];
+    }
     event.extra = [self convertExtra];
     event.tags = [self convertTags];
     event.user = [self convertUser];
