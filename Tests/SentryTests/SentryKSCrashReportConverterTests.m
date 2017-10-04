@@ -67,6 +67,9 @@ NSString *reportPath = @"";
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
+
+    XCTAssertEqualObjects(event.releaseName, @"io.sentry.crashTest-1.4.1");
+    XCTAssertEqualObjects(event.dist, @"201702072010");
 }
 
 - (void)testRawWithCrashReport {
