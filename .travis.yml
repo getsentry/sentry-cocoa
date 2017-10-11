@@ -21,15 +21,7 @@ notifications:
   email: false
 jobs:
   include:
-  - stage: cocoapods
-    script: .travis/stage-cocoapods.sh
-    deploy:
-      provider: script
-      script: pod trunk push Sentry.podspec
-      skip_cleanup: true
-      on:
-        tags: true
-  - stage: carthage
+  - stage: deploy
     script: .travis/stage-carthage.sh
     deploy:
       provider: s3
