@@ -1,6 +1,6 @@
 #!/bin/sh
 
-brew update
+brew update > /dev/null
 brew outdated carthage || brew upgrade carthage
 
 cd KSCrash
