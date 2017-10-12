@@ -7,13 +7,7 @@ cache:
 rvm:
   - 2.2
 
-script:
-  - travis_retry .travis/run.sh
-
-after_success:
-  - if [ "$LANE" = "test" ]; then
-  - slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml;
-  - fi
+script: travis_retry .travis/run.sh
 
 env:
   matrix:
