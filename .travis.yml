@@ -29,16 +29,15 @@ notifications:
 jobs:
   include:
     - stage: deploy
+      if: tag IS present
       script: .travis/stage-carthage.sh
       deploy:
         provider: s3
         access_key_id: AKIAJKYWAF3QS7SFL75Q
         secret_access_key:
           secure: C7QChnAftRp3Jpc4bNfcMs+fwtIjwm91Mn51Aa4qSfSOZhDLAwKFZd1p68lf2XWO1S+BWjcL4I7VtefFidJxeRJrJfjsS9ArMgOcoSYO8C6/mE2M9RzQsUU+IHRBiZkCwRZnJ4+v+gFXyb80CgSJb88tM8QxvG1Cxbrzcp53ZrV51EcWHCOPWFNmxoiNVCotVha00/vqjzgOtUaiBYK9GebGU1d9TibmBtCJJLdIKxhkl9ZbTgDr9REJC+TVaLdP2Cp3zLlx/7TYt/zTFndf+xFNHTslM8HLaKRDj6W+pJ/sTx/vxxPf3U5rM343JIu7NwBnYh6f9heXhfIBQjVnWraNTmdg8A263hCF9pNMBCpZK+pYvskfEitKlXtcYZZ9LG5IfnYftWF2IcdWSxmTcHxMBA2XlbK5nTv/L85qGjqXDaQQqqNNflWgIgBCfXfyYjXbWogKX/nVadYcTH5GhuPtPJDj8ZroDGQzghkxGJt1zmWFsY6nkmoOsONrIqVNaCnUUhS05e8lhj2w7/eloO8nI9EJBz3mStRvaV0jb2iLiUmoJ2zUJ/vlOcqFq24z9zoteGV/8G7YF0PB8O7vuVueHjsnUKi4JY8rsW4oAnm/yhZvxcEFVf5YRHU7GmH+MuTgPLH5ixvi84ZVCWNa4UCLzk6zE2SkiWSt8K0wlbY=
-        bucket: getsentry-builds
         skip_cleanup: true
-        file: KSCrash/Sentry.framework.zip
-        upload-dir: $TRAVIS_REPO_SLUG/$TRAVIS_COMMIT
         acl: public_read
-        on:
-          tags: true
+        bucket: getsentry-builds
+        upload-dir: $TRAVIS_REPO_SLUG/$TRAVIS_COMMIT
+        file: KSCrash/Sentry.framework.zip
