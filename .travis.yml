@@ -34,6 +34,6 @@ jobs:
         acl: public_read
         bucket: getsentry-builds
         upload-dir: $TRAVIS_REPO_SLUG/$TRAVIS_COMMIT
-        file: KSCrash/Sentry.framework.zip
+        local_dir: build
         on:
           tags: true
