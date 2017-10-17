@@ -35,3 +35,5 @@ jobs:
         bucket: getsentry-builds
         upload-dir: $TRAVIS_REPO_SLUG/$TRAVIS_COMMIT
         file: KSCrash/Sentry.framework.zip
+        on:
+          tags: true
