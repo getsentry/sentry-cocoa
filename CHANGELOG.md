@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.8.4
+
+- Tick allow-app-extension-API-only box for Carthage builds
+
 ## 3.8.3
 
 - Fixed an issue where a crash and the actual event diverge in release version/ dist #218
@@ -38,7 +42,7 @@
 
 ## 3.5.0
 
-- Fixed https://github.com/getsentry/sentry-cocoa/issues/200 Make userId optional of `SentryUser` 
+- Fixed https://github.com/getsentry/sentry-cocoa/issues/200 Make userId optional of `SentryUser`
 - Fixed https://github.com/getsentry/sentry-cocoa/issues/198
 
 ## 3.4.3
@@ -80,7 +84,7 @@ Change the way `extra` `tags` and `user` is stored.
 
 ## 3.2.0
 
-- Add `appendStacktraceToEvent` function in addition to `snapshotStacktrace` to add stacktraces reliably. 
+- Add `appendStacktraceToEvent` function in addition to `snapshotStacktrace` to add stacktraces reliably.
 
 ## 3.1.3
 
@@ -88,7 +92,7 @@ Change the way `extra` `tags` and `user` is stored.
 
 ## 3.1.2
 
-- Add support for SDK integrations 
+- Add support for SDK integrations
 
 ## 3.1.1
 
@@ -237,8 +241,8 @@ event.addTag("key", value: "value")
 ## 2.0.0 - Rename from SentrySwift to Sentry
 
 - We decided to rename `SentrySwift` to just `Sentry`
-  
-  Version `2.0.0` has the same features as `1.4.5`. 
+
+  Version `2.0.0` has the same features as `1.4.5`.
   The name of the Framework has been changed from:
   `import SentrySwift`
   to
@@ -284,7 +288,7 @@ event.addTag("key", value: "value")
 - Update KSCrash to 1.13.x
 
 **Warning**
-- Added namespace for Objc 
+- Added namespace for Objc
   e.g.: `User` -> `SentryUser` but Xcode should suggest the new class names ... Swift code does not change
 
 
@@ -383,7 +387,7 @@ Fixed for breadcrumbs not always sending on fatal
 
 - Fixed breadcrumbs for updated spec
 - Removed all references of "raven"
-  - Fixed #13 
+  - Fixed #13
 - Changed merging behaviour in EventProperties
   - Event takes priority over client
 
