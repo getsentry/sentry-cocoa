@@ -47,12 +47,14 @@ SENTRY_NO_INIT
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
 /**
- * Deletes all stored SentryBreadcrumb s
+ * Deletes all stored SentryBreadcrumbs
  */
 - (void)clear;
 
 /**
- * Returns the number of stored SentryBreadcrumb s
+ * Returns the number of stored SentryBreadcrumbs
+ * This number can be higher than maxBreadcrumbs since we
+ * only remove breadcrumbs over the limit once we sent them
  * @return number of SentryBreadcrumb
  */
 - (NSUInteger)count;
