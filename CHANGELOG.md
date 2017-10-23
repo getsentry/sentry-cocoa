@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.8.5
+
+- Send breadcrumbs in the order in which they got created
+
 ## 3.8.4
 
 - Tick allow-app-extension-API-only box for Carthage builds
