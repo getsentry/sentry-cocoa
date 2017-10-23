@@ -197,6 +197,8 @@
 		632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632F436D1F5D415B00A18A36 /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 632F436C1F5D415B00A18A36 /* SentryTests.m */; };
 		632F43751F5D44A300A18A36 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 632AC02B1EE5AEC700B6E263 /* Sentry.framework */; };
+		63B225CE1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B225CD1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m */; };
+		63B225D01F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 63B225CF1F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -398,6 +400,8 @@
 		63AA769C1EB9C57A00D153DE /* SentryError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryError.m; sourceTree = "<group>"; };
 		63AA76A11EB9CBAA00D153DE /* SentryDsn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDsn.m; sourceTree = "<group>"; };
 		63AA76A41EB9CBC200D153DE /* SentryDsn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDsn.h; path = include/SentryDsn.h; sourceTree = "<group>"; };
+		63B225CD1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryJavaScriptBridgeHelper.m; sourceTree = "<group>"; };
+		63B225CF1F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryJavaScriptBridgeHelper.h; path = include/SentryJavaScriptBridgeHelper.h; sourceTree = "<group>"; };
 		63B818F71EC34639002FDF4C /* SentryDebugMeta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDebugMeta.h; path = include/SentryDebugMeta.h; sourceTree = "<group>"; };
 		63B818F81EC34639002FDF4C /* SentryDebugMeta.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDebugMeta.m; sourceTree = "<group>"; };
 		63BE856A1ECD8F2C00DC44F5 /* SentryContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryContext.h; path = include/SentryContext.h; sourceTree = "<group>"; };
@@ -802,6 +806,8 @@
 				639889BA1EDED18400EA7442 /* SentrySwizzle.m */,
 				632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */,
 				632F43541F5826D600A18A36 /* SentryCrashExceptionApplication.m */,
+				63B225CF1F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h */,
+				63B225CD1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -868,6 +874,7 @@
 				632ABFAA1EE5AEC700B6E263 /* KSCrashMonitor_CPPException.h in Headers */,
 				632ABFAB1EE5AEC700B6E263 /* KSCrashReportWriter.h in Headers */,
 				632ABFAD1EE5AEC700B6E263 /* KSCrashC.h in Headers */,
+				63B225D01F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h in Headers */,
 				632ABFAF1EE5AEC700B6E263 /* DemangleNodes.h in Headers */,
 				632ABFB11EE5AEC700B6E263 /* KSCPU_Apple.h in Headers */,
 				632ABFB31EE5AEC700B6E263 /* KSFileUtils.h in Headers */,
@@ -1079,6 +1086,7 @@
 				632ABF4F1EE5AEC700B6E263 /* KSObjC.c in Sources */,
 				632ABF511EE5AEC700B6E263 /* KSLogger.c in Sources */,
 				632ABF521EE5AEC700B6E263 /* Punycode.cpp in Sources */,
+				63B225CE1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m in Sources */,
 				632ABF541EE5AEC700B6E263 /* SentryFrame.m in Sources */,
 				632ABF551EE5AEC700B6E263 /* KSMachineContext.c in Sources */,
 				632ABF561EE5AEC700B6E263 /* KSCrashMonitor_System.m in Sources */,
