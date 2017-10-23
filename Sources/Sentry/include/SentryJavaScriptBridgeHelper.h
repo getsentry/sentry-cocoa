@@ -25,6 +25,8 @@ SENTRY_NO_INIT
 + (SentryBreadcrumb *)createSentryBreadcrumbFromJavaScriptBreadcrumb:(NSDictionary *)jsonBreadcrumb;
 + (SentryLogLevel)sentryLogLevelFromJavaScriptLevel:(int)level;
 + (SentryUser *_Nullable)createSentryUserFromJavaScriptUser:(NSDictionary *)user;
++ (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
++ (NSDictionary *)sanitizeDictionary:(NSDictionary *)dictionary;
 
 @end
 
