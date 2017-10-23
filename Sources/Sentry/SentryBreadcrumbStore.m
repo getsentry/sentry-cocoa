@@ -41,27 +41,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
-    if (breadCrumbs.count >= self.maxBreadcrumbs) {
-        [SentryLog logWithMessage:@"Dropped first breadcrumb due limit" andLevel:kSentryLogLevelDebug];
-        [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:0][@"path"]];
-    }
     [self.fileManager storeBreadcrumb:crumb];
 }
 
 - (NSUInteger)count {
-    return [self.fileManager getAllStoredBreadcrumbs].count;
+    return [[self.fileManager getAllStoredBreadcrumbs] count];
 }
 
 - (void)clear {
     [self.fileManager deleteAllStoredBreadcrumbs];
 }
 
+- (void)removeOverflowBreadcrumbs:(NSArray<NSDictionary<NSString *, id> *>*)breadCrumbs {
+    NSInteger numberOfBreadcrumbsToRemove = ((NSInteger)breadCrumbs.count) - ((NSInteger)self.maxBreadcrumbs);
+    if (numberOfBreadcrumbsToRemove > 0) {
+        for (NSUInteger i = 0; i < numberOfBreadcrumbsToRemove; i++) {
+            [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:i][@"path"]];
+        }
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Dropped %ld breadcrumb(s) due limit", (long)numberOfBreadcrumbsToRemove]
+                         andLevel:kSentryLogLevelDebug];
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-
+    
     NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
-
+    [self removeOverflowBreadcrumbs:breadCrumbs];
+    
     NSMutableArray *crumbs = [NSMutableArray new];
     for (NSDictionary<NSString *, id> *crumb in breadCrumbs) {
         [crumbs addObject:[NSJSONSerialization JSONObjectWithData:crumb[@"data"] options:0 error:nil]];
@@ -69,10 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
-
+    
     return serializedData;
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
+

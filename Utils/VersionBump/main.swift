@@ -9,15 +9,30 @@ let files = [
     "./Sources/Configuration/Sentry.xcconfig",
 ]
 
+let changelogFiles = [
+    "./CHANGELOG.md",
+]
+
 let args = CommandLine.arguments
 
 let regex = Regex("[0-9]+\\.[0-9]+\\.[0-9]+")
-if regex.match(args[1]) == nil || regex.match(args[2]) == nil {
+if regex.firstMatch(in: args[1]) == nil || regex.firstMatch(in: args[2]) == nil {
     exit(errormessage: "version number must bit 0.0.0 format" )
 }
 
 let fromVersion = args[1]
 let toVersion = args[2]
+
+for file in changelogFiles {
+    let readFile = try open(file)
+    let contents: String = readFile.read()
+    if contents.range(of: args[2]) == nil {
+        print("Version \(args[2]) does NOT exists in CHANGELOG, abort mission")
+        print("please update \(file)")
+        exit(1)
+    }
+}
+
 for file in files {
     let readFile = try open(file)
     let contents: String = readFile.read()
