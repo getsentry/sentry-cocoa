@@ -7,7 +7,19 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "SentryJavaScriptBridgeHelper.h"
 #import <Sentry/Sentry.h>
+
+@interface SentryJavaScriptBridgeHelper()
+
++ (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
++ (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
++ (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
++ (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
++ (SentrySeverity)sentrySeverityFromLevel:(NSString *)level;
++ (NSDictionary *)sanitizeDictionary:(NSDictionary *)dictionary;
+
+@end
 
 @interface SentryJavaScriptBridgeHelperTests : XCTestCase
 
@@ -15,10 +27,33 @@
 
 @implementation SentryJavaScriptBridgeHelperTests
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+//+ (SentryEvent *)createSentryEventFromJavaScriptEvent:(NSDictionary *)jsonEvent;
+//
+//+ (SentryBreadcrumb *)createSentryBreadcrumbFromJavaScriptBreadcrumb:(NSDictionary *)jsonBreadcrumb;
+//
+//+ (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
+//
+//+ (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
+//
+//+ (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
+//
+//+ (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
+//
+//+ (SentryUser *_Nullable)createUser:(NSDictionary *)user;
+//
+//+ (NSDictionary *)sanitizeDictionary:(NSDictionary *)dictionary;
+
+- (void)testSentrySeverityFromLevel {
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:nil], kSentrySeverityError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"log"], kSentrySeverityInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"info"], kSentrySeverityInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"bla"], kSentrySeverityError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"fatal"], kSentrySeverityFatal);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"debug"], kSentrySeverityDebug);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"warning"], kSentrySeverityWarning);
 }
+
+- (void)
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.

@@ -16,28 +16,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryFrame, SentryEvent, SentryBreadcrumb, SentryUser;
+@class SentryEvent, SentryUser, SentryBreadcrumb;
 
 @interface SentryJavaScriptBridgeHelper : NSObject
 SENTRY_NO_INIT
 
 + (SentryEvent *)createSentryEventFromJavaScriptEvent:(NSDictionary *)jsonEvent;
-
 + (SentryBreadcrumb *)createSentryBreadcrumbFromJavaScriptBreadcrumb:(NSDictionary *)jsonBreadcrumb;
-
-+ (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
-
-+ (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
-
-+ (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
-
-+ (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
-
-+ (SentryUser *_Nullable)createUser:(NSDictionary *)user;
-
-+ (SentrySeverity)sentrySeverityFromLevel:(NSString *)level;
-
-+ (NSDictionary *)sanitizeDictionary:(NSDictionary *)dictionary;
++ (SentryLogLevel)sentryLogLevelFromJavaScriptLevel:(int)level;
++ (SentryUser *_Nullable)createSentryUserFromJavaScriptUser:(NSDictionary *)user;
 
 @end
 

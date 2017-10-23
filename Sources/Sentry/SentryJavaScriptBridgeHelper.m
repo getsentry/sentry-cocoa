@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (level == nil) {
         level = @"info";
     }
-    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:level
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:[self.class sentrySeverityFromLevel:level]
                                                              category:jsonBreadcrumb[@"category"]];
     breadcrumb.message = jsonBreadcrumb[@"message"];
     breadcrumb.timestamp = [NSDate dateWithTimeIntervalSince1970:[jsonBreadcrumb[@"timestamp"] integerValue]];
@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
     event.logger = jsonEvent[@"logger"];
     event.tags = [self.class sanitizeDictionary:jsonEvent[@"tags"]];
     event.extra = jsonEvent[@"extra"];
-    event.user = [self.class createUser:jsonEvent[@"user"]];
+    event.user = [self.class createSentryUserFromJavaScriptUser:jsonEvent[@"user"]];
     if (jsonEvent[@"exception"] || (jsonEvent[@"stacktrace"] && jsonEvent[@"stacktrace"][@"frames"])) {
         NSArray *jsStacktrace = nil;
         NSString *exceptionType = @"";
@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
     event.exceptions = @[sentryException];
 }
 
-+ (SentryUser *_Nullable)createUser:(NSDictionary *_Nonnull)user {
++ (SentryUser *_Nullable)createSentryUserFromJavaScriptUser:(NSDictionary *)user {
     NSString *userId = nil;
     if (nil != user[@"userID"]) {
         userId = [NSString stringWithFormat:@"%@", user[@"userID"]];
@@ -215,6 +215,19 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentrySeverityError;
     }
     return kSentrySeverityError;
+}
+
++ (SentryLogLevel)sentryLogLevelFromJavaScriptLevel:(int)level {
+    switch (level) {
+        case 1:
+            return kSentryLogLevelError;
+        case 2:
+            return kSentryLogLevelDebug;
+        case 3:
+            return kSentryLogLevelVerbose;
+        default:
+            return kSentryLogLevelNone;
+    }
 }
 
 + (NSDictionary *)sanitizeDictionary:(NSDictionary *)dictionary {
