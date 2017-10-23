@@ -112,12 +112,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
-    NSArray < NSString * > *storedEvents = [fileManager contentsOfDirectoryAtPath:path error:&error];
+    NSArray <NSString *> *storedFiles = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (nil != error) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't load files in folder %@: %@", path, error] andLevel:kSentryLogLevelError];
         return [NSArray new];
     }
-    return storedEvents;
+    return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
 - (BOOL)removeFileAtPath:(NSString *)path {
