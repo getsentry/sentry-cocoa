@@ -95,6 +95,38 @@
     XCTAssertEqualObjects([client.breadcrumbs serialize], serialized);
 }
 
+- (void)testSerializeSorted {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:10];
+    crumb.timestamp = date;
+    [client.breadcrumbs addBreadcrumb:crumb];
+    
+    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    NSDate *date2 = [NSDate dateWithTimeIntervalSince1970:899990];
+    crumb2.timestamp = date2;
+    [client.breadcrumbs addBreadcrumb:crumb2];
+    
+    SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    NSDate *date3 = [NSDate dateWithTimeIntervalSince1970:5];
+    crumb3.timestamp = date3;
+    [client.breadcrumbs addBreadcrumb:crumb3];
+    
+    SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    NSDate *date4 = [NSDate dateWithTimeIntervalSince1970:11];
+    crumb4.timestamp = date4;
+    [client.breadcrumbs addBreadcrumb:crumb4];
+    
+    NSDictionary *serialized = [client.breadcrumbs serialize];
+    NSArray *dates = [serialized valueForKeyPath:@"breadcrumbs.timestamp"];
+    XCTAssertTrue([[dates objectAtIndex:0] isEqualToString:[date sentry_toIso8601String]]);
+    XCTAssertTrue([[dates objectAtIndex:1] isEqualToString:[date2 sentry_toIso8601String]]);
+    XCTAssertTrue([[dates objectAtIndex:2] isEqualToString:[date3 sentry_toIso8601String]]);
+    XCTAssertTrue([[dates objectAtIndex:3] isEqualToString:[date4 sentry_toIso8601String]]);
+}
+
 - (SentryBreadcrumb *)getBreadcrumb {
     return [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
 }
