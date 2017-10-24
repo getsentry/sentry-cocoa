@@ -92,7 +92,6 @@ NS_ASSUME_NONNULL_BEGIN
             [frames addObject:frame];
         }
     }
-    NSLog(@"%lu", (unsigned long)frames.count);
     return frames;
 }
 

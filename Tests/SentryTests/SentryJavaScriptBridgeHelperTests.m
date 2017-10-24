@@ -26,24 +26,12 @@
 
 @implementation SentryJavaScriptBridgeHelperTests
 
-//+ (SentryEvent *)createSentryEventFromJavaScriptEvent:(NSDictionary *)jsonEvent;
-//
-//+ (SentryBreadcrumb *)createSentryBreadcrumbFromJavaScriptBreadcrumb:(NSDictionary *)jsonBreadcrumb;
-//
-//+ (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
-//
-//+ (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
-//
-//+ (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
-//
-//+ (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
-
-
 - (void)testSentrySeverityFromLevel {
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:nil], kSentrySeverityError);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"log"], kSentrySeverityInfo);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"info"], kSentrySeverityInfo);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"bla"], kSentrySeverityError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"error"], kSentrySeverityError);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"fatal"], kSentrySeverityFatal);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"debug"], kSentrySeverityDebug);
     XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"warning"], kSentrySeverityWarning);
@@ -197,6 +185,34 @@
     XCTAssertNil([frames objectAtIndex:7][@"lineNumber"]);
     
     XCTAssertEqual(frames.count, (NSUInteger)32);
+}
+
+- (void)testConvertReactNativeStacktrace {
+    NSArray *frames1 = [SentryJavaScriptBridgeHelper convertReactNativeStacktrace:@[@{
+                                                                                       @"file": @"file:///index.js",
+                                                                                       @"lineNumber": @"11",
+                                                                                       @"column": @"1"
+                                                                                       }]];
+    
+    XCTAssertEqual(frames1.count, (NSUInteger)0);
+    
+    NSArray *frames2 = [SentryJavaScriptBridgeHelper convertReactNativeStacktrace:@[@{
+                                                                                        @"methodName": @"1",
+                                                                                        @"file": @"file:///index.js",
+                                                                                        @"lineNumber": @"1",
+                                                                                        @"column": @"1"
+                                                                                        }, @{
+                                                                                        @"methodName": @"2",
+                                                                                        @"file": @"file:///index.js",
+                                                                                        @"lineNumber": @"2",
+                                                                                        @"column": @"2"
+                                                                                        }]];
+    
+    XCTAssertEqual(frames2.count, (NSUInteger)2);
+    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).function, @"2");
+    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).fileName, @"app:///index.js");
+    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).lineNumber, @"2");
+    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).columnNumber, @"2");
 }
 
 @end
