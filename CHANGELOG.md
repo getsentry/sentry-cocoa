@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.0
+
+- Added JavaScriptBridgeHelper for react-native, cordova SDK
+
 ## 3.8.5
 
 - Send breadcrumbs in the order in which they got created
