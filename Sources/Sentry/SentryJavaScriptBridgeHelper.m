@@ -51,7 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
     static NSRegularExpression *regex = nil;
     dispatch_once(&onceTokenRegex, ^{
         //        NSString *pattern = @"at (.+?) \\((?:(.+?):([0-9]+?):([0-9]+?))\\)"; // Regex with debugger
-        NSString *pattern = @"(?:([^@]+)@(.+?):([0-9]+?):([0-9]+))"; // Regex without debugger
+        // Regex taken from
+        // https://github.com/getsentry/raven-js/blob/66a5db5333c22f36819c95844a1583489c1d2661/vendor/TraceKit/tracekit.js#L372
+        NSString *pattern = @"^\\s*(.*?)(?:\\((.*?)\\))?(?:^|@)((?:app|file|https?|blob|chrome|webpack|resource|\\[native).*?|[^@]*bundle)(?::(\\d+))?(?::(\\d+))?\\s*$"; // Regex without debugger
         regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
     });
     return regex;
@@ -61,14 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
     NSNumberFormatter *formatter = [self.class numberFormatter];
     NSMutableArray *frames = [NSMutableArray array];
     for (NSDictionary *ravenFrame in ravenFrames) {
+        NSMutableDictionary *frame = [[NSMutableDictionary alloc] initWithDictionary:@{@"methodName": ravenFrame[@"function"],
+                                                                                       @"file": ravenFrame[@"filename"]}];
         if (ravenFrame[@"lineno"] != NSNull.null) {
-            [frames addObject:@{
-                                @"methodName": ravenFrame[@"function"],
-                                @"column": [formatter numberFromString:[NSString stringWithFormat:@"%@", ravenFrame[@"colno"]]],
-                                @"lineNumber": [formatter numberFromString:[NSString stringWithFormat:@"%@", ravenFrame[@"lineno"]]],
-                                @"file": ravenFrame[@"filename"]
-                                }];
+            [frame addEntriesFromDictionary:@{@"column": [formatter numberFromString:[NSString stringWithFormat:@"%@", ravenFrame[@"colno"]]],
+                                              @"lineNumber": [formatter numberFromString:[NSString stringWithFormat:@"%@", ravenFrame[@"lineno"]]]}];
+            
         }
+        [frames addObject:frame];
     }
     return frames;
 }
@@ -81,14 +83,16 @@ NS_ASSUME_NONNULL_BEGIN
         NSRange searchedRange = NSMakeRange(0, [line length]);
         NSArray *matches = [[self.class frameRegex] matchesInString:line options:0 range:searchedRange];
         for (NSTextCheckingResult *match in matches) {
-            [frames addObject:@{
-                                @"methodName": [line substringWithRange:[match rangeAtIndex:1]],
-                                @"column": [formatter numberFromString:[line substringWithRange:[match rangeAtIndex:4]]],
-                                @"lineNumber": [formatter numberFromString:[line substringWithRange:[match rangeAtIndex:3]]],
-                                @"file": [line substringWithRange:[match rangeAtIndex:2]]
-                                }];
+            NSMutableDictionary *frame = [[NSMutableDictionary alloc] initWithDictionary:@{@"methodName": [line substringWithRange:[match rangeAtIndex:1]],
+                                                                                           @"file": [line substringWithRange:[match rangeAtIndex:3]]}];
+            if ([match rangeAtIndex:5].location != NSNotFound) {
+                [frame addEntriesFromDictionary:@{@"column": [formatter numberFromString:[line substringWithRange:[match rangeAtIndex:5]]],
+                                                  @"lineNumber": [formatter numberFromString:[line substringWithRange:[match rangeAtIndex:4]]]}];
+            }
+            [frames addObject:frame];
         }
     }
+    NSLog(@"%lu", (unsigned long)frames.count);
     return frames;
 }
 
@@ -128,9 +132,9 @@ NS_ASSUME_NONNULL_BEGIN
             exceptionValue = exception[@"value"];
         } else if (jsonEvent[@"stacktrace"] && jsonEvent[@"stacktrace"][@"frames"]) {
             jsStacktrace = jsonEvent[@"stacktrace"][@"frames"];
-            exceptionType = jsonEvent[@"message"];
+            exceptionValue = jsonEvent[@"message"];
             if (jsonEvent[@"type"]) {
-                exceptionValue = jsonEvent[@"type"];
+                exceptionType = jsonEvent[@"type"];
             }
         }
         NSMutableArray *frames = [NSMutableArray array];
