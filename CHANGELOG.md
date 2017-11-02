@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.1
+
+- Fixed #213
+
 ## 3.9.0
 
 - Added JavaScriptBridgeHelper for react-native, cordova SDK
