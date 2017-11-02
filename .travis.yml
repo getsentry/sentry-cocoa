@@ -22,8 +22,7 @@ notifications:
 
 jobs:
   include:
-    - stage: deploy
-      if: tag IS present
+    - if: tag IS present
       script: .travis/stage-carthage.sh
       deploy:
         provider: s3
