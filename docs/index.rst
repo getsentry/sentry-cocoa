@@ -49,7 +49,7 @@ it in your `Cartfile`:
 Run ``carthage update`` to download the framework and drag the built
 `Sentry.framework` into your Xcode project.
 
-*Please note that for Carthage we had to bundle KSCrash into the ``Sentry.framework`` to make everything work.  So you will always get KSCrash with Sentry when using Carthage.*
+Note that for Carthage we had to bundle KSCrash into the ``Sentry.framework`` to make everything work.  So you will always get KSCrash with Sentry when using Carthage.
 
 We also provide a prebuilt version for every release which can be downloaded at `releases on github
 <https://github.com/getsentry/sentry-cocoa/releases>`__.
@@ -83,7 +83,7 @@ If you prefer to use Objective-C you can do so like this:
 
 .. sourcecode:: objc
 
-    #import <Sentry/Sentry.h>
+    @import Sentry;
 
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"___DSN___" didFailWithError:&error];
@@ -93,7 +93,7 @@ If you prefer to use Objective-C you can do so like this:
         NSLog(@"%@", error);
     }
 
-*Note that if you call ``startCrashHandler`` will only catch errors if KSCrash is present.*
+Note that if you call ``startCrashHandler`` will only catch errors if KSCrash is present.
 
 .. _sentry-cocoa-debug-symbols:
 
