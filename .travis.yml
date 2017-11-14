@@ -22,8 +22,8 @@ jobs:
     - if: tag IS present
       script: .travis/stage-carthage.sh
       after_success:
-        - npm install -g zeus-ci
-        - zeus-ci upload -t "application/zip+carthage" Sentry.framework.zip
+        - npm install -g @zeus-ci/cli
+        - zeus upload -t "application/zip+carthage" Sentry.framework.zip
 
 notifications:
   webhooks:
