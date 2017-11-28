@@ -14,9 +14,7 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![codecov](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)
 
-Offical client for [Sentry](https://www.sentry.io/).
-
-This client is written in Objective-C but also works for Swift projects.
+This SDK is written in Objective-C but also works for Swift projects.
 
 ```swift
 import Sentry
