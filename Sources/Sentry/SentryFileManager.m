@@ -65,10 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)checkForSandbox {
-    
-}
-
 - (void)deleteAllFolders {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     [fileManager removeItemAtPath:self.breadcrumbsPath error:nil];
