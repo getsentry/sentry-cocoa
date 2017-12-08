@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.10.0
+
+- This update will create a subfolder for each instance of SentryClient depending on the DSN.
+This also fixes a bug where under rare circumstances on MacOS for not sandboxed apps got sent with the wrong SentryClient.
+**We recommend updating to this version if you are running a un-sandboxed macOS app**
+- Fixes #216
+
 ## 3.9.1
 
 - Fixed #213
