@@ -156,7 +156,7 @@ NSInteger requestsWithErrors = 0;
 
 - (void)clearAllFiles {
     NSError *error = nil;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithError:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:&error];
     [fileManager deleteAllStoredEvents];
     [fileManager deleteAllStoredBreadcrumbs];
     [fileManager deleteAllFolders];

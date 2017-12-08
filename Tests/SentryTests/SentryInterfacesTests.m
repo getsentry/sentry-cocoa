@@ -274,7 +274,7 @@
 }
 
 - (void)testBreadcrumbStore {
-    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithError:nil]];
+    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:nil]];
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
     [store addBreadcrumb:crumb];
     NSDate *date = [NSDate date];

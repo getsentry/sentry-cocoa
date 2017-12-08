@@ -11,6 +11,7 @@
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
 #import "NSDate+Extras.h"
+#import "SentryDsn.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
 
@@ -23,7 +24,7 @@
 - (void)setUp {
     [super setUp];
     NSError *error = nil;
-    self.fileManager = [[SentryFileManager alloc] initWithError:&error];
+    self.fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:&error];
     XCTAssertNil(error);
 }
 

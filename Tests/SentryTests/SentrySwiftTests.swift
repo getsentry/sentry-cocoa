@@ -13,7 +13,7 @@ class SentrySwiftTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let fileManager = try! SentryFileManager(error: ())
+        let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"))
         fileManager.deleteAllStoredEvents()
         fileManager.deleteAllStoredBreadcrumbs()
         fileManager.deleteAllFolders()

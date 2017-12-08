@@ -92,7 +92,7 @@ static SentryKSCrashInstallation *installation = nil;
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
         NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
-        self.fileManager = [[SentryFileManager alloc] initWithError:error];
+        self.fileManager = [[SentryFileManager alloc] initWithDsn:self.dsn didFailWithError:error];
         self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
         if (nil != error && nil != *error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
