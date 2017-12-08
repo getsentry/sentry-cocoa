@@ -13,6 +13,7 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryBreadcrumb.h>
+#import <Sentry/SentryDsn.h>
 
 #else
 #import "SentryFileManager.h"
@@ -20,6 +21,7 @@
 #import "SentryLog.h"
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
+#import "SentryDsn.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,12 +37,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryFileManager
 
-- (_Nullable instancetype)initWithError:(NSError **)error {
+- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error {
     self = [super init];
     if (self) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+        
         self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
+        self.sentryPath = [self.sentryPath stringByAppendingPathComponent:[dsn getHash]];
+        
         if (![fileManager fileExistsAtPath:self.sentryPath]) {
             [self.class createDirectoryAtPath:self.sentryPath withError:error];
         }

@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryFileManager.h"
+#import "SentryDsn.h"
 
 @interface SentryFileManagerTests : XCTestCase
 
@@ -22,7 +23,7 @@
     [super setUp];
     SentryClient.logLevel = kSentryLogLevelDebug;
     NSError *error = nil;
-    self.fileManager = [[SentryFileManager alloc] initWithError:&error];
+    self.fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:&error];
     XCTAssertNil(error);
 }
 

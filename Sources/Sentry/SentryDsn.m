@@ -6,6 +6,8 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
+#import <CommonCrypto/CommonDigest.h>
+
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDsn.h>
@@ -35,6 +37,17 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     return self;
+}
+
+- (NSString *)getHash {
+    NSData *data = [[self.url absoluteString] dataUsingEncoding:NSUTF8StringEncoding];
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+        [output appendFormat:@"%02x", digest[i]];
+    }
+    return output;
 }
 
 - (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {

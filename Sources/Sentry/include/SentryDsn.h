@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+- (NSString *)getHash;
+
 @end
 
 NS_ASSUME_NONNULL_END

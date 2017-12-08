@@ -10,6 +10,8 @@
 #import "SentryJavaScriptBridgeHelper.h"
 #import <Sentry/Sentry.h>
 
+NSString *rnReportPath = @"";
+
 @interface SentryJavaScriptBridgeHelper()
 
 + (NSArray *)parseJavaScriptStacktrace:(NSString *)stacktrace;
@@ -109,14 +111,22 @@
     XCTAssertTrue([crumb2.timestamp compare:date]);
 }
 
+- (NSDictionary *)getCrashReport {
+    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:rnReportPath ofType:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
+    return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+}
+
 - (void)testCreateEvent {
-    SentryEvent *sentryEvent1 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"raven-sendMessage" ofType:@"json"]]] options:0 error:nil]];
+    rnReportPath = @"Resources/raven-sendMessage";
+    SentryEvent *sentryEvent1 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[self getCrashReport]];
     XCTAssertEqualObjects(sentryEvent1.message, @"TEST message");
     XCTAssertNotNil(sentryEvent1.extra);
     XCTAssertNotNil(sentryEvent1.tags);
     XCTAssertNotNil(sentryEvent1.user);
  
-    SentryEvent *sentryEvent2 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"raven-rejectedpromise" ofType:@"json"]]] options:0 error:nil]];
+    rnReportPath = @"Resources/raven-rejectedpromise";
+    SentryEvent *sentryEvent2 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[self getCrashReport]];
     XCTAssertEqualObjects(sentryEvent2.message, @"Boom promise");
     XCTAssertEqualObjects(sentryEvent2.platform, @"cocoa");
     XCTAssertEqualObjects(sentryEvent2.exceptions.firstObject.type, @"Unhandled Promise Rejection");
@@ -127,7 +137,8 @@
     XCTAssertNotNil(sentryEvent2.tags);
     XCTAssertNotNil(sentryEvent2.user);
    
-    SentryEvent *sentryEvent3 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"raven-throwerror" ofType:@"json"]]] options:0 error:nil]];
+    rnReportPath = @"Resources/raven-throwerror";
+    SentryEvent *sentryEvent3 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[self getCrashReport]];
     XCTAssertEqualObjects(sentryEvent3.exceptions.firstObject.value, @"Sentry: Test throw error");
     XCTAssertEqualObjects(sentryEvent3.exceptions.firstObject.type, @"Error");
     XCTAssertEqual(sentryEvent3.exceptions.firstObject.thread.stacktrace.frames.count, (NSUInteger)30);
