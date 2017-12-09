@@ -27,7 +27,7 @@ clean-version-bump:
 
 git-commit-add:
 	@echo "\n\n\n--> Commting git ${TO}"
-	git commit -am "Bump version to ${TO}"
+	git commit -am "release: ${TO}"
 	git tag ${TO}
 	git push
 	git push --tags

@@ -24,7 +24,7 @@ jobs:
       script: .travis/stage-carthage.sh
       after_success:
         - npm install -g @zeus-ci/cli
-        - zeus upload -t "application/zip+carthage" build/Sentry.framework.zip
+        - zeus upload -t "application/zip+carthage" KSCrash/Sentry.framework.zip
 
 notifications:
   webhooks:
