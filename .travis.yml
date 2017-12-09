@@ -19,8 +19,9 @@ env:
 
 jobs:
   include:
-    - stage: deploy
       if: tag IS present
+      env:
+        - LANE=deploy
       script: .travis/stage-carthage.sh
       after_success:
         - npm install -g @zeus-ci/cli
