@@ -108,12 +108,19 @@ requestManager:(id <SentryRequestManager>)requestManager
 }
 
 - (void)setupQueueing {
-    self.shouldQueueEvent = ^BOOL(NSDictionary<NSString *, id> *_Nonnull serializedEvent, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        // In case response is nil, we want to queue the event locally since this
-        // indicated no internet connection.
+    self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        // Take from Apple Docs
+        // If a response from the server is received, regardless of whether the request completes successfully or fails,
+        // the response parameter contains that information.
         if (response == nil) {
+            // In case response is nil, we want to queue the event locally since this
+            // indicates no internet connection
+            return YES;
+        } else if ([response statusCode] == 429) {
+            [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
             return YES;
         }
+        // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
 }
@@ -202,6 +209,10 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        // We check if we should leave the event locally stored and try to send it again later
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
+            [_self.fileManager removeFileAtPath:storedEventPath];
+        }
         if (nil == error) {
             _self.lastEvent = event;
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
@@ -211,9 +222,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             if ([_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
-        }
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent([event serialize], response, error) == NO) {
-            [_self.fileManager removeFileAtPath:storedEventPath];
         }
         if (completionHandler) {
             completionHandler(error);
@@ -235,20 +243,19 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            NSDictionary *serializedEvent = [NSJSONSerialization JSONObjectWithData:fileDictionary[@"data"]
-                                                                            options:0
-                                                                              error:nil];
-            if (nil == serializedEvent) {
-                [SentryLog logWithMessage:@"Failed to read stored event, discarding it" andLevel:kSentryLogLevelError];
-                [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
-                return;
-            }
             if (nil == error) {
-                [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
-                                                                  object:nil
-                                                                userInfo:serializedEvent];
+                NSDictionary *serializedEvent = [NSJSONSerialization JSONObjectWithData:fileDictionary[@"data"]
+                                                                                options:0
+                                                                                  error:nil];
+                if (nil != serializedEvent) {
+                    [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
+                                                                      object:nil
+                                                                    userInfo:serializedEvent];
+                }
             }
-            if (self.shouldQueueEvent == nil || self.shouldQueueEvent(serializedEvent, response, error) == NO) {
+            // We want to delete the event here no matter what (if we had an internet connection)
+            // since it has been tried already
+            if (response != nil) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
         }];

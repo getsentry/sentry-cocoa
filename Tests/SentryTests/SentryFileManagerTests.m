@@ -90,4 +90,22 @@
     XCTAssertNil([self.fileManager storeDictionary:@{@"date": [NSDate date]} toPath:@""]);
 }
 
+- (void)testEventStoringHardLimit {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    for (NSInteger i = 0; i <= 20; i++) {
+        [self.fileManager storeEvent:event];
+    }
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
+    XCTAssertEqual(events.count, (unsigned long)10);
+}
+
+- (void)testBreadcrumbStoringHardLimit {
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
+    for (NSInteger i = 0; i <= 210; i++) {
+        [self.fileManager storeBreadcrumb:crumb];
+    }
+    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
+    XCTAssertEqual(crumbs.count, (unsigned long)200);
+}
+
 @end

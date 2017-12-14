@@ -59,8 +59,6 @@
     for (NSInteger i = 0; i <= 100; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
-    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)101);
-    [client.breadcrumbs serialize];
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
     
     [client.breadcrumbs clear];
@@ -75,8 +73,6 @@
     for (NSInteger i = 0; i < 51; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
-    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)51);
-    [client.breadcrumbs serialize];
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
 }
 

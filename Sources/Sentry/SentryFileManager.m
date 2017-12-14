@@ -26,6 +26,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSInteger const maxEvents = 10;
+NSInteger const maxBreadcrumbs = 200;
+
 @interface SentryFileManager ()
 
 @property(nonatomic, copy) NSString *sentryPath;
@@ -139,11 +142,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)storeEvent:(SentryEvent *)event {
-    return [self storeDictionary:[event serialize] toPath:self.eventsPath];
+    return [self storeEvent:event maxCount:maxEvents];
+}
+
+- (NSString *)storeEvent:(SentryEvent *)event maxCount:(NSUInteger)maxCount {
+    NSString *result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
+    [self hardLimitFileStore:self.eventsPath maxCount:MIN(maxCount, maxEvents)];
+    return result;
 }
 
 - (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb {
-    return [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
+    return [self storeBreadcrumb:crumb maxCount:maxBreadcrumbs];
+}
+
+- (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb maxCount:(NSUInteger)maxCount {
+    NSString *result = [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
+    [self hardLimitFileStore:self.breadcrumbsPath maxCount:MIN(maxCount, maxBreadcrumbs)];
+    return result;
 }
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
@@ -156,6 +171,18 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
         [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
         return finalPath;
+    }
+}
+
+- (void)hardLimitFileStore:(NSString *)path maxCount:(NSUInteger)maxCount {
+    NSArray<NSString *> *files = [self allFilesInFolder:path];
+    NSInteger numbersOfFilesToRemove = ((NSInteger)files.count) - maxCount;
+    if (numbersOfFilesToRemove > 0) {
+        for (NSUInteger i = 0; i < numbersOfFilesToRemove; i++) {
+            [self removeFileAtPath:[path stringByAppendingPathComponent:[files objectAtIndex:i]]];
+        }
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from local cache due hard limit", (long)numbersOfFilesToRemove]
+                         andLevel:kSentryLogLevelDebug];
     }
 }
 

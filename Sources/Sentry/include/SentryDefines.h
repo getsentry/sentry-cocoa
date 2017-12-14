@@ -64,7 +64,7 @@ typedef BOOL (^SentryShouldSendEvent)(SentryEvent *_Nonnull event);
  * Note that this will only be called once the event is created and send manully.
  * Once it has been queued once it will be discarded if it fails again.
  */
-typedef BOOL (^SentryShouldQueueEvent)(NSDictionary<NSString *, id> *_Nonnull serializedEvent, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+typedef BOOL (^SentryShouldQueueEvent)(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Loglevel
  */

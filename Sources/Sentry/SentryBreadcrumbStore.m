@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    [self.fileManager storeBreadcrumb:crumb];
+    [self.fileManager storeBreadcrumb:crumb maxCount:self.maxBreadcrumbs];
 }
 
 - (NSUInteger)count {
@@ -52,22 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self.fileManager deleteAllStoredBreadcrumbs];
 }
 
-- (void)removeOverflowBreadcrumbs:(NSArray<NSDictionary<NSString *, id> *>*)breadCrumbs {
-    NSInteger numberOfBreadcrumbsToRemove = ((NSInteger)breadCrumbs.count) - ((NSInteger)self.maxBreadcrumbs);
-    if (numberOfBreadcrumbsToRemove > 0) {
-        for (NSUInteger i = 0; i < numberOfBreadcrumbsToRemove; i++) {
-            [self.fileManager removeFileAtPath:[breadCrumbs objectAtIndex:i][@"path"]];
-        }
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Dropped %ld breadcrumb(s) due limit", (long)numberOfBreadcrumbsToRemove]
-                         andLevel:kSentryLogLevelDebug];
-    }
-}
-
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     
     NSArray<NSDictionary<NSString *, id> *> *breadCrumbs = [self.fileManager getAllStoredBreadcrumbs];
-    [self removeOverflowBreadcrumbs:breadCrumbs];
     
     NSMutableArray *crumbs = [NSMutableArray new];
     for (NSDictionary<NSString *, id> *crumb in breadCrumbs) {
