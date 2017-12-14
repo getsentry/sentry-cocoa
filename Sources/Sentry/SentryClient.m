@@ -109,7 +109,7 @@ requestManager:(id <SentryRequestManager>)requestManager
 
 - (void)setupQueueing {
     self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        // Take from Apple Docs
+        // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the request completes successfully or fails,
         // the response parameter contains that information.
         if (response == nil) {
