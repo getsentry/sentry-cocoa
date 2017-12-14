@@ -111,21 +111,21 @@ NSInteger requestsWithErrors = 0;
     return self.queue.operationCount <= 1;
 }
 
-- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
+- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
 
     if (request.allHTTPHeaderFields[@"X-TEST"]) {
         if (completionHandler) {
-            completionHandler([NSError errorWithDomain:@"" code:9898 userInfo:nil]);
+            completionHandler([NSError errorWithDomain:@"" code:9898 userInfo:nil], YES);
             return;
         }
     }
 
     self.lastOperation = [[SentryRequestOperation alloc] initWithSession:self.session
                                                                                 request:request
-                                                                      completionHandler:^(NSError * _Nullable error) {
+                                                                      completionHandler:^(NSError * _Nullable error, BOOL shouldDiscardEvent) {
                                                                           [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %lu", (unsigned long)(self.queue.operationCount - 1)] andLevel:kSentryLogLevelDebug];
                                                                           if (completionHandler) {
-                                                                              completionHandler(error);
+                                                                              completionHandler(error, shouldDiscardEvent);
                                                                           }
                                                                       }];
     [self.queue addOperation:self.lastOperation];

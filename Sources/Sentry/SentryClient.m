@@ -189,14 +189,16 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
     __block SentryClient *_self = self;
-    [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
+    [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error, BOOL shouldDiscardEvent) {
         if (nil == error) {
             _self.lastEvent = event;
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
                                                             userInfo:[event serialize]];
+        }
+        if (shouldDiscardEvent) {
             [_self.fileManager removeFileAtPath:storedEventPath];
-
+            
             // Send all stored events in background if the queue is ready
             if ([_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
@@ -209,7 +211,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)  sendRequest:(SentryNSURLRequest *)request
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
     if (nil != self.beforeSendRequest) {
         self.beforeSendRequest(request);
     }
@@ -221,7 +223,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
-        [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error) {
+        [self sendRequest:request withCompletionHandler:^(NSError *_Nullable error, BOOL shouldDiscardEvent) {
             if (nil == error) {
                 NSDictionary *serializedEvent = [NSJSONSerialization JSONObjectWithData:fileDictionary[@"data"]
                                                                                  options:0
@@ -231,6 +233,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                                       object:nil
                                                                     userInfo:serializedEvent];
                 }
+            }
+            if (shouldDiscardEvent) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
         }];

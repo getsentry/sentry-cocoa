@@ -45,13 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self.queue.operationCount <= 1;
 }
 
-- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestFinished)completionHandler {
+- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
     SentryRequestOperation *operation = [[SentryRequestOperation alloc] initWithSession:self.session
                                                                                 request:request
-                                                                      completionHandler:^(NSError *_Nullable error) {
+                                                                      completionHandler:^(NSError *_Nullable error, BOOL shouldDiscardEvent) {
                                                                           [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %@", @(self.queue.operationCount - 1)] andLevel:kSentryLogLevelDebug];
                                                                           if (completionHandler) {
-                                                                              completionHandler(error);
+                                                                              completionHandler(error, shouldDiscardEvent);
                                                                           }
                                                                       }];
     [self.queue addOperation:operation];
