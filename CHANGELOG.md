@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.11.0
+
+- Greatly improved handling for rate limiting see: #230
+- Added `shouldQueueEvent`
+- There is a hardlimit for offline stored events of 10 and 200 for breadcrumbs
+
 ## 3.10.0
 
 - This update will create a subfolder for each instance of SentryClient depending on the DSN.
