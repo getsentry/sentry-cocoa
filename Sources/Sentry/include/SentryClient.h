@@ -102,6 +102,14 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic) float sampleRate;
 
 /**
+ * This block can be used to prevent the event from being stored after a failed send attempt.
+ * Default is it will not be stored, except there was no internet connection.
+ * Also note that if an event fails to be sent again after it was queued, it will be discarded regardless.
+ * @return BOOL
+ */
+@property(nonatomic, copy) SentryShouldQueueEvent _Nullable shouldQueueEvent;
+
+/**
  * Initializes a SentryClient. Pass your private DSN string.
  *
  * @param dsn DSN string of sentry
