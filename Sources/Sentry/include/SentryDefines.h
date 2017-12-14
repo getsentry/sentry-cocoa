@@ -39,6 +39,13 @@
  * Block used for returning after a request finished
  */
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
+
+/**
+ * Block used for request operation finished, shouldDiscardEvent is YES if event should be deleted
+ * regardless if an error occured or not
+ */
+typedef void (^SentryRequestOperationFinished)(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+
 /**
  * Block can be used to mutate event before its send
  */
@@ -48,9 +55,16 @@ typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
  */
 typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
 /**
- * Block can to prevent the event from being sent
+ * Block can be used to prevent the event from being sent
  */
 typedef BOOL (^SentryShouldSendEvent)(SentryEvent *_Nonnull event);
+/**
+ * Block can be used to determine if an event should be queued and stored locally.
+ * It will be tried to send again after next successful send.
+ * Note that this will only be called once the event is created and send manully.
+ * Once it has been queued once it will be discarded if it fails again.
+ */
+typedef BOOL (^SentryShouldQueueEvent)(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Loglevel
  */
