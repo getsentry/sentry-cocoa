@@ -147,7 +147,7 @@ NSInteger const maxBreadcrumbs = 200;
 
 - (NSString *)storeEvent:(SentryEvent *)event maxCount:(NSUInteger)maxCount {
     NSString *result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
-    [self hardLimitFileStore:self.eventsPath maxCount:MIN(maxCount, maxEvents)];
+    [self handleFileManagerLimit:self.eventsPath maxCount:MIN(maxCount, maxEvents)];
     return result;
 }
 
@@ -157,7 +157,7 @@ NSInteger const maxBreadcrumbs = 200;
 
 - (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb maxCount:(NSUInteger)maxCount {
     NSString *result = [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
-    [self hardLimitFileStore:self.breadcrumbsPath maxCount:MIN(maxCount, maxBreadcrumbs)];
+    [self handleFileManagerLimit:self.breadcrumbsPath maxCount:MIN(maxCount, maxBreadcrumbs)];
     return result;
 }
 
@@ -174,14 +174,14 @@ NSInteger const maxBreadcrumbs = 200;
     }
 }
 
-- (void)hardLimitFileStore:(NSString *)path maxCount:(NSUInteger)maxCount {
+- (void)handleFileManagerLimit:(NSString *)path maxCount:(NSUInteger)maxCount {
     NSArray<NSString *> *files = [self allFilesInFolder:path];
     NSInteger numbersOfFilesToRemove = ((NSInteger)files.count) - maxCount;
     if (numbersOfFilesToRemove > 0) {
         for (NSUInteger i = 0; i < numbersOfFilesToRemove; i++) {
             [self removeFileAtPath:[path stringByAppendingPathComponent:[files objectAtIndex:i]]];
         }
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from local cache due hard limit", (long)numbersOfFilesToRemove]
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from <%@>", (long)numbersOfFilesToRemove, [path lastPathComponent]]
                          andLevel:kSentryLogLevelDebug];
     }
 }
