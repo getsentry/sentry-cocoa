@@ -1,3 +1,7 @@
+branches:
+  only:
+    - master
+
 language: objective-c
 osx_image: xcode9.2
 
