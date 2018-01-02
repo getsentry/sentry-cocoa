@@ -329,6 +329,10 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception {
+    // Gatekeeper fixes https://github.com/getsentry/sentry-cocoa/issues/231
+    if ([self.threads count] == 0) {
+        return;
+    }
     NSDictionary *crashedThread = [self.threads objectAtIndex:self.crashedThreadIndex];
     NSDictionary *notableAddresses = [crashedThread objectForKey:@"notable_addresses"];
     NSMutableOrderedSet *reasons = [[NSMutableOrderedSet alloc] init];
