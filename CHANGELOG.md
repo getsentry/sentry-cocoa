@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.11.1
+
+- Fixed #231
+
 ## 3.11.0
 
 - Greatly improved handling for rate limiting see: #230
