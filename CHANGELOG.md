@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.12.0
+
+- Fixed #235
+- Fixed #236
+
 ## 3.11.1
 
 - Fixed #231
