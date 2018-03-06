@@ -11,9 +11,17 @@
 #import "SentryError.h"
 #import "SentryDsn.h"
 
+@interface SentryNSURLRequest (Private)
+
++ (NSURL *)getStoreUrlFromDsn:(SentryDsn *)dsn;
+
+@end
+
 @interface SentryDsnTests : XCTestCase
 
 @end
+
+//+ (NSURL *)getStoreUrlFromDsn:(SentryDsn *)dsn
 
 @implementation SentryDsnTests
 
@@ -71,6 +79,19 @@
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"ftp://sentry.io/1" didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(client);
+}
+    
+- (void)testDsnUrl {
+    NSError *error = nil;
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@getsentry.net/1" didFailWithError:&error];
+    
+    XCTAssertEqualObjects([[SentryNSURLRequest getStoreUrlFromDsn:dsn] absoluteString], @"https://getsentry.net/api/1/store/");
+    XCTAssertNil(error);
+    
+    SentryDsn *dsn2 = [[SentryDsn alloc] initWithString:@"https://username:password@sentry.io/foo/bar/baz/1" didFailWithError:&error];
+    
+    XCTAssertEqualObjects([[SentryNSURLRequest getStoreUrlFromDsn:dsn2] absoluteString], @"https://sentry.io/foo/bar/baz/api/1/store/");
+    XCTAssertNil(error);
 }
 
 @end
