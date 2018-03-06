@@ -87,7 +87,9 @@
 }
 
 - (void)testFailingStoreDictionary {
-    XCTAssertNil([self.fileManager storeDictionary:@{@"date": [NSDate date]} toPath:@""]);
+    [self.fileManager storeDictionary:@{@"date": [NSDate date]} toPath:@""];
+    NSArray<NSString *> *files = [self.fileManager allFilesInFolder:@"x"];
+    XCTAssertTrue(files.count == 0);
 }
 
 - (void)testEventStoringHardLimit {
