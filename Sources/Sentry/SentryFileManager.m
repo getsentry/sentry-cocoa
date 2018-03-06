@@ -162,14 +162,16 @@ NSInteger const maxBreadcrumbs = 200;
 }
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
-    if (![NSJSONSerialization isValidJSONObject:dictionary]) {
-        return nil;
-    }
-    NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
     @synchronized (self) {
         NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
-        [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
+        if ([NSJSONSerialization isValidJSONObject:dictionary]) {
+            NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
+            [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
+        } else {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON, failed to write file %@", finalPath]
+                             andLevel:kSentryLogLevelError];
+        }
         return finalPath;
     }
 }
