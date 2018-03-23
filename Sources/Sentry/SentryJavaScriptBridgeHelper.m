@@ -132,10 +132,10 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *exceptionValue = @"";
         if (jsonEvent[@"exception"]) {
             NSDictionary *exception;
-            if ([jsonEvent[@"exception"] count] > 0) {
-                exception = jsonEvent[@"exception"][0];
-            } else {
+            if ([jsonEvent valueForKeyPath:@"exception.values"] && [jsonEvent valueForKeyPath:@"exception.values"][0] != NSNull.null) {
                 exception = jsonEvent[@"exception"][@"values"][0];
+            } else {
+                exception = jsonEvent[@"exception"][0];
             }
             jsStacktrace = exception[@"stacktrace"][@"frames"];
             exceptionType = exception[@"type"];
