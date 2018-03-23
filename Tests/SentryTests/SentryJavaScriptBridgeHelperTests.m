@@ -226,4 +226,10 @@ NSString *rnReportPath = @"";
     XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).columnNumber, @"2");
 }
 
+- (void)testCordovaEvent {
+    rnReportPath = @"Resources/cordova-exception";
+    SentryEvent *sentryEvent1 = [SentryJavaScriptBridgeHelper createSentryEventFromJavaScriptEvent:[self getCrashReport]];
+    XCTAssertNotNil(sentryEvent1.exceptions);
+}
+
 @end

@@ -115,17 +115,28 @@ NS_ASSUME_NONNULL_BEGIN
     if (jsonEvent[@"event_id"]) {
         event.eventId = jsonEvent[@"event_id"];
     }
-    event.message = jsonEvent[@"message"];
-    event.logger = jsonEvent[@"logger"];
+    if (jsonEvent[@"message"]) {
+        event.message = jsonEvent[@"message"];
+    }
+    if (jsonEvent[@"logger"]) {
+        event.logger = jsonEvent[@"logger"];
+    }
     event.tags = [self.class sanitizeDictionary:jsonEvent[@"tags"]];
-    event.extra = jsonEvent[@"extra"];
+    if (jsonEvent[@"extra"]) {
+        event.extra = jsonEvent[@"extra"];
+    }
     event.user = [self.class createSentryUserFromJavaScriptUser:jsonEvent[@"user"]];
     if (jsonEvent[@"exception"] || (jsonEvent[@"stacktrace"] && jsonEvent[@"stacktrace"][@"frames"])) {
         NSArray *jsStacktrace = @[];
         NSString *exceptionType = @"";
         NSString *exceptionValue = @"";
         if (jsonEvent[@"exception"]) {
-            NSDictionary *exception = jsonEvent[@"exception"][@"values"][0];
+            NSDictionary *exception;
+            if ([jsonEvent[@"exception"] count] > 0) {
+                exception = jsonEvent[@"exception"][0];
+            } else {
+                exception = jsonEvent[@"exception"][@"values"][0];
+            }
             jsStacktrace = exception[@"stacktrace"][@"frames"];
             exceptionType = exception[@"type"];
             exceptionValue = exception[@"value"];
