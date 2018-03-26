@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.12.2
+
+- Synchronize storing of breadcrumbs and events
+
 ## 3.12.1
 
 - Fixed and error in javascript helper for new exception structure
