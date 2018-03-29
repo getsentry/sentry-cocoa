@@ -76,9 +76,12 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 @implementation SentryMockNSURLSession
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler {
     return [[SentryMockNSURLSessionDataTask alloc] initWithCompletionHandler:completionHandler];
 }
+#pragma GCC diagnostic pop
 
 @end
 
