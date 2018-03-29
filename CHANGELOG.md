@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.12.3
+
+- Fixd #239
+
 ## 3.12.2
 
 - Synchronize storing of breadcrumbs and events
