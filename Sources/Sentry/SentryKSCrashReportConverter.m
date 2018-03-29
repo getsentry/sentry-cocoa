@@ -204,7 +204,10 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (SentryThread *)threadAtIndex:(NSInteger)threadIndex stripCrashedStacktrace:(BOOL)stripCrashedStacktrace {
+- (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex stripCrashedStacktrace:(BOOL)stripCrashedStacktrace {
+    if (threadIndex >= [self.threads count]) {
+        return nil;
+    }
     NSDictionary *threadDictionary = [self.threads objectAtIndex:threadIndex];
     
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
@@ -260,7 +263,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     return stacktrace;
 }
 
-- (SentryThread *)crashedThread {
+- (SentryThread *_Nullable)crashedThread {
     return [self threadAtIndex:self.crashedThreadIndex stripCrashedStacktrace:NO];
 }
 
@@ -330,7 +333,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception {
     // Gatekeeper fixes https://github.com/getsentry/sentry-cocoa/issues/231
-    if ([self.threads count] == 0) {
+    if ([self.threads count] == 0 || self.crashedThreadIndex >= [self.threads count]) {
         return;
     }
     NSDictionary *crashedThread = [self.threads objectAtIndex:self.crashedThreadIndex];
@@ -385,7 +388,10 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSArray *)convertThreads {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger) self.threads.count; threadIndex++) {
-        [result addObject:[self threadAtIndex:threadIndex stripCrashedStacktrace:YES]];
+        SentryThread *thread = [self threadAtIndex:threadIndex stripCrashedStacktrace:YES];
+        if (thread) {
+            [result addObject:thread];
+        }
     }
     return result;
 }
