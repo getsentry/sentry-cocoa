@@ -582,7 +582,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for file queue"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (NSInteger i = 0; i <= 100; i++) {
-            NSLog(@"@@ %ld", [fileManager getAllStoredEvents].count);
+            NSLog(@"@@ %lu", (unsigned long)[fileManager getAllStoredEvents].count);
             if ([fileManager getAllStoredEvents].count == 0) {
                 [expectation fulfill];
                 return;
@@ -787,7 +787,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
     NSMutableArray *expectations = [NSMutableArray new];
     for (NSInteger i = 0; i <= 20; i++) {
-        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", i]];
+        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", (long)i]];
         SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
         event.message = @"abc";
         [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
@@ -818,7 +818,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
     NSMutableArray *expectations = [NSMutableArray new];
     for (NSInteger i = 0; i <= 3; i++) {
-        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", i]];
+        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", (long)i]];
         SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
         event.message = @"abc";
         [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
