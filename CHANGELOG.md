@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.12.4
+
+- Fixed a bug for empty timestamp if created from JavaScript
+
 ## 3.12.3
 
 - Fixed #239
