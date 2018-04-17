@@ -103,7 +103,12 @@ NS_ASSUME_NONNULL_BEGIN
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:[self.class sentrySeverityFromLevel:level]
                                                              category:jsonBreadcrumb[@"category"]];
     breadcrumb.message = jsonBreadcrumb[@"message"];
-    breadcrumb.timestamp = [NSDate dateWithTimeIntervalSince1970:[jsonBreadcrumb[@"timestamp"] integerValue]];
+    if ([jsonBreadcrumb[@"timestamp"] integerValue] > 0) {
+        breadcrumb.timestamp = [NSDate dateWithTimeIntervalSince1970:[jsonBreadcrumb[@"timestamp"] integerValue]];
+    } else {
+        breadcrumb.timestamp = [NSDate date];
+    }
+    
     breadcrumb.type = jsonBreadcrumb[@"type"];
     breadcrumb.data = jsonBreadcrumb[@"data"];
     return breadcrumb;
