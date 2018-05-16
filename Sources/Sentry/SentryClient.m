@@ -92,7 +92,9 @@ requestManager:(id <SentryRequestManager>)requestManager
         _tags = [NSDictionary new];
         self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
         self.requestManager = requestManager;
-        NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
+        if (logLevel > 1) { // If loglevel is set > None
+            NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
+        }
         self.fileManager = [[SentryFileManager alloc] initWithDsn:self.dsn didFailWithError:error];
         self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
         if (nil != error && nil != *error) {
