@@ -90,6 +90,9 @@
                         crumb.message = @"viewDidAppear";
                         crumb.data = @{@"controller": [NSString stringWithFormat:@"%@", self]};
                         [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
+                        NSMutableDictionary *prevExtra = SentryClient.sharedClient.extra.mutableCopy;
+                        [prevExtra setValue:[NSString stringWithFormat:@"%@", self] forKey:@"__sentry_transaction"];
+                        SentryClient.sharedClient.extra = prevExtra;
                     }
                     SentrySWCallOriginal(animated);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
