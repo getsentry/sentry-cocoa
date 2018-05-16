@@ -132,6 +132,12 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
     
+    if (self.transaction) {
+        [serializedData setValue:self.transaction forKey:@"transaction"];
+    } else if (self.extra[@"__sentry_transaction"]) {
+        [serializedData setValue:self.extra[@"__sentry_transaction"] forKey:@"transaction"];
+    }
+    
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
     
     [serializedData setValue:[self.user serialize] forKey:@"user"];
