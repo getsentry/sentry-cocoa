@@ -130,6 +130,39 @@
     XCTAssertEqualObjects([event3 serialize], serialized3);
 }
 
+- (void)testTransactionEvent {
+    NSDate *date = [NSDate date];
+    
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event.timestamp = date;
+    event.extra = @{@"__sentry_transaction": @"yoyoyo"};
+    event.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
+                                 @"event_id": event.eventId,
+                                 @"level": @"info",
+                                 @"extra": @{},
+                                 @"transaction": @"yoyoyo",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                           @"integrations": @[@"sentry-cocoa"]},
+                                 @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event serialize], serialized);
+    
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    event3.timestamp = date;
+    event3.transaction = @"UIViewControllerTest";
+    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized3 = @{@"contexts": [[[SentryContext alloc] init] serialize],
+                                  @"event_id": event3.eventId,
+                                  @"level": @"info",
+                                  @"transaction": @"UIViewControllerTest",
+                                  @"platform": @"cocoa",
+                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                            @"integrations": @[@"sentry-cocoa"]},
+                                  @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event3 serialize], serialized3);
+}
+
 - (void)testSetDistToNil {
     SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     eventEmptyDist.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
