@@ -271,8 +271,8 @@
 		63295AF41EF3C7DB002D4490 /* NSDictionary+Sanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+Sanitize.m"; sourceTree = "<group>"; };
 		632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplication.h; path = include/SentryCrashExceptionApplication.h; sourceTree = "<group>"; };
 		632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplication.m; sourceTree = "<group>"; };
-		6334313F20AD9AE40077E581 /* SentryMechanism.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryMechanism.h; path = include/SentryMechanism.h; sourceTree = "<group>"; };
-		6334314020AD9AE40077E581 /* SentryMechanism.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryMechanism.m; sourceTree = "<group>"; };
+		6334313F20AD9AE40077E581 /* SentryMechanism.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMechanism.h; path = include/SentryMechanism.h; sourceTree = "<group>"; };
+		6334314020AD9AE40077E581 /* SentryMechanism.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryMechanism.m; sourceTree = "<group>"; };
 		6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashInstallation.h; path = include/SentryKSCrashInstallation.h; sourceTree = "<group>"; };
 		6344DDAF1EC308E400D9160D /* SentryKSCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashInstallation.m; sourceTree = "<group>"; };
 		6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashReportSink.h; path = include/SentryKSCrashReportSink.h; sourceTree = "<group>"; };

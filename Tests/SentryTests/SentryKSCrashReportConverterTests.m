@@ -60,7 +60,10 @@ NSString *reportPath = @"";
     SentryThread *firstThread = event.threads.firstObject;
     XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
     XCTAssertNil(firstThread.stacktrace);
-    XCTAssertEqualObjects([exception.mechanism.meta valueForKeyPath:@"signal.name"], @"SIGBUS");
+    NSString *code = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
+    NSString *number = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.number"]];
+    XCTAssertEqualObjects(code, @"0");
+    XCTAssertEqualObjects(number, @"10");
     XCTAssertEqualObjects(exception.mechanism.desc, @"EXC_BAD_ACCESS");
     XCTAssertEqualObjects([exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
 

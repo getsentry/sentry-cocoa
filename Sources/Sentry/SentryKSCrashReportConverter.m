@@ -369,18 +369,14 @@ static inline NSString *hexAddress(NSNumber *value) {
         
         NSMutableDictionary *machException = [NSMutableDictionary new];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
-        [machException setValue:self.exceptionContext[@"mach"][@"signal"] forKey:@"signal"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
         [machException setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
         [meta setValue:machException forKey:@"mach_exception"];
         
         if (nil != [self.exceptionContext objectForKey:@"signal"]) {
             NSMutableDictionary *signal = [NSMutableDictionary new];
-            [signal setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
-            [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"signal"];
-            [signal setValue:self.exceptionContext[@"signal"][@"subcode"] forKey:@"subcode"];
+            [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"number"];
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
-            [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
             [meta setValue:signal forKey:@"signal"];
         }
         

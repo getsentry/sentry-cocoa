@@ -16,7 +16,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @implementation SentryMechanism
 
 - (instancetype)initWithType:(NSString *)type {
