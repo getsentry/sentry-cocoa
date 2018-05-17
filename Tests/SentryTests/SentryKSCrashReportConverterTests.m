@@ -60,9 +60,9 @@ NSString *reportPath = @"";
     SentryThread *firstThread = event.threads.firstObject;
     XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
     XCTAssertNil(firstThread.stacktrace);
-    XCTAssertEqualObjects(exception.mechanism[@"posix_signal"][@"name"], @"SIGBUS");
-    XCTAssertEqualObjects(exception.mechanism[@"mach_exception"][@"exception_name"], @"EXC_BAD_ACCESS");
-    XCTAssertEqualObjects(exception.mechanism[@"relevant_address"], @"0x0000000102468000");
+    XCTAssertEqualObjects([exception.mechanism.meta valueForKeyPath:@"signal.name"], @"SIGBUS");
+    XCTAssertEqualObjects(exception.mechanism.desc, @"EXC_BAD_ACCESS");
+    XCTAssertEqualObjects([exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
 
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);

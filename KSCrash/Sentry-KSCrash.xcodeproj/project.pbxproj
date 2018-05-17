@@ -197,6 +197,8 @@
 		632F43571F5826F100A18A36 /* SentryCrashExceptionApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 632F43561F5826E000A18A36 /* SentryCrashExceptionApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632F436D1F5D415B00A18A36 /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 632F436C1F5D415B00A18A36 /* SentryTests.m */; };
 		632F43751F5D44A300A18A36 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 632AC02B1EE5AEC700B6E263 /* Sentry.framework */; };
+		6334314620AD9B400077E581 /* SentryMechanism.m in Sources */ = {isa = PBXBuildFile; fileRef = 6334314520AD9B400077E581 /* SentryMechanism.m */; };
+		6334314820AD9B4B0077E581 /* SentryMechanism.h in Headers */ = {isa = PBXBuildFile; fileRef = 6334314720AD9B4B0077E581 /* SentryMechanism.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63B225CE1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B225CD1F9E2718008C1A94 /* SentryJavaScriptBridgeHelper.m */; };
 		63B225D01F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 63B225CF1F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
@@ -357,6 +359,8 @@
 		632F436A1F5D415B00A18A36 /* SentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		632F436C1F5D415B00A18A36 /* SentryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTests.m; sourceTree = "<group>"; };
 		632F436E1F5D415B00A18A36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6334314520AD9B400077E581 /* SentryMechanism.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryMechanism.m; sourceTree = "<group>"; };
+		6334314720AD9B4B0077E581 /* SentryMechanism.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMechanism.h; path = include/SentryMechanism.h; sourceTree = "<group>"; };
 		6344DDAE1EC308E400D9160D /* SentryKSCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashInstallation.h; path = include/SentryKSCrashInstallation.h; sourceTree = "<group>"; };
 		6344DDAF1EC308E400D9160D /* SentryKSCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashInstallation.m; sourceTree = "<group>"; };
 		6344DDB21EC309E000D9160D /* SentryKSCrashReportSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryKSCrashReportSink.h; path = include/SentryKSCrashReportSink.h; sourceTree = "<group>"; };
@@ -456,6 +460,8 @@
 				639FCF971EBC7B9700778193 /* SentryEvent.m */,
 				639FCF9E1EBC804600778193 /* SentryException.h */,
 				639FCF9F1EBC804600778193 /* SentryException.m */,
+				6334314720AD9B4B0077E581 /* SentryMechanism.h */,
+				6334314520AD9B400077E581 /* SentryMechanism.m */,
 				639FCFA61EBC80CC00778193 /* SentryFrame.h */,
 				639FCFA71EBC80CC00778193 /* SentryFrame.m */,
 				639FCFA21EBC809A00778193 /* SentryStacktrace.h */,
@@ -876,6 +882,7 @@
 				632ABFC81EE5AEC700B6E263 /* SentrySerializable.h in Headers */,
 				632ABFD21EE5AEC700B6E263 /* SentryClient.h in Headers */,
 				632ABFD51EE5AEC700B6E263 /* Sentry.h in Headers */,
+				6334314820AD9B4B0077E581 /* SentryMechanism.h in Headers */,
 				63B225D01F9E2720008C1A94 /* SentryJavaScriptBridgeHelper.h in Headers */,
 				632ABFDA1EE5AEC700B6E263 /* SentryQueueableRequestManager.h in Headers */,
 				632ABFDB1EE5AEC700B6E263 /* NSData+Compression.h in Headers */,
@@ -1136,6 +1143,7 @@
 				632ABF921EE5AEC700B6E263 /* SentryKSCrashReportSink.m in Sources */,
 				632ABF931EE5AEC700B6E263 /* SentrySwizzle.m in Sources */,
 				632ABF941EE5AEC700B6E263 /* KSDynamicLinker.c in Sources */,
+				6334314620AD9B400077E581 /* SentryMechanism.m in Sources */,
 				632ABF971EE5AEC700B6E263 /* KSCrashInstallation.m in Sources */,
 				632ABF981EE5AEC700B6E263 /* KSStackCursor_SelfThread.c in Sources */,
 				6315029E1EE986D600512C5B /* Container+DeepSearch.m in Sources */,
