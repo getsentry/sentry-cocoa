@@ -358,9 +358,6 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryMechanism *_Nullable)extractMechanism {
-    if (![self.exceptionContext objectForKey:@"type"]) {
-        return nil;
-    }
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:[self.exceptionContext objectForKey:@"type"]];
     if (nil != [self.exceptionContext objectForKey:@"mach"]) {
         mechanism.desc = self.exceptionContext[@"mach"][@"exception_name"];
