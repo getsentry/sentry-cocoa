@@ -362,7 +362,6 @@ static inline NSString *hexAddress(NSNumber *value) {
         return nil;
     }
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:[self.exceptionContext objectForKey:@"type"]];
-
     if (nil != [self.exceptionContext objectForKey:@"mach"]) {
         mechanism.desc = self.exceptionContext[@"mach"][@"exception_name"];
         mechanism.handled = @(NO);
@@ -370,7 +369,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         NSMutableDictionary *meta = [NSMutableDictionary new];
         
         NSMutableDictionary *machException = [NSMutableDictionary new];
-        [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"exception_name"];
+        [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
         [machException setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
@@ -380,7 +379,6 @@ static inline NSString *hexAddress(NSNumber *value) {
             NSMutableDictionary *signal = [NSMutableDictionary new];
             [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"number"];
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
-            [signal setValue:self.exceptionContext[@"signal"][@"subcode"] forKey:@"subcode"];
             [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
             [signal setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
             [meta setValue:signal forKey:@"signal"];
@@ -392,7 +390,6 @@ static inline NSString *hexAddress(NSNumber *value) {
             mechanism.data = @{ @"relevant_address": hexAddress(self.exceptionContext[@"address"]) };
         }
     }
-    
     return mechanism;
 }
 
