@@ -360,7 +360,6 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (SentryMechanism *_Nullable)extractMechanism {
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:[self.exceptionContext objectForKey:@"type"]];
     if (nil != [self.exceptionContext objectForKey:@"mach"]) {
-        mechanism.desc = self.exceptionContext[@"mach"][@"exception_name"];
         mechanism.handled = @(NO);
         
         NSMutableDictionary *meta = [NSMutableDictionary new];
