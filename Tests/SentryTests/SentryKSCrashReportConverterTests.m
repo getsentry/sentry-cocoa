@@ -62,9 +62,10 @@ NSString *reportPath = @"";
     XCTAssertNil(firstThread.stacktrace);
     NSString *code = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
     NSString *number = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.number"]];
+    NSString *exc = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"mach_exception.name"]];
     XCTAssertEqualObjects(code, @"0");
     XCTAssertEqualObjects(number, @"10");
-    XCTAssertEqualObjects(exception.mechanism.desc, @"EXC_BAD_ACCESS");
+    XCTAssertEqualObjects(exc, @"EXC_BAD_ACCESS");
     XCTAssertEqualObjects([exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
 
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
