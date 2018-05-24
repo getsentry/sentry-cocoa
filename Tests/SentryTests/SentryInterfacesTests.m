@@ -254,7 +254,7 @@
     thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[frame] registers:@{@"a": @"1"}];
 
     exception2.thread = thread2;
-    exception2.mechanism = @{@"a": @"b"};
+    exception2.mechanism = [[SentryMechanism alloc] initWithType:@"test"];
     exception2.module = @"module";
     NSDictionary *serialized2 = @{
                                  @"value": @"value",
@@ -263,7 +263,7 @@
                                  @"stacktrace": @{@"frames": @[@{@"symbol_addr": @"0x01", @"function": @"<redacted>"}],
                                                   @"registers": @{@"a": @"1"}},
                                  @"module": @"module",
-                                 @"mechanism": @{@"a": @"b"}
+                                 @"mechanism": @{@"type": @"test"}
                                  };
 
     XCTAssertEqualObjects([exception2 serialize], serialized2);
