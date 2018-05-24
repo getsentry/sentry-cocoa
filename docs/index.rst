@@ -69,7 +69,7 @@ instantiate the Sentry client:
 
         // Create a Sentry client and start crash handler
         do {
-            Client.shared = try Client(dsn: "___DSN___")
+            Client.shared = try Client(dsn: "___PUBLIC_DSN___")
             try Client.shared?.startCrashHandler()
         } catch let error {
             print("\(error)")
@@ -86,7 +86,7 @@ If you prefer to use Objective-C you can do so like this:
     @import Sentry;
 
     NSError *error = nil;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"___DSN___" didFailWithError:&error];
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"___PUBLIC_DSN___" didFailWithError:&error];
     SentryClient.sharedClient = client;
     [SentryClient.sharedClient startCrashHandlerWithError:&error];
     if (nil != error) {

@@ -24,7 +24,7 @@ func application(application: UIApplication,
 
     // Create a Sentry client and start crash handler
     do {
-        Client.shared = try Client(dsn: "___DSN___")
+        Client.shared = try Client(dsn: "___PUBLIC_DSN___")
         try Client.shared?.startCrashHandler()
     } catch let error {
         print("\(error)")
