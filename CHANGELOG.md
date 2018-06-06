@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.13.0
+
+- Update docs to use public DSN
+- Don't emit nslog if loglevel is none
+- Send new mechanism
+- Add transaction of current uiviewcontroller
+
 ## 3.12.4
 
 - Fixed a bug for empty timestamp if created from JavaScript
