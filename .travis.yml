@@ -19,7 +19,7 @@ env:
     - LANE=test
     - LANE=kscrash
     - LANE=swiftpm
-    - LANE=pod
+    # - LANE=pod
 
 jobs:
   include:
