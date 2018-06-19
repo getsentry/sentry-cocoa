@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.13.1
+
+- Updated KSCrash project to SKIP_INSTALL
+
 ## 3.13.0
 
 - Update docs to use public DSN
