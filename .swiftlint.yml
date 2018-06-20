@@ -4,8 +4,7 @@ excluded:
   - Pods
   - Utils
   - DependencyManagerTests
-  - KSCrash
-  - Sources/KSCrash
+  - Sources/SentryCrash
 whitelist_rules:
   #- attributes
   - class_delegate_protocol
