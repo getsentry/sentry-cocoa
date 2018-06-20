@@ -8,17 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<SentryCrash/SentryCrash.h>)
+#if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryCrash.h>
-#elif __has_include("SentryCrash.h")
+#else
 #import "SentryCrash.h"
 #endif
 
-#if WITH_KSCRASH
-@interface SentryCrashReportSink : NSObject <SentryCrashReportFilter>
-#else
 
-@interface SentryCrashReportSink : NSObject
-#endif
+@interface SentryCrashReportSink : NSObject <SentryCrashReportFilter>
 
 @end

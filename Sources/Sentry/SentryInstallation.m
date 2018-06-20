@@ -9,31 +9,26 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDefines.h>
-#import <Sentry/SentryCrashInstallation.h>
+#import <Sentry/SentryInstallation.h>
 #import <Sentry/SentryCrashReportSink.h>
 #import <Sentry/SentryLog.h>
 
-#else
-#import "SentryDefines.h"
-#import "SentryCrashInstallation.h"
-#import "SentryCrashReportSink.h"
-#import "SentryLog.h"
-#endif
-
-#if __has_include(<SentryCrash/SentryCrash.h>)
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryCrashInstallation+Private.h>
-#elif __has_include("SentryCrash.h")
+
+#else
+#import "SentryDefines.h"
+#import "SentryInstallation.h"
+#import "SentryCrashReportSink.h"
+#import "SentryLog.h"
+
 #import "SentryCrash.h"
 #import "SentryCrashInstallation+Private.h"
 #endif
 
-
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryCrashInstallation
-
-#if WITH_KSCRASH
+@implementation SentryInstallation
 
 - (id)init {
     return [super initWithRequiredProperties:[NSArray new]];
@@ -58,14 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }];
 }
-
-#else
-
-- (void)sendAllReports {
-    [SentryLog logWithMessage:@"This function does nothing if there is no SentryCrash" andLevel:kSentryLogLevelError];
-}
-
-#endif
 
 @end
 
