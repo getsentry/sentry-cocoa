@@ -55,6 +55,7 @@ static _Atomic(int) g_semaphoreCount;
 
 static void updateThreadList()
 {
+    const task_t thisTask = mach_task_self();
     int oldThreadsCount = g_allThreadsCount;
     SentryCrashThread* allMachThreads = NULL;
     SentryCrashThread* allPThreads = NULL;
@@ -63,7 +64,7 @@ static void updateThreadList()
 
     mach_msg_type_number_t allThreadsCount;
     thread_act_array_t threads;
-    task_threads(mach_task_self(), &threads, &allThreadsCount);
+    task_threads(thisTask, &threads, &allThreadsCount);
 
     allMachThreads = calloc(allThreadsCount, sizeof(*allMachThreads));
     allPThreads = calloc(allThreadsCount, sizeof(*allPThreads));
@@ -80,10 +81,6 @@ static void updateThreadList()
         if(pthread != 0 && pthread_getname_np(pthread, buffer, sizeof(buffer)) == 0 && buffer[0] != 0)
         {
             allThreadNames[i] = strdup(buffer);
-        }
-        if(sentrycrashthread_getQueueName((SentryCrashThread)thread, buffer, sizeof(buffer)) && buffer[0] != 0)
-        {
-            allQueueNames[i] = strdup(buffer);
         }
     }
 
@@ -126,6 +123,12 @@ static void updateThreadList()
         }
         free(allQueueNames);
     }
+    
+    for(mach_msg_type_number_t i = 0; i < allThreadsCount; i++)
+    {
+        mach_port_deallocate(thisTask, threads[i]);
+    }
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * allThreadsCount);
 }
 
 static void* monitorCachedData(__unused void* const userData)
