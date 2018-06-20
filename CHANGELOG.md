@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0
+
+- Moved KSCrash into Codebase while renaming it to SentryCrash.
+Removed KSCrash dep in Podspec.
+
 ## 3.13.1
 
 - Updated KSCrash project to SKIP_INSTALL

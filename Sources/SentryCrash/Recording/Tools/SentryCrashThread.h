@@ -51,19 +51,6 @@ typedef uintptr_t SentryCrashThread;
  */
 bool sentrycrashthread_getThreadName(const SentryCrashThread thread, char* const buffer, int bufLength);
 
-/** Get the name of a thread's dispatch queue. Internally, a queue name will
- * never be more than 64 characters long.
- *
- * @param thread The thread whose queue name to get.
- *
- * @oaram buffer Buffer to hold the name.
- *
- * @param bufLength The length of the buffer.
- *
- * @return true if a name or label was found.
- */
-bool sentrycrashthread_getQueueName(SentryCrashThread thread, char* buffer, int bufLength);
-
 /* Get the current mach thread ID.
  * mach_thread_self() receives a send right for the thread port which needs to
  * be deallocated to balance the reference count. This function takes care of
