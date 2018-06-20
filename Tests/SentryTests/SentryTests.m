@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "SentryKSCrashInstallation.h"
+#import "SentryInstallation.h"
 #import "NSDate+Extras.h"
 
 @interface SentryTests : XCTestCase
@@ -23,14 +23,6 @@
     XCTAssert([version isEqualToString:SentryClient.versionString]);
 }
 
-- (void)testStartCrashHandler {
-    NSError *error = nil;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    XCTAssertNil(error);
-    XCTAssertFalse([client startCrashHandlerWithError:&error]);
-    XCTAssertNotNil(error);
-}
-
 - (void)testSharedClient {
     NSError *error = nil;
     SentryClient.logLevel = kSentryLogLevelNone;
@@ -41,17 +33,19 @@
     XCTAssertNotNil(SentryClient.sharedClient);
 }
 
-- (void)testCrash {
-    NSError *error = nil;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    [client crash];
-}
+// TODO
+//- (void)testCrash {
+//    NSError *error = nil;
+//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+//    [client crash];
+//}
 
-- (void)testCrashedLastLaunch {
-    NSError *error = nil;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    XCTAssertFalse([client crashedLastLaunch]);
-}
+// TODO
+//- (void)testCrashedLastLaunch {
+//    NSError *error = nil;
+//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+//    XCTAssertFalse([client crashedLastLaunch]);
+//}
 
 - (void)testBreadCrumbTracking {
     NSError *error = nil;
@@ -64,11 +58,6 @@
     XCTAssertEqual(SentryClient.sharedClient.breadcrumbs.count, (unsigned long)1);
     [SentryClient setSharedClient:nil];
     [client.breadcrumbs clear];
-}
-
-- (void)testInstallation {
-    SentryKSCrashInstallation *installation = [[SentryKSCrashInstallation alloc] init];
-    [installation sendAllReports];
 }
 
 - (void)testUserException {
