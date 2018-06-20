@@ -15,13 +15,10 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.libraries = 'z'
 
-  s.default_subspecs = ['Core', 'KSCrash']
+  s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
     sp.source_files = "Sources/Sentry/**/*.{h,m}"
-  end
-
-  s.subspec 'KSCrash' do |ks|
-    ks.dependency 'KSCrash/Core', '~> 1.15.12'
+    sp.source_files = "Sources/SentryCrash/**/*.{h,m,c,cpp}"
   end
 end

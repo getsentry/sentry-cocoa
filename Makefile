@@ -8,8 +8,8 @@ test:
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
-	cd KSCrash && carthage build --no-skip-current --cache-builds
-	cd KSCrash && carthage archive Sentry --output Sentry.framework.zip
+	carthage build --no-skip-current --cache-builds
+	carthage archive Sentry --output Sentry.framework.zip
 
 release: bump-version git-commit-add
 
