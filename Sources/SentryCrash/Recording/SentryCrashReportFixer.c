@@ -27,10 +27,6 @@
 #include "SentryCrashReportFields.h"
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashJSONCodec.h"
-#include "SentryCrashDemangle_CPP.h"
-#if SentryCrashCRASH_HAS_SWIFT
-#include "SentryCrashDemangle_Swift.h"
-#endif
 #include "SentryCrashDate.h"
 #include "SentryCrashLogger.h"
 
@@ -126,11 +122,6 @@ static bool matchesAPath(FixupContext* context, const char* name, char* paths[][
     return false;
 }
 
-static bool shouldDemangle(FixupContext* context, const char* name)
-{
-    return matchesAPath(context, name, demanglePaths, demanglePathsCount);
-}
-
 static bool shouldFixDate(FixupContext* context, const char* name)
 {
     return matchesAPath(context, name, datePaths, datePathsCount);
@@ -185,26 +176,9 @@ static int onStringElement(const char* const name,
 {
     FixupContext* context = (FixupContext*)userData;
     const char* stringValue = value;
-    char* demangled = NULL;
-    if(shouldDemangle(context, name))
-    {
-        demangled = sentrycrashdm_demangleCPP(value);
-#if SentryCrashCRASH_HAS_SWIFT
-        if(demangled == NULL)
-        {
-            demangled = sentrycrashdm_demangleSwift(value);
-        }
-#endif
-        if(demangled != NULL)
-        {
-            stringValue = demangled;
-        }
-    }
+
     int result = sentrycrashjson_addStringElement(context->encodeContext, name, stringValue, (int)strlen(stringValue));
-    if(demangled != NULL)
-    {
-        free(demangled);
-    }
+
     return result;
 }
 
