@@ -5,6 +5,7 @@ excluded:
   - Utils
   - DependencyManagerTests
   - Sources/SentryCrash
+  - vendor
 whitelist_rules:
   #- attributes
   - class_delegate_protocol
