@@ -15,7 +15,7 @@ script: travis_retry .travis/run.sh
 
 env:
   matrix:
-    - LANE=lint
+    # - LANE=lint
     - LANE=test
     # - LANE=pod
 
