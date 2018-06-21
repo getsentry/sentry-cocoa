@@ -4,6 +4,12 @@
 
 - Moved KSCrash into Codebase while renaming it to SentryCrash.
 Removed KSCrash dep in Podspec.
+Still if you do not call `startCrashHandlerWithError` crash handlers will not be installed.
+
+**This should be safe to upgrade from 3.x.x, there are no code changes what so ever.
+If you are using CocoaPods or Carthage an update should take care of everything, if you were using the source code directly, make sure to remove KSCrash if you were using it.**
+
+We recommend updating if you experience any KSCrash related crashes since we fixed bunch of stuff directly in our codebase now.
 
 ## 3.13.1
 
