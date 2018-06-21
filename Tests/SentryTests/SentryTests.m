@@ -13,7 +13,7 @@
 
 @interface SentryBreadcrumbTracker (Private)
 
-- (NSString *)sanitizeViewControllerName:(NSString *)controller;
++ (NSString *)sanitizeViewControllerName:(NSString *)controller;
 
 @end
 
@@ -86,10 +86,9 @@
 }
 
 - (void)testBreadcrumbTracker {
-    SentryBreadcrumbTracker *tracker = [[SentryBreadcrumbTracker alloc] init];
-    XCTAssertEqualObjects(@"sentry_ios_cocoapods > ViewController", [tracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
-    XCTAssertEqualObjects(@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0", [tracker sanitizeViewControllerName:@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
-    XCTAssertEqualObjects(@"sentry_ios_cocoapods > ViewController > miau", [tracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>"]);
+    XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController", [SentryBreadcrumbTracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
+    XCTAssertEqualObjects(@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0", [SentryBreadcrumbTracker sanitizeViewControllerName:@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
+    XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController.miau", [SentryBreadcrumbTracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>"]);
 }
 
 @end

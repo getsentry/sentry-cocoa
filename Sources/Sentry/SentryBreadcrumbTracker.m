@@ -87,7 +87,7 @@
                         SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"UIViewController"];
                         crumb.type = @"navigation";
                         crumb.message = @"viewDidAppear";
-                        NSString *viewControllerName = [self sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
+                        NSString *viewControllerName = [SentryBreadcrumbTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                         crumb.data = @{@"controller": viewControllerName};
                         [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
                         NSMutableDictionary *prevExtra = SentryClient.sharedClient.extra.mutableCopy;
@@ -109,7 +109,7 @@
     return regex;
 }
 
-- (NSString *)sanitizeViewControllerName:(NSString *)controller {
++ (NSString *)sanitizeViewControllerName:(NSString *)controller {
     NSRange searchedRange = NSMakeRange(0, [controller length]);
     NSArray *matches = [[self.class viewControllerRegex] matchesInString:controller options:0 range:searchedRange];
     NSMutableArray *strings = [NSMutableArray array];
@@ -117,7 +117,7 @@
         [strings addObject:[controller substringWithRange:[match rangeAtIndex:1]]];
     }
     if ([strings count] > 0) {
-        return [strings componentsJoinedByString:@" > "];
+        return [strings componentsJoinedByString:@"."];
     }
     return controller;
 }
