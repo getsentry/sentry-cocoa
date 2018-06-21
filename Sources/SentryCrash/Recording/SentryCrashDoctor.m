@@ -489,15 +489,6 @@ typedef enum
     return [@SentryCrashExcType_Deadlock isEqualToString:crashType];
 }
 
-- (NSString*) appendOriginatingCall:(NSString*) string callName:(NSString*) callName
-{
-    if(callName != nil && ![callName isEqualToString:@"main"])
-    {
-        return [string stringByAppendingFormat:@"\nOriginated at or in a subcall of %@", callName];
-    }
-    return string;
-}
-
 - (NSString*) diagnoseCrash:(NSDictionary*) report
 {
     @try
@@ -522,9 +513,7 @@ typedef enum
             NSDictionary* exception = [errorReport objectForKey:@SentryCrashField_NSException];
             NSString* name = [exception objectForKey:@SentryCrashField_Name];
             NSString* reason = [exception objectForKey:@SentryCrashField_Reason]? [exception objectForKey:@SentryCrashField_Reason]:[errorReport objectForKey:@SentryCrashField_Reason];
-            return [self appendOriginatingCall:[NSString stringWithFormat:@"Application threw exception %@: %@",
-                                                name, reason]
-                                      callName:lastFunctionName];
+            return [NSString stringWithFormat:@"Application threw exception %@: %@", name, reason];
         }
 
         if([self isMemoryCorruption:report])
@@ -534,16 +523,14 @@ typedef enum
 
         if([self isMathError:errorReport])
         {
-            return [self appendOriginatingCall:[NSString stringWithFormat:@"Math error (usually caused from division by 0)."]
-                                      callName:lastFunctionName];
+            return @"Math error (usually caused from division by 0).";
         }
 
         SentryCrashDoctorFunctionCall* functionCall = [self lastFunctionCall:report];
         NSString* zombieCall = [self zombieCall:functionCall];
         if(zombieCall != nil)
         {
-            return [self appendOriginatingCall:[NSString stringWithFormat:@"Possible zombie in call: %@", zombieCall]
-                                      callName:lastFunctionName];
+            return [NSString stringWithFormat:@"Possible zombie in call: %@", zombieCall];
         }
 
         if([self isInvalidAddress:errorReport])
@@ -551,11 +538,9 @@ typedef enum
             uintptr_t address = (uintptr_t)[[errorReport objectForKey:@SentryCrashField_Address] unsignedLongLongValue];
             if(address == 0)
             {
-                return [self appendOriginatingCall:@"Attempted to dereference null pointer."
-                                          callName:lastFunctionName];
+                return @"Attempted to dereference null pointer.";
             }
-            return [self appendOriginatingCall:[NSString stringWithFormat:@"Attempted to dereference garbage pointer %p.", (void*)address]
-                                      callName:lastFunctionName];
+            return [NSString stringWithFormat:@"Attempted to dereference garbage pointer %p.", (void*)address];
         }
 
         return nil;

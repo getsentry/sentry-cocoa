@@ -328,7 +328,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     exception.mechanism = [self extractMechanism];
     exception.thread = [self crashedThread];
     if (nil != self.diagnosis && self.diagnosis.length > 0) {
-        exception.value = self.diagnosis;
+        exception.value = [exception.value stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
     return @[exception];
 }
@@ -353,7 +353,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" | "];
+        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
     }
 }
 
