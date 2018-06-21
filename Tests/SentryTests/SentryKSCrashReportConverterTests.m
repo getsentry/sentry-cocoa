@@ -1,5 +1,5 @@
 //
-//  SentryKSCrashReportConverterTests.m
+//  SentryCrashReportConverterTests.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 10/05/2017.
@@ -8,15 +8,15 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "SentryKSCrashReportConverter.h"
+#import "SentryCrashReportConverter.h"
 
 NSString *reportPath = @"";
 
-@interface SentryKSCrashReportConverterTests : XCTestCase
+@interface SentryCrashReportConverterTests : XCTestCase
 
 @end
 
-@implementation SentryKSCrashReportConverterTests
+@implementation SentryCrashReportConverterTests
 
 - (void)tearDown {
     reportPath = @"";
@@ -27,7 +27,7 @@ NSString *reportPath = @"";
     reportPath = @"Resources/crash-report-1";
     NSDictionary *report = [self getCrashReport];
 
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertNotNil(event);
     XCTAssertEqualObjects([NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
@@ -79,7 +79,7 @@ NSString *reportPath = @"";
 - (void)testRawWithCrashReport {
     reportPath = @"Resources/raw-crash";
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
     NSDictionary *serializedEvent = [event serialize];
 
@@ -98,7 +98,7 @@ NSString *reportPath = @"";
     reportPath = @"Resources/Abort";
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertEqualObjects([[event serialize] valueForKeyPath:@"contexts.os.name"], @"iOS");
 }
@@ -147,7 +147,7 @@ NSString *reportPath = @"";
     reportPath = @"Resources/NX-Page";
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
@@ -156,7 +156,7 @@ NSString *reportPath = @"";
 - (void)testReactNative {
     reportPath = @"Resources/ReactNative";
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
 //    Error: SentryClient: Test throw error
     XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
@@ -174,7 +174,7 @@ NSString *reportPath = @"";
     // There are 23 frames in the report but it should remove the duplicate
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
@@ -184,16 +184,16 @@ NSString *reportPath = @"";
     reportPath = @"Resources/fatalError";
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: | fatal error | hello my crash is here");
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: > fatal error > hello my crash is here");
 }
 
 - (void)testUserInfo {
     reportPath = @"Resources/fatalError";
     [self isValidReport];
     NSDictionary *rawCrash = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
     reportConverter.userContext = @{@"tags": @{@"a": @"b",@"c": @"d"},
                                     @"extra": @{@"a": @"b",@"c": @"d",@"e": @"f"},
                                     @"user": @{
@@ -222,7 +222,7 @@ NSString *reportPath = @"";
 
 - (void)isValidReport {
     NSDictionary *report = [self getCrashReport];
-    SentryKSCrashReportConverter *reportConverter = [[SentryKSCrashReportConverter alloc] initWithReport:report];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
 }
@@ -260,7 +260,7 @@ NSString *reportPath = @"";
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[event serialize]
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:nil];
-    
+
     NSLog(@"%@", [NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
 }
 

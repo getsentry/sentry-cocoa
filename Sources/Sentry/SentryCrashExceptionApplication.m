@@ -11,29 +11,24 @@
 
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryCrashExceptionApplication.h>
+#import <Sentry/SentryCrash.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryCrashExceptionApplication.h"
+#import "SentryCrash.h"
 #endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
-#import <KSCrash/KSCrash.h>
-#elif __has_include("KSCrash.h")
-#import "KSCrash.h"
-#endif
 
 @implementation SentryCrashExceptionApplication
 
 #if TARGET_OS_OSX
 
 - (void)reportException:(NSException *)exception {
-    #if WITH_KSCRASH
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NSApplicationCrashOnExceptions": @YES }];
-    if (nil != KSCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
-        KSCrash.sharedInstance.uncaughtExceptionHandler(exception);
+    if (nil != SentryCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
+        SentryCrash.sharedInstance.uncaughtExceptionHandler(exception);
     }
-    #endif
     [super reportException:exception];
 }
 #endif

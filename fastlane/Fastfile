@@ -29,14 +29,6 @@ lane :test do
     scan(scheme: "Sentry", code_coverage: true)
 end
 
-lane :kscrash do
-    scan(project: "KSCrash/Sentry-KSCrash.xcodeproj", scheme: "Sentry")
-end
-
 lane :pod do
     sh('cd ..; pod lib lint')
-end
-
-lane :swiftpm do
-    sh('cd ..; swift build -Xlinker -lz')
 end

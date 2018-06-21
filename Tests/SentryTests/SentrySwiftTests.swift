@@ -34,20 +34,6 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertNotNil(client)
     }
     
-    func testStartCrashHandler() {
-        Client.shared = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
-        XCTAssertThrowsError(try Client.shared?.startCrashHandler())
-        
-        do {
-            Client.shared = try Client(dsn: "https://username:password@app.getsentry.com/12345")
-            try Client.shared?.startCrashHandler()
-        } catch let error {
-            print("\(error)")
-            // Wrong DSN or KSCrash not installed
-        }
-        
-    }
-    
     func testFunctionCalls() {
         let event = Event(level: .debug)
         event.message = "Test Message"

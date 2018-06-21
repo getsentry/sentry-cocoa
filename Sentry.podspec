@@ -13,15 +13,16 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
+  s.frameworks = 'Foundation'
   s.libraries = 'z'
+  s.xcconfig = { 'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES' }
 
-  s.default_subspecs = ['Core', 'KSCrash']
+  s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
-    sp.source_files = "Sources/Sentry/**/*.{h,m}"
-  end
+    sp.source_files = "Sources/Sentry/**/*.{h,m}",
+                      "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
 
-  s.subspec 'KSCrash' do |ks|
-    ks.dependency 'KSCrash/Core', '~> 1.15.12'
+
   end
 end

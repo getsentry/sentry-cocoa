@@ -11,9 +11,9 @@ framework module Sentry {
         header "SentryAsynchronousOperation.h"
         header "SentryRequestOperation.h"
         header "SentryQueueableRequestManager.h"
-        header "SentryKSCrashInstallation.h"
-        header "SentryKSCrashReportSink.h"
-        header "SentryKSCrashReportConverter.h"
+        header "SentryInstallation.h"
+        header "SentryCrashReportSink.h"
+        header "SentryCrashReportConverter.h"
         header "SentryLog.h"
         header "SentryBreadcrumbTracker.h"
         header "SentryCrashExceptionApplication.h"
@@ -21,5 +21,10 @@ framework module Sentry {
         header "NSData+Compression.h"
         header "NSDate+Extras.h"
         header "NSDictionary+Sanitize.h"
+
+        header "SentryCrashInstallation+Private.h"
+        header "SentryCrashReportWriter.h"
+        header "SentryCrashReportFilter.h"
+        header "SentryCrashMonitorType.h"
     }
 }

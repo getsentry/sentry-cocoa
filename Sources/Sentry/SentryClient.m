@@ -17,11 +17,11 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryKSCrashInstallation.h>
+#import <Sentry/SentryInstallation.h>
 #import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
-
+#import <Sentry/SentryCrash.h>
 #else
 #import "SentryClient.h"
 #import "SentryClient+Internal.h"
@@ -32,17 +32,13 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryKSCrashInstallation.h"
+#import "SentryInstallation.h"
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryCrash.h"
 #endif
 
-#if __has_include(<KSCrash/KSCrash.h>)
-#import <KSCrash/KSCrash.h>
-#elif __has_include("KSCrash.h")
-#import "KSCrash.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,7 +48,7 @@ NSString *const SentryClientSdkName = @"sentry-cocoa";
 static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
 
-static SentryKSCrashInstallation *installation = nil;
+static SentryInstallation *installation = nil;
 
 @interface SentryClient ()
 
@@ -170,7 +166,7 @@ requestManager:(id <SentryRequestManager>)requestManager
     if (useClientProperties) {
         [self setSharedPropertiesOnEvent:event];
     }
-    
+
     if (nil != self.beforeSerializeEvent) {
         self.beforeSerializeEvent(event);
     }
@@ -185,7 +181,7 @@ requestManager:(id <SentryRequestManager>)requestManager
   useClientProperties:(BOOL)useClientProperties
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self prepareEvent:event useClientProperties:useClientProperties];
-    
+
     if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
         NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
         [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
@@ -194,7 +190,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         }
         return;
     }
-    
+
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                              andEvent:event
@@ -294,7 +290,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     if (nil == event.breadcrumbsSerialized) {
         event.breadcrumbsSerialized = [self.breadcrumbs serialize];
     }
-    
+
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
@@ -352,21 +348,19 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     };
 }
 
-#pragma mark KSCrash
-
-#if WITH_KSCRASH
+#pragma mark SentryCrash
 
 - (BOOL)crashedLastLaunch {
-    return KSCrash.sharedInstance.crashedLastLaunch;
+    return SentryCrash.sharedInstance.crashedLastLaunch;
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    [SentryLog logWithMessage:@"KSCrashHandler started" andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"SentryCrashHandler started" andLevel:kSentryLogLevelDebug];
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
-        installation = [[SentryKSCrashInstallation alloc] init];
+        installation = [[SentryInstallation alloc] init];
         [installation install];
         [installation sendAllReports];
     });
@@ -387,10 +381,10 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
               logAllThreads:(BOOL)logAllThreads
            terminateProgram:(BOOL)terminateProgram {
     if (nil == installation) {
-        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
         return;
     }
-    [KSCrash.sharedInstance reportUserException:name
+    [SentryCrash.sharedInstance reportUserException:name
                                          reason:reason
                                        language:language
                                      lineOfCode:lineOfCode
@@ -402,10 +396,10 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 
 - (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
     if (nil == installation) {
-        [SentryLog logWithMessage:@"KSCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
         return;
     }
-    [KSCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
+    [SentryCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
                                          reason:@"SENTRY_SNAPSHOT"
                                        language:@""
                                      lineOfCode:@""
@@ -416,48 +410,6 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
         snapshotCompleted();
     }];
 }
-
-#else
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram {
-    [SentryLog logWithMessage:@"Cannot report userException without KSCrash dependency" andLevel:kSentryLogLevelError];
-}
-
-#pragma GCC diagnostic pop
-
-- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    NSString *message = @"KSCrashHandler not started - Make sure you added KSCrash as a dependency";
-    [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
-    if (nil != error) {
-        *error = NSErrorFromSentryError(kSentryErrorKSCrashNotInstalledError, message);
-    }
-    return NO;
-}
-
-- (void)crash {
-    [SentryLog logWithMessage:@"Would have crashed - but since KSCrash is not linked we do nothing." andLevel:kSentryLogLevelError];
-}
-
-- (BOOL)crashedLastLaunch {
-    [SentryLog logWithMessage:@"KSCrash is not linked we cannot tell if app crashed." andLevel:kSentryLogLevelError];
-    return NO;
-}
-
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
-    [SentryLog logWithMessage:@"KSCrash is not linked snapshot the stacktrace." andLevel:kSentryLogLevelError];
-    snapshotCompleted();
-}
-
-#endif
 
 @end
 

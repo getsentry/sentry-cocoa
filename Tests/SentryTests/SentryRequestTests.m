@@ -637,18 +637,24 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 }
 
 - (void)testSnapshotStacktrace {
+    XCTestExpectation *expectationSnap = [self expectationWithDescription:@"Snapshot"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
+    [self.client startCrashHandlerWithError:nil];
     self.client._snapshotThreads = @[thread];
+    
     self.client._debugMeta = @[[[SentryDebugMeta alloc] init]];
     
     [self.client snapshotStacktrace:^{
         [self.client appendStacktraceToEvent:event];
         XCTAssertTrue(YES);
+        [expectationSnap fulfill];
     }];
     
+    [self waitForExpectations:@[expectationSnap] timeout:5.0];
+
     __weak id weakSelf = self;
     self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
         id self = weakSelf;
@@ -661,13 +667,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNil(error);
         [expectation fulfill];
     }];
-    
-    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
-        if (error) {
-            XCTFail(@"waitForExpectationsWithTimeout errored");
-        }
-        XCTAssert(YES);
-    }];
+    [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
 - (void)testShouldSendEventNo {
