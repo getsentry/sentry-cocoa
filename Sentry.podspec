@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.module_name  = "Sentry"
   s.requires_arc = true
   s.frameworks = 'Foundation'
-  s.libraries = 'c++', 'z'
+  s.libraries = 'z'
   s.xcconfig = { 'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES' }
 
   s.default_subspecs = ['Core']
@@ -23,14 +23,6 @@ Pod::Spec.new do |s|
     sp.source_files = "Sources/Sentry/**/*.{h,m}",
                       "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
 
-    sp.public_header_files =  "Sources/Sentry/**/*.h",
-                              "Sources/SentryCrash/Installations/**/*.{h}",
-                              "Sources/SentryCrash/Recording/SentryCrash.h",
-                              "Sources/SentryCrash/Recording/SentryCrashC.h",
-                              "Sources/SentryCrash/Recording/SentryCrashReportWriter.h",
-                              "Sources/SentryCrash/Recording/SentryCrashReportFields.h",
-                              "Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorType.h",
-                              "Sources/SentryCrash/Reporting/Filters/SentryCrashReportFilter.h",
-                              "Sources/SentryCrash/Reporting/Filters/SentryCrashReportFilter.h"
+
   end
 end

@@ -43,15 +43,6 @@ static char* datePaths[][MAX_DEPTH] =
 };
 static int datePathsCount = sizeof(datePaths) / sizeof(*datePaths);
 
-static char* demanglePaths[][MAX_DEPTH] =
-{
-    {"", SentryCrashField_Crash, SentryCrashField_Threads, "", SentryCrashField_Backtrace, SentryCrashField_Contents, "", SentryCrashField_SymbolName},
-    {"", SentryCrashField_RecrashReport, SentryCrashField_Crash, SentryCrashField_Threads, "", SentryCrashField_Backtrace, SentryCrashField_Contents, "", SentryCrashField_SymbolName},
-    {"", SentryCrashField_Crash, SentryCrashField_Error, SentryCrashField_CPPException, SentryCrashField_Name},
-    {"", SentryCrashField_RecrashReport, SentryCrashField_Crash, SentryCrashField_Error, SentryCrashField_CPPException, SentryCrashField_Name},
-};
-static int demanglePathsCount = sizeof(demanglePaths) / sizeof(*demanglePaths);
-
 typedef struct
 {
     SentryCrashJSONEncodeContext* encodeContext;
