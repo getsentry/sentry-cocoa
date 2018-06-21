@@ -11,6 +11,12 @@
 #import "SentryInstallation.h"
 #import "NSDate+Extras.h"
 
+@interface SentryBreadcrumbTracker (Private)
+
+- (NSString *)sanitizeViewControllerName:(NSString *)controller;
+
+@end
+
 @interface SentryTests : XCTestCase
 
 @end
@@ -77,6 +83,13 @@
 - (void)testDateCategory {
     NSDate *date = [NSDate date];
     XCTAssertEqual((NSInteger)[[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970], (NSInteger)[date timeIntervalSince1970]);
+}
+
+- (void)testBreadcrumbTracker {
+    SentryBreadcrumbTracker *tracker = [[SentryBreadcrumbTracker alloc] init];
+    XCTAssertEqualObjects(@"sentry_ios_cocoapods > ViewController", [tracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
+    XCTAssertEqualObjects(@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0", [tracker sanitizeViewControllerName:@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
+    XCTAssertEqualObjects(@"sentry_ios_cocoapods > ViewController > miau", [tracker sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>"]);
 }
 
 @end
