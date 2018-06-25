@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "4.0.0"
+  s.version      = "4.0.1"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.module_name  = "Sentry"
   s.requires_arc = true
   s.frameworks = 'Foundation'
-  s.libraries = 'z'
+  s.libraries = 'z', 'c++'
   s.xcconfig = { 'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES' }
 
   s.default_subspecs = ['Core']

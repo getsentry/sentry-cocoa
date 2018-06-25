@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1
+
+- Fixes CocoaPods build to include C++ as a library #252
+
 ## 4.0.0
 
 - Moved KSCrash into Codebase while renaming it to SentryCrash.
