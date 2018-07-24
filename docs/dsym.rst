@@ -25,7 +25,7 @@ Use Fastlane
 
 Use the `Fastlane's <https://github.com/fastlane/fastlane>`__ action,
 `download_dsyms`, to download the dSYMs from iTunesConnect and upload to
-Sentry. The dSYM won't be generated unitl **after** the app is done
+Sentry. The dSYM won't be generated until **after** the app is done
 processing on iTunesConnect so this should be run in its own lane.
 
 .. sourcecode:: ruby
