@@ -110,4 +110,37 @@
     XCTAssertEqual(crumbs.count, (unsigned long)200);
 }
 
+- (void)testEventStoringHardLimitSet {
+    self.fileManager.maxEvents = 15;
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    for (NSInteger i = 0; i <= 20; i++) {
+        [self.fileManager storeEvent:event];
+    }
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
+    XCTAssertEqual(events.count, (unsigned long)15);
+}
+
+- (void)testBreadcrumbStoringHardLimitSet {
+    self.fileManager.maxBreadcrumbs = 205;
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
+    for (NSInteger i = 0; i <= 210; i++) {
+        [self.fileManager storeBreadcrumb:crumb];
+    }
+    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
+    XCTAssertEqual(crumbs.count, (unsigned long)205);
+}
+
+- (void)testEventLimitOverClient {
+    NSError *error = nil;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    XCTAssertNil(error);
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    client.maxEvents = 16;
+    for (NSInteger i = 0; i <= 20; i++) {
+        [client storeEvent:event];
+    }
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
+    XCTAssertEqual(events.count, (unsigned long)16);
+}
+
 @end
