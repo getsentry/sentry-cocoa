@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.0
+
+- Introduce `maxEvents` `maxBreadcrumbs` to increase the max count of offline stored assets
+
 ## 4.0.1
 
 - Fixes CocoaPods build to include C++ as a library #252
