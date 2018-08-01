@@ -74,6 +74,30 @@
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
+    
+    [client.breadcrumbs clear];
+    client.breadcrumbs.maxBreadcrumbs = 75;
+    for (NSInteger i = 0; i <= 100; i++) {
+        [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
+    }
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)75);
+    
+    // Hard limit
+    [client.breadcrumbs clear];
+    client.breadcrumbs.maxBreadcrumbs = 250;
+    for (NSInteger i = 0; i <= 250; i++) {
+        [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
+    }
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)200);
+    
+    // Extend Hard limit
+    [client.breadcrumbs clear];
+    client.breadcrumbs.maxBreadcrumbs = 250;
+    client.maxBreadcrumbs = 220;
+    for (NSInteger i = 0; i <= 250; i++) {
+        [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
+    }
+    XCTAssertEqual(client.breadcrumbs.count, (unsigned long)220);
 }
 
 - (void)testClearBreadcumb {

@@ -110,6 +110,16 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, copy) SentryShouldQueueEvent _Nullable shouldQueueEvent;
 
 /**
+ * Increase the max number of events we store offline.
+ * Be careful with this setting since too high numbers may cause your quota to exceed.
+ */
+@property(nonatomic, assign) NSUInteger maxEvents;
+/**
+ * Increase the max number of breadcrumbs we store offline.
+ */
+@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
+
+/**
  * Initializes a SentryClient. Pass your private DSN string.
  *
  * @param dsn DSN string of sentry

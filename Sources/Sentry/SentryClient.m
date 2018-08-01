@@ -64,6 +64,8 @@ static SentryInstallation *installation = nil;
 @synthesize extra = _extra;
 @synthesize user = _user;
 @synthesize sampleRate = _sampleRate;
+@synthesize maxEvents = _maxEvents;
+@synthesize maxBreadcrumbs = _maxBreadcrumbs;
 @dynamic logLevel;
 
 #pragma mark Initializer
@@ -346,6 +348,14 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     self.shouldSendEvent = ^BOOL(SentryEvent *_Nonnull event) {
         return (sampleRate >= ((double)arc4random() / 0x100000000));
     };
+}
+
+- (void)setMaxEvents:(NSUInteger)maxEvents {
+    self.fileManager.maxEvents = maxEvents;
+}
+
+-(void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+    self.fileManager.maxBreadcrumbs = maxBreadcrumbs;
 }
 
 #pragma mark SentryCrash

@@ -26,8 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSInteger const maxEvents = 10;
-NSInteger const maxBreadcrumbs = 200;
+NSInteger const defaultMaxEvents = 10;
+NSInteger const defaultMaxBreadcrumbs = 200;
 
 @interface SentryFileManager ()
 
@@ -64,6 +64,8 @@ NSInteger const maxBreadcrumbs = 200;
         }
 
         self.currentFileCounter = 0;
+        self.maxEvents = defaultMaxEvents;
+        self.maxBreadcrumbs = defaultMaxBreadcrumbs;
     }
     return self;
 }
@@ -142,25 +144,25 @@ NSInteger const maxBreadcrumbs = 200;
 }
 
 - (NSString *)storeEvent:(SentryEvent *)event {
-    return [self storeEvent:event maxCount:maxEvents];
+    return [self storeEvent:event maxCount:self.maxEvents];
 }
 
 - (NSString *)storeEvent:(SentryEvent *)event maxCount:(NSUInteger)maxCount {
     @synchronized (self) {
         NSString *result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
-        [self handleFileManagerLimit:self.eventsPath maxCount:MIN(maxCount, maxEvents)];
+        [self handleFileManagerLimit:self.eventsPath maxCount:maxCount];
         return result;
     }
 }
 
 - (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb {
-    return [self storeBreadcrumb:crumb maxCount:maxBreadcrumbs];
+    return [self storeBreadcrumb:crumb maxCount:self.maxBreadcrumbs];
 }
 
 - (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb maxCount:(NSUInteger)maxCount {
     @synchronized (self) {
         NSString *result = [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
-        [self handleFileManagerLimit:self.breadcrumbsPath maxCount:MIN(maxCount, maxBreadcrumbs)];
+        [self handleFileManagerLimit:self.breadcrumbsPath maxCount:MIN(maxCount, self.maxBreadcrumbs)];
         return result;
     }
 }
