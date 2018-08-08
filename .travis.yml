@@ -16,8 +16,6 @@ script: travis_retry .travis/run.sh
 env:
   matrix:
     - LANE=test
-    # - LANE=lint
-    # - LANE=pod
 
 jobs:
   include:
