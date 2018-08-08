@@ -296,8 +296,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     NSString *exceptionType = self.exceptionContext[@"type"];
     SentryException *exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:@"Unknown Exception"];
     if ([exceptionType isEqualToString:@"nsexception"]) {
-        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
-                                                      type:self.exceptionContext[@"nsexception"][@"name"]];
+        exception = [self parseNSException];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
         exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"cpp_exception"][@"name"]
                                                       type:@"C++ Exception"];
@@ -326,6 +325,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 
     [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanism];
+    // TODO only set if thread is nil
     exception.thread = [self crashedThread];
     if (nil != self.diagnosis && self.diagnosis.length > 0) {
         exception.value = [exception.value stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
@@ -355,6 +355,19 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (reasons.count > 0) {
         exception.value = [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
     }
+}
+
+- (SentryException *)parseNSException {
+    if ([self.exceptionContext[@"nsexception"][@"name"] containsString:@"NativeScript encountered a fatal error:"]) {
+        // TODO parsing here
+        SentryException *exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
+                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
+        // exception.thread set here with parsed js stacktrace
+        
+        return exception;
+    }
+    return [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
+                                             type:self.exceptionContext[@"nsexception"][@"name"]];
 }
 
 - (SentryMechanism *_Nullable)extractMechanism {

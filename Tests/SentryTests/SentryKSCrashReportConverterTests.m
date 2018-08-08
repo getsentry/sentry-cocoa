@@ -218,6 +218,17 @@ NSString *reportPath = @"";
     XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
+- (void)testNativeScript {
+    reportPath = @"Resources/NativeScript";
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    //    Error: SentryClient: Test throw error
+    XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"SentryClient: Test throw error");
+    [self isValidReport];
+}
+
 #pragma mark private helper
 
 - (void)isValidReport {
