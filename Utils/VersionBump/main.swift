@@ -4,7 +4,6 @@ import Regex
 
 let files = [
     "./Sentry.podspec",
-    "./docs/sentry-doc-config.json",
     "./Sources/Sentry/SentryClient.m",
     "./Sources/Configuration/Sentry.xcconfig",
 ]
