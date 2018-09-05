@@ -33,10 +33,10 @@
 {
     va_list args;
     va_start(args, fmt);
-    
+
     NSString* desc = [[NSString alloc] initWithFormat:fmt arguments:args];
     va_end(args);
-    
+
     return [NSError errorWithDomain:domain
                                code:code
                            userInfo:[NSDictionary dictionaryWithObject:desc
@@ -52,10 +52,10 @@
     {
         va_list args;
         va_start(args, fmt);
-        
+
         NSString* desc = [[NSString alloc] initWithFormat:fmt arguments:args];
         va_end(args);
-        
+
         *error = [NSError errorWithDomain:domain
                                      code:code
                                  userInfo:[NSDictionary dictionaryWithObject:desc
@@ -75,5 +75,5 @@
 
 @end
 
-@interface NSError_SimpleConstructor_AOG8G : NSObject @end @implementation NSError_SimpleConstructor_AOG8G @end
+@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject @end @implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G @end
 
