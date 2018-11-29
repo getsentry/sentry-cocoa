@@ -126,6 +126,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (jsonEvent[@"logger"]) {
         event.logger = jsonEvent[@"logger"];
     }
+    if (jsonEvent[@"fingerprint"]) {
+        event.logger = jsonEvent[@"fingerprint"];
+    }
     event.tags = [self.class sanitizeDictionary:jsonEvent[@"tags"]];
     if (jsonEvent[@"extra"]) {
         event.extra = jsonEvent[@"extra"];
