@@ -7,6 +7,7 @@ preReleaseCommand: bash .travis/bump.sh
 targets:
   - name: github
   - name: cocoapods
+    specPath: Sentry.podspec
   - name: registry
     type: sdk
     config:
