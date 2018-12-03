@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+    - /^release\/.+$/
 
 language: objective-c
 osx_image: xcode10.1
