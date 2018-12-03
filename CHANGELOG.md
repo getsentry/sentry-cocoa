@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.1
+
+- Add fingerprint support to JavaScript bridge
+
 ## 4.1.0
 
 - Introduce `maxEvents` `maxBreadcrumbs` to increase the max count of offline stored assets
