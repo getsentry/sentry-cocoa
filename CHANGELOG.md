@@ -3,6 +3,7 @@
 ## 4.1.1
 
 - Add fingerprint support to JavaScript bridge
+- Fix internal variable naming conflict with KSCrash
 
 ## 4.1.0
 
