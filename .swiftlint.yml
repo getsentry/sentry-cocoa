@@ -2,7 +2,7 @@ excluded:
   - Tests
   - Carthage
   - Pods
-  - Utils
+  - Utils/**/.build
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
@@ -75,22 +75,23 @@ whitelist_rules:
   - unused_closure_parameter
   - unused_enumerated
   - unused_optional_binding
-  - valid_docs
   - valid_ibinspectable
   - identifier_name
   - vertical_parameter_alignment
   - vertical_whitespace
   - void_return
   - weak_delegate
-force_unwrapping:
-  severity: error
-variable_name:
+identifier_name:
   min_length:
     - 2
     - 1
+force_try:
+  severity: warning
+force_unwrapping:
+  severity: error
+line_length:
+  - 220
 type_name:
   min_length:
     - 2
     - 1
-line_length:
-  - 220
