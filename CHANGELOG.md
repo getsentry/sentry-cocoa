@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.2
+
+- fix(react-native): Correctly label fingerprints for JS bridge. (#279)
+- Fix error for empty array creation (#278)
+- Fix NSInvalidArgumentException in SentryBreadcrumbStore (#272)
+
 ## 4.1.1
 
 - Add fingerprint support to JavaScript bridge
