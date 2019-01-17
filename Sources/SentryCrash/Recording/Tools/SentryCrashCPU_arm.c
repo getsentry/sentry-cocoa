@@ -158,5 +158,9 @@ int sentrycrashcpu_stackGrowDirection(void)
     return -1;
 }
 
+uintptr_t kscpu_normaliseInstructionPointer(uintptr_t ip)
+{
+    return ip;
+}
 
 #endif
