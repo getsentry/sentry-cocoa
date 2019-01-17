@@ -149,7 +149,7 @@ void sentrycrashcpu_getState(struct SentryCrashMachineContext* destinationContex
  *
  * @return Instruction pointer without PAC.
  */
-uintptr_t kscpu_normaliseInstructionPointer(uintptr_t ip);
+uintptr_t sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip);
     
 #ifdef __cplusplus
 }

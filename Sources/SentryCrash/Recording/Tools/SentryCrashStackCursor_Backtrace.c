@@ -40,7 +40,7 @@ static bool advanceCursor(SentryCrashStackCursor *cursor)
         // Bug: The system sometimes gives a backtrace with an extra 0x00000001 at the end.
         if(nextAddress > 1)
         {
-            cursor->stackEntry.address = kscpu_normaliseInstructionPointer(nextAddress);
+            cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
             cursor->state.currentDepth++;
             return true;
         }

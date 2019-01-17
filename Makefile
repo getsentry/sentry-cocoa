@@ -15,7 +15,7 @@ release: bump-version git-commit-add
 
 pod-lint:
 	@echo "--> Build local pod"
-	pod lib lint --allow-warnings
+	pod lib lint --allow-warnings --verbose
 
 bump-version: clean-version-bump
 	@echo "--> Bumping version from ${FROM} to ${TO}"
