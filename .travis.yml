@@ -14,14 +14,10 @@ rvm:
 
 script: travis_retry .travis/run.sh
 
-env:
-  matrix:
-    # - LANE=lint
-    - LANE=test
-    # - LANE=pod
-
 jobs:
   include:
+      env: LANE=test
+      script: .travis/run.sh
       env: LANE=deploy
       script: .travis/stage-carthage.sh
       after_success:
