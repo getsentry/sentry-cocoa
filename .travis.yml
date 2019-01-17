@@ -14,6 +14,12 @@ rvm:
 
 script: travis_retry .travis/run.sh
 
+env:
+  matrix:
+    - LANE=lint
+    - LANE=test
+    # - LANE=pod
+
 jobs:
   include:
       env: LANE=test
