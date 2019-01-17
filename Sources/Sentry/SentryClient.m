@@ -42,7 +42,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.1.2";
+NSString *const SentryClientVersionString = @"4.1.1";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;
@@ -239,10 +239,10 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 
 - (void)sendAllStoredEvents {
     dispatch_group_t dispatchGroup = dispatch_group_create();
-    
+
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
         dispatch_group_enter(dispatchGroup);
-        
+
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
@@ -262,11 +262,11 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
             if (response != nil) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
-            
+
             dispatch_group_leave(dispatchGroup);
         }];
     }
-    
+
     dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
         [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/allStoredEventsSent"
                                                           object:nil
