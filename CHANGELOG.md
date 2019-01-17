@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.3
+
+- Fix: WatchOS build
+
 ## 4.1.2
 
 - fix(react-native): Correctly label fingerprints for JS bridge. (#279)
