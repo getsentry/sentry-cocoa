@@ -42,7 +42,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.1.1";
+NSString *const SentryClientVersionString = @"4.1.2";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;

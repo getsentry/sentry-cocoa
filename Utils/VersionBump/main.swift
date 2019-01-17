@@ -1,13 +1,13 @@
 import Foundation
-import SwiftShell
 import Regex
+import SwiftShell
 
 let fromVersionFile = "./Sentry.podspec"
 
 let files = [
     "./Sentry.podspec",
     "./Sources/Sentry/SentryClient.m",
-    "./Sources/Configuration/Sentry.xcconfig",
+    "./Sources/Configuration/Sentry.xcconfig"
 ]
 
 let args = CommandLine.arguments
