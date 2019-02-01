@@ -39,6 +39,9 @@
 #import "SentryCrash.h"
 #endif
 
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
