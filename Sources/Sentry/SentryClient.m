@@ -136,7 +136,7 @@ requestManager:(id <SentryRequestManager>)requestManager
     #if SENTRY_HAS_UIKIT
     __weak SentryClient *weakSelf = self;
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-                                                    object:UIApplication.sharedApplication
+                                                    object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
                                                     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];

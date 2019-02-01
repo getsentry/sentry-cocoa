@@ -41,7 +41,7 @@
 - (void)trackApplicationUIKitNotifications {
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-                                                    object:UIApplication.sharedApplication
+                                                    object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
                                                     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
