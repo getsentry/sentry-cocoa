@@ -137,7 +137,7 @@ NS_SWIFT_NAME(Client)
 /**
  * Enable to listen to memory pressure notifcation on UIApplications.
  */
-- (void)trackMemoryPressure;
+- (void)trackMemoryPressureAsEvent;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with

@@ -129,7 +129,7 @@ requestManager:(id <SentryRequestManager>)requestManager
     [[SentryBreadcrumbTracker alloc] start];
 }
 
-- (void)trackMemoryPressure {
+- (void)trackMemoryPressureAsEvent {
     #if SENTRY_HAS_UIKIT
     __weak SentryClient *weakSelf = self;
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
