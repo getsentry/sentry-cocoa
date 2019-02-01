@@ -135,6 +135,11 @@ NS_SWIFT_NAME(Client)
 - (void)enableAutomaticBreadcrumbTracking;
 
 /**
+ * Enable to listen to memory pressure notifcation on UIApplications.
+ */
+- (void)trackMemoryPressure;
+
+/**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
  * useClientProperties: YES. CompletionHandler will be called if set.
  * @param event SentryEvent that should be sent

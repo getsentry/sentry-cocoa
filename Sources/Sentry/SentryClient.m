@@ -129,6 +129,20 @@ requestManager:(id <SentryRequestManager>)requestManager
     [[SentryBreadcrumbTracker alloc] start];
 }
 
+- (void)trackMemoryPressure {
+    #if SENTRY_HAS_UIKIT
+    __weak SentryClient *weakSelf = self;
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:UIApplication.sharedApplication
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+                                                    event.message = @"Memory Warning";
+                                                    [weakSelf storeEvent:event];
+                                                }];
+    #endif
+}
+
 #pragma mark Static Getter/Setter
 
 + (_Nullable instancetype)sharedClient {
@@ -210,7 +224,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // We check if we should leave the event locally stored and try to send it again later
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
+            if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
             [_self.fileManager removeFileAtPath:storedEventPath];
         }
         if (nil == error) {
@@ -366,7 +380,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     self.fileManager.maxEvents = maxEvents;
 }
 
--(void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+- (void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
     self.fileManager.maxBreadcrumbs = maxBreadcrumbs;
 }
 
