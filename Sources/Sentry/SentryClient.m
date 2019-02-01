@@ -224,7 +224,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // We check if we should leave the event locally stored and try to send it again later
-            if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
             [_self.fileManager removeFileAtPath:storedEventPath];
         }
         if (nil == error) {
