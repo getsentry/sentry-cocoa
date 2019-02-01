@@ -135,12 +135,12 @@ requestManager:(id <SentryRequestManager>)requestManager
 - (void)trackMemoryPressureAsEvent {
     #if SENTRY_HAS_UIKIT
     __weak SentryClient *weakSelf = self;
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"Memory Warning";
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
-                                                    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
-                                                    event.message = @"Memory Warning";
                                                     [weakSelf storeEvent:event];
                                                 }];
     #endif
