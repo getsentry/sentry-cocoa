@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.0
+
+- feat: Add `Client.shared?.trackMemoryPressureAsEvent()` to emit an event if application receives memory pressure notification
+- feat: `Client.shared?.enableAutomaticBreadcrumbTracking()` now adds a breadcrumb in case of memory pressure notification
+
 ## 4.1.3
 
 - Fix: WatchOS build
