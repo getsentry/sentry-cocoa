@@ -35,8 +35,23 @@
     [self addEnabledCrumb];
     [self swizzleSendAction];
     [self swizzleViewDidAppear];
+    [self trackApplicationUIKitNotifications];
 }
 
+- (void)trackApplicationUIKitNotifications {
+#if SENTRY_HAS_UIKIT
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
+                                                    crumb.type = @"system";
+                                                    crumb.message = @"Memory Warning";
+                                                    [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
+                                                }];
+#endif
+}
+     
 - (void)addEnabledCrumb {
     if (nil != SentryClient.sharedClient) {
         SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"started"];

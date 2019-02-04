@@ -39,6 +39,9 @@
 #import "SentryCrash.h"
 #endif
 
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -127,6 +130,20 @@ requestManager:(id <SentryRequestManager>)requestManager
 
 - (void)enableAutomaticBreadcrumbTracking {
     [[SentryBreadcrumbTracker alloc] start];
+}
+
+- (void)trackMemoryPressureAsEvent {
+    #if SENTRY_HAS_UIKIT
+    __weak SentryClient *weakSelf = self;
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"Memory Warning";
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [weakSelf storeEvent:event];
+                                                }];
+    #endif
 }
 
 #pragma mark Static Getter/Setter
@@ -366,7 +383,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     self.fileManager.maxEvents = maxEvents;
 }
 
--(void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+- (void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
     self.fileManager.maxBreadcrumbs = maxBreadcrumbs;
 }
 
