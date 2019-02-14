@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.1
+
+- fix: Add environment to Event in JavaScriptHelper
+
 ## 4.2.0
 
 - feat: Add `Client.shared?.trackMemoryPressureAsEvent()` to emit an event if application receives memory pressure notification

@@ -347,4 +347,26 @@
 
 }
 
+- (void)testEventFingerprint {
+    NSDate *date = [NSDate date];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    [event setFingerprint:@[@"test"]];
+    event.environment = @"bla";
+    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
+    event.extra = @{@"__sentry_stacktrace": @"f", @"__sentry_sdk_integrations": @[@"react-native"]};
+    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
+                                 @"event_id": event.eventId,
+                                 @"extra": [NSDictionary new],
+                                 @"level": @"info",
+                                 @"environment": @"bla",
+                                 @"fingerprint": @[@"test"],
+                                 @"platform": @"cocoa",
+                                 @"release": @"a-b",
+                                 @"dist": @"c",
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString, @"integrations": @[@"react-native"]},
+                                 @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event serialize], serialized);
+    
+}
+
 @end
