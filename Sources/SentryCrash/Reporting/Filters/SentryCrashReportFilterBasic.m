@@ -26,7 +26,7 @@
 
 
 #import "SentryCrashReportFilterBasic.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 #import "Container+DeepSearch.h"
 #import "SentryCrashVarArgs.h"
 

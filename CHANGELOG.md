@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.3.0
+
+- feat: Added `initWithOptions` function, it takes an Dictionary of key value. Possible values are `dsn`, `enabled`, `environment`, `release`, `dist`
+- feat: Added `enabled` on the `Client`
+- feat: Added `environment` on the `Client`
+- feat: Added `release` on the `Client`
+- feat: Added `dist` on the `Client`
+- ref: Renamed `NSError+SimpleConstructor.h` to `NSError+SentrySimpleConstructor.h`
+
 ## 4.2.1
 
 - fix: Add environment to Event in JavaScriptHelper

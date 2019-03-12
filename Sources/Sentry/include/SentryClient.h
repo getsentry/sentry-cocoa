@@ -57,6 +57,21 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
+ * This property will be filled before the event is sent.
+ */
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+
+/**
+ * This property will be filled before the event is sent.
+ */
+@property(nonatomic, copy) NSString *_Nullable dist;
+
+/**
+ * The environment used for this event
+ */
+@property(nonatomic, copy) NSString *_Nullable environment;
+    
+/**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
  * when sending the crashreport
  */
@@ -71,6 +86,11 @@ NS_SWIFT_NAME(Client)
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
+    
+/**
+ * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
+ */
+@property(nonatomic, copy) NSNumber *enabled;
 
 /**
  * This block can be used to modify the event before it will be serialized and sent
@@ -128,6 +148,16 @@ NS_SWIFT_NAME(Client)
  */
 - (_Nullable instancetype)initWithDsn:(NSString *)dsn
                      didFailWithError:(NSError *_Nullable *_Nullable)error;
+    
+/**
+ * Initializes a SentryClient. Pass in an dictionary of options.
+ *
+ * @param options Options dictionary
+ * @param error NSError reference object
+ * @return SentryClient
+ */
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * This automatically adds breadcrumbs for different user actions.

@@ -32,7 +32,7 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashJSONCodecObjC.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashSystemCapabilities.h"

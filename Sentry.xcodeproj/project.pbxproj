@@ -203,6 +203,11 @@
 		63E7C9F221106A13005F7EE0 /* SentryCrashReportFilter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */; };
 		63E7C9F521106A40005F7EE0 /* SentryCrashMonitorType.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FFE20DA4C1000CDBAE8 /* SentryCrashMonitorType.h */; };
 		63E7C9F621106A57005F7EE0 /* SentryMechanism.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6334313F20AD9AE40077E581 /* SentryMechanism.h */; };
+		63EED6BE2237923600E02400 /* SentryOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 63EED6BC2237923600E02400 /* SentryOptions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		63EED6BF2237923600E02400 /* SentryOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 63EED6BC2237923600E02400 /* SentryOptions.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		63EED6C02237923600E02400 /* SentryOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 63EED6BD2237923600E02400 /* SentryOptions.m */; };
+		63EED6C12237923600E02400 /* SentryOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 63EED6BD2237923600E02400 /* SentryOptions.m */; };
+		63EED6C32237989300E02400 /* SentryOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 63EED6C22237989300E02400 /* SentryOptionsTest.m */; };
 		63FE707720DA4C1000CDBAE8 /* Container+DeepSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FBD20DA4C1000CDBAE8 /* Container+DeepSearch.m */; };
 		63FE707820DA4C1000CDBAE8 /* Container+DeepSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FBD20DA4C1000CDBAE8 /* Container+DeepSearch.m */; };
 		63FE707B20DA4C1000CDBAE8 /* Container+DeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FBF20DA4C1000CDBAE8 /* Container+DeepSearch.h */; };
@@ -285,8 +290,8 @@
 		63FE710C20DA4C1000CDBAE8 /* SentryCrashMach.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700C20DA4C1000CDBAE8 /* SentryCrashMach.c */; };
 		63FE710D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */; };
 		63FE710E20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */; };
-		63FE710F20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m */; };
-		63FE711020DA4C1000CDBAE8 /* NSError+SimpleConstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m */; };
+		63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */; };
+		63FE711020DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */; };
 		63FE711120DA4C1000CDBAE8 /* SentryCrashDebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */; };
 		63FE711220DA4C1000CDBAE8 /* SentryCrashDebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */; };
 		63FE711520DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701120DA4C1000CDBAE8 /* SentryCrashJSONCodec.c */; };
@@ -345,8 +350,8 @@
 		63FE714C20DA4C1100CDBAE8 /* SentryCrashString.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */; };
 		63FE714D20DA4C1100CDBAE8 /* SentryCrashJSONCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */; };
 		63FE714E20DA4C1100CDBAE8 /* SentryCrashJSONCodec.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */; };
-		63FE714F20DA4C1100CDBAE8 /* NSError+SimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.h */; };
-		63FE715020DA4C1100CDBAE8 /* NSError+SimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.h */; };
+		63FE714F20DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.h */; };
+		63FE715020DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.h */; };
 		63FE715120DA4C1100CDBAE8 /* SentryCrashDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */; };
 		63FE715220DA4C1100CDBAE8 /* SentryCrashDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */; };
 		63FE715320DA4C1100CDBAE8 /* SentryCrashObjCApple.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE703020DA4C1000CDBAE8 /* SentryCrashObjCApple.h */; };
@@ -594,6 +599,9 @@
 		63BE856E1ECEC6DE00DC44F5 /* NSDate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDate+Extras.h"; path = "include/NSDate+Extras.h"; sourceTree = "<group>"; };
 		63BE856F1ECEC6DE00DC44F5 /* NSDate+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Extras.m"; sourceTree = "<group>"; };
 		63D50BC81EE049B1008902A3 /* SentryClient+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryClient+Internal.h"; path = "include/SentryClient+Internal.h"; sourceTree = "<group>"; };
+		63EED6BC2237923600E02400 /* SentryOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryOptions.h; path = include/SentryOptions.h; sourceTree = "<group>"; };
+		63EED6BD2237923600E02400 /* SentryOptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryOptions.m; sourceTree = "<group>"; };
+		63EED6C22237989300E02400 /* SentryOptionsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryOptionsTest.m; sourceTree = "<group>"; };
 		63FE6FBD20DA4C1000CDBAE8 /* Container+DeepSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Container+DeepSearch.m"; sourceTree = "<group>"; };
 		63FE6FBF20DA4C1000CDBAE8 /* Container+DeepSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Container+DeepSearch.h"; sourceTree = "<group>"; };
 		63FE6FC120DA4C1000CDBAE8 /* SentryCrashVarArgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashVarArgs.h; sourceTree = "<group>"; };
@@ -635,7 +643,7 @@
 		63FE700B20DA4C1000CDBAE8 /* SentryCrashFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashFileUtils.h; sourceTree = "<group>"; };
 		63FE700C20DA4C1000CDBAE8 /* SentryCrashMach.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMach.c; sourceTree = "<group>"; };
 		63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashStackCursor_MachineContext.c; sourceTree = "<group>"; };
-		63FE700E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+SimpleConstructor.m"; sourceTree = "<group>"; };
+		63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+SentrySimpleConstructor.m"; sourceTree = "<group>"; };
 		63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashDebug.c; sourceTree = "<group>"; };
 		63FE701120DA4C1000CDBAE8 /* SentryCrashJSONCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashJSONCodec.c; sourceTree = "<group>"; };
 		63FE701220DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashStackCursor_Backtrace.c; sourceTree = "<group>"; };
@@ -665,7 +673,7 @@
 		63FE702B20DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashStackCursor_Backtrace.h; sourceTree = "<group>"; };
 		63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashString.h; sourceTree = "<group>"; };
 		63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashJSONCodec.h; sourceTree = "<group>"; };
-		63FE702E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+SimpleConstructor.h"; sourceTree = "<group>"; };
+		63FE702E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+SentrySimpleConstructor.h"; sourceTree = "<group>"; };
 		63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashDebug.h; sourceTree = "<group>"; };
 		63FE703020DA4C1000CDBAE8 /* SentryCrashObjCApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashObjCApple.h; sourceTree = "<group>"; };
 		63FE703120DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashStackCursor_MachineContext.h; sourceTree = "<group>"; };
@@ -880,6 +888,8 @@
 				632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */,
 				63B225BF1F9E1DAF008C1A94 /* SentryJavaScriptBridgeHelper.h */,
 				63B225C01F9E1DAF008C1A94 /* SentryJavaScriptBridgeHelper.m */,
+				63EED6BC2237923600E02400 /* SentryOptions.h */,
+				63EED6BD2237923600E02400 /* SentryOptions.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -922,6 +932,7 @@
 				639889D21EDF06C100EA7442 /* SentryTests-Bridging-Header.h */,
 				631501BA1EE6F30B00512C5B /* SentrySwizzleTests.m */,
 				63B225CB1F9E26A4008C1A94 /* SentryJavaScriptBridgeHelperTests.m */,
+				63EED6C22237989300E02400 /* SentryOptionsTest.m */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -1083,7 +1094,7 @@
 				63FE700B20DA4C1000CDBAE8 /* SentryCrashFileUtils.h */,
 				63FE700C20DA4C1000CDBAE8 /* SentryCrashMach.c */,
 				63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */,
-				63FE700E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m */,
+				63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */,
 				63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */,
 				63FE701120DA4C1000CDBAE8 /* SentryCrashJSONCodec.c */,
 				63FE701220DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c */,
@@ -1113,7 +1124,7 @@
 				63FE702B20DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.h */,
 				63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */,
 				63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */,
-				63FE702E20DA4C1000CDBAE8 /* NSError+SimpleConstructor.h */,
+				63FE702E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.h */,
 				63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */,
 				63FE703020DA4C1000CDBAE8 /* SentryCrashObjCApple.h */,
 				63FE703120DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.h */,
@@ -1249,6 +1260,7 @@
 				6387B8161ED850A50045A84C /* SentryException.h in Headers */,
 				63FE713A20DA4C1100CDBAE8 /* SentryCrashMach.h in Headers */,
 				639889C01EDED18D00EA7442 /* SentryBreadcrumbTracker.h in Headers */,
+				63EED6BF2237923600E02400 /* SentryOptions.h in Headers */,
 				6387B81F1ED850CC0045A84C /* SentryFileManager.h in Headers */,
 				63FE709620DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
 				63FE70A220DA4C1000CDBAE8 /* SentryCrashCString.h in Headers */,
@@ -1268,7 +1280,7 @@
 				63FE713E20DA4C1100CDBAE8 /* SentryCrashLogger.h in Headers */,
 				6387B82B1ED851190045A84C /* SentryCrashReportConverter.h in Headers */,
 				6387B8231ED850E60045A84C /* NSData+Compression.h in Headers */,
-				63FE715020DA4C1100CDBAE8 /* NSError+SimpleConstructor.h in Headers */,
+				63FE715020DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */,
 				63FE714C20DA4C1100CDBAE8 /* SentryCrashString.h in Headers */,
 				63FE715420DA4C1100CDBAE8 /* SentryCrashObjCApple.h in Headers */,
 				63FE710220DA4C1000CDBAE8 /* SentryCrashDate.h in Headers */,
@@ -1346,6 +1358,7 @@
 				6344DDB41EC309E000D9160D /* SentryCrashReportSink.h in Headers */,
 				63FE713920DA4C1100CDBAE8 /* SentryCrashMach.h in Headers */,
 				636085091ED2AFA700E8599E /* SentryBreadcrumbStore.h in Headers */,
+				63EED6BE2237923600E02400 /* SentryOptions.h in Headers */,
 				63BE85701ECEC6DE00DC44F5 /* NSDate+Extras.h in Headers */,
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
 				63FE70A120DA4C1000CDBAE8 /* SentryCrashCString.h in Headers */,
@@ -1365,7 +1378,7 @@
 				63FE713D20DA4C1100CDBAE8 /* SentryCrashLogger.h in Headers */,
 				630435FE1EBCA9D900C4D3FA /* SentryNSURLRequest.h in Headers */,
 				63AA769D1EB9C57A00D153DE /* SentryError.h in Headers */,
-				63FE714F20DA4C1100CDBAE8 /* NSError+SimpleConstructor.h in Headers */,
+				63FE714F20DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */,
 				63FE714B20DA4C1100CDBAE8 /* SentryCrashString.h in Headers */,
 				63FE715320DA4C1100CDBAE8 /* SentryCrashObjCApple.h in Headers */,
 				63FE710120DA4C1000CDBAE8 /* SentryCrashDate.h in Headers */,
@@ -1539,6 +1552,7 @@
 				63FE716A20DA4C1100CDBAE8 /* SentryCrashStackCursor.c in Sources */,
 				63FE718E20DA4C1100CDBAE8 /* SentryCrashReportStore.c in Sources */,
 				63FE712A20DA4C1000CDBAE8 /* SentryCrashCPU_arm.c in Sources */,
+				63EED6C12237923600E02400 /* SentryOptions.m in Sources */,
 				6387B80C1ED8502B0045A84C /* SentryStacktrace.m in Sources */,
 				6387B7FE1ED850080045A84C /* SentryClient.m in Sources */,
 				63FE708E20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */,
@@ -1591,7 +1605,7 @@
 				63FE711C20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				63FE711820DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
 				63FE70CC20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
-				63FE711020DA4C1000CDBAE8 /* NSError+SimpleConstructor.m in Sources */,
+				63FE711020DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				6387B80F1ED850320045A84C /* SentryDebugMeta.m in Sources */,
 				6387B8011ED8500E0045A84C /* SentryFileManager.m in Sources */,
 				63FE711620DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */,
@@ -1625,6 +1639,7 @@
 				63FE716920DA4C1100CDBAE8 /* SentryCrashStackCursor.c in Sources */,
 				63FE718D20DA4C1100CDBAE8 /* SentryCrashReportStore.c in Sources */,
 				63FE712920DA4C1000CDBAE8 /* SentryCrashCPU_arm.c in Sources */,
+				63EED6C02237923600E02400 /* SentryOptions.m in Sources */,
 				63AA769E1EB9C57A00D153DE /* SentryError.m in Sources */,
 				6360850A1ED2AFA700E8599E /* SentryBreadcrumbStore.m in Sources */,
 				63FE708D20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */,
@@ -1677,7 +1692,7 @@
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				63FE711720DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
 				63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
-				63FE710F20DA4C1000CDBAE8 /* NSError+SimpleConstructor.m in Sources */,
+				63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				6344DDB51EC309E000D9160D /* SentryCrashReportSink.m in Sources */,
 				639889BD1EDED18400EA7442 /* SentrySwizzle.m in Sources */,
 				63FE711520DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */,
@@ -1713,6 +1728,7 @@
 				63FE721F20DA66EC00CDBAE8 /* SentryCrashSignalInfo_Tests.m in Sources */,
 				63FE721420DA66EC00CDBAE8 /* SentryCrashMemory_Tests.m in Sources */,
 				63FE720520DA66EC00CDBAE8 /* FileBasedTestCase.m in Sources */,
+				63EED6C32237989300E02400 /* SentryOptionsTest.m in Sources */,
 				630436131EC0A17100C4D3FA /* SentryLogTests.m in Sources */,
 				63FE721620DA66EC00CDBAE8 /* SentryCrashReportFixer_Tests.m in Sources */,
 				639889D41EDF06C100EA7442 /* SentrySwiftTests.swift in Sources */,

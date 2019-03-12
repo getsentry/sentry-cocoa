@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 
 
 @interface NSError_SimpleConstructor_Tests : XCTestCase @end
