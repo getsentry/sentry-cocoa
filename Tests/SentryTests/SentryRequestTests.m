@@ -823,7 +823,6 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     XCTAssertEqual([fileManager getAllStoredEvents].count, (unsigned long)0);
 }
 
-    
 - (void)testDisabledClient {
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:&error];

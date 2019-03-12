@@ -40,20 +40,20 @@
     }
     self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
     
-    if ([[options valueForKey:@"release"] isKindOfClass:[NSString class]]) {
-        self.releaseName = [options valueForKey:@"release"];
+    if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {
+        self.releaseName = [options objectForKey:@"release"];
     }
     
-    if ([[options valueForKey:@"environment"] isKindOfClass:[NSString class]]) {
-        self.environment = [options valueForKey:@"environment"];
+    if ([[options objectForKey:@"environment"] isKindOfClass:[NSString class]]) {
+        self.environment = [options objectForKey:@"environment"];
     }
     
-    if ([[options valueForKey:@"dist"] isKindOfClass:[NSString class]]) {
-        self.dist = [options valueForKey:@"dist"];
+    if ([[options objectForKey:@"dist"] isKindOfClass:[NSString class]]) {
+        self.dist = [options objectForKey:@"dist"];
     }
     
-    if ([[options valueForKey:@"enabled"] isKindOfClass:[NSNumber class]]) {
-        self.enabled = [options valueForKey:@"enabled"];
+    if (nil != [options objectForKey:@"enabled"]) {
+        self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
     }
 }
     
