@@ -32,7 +32,7 @@
 #import "SentryCrashCString.h"
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashLogger.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 #import <objc/runtime.h>
 
 

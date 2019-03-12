@@ -28,7 +28,7 @@
 #import "SentryCrashJSONCodecObjC.h"
 
 #import "SentryCrashJSONCodec.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 #import "SentryCrashDate.h"
 
 
