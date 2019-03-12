@@ -92,11 +92,18 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
     event.context = [self convertContext];
+    
+    event.releaseName = self.userContext[@"releaseName"];
+    event.dist = self.userContext[@"dist"];
+    event.environment = self.userContext[@"environment"];
+    
     // We want to set the release and dist to the version from the crash report itself
     // otherwise it can happend that we have two different version when the app crashes
     // right before an app update #218 #219
-    if (event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"] && event.context.appContext[@"app_build"]) {
+    if (nil == event.releaseName && event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"]) {
         event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
+    }
+    if (nil == event.dist && event.context.appContext[@"app_build"]) {
         event.dist = event.context.appContext[@"app_build"];
     }
     event.extra = [self convertExtra];

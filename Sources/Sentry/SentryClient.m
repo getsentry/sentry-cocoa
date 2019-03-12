@@ -22,6 +22,7 @@
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
+#import <Sentry/SentryOptions.h>
 #else
 #import "SentryClient.h"
 #import "SentryClient+Internal.h"
@@ -37,6 +38,7 @@
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
+#import "SentryOptions.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -63,6 +65,9 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryClient
 
+@synthesize environment = _environment;
+@synthesize releaseName = _releaseName;
+@synthesize dist = _dist;
 @synthesize tags = _tags;
 @synthesize extra = _extra;
 @synthesize user = _user;
@@ -73,25 +78,48 @@ static SentryInstallation *installation = nil;
 
 #pragma mark Initializer
 
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                         didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-    return [self initWithDsn:dsn
-              requestManager:[[SentryQueueableRequestManager alloc] initWithSession:session]
-            didFailWithError:error];
+    return [self initWithOptions:options
+                  requestManager:[[SentryQueueableRequestManager alloc] initWithSession:session]
+                didFailWithError:error];
+}
+    
+    
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+    return [self initWithOptions:@{@"dsn": dsn}
+                didFailWithError:error];
 }
 
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-requestManager:(id <SentryRequestManager>)requestManager
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                           requestManager:(id <SentryRequestManager>)requestManager
+                         didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         [self restoreContextBeforeCrash];
         [self setupQueueing];
         _extra = [NSDictionary new];
         _tags = [NSDictionary new];
-        self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
+        
+        SentryOptions *sentryOptions = [[SentryOptions alloc] initWithOptions:options didFailWithError:error];
+        if (nil != error && nil != *error) {
+            [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
+        
+        if (nil == sentryOptions.enabled) {
+            self.enabled = @YES;
+        } else {
+            self.enabled = sentryOptions.enabled;
+        }
+        self.dsn = sentryOptions.dsn;
+        self.environment = sentryOptions.environment;
+        self.releaseName = sentryOptions.releaseName;
+        self.dist = sentryOptions.dist;
+        
         self.requestManager = requestManager;
         if (logLevel > 1) { // If loglevel is set > None
             NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
@@ -102,8 +130,9 @@ requestManager:(id <SentryRequestManager>)requestManager
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
+        
         // We want to send all stored events on start up
-        if ([self.requestManager isReady]) {
+        if ([self.enabled boolValue] && [self.requestManager isReady]) {
             [self sendAllStoredEvents];
         }
     }
@@ -223,7 +252,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     NSString *storedEventPath = [self.fileManager storeEvent:event];
-
+    
+    if (![self.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+    
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // We check if we should leave the event locally stored and try to send it again later
@@ -236,7 +270,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                               object:nil
                                                             userInfo:[event serialize]];
             // Send all stored events in background if the queue is ready
-            if ([_self.requestManager isReady]) {
+            if ([_self.enabled boolValue] && [_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
         }
@@ -325,6 +359,18 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
+    
+    if (nil != self.environment && nil == event.environment) {
+        event.environment = self.environment;
+    }
+    
+    if (nil != self.releaseName && nil == event.releaseName) {
+        event.releaseName = self.releaseName;
+    }
+    
+    if (nil != self.dist && nil == event.dist) {
+        event.dist = self.dist;
+    }
 }
 
 - (void)appendStacktraceToEvent:(SentryEvent *)event {
@@ -353,8 +399,29 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [[NSUserDefaults standardUserDefaults] synchronize];
     _user = user;
 }
+    
+- (void)setReleaseName:(NSString *_Nullable)releaseName {
+    [[NSUserDefaults standardUserDefaults] setObject:releaseName forKey:@"sentry.io.releaseName"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _releaseName = releaseName;
+}
+    
+- (void)setDist:(NSString *_Nullable)dist {
+    [[NSUserDefaults standardUserDefaults] setObject:dist forKey:@"sentry.io.dist"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _dist = dist;
+}
+    
+- (void)setEnvironment:(NSString *_Nullable)environment {
+    [[NSUserDefaults standardUserDefaults] setObject:environment forKey:@"sentry.io.environment"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _environment = environment;
+}
 
 - (void)clearContext {
+    [self setReleaseName:nil];
+    [self setDist:nil];
+    [self setEnvironment:nil];
     [self setUser:nil];
     [self setExtra:[NSDictionary new]];
     [self setTags:[NSDictionary new]];
@@ -365,6 +432,9 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"] forKey:@"tags"];
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"] forKey:@"extra"];
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"] forKey:@"user"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.releaseName"] forKey:@"releaseName"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.dist"] forKey:@"dist"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.environment"] forKey:@"environment"];
     self.lastContext = context;
 }
 
