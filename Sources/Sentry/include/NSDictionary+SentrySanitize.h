@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSDictionary (Sanitize)
+@interface NSDictionary (SentrySanitize)
 
 - (NSDictionary *)sentry_sanitize;
 

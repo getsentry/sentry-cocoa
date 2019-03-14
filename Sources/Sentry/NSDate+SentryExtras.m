@@ -9,17 +9,16 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/NSData+Compression.h>
-#import <Sentry/NSDate+Extras.h>
+#import <Sentry/NSDate+SentryExtras.h>
 
 #else
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 #endif
 
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation NSDate (Extras)
+@implementation NSDate (SentryExtras)
 
 + (NSDateFormatter *)getIso8601Formatter {
     static NSDateFormatter *isoFormatter = nil;

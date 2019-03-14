@@ -14,18 +14,18 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/NSData+Compression.h>
+#import <Sentry/NSData+SentryCompression.h>
 #import <Sentry/SentryError.h>
 
 #else
-#import "NSData+Compression.h"
+#import "NSData+SentryCompression.h"
 #import "SentryError.h"
 #endif
 
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation NSData (Compression)
+@implementation NSData (SentryCompression)
 
 - (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                            error:(NSError *_Nullable *_Nullable)error {

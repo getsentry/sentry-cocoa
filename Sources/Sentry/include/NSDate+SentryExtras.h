@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSDate (Extras)
+@interface NSDate (SentryExtras)
 
 + (NSDate *)sentry_fromIso8601String:(NSString *)string;
 

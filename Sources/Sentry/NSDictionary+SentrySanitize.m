@@ -8,15 +8,15 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/NSDictionary+Sanitize.h>
-#import <Sentry/NSDate+Extras.h>
+#import <Sentry/NSDictionary+SentrySanitize.h>
+#import <Sentry/NSDate+SentryExtras.h>
 
 #else
-#import "NSDictionary+Sanitize.h"
-#import "NSDate+Extras.h"
+#import "NSDictionary+SentrySanitize.h"
+#import "NSDate+SentryExtras.h"
 #endif
 
-@implementation NSDictionary (Sanitize)
+@implementation NSDictionary (SentrySanitize)
 
 - (NSDictionary *)sentry_sanitize {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];

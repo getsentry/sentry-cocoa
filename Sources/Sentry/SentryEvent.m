@@ -16,8 +16,8 @@
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
 #import <Sentry/SentryDebugMeta.h>
-#import <Sentry/NSDate+Extras.h>
-#import <Sentry/NSDictionary+Sanitize.h>
+#import <Sentry/NSDate+SentryExtras.h>
+#import <Sentry/NSDictionary+SentrySanitize.h>
 
 #else
 #import "SentryEvent.h"
@@ -28,8 +28,8 @@
 #import "SentryException.h"
 #import "SentryStacktrace.h"
 #import "SentryContext.h"
-#import "NSDate+Extras.h"
-#import "NSDictionary+Sanitize.h"
+#import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithLevel:(enum SentrySeverity)level {
     self = [super init];
     if (self) {
-        self.eventId = [[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+        self.eventId = [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
         self.level = level;
         self.platform = @"cocoa";
     }

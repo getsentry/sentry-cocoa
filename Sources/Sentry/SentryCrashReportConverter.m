@@ -18,7 +18,7 @@
 #import <Sentry/SentryContext.h>
 #import <Sentry/SentryUser.h>
 #import <Sentry/SentryMechanism.h>
-#import <Sentry/NSDate+Extras.h>
+#import <Sentry/NSDate+SentryExtras.h>
 
 #else
 #import "SentryCrashReportConverter.h"
@@ -31,7 +31,7 @@
 #import "SentryContext.h"
 #import "SentryUser.h"
 #import "SentryMechanism.h"
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 #endif
 
 @interface SentryCrashReportConverter ()
