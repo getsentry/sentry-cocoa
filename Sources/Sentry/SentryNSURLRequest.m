@@ -14,7 +14,7 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
-#import <Sentry/NSData+Compression.h>
+#import <Sentry/NSData+SentryCompression.h>
 
 #else
 #import "SentryDsn.h"
@@ -23,7 +23,7 @@
 #import "SentryEvent.h"
 #import "SentryError.h"
 #import "SentryLog.h"
-#import "NSData+Compression.h"
+#import "NSData+SentryCompression.h"
 
 #endif
 

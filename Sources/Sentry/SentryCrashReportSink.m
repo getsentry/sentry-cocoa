@@ -59,6 +59,8 @@
                 reportConverter.userContext = SentryClient.sharedClient.lastContext;
                 SentryEvent *event = [reportConverter convertReportToEvent];
                 [self handleConvertedEvent:event report:report sentReports:sentReports];
+            } else {
+                [SentryLog logWithMessage:@"Crash reports were found but no SentryClient.sharedClient is set. Cannot send crash reports to Sentry. This is probably a misconfiguration, make sure you set SentryClient.sharedClient before calling startCrashHandlerWithError:." andLevel:kSentryLogLevelError];
             }
         }
         if (onCompletion) {

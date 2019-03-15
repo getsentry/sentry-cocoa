@@ -25,7 +25,7 @@
 //
 
 
-#import "Container+DeepSearch.h"
+#import "Container+SentryDeepSearch.h"
 
 
 #pragma mark - Base functionality

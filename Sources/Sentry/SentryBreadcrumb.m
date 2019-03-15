@@ -9,13 +9,13 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/NSDate+Extras.h>
-#import <Sentry/NSDictionary+Sanitize.h>
+#import <Sentry/NSDate+SentryExtras.h>
+#import <Sentry/NSDictionary+SentrySanitize.h>
 
 #else
 #import "SentryBreadcrumb.h"
-#import "NSDate+Extras.h"
-#import "NSDictionary+Sanitize.h"
+#import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 #endif
 
 

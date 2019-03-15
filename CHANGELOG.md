@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.3.1
+
+- ref: Make `event_id` all lowercase
+- feat: Emit log error in case no shared client is set and crash handler was started
+- ref: Renamed `Container+DeepSearch` to `Container+SentryDeepSearch`
+- ref: Renamed `NSData+Compression` to `NSData+SentryCompression`
+- ref: Renamed `NSDate+Extras` to `NSDate+SentryExtras`
+- ref: Renamed `NSDictionary+Sanitize` to `NSDictionary+SentrySanitize`
+
 ## 4.3.0
 
 - feat: Added `initWithOptions` function, it takes an Dictionary of key value. Possible values are `dsn`, `enabled`, `environment`, `release`, `dist`
@@ -44,8 +53,8 @@
 ## 4.0.0
 
 - Moved KSCrash into Codebase while renaming it to SentryCrash.
-Removed KSCrash dep in Podspec.
-Still if you do not call `startCrashHandlerWithError` crash handlers will not be installed.
+  Removed KSCrash dep in Podspec.
+  Still if you do not call `startCrashHandlerWithError` crash handlers will not be installed.
 
 **This should be safe to upgrade from 3.x.x, there are no code changes what so ever.
 If you are using CocoaPods or Carthage an update should take care of everything, if you were using the source code directly, make sure to remove KSCrash if you were using it.**
@@ -97,8 +106,8 @@ We recommend updating if you experience any KSCrash related crashes since we fix
 ## 3.10.0
 
 - This update will create a subfolder for each instance of SentryClient depending on the DSN.
-This also fixes a bug where under rare circumstances on MacOS for not sandboxed apps got sent with the wrong SentryClient.
-**We recommend updating to this version if you are running a un-sandboxed macOS app**
+  This also fixes a bug where under rare circumstances on MacOS for not sandboxed apps got sent with the wrong SentryClient.
+  **We recommend updating to this version if you are running a un-sandboxed macOS app**
 - Fixes #216
 
 ## 3.9.1
@@ -176,7 +185,7 @@ Expose `sdk` property for `SentryEvent` to allow users to set specific SDK infor
 
 ## 3.3.3
 
-Remove stripping of __sentry extra because it breaks if the event is serialized more than once.
+Remove stripping of \_\_sentry extra because it breaks if the event is serialized more than once.
 
 ## 3.3.2
 
@@ -219,7 +228,6 @@ Change the way `extra` `tags` and `user` is stored.
 ## 3.0.11
 
 - Fix `snapshotStacktrace` to also include `debug_meta` to fix grouping
-
 
 ## 3.0.10
 
@@ -272,8 +280,6 @@ https://docs.sentry.io/clients/cocoa/
 
 `KSCrash` is now optional, you can use Sentry without it, we still recommend using KSCrash by default otherwise Sentry will not catch any crashes.
 
-
-
 ## 2.1.11
 
 - Fix swift 3 async operation -> Operation never got removed from queue due using private vars instead of setter
@@ -295,11 +301,12 @@ https://docs.sentry.io/clients/cocoa/
 
 - Fix duplicate symbols in crash report
 
-1884.42s user 368.70s system 171% cpu 21:55.70 total
+  1884.42s user 368.70s system 171% cpu 21:55.70 total
 
 ## 2.1.6
 
 - Add additional Info about device
+
 ```
 ("app_identifier", bundleID)
 ("app_name", bundleName)
@@ -323,12 +330,10 @@ https://docs.sentry.io/clients/cocoa/
 
 - Prefix react-native frames with `app://`
 
-
 ## 2.1.1
 
 - Update swiftlint to whitelist rules
 - Add app context
-
 
 ## 2.1.0
 
@@ -339,17 +344,16 @@ https://docs.sentry.io/clients/cocoa/
 SentryClient.shared?.addExtra("key", value: "value")
 event.addTag("key", value: "value")
 ```
+
 - Fixed a bug where 64bit uInt got converted to 32bit
 - Added compatiblity for incomplete Crashreports from KSCrash
 - Added internal support for upcoming react-native support
 - Exposed `maxCrumbs` so the maximum amount of breadcrumbs can be adjusted
 
-
 ## 2.0.1
 
 - Fixed a bug with not sending `release` with event
 - Changed the way how swizzling works, there should not be a problem with e.g.: New Relic anymore
-
 
 ## 2.0.0 - Rename from SentrySwift to Sentry
 
@@ -363,7 +367,6 @@ event.addTag("key", value: "value")
   Also in the `Podfile` you have to change to `pod Sentry` instead of `pod SentrySwift`.
   Everything else stayed the same.
 
-
 ## 1.4.5
 
 - Now sending `registers` with stacktrace for better symbolication results
@@ -373,53 +376,45 @@ event.addTag("key", value: "value")
 - Add `build` to `release` e.g.: `1.0 (1337)`
 - Added `objcBeforeSendEventBlock` as equivalent to swifts `beforeSendEventBlock`
 
-
 ## 1.4.4
 
 - Removed `SentryClient.shared?.enableThreadNames` because KSCrash changed the mechanism on how threadnames are fetched. They will show up in sentry if available.
 - Now sending build number with every event.
-
 
 ## 1.4.3
 
 - Fixed an issue where properties of an event will be overwritten before sending
 - Added `SentryClient.shared?.enableThreadNames` variable which can be set to true in order to retrieve the thread names when a crash happens. Enable this on you own risk this could deadlock you app therefore its not yet officially documented.
 
-
 ## 1.4.2
 
 - Fixed Xcode 7 support
 
-
 ## 1.4.1
 
 - enable `searchThreadNames` to display thread names in sentry
-
 
 ## 1.4.0
 
 - Update KSCrash to 1.13.x
 
 **Warning**
+
 - Added namespace for Objc
   e.g.: `User` -> `SentryUser` but Xcode should suggest the new class names ... Swift code does not change
-
 
 ## 1.3.4
 
 - Store events now in `Library/Caches` instead of `Documents` folder
 
-
 ## 1.3.3
 
 - Add `RequestManager` for improved handling on many requests
-
 
 ## 1.3.2
 
 - Reuse `URLSession` when sending events
 - Optimize `BreadcrumbStore`
-
 
 ## 1.3.1
 
@@ -427,19 +422,16 @@ event.addTag("key", value: "value")
 - Don't strip filepath from frames
 - Add `reportReactNativeFatalCrash`
 
-
 ## 1.3.0
 
 - Moved `docs/` to this repo
 - You can now take a snapshot of the stacktrace and send it with your event ... see https://docs.sentry.io/clients/cocoa/advanced/#adding-stacktrace-to-message for more information
 - Added `beforeSendEventBlock` to change a event before sending it https://docs.sentry.io/clients/cocoa/advanced/#change-event-before-sending-it
 
-
 ## 1.2.0
 
 - Reverse frames in stacktrace
 - Remove in_app from stacktrace
-
 
 ## 1.1.0
 
@@ -448,13 +440,11 @@ event.addTag("key", value: "value")
 - Improved UserFeedback controller
 - Updated KSCrash to 1.11.2
 
-
 ## 1.0.0
 
 - Refactored a lot of internal classes
 - Added `UserFeedback` feature to iOS
 - Added basic support for watchOS
-
 
 ## 0.5.0 - Remove Apple Crash Report
 
@@ -463,38 +453,31 @@ event.addTag("key", value: "value")
 - Switch version/build to make iOS version in sentry more understandable
 - Use `diagnosis` from KSCrash for crash reasons
 
-
 ## 0.4.1
 
 Fixed for breadcrumbs not always sending on fatal
-
 
 ## 0.4.0
 
 - Support for Swift 2.3 and Swift 3.0
 
-
 ## 0.3.3
 
 - Fixes issue in where capturing `NSError` was not sending up to API
-
 
 ## 0.3.2
 
 - Release was not getting sent up on crashes
 - Contexts was getting sent up on wrong key
 
-
 ## 0.3.1
 
 - Defaulting release to main bundle version
-
 
 ## 0.3.0
 
 - Added support for crashing reporting for Mac apps
 - Requests are now gzip before going off to Sentry API
-
 
 ## 0.2.1
 
@@ -504,12 +487,10 @@ Fixed for breadcrumbs not always sending on fatal
 - Changed merging behaviour in EventProperties
   - Event takes priority over client
 
-
 ## 0.2.0
 
 - Added tvOS support
 - Fixes with KSCrash that will build KSCrash for all platforms
-
 
 ## 0.1.0
 
