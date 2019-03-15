@@ -10,7 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryContext.h"
 #import "SentryFileManager.h"
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 
 @interface SentryInterfacesTests : XCTestCase
 
@@ -116,7 +116,7 @@
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event2 serialize], serialized2);
-    
+
     SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event3.timestamp = date;
     event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
@@ -132,7 +132,7 @@
 
 - (void)testTransactionEvent {
     NSDate *date = [NSDate date];
-    
+
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event.timestamp = date;
     event.extra = @{@"__sentry_transaction": @"yoyoyo"};
@@ -147,7 +147,7 @@
                                            @"integrations": @[@"sentry-cocoa"]},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
-    
+
     SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event3.timestamp = date;
     event3.transaction = @"UIViewControllerTest";
@@ -366,7 +366,7 @@
                                  @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString, @"integrations": @[@"react-native"]},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
-    
+
 }
 
 @end

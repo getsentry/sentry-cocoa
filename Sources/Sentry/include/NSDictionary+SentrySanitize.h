@@ -1,5 +1,5 @@
 //
-//  NSDictionary+Sanitize.h
+//  NSDictionary+SentrySanitize.h
 //  Sentry
 //
 //  Created by Daniel Griesser on 16/06/2017.

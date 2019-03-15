@@ -10,7 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
@@ -60,7 +60,7 @@
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
-    
+
     [client.breadcrumbs clear];
     for (NSInteger i = 0; i < 49; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
@@ -68,20 +68,20 @@
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)49);
     [client.breadcrumbs serialize];
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)49);
-    
+
     [client.breadcrumbs clear];
     for (NSInteger i = 0; i < 51; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)50);
-    
+
     [client.breadcrumbs clear];
     client.breadcrumbs.maxBreadcrumbs = 75;
     for (NSInteger i = 0; i <= 100; i++) {
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)75);
-    
+
     // Hard limit
     [client.breadcrumbs clear];
     client.breadcrumbs.maxBreadcrumbs = 250;
@@ -89,7 +89,7 @@
         [client.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
     }
     XCTAssertEqual(client.breadcrumbs.count, (unsigned long)200);
-    
+
     // Extend Hard limit
     [client.breadcrumbs clear];
     client.breadcrumbs.maxBreadcrumbs = 250;
@@ -142,22 +142,22 @@
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:10];
     crumb.timestamp = date;
     [client.breadcrumbs addBreadcrumb:crumb];
-    
+
     SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
     NSDate *date2 = [NSDate dateWithTimeIntervalSince1970:899990];
     crumb2.timestamp = date2;
     [client.breadcrumbs addBreadcrumb:crumb2];
-    
+
     SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
     NSDate *date3 = [NSDate dateWithTimeIntervalSince1970:5];
     crumb3.timestamp = date3;
     [client.breadcrumbs addBreadcrumb:crumb3];
-    
+
     SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
     NSDate *date4 = [NSDate dateWithTimeIntervalSince1970:11];
     crumb4.timestamp = date4;
     [client.breadcrumbs addBreadcrumb:crumb4];
-    
+
     NSDictionary *serialized = [client.breadcrumbs serialize];
     NSArray *dates = [serialized valueForKeyPath:@"breadcrumbs.timestamp"];
     XCTAssertTrue([[dates objectAtIndex:0] isEqualToString:[date sentry_toIso8601String]]);

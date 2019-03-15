@@ -1,5 +1,5 @@
 //
-//  NSData+Compression.m
+//  NSData+SentryCompression.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 08/05/2017.
@@ -10,7 +10,7 @@
 
 #import <zlib.h>
 
-#endif 
+#endif
 
 #if __has_include(<Sentry/Sentry.h>)
 
