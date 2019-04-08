@@ -21,7 +21,6 @@ let fromVersionFileHandler = try open(fromVersionFile)
 let fromFileContent: String = fromVersionFileHandler.read()
 
 for match in Regex("[0-9]+\\.[0-9]+\\.[0-9]+", options: [.dotMatchesLineSeparators]).allMatches(in: fromFileContent) {
-
     let fromVersion = match.matchedString
     let toVersion = args[1]
 
@@ -33,5 +32,4 @@ for match in Regex("[0-9]+\\.[0-9]+\\.[0-9]+", options: [.dotMatchesLineSeparato
         overwriteFile.write(newContents)
         overwriteFile.close()
     }
-
 }
