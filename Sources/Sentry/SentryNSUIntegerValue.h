@@ -1,5 +1,5 @@
 //
-//  NSString+NSUIntegerValue.h
+//  SentryNSUIntegerValue.h
 //  Sentry
 //
 //  Created by Crazy凡 on 2019/3/21.
