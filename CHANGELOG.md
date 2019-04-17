@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.2
+
+- fix: [SentryThread serialize] will crash when threadId is nil #292
+
 ## 4.3.1
 
 - ref: Make `event_id` all lowercase
