@@ -11,7 +11,7 @@
 @implementation NSString (NSUIntegerValue)
 
 - (NSUInteger)unsignedLongLongValue {
-    return [self integerValue];
+    return strtoull([self UTF8String], NULL, 0);
 }
 
 @end
