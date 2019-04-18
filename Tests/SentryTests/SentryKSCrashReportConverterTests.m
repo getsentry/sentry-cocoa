@@ -178,6 +178,17 @@ NSString *reportPath = @"";
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
+    XCTAssertEqualObjects(exception.value, @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50");
+}
+
+- (void)testNewNSException {
+    reportPath = @"Resources/sentry-ios-cocoapods-report-0000000053800000";
+    [self isValidReport];
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.value, @"this is the reason");
 }
 
 - (void)testFatalError {
