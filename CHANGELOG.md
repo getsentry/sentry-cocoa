@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.3.3
+
+- fix: 64 int conversion #296
+- fix: Extracting reason of NSException
+
 ## 4.3.2
 
 - fix: [SentryThread serialize] will crash when threadId is nil #292
