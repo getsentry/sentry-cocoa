@@ -6,9 +6,17 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#import "SentryNSUIntegerValue.h"
 
-@implementation NSString (NSUIntegerValue)
+
+#if __has_include(<Sentry/Sentry.h>)
+
+#import <Sentry/NSString+SentryNSUIntegerValue.h>
+
+#else
+#import "NSString+SentryNSUIntegerValue.h"
+#endif
+
+@implementation NSString (SentryNSUIntegerValue)
 
 - (NSUInteger)unsignedLongLongValue {
     return strtoull([self UTF8String], NULL, 0);

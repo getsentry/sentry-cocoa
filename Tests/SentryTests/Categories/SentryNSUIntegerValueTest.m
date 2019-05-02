@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "SentryNSUIntegerValue.h"
+#import "NSString+SentryNSUIntegerValue.h"
 
 @interface SentryNSUIntegerValueTest : XCTestCase
 
