@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addExceptions:(NSMutableDictionary *)serializedData {
     NSMutableArray *exceptions = [NSMutableArray new];
-    for (SentryThread *exception in self.exceptions) {
+    for (SentryException *exception in self.exceptions) {
         [exceptions addObject:[exception serialize]];
     }
     if (exceptions.count > 0) {
