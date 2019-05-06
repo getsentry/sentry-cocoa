@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.4
+
+- fix: #305
+
 ## 4.3.3
 
 - fix: 64 int conversion #296
