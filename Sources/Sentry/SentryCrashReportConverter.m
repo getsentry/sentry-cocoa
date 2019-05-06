@@ -19,7 +19,6 @@
 #import <Sentry/SentryUser.h>
 #import <Sentry/SentryMechanism.h>
 #import <Sentry/NSDate+SentryExtras.h>
-#import <Sentry/NSString+SentryNSUIntegerValue.h>
 
 #else
 #import "SentryCrashReportConverter.h"
@@ -33,7 +32,6 @@
 #import "SentryUser.h"
 #import "SentryMechanism.h"
 #import "NSDate+SentryExtras.h"
-#import "NSString+SentryNSUIntegerValue.h"
 #endif
 
 @interface SentryCrashReportConverter ()
@@ -205,8 +203,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 - (NSDictionary *)binaryImageForAddress:(uintptr_t)address {
     NSDictionary *result = nil;
     for (NSDictionary *binaryImage in self.binaryImages) {
-        uintptr_t imageStart = (uintptr_t) [binaryImage[@"image_addr"] unsignedSentryLongLongValue];
-        uintptr_t imageEnd = imageStart + (uintptr_t) [binaryImage[@"image_size"] unsignedSentryLongLongValue];
+        uintptr_t imageStart = (uintptr_t) [binaryImage[@"image_addr"] unsignedLongLongValue];
+        uintptr_t imageEnd = imageStart + (uintptr_t) [binaryImage[@"image_size"] unsignedLongLongValue];
         if (address >= imageStart && address < imageEnd) {
             result = binaryImage;
             break;
@@ -238,7 +236,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 
 - (SentryFrame *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex {
     NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
-    uintptr_t instructionAddress = (uintptr_t) [frameDictionary[@"instruction_addr"] unsignedSentryLongLongValue];
+    uintptr_t instructionAddress = (uintptr_t) [frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
 //    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
     SentryFrame *frame = [[SentryFrame alloc] init];

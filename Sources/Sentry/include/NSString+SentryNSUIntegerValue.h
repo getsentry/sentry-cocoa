@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NSString (SentryNSUIntegerValue)
-- (NSUInteger)unsignedSentryLongLongValue;
+- (NSUInteger)unsignedLongLongValue;
 @end
 
 NS_ASSUME_NONNULL_END

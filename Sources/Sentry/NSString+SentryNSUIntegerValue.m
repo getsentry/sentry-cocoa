@@ -18,7 +18,7 @@
 
 @implementation NSString (SentryNSUIntegerValue)
 
-- (NSUInteger)unsignedSentryLongLongValue {
+- (NSUInteger)unsignedLongLongValue {
     return strtoull([self UTF8String], NULL, 0);
 }
 
