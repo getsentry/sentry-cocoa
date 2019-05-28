@@ -171,6 +171,14 @@
     XCTAssertEqualObjects([[eventEmptyDist serialize] objectForKey:@"release"], @"abc");
 }
 
+- (void)testEventDataStoring {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{@"id": @"1234"}
+                                                       options:0
+                                                         error:nil];
+    SentryEvent *event = [[SentryEvent alloc] initWithJSON:jsonData];
+    XCTAssertNil([[event serialize] objectForKey:@"json"]);
+}
+
 - (void)testStacktrace {
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";

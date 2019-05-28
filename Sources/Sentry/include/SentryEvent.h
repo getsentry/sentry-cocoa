@@ -154,11 +154,25 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDictionary *infoDict;
 
 /**
+ * JSON baggage, that will only be filled if initWithJSON is called.
+ */
+@property(nonatomic, strong) NSData *json;
+
+/**
  * Init an SentryEvent will set all needed fields by default
  * @param level SentrySeverity
  * @return SentryEvent
  */
 - (instancetype)initWithLevel:(enum SentrySeverity)level;
+
+/**
+ * Init an SentryEvent with a JSON blob that completly bypasses all other attributes in the event.
+ * Instead only the JSON will be sent, this is used in react-native for example where we consider the event
+ * from JS as the source of truth.
+ * @param json NSData
+ * @return SentryEvent
+ */
+- (instancetype)initWithJSON:(NSData *)json;
 
 @end
 
