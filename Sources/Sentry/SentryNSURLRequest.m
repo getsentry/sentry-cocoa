@@ -43,17 +43,24 @@ NSTimeInterval const SentryRequestTimeout = 15;
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
                                          andEvent:(SentryEvent *)event
                                  didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSDictionary *serialized = [event serialize];
-    if (![NSJSONSerialization isValidJSONObject:serialized]) {
-        if (error) {
-            *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
+    NSData *jsonData;
+    if (nil != event.json) {
+        // If we have event.json, this has been set from JS and should be sent directly
+        jsonData = event.json;
+        [SentryLog logWithMessage:@"Using event->json attribute instead of serializing event" andLevel:kSentryLogLevelVerbose];
+    } else {
+        NSDictionary *serialized = [event serialize];
+        if (![NSJSONSerialization isValidJSONObject:serialized]) {
+            if (error) {
+                *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
+            }
+            return nil;
         }
-        return nil;
+        
+        jsonData = [NSJSONSerialization dataWithJSONObject:serialized
+                                                           options:SentryClient.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
+                                                             error:error];
     }
-
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                       options:SentryClient.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
-                                                         error:error];
     
     if (SentryClient.logLevel == kSentryLogLevelVerbose) {
         [SentryLog logWithMessage:@"Sending JSON -------------------------------" andLevel:kSentryLogLevelVerbose];

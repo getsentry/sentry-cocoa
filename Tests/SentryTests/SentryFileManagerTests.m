@@ -46,6 +46,17 @@
     XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
 }
 
+- (void)testEventDataStoring {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{@"id": @"1234"}
+                                                       options:0
+                                                         error:nil];
+    SentryEvent *event = [[SentryEvent alloc] initWithJSON:jsonData];
+    [self.fileManager storeEvent:event];
+    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
+    XCTAssertTrue(events.count == 1);
+    XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
+}
+
 - (void)testEventStore {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];

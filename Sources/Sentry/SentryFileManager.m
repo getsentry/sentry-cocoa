@@ -149,7 +149,12 @@ NSInteger const defaultMaxBreadcrumbs = 200;
 
 - (NSString *)storeEvent:(SentryEvent *)event maxCount:(NSUInteger)maxCount {
     @synchronized (self) {
-        NSString *result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
+        NSString *result;
+        if (nil != event.json) {
+            result = [self storeData:event.json toPath:self.eventsPath];
+        } else {
+            result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
+        }
         [self handleFileManagerLimit:self.eventsPath maxCount:maxCount];
         return result;
     }
@@ -167,19 +172,24 @@ NSInteger const defaultMaxBreadcrumbs = 200;
     }
 }
 
-- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
+- (NSString *)storeData:(NSData *)data toPath:(NSString *)path {
     @synchronized (self) {
         NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath] andLevel:kSentryLogLevelDebug];
-        if ([NSJSONSerialization isValidJSONObject:dictionary]) {
-            NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
-            [saveData writeToFile:finalPath options:NSDataWritingAtomic error:nil];
-        } else {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON, failed to write file %@", finalPath]
-                             andLevel:kSentryLogLevelError];
-        }
+        [data writeToFile:finalPath options:NSDataWritingAtomic error:nil];
         return finalPath;
     }
+}
+
+- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
+    if ([NSJSONSerialization isValidJSONObject:dictionary]) {
+        NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
+        return [self storeData:saveData toPath:path];
+    } else {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON, failed to write file %@", path]
+                         andLevel:kSentryLogLevelError];
+    }
+    return path;
 }
 
 - (void)handleFileManagerLimit:(NSString *)path maxCount:(NSUInteger)maxCount {
