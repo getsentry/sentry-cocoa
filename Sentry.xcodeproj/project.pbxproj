@@ -2012,6 +2012,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = "";
 				USE_HEADERMAP = YES;
 			};
 			name = Debug;
@@ -2043,6 +2044,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = "";
 				USE_HEADERMAP = YES;
 			};
 			name = Release;
