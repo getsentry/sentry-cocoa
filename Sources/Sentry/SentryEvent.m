@@ -163,6 +163,10 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
+    [serializedData setValue:self.type forKey:@"type"];
+    if (nil != self.type && [self.type isEqualToString:@"transaction"]) {
+        [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"start_timestamp"];
+    }
 }
 
 @end

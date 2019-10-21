@@ -79,6 +79,12 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, copy) NSString *_Nullable transaction;
 
+
+/**
+ * The type of the event, null, default or transaction
+ */
+@property(nonatomic, copy) NSString *_Nullable type;
+
 /**
  * Arbitrary key:value (string:string ) data that will be shown with the event
  */
