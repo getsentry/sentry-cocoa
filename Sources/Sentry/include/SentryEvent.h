@@ -40,6 +40,11 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDate *timestamp;
 
 /**
+ * NSDate of when the event started, mostly useful if event type transaction
+ */
+@property(nonatomic, strong) NSDate *_Nullable startTimestamp;
+
+/**
  * SentrySeverity of the event
  */
 @property(nonatomic) enum SentrySeverity level;
