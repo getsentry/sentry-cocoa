@@ -10,7 +10,7 @@ cache:
   - bundler
 
 rvm:
-  - 2.3
+  - 2.4
 
 script: travis_retry .travis/run.sh
 

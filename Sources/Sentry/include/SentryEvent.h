@@ -40,6 +40,11 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDate *timestamp;
 
 /**
+ * NSDate of when the event started, mostly useful if event type transaction
+ */
+@property(nonatomic, strong) NSDate *_Nullable startTimestamp;
+
+/**
  * SentrySeverity of the event
  */
 @property(nonatomic) enum SentrySeverity level;
@@ -78,6 +83,12 @@ SENTRY_NO_INIT
  * The current transaction (state) on the crash
  */
 @property(nonatomic, copy) NSString *_Nullable transaction;
+
+
+/**
+ * The type of the event, null, default or transaction
+ */
+@property(nonatomic, copy) NSString *_Nullable type;
 
 /**
  * Arbitrary key:value (string:string ) data that will be shown with the event
