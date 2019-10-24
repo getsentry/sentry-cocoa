@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.1
+
+- feat: Add support for custom context and event types
+
 ## 4.4.0
 
 - feat: Helper property on event to send raw payload
