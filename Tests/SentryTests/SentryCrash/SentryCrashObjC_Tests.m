@@ -406,7 +406,7 @@ static NSArray* g_test_strings;
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
 }
 
-// test is crashing
+// TODO(fetzig): test is crashing
 //- (void) testCopyStringContentsCFString
 //{
 //    for(NSUInteger i = 0; i < g_test_strings.count; i++)
