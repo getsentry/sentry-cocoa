@@ -9,7 +9,7 @@ lane :localcoverage do
 end
 
 lane :oc_lint do
-  sh('cd ..; xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log; oclint-xcodebuild -output compile_commands.json xcodebuild.log')
+  sh('cd ..; xcodebuild clean; xcodebuild COMPILER_INDEX_STORE_ENABLE=NO | xcpretty -r json-compilation-database --output compile_commands.json')
   oclint
 end
 
