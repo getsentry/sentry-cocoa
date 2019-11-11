@@ -13,9 +13,6 @@ if [ "$LANE" = "lint" ]; then
     gem install danger-swiftlint
     brew update > /dev/null
     brew outdated swiftlint || brew upgrade swiftlint
-elif [ "$LANE" = "oc_lint" ]; then
-    brew brew tap oclint/formulae
-    brew install oclint
 elif [ "$LANE" = "pod" ]; then
     gem install cocoapods
     pod repo update

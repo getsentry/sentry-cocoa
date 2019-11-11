@@ -6,6 +6,12 @@ branches:
 
 language: objective-c
 osx_image: xcode9.4
+addons:
+  homebrew:
+    taps: oclint/formulae
+    packages:
+      - oclint
+    update: true
 
 cache:
   - bundler
