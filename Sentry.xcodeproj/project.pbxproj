@@ -1554,7 +1554,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}\nfastlane oc_lint\nmaxPriority=15000\n# ignore SentryCrash\noclint-json-compilation-database -exclude SentryCrash -- -report-type xcode -max-priority-1=$maxPriority -max-priority-2=$maxPriority -max-priority-3=$maxPriority\n";
+			shellScript = "cd ${SRCROOT}\nbundle exec fastlane oc_lint\n# ignore SentryCrash\noclint-json-compilation-database -exclude SentryCrash -- -report-type xcode -max-priority-1=10 -max-priority-2=100 -max-priority-3=1000\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
