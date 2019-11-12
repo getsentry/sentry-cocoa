@@ -325,7 +325,7 @@
 		63FE712C20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE701C20DA4C1000CDBAE8 /* SentryCrashStackCursor.h */; };
 		63FE712D20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701D20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.m */; };
 		63FE712E20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701D20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.m */; };
-		63FE712F20DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */; };
+		63FE712F20DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		63FE713020DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */; };
 		63FE713120DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701F20DA4C1000CDBAE8 /* SentryCrashDynamicLinker.c */; };
 		63FE713220DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE701F20DA4C1000CDBAE8 /* SentryCrashDynamicLinker.c */; };
@@ -428,8 +428,8 @@
 		63FE720320DA66EC00CDBAE8 /* SentryCrashCPU_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71D720DA66E700CDBAE8 /* SentryCrashCPU_Tests.m */; };
 		63FE720420DA66EC00CDBAE8 /* SentryCrashString_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71D820DA66E700CDBAE8 /* SentryCrashString_Tests.m */; };
 		63FE720520DA66EC00CDBAE8 /* FileBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71D920DA66E700CDBAE8 /* FileBasedTestCase.m */; };
-		63FE720620DA66EC00CDBAE8 /* SentryCrashMonitor_AppState_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DA20DA66E700CDBAE8 /* SentryCrashMonitor_AppState_Tests.m */; };
-		63FE720720DA66EC00CDBAE8 /* SentryCrashReportFilter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DB20DA66E700CDBAE8 /* SentryCrashReportFilter_Tests.m */; };
+		63FE720620DA66EC00CDBAE8 /* SentryCrashMonitor_AppState_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DA20DA66E700CDBAE8 /* SentryCrashMonitor_AppState_Tests.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
+		63FE720720DA66EC00CDBAE8 /* SentryCrashReportFilter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DB20DA66E700CDBAE8 /* SentryCrashReportFilter_Tests.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71DE20DA66E800CDBAE8 /* XCTestCase+SentryCrash.m */; };
 		63FE720C20DA66EC00CDBAE8 /* SentryCrashMonitor_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E120DA66E800CDBAE8 /* SentryCrashMonitor_Tests.m */; };
 		63FE720D20DA66EC00CDBAE8 /* NSError+SimpleConstructor_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71E220DA66E800CDBAE8 /* NSError+SimpleConstructor_Tests.m */; };
@@ -443,7 +443,7 @@
 		63FE721720DA66EC00CDBAE8 /* SentryCrashThread_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71EC20DA66E900CDBAE8 /* SentryCrashThread_Tests.m */; };
 		63FE721820DA66EC00CDBAE8 /* TestThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71ED20DA66E900CDBAE8 /* TestThread.m */; };
 		63FE721920DA66EC00CDBAE8 /* SentryCrashReportStore_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71EE20DA66EA00CDBAE8 /* SentryCrashReportStore_Tests.m */; };
-		63FE721A20DA66EC00CDBAE8 /* SentryCrashSysCtl_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71EF20DA66EA00CDBAE8 /* SentryCrashSysCtl_Tests.m */; };
+		63FE721A20DA66EC00CDBAE8 /* SentryCrashSysCtl_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71EF20DA66EA00CDBAE8 /* SentryCrashSysCtl_Tests.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		63FE721B20DA66EC00CDBAE8 /* Container+DeepSearch_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71F120DA66EA00CDBAE8 /* Container+DeepSearch_Tests.m */; };
 		63FE721F20DA66EC00CDBAE8 /* SentryCrashSignalInfo_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71F520DA66EA00CDBAE8 /* SentryCrashSignalInfo_Tests.m */; };
 		63FE722020DA66EC00CDBAE8 /* SentryCrashObjC_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE71F720DA66EB00CDBAE8 /* SentryCrashObjC_Tests.m */; };
@@ -1512,7 +1512,7 @@
 					63AA76641EB8CB2F00D153DE = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = 97JCY7859U;
-						LastSwiftMigration = "";
+						LastSwiftMigration = 1120;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -2090,7 +2090,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -2116,7 +2116,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
