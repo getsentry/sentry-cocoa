@@ -41,7 +41,6 @@
         SentryClient.sharedClient = _client;
     }
     
-    
     // TODO(fetzig): do this via "integration"
     [self.client startCrashHandlerWithError:&error];
     

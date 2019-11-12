@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation Sentry
 
 + (void)initWithDsn:(NSString *)dsn {
-    [Sentry initWithOptions:@{@"dsn": dsn}];
+    [SentryHub.defaultHub initWithOptions:@{@"dsn": dsn}];
 }
 
 + (void)initWithOptions:(NSDictionary<NSString *,id> *)options {
