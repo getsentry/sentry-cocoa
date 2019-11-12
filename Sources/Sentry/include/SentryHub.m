@@ -6,8 +6,15 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
+#if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentryHub.h>
+#import <Sentry/SentryClient.h>
+#import <Sentry/SentryBreadcrumbStore.h>
+#else
 #import "SentryHub.h"
-
+#import "SentryClient.h"
+#import "SentryBreadcrumbStore.h"
+#endif
 
 @interface SentryHub()
 
@@ -16,8 +23,6 @@
 @end
 
 @implementation SentryHub
-
-
 
 + (SentryHub *)defaultHub {
     static SentryHub *_sharedInstance = nil;
@@ -37,7 +42,7 @@
         
         [self setClient:newClient];
         
-        // TODO(fetzig): remove this as soon ass SentryHub is fully capable of managing `SentryClient`s
+        // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
         SentryClient.sharedClient = _client;
     }
     
@@ -51,32 +56,14 @@
 
 - (void)captureEvent:(SentryEvent *)event {
     [self.client sendEvent:event withCompletionHandler:nil];
-    
-}
-
-- (void)captureError:(NSError *)error {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = error.localizedDescription;
-    [self.client sendEvent:event withCompletionHandler:nil];
-}
-
-- (void)captureException:(NSException *)exception {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = exception.reason;
-    [self.client sendEvent:event withCompletionHandler:nil];
-    
-}
-
-- (void)captureMessage:(NSString *)message {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = message;
-    [self.client sendEvent:event withCompletionHandler:nil];
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    //Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
+    [self.client.breadcrumbs addBreadcrumb:crumb];
+}
 
-    //[self.client.breadcrumbs addBreadcrumb:]
+- (SentryClient *)getClient {
+    return self.client;
 }
 
 @end

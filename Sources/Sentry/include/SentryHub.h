@@ -21,10 +21,10 @@
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
-
 @interface SentryHub : NSObject
 
 + (instancetype)defaultHub;
+
 - (void)initWithOptions:(NSDictionary<NSString *,id> *)options;
 
 // keeps a stack of client and scope
@@ -38,11 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 //- `get_main_hub()` / `Hub::main()` / `Hub::get_main()`: In languages where the main thread is special (“Thread bound hub” model) this returns the main thread’s hub instead of the current thread’s hub. This might not exist in all languages.
 
 //- `Hub::capture_event` / `Hub::capture_message` / `Hub::capture_exception` Capture message / exception call into capture event. `capture_event` merges the event passed with the scope data and dispatches to the client. As an additional argument it also takes a Hint.
-
 - (void)captureEvent:(SentryEvent *)event;
-- (void)captureError:(NSError *)error;
-- (void)captureException:(NSException *)exception;
-- (void)captureMessage:(NSString *)message;
 
 //- `Hub::push_scope()`: Pushes a new scope layer that inherits the previous data. This should return a disposable or stack guard for languages where it makes sense. When the “internally scoped hub” concurrency model is used calls to this are often necessary as otherwise a scope might be accidentally incorrectly shared.
 
@@ -58,10 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 //        - an already created breadcrumb object
 //        - a list of breadcrumbs optionally
 //    - In languages where we do not have a basic form of overloading only a raw breadcrumb object should be accepted.
-
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
 //- `Hub::client()` / `Hub::get_client()` (optional): Accessor or getter that returns the current client or `None`.
+- (SentryClient *)getClient;
 
 //- `Hub::bind_client(new_client)`: Binds a different client to the hub. If the hub is also the owner of the client that was created by `init` it needs to keep a reference to it still if the hub is the object responsible for disposing it.
 
