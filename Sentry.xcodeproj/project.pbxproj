@@ -6,20 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		631E6D2C1EBC5F3500712345 /* OClint */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 631E6D2D1EBC5F3500712345 /* Build configuration list for PBXAggregateTarget "OClint" */;
-			buildPhases = (
-				631E6D301EBC5F3C00712345 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = OClint;
-			productName = OClint;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		630435FE1EBCA9D900C4D3FA /* SentryNSURLRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		630435FF1EBCA9D900C4D3FA /* SentryNSURLRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */; };
@@ -1500,11 +1486,6 @@
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
-					631E6D2C1EBC5F3500712345 = {
-						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = 97JCY7859U;
-						ProvisioningStyle = Automatic;
-					};
 					6387B7C11ED84F910045A84C = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = 97JCY7859U;
@@ -1538,7 +1519,6 @@
 			targets = (
 				63AA759A1EB8AEF500D153DE /* Sentry */,
 				63AA76641EB8CB2F00D153DE /* SentryTests */,
-				631E6D2C1EBC5F3500712345 /* OClint */,
 				6387B7C11ED84F910045A84C /* SentryStatic */,
 			);
 		};
@@ -1561,22 +1541,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		631E6D301EBC5F3C00712345 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}\nbundle exec fastlane oc_lint\n# ignore SentryCrash\noclint-json-compilation-database -exclude SentryCrash -- -report-type xcode -max-priority-1=10 -max-priority-2=100 -max-priority-3=1000\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6387B7BE1ED84F910045A84C /* Sources */ = {
@@ -1820,22 +1784,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		631E6D2E1EBC5F3500712345 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		631E6D2F1EBC5F3500712345 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		6327C5E51EB8A783004E799B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2129,15 +2077,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		631E6D2D1EBC5F3500712345 /* Build configuration list for PBXAggregateTarget "OClint" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				631E6D2E1EBC5F3500712345 /* Debug */,
-				631E6D2F1EBC5F3500712345 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		6327C5CD1EB8A783004E799B /* Build configuration list for PBXProject "Sentry" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
