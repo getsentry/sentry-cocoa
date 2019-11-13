@@ -18,6 +18,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentrySDK.h>
+#import <Sentry/SentryHub.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentrySwizzle.h>
 
@@ -43,6 +44,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #import "SentryCrash.h"
 #import "SentrySDK.h"
+#import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentrySwizzle.h"
 
