@@ -5,7 +5,7 @@ branches:
     - 5.x
 
 language: objective-c
-osx_image: xcode10.3
+osx_image: xcode11.2
 addons:
   homebrew:
     taps: oclint/formulae
