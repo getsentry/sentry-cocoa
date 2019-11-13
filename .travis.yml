@@ -36,6 +36,8 @@ jobs:
   include:
       env: LANE=test
       script: .travis/run.sh
+      env: LANE=lint
+      script: .travis/run.sh
       env: LANE=oc_lint
       script: .travis/run.sh
       env: LANE=deploy
