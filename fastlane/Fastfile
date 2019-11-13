@@ -11,6 +11,9 @@ end
 lane :oc_lint do
   sh('cd ..; xcodebuild clean; xcodebuild COMPILER_INDEX_STORE_ENABLE=NO | xcpretty -r json-compilation-database --output compile_commands.json')
   oclint(
+    # TODO(fetzig): .oclint has those max_priority_x settings already. should propagate, thus remove them from hexAddress.
+    #               (from build phase script in the xcode oclint build target as well)
+    #               exclude_regex should be moved to .oclint (if possible) as well
     max_priority_1: 10,           # The max allowed number of priority 1 violations
     max_priority_2: 100,          # The max allowed number of priority 2 violations
     max_priority_3: 1000,         # The max allowed number of priority 3 violations
