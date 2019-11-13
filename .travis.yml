@@ -6,6 +6,12 @@ branches:
 
 language: objective-c
 osx_image: xcode9.4
+addons:
+  homebrew:
+    taps: oclint/formulae
+    packages:
+      - oclint
+    update: true
 
 cache:
   - bundler
@@ -18,6 +24,7 @@ script: travis_retry .travis/run.sh
 env:
   matrix:
     - LANE=lint
+    - LANE=oc_lint
     - LANE=test
     # - LANE=pod
 
@@ -28,6 +35,8 @@ before_install:
 jobs:
   include:
       env: LANE=test
+      script: .travis/run.sh
+      env: LANE=oc_lint
       script: .travis/run.sh
       env: LANE=deploy
       script: .travis/stage-carthage.sh
