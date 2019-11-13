@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
 + (void)startWithOptions:(NSDictionary<NSString *,id> *)options {
-    [SentryHub.defaultHub initWithOptions:options];
+    [SentryHub.defaultHub startWithOptions:options];
 }
 
 + (void)captureEvent:(SentryEvent *)event {

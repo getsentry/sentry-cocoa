@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)defaultHub;
 
-- (void)initWithOptions:(NSDictionary<NSString *,id> *)options;
+- (void)startWithOptions:(NSDictionary<NSString *,id> *)options;
 
 // keeps a stack of client and scope
 
@@ -66,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 //- `Hub::last_event_id()`: Should return the last event ID emitted by the current scope. This is for instance used to implement user feedback dialogs.
 
 //- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
+
+- (void)reset;
 
 @end
 

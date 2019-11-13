@@ -34,7 +34,7 @@
     return _sharedInstance;
 }
 
-- (void)initWithOptions:(NSDictionary<NSString *,id> *)options {
+- (void)startWithOptions:(NSDictionary<NSString *,id> *)options {
     NSError *error = nil;
     
     if (self.client == nil) {
@@ -43,7 +43,11 @@
         [self setClient:newClient];
         
         // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
-        SentryClient.sharedClient = _client;
+        [SentryClient setSharedClient:newClient];
+
+        if (nil != error) {
+            NSLog(@"%@", error);
+        }
     }
     
     // TODO(fetzig): do this via "integration"
@@ -64,6 +68,11 @@
 
 - (SentryClient *)getClient {
     return self.client;
+}
+
+- (void)reset {
+    _client = nil;
+    [SentryClient setSharedClient:nil];
 }
 
 @end
