@@ -17,6 +17,8 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryCrash.h>
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryHub.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentrySwizzle.h>
 
@@ -25,7 +27,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import <Sentry/SentrySerializable.h>
 
 #import <Sentry/SentryEvent.h>
-#import <Sentry/SentryThread.h>
+#import <Sentry/SentryThread.h> 
 #import <Sentry/SentryMechanism.h>
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
@@ -41,6 +43,8 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #else
 
 #import "SentryCrash.h"
+#import "SentrySDK.h"
+#import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentrySwizzle.h"
 
@@ -63,4 +67,3 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryJavaScriptBridgeHelper.h"
 
 #endif
-

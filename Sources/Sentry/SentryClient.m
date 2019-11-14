@@ -47,7 +47,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.4.1";
+// TODO(fetzig): dry: get version string from Sentry.xconfig instead.
+NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;

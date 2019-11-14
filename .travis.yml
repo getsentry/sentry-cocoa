@@ -5,7 +5,7 @@ branches:
     - 5.x
 
 language: objective-c
-osx_image: xcode9.4
+osx_image: xcode11.2
 addons:
   homebrew:
     taps: oclint/formulae
@@ -35,6 +35,8 @@ before_install:
 jobs:
   include:
       env: LANE=test
+      script: .travis/run.sh
+      env: LANE=lint
       script: .travis/run.sh
       env: LANE=oc_lint
       script: .travis/run.sh
