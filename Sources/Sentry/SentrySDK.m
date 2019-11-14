@@ -25,7 +25,24 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
 + (void)startWithOptions:(NSDictionary<NSString *,id> *)options {
-    [SentryHub.defaultHub startWithOptions:options];
+    NSError *error = nil;
+
+    if ([SentryHub.defaultHub getClient] == nil) {
+        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options didFailWithError:&error];
+
+        [SentryHub.defaultHub bindClient:newClient];
+
+        if (nil != error) {
+            NSLog(@"%@", error);
+        }
+    }
+
+    // TODO(fetzig): do this via "integration"
+    [[SentryHub.defaultHub getClient] startCrashHandlerWithError:&error];
+
+    if (nil != error) {
+        NSLog(@"%@", error);
+    }
 }
 
 + (void)captureEvent:(SentryEvent *)event {

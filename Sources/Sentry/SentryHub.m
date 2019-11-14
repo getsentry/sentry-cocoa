@@ -30,32 +30,15 @@
     dispatch_once(&oncePredicate, ^{
         _sharedInstance = [[self alloc] init];
     });
-     
     return _sharedInstance;
 }
 
-- (void)startWithOptions:(NSDictionary<NSString *,id> *)options {
-    NSError *error = nil;
-    
-    if (self.client == nil) {
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options didFailWithError:&error];
-        
-        [self setClient:newClient];
-        
-        // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
-        [SentryClient setSharedClient:newClient];
-
-        if (nil != error) {
-            NSLog(@"%@", error);
-        }
+- (instancetype)initWithClient:(SentryClient *)aClient {
+    self = [super init];
+    if (self) {
+        [self bindClient:aClient];
     }
-    
-    // TODO(fetzig): do this via "integration"
-    [self.client startCrashHandlerWithError:&error];
-    
-    if (nil != error) {
-        NSLog(@"%@", error);
-    }
+    return self;
 }
 
 - (void)captureEvent:(SentryEvent *)event {
@@ -66,12 +49,46 @@
     [self.client.breadcrumbs addBreadcrumb:crumb];
 }
 
-- (SentryClient *)getClient {
+- (void)addBreadcrumbs:(NSArray<SentryBreadcrumb *> *)crumblist {
+    for (SentryBreadcrumb * item in crumblist) {
+        [self.client.breadcrumbs addBreadcrumb:item];
+    }
+}
+
+- (void)addBreadcrumbWithBlock:(SentryBreadcrumb * _Nonnull (^)(void))block {
+
+    SentryBreadcrumb * result = block();
+    [self addBreadcrumb:result];
+}
+
+- (void)addBreadcrumbsWithBlock:(NSArray<SentryBreadcrumb *> * _Nonnull (^)(void))block {
+
+    NSArray<SentryBreadcrumb *>* result = block();
+    [self addBreadcrumbs:result];
+}
+
+- (SentryClient * _Nullable)getClient {
     return self.client;
+}
+
+- (void)bindClient:(SentryClient *)aClient {
+    [self setClient:aClient];
+
+    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
+    [SentryClient setSharedClient:aClient];
+}
+
+- (void)unbindClient {
+    [self setClient:nil];
+
+    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
+    [SentryClient setSharedClient:nil];
 }
 
 - (void)reset {
     _client = nil;
+
+    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
     [SentryClient setSharedClient:nil];
 }
 
