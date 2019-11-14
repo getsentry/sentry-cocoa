@@ -37,6 +37,14 @@
     XCTAssertNil(SentryClient.sharedClient);
     SentryClient.sharedClient = client;
     XCTAssertNotNil(SentryClient.sharedClient);
+    [SentryClient setSharedClient:nil];
+}
+
+- (void)testSDK {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    XCTAssertNotNil(SentryClient.sharedClient);
+    [SentryClient setSharedClient:nil];
+    [SentryHub.defaultHub reset];
 }
 
 // TODO
@@ -64,6 +72,15 @@
     XCTAssertEqual(SentryClient.sharedClient.breadcrumbs.count, (unsigned long)1);
     [SentryClient setSharedClient:nil];
     [client.breadcrumbs clear];
+}
+
+- (void)testSDKBreadCrumbs {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [[SentryHub.defaultHub getClient].breadcrumbs clear];
+    [[SentryHub.defaultHub getClient] enableAutomaticBreadcrumbTracking];
+    XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count, (unsigned long)1);
+    [[SentryHub.defaultHub getClient].breadcrumbs clear];
+    [SentryClient setSharedClient:nil];
 }
 
 - (void)testUserException {

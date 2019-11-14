@@ -22,9 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Client)
 @interface SentryClient : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+SENTRY_NO_INIT
 
 /**
  * Return a version string e.g: 1.2.3 (3)
