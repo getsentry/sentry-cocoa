@@ -5,7 +5,14 @@ end
 
 lane :localcoverage do
     test
-    sh('cd ..; slather coverage --input-format profdata Sentry.xcodeproj')
+    #sh('cd ..; slather coverage --input-format profdata Sentry.xcodeproj')
+
+    slather(
+        html: true,
+        scheme: "Sentry",
+        output_directory: "fastlane/test_output/slather",
+        show: true
+    )
 end
 
 lane :oc_lint do
