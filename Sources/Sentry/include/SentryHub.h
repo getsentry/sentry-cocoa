@@ -66,9 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
  TODO(fetzig): add it to scope instead, once we have it.
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
-- (void)addBreadcrumbs:(NSArray<SentryBreadcrumb *> *)crumblist;
-- (void)addBreadcrumbWithBlock:(SentryBreadcrumb *(^)(void))block;
-- (void)addBreadcrumbsWithBlock:(NSArray<SentryBreadcrumb *> *(^)(void))block;
 
 /**
  returns current client (or none)

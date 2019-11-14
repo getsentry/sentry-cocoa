@@ -49,24 +49,6 @@
     [self.client.breadcrumbs addBreadcrumb:crumb];
 }
 
-- (void)addBreadcrumbs:(NSArray<SentryBreadcrumb *> *)crumblist {
-    for (SentryBreadcrumb * item in crumblist) {
-        [self.client.breadcrumbs addBreadcrumb:item];
-    }
-}
-
-- (void)addBreadcrumbWithBlock:(SentryBreadcrumb * _Nonnull (^)(void))block {
-
-    SentryBreadcrumb * result = block();
-    [self addBreadcrumb:result];
-}
-
-- (void)addBreadcrumbsWithBlock:(NSArray<SentryBreadcrumb *> * _Nonnull (^)(void))block {
-
-    NSArray<SentryBreadcrumb *>* result = block();
-    [self addBreadcrumbs:result];
-}
-
 - (SentryClient * _Nullable)getClient {
     return self.client;
 }
