@@ -10,7 +10,7 @@ elif [ "$LANE" = "pod" ]; then
     pod repo update
 fi
 
-fastlane $LANE
+bundle exec fastlane $LANE
 
 if [ "$LANE" = "test" ]; then
     slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml;
