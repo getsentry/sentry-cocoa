@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.2
+
+- feat: Prefer snprintf over sprintf #342
+
 ## 4.4.1
 
 - feat: Add support for custom context and event types
