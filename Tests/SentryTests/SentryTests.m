@@ -40,11 +40,25 @@
     [SentryClient setSharedClient:nil];
 }
 
-- (void)testSDK {
+- (void)testSDKDefaultHub {
     [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     XCTAssertNotNil(SentryClient.sharedClient);
     [SentryClient setSharedClient:nil];
     [SentryHub.defaultHub reset];
+}
+
+- (void)testSDKCustomHub {
+    NSError *error = nil;
+    SentryClient.logLevel = kSentryLogLevelNone;
+    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+
+    SentryHub * hub = [[SentryHub alloc] initWithClient:client];
+    XCTAssertNotNil(hub);
+    XCTAssertNotNil(SentryClient.sharedClient);
+    [SentryHub.defaultHub reset];
+    XCTAssertNil(SentryClient.sharedClient);
+    hub = nil;
+    XCTAssertNil(hub);
 }
 
 // TODO
@@ -74,13 +88,76 @@
     [client.breadcrumbs clear];
 }
 
-- (void)testSDKBreadCrumbs {
+- (void)testSDKBreadCrumbTracking {
     [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     [[SentryHub.defaultHub getClient].breadcrumbs clear];
     [[SentryHub.defaultHub getClient] enableAutomaticBreadcrumbTracking];
     XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count, (unsigned long)1);
     [[SentryHub.defaultHub getClient].breadcrumbs clear];
-    [SentryClient setSharedClient:nil];
+    [SentryHub.defaultHub reset];
+}
+
+- (void)testSDKBreadCrumbAdd {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [[SentryHub.defaultHub getClient].breadcrumbs clear];
+
+    XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count, (unsigned long)0);
+
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"testCategory"];
+    crumb.type = @"testType";
+    crumb.message = @"testMessage";
+    crumb.data = @{@"testDataKey": @"testDataVaue"};
+
+    [SentrySDK addBreadcrumb:crumb];
+
+    XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count, (unsigned long)1);
+    [[SentryHub.defaultHub getClient].breadcrumbs clear];
+    [SentryHub.defaultHub reset];
+}
+
+- (void)testSDKCaptureEvent {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+
+    event.timestamp = [NSDate date];
+    event.message = @"testy test";
+
+    [SentrySDK captureEvent:event];
+
+    [SentryHub.defaultHub reset];
+}
+
+- (void)testSDKCaptureError {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+
+    NSError *error = [NSError errorWithDomain:@"testworld" code:200 userInfo:@{NSLocalizedDescriptionKey: @"test ran out of money"}];
+    [SentrySDK captureError:error];
+
+    [SentryHub.defaultHub reset];
+}
+
+- (void)testSDKCaptureException {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    XCTAssertNotNil(SentryClient.sharedClient);
+    @try{
+        @throw [[NSException alloc] initWithName:@"test" reason:@"Testing" userInfo:nil];
+    }
+    @catch(NSException *e){
+        [SentrySDK captureException:e];
+        // TODO(fetzig): check if we can add some assertion to this
+        [SentryHub.defaultHub reset];
+    }
+    XCTAssertNil(SentryClient.sharedClient);
+}
+
+- (void)testSDKCaptureMessage {
+    [SentrySDK startWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    XCTAssertNotNil(SentryClient.sharedClient);
+    [SentrySDK captureMessage:@"test message"];
+
+    [SentryHub.defaultHub reset];
+    XCTAssertNil(SentryClient.sharedClient);
 }
 
 - (void)testUserException {

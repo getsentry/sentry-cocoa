@@ -68,10 +68,7 @@
 }
 
 - (void)reset {
-    _client = nil;
-
-    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
-    [SentryClient setSharedClient:nil];
+    [self unbindClient];
 }
 
 @end
