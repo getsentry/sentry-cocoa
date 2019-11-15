@@ -13,5 +13,5 @@ fi
 bundle exec fastlane $LANE
 
 if [ "$LANE" = "test" ]; then
-    slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml;
+    bundle exec slather coverage --scheme Sentry && bash <(curl -s https://codecov.io/bash) -f cobertura.xml;
 fi
