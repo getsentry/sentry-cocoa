@@ -10,12 +10,16 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>
+#import <Sentry/SentryHub.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryBreadcrumb.h>
+#import <Sentry/SentryOptions.h>
 #else
 #import "SentryDefines.h"
+#import "SentryHub.h"
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
+#import "SentryOptions.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,12 +33,25 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySDK : NSObject
 SENTRY_NO_INIT
 
+
+/**
+ returns current hub
+ */
++ (SentryHub *)currentHub;
+
+/**
+ sets current hub
+ */
++ (void)setCurrentHub:(SentryHub *)hub;
+
++ (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
+
 /**
  starts sentry with options and starts crash handler
  
  Inits and configures Sentry (SentryHub, SentryClient) and starts crash handler
  */
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)options NS_SWIFT_NAME(start(options:));
++ (void)startWithOptionsDict:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
 
 /**
  captures an event aka. sends an event to sentry
@@ -79,7 +96,17 @@ SENTRY_NO_INIT
 
 // TODO(fetzig): configureScope() requires a `SentryScope` that is detached from SentryClient. Add this method as soon as SentryScope has been implemented.
 //- `configure_scope(callback)`: Calls a callback with a scope object that can be reconfigured. This is used to attach contextual data for future events in the same scope.
-//+ (void)configureScope:(void(^)(int))callback;
++ (void)configureScope:(void(^)(SentryScope *scope))callback;
+
+/**
+ * This automatically adds breadcrumbs for different user actions.
+ */
++ (void)enableAutomaticBreadcrumbTracking;
+
+/**
+ * Track memory pressure notifcation on UIApplications and send an event for it to Sentry.
+ */
++ (void)trackMemoryPressureAsEvent;
 
 @end
 

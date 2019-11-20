@@ -62,7 +62,8 @@
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     XCTAssertNil(error);
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
-    [client storeEvent:event];
+    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    [client storeEvent:event scope:scope];
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertTrue(events.count == 1);
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[event serialize]
@@ -144,11 +145,12 @@
 - (void)testEventLimitOverClient {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
     XCTAssertNil(error);
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     client.maxEvents = 16;
     for (NSInteger i = 0; i <= 20; i++) {
-        [client storeEvent:event];
+        [client storeEvent:event scope:scope];
     }
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertEqual(events.count, (unsigned long)16);

@@ -8,7 +8,7 @@
 
 @testable import Sentry
 import XCTest
-
+// 0x7fc9a4920b40
 class SentrySwiftTests: XCTestCase {
     
     override func setUp() {
@@ -17,7 +17,7 @@ class SentrySwiftTests: XCTestCase {
         fileManager.deleteAllStoredEvents()
         fileManager.deleteAllStoredBreadcrumbs()
         fileManager.deleteAllFolders()
-        Client.shared = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
+        SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
     }
     
     override func tearDown() {
@@ -35,12 +35,16 @@ class SentrySwiftTests: XCTestCase {
     }
     
     func testOptions() {
-        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345"])
+
+        let client = try? Client(options: options)
         XCTAssertNotNil(client)
     }
     
     func testDisabled() {
-        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": false])
+        let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": false])
+
+        let client = try? Client(options: options)
         XCTAssertNotNil(client)
         
         client!.beforeSendRequest = { request in
@@ -48,12 +52,15 @@ class SentrySwiftTests: XCTestCase {
         }
         
         let event2 = Event(level: .debug)
-        event2.extra = ["a": "b"]
-        client!.send(event: event2)
+        let scope = Sentry.Scope(options: client!.options)
+        scope.extra = ["a": "b"]
+        client!.send(event: event2, scope: scope)
     }
     
     func testEnabled() {
-        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": true])
+        let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": true])
+
+        let client = try? Client(options: options)
         XCTAssertNotNil(client)
         
         client!.beforeSendRequest = { request in
@@ -61,8 +68,9 @@ class SentrySwiftTests: XCTestCase {
         }
         
         let event2 = Event(level: .debug)
-        event2.extra = ["a": "b"]
-        client!.send(event: event2) { (error) in
+        let scope = Sentry.Scope(options: client!.options)
+        scope.extra = ["a": "b"]
+        client!.send(event: event2, scope: scope) { (error) in
             XCTAssertNil(error)
         }
     }
@@ -71,45 +79,51 @@ class SentrySwiftTests: XCTestCase {
         let event = Event(level: .debug)
         event.message = "Test Message"
         event.environment = "staging"
-        event.extra = ["ios": true]
+        let scope = Sentry.Scope(options: SentrySDK.currentHub().getClient()!.options)
+        scope.extra = ["ios": true]
         XCTAssertNotNil(event.serialize())
-        Client.shared?.send(event: event)
+        SentrySDK.currentHub().getClient()!.send(event: event, scope: scope)
+
         let event2 = Event(level: .debug)
-        event2.extra = ["a": "b"]
+        let scope2 = Sentry.Scope(options: SentrySDK.currentHub().getClient()!.options)
+        scope2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
         
-        Client.shared?.beforeSerializeEvent = { event in
+        SentrySDK.currentHub().getClient()!.beforeSerializeEvent = { event in
             event.extra = ["b": "c"]
         }
         
-        Client.shared?.send(event: event2) { (error) in
+        SentrySDK.currentHub().getClient()!.send(event: event2, scope: scope) { (error) in
             XCTAssertNil(error)
         }
         
         Client.logLevel = .debug
-        Client.shared?.clearContext()
-        Client.shared?.breadcrumbs.maxBreadcrumbs = 100
-        Client.shared?.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
-        XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
-        Client.shared?.enableAutomaticBreadcrumbTracking()
-        let user = User()
-        user.userId = "1234"
-        user.email = "hello@sentry.io"
-        user.extra = ["is_admin": true]
-        Client.shared?.user = user
-        
-        Client.shared?.tags = ["iphone": "true"]
-        
-        Client.shared?.clearContext()
-        
-        Client.shared?.snapshotStacktrace {
-            let event = Event(level: .debug)
-            event.message = "Test Message"
-            Client.shared?.send(event: event)
-        }
-        Client.shared?.beforeSendRequest = { request in
-            request.addValue("my-token", forHTTPHeaderField: "Authorization")
-        }
+        SentrySDK.currentHub().getClient()!.clearContext()
+        // TODO(fetzig): check if this is the intended way to do this
+//        SentrySDK.currentHub().configureScope { (scope) in
+//            scope.breadcrumbs.maxBreadcrumbs = 100
+//            scope.breadcrumbs.add(Breadcrumb(level: .info, category: "test"))
+//        }
+//        XCTAssertEqual(Client.shared?.breadcrumbs.count(), 1)
+//        Client.shared?.enableAutomaticBreadcrumbTracking()
+//        let user = User()
+//        user.userId = "1234"
+//        user.email = "hello@sentry.io"
+//        user.extra = ["is_admin": true]
+//        Client.shared?.user = user
+//
+//        Client.shared?.tags = ["iphone": "true"]
+//
+//        Client.shared?.clearContext()
+//
+//        Client.shared?.snapshotStacktrace {
+//            let event = Event(level: .debug)
+//            event.message = "Test Message"
+//            Client.shared?.send(event: event)
+//        }
+//        Client.shared?.beforeSendRequest = { request in
+//            request.addValue("my-token", forHTTPHeaderField: "Authorization")
+//        }
     }
     
 }

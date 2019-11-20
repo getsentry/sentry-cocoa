@@ -20,8 +20,8 @@
 
 @implementation SentryOptions
 
-- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
-                         didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
+                      didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         [self validateOptions:options didFailWithError:error];
@@ -31,7 +31,7 @@
     }
     return self;
 }
-    
+
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
@@ -54,6 +54,9 @@
     
     if (nil != [options objectForKey:@"enabled"]) {
         self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
+    } else {
+        // TODO(fetzig) check if this fallback is ok
+        self.enabled = @YES;
     }
 }
     
