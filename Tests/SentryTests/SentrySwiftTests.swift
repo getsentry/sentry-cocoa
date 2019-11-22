@@ -52,7 +52,7 @@ class SentrySwiftTests: XCTestCase {
         }
         
         let event2 = Event(level: .debug)
-        let scope = Sentry.Scope(options: client!.options)
+        let scope = Sentry.Scope()
         scope.extra = ["a": "b"]
         client!.send(event: event2, scope: scope)
     }
@@ -68,7 +68,7 @@ class SentrySwiftTests: XCTestCase {
         }
         
         let event2 = Event(level: .debug)
-        let scope = Sentry.Scope(options: client!.options)
+        let scope = Sentry.Scope()
         scope.extra = ["a": "b"]
         client!.send(event: event2, scope: scope) { (error) in
             XCTAssertNil(error)
@@ -79,13 +79,16 @@ class SentrySwiftTests: XCTestCase {
         let event = Event(level: .debug)
         event.message = "Test Message"
         event.environment = "staging"
-        let scope = Sentry.Scope(options: SentrySDK.currentHub().getClient()!.options)
+        let scope = Sentry.Scope()
         scope.extra = ["ios": true]
         XCTAssertNotNil(event.serialize())
+        SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        print("#####################")
+        print(SentrySDK.currentHub().getClient())
         SentrySDK.currentHub().getClient()!.send(event: event, scope: scope)
 
         let event2 = Event(level: .debug)
-        let scope2 = Sentry.Scope(options: SentrySDK.currentHub().getClient()!.options)
+        let scope2 = Sentry.Scope()
         scope2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
         

@@ -62,20 +62,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Initializer
 
-- (instancetype)initWithOptions:(SentryOptions *_Nonnull)options {
-    if (self = [super init]) {
-        _extra = [NSDictionary new];
-        _tags = [NSDictionary new];
-        NSError *error = nil;
-        self.fileManager = [[SentryFileManager alloc] initWithDsn:options.dsn didFailWithError:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
-            return nil;
-        }
-        self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
-    }
-    return self;
-}
+//- (instancetype)initWithOptions:(SentryOptions *_Nonnull)options {
+//    if (self = [super init]) {
+//        _extra = [NSDictionary new];
+//        _tags = [NSDictionary new];
+//        NSError *error = nil;
+//        self.fileManager = [[SentryFileManager alloc] initWithDsn:options.dsn didFailWithError:&error];
+//        if (nil != error) {
+//            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+//            return nil;
+//        }
+//        self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
+//    }
+//    return self;
+//}
 
 #pragma mark Global properties
 

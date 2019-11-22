@@ -38,14 +38,14 @@
 
 
 - (void)testFailAdd {
-    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
+    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] init];
     [breadcrumbStore addBreadcrumb:[self getBreadcrumb]];
 }
 
 - (void)testAddBreadcumb {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
     [scope.breadcrumbs clear];
     [scope.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
@@ -55,7 +55,7 @@
 - (void)testBreadcumbLimit {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
     [scope.breadcrumbs clear];
     for (NSInteger i = 0; i <= 100; i++) {
@@ -105,7 +105,7 @@
 - (void)testClearBreadcumb {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
     [scope.breadcrumbs clear];
     [scope.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
@@ -116,7 +116,7 @@
 - (void)testSerialize {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
     NSDate *date = [NSDate date];
@@ -141,7 +141,7 @@
 - (void)testSerializeSorted {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:10];

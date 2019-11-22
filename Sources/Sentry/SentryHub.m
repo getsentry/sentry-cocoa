@@ -22,18 +22,27 @@
 
 @interface SentryHub()
 
-@property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stackLayers;
+@property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
 
 @end
 
 @implementation SentryHub
 
+- (instancetype)init {
+    if (self = [super init]) {
+        SentryScope *scope = [[SentryScope alloc] init];
+        SentryStackLayer *layer = [[SentryStackLayer alloc] init];
+        layer.scope = scope;
+        [self setStack:[@[layer] mutableCopy]];
+    }
+    return self;
+}
 /**
  */
 - (void)setupWithClient:(SentryClient * _Nullable)client {
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
-    SentryStackLayer *stackLayer = [[SentryStackLayer alloc] initWithClient:client scope:scope];
-    [self setStackLayers:[@[stackLayer] mutableCopy]];
+    SentryStackLayer *stackLayer = [SentryStackLayer new];
+    stackLayer.scope = [SentryScope new];
+    [self setStack:[@[stackLayer] mutableCopy]];
 }
 
 - (void)captureEvent:(SentryEvent *)event {
@@ -52,8 +61,6 @@
 }
 
 - (void)bindClient:(SentryClient * _Nullable)newClient {
-    return;
-    //SentryClient *client = [self getClient];
     if (nil != [self getStackTop]) {
         [self getStackTop].client = newClient;
     }
@@ -61,19 +68,19 @@
 
 - (SentryStackLayer *)getStackTop {
     //return [self.stackLayers lastObject];
-    return self.stackLayers[self.stackLayers.count - 1];
+    return self.stack[self.stack.count - 1];
 }
 
 - (SentryScope *)pushScope {
-    SentryClient * client = [self getClient];
     SentryScope * scope = [[[self getStackTop] scope] copy];
-    SentryStackLayer *newStackLayer = [[SentryStackLayer alloc] initWithClient:client scope:scope];
-    [self.stackLayers addObject:newStackLayer];
+    SentryStackLayer *newLayer = [SentryStackLayer new];
+    newLayer.scope = scope;
+    [self.stack addObject:newLayer];
     return scope;
 }
 
 - (void)popScope {
-    [self.stackLayers removeLastObject];
+    [self.stack removeLastObject];
 }
 
 - (void)withScope:(void(^)(SentryScope * scope))callback {

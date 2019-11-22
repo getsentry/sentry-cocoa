@@ -41,18 +41,20 @@
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
-static SentryHub * _currentHub = nil;
+static SentryHub * currentHub;
 
-+ (SentryHub *)currentHub {
-    if (_currentHub == nil) {
-        _currentHub = [[self alloc] init];
++ (SentryHub *) currentHub {
+    @synchronized(self) {
+        if (nil == currentHub) {
+            currentHub = [[SentryHub alloc] init];
+        }
+        return currentHub;
     }
-    return _currentHub;
 }
 
-+ (void)setCurrentHub:(SentryHub *)hub {
-    if (hub != _currentHub) {
-        _currentHub = hub;
++ (void) setCurrentHub:(SentryHub *)hub {
+    @synchronized(self) {
+        currentHub = hub;
     }
 }
 

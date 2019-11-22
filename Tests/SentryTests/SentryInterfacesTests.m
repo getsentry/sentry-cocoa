@@ -315,7 +315,7 @@
 }
 
 - (void)testBreadcrumbStore {
-    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] initWithFileManager:[[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:nil]];
+    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] init];
     [store clear];
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
     [store addBreadcrumb:crumb];

@@ -24,21 +24,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(BreadcrumbStore)
 @interface SentryBreadcrumbStore : NSObject <SentrySerializable>
-SENTRY_NO_INIT
-
+//SENTRY_NO_INIT
+- (instancetype)init;
 /*
  * This property defines how many breadcrumbs should be stored.
  * Change this to reflect you needs.
  */
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
-/**
- * Init SentryBreadcrumbStore, should only be used internally
- *
- * @param fileManager SentryFileManager
- * @return SentryBreadcrumbStore
- */
-- (instancetype)initWithFileManager:(SentryFileManager *)fileManager;
+///**
+// * Init SentryBreadcrumbStore, should only be used internally
+// *
+// * @param fileManager SentryFileManager
+// * @return SentryBreadcrumbStore
+// */
+//- (instancetype)initWithFileManager:(SentryFileManager *)fileManager;
 
 /**
  * Add a SentryBreadcrumb to the store

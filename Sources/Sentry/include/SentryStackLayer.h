@@ -22,9 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(StackLayer)
 @interface SentryStackLayer : NSObject
-SENTRY_NO_INIT
+//SENTRY_NO_INIT
 
-- (instancetype)initWithClient:(SentryClient * _Nullable)client scope:(SentryScope *)scope;
+//- (instancetype)initWithClient:(SentryClient * _Nullable)client scope:(SentryScope *)scope;
 
 // TODO(fetzig) make init stuff
 

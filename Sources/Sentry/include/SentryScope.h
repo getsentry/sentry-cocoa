@@ -26,9 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject
-SENTRY_NO_INIT
-
-- (instancetype)initWithOptions:(SentryOptions *_Nonnull)options;
 
 /**
  * Set global user -> thus will be sent with every event

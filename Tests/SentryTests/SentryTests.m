@@ -79,7 +79,7 @@
 - (void)testBreadCrumbTracking {
     NSError *error = nil;
     SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/123456" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] initWithOptions:client.options];
+    SentryScope *scope = [SentryScope new];
 
     [scope.breadcrumbs clear];
     [SentrySDK enableAutomaticBreadcrumbTracking];

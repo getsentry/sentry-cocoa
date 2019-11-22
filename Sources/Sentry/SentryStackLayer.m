@@ -15,13 +15,6 @@
 
 @implementation SentryStackLayer
 
-- (instancetype)initWithClient:(SentryClient *)client scope:(SentryScope *)scope {
-    if (self = [super init]) {
-        [self setScope:scope];
-        [self setClient:client];
-    }
-    return self;
-}
 
 @end
 
