@@ -106,9 +106,18 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (nil == event.dist && event.context.appContext[@"app_build"]) {
         event.dist = event.context.appContext[@"app_build"];
     }
-    event.extra = [self convertExtra];
     event.tags = [self convertTags];
     event.user = [self convertUser];
+
+	// Apperently console_log is disabled in multiple ways, so add the console text line by line to the
+	// event.extra until we get this figured out. This appears on the server, sorted perfectly by key.
+	NSMutableDictionary *extra = [NSMutableDictionary dictionaryWithDictionary:[self convertExtra]];
+	int count = 0;
+	for (NSString *line in self.report[@"debug"][@"console_log"]) {
+		NSString *key = [NSString stringWithFormat:@"log:%05d", count++];
+		extra[key] = line;
+	}
+	event.extra = extra.copy;
     return event;
 }
 
