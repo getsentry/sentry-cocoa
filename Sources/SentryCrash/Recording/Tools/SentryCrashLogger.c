@@ -55,7 +55,7 @@
  * Unless you're logging from within signal handlers, it's safe to set it to 0.
  */
 #ifndef SentryCrashLOGGER_CBufferSize
-#define SentryCrashLOGGER_CBufferSize 1024
+#define SentryCrashLOGGER_CBufferSize   (1024 * 4) // emoji letters 2 bytes and ligatures 2 bytes ~4 bytes/character
 #endif
 
 /** Where console logs will be written */
@@ -99,13 +99,25 @@ static inline void writeFmtToLog(const char* fmt, ...)
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
 
+static char g_linebuffer[SentryCrashLOGGER_CBufferSize+1];
+static int g_linebufsize = 0;
 
-static void writeToLog(const char* const str)
+/** Reset the buffer position to zero
+*/
+static inline void resetBuffer()
+{
+	g_linebufsize = 0;
+}
+
+/** Writes the buffer to the log in one atomic operation, a single call to write. To avoid
+ * torn writes and/or other libraries or the OS itself interleaving their logs with ours.
+ */
+static void flushLog(void)
 {
     if(g_fd >= 0)
     {
-        int bytesToWrite = (int)strlen(str);
-        const char* pos = str;
+        int bytesToWrite = g_linebufsize;
+        const char* pos = g_linebuffer;
         while(bytesToWrite > 0)
         {
             int bytesWritten = (int)write(g_fd, pos, (unsigned)bytesToWrite);
@@ -117,10 +129,30 @@ static void writeToLog(const char* const str)
             pos += bytesWritten;
         }
     }
-    write(STDOUT_FILENO, str, strlen(str));
+    write(STDOUT_FILENO, g_linebuffer, g_linebufsize);
+	resetBuffer();
 }
 
-static inline void writeFmtArgsToLog(const char* fmt, va_list args)
+
+#define Min(a,b) ({ __auto_type _a = (a); __auto_type _b = (b); _a < _b ? _a : _b; })
+
+static void writeToLog(const char* const str)
+{
+	char *pos = &g_linebuffer[g_linebufsize];
+	const int last = SentryCrashLOGGER_CBufferSize;
+	int remaining = last - g_linebufsize;
+	g_linebufsize += Min(strlcpy(pos, str, remaining), remaining);
+	
+	// Make sure a newline exists on lines that overflow.
+	if (g_linebufsize >= last) {
+		if (g_linebuffer[last-1] != '\n') {
+			g_linebuffer[last-1] = '\n';
+			g_linebuffer[last] = '\0';
+		}
+	}
+}
+
+static void writeFmtArgsToLog(const char* fmt, va_list args)
 {
     unlikely_if(fmt == NULL)
     {
@@ -134,18 +166,18 @@ static inline void writeFmtArgsToLog(const char* fmt, va_list args)
     }
 }
 
-static inline void flushLog(void)
+static void setLogFD(int fd)
 {
-    // Nothing to do.
-}
-
-static inline void setLogFD(int fd)
-{
-    if(g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO)
-    {
+	if (g_fd >= 0)
+	{
         close(g_fd);
+		g_fd = -1;
+	}
+	// Don't allow pointing to stdout etc., stdout was intended to always be written as indicated by various code smells
+    if(fd != STDOUT_FILENO && fd != STDERR_FILENO && fd != STDIN_FILENO)
+    {
+		g_fd = fd;
     }
-    g_fd = fd;
 }
 
 bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
@@ -161,7 +193,8 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
         fd = open(filename, openMask, 0644);
         unlikely_if(fd < 0)
         {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
+            writeFmtToLog("SentryCrashLogger: Could not open %s: %s\n", filename, strerror(errno));
+			flushLog();
             return false;
         }
         if(filename != g_logFilename)
@@ -178,16 +211,21 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
 
 static FILE* g_file = NULL;
 
-static inline void setLogFD(FILE* file)
+static void setLogFD(FILE* file)
 {
-    if(g_file != NULL && g_file != stdout && g_file != stderr && g_file != stdin)
+	if (g_file != NULL)
+	{
+		fclose(g_file);
+		g_file = NULL;
+	}
+	// Don't allow pointing to stdout etc.
+    if (file != stdout && file != stderr && file != stdin)
     {
-        fclose(g_file);
+		g_file = file;
     }
-    g_file = file;
 }
 
-void writeToLog(const char* const str)
+static void writeToLog(const char* const str)
 {
     if(g_file != NULL)
     {
@@ -196,26 +234,36 @@ void writeToLog(const char* const str)
     fprintf(stdout, "%s", str);
 }
 
-static inline void writeFmtArgsToLog(const char* fmt, va_list args)
+static void writeFmtArgsToLog(const char* fmt, va_list args)
 {
-    unlikely_if(g_file == NULL)
-    {
-        g_file = stdout;
-    }
-
     if(fmt == NULL)
     {
         writeToLog("(null)");
     }
     else
     {
-        vfprintf(g_file, fmt, args);
+		// if printing to both streams, copy the args. va_copy is very efficient
+		if(g_file != NULL)
+		{
+			va_list cpyargs;
+			va_copy(cpyargs, args);
+			vfprintf(g_file, fmt, args);
+			vfprintf(stdout, fmt, cpyargs);
+		}
+		else
+		{
+			vfprintf(stdout, fmt, args);
+		}
     }
 }
 
-static inline void flushLog(void)
+static void flushLog(void)
 {
-    fflush(g_file);
+	if(g_file != NULL)
+	{
+		fflush(g_file);
+	}
+	fflush(stdout);
 }
 
 bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
@@ -225,9 +273,9 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
     if(filename != NULL)
     {
         file = fopen(filename, overwrite ? "wb" : "ab");
-        unlikely_if(file == NULL)
-        {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
+        unlikely_if(file == NULL) {
+            writeFmtToLog("SentryCrashLogger: Could not open %s: %s\n", filename, strerror(errno));
+			flushLog();
             return false;
         }
     }
@@ -295,6 +343,7 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
     if(fmt == NULL)
     {
         writeToLog("(null)");
+        flushLog();
         return;
     }
 
@@ -308,12 +357,13 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
     if(CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
     {
         writeToLog(stringBuffer);
+        writeToLog("\n");
     }
     else
     {
-        writeToLog("Could not convert log string to UTF-8. No logging performed.");
+        writeToLog("Could not convert log string to UTF-8. No logging performed.\n");
     }
-    writeToLog("\n");
+    flushLog();
 
     free(stringBuffer);
     CFRelease(entry);
