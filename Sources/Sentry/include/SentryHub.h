@@ -32,12 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 //- (instancetype)initFromTop:(SentryHub *)hub;
 
 /**
- returns current (threads) hub
- TODO(fetzig): think we don't need this in cocoa, check if this ("thread bound hub model")
- */
-// + (SentryHub *)currentHub;
-
-/**
  returns main (threads) hub
  TODO(fetzig): think we don't need this in cocoa, check if this ("thread bound hub model")
  */
@@ -74,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryClient * _Nullable)getClient;
 
 //- `Hub::bind_client(new_client)`: Binds a different client to the hub. If the hub is also the owner of the client that was created by `init` it needs to keep a reference to it still if the hub is the object responsible for disposing it.
-- (void)bindClient:(SentryClient * _Nullable)newClient;
+- (void)bindClient:(SentryClient * _Nullable)client;
 
 //- `Hub::unbind_client()` (optional): Optional way to unbind for languages where `bind_client` does not accept nullables.
 //- (void)unbindClient;

@@ -20,7 +20,6 @@
 #import "SentryScope.h"
 #endif
 
-//@class SentryEvent, SentryBreadcrumbStore, SentryUser, SentryThread;
 @class SentryEvent, SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,20 +44,6 @@ SENTRY_NO_INIT
 @property(nonatomic, class) SentryLogLevel logLevel;
 
 @property(nonatomic, strong) SentryOptions *options;
-/**
- * Set global user -> thus will be sent with every event
- */
-//@property(nonatomic, strong) SentryUser *_Nullable user;
-
-/**
- * Set global tags -> these will be sent with every event
- */
-//@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
-
-/**
- * Set global extra -> these will be sent with every event
- */
-//@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
  * This property will be filled before the event is sent.
@@ -85,11 +70,6 @@ SENTRY_NO_INIT
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
-
-/**
- * Contains the breadcrumbs which will be sent with the event
- */
-//@property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
     
 /**
  * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
@@ -112,12 +92,6 @@ SENTRY_NO_INIT
  * @return BOOL
  */
 @property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
-
-/**
- * Returns the shared sentry client
- * @return sharedClient if it was set before
- */
-//@property(nonatomic, class) SentryClient *_Nullable sharedClient;
 
 /**
  * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
@@ -162,16 +136,6 @@ SENTRY_NO_INIT
  */
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * This automatically adds breadcrumbs for different user actions.
- */
-//- (void)enableAutomaticBreadcrumbTracking;
-
-/**
- * Track memory pressure notifcation on UIApplications and send an event for it to Sentry.
- */
-//- (void)trackMemoryPressureAsEvent;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with

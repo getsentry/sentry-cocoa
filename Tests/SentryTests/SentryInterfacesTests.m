@@ -315,7 +315,7 @@
 }
 
 - (void)testBreadcrumbStore {
-    SentryBreadcrumbStore *store = [[SentryBreadcrumbStore alloc] init];
+    SentryBreadcrumbs *store = [[SentryBreadcrumbs alloc] init];
     [store clear];
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
     [store addBreadcrumb:crumb];

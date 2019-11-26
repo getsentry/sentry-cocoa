@@ -15,7 +15,7 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentrySwizzle.h>
-#import <Sentry/SentryBreadcrumbStore.h>
+#import <Sentry/SentryBreadcrumbs.h>
 
 #else
 #import "SentryClient.h"
@@ -25,7 +25,7 @@
 #import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumbStore.h"
+#import "SentryBreadcrumbs.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -61,10 +61,7 @@
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
 
-    // TODO(fetzig): don't know if configureScope is the right way to do this.
-    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-        [scope.breadcrumbs addBreadcrumb:crumb];
-    }];
+    [SentrySDK addBreadcrumb:crumb];
 }
 
 - (void)swizzleSendAction {
@@ -88,10 +85,7 @@
                         crumb.type = @"user";
                         crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
                         crumb.data = data;
-                        // TODO(fetzig): don't know if configureScope is the right way to do this.
-                        [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-                            [scope.breadcrumbs addBreadcrumb:crumb];
-                        }];
+                        [SentrySDK addBreadcrumb:crumb];
                     }
                     return SentrySWCallOriginal(action, target, sender, event);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);

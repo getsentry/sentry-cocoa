@@ -18,12 +18,12 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
+#import <Sentry/SentryBreadcrumbs.h>
 #else
 #import "SentryClient.h"
 #import "SentryClient+Internal.h"
@@ -35,12 +35,12 @@
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryInstallation.h"
-#import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
+#import "SentryBreadcrumbs.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -53,7 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
-//static SentryClient *sharedClient = nil;
 static SentryLogLevel logLevel = kSentryLogLevelError;
 
 static SentryInstallation *installation = nil;
@@ -69,20 +68,12 @@ static SentryInstallation *installation = nil;
 @implementation SentryClient
 
 @synthesize options = _options;
-//@synthesize environment = _environment;
-//@synthesize releaseName = _releaseName;
-//@synthesize dist = _dist;
-//@synthesize tags = _tags;
-//@synthesize extra = _extra;
-//@synthesize user = _user;
 @synthesize sampleRate = _sampleRate;
 @synthesize maxEvents = _maxEvents;
 @synthesize maxBreadcrumbs = _maxBreadcrumbs;
 @dynamic logLevel;
 
 #pragma mark Initializer
-
-// TODO(fetzig): create SentryOptions class
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error {
@@ -132,7 +123,6 @@ static SentryInstallation *installation = nil;
             NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
         }
         self.fileManager = [[SentryFileManager alloc] initWithDsn:self.dsn didFailWithError:error];
-        //self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
         if (nil != error && nil != *error) {
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
@@ -164,33 +154,7 @@ static SentryInstallation *installation = nil;
     };
 }
 
-//- (void)enableAutomaticBreadcrumbTracking {
-//    [[SentryBreadcrumbTracker alloc] start];
-//}
-
-//- (void)trackMemoryPressureAsEvent {
-//    #if SENTRY_HAS_UIKIT
-//    __weak SentryClient *weakSelf = self;
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
-//    event.message = @"Memory Warning";
-//    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-//                                                    object:nil
-//                                                     queue:nil
-//                                                usingBlock:^(NSNotification *notification) {
-//                                                    [weakSelf storeEvent:event];
-//                                                }];
-//    #endif
-//}
-
 #pragma mark Static Getter/Setter
-
-//+ (_Nullable instancetype)sharedClient {
-//    return sharedClient;
-//}
-
-//+ (void)setSharedClient:(SentryClient *_Nullable)client {
-//    sharedClient = client;
-//}
 
 + (NSString *)versionString {
     return SentryClientVersionString;
@@ -393,24 +357,6 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 
 #pragma mark Global properties
 
-//- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
-//    [[NSUserDefaults standardUserDefaults] setObject:tags forKey:@"sentry.io.tags"];
-//    [[NSUserDefaults standardUserDefaults] synchronize];
-//    _tags = tags;
-//}
-//
-//- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
-//    [[NSUserDefaults standardUserDefaults] setObject:extra forKey:@"sentry.io.extra"];
-//    [[NSUserDefaults standardUserDefaults] synchronize];
-//    _extra = extra;
-//}
-//
-//- (void)setUser:(SentryUser *_Nullable)user {
-//    [[NSUserDefaults standardUserDefaults] setObject:[user serialize] forKey:@"sentry.io.user"];
-//    [[NSUserDefaults standardUserDefaults] synchronize];
-//    _user = user;
-//}
-
 - (void)setReleaseName:(NSString *_Nullable)releaseName {
     [[NSUserDefaults standardUserDefaults] setObject:releaseName forKey:@"sentry.io.releaseName"];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -433,9 +379,6 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [self setReleaseName:nil];
     [self setDist:nil];
     [self setEnvironment:nil];
-//    [self setUser:nil];
-//    [self setExtra:[NSDictionary new]];
-//    [self setTags:[NSDictionary new]];
 }
 
 - (void)restoreContextBeforeCrash {

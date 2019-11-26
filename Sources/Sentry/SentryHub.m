@@ -9,15 +9,15 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryHub.h>
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryBreadcrumbStore.h>
 #import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
+#import <Sentry/SentryBreadcrumbs.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
-#import "SentryBreadcrumbStore.h"
 #import "SentrySentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryBreadcrumbs.h"
 #endif
 
 @interface SentryHub()
@@ -46,11 +46,11 @@
 }
 
 - (void)captureEvent:(SentryEvent *)event {
-    [[self getClient] sendEvent:event scope:[self getStackTop].scope withCompletionHandler:nil];
+    [[self getClient] sendEvent:event scope:[self getScope] withCompletionHandler:nil];
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [[self getStackTop].scope.breadcrumbs addBreadcrumb:crumb];
+    [[self getScope].breadcrumbs addBreadcrumb:crumb];
 }
 
 - (SentryClient * _Nullable)getClient {
@@ -60,15 +60,18 @@
     return nil;
 }
 
-- (void)bindClient:(SentryClient * _Nullable)newClient {
+- (void)bindClient:(SentryClient * _Nullable)client {
     if (nil != [self getStackTop]) {
-        [self getStackTop].client = newClient;
+        [self getStackTop].client = client;
     }
 }
 
 - (SentryStackLayer *)getStackTop {
-    //return [self.stackLayers lastObject];
     return self.stack[self.stack.count - 1];
+}
+
+- (SentryScope *)getScope {
+    return [self getStackTop].scope;
 }
 
 - (SentryScope *)pushScope {

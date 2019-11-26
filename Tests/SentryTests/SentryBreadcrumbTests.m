@@ -8,10 +8,10 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "SentryBreadcrumbStore.h"
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
+#import "SentryBreadcrumbs.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
 
@@ -34,12 +34,6 @@
     [self.fileManager deleteAllStoredEvents];
     [self.fileManager deleteAllStoredBreadcrumbs];
     [self.fileManager deleteAllFolders];
-}
-
-
-- (void)testFailAdd {
-    SentryBreadcrumbStore *breadcrumbStore = [[SentryBreadcrumbStore alloc] init];
-    [breadcrumbStore addBreadcrumb:[self getBreadcrumb]];
 }
 
 - (void)testAddBreadcumb {

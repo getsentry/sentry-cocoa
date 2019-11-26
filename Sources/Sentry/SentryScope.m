@@ -18,7 +18,7 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryBreadcrumbStore.h>
+#import <Sentry/SentryBreadcrumbs.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
@@ -34,7 +34,7 @@
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryInstallation.h"
-#import "SentryBreadcrumbStore.h"
+#import "SentryBreadcrumbs.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
@@ -61,21 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 #pragma mark Initializer
-
-//- (instancetype)initWithOptions:(SentryOptions *_Nonnull)options {
-//    if (self = [super init]) {
-//        _extra = [NSDictionary new];
-//        _tags = [NSDictionary new];
-//        NSError *error = nil;
-//        self.fileManager = [[SentryFileManager alloc] initWithDsn:options.dsn didFailWithError:&error];
-//        if (nil != error) {
-//            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
-//            return nil;
-//        }
-//        self.breadcrumbs = [[SentryBreadcrumbStore alloc] initWithFileManager:self.fileManager];
-//    }
-//    return self;
-//}
 
 #pragma mark Global properties
 

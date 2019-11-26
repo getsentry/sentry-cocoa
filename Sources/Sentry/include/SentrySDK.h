@@ -44,6 +44,11 @@ SENTRY_NO_INIT
  */
 + (void)setCurrentHub:(SentryHub *)hub;
 
+/**
+ entry point of static API
+
+ adds options to hub/client and starts error monitoring.
+ */
 + (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**

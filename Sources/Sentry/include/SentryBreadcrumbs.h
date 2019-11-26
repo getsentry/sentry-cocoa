@@ -1,5 +1,5 @@
 //
-//  SentryBreadcrumbStore.h
+//  SentryBreadcrumbs.h
 //  Sentry
 //
 //  Created by Daniel Griesser on 22/05/2017.
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryBreadcrumb, SentryFileManager;
 
 NS_SWIFT_NAME(BreadcrumbStore)
-@interface SentryBreadcrumbStore : NSObject <SentrySerializable>
+@interface SentryBreadcrumbs : NSObject <SentrySerializable>
 //SENTRY_NO_INIT
 - (instancetype)init;
 /*
@@ -31,14 +31,6 @@ NS_SWIFT_NAME(BreadcrumbStore)
  * Change this to reflect you needs.
  */
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
-
-///**
-// * Init SentryBreadcrumbStore, should only be used internally
-// *
-// * @param fileManager SentryFileManager
-// * @return SentryBreadcrumbStore
-// */
-//- (instancetype)initWithFileManager:(SentryFileManager *)fileManager;
 
 /**
  * Add a SentryBreadcrumb to the store

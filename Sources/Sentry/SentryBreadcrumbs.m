@@ -1,5 +1,5 @@
 //
-//  SentryBreadcrumbStore.m
+//  SentryBreadcrumbs.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 22/05/2017.
@@ -8,13 +8,13 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/SentryBreadcrumbStore.h>
+#import <Sentry/SentryBreadcrumbs.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryFileManager.h>
 
 #else
-#import "SentryBreadcrumbStore.h"
+#import "SentryBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
 #import "SentryLog.h"
 #import "SentryFileManager.h"
@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryBreadcrumbStore ()
+@interface SentryBreadcrumbs ()
 
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
 @end
 
-@implementation SentryBreadcrumbStore
+@implementation SentryBreadcrumbs
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -38,18 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-//- (instancetype)initWithFileManager:(SentryFileManager *)fileManager {
-//    self = [super init];
-//    if (self) {
-//        self.maxBreadcrumbs = 50;
-//        self.fileManager = fileManager;
-//    }
-//    return self;
-//}
-
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    //[self.fileManager storeBreadcrumb:crumb maxCount:self.maxBreadcrumbs];
     [self.breadcrumbs addObject:crumb];
     if ([self.breadcrumbs count] > self.maxBreadcrumbs) {
         [self.breadcrumbs removeObjectAtIndex:0];
@@ -57,12 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)count {
-    //return [[self.fileManager getAllStoredBreadcrumbs] count];
     return [self.breadcrumbs count];
 }
 
 - (void)clear {
-    //[self.fileManager deleteAllStoredBreadcrumbs];
     [self.breadcrumbs removeAllObjects];
 }
 
