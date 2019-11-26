@@ -65,20 +65,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark Global properties
 
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
-    [[NSUserDefaults standardUserDefaults] setObject:tags forKey:@"sentry.io.tags"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _tags = tags;
 }
 
 - (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
-    [[NSUserDefaults standardUserDefaults] setObject:extra forKey:@"sentry.io.extra"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _extra = extra;
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    [[NSUserDefaults standardUserDefaults] setObject:[user serialize] forKey:@"sentry.io.user"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _user = user;
 }
 

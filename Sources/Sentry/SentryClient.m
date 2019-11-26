@@ -101,7 +101,7 @@ static SentryInstallation *installation = nil;
                            requestManager:(id <SentryRequestManager>)requestManager
                          didFailWithError:(NSError *_Nullable *_Nullable)error {
     if (self = [super init]) {
-        [self restoreContextBeforeCrash];
+        //[self restoreContextBeforeCrash];
         [self setupQueueing];
 //        _extra = [NSDictionary new];
 //        _tags = [NSDictionary new];
@@ -358,20 +358,14 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 #pragma mark Global properties
 
 - (void)setReleaseName:(NSString *_Nullable)releaseName {
-    [[NSUserDefaults standardUserDefaults] setObject:releaseName forKey:@"sentry.io.releaseName"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _releaseName = releaseName;
 }
     
 - (void)setDist:(NSString *_Nullable)dist {
-    [[NSUserDefaults standardUserDefaults] setObject:dist forKey:@"sentry.io.dist"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _dist = dist;
 }
     
 - (void)setEnvironment:(NSString *_Nullable)environment {
-    [[NSUserDefaults standardUserDefaults] setObject:environment forKey:@"sentry.io.environment"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     _environment = environment;
 }
 
@@ -379,17 +373,6 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [self setReleaseName:nil];
     [self setDist:nil];
     [self setEnvironment:nil];
-}
-
-- (void)restoreContextBeforeCrash {
-    NSMutableDictionary *context = [[NSMutableDictionary alloc] init];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"] forKey:@"tags"];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"] forKey:@"extra"];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"] forKey:@"user"];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.releaseName"] forKey:@"releaseName"];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.dist"] forKey:@"dist"];
-    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.environment"] forKey:@"environment"];
-    self.lastContext = context;
 }
 
 - (void)setSampleRate:(float)sampleRate {
