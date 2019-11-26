@@ -13,11 +13,13 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryOptions.h>
+#import <Sentry/SentrySerializable.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
+#import "SentrySerializable.h"
 #endif
 
 @class SentryUser;
@@ -25,7 +27,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Scope)
-@interface SentryScope : NSObject
+@interface SentryScope : NSObject <SentrySerializable>
+
+- (instancetype)init;
 
 /**
  * Set global user -> thus will be sent with every event
@@ -50,6 +54,7 @@ NS_SWIFT_NAME(Scope)
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs;
 - (void)clearBreadcrumbs;
 - (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
+- (NSDictionary<NSString *, id> *) serialize;
 
 @end
 

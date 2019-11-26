@@ -62,6 +62,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Initializer
 
+- (instancetype)init {
+    if (self = [super init]) {
+        // nothing to do here
+    }
+    return self;
+}
+
 #pragma mark Global properties
 
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
@@ -105,6 +112,13 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
+- (NSDictionary<NSString *, id> *) serialize {
+    NSMutableDictionary *serializedData = [[self serializeBreadcrumbs] mutableCopy];
+    [serializedData setValue:self.tags forKey:@"tags"];
+    [serializedData setValue:self.extra forKey:@"extra"];
+    [serializedData setValue:[self.user serialize] forKey:@"user"];
+    return serializedData;
+}
 
 @end
 

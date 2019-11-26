@@ -98,7 +98,7 @@
 - (void)testClearBreadcumb {
     NSError *error = nil;
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [SentryScope new];
+    SentryScope *scope = [[SentryScope alloc] init];
     XCTAssertNil(error);
     [scope clearBreadcrumbs];
     [scope addBreadcrumb:[self getBreadcrumb] withMaxBreadcrumbs:50];

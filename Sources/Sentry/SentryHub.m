@@ -38,8 +38,8 @@
 /**
  */
 - (void)setupWithClient:(SentryClient * _Nullable)client {
-    SentryStackLayer *stackLayer = [SentryStackLayer new];
-    stackLayer.scope = [SentryScope new];
+    SentryStackLayer *stackLayer = [[SentryStackLayer alloc] init];
+    stackLayer.scope = [[SentryScope alloc] init];
     [self setStack:[@[stackLayer] mutableCopy]];
 }
 
