@@ -71,19 +71,19 @@
     XCTAssertEqualObjects(options.dist, @"hhh");
 }
     
-- (void)testEnabled {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
-    XCTAssertNil(error);
-    XCTAssertFalse([options.enabled boolValue]);
-    
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @YES} didFailWithError:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue([options.enabled boolValue]);
-    
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @NO} didFailWithError:&error];
-    XCTAssertNil(error);
-    XCTAssertFalse([options.enabled boolValue]);
-}
+//- (void)testEnabled {
+//    NSError *error = nil;
+//    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
+//    XCTAssertNil(error);
+//    XCTAssertFalse([options.enabled boolValue]);
+//    
+//    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @YES} didFailWithError:&error];
+//    XCTAssertNil(error);
+//    XCTAssertTrue([options.enabled boolValue]);
+//    
+//    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @NO} didFailWithError:&error];
+//    XCTAssertNil(error);
+//    XCTAssertFalse([options.enabled boolValue]);
+//}
 
 @end

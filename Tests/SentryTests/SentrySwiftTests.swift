@@ -84,7 +84,7 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertNotNil(event.serialize())
         SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
         print("#####################")
-        print(SentrySDK.currentHub().getClient())
+        print(SentrySDK.currentHub().getClient() ?? "no client")
         SentrySDK.currentHub().getClient()!.send(event: event, scope: scope)
 
         let event2 = Event(level: .debug)
