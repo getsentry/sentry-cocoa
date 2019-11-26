@@ -74,8 +74,11 @@
 
 - (SentryScope *)pushScope {
     SentryScope * scope = [[[self getStackTop] scope] copy];
-    SentryStackLayer *newLayer = [SentryStackLayer new];
+    // TODO(fetzig) clone this
+    SentryClient * client = [self getClient];
+    SentryStackLayer *newLayer = [[SentryStackLayer alloc] init];
     newLayer.scope = scope;
+    newLayer.client = client;
     [self.stack addObject:newLayer];
     return scope;
 }
