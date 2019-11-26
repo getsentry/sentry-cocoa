@@ -47,11 +47,13 @@ SENTRY_NO_INIT
  * The environment used for this event
  */
 @property(nonatomic, copy) NSString *_Nullable environment;
-    
+
 /**
  * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
  */
 @property(nonatomic, copy) NSNumber *enabled;
+
+@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 @end
 

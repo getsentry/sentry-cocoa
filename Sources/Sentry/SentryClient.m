@@ -23,7 +23,6 @@
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
-#import <Sentry/SentryBreadcrumbs.h>
 #else
 #import "SentryClient.h"
 #import "SentryClient+Internal.h"
@@ -40,7 +39,6 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
-#import "SentryBreadcrumbs.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -328,7 +326,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     }
 
     if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = [scope.breadcrumbs serialize];
+        event.breadcrumbsSerialized = [scope serializeBreadcrumbs];
     }
 
     if (nil == event.infoDict) {

@@ -15,7 +15,6 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentrySwizzle.h>
-#import <Sentry/SentryBreadcrumbs.h>
 
 #else
 #import "SentryClient.h"
@@ -25,7 +24,6 @@
 #import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumbs.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -110,7 +108,7 @@
 
                         // TODO(fetzig): don't know if configureScope is the right way to do this.
                         [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-                            [scope.breadcrumbs addBreadcrumb:crumb];
+                            [scope addBreadcrumb:crumb withMaxBreadcrumbs:[SentrySDK.currentHub getClient].options.maxBreadcrumbs];
 
                             NSMutableDictionary *prevExtra = scope.extra.mutableCopy;
                             [prevExtra setValue:viewControllerName forKey:@"__sentry_transaction"];

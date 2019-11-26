@@ -18,9 +18,9 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryBreadcrumbs.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
+#import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #else
@@ -34,9 +34,9 @@
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryInstallation.h"
-#import "SentryBreadcrumbs.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryBreadcrumb.h"
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #endif
@@ -74,6 +74,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUser:(SentryUser *_Nullable)user {
     _user = user;
+}
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
+    [self.breadcrumbs addObject:crumb];
+    if ([self.breadcrumbs count] > maxBreadcrumbs) {
+        [self.breadcrumbs removeObjectAtIndex:0];
+    }
+}
+
+- (void)clearBreadcrumbs {
+    [self.breadcrumbs removeAllObjects];
+}
+
+- (NSDictionary<NSString *, id> *)serializeBreadcrumbs {
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+
+    NSMutableArray *crumbs = [NSMutableArray new];
+    for (SentryBreadcrumb *crumb in self.breadcrumbs) {
+        id serializedCrumb = [NSJSONSerialization JSONObjectWithData:[crumb serialize][@"data"] options:0 error:nil];
+        if (serializedCrumb != nil) {
+            [crumbs addObject:serializedCrumb];
+        }
+    }
+    if (crumbs.count > 0) {
+        [serializedData setValue:crumbs forKey:@"breadcrumbs"];
+    }
+
+    return serializedData;
 }
 
 

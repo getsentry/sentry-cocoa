@@ -20,7 +20,7 @@
 #import "SentryOptions.h"
 #endif
 
-@class SentryBreadcrumbs, SentryUser;
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +45,11 @@ NS_SWIFT_NAME(Scope)
 /**
  * Contains the breadcrumbs which will be sent with the event
  */
-@property(nonatomic, strong) SentryBreadcrumbs *breadcrumbs;
+@property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs;
+- (void)clearBreadcrumbs;
+- (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
 
 @end
 

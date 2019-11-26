@@ -1,5 +1,5 @@
 //
-//  SentryBreadcrumbs.m
+//  SentryBreadcrumbTests.m
 //  Sentry
 //
 //  Created by Daniel Griesser on 22/05/2017.
@@ -11,7 +11,6 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
-#import "SentryBreadcrumbs.h"
 
 @interface SentryBreadcrumbTests : XCTestCase
 
@@ -101,9 +100,9 @@
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
     SentryScope *scope = [SentryScope new];
     XCTAssertNil(error);
-    [scope.breadcrumbs clear];
-    [scope.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
-    [scope.breadcrumbs clear];
+    [scope clearBreadcrumbs];
+    [scope addBreadcrumb:[self getBreadcrumb] withMaxBreadcrumbs:50];
+    [scope clearBreadcrumbs];
     XCTAssertTrue(scope.breadcrumbs.count == 0);
 }
 

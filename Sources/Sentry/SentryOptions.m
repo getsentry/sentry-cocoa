@@ -54,10 +54,14 @@
     
     if (nil != [options objectForKey:@"enabled"]) {
         self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
+    }
+
+    if (nil != [options objectForKey:@"max_breadcrumbs"]) {
+        self.maxBreadcrumbs = [[options objectForKey:@"max_breadcrumbs"] unsignedIntValue];
     } else {
-        // TODO(fetzig) check if this fallback is ok
-        self.enabled = @YES;
+        // fallback value
+        self.maxBreadcrumbs = [@100 unsignedIntValue];
     }
 }
-    
+
 @end

@@ -11,13 +11,11 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryBreadcrumbs.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentrySentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryBreadcrumbs.h"
 #endif
 
 @interface SentryHub()
@@ -50,7 +48,7 @@
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [[self getScope].breadcrumbs addBreadcrumb:crumb];
+    [[self getScope] addBreadcrumb:crumb withMaxBreadcrumbs:[self getClient].options.maxBreadcrumbs];
 }
 
 - (SentryClient * _Nullable)getClient {
