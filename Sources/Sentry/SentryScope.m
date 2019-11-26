@@ -18,7 +18,6 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryCrash.h>
@@ -34,7 +33,6 @@
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryInstallation.h"
-#import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrash.h"
@@ -49,16 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScope ()
 
-@property(nonatomic, strong) SentryFileManager *fileManager;
-
 @end
 
 @implementation SentryScope
-
-@synthesize tags = _tags;
-@synthesize extra = _extra;
-@synthesize user = _user;
-
 
 #pragma mark Initializer
 
@@ -70,18 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #pragma mark Global properties
-
-- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags {
-    _tags = tags;
-}
-
-- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra {
-    _extra = extra;
-}
-
-- (void)setUser:(SentryUser *_Nullable)user {
-    _user = user;
-}
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
