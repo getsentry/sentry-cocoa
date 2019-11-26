@@ -11,6 +11,7 @@ addons:
     taps: oclint/formulae
     packages:
       - oclint
+      - swiftlint
     update: true
 
 cache:
@@ -49,7 +50,7 @@ jobs:
 notifications:
   webhooks:
     urls:
-      - https://zeus.ci/hooks/b0f1479e-c596-11e7-88ed-0a580a280308/public/provider/travis/webhook
+      - https://zeus.ci/hooks/f24f7238-0798-11ea-a9f5-b2c6ac7e8a44/public/provider/travis/webhook
     on_success: always
     on_failure: always
     on_start: always
