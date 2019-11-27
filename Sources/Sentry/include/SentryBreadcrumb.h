@@ -64,6 +64,8 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithLevel:(enum SentrySeverity)level category:(NSString *)category;
 
+- (NSDictionary<NSString *, id> *)serialize;
+
 @end
 
 NS_ASSUME_NONNULL_END

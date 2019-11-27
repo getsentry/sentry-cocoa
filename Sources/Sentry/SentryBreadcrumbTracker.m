@@ -9,19 +9,21 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryBreadcrumb.h>
+#import <Sentry/SentryHub.h>
+#import <Sentry/SentrySDK.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentrySwizzle.h>
-#import <Sentry/SentryBreadcrumbStore.h>
 
 #else
 #import "SentryClient.h"
+#import "SentryHub.h"
+#import "SentrySDK.h"
 #import "SentryDefines.h"
 #import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumbStore.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -47,18 +49,17 @@
                                                     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
                                                     crumb.type = @"system";
                                                     crumb.message = @"Memory Warning";
-                                                    [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
+                                                    [SentrySDK.currentHub addBreadcrumb:crumb];
                                                 }];
 #endif
 }
      
 - (void)addEnabledCrumb {
-    if (nil != SentryClient.sharedClient) {
-        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"started"];
-        crumb.type = @"debug";
-        crumb.message = @"Breadcrumb Tracking";
-        [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
-    }
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"started"];
+    crumb.type = @"debug";
+    crumb.message = @"Breadcrumb Tracking";
+
+    [SentrySDK addBreadcrumb:crumb];
 }
 
 - (void)swizzleSendAction {
@@ -71,7 +72,7 @@
             SentrySWReturnType(BOOL),
             SentrySWArguments(SEL action, id target, id sender, UIEvent * event),
             SentrySWReplacement({
-                    if (nil != SentryClient.sharedClient) {
+                    if (nil != [SentrySDK.currentHub getClient]) {
                         NSDictionary *data = [NSDictionary new];
                         for (UITouch *touch in event.allTouches) {
                             if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
@@ -82,7 +83,7 @@
                         crumb.type = @"user";
                         crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
                         crumb.data = data;
-                        [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
+                        [SentrySDK addBreadcrumb:crumb];
                     }
                     return SentrySWCallOriginal(action, target, sender, event);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
@@ -98,16 +99,21 @@
             SentrySWReturnType(void),
             SentrySWArguments(BOOL animated),
             SentrySWReplacement({
-                    if (nil != SentryClient.sharedClient) {
+                    if (nil != [SentrySDK.currentHub getClient]) {
                         SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"UIViewController"];
                         crumb.type = @"navigation";
                         crumb.message = @"viewDidAppear";
                         NSString *viewControllerName = [SentryBreadcrumbTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                         crumb.data = @{@"controller": viewControllerName};
-                        [SentryClient.sharedClient.breadcrumbs addBreadcrumb:crumb];
-                        NSMutableDictionary *prevExtra = SentryClient.sharedClient.extra.mutableCopy;
-                        [prevExtra setValue:viewControllerName forKey:@"__sentry_transaction"];
-                        SentryClient.sharedClient.extra = prevExtra;
+
+                        // TODO(fetzig): don't know if configureScope is the right way to do this.
+                        [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
+                            [scope addBreadcrumb:crumb withMaxBreadcrumbs:[SentrySDK.currentHub getClient].options.maxBreadcrumbs];
+
+                            NSMutableDictionary *prevExtra = scope.extra.mutableCopy;
+                            [prevExtra setValue:viewControllerName forKey:@"__sentry_transaction"];
+                            scope.extra = prevExtra;
+                        }];
                     }
                     SentrySWCallOriginal(animated);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);

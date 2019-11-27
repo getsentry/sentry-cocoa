@@ -9,66 +9,95 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryHub.h>
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryBreadcrumbStore.h>
+#import <Sentry/SentryStackLayer.h>
+#import <Sentry/SentryBreadcrumbTracker.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
-#import "SentryBreadcrumbStore.h"
+#import "SentrySentryStackLayer.h"
+#import "SentryBreadcrumbTracker.h"
 #endif
 
 @interface SentryHub()
 
-@property (nonatomic, strong) SentryClient *client;
+@property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
 
 @end
 
 @implementation SentryHub
 
-+ (SentryHub *)defaultHub {
-    static SentryHub *_sharedInstance = nil;
-    static dispatch_once_t oncePredicate;
-    dispatch_once(&oncePredicate, ^{
-        _sharedInstance = [[self alloc] init];
-    });
-    return _sharedInstance;
-}
-
-- (instancetype)initWithClient:(SentryClient *)aClient {
-    self = [super init];
-    if (self) {
-        [self bindClient:aClient];
+- (instancetype)init {
+    if (self = [super init]) {
+        SentryScope *scope = [[SentryScope alloc] init];
+        SentryStackLayer *layer = [[SentryStackLayer alloc] init];
+        layer.scope = scope;
+        [self setStack:[@[layer] mutableCopy]];
     }
     return self;
 }
+/**
+ */
+- (void)setupWithClient:(SentryClient * _Nullable)client {
+    SentryStackLayer *stackLayer = [[SentryStackLayer alloc] init];
+    stackLayer.scope = [[SentryScope alloc] init];
+    [self setStack:[@[stackLayer] mutableCopy]];
+}
 
 - (void)captureEvent:(SentryEvent *)event {
-    [self.client sendEvent:event withCompletionHandler:nil];
+    [[self getClient] sendEvent:event scope:[self getScope] withCompletionHandler:nil];
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [self.client.breadcrumbs addBreadcrumb:crumb];
+    [[self getScope] addBreadcrumb:crumb withMaxBreadcrumbs:[self getClient].options.maxBreadcrumbs];
 }
 
 - (SentryClient * _Nullable)getClient {
-    return self.client;
+    if (nil != [self getStackTop]) {
+        return [[self getStackTop] client];
+    }
+    return nil;
 }
 
-- (void)bindClient:(SentryClient *)aClient {
-    [self setClient:aClient];
-
-    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
-    [SentryClient setSharedClient:aClient];
+- (void)bindClient:(SentryClient * _Nullable)client {
+    if (nil != [self getStackTop]) {
+        [self getStackTop].client = client;
+    }
 }
 
-- (void)unbindClient {
-    [self setClient:nil];
-
-    // TODO(fetzig): remove this as soon as SentryHub is fully capable of managing multiple `SentryClient`s
-    [SentryClient setSharedClient:nil];
+- (SentryStackLayer *)getStackTop {
+    return self.stack[self.stack.count - 1];
 }
 
-- (void)reset {
-    [self unbindClient];
+- (SentryScope *)getScope {
+    return [self getStackTop].scope;
+}
+
+- (SentryScope *)pushScope {
+    SentryScope * scope = [[[self getStackTop] scope] copy];
+    // TODO(fetzig) clone this
+    SentryClient * client = [self getClient];
+    SentryStackLayer *newLayer = [[SentryStackLayer alloc] init];
+    newLayer.scope = scope;
+    newLayer.client = client;
+    [self.stack addObject:newLayer];
+    return scope;
+}
+
+- (void)popScope {
+    [self.stack removeLastObject];
+}
+
+- (void)withScope:(void(^)(SentryScope * scope))callback {
+    SentryScope *scope = [self pushScope];
+    callback(scope);
+    [self popScope];
+}
+
+- (void)configureScope:(void(^)(SentryScope *scope))callback {
+    SentryStackLayer *top = [self getStackTop];
+    if (nil != top.client && nil != top.scope) {
+        callback(top.scope);
+    }
 }
 
 @end

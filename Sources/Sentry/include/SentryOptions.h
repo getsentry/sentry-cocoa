@@ -6,8 +6,6 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>
 #else
@@ -22,15 +20,14 @@ NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 SENTRY_NO_INIT
 
-    
 /**
  * Init SentryOptions.
  * @param options Options dictionary
  * @return SentryOptions
  */
-- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error;
-    
+
 /**
  * The Dsn passed in the options.
  */
@@ -50,11 +47,13 @@ SENTRY_NO_INIT
  * The environment used for this event
  */
 @property(nonatomic, copy) NSString *_Nullable environment;
-    
+
 /**
  * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
  */
 @property(nonatomic, copy) NSNumber *enabled;
+
+@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 @end
 

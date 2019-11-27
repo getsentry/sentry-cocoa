@@ -11,12 +11,16 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDefines.h>
+#import <Sentry/SentryOptions.h>
+#import <Sentry/SentryScope.h>
 
 #else
 #import "SentryDefines.h"
+#import "SentryOptions.h"
+#import "SentryScope.h"
 #endif
 
-@class SentryEvent, SentryBreadcrumbStore, SentryUser, SentryThread;
+@class SentryEvent, SentryThread;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,20 +43,7 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, class) SentryLogLevel logLevel;
 
-/**
- * Set global user -> thus will be sent with every event
- */
-@property(nonatomic, strong) SentryUser *_Nullable user;
-
-/**
- * Set global tags -> these will be sent with every event
- */
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
-
-/**
- * Set global extra -> these will be sent with every event
- */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+@property(nonatomic, strong) SentryOptions *options;
 
 /**
  * This property will be filled before the event is sent.
@@ -79,11 +70,6 @@ SENTRY_NO_INIT
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
-
-/**
- * Contains the breadcrumbs which will be sent with the event
- */
-@property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
     
 /**
  * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
@@ -106,12 +92,6 @@ SENTRY_NO_INIT
  * @return BOOL
  */
 @property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
-
-/**
- * Returns the shared sentry client
- * @return sharedClient if it was set before
- */
-@property(nonatomic, class) SentryClient *_Nullable sharedClient;
 
 /**
  * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
@@ -154,18 +134,8 @@ SENTRY_NO_INIT
  * @param error NSError reference object
  * @return SentryClient
  */
-- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * This automatically adds breadcrumbs for different user actions.
- */
-- (void)enableAutomaticBreadcrumbTracking;
-
-/**
- * Track memory pressure notification on UIApplications and send an event for it to Sentry.
- */
-- (void)trackMemoryPressureAsEvent;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
@@ -173,15 +143,17 @@ SENTRY_NO_INIT
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-NS_SWIFT_NAME(send(event:completion:));
+- (void)    sendEvent:(SentryEvent *)event
+                scope:(SentryScope *)scope
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+NS_SWIFT_NAME(send(event:scope:completion:));
 
 /**
  * This function stores an event to disk. It will be sent with the next batch.
  * This function is mainly used for react native.
  * @param event SentryEvent that should be sent
  */
-- (void)storeEvent:(SentryEvent *)event;
+- (void)storeEvent:(SentryEvent *)event scope:(SentryScope *)scope;
 
 /**
  * Clears all context related variables: tags, extra and user
