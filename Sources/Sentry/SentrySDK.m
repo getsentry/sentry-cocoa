@@ -10,27 +10,70 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentryScope.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryHub.h>
+#import <Sentry/SentryBreadcrumbTracker.h>
 #else
 #import "SentrySDK.h"
 #import "SentryClient.h"
+#import "SentryScope.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
 #import "SentryHub.h"
+#import "SentryBreadcrumbTracker.h"
 #endif
+
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
+
+@interface SentrySDK ()
+
+/**
+ holds the current hub instance
+ */
+@property (class) SentryHub * currentHub; // TODO(fetzig) check if copy is needed
+
+@end
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
-+ (void)startWithOptions:(NSDictionary<NSString *,id> *)options {
+static SentryHub * currentHub;
+
++ (SentryHub *) currentHub {
+    @synchronized(self) {
+        if (nil == currentHub) {
+            currentHub = [[SentryHub alloc] init];
+        }
+        return currentHub;
+    }
+}
+
++ (void) setCurrentHub:(SentryHub *)hub {
+    @synchronized(self) {
+        currentHub = hub;
+    }
+}
+
++ (void)startWithOptionsDict:(NSDictionary<NSString *,id> *)optionsDict {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
+    if (nil != error) {
+        NSLog(@"%@", error);
+    } else {
+        [SentrySDK startWithOptions:options];
+    }
+}
+
++ (void)startWithOptions:(SentryOptions *)options {
     NSError *error = nil;
 
-    if ([SentryHub.defaultHub getClient] == nil) {
+    if ([SentrySDK.currentHub getClient] == nil) {
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options didFailWithError:&error];
-
-        [SentryHub.defaultHub bindClient:newClient];
+        [SentrySDK.currentHub bindClient:newClient];
 
         if (nil != error) {
             NSLog(@"%@", error);
@@ -38,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     // TODO(fetzig): do this via "integration"
-    [[SentryHub.defaultHub getClient] startCrashHandlerWithError:&error];
+    [[SentrySDK.currentHub getClient] startCrashHandlerWithError:&error];
 
     if (nil != error) {
         NSLog(@"%@", error);
@@ -46,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (void)captureEvent:(SentryEvent *)event {
-    [SentryHub.defaultHub captureEvent:event];
+    [SentrySDK.currentHub captureEvent:event];
 }
 
 + (void)captureError:(NSError *)error {
@@ -68,11 +111,32 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [SentryHub.defaultHub addBreadcrumb:crumb];
+    [SentrySDK.currentHub addBreadcrumb:crumb];
 }
 
 // TODO(fetzig): requires scope that is detached from SentryClient.finish this as soon as SentryScope has been implemented.
-//+ (void)configureScope:(void(^)(int))callback;
++ (void)configureScope:(void(^)(SentryScope *scope))callback {
+    [SentrySDK.currentHub configureScope:callback];
+}
+
+// TODO(fetzig): move to integrations once we have it
++ (void)enableAutomaticBreadcrumbTracking {
+    [[SentryBreadcrumbTracker alloc] start];
+}
+
+// TODO(fetzig): move to integration once we have it
++ (void)trackMemoryPressureAsEvent {
+    #if SENTRY_HAS_UIKIT
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"Memory Warning";
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [SentrySDK captureEvent:event];
+                                                }];
+    #endif
+}
 
 @end
 
