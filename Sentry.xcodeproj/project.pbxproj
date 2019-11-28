@@ -449,10 +449,10 @@
 		7D5C441D237C2E1F00DAB0A3 /* SentryHub.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D5C4419237C2E1F00DAB0A3 /* SentryHub.m */; };
 		7D65260E237F649E00113EA2 /* SentryScope.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D65260B237F649E00113EA2 /* SentryScope.m */; };
 		7D65260F237F649E00113EA2 /* SentryScope.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D65260B237F649E00113EA2 /* SentryScope.m */; };
-		7DB3A685238EA75E00A2D442 /* SentryTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DB3A683238EA75E00A2D442 /* SentryTransport.h */; };
-		7DB3A686238EA75E00A2D442 /* SentryTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DB3A683238EA75E00A2D442 /* SentryTransport.h */; };
 		7DB3A687238EA75E00A2D442 /* SentryTransport.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DB3A684238EA75E00A2D442 /* SentryTransport.m */; };
 		7DB3A688238EA75E00A2D442 /* SentryTransport.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DB3A684238EA75E00A2D442 /* SentryTransport.m */; };
+		7DB3A68B238FE7BA00A2D442 /* SentryTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DB3A68A238FE7BA00A2D442 /* SentryTransport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7DB3A68C238FE7BA00A2D442 /* SentryTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DB3A68A238FE7BA00A2D442 /* SentryTransport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -753,8 +753,8 @@
 		7D5C4418237C2E1F00DAB0A3 /* SentrySDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySDK.m; sourceTree = "<group>"; };
 		7D5C4419237C2E1F00DAB0A3 /* SentryHub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryHub.m; sourceTree = "<group>"; };
 		7D65260B237F649E00113EA2 /* SentryScope.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScope.m; sourceTree = "<group>"; };
-		7DB3A683238EA75E00A2D442 /* SentryTransport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryTransport.h; sourceTree = "<group>"; };
 		7DB3A684238EA75E00A2D442 /* SentryTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTransport.m; sourceTree = "<group>"; };
+		7DB3A68A238FE7BA00A2D442 /* SentryTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryTransport.h; path = include/SentryTransport.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -991,7 +991,7 @@
 				7D65260B237F649E00113EA2 /* SentryScope.m */,
 				7D06370B2382EC4700B30749 /* SentryStackLayer.h */,
 				7D0637062382CCD100B30749 /* SentryStackLayer.m */,
-				7DB3A683238EA75E00A2D442 /* SentryTransport.h */,
+				7DB3A68A238FE7BA00A2D442 /* SentryTransport.h */,
 				7DB3A684238EA75E00A2D442 /* SentryTransport.m */,
 			);
 			path = Sentry;
@@ -1324,7 +1324,7 @@
 				63FE710220DA4C1000CDBAE8 /* SentryCrashDate.h in Headers */,
 				6334314220AD9AE40077E581 /* SentryMechanism.h in Headers */,
 				6387B8261ED850F50045A84C /* SentryAsynchronousOperation.h in Headers */,
-				7DB3A686238EA75E00A2D442 /* SentryTransport.h in Headers */,
+				7DB3A68C238FE7BA00A2D442 /* SentryTransport.h in Headers */,
 				6334AF16227ACA6F007A335C /* NSString+SentryNSUIntegerValue.h in Headers */,
 				63FE716C20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.h in Headers */,
 				6387B81C1ED850C10045A84C /* SentryDsn.h in Headers */,
@@ -1427,7 +1427,7 @@
 				63FE715320DA4C1100CDBAE8 /* SentryCrashObjCApple.h in Headers */,
 				63FE710120DA4C1000CDBAE8 /* SentryCrashDate.h in Headers */,
 				6334314120AD9AE40077E581 /* SentryMechanism.h in Headers */,
-				7DB3A685238EA75E00A2D442 /* SentryTransport.h in Headers */,
+				7DB3A68B238FE7BA00A2D442 /* SentryTransport.h in Headers */,
 				639FCF9C1EBC7F9500778193 /* SentryThread.h in Headers */,
 				63FE716B20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.h in Headers */,
 				63AA76A51EB9CBC200D153DE /* SentryDsn.h in Headers */,

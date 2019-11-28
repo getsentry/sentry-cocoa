@@ -46,15 +46,16 @@ class SentrySwiftTests: XCTestCase {
 
         let client = try? Client(options: options)
         XCTAssertNotNil(client)
-        
-        client!.beforeSendRequest = { request in
+
+        SentryTransport.shared().beforeSendRequest = { request in
             XCTAssertTrue(false)
         }
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.extra = ["a": "b"]
-        client!.send(event: event2, scope: scope)
+        client!.capture(event2, with: scope)
+        //send(event: event2, scope: scope)
     }
     
     func testEnabled() {
@@ -63,16 +64,21 @@ class SentrySwiftTests: XCTestCase {
         let client = try? Client(options: options)
         XCTAssertNotNil(client)
         
-        client!.beforeSendRequest = { request in
+        SentryTransport.shared().beforeSendRequest = { request in
             XCTAssertTrue(true)
         }
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.extra = ["a": "b"]
-        client!.send(event: event2, scope: scope) { (error) in
-            XCTAssertNil(error)
-        }
+        client!.capture(event2, with: scope)
+        // TODO(fetzig) this thest used to have a callback
+        // 1) check if we should keep/drop the callback
+        // 2) update test accordingly
+
+//        client!.send(event: event2, scope: scope) { (error) in
+//            XCTAssertNil(error)
+//        }
     }
     
     func testFunctionCalls() {
@@ -85,21 +91,27 @@ class SentrySwiftTests: XCTestCase {
         SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
         print("#####################")
         print(SentrySDK.currentHub().getClient() ?? "no client")
-        SentrySDK.currentHub().getClient()!.send(event: event, scope: scope)
+
+        SentrySDK.currentHub().getClient()!.capture(event, with: scope)
 
         let event2 = Event(level: .debug)
         let scope2 = Sentry.Scope()
         scope2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
-        
-        SentrySDK.currentHub().getClient()!.beforeSerializeEvent = { event in
+
+        SentryTransport.shared().beforeSerializeEvent = { event in
             event.extra = ["b": "c"]
         }
         
-        SentrySDK.currentHub().getClient()!.send(event: event2, scope: scope) { (error) in
-            XCTAssertNil(error)
-        }
-        
+        SentrySDK.currentHub().getClient()!.capture(event2, with: scope)
+        // TODO(fetzig) this thest used to have a callback
+        // 1) check if we should keep/drop the callback
+        // 2) update test accordingly
+
+//        { (error) in
+//            XCTAssertNil(error)
+//        }
+//
         Client.logLevel = .debug
         SentrySDK.currentHub().getClient()!.clearContext()
         // TODO(fetzig): check if this is the intended way to do this

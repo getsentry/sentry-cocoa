@@ -138,6 +138,11 @@ static SentryHub * currentHub;
     #endif
 }
 
+- (void)crash {
+    int* p = 0;
+    *p = 0;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
