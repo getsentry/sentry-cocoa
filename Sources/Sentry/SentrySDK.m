@@ -138,7 +138,7 @@ static SentryHub * currentHub;
     #endif
 }
 
-- (void)crash {
++ (void)crash {
     int* p = 0;
     *p = 0;
 }

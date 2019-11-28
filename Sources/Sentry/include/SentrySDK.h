@@ -42,7 +42,7 @@ SENTRY_NO_INIT
 /**
  * This forces a crash, useful to test the SentryCrash integration
  */
-- (void)crash;
++ (void)crash;
 
 /**
  sets current hub

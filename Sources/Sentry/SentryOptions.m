@@ -54,6 +54,8 @@
     
     if (nil != [options objectForKey:@"enabled"]) {
         self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
+    } else {
+        self.enabled = @YES;
     }
 
     if (nil != [options objectForKey:@"max_breadcrumbs"]) {

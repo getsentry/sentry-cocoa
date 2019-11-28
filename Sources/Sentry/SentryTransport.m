@@ -74,9 +74,9 @@
       NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
       self.requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
 
-      SentryDsn *dsn = [SentrySDK.currentHub getClient].options.dsn;
+      //SentryDsn *dsn = [SentrySDK.currentHub getClient].options.dsn;
       NSError* error = nil;
-      self.fileManager = [[SentryFileManager alloc] initWithDsn:dsn didFailWithError:&error];
+      self.fileManager = [[SentryFileManager alloc] initWithDsn:[SentrySDK.currentHub getClient].options.dsn didFailWithError:&error];
       if (nil != error) {
           [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
           return nil;
@@ -189,7 +189,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     NSError *requestError = nil;
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:[SentrySDK.currentHub getClient].options.dsn
                                                                              andEvent:event
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
@@ -202,7 +202,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    if (![[SentrySDK.currentHub getClient].enabled boolValue]) {
+    if (![[SentrySDK.currentHub getClient].options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
         return;
     }
@@ -219,7 +219,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                               object:nil
                                                             userInfo:[event serialize]];
             // Send all stored events in background if the queue is ready
-            if ([[SentrySDK.currentHub getClient].enabled boolValue] && [_self.requestManager isReady]) {
+            if ([[SentrySDK.currentHub getClient].options.enabled boolValue] && [_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
         }
@@ -276,7 +276,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
         dispatch_group_enter(dispatchGroup);
 
-        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
+        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:[SentrySDK.currentHub getClient].options.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {

@@ -76,11 +76,6 @@ static SentryInstallation *installation = nil;
 
             self.options = options;
 
-    //        if (nil == options.enabled) {
-    //            self.enabled = @YES;
-    //        } else {
-    //            self.enabled = sentryOptions.enabled;
-    //        }
     //        self.dsn = sentryOptions.dsn;
     //        self.environment = sentryOptions.environment;
     //        self.releaseName = sentryOptions.releaseName;
@@ -93,7 +88,7 @@ static SentryInstallation *installation = nil;
 
 
             // We want to send all stored events on start up
-            if ([self.enabled boolValue]) {
+            if ([self.options.enabled boolValue]) {
                 [SentryTransport.shared sendAllStoredEvents];
             }
         }
