@@ -32,6 +32,7 @@
     return self;
 }
 
+// TODO(fetzig) static analyzer doesnt like `NSError **` and `*error =`. check if thats ok or not. fix or do `#ifndef __clang_analyzer__`
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {

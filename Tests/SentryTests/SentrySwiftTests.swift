@@ -45,6 +45,7 @@ class SentrySwiftTests: XCTestCase {
         let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": false])
 
         let client = try? Client(options: options)
+        SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
 
         SentryTransport.shared().beforeSendRequest = { request in
@@ -56,12 +57,15 @@ class SentrySwiftTests: XCTestCase {
         scope.extra = ["a": "b"]
         client!.capture(event2, with: scope)
         //send(event: event2, scope: scope)
+        // TODO(fetzig) this might be just a hotfix. depending on how beforeSendRequest should be implemented with the unified api
+        SentryTransport.shared().beforeSendRequest = nil
     }
     
     func testEnabled() {
         let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": true])
 
         let client = try? Client(options: options)
+        SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
         
         SentryTransport.shared().beforeSendRequest = { request in
@@ -79,6 +83,8 @@ class SentrySwiftTests: XCTestCase {
 //        client!.send(event: event2, scope: scope) { (error) in
 //            XCTAssertNil(error)
 //        }
+        // TODO(fetzig) this might be just a hotfix. depending on how beforeSendRequest should be implemented with the unified api
+        SentryTransport.shared().beforeSendRequest = nil
     }
     
     func testFunctionCalls() {

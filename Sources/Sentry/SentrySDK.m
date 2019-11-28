@@ -138,10 +138,13 @@ static SentryHub * currentHub;
     #endif
 }
 
+#ifndef __clang_analyzer__
+// Code not to be analyzed
 + (void)crash {
     int* p = 0;
     *p = 0;
 }
+#endif
 
 @end
 
