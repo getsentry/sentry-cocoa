@@ -29,7 +29,6 @@ let package = Package(
                 "SentryCrash/Reporting/Tools",
             ],
             path: "Sources/Sentry",
-            publicHeadersPath: "include",
             cxxSettings: [
                 .headerSearchPath("../SentryCrash/Installations"),
                 .headerSearchPath("../SentryCrash/Recording"),
@@ -117,11 +116,26 @@ let package = Package(
             publicHeadersPath: "."
         ),
 
-        // TODO: make tests work.
-        // "contains mixed language source files; feature not supported"
+        .testTarget(
+            name: "SentrySwiftTests",
+            dependencies: [
+                "Sentry",
+            ],
+            path: "Tests/SentryTests",
+            sources: [
+                "SentrySwiftTests.swift",
+            ]
+        ),
+
+        // TODO: make Objective-C tests work.
         // .testTarget(
         //     name: "SentryTests",
-        //     dependencies: ["Sentry"]
+        //     dependencies: [
+        //         "Sentry",
+        //     ],
+        //     exclude: [
+        //         "SentrySwiftTests.swift",
+        //     ]
         // ),
     ]
 )
