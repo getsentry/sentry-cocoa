@@ -44,21 +44,21 @@ SENTRY_NO_INIT
 @property(nonatomic, class) SentryLogLevel logLevel;
 
 @property(nonatomic, strong) SentryOptions *options;
-
-/**
- * This property will be filled before the event is sent.
- */
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-
-/**
- * This property will be filled before the event is sent.
- */
-@property(nonatomic, copy) NSString *_Nullable dist;
-
-/**
- * The environment used for this event
- */
-@property(nonatomic, copy) NSString *_Nullable environment;
+//
+///**
+// * This property will be filled before the event is sent.
+// */
+//@property(nonatomic, copy) NSString *_Nullable releaseName;
+//
+///**
+// * This property will be filled before the event is sent.
+// */
+//@property(nonatomic, copy) NSString *_Nullable dist;
+//
+///**
+// * The environment used for this event
+// */
+//@property(nonatomic, copy) NSString *_Nullable environment;
     
 /**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
@@ -67,11 +67,11 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
 
 
-    
-/**
- * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
- */
-@property(nonatomic, copy) NSNumber *enabled;
+//    
+///**
+// * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
+// */
+//@property(nonatomic, copy) NSNumber *enabled;
 
 
 /**
@@ -93,11 +93,6 @@ SENTRY_NO_INIT
  */
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * Clears all context related variables: tags, extra and user
- */
-- (void)clearContext;
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 

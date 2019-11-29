@@ -119,7 +119,9 @@ class SentrySwiftTests: XCTestCase {
 //        }
 //
         Client.logLevel = .debug
-        SentrySDK.currentHub().getClient()!.clearContext()
+        // TODO(fetzig) reaplaced this with `bindClient:nil` but should reset scope as well. check how.
+        //SentrySDK.currentHub().getClient()!.clearContext()
+        SentrySDK.currentHub().bindClient(nil)
         // TODO(fetzig): check if this is the intended way to do this
 //        SentrySDK.currentHub().configureScope { (scope) in
 //            scope.breadcrumbs.maxBreadcrumbs = 100

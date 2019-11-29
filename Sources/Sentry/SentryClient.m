@@ -141,24 +141,6 @@ static SentryInstallation *installation = nil;
 
 #pragma mark Global properties
 
-- (void)setReleaseName:(NSString *_Nullable)releaseName {
-    _releaseName = releaseName;
-}
-    
-- (void)setDist:(NSString *_Nullable)dist {
-    _dist = dist;
-}
-    
-- (void)setEnvironment:(NSString *_Nullable)environment {
-    _environment = environment;
-}
-
-- (void)clearContext {
-    [self setReleaseName:nil];
-    [self setDist:nil];
-    [self setEnvironment:nil];
-}
-
 #pragma mark SentryCrash
 
 - (BOOL)crashedLastLaunch {
