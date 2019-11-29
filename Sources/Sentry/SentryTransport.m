@@ -59,6 +59,8 @@
 @synthesize maxEvents = _maxEvents;
 @synthesize maxBreadcrumbs = _maxBreadcrumbs;
 
+// TODO(fetzig) check if this is the right implementation. alternatives: attaching the current transport to client or hub.
+// TODO(fetzig) check if accessing options via static api is correct way.
 + (instancetype)shared {
     static SentryTransport *shared = nil;
     static dispatch_once_t onceToken;
@@ -74,7 +76,6 @@
       NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
       self.requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
 
-      //SentryDsn *dsn = [SentrySDK.currentHub getClient].options.dsn;
       NSError* error = nil;
       self.fileManager = [[SentryFileManager alloc] initWithDsn:[SentrySDK.currentHub getClient].options.dsn didFailWithError:&error];
       if (nil != error) {
