@@ -60,6 +60,7 @@ static SentryInstallation *installation = nil;
 @implementation SentryClient
 
 @synthesize options = _options;
+@synthesize transport = _transport;
 @dynamic logLevel;
 
 #pragma mark Initializer
@@ -71,30 +72,22 @@ static SentryInstallation *installation = nil;
     if (self = [super init]) {
 //            //[self restoreContextBeforeCrash];
 //            [self setupQueueing];
-    //        _extra = [NSDictionary new];
-    //        _tags = [NSDictionary new];
-
             self.options = options;
-
-    //        self.dsn = sentryOptions.dsn;
-    //        self.environment = sentryOptions.environment;
-    //        self.releaseName = sentryOptions.releaseName;
-    //        self.dist = sentryOptions.dist;
-
-//            self.requestManager = requestManager;
-//            if (logLevel > 1) { // If loglevel is set > None
-//                NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
-//            }
-
 
             // We want to send all stored events on start up
             if ([self.options.enabled boolValue]) {
-                [SentryTransport.shared sendAllStoredEvents];
+                [self.transport sendAllStoredEvents];
             }
         }
         return self;
 }
-    
+
+- (SentryTransport *)transport {
+    if (_transport == nil) {
+        _transport = [[SentryTransport alloc] initWithOptions:self.options];
+    }
+    return _transport;
+}
     
 - (_Nullable instancetype)initWithDsn:(NSString *)dsn
                      didFailWithError:(NSError *_Nullable *_Nullable)error {
@@ -107,7 +100,8 @@ static SentryInstallation *installation = nil;
 }
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope {
-    [SentryTransport.shared sendEvent:event scope:scope withCompletionHandler:nil];
+    [self prepareEvent:event scope:scope useClientProperties:YES];
+    [self.transport sendEvent:event withCompletionHandler:nil];
 }
 
 #pragma mark Static Getter/Setter
@@ -197,6 +191,70 @@ static SentryInstallation *installation = nil;
     [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
         snapshotCompleted();
     }];
+}
+
+- (void)prepareEvent:(SentryEvent *)event
+               scope:(SentryScope *)scope
+ useClientProperties:(BOOL)useClientProperties {
+    NSParameterAssert(event);
+    if (useClientProperties) {
+        [self setSharedPropertiesOnEvent:event scope:scope];
+    }
+
+    if (nil != self.beforeSerializeEvent) {
+        self.beforeSerializeEvent(event);
+    }
+}
+
+- (void)setSharedPropertiesOnEvent:(SentryEvent *)event
+                             scope:(SentryScope *)scope {
+    if (nil != scope.tags) {
+        if (nil == event.tags) {
+            event.tags = scope.tags;
+        } else {
+            NSMutableDictionary *newTags = [NSMutableDictionary new];
+            [newTags addEntriesFromDictionary:scope.tags];
+            [newTags addEntriesFromDictionary:event.tags];
+            event.tags = newTags;
+        }
+    }
+
+    if (nil != scope.extra) {
+        if (nil == event.extra) {
+            event.extra = scope.extra;
+        } else {
+            NSMutableDictionary *newExtra = [NSMutableDictionary new];
+            [newExtra addEntriesFromDictionary:scope.extra];
+            [newExtra addEntriesFromDictionary:event.extra];
+            event.extra = newExtra;
+        }
+    }
+
+    if (nil != scope.user && nil == event.user) {
+        event.user = scope.user;
+    }
+
+    if (nil == event.breadcrumbsSerialized) {
+        event.breadcrumbsSerialized = [scope serializeBreadcrumbs];
+    }
+
+    if (nil == event.infoDict) {
+        event.infoDict = [[NSBundle mainBundle] infoDictionary];
+    }
+    NSString * environment = self.options.environment;
+    if (nil != environment && nil == event.environment) {
+        event.environment = environment;
+    }
+
+    NSString * releaseName = self.options.releaseName;
+    if (nil != releaseName && nil == event.releaseName) {
+        event.releaseName = releaseName;
+    }
+
+    NSString * dist = self.options.dist;
+    if (nil != dist && nil == event.dist) {
+        event.dist = dist;
+    }
 }
 
 @end

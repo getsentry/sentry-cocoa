@@ -10,13 +10,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDefines.h>
-#import <Sentry/SentryClient.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryEvent.h>
 
 #else
 #import "SentryDefines.h"
-#import "SentryClient.h"
 #import "SentryScope.h"
 #import "SentryEvent.h"
 #endif
@@ -24,12 +22,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryTransport : NSObject
-
-
-/**
- * This block can be used to modify the event before it will be serialized and sent
- */
-@property(nonatomic, copy) SentryBeforeSerializeEvent _Nullable beforeSerializeEvent;
+SENTRY_NO_INIT
 
 /**
  * This block can be used to modify the request before its put on the request queue.
@@ -42,7 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return BOOL
  */
 @property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
-
 
 /**
  * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
@@ -68,12 +60,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Be careful with this setting since too high numbers may cause your quota to exceed.
  */
 @property(nonatomic, assign) NSUInteger maxEvents;
+
 /**
  * Increase the max number of breadcrumbs we store offline.
  */
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
-+ (instancetype)shared;
+- (id)initWithOptions:(SentryOptions *)options;
 
 - (void)sendAllStoredEvents;
 
@@ -84,16 +77,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completionHandler SentryRequestFinished
  */
 - (void)    sendEvent:(SentryEvent *)event
-                scope:(SentryScope *)scope
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-NS_SWIFT_NAME(send(event:scope:completion:));
+NS_SWIFT_NAME(send(event:completion:));
 
 /**
  * This function stores an event to disk. It will be sent with the next batch.
  * This function is mainly used for react native.
  * @param event SentryEvent that should be sent
  */
-- (void)storeEvent:(SentryEvent *)event scope:(SentryScope *)scope;
+- (void)storeEvent:(SentryEvent *)event;
 
 
 

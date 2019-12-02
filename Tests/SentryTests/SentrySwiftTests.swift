@@ -48,7 +48,7 @@ class SentrySwiftTests: XCTestCase {
         SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
 
-        SentryTransport.shared().beforeSendRequest = { request in
+        client?.transport.beforeSendRequest = { request in
             XCTAssertTrue(false)
         }
         
@@ -57,8 +57,6 @@ class SentrySwiftTests: XCTestCase {
         scope.extra = ["a": "b"]
         client!.capture(event2, with: scope)
         //send(event: event2, scope: scope)
-        // TODO(fetzig) this might be just a hotfix. depending on how beforeSendRequest should be implemented with the unified api
-        SentryTransport.shared().beforeSendRequest = nil
     }
     
     func testEnabled() {
@@ -68,7 +66,7 @@ class SentrySwiftTests: XCTestCase {
         SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
         
-        SentryTransport.shared().beforeSendRequest = { request in
+        client?.transport.beforeSendRequest = { request in
             XCTAssertTrue(true)
         }
         
@@ -83,8 +81,6 @@ class SentrySwiftTests: XCTestCase {
 //        client!.send(event: event2, scope: scope) { (error) in
 //            XCTAssertNil(error)
 //        }
-        // TODO(fetzig) this might be just a hotfix. depending on how beforeSendRequest should be implemented with the unified api
-        SentryTransport.shared().beforeSendRequest = nil
     }
     
     func testFunctionCalls() {
@@ -105,7 +101,7 @@ class SentrySwiftTests: XCTestCase {
         scope2.extra = ["a": "b"]
         XCTAssertNotNil(event2.serialize())
 
-        SentryTransport.shared().beforeSerializeEvent = { event in
+        SentrySDK.currentHub().getClient()!.beforeSerializeEvent = { event in
             event.extra = ["b": "c"]
         }
         

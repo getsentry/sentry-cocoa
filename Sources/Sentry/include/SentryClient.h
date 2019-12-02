@@ -13,11 +13,13 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
+#import <Sentry/SentryTransport.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
+#import "SentryTransport.h"
 #endif
 
 @class SentryEvent, SentryThread;
@@ -44,34 +46,20 @@ SENTRY_NO_INIT
 @property(nonatomic, class) SentryLogLevel logLevel;
 
 @property(nonatomic, strong) SentryOptions *options;
-//
-///**
-// * This property will be filled before the event is sent.
-// */
-//@property(nonatomic, copy) NSString *_Nullable releaseName;
-//
-///**
-// * This property will be filled before the event is sent.
-// */
-//@property(nonatomic, copy) NSString *_Nullable dist;
-//
-///**
-// * The environment used for this event
-// */
-//@property(nonatomic, copy) NSString *_Nullable environment;
-    
+
+
+/**
+ * This block can be used to modify the event before it will be serialized and sent
+ */
+@property(nonatomic, copy) SentryBeforeSerializeEvent _Nullable beforeSerializeEvent;
+
 /**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
  * when sending the crashreport
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
 
-
-//    
-///**
-// * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
-// */
-//@property(nonatomic, copy) NSNumber *enabled;
+@property(nonatomic, strong) SentryTransport* transport;
 
 
 /**

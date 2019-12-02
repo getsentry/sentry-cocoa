@@ -9,7 +9,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryTransport.h>
-#import <Sentry/SentryClient.h>
+//#import <Sentry/SentryClient.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
@@ -27,7 +27,7 @@
 #import <Sentry/SentryScope.h>
 #else
 #import "SentryTransport.h"
-#import "SentryClient.h"
+//#import "SentryClient.h"
 #import "SentrySDK.h"
 #import "SentryClient+Internal.h"
 #import "SentryLog.h"
@@ -47,9 +47,9 @@
 
 @interface SentryTransport ()
 
-@property(nonatomic, strong) SentryDsn *dsn;
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
+@property(nonatomic, weak) SentryOptions *options;
 
 @end
 
@@ -59,25 +59,15 @@
 @synthesize maxEvents = _maxEvents;
 @synthesize maxBreadcrumbs = _maxBreadcrumbs;
 
-// TODO(fetzig) check if this is the right implementation. alternatives: attaching the current transport to client or hub.
-// TODO(fetzig) check if accessing options via static api is correct way.
-+ (instancetype)shared {
-    static SentryTransport *shared = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        shared = [[self alloc] init];
-    });
-    return shared;
-}
-
-- (id)init {
+- (id)initWithOptions:(SentryOptions *)options {
   if (self = [super init]) {
+      self.options = options;
       NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
       NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
       self.requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
 
       NSError* error = nil;
-      self.fileManager = [[SentryFileManager alloc] initWithDsn:[SentrySDK.currentHub getClient].options.dsn didFailWithError:&error];
+      self.fileManager = [[SentryFileManager alloc] initWithDsn:options.dsn didFailWithError:&error];
       if (nil != error) {
           [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
           return nil;
@@ -98,87 +88,12 @@
     };
 }
 
-- (void)    sendEvent:(SentryEvent *)event
-                scope:(SentryScope *)scope
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    [self sendEvent:event scope:scope useClientProperties:YES withCompletionHandler:completionHandler];
-}
-
-- (void)storeEvent:(SentryEvent *)event scope:(SentryScope *)scope {
-    //[self prepareEvent:event useClientProperties:YES];
-    [self prepareEvent:event scope:scope useClientProperties:YES];
+- (void)storeEvent:(SentryEvent *)event {
     [self.fileManager storeEvent:event];
 }
 
-- (void)prepareEvent:(SentryEvent *)event
-               scope:(SentryScope *)scope
- useClientProperties:(BOOL)useClientProperties {
-    NSParameterAssert(event);
-    if (useClientProperties) {
-        [self setSharedPropertiesOnEvent:event scope:scope];
-    }
-
-    if (nil != self.beforeSerializeEvent) {
-        self.beforeSerializeEvent(event);
-    }
-}
-
-- (void)setSharedPropertiesOnEvent:(SentryEvent *)event
-                             scope:(SentryScope *)scope {
-    if (nil != scope.tags) {
-        if (nil == event.tags) {
-            event.tags = scope.tags;
-        } else {
-            NSMutableDictionary *newTags = [NSMutableDictionary new];
-            [newTags addEntriesFromDictionary:scope.tags];
-            [newTags addEntriesFromDictionary:event.tags];
-            event.tags = newTags;
-        }
-    }
-
-    if (nil != scope.extra) {
-        if (nil == event.extra) {
-            event.extra = scope.extra;
-        } else {
-            NSMutableDictionary *newExtra = [NSMutableDictionary new];
-            [newExtra addEntriesFromDictionary:scope.extra];
-            [newExtra addEntriesFromDictionary:event.extra];
-            event.extra = newExtra;
-        }
-    }
-
-    if (nil != scope.user && nil == event.user) {
-        event.user = scope.user;
-    }
-
-    if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = [scope serializeBreadcrumbs];
-    }
-
-    if (nil == event.infoDict) {
-        event.infoDict = [[NSBundle mainBundle] infoDictionary];
-    }
-    NSString * environment = [SentrySDK.currentHub getClient].options.environment;
-    if (nil != environment && nil == event.environment) {
-        event.environment = environment;
-    }
-
-    NSString * releaseName = [SentrySDK.currentHub getClient].options.releaseName;
-    if (nil != releaseName && nil == event.releaseName) {
-        event.releaseName = releaseName;
-    }
-
-    NSString * dist = [SentrySDK.currentHub getClient].options.dist;
-    if (nil != dist && nil == event.dist) {
-        event.dist = dist;
-    }
-}
-
 - (void)    sendEvent:(SentryEvent *)event
-                scope:(SentryScope *)scope
-  useClientProperties:(BOOL)useClientProperties
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    [self prepareEvent:event scope:scope useClientProperties:useClientProperties];
 
     if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
         NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
@@ -190,7 +105,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     NSError *requestError = nil;
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:[SentrySDK.currentHub getClient].options.dsn
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                              andEvent:event
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
@@ -203,7 +118,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    if (![[SentrySDK.currentHub getClient].options.enabled boolValue]) {
+    if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
         return;
     }
@@ -220,7 +135,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                               object:nil
                                                             userInfo:[event serialize]];
             // Send all stored events in background if the queue is ready
-            if ([[SentrySDK.currentHub getClient].options.enabled boolValue] && [_self.requestManager isReady]) {
+            if ([self.options.enabled boolValue] && [_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
         }
@@ -277,7 +192,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
         dispatch_group_enter(dispatchGroup);
 
-        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:[SentrySDK.currentHub getClient].options.dsn
+        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
