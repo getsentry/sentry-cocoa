@@ -213,10 +213,10 @@ static FILE* g_file = NULL;
 
 static void setLogFD(FILE* file)
 {
-	if (g_file != NULL)
-	{
-		fclose(g_file);
-		g_file = NULL;
+    if (g_file != NULL)
+    {
+        fclose(g_file);
+        g_file = NULL;
 	}
 	// Don't allow pointing to stdout etc.
     if (file != stdout && file != stderr && file != stdin)
@@ -261,7 +261,7 @@ static void flushLog(void)
 {
 	if(g_file != NULL)
 	{
-		fflush(g_file);
+	    fflush(g_file);
 	}
 	fflush(stdout);
 }
