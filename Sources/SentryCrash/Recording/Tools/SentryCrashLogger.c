@@ -130,7 +130,7 @@ static void flushLog(void)
         }
     }
     write(STDOUT_FILENO, g_linebuffer, g_linebufsize);
-	resetBuffer();
+    resetBuffer();
 }
 
 
