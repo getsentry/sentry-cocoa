@@ -79,7 +79,7 @@ static void printPreviousLog(const char* filePath)
         printf("%s\n", data);
         printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n");
         fflush(stdout);
-		free(data);
+        free(data);
     }
 }
 
