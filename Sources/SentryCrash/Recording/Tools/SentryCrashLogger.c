@@ -55,7 +55,7 @@
  * Unless you're logging from within signal handlers, it's safe to set it to 0.
  */
 #ifndef SentryCrashLOGGER_CBufferSize
-#define SentryCrashLOGGER_CBufferSize   (1024 * 4) // emoji letters 2 bytes and ligatures 2 bytes ~4 bytes/character
+#define SentryCrashLOGGER_CBufferSize (1024 * 4) // emoji letters 2 bytes and ligatures 2 bytes ~4 bytes/character
 #endif
 
 /** Where console logs will be written */
