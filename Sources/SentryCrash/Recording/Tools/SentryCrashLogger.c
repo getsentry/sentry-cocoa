@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 
 // Compiler hints for "if" statements
@@ -305,8 +306,20 @@ bool sentrycrashlog_clearLogFile()
 #pragma mark - C -
 // ===========================================================================
 
+static inline void _AutoUnlockMutex(pthread_mutex_t **mutex) {
+    if (*mutex) {
+        pthread_mutex_unlock(*mutex);
+    }
+}
+#define RecursiveScopedLock(x) static pthread_mutex_t _recursive_mutex_##x = PTHREAD_RECURSIVE_MUTEX_INITIALIZER; \
+    __attribute__((cleanup(_AutoUnlockMutex))) pthread_mutex_t *x = &_recursive_mutex_##x; \
+    pthread_mutex_lock(x);
+
+//#define RecursiveScopedLock(x)
+
 void i_sentrycrashlog_logCBasic(const char* const fmt, ...)
 {
+    RecursiveScopedLock(lock);
     va_list args;
     va_start(args,fmt);
     writeFmtArgsToLog(fmt, args);
@@ -321,6 +334,7 @@ void i_sentrycrashlog_logC(const char* const level,
                   const char* const function,
                   const char* const fmt, ...)
 {
+    RecursiveScopedLock(lock);
     writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
     va_list args;
     va_start(args,fmt);
@@ -342,6 +356,7 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 {
     if(fmt == NULL)
     {
+        RecursiveScopedLock(lock);
         writeToLog("(null)");
         flushLog();
         return;
@@ -356,14 +371,17 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
     char* stringBuffer = malloc((unsigned)bufferLength);
     if(CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
     {
+        RecursiveScopedLock(lock);
         writeToLog(stringBuffer);
         writeToLog("\n");
+		flushLog();
     }
     else
     {
+        RecursiveScopedLock(lock);
         writeToLog("Could not convert log string to UTF-8. No logging performed.\n");
+        flushLog();
     }
-    flushLog();
 
     free(stringBuffer);
     CFRelease(entry);

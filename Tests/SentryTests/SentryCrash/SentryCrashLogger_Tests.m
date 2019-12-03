@@ -118,4 +118,42 @@
     XCTAssertEqualObjects(result, expected, @"");
 }
 
+- (void) testAtomicLogging
+{
+	NSString* expected = @"0123456789012345678901234567890123456789";
+    NSString* logFileName = [self.tempDir stringByAppendingPathComponent:@"atomiclog.txt"];
+    sentrycrashlog_setLogFilename([logFileName UTF8String], true);
+
+	dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
+	dispatch_queue_t queue = dispatch_queue_create("io.sentry.atomiclogtest", attr);
+	dispatch_group_t group = dispatch_group_create();
+	
+	#define kNumThreads 10
+	#define kNumIterations 10
+	#define kTimeout 1.0
+
+	for (int i = 0; i < kNumThreads; i++) {
+		dispatch_group_enter(group);
+		dispatch_async(queue, ^{
+			for (int j = 0; j < kNumIterations; j++) {
+				SentryCrashLOGBASIC_ALWAYS(expected);
+			}
+			dispatch_group_leave(group);
+		});
+	}
+	dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, kTimeout * NSEC_PER_SEC));
+    sentrycrashlog_setLogFilename(nil, true);
+
+    NSError* error = nil;
+    NSString* result = [NSString stringWithContentsOfFile:logFileName encoding:NSUTF8StringEncoding error:&error];
+    XCTAssertNil(error, @"");
+	result = [result substringToIndex:result.length-1]; // trim the final newline
+    NSArray<NSString *> *lines = [result componentsSeparatedByString:@"\n"];
+	for (int i = 0; i < (int)lines.count; i++) {
+		XCTAssertEqualObjects(lines[i], expected, @"line: %d", i);
+	}
+	int count = (kNumThreads * kNumIterations);
+	XCTAssertEqual(count, (int)lines.count);
+}
+
 @end
