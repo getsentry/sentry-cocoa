@@ -25,12 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * This block can be used to modify the request before its put on the request queue.
- * Can be used e.g. to set additional http headers before sending
- */
-@property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
-
-/**
  * This block can be used to prevent the event from being deleted after a failed send attempt.
  * Default is it will only be stored once after you hit a rate limit or there is no internet connect/cannot connect.
  * Also note that if an event fails to be sent again after it was queued, it will be discarded regardless.
@@ -59,8 +53,8 @@ SENTRY_NO_INIT
 - (void)sendAllStoredEvents;
 
 /**
- * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
- * useClientProperties: YES. CompletionHandler will be called if set.
+ * Sends and event to sentry. Internally calls @selector(sendEvent:withCompletionHandler:)
+ * CompletionHandler will be called if set.
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */

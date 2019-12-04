@@ -48,8 +48,7 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) SentryOptions *options;
 
 /**
- * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
- * Setting this property sets shouldSendEvent callback and applies a random event sampler.
+ * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0.
  */
 @property(nonatomic) float sampleRate;
 
@@ -58,12 +57,6 @@ SENTRY_NO_INIT
  * when sending the crashreport
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
-
-/**
- * This block can be used to prevent the event from being sent.
- * @return BOOL
- */
-@property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
 
 
 /**

@@ -64,6 +64,10 @@
         // fallback value
         self.maxBreadcrumbs = [@100 unsignedIntValue];
     }
+
+    if (nil != [options objectForKey:@"beforeSend"]) {
+        self.beforeSend = [options objectForKey:@"beforeSend"];
+    }
 }
 
 @end

@@ -55,7 +55,6 @@ SENTRY_NO_INIT
 
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
-
 /**
  * This block can be used to modify the event before it will be serialized and sent
  */

@@ -46,15 +46,8 @@ typedef void (^SentryRequestOperationFinished)(NSHTTPURLResponse *_Nullable resp
 /**
  * Block can be used to mutate event before its send
  */
-typedef void (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
-/**
- * Block can be used to mutate NSURLRequest e.g.: add headers before request is executed
- */
-typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
-/**
- * Block can be used to prevent the event from being sent
- */
-typedef BOOL (^SentryShouldSendEvent)(SentryEvent *_Nonnull event);
+typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
 /**
  * Block can be used to determine if an event should be queued and stored locally.
  * It will be tried to send again after next successful send.

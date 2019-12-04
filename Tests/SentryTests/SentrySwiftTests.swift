@@ -103,6 +103,7 @@ class SentrySwiftTests: XCTestCase {
 
         SentrySDK.currentHub().getClient()?.options.beforeSend = { event in
             event.extra = ["b": "c"]
+            return event
         }
         
         SentrySDK.currentHub().getClient()!.capture(event2, with: scope)

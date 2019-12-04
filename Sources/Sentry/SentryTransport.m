@@ -148,9 +148,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 - (void)  sendRequest:(SentryNSURLRequest *)request
 withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
-    if (nil != self.beforeSendRequest) {
-        self.beforeSendRequest(request);
-    }
     [self.requestManager addRequest:request completionHandler:completionHandler];
 }
 

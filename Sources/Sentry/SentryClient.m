@@ -107,17 +107,16 @@ static SentryInstallation *installation = nil;
 }
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
+    if (NO == [self checkSampleRate]) {
         NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
         [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
-//        if (completionHandler) {
-//            completionHandler(NSErrorFromSentryError(kSentryErrorEventNotSent, message));
-//        }
         return;
     }
 
-    [self prepareEvent:event scope:scope useClientProperties:YES];
-    [self.transport sendEvent:event withCompletionHandler:nil];
+    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
+    if (nil != preparedEvent) {
+        [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+    }
 }
 
 #pragma mark Static Getter/Setter
@@ -209,17 +208,15 @@ static SentryInstallation *installation = nil;
     }];
 }
 
-- (void)prepareEvent:(SentryEvent *)event
-               scope:(SentryScope *)scope
- useClientProperties:(BOOL)useClientProperties {
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *)scope {
     NSParameterAssert(event);
-    if (useClientProperties) {
-        [self setSharedPropertiesOnEvent:event scope:scope];
-    }
+    [self setSharedPropertiesOnEvent:event scope:scope];
 
     if (nil != self.options.beforeSend) {
-        self.options.beforeSend(event);
+        return self.options.beforeSend(event);
     }
+    return event;
 }
 
 - (void)setSharedPropertiesOnEvent:(SentryEvent *)event
@@ -279,9 +276,18 @@ static SentryInstallation *installation = nil;
         return;
     }
     _sampleRate = sampleRate;
-    self.shouldSendEvent = ^BOOL(SentryEvent *_Nonnull event) {
-        return (sampleRate >= ((double)arc4random() / 0x100000000));
-    };
+}
+
+/**
+ checks if event should be sent according to sampleRate
+ returns BOOL
+ */
+- (BOOL)checkSampleRate {
+    if (self.sampleRate < 0 || self.sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0, checkSampleRate is skipping check and returns YES" andLevel:kSentryLogLevelError];
+        return YES;
+    }
+    return (self.sampleRate >= ((double)arc4random() / 0x100000000));
 }
 
 @end
