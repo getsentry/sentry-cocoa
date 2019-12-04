@@ -1,11 +1,12 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "4.1.0"
+  s.version      = "4.4.2"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
   s.authors      = "Sentry"
-  s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git", :tag => s.version.to_s }
+  s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
+                     :tag => s.version.to_s }
 
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.10"
@@ -22,7 +23,5 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |sp|
     sp.source_files = "Sources/Sentry/**/*.{h,m}",
                       "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
-
-
   end
 end

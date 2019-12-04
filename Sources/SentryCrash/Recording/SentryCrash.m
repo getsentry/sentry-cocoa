@@ -32,7 +32,7 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashJSONCodecObjC.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashSystemCapabilities.h"
@@ -523,19 +523,20 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
 - (NSArray*) allReports
 {
+    NSMutableArray* reports = [NSMutableArray array];
     int reportCount = sentrycrash_getReportCount();
-    int64_t reportIDs[reportCount];
-    reportCount = sentrycrash_getReportIDs(reportIDs, reportCount);
-    NSMutableArray* reports = [NSMutableArray arrayWithCapacity:(NSUInteger)reportCount];
-    for(int i = 0; i < reportCount; i++)
-    {
-        NSDictionary* report = [self reportWithIntID:reportIDs[i]];
-        if(report != nil)
+    if (reportCount > 0) {
+        int64_t reportIDs[reportCount];
+        reportCount = sentrycrash_getReportIDs(reportIDs, reportCount);
+        for(int i = 0; i < reportCount; i++)
         {
-            [reports addObject:report];
+            NSDictionary* report = [self reportWithIntID:reportIDs[i]];
+            if(report != nil)
+            {
+                [reports addObject:report];
+            }
         }
     }
-
     return reports;
 }
 

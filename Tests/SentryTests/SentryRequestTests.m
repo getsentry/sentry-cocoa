@@ -10,7 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryQueueableRequestManager.h"
 #import "SentryFileManager.h"
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 #import "SentryClient+Internal.h"
 
 NSInteger requestShouldReturnCode = 200;
@@ -18,17 +18,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 @interface SentryClient (Private)
 
-/**
- * Initializes a SentryClient which can be used for sending events to sentry.
- *
- * @param dsn DSN string of sentry
- * @param requestManager Object conforming SentryRequestManager protocol
- * @param error NSError reference object
- * @return SentryClient
- */
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                       requestManager:(id <SentryRequestManager>)requestManager
-                     didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                           requestManager:(id <SentryRequestManager>)requestManager
+                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 
@@ -181,17 +173,17 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     [super setUp];
     [self clearAllFiles];
     self.requestManager = [[SentryMockRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
-    self.client = [[SentryClient alloc] initWithDsn:dsn
-                                     requestManager:self.requestManager
-                                   didFailWithError:nil];
+    self.client = [[SentryClient alloc] initWithOptions:@{@"dsn": dsn}
+                                         requestManager:self.requestManager
+                                       didFailWithError:nil];
     self.event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
 }
 
 - (void)testRealRequest {
     SentryQueueableRequestManager *requestManager = [[SentryQueueableRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
-    SentryClient *client = [[SentryClient alloc] initWithDsn:dsn
-                       requestManager:requestManager
-                     didFailWithError:nil];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:@{@"dsn": dsn}
+                                                  requestManager:requestManager
+                                                didFailWithError:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     [client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
@@ -256,9 +248,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 - (void)testRequestQueueReady {
     SentryQueueableRequestManager *requestManager = [[SentryQueueableRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
-    SentryClient *client = [[SentryClient alloc] initWithDsn:dsn
-                                              requestManager:requestManager
-                                            didFailWithError:nil];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:@{@"dsn": dsn}
+                                                  requestManager:requestManager
+                                                didFailWithError:nil];
 
     XCTAssertTrue(requestManager.isReady);
 
@@ -274,9 +266,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 - (void)testRequestQueueCancel {
     SentryClient.logLevel = kSentryLogLevelVerbose;
     SentryQueueableRequestManager *requestManager = [[SentryQueueableRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"http://a:b@sentry.io/1"
-                                              requestManager:requestManager
-                                            didFailWithError:nil];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:@{@"dsn": @"http://a:b@sentry.io/1"}
+                                                  requestManager:requestManager
+                                                didFailWithError:nil];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should fail"];
     [client sendEvent:self.event withCompletionHandler:^(NSError * _Nullable error) {
@@ -571,7 +563,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         [expectation3 fulfill];
     }];
     [self waitForExpectations:@[expectation3] timeout:5];
-    
+
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:nil];
     [self waitForExpectations:@[[self waitUntilLocalFileQueueIsFlushed:fileManager]] timeout:5.0];
     XCTAssertEqual(self.requestManager.requestsSuccessfullyFinished, 3);
@@ -640,19 +632,19 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     XCTestExpectation *expectationSnap = [self expectationWithDescription:@"Snapshot"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
-    
+
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
     [self.client startCrashHandlerWithError:nil];
     self.client._snapshotThreads = @[thread];
-    
+
     self.client._debugMeta = @[[[SentryDebugMeta alloc] init]];
-    
+
     [self.client snapshotStacktrace:^{
         [self.client appendStacktraceToEvent:event];
         XCTAssertTrue(YES);
         [expectationSnap fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectationSnap] timeout:5.0];
 
     __weak id weakSelf = self;
@@ -662,7 +654,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNotNil(event.debugMeta);
         XCTAssertTrue(event.debugMeta.count > 0);
     };
-    
+
     [self.client sendEvent:event withCompletionHandler:^(NSError * _Nullable error) {
         XCTAssertNil(error);
         [expectation fulfill];
@@ -688,7 +680,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNotNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -715,7 +707,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -733,7 +725,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNotNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -752,7 +744,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -770,7 +762,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
         XCTAssertNil(error);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
         if (error) {
             XCTFail(@"waitForExpectationsWithTimeout errored");
@@ -782,7 +774,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 - (void)testLocalFileQueueLimit {
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:&error];
-    
+
     requestShouldReturnCode = 429;
 
     NSMutableArray *expectations = [NSMutableArray new];
@@ -803,9 +795,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 - (void)testDoNotRetryEvenOnce {
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:&error];
-    
+
     requestShouldReturnCode = 429;
-    
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
     // We overwrite the shouldQueueEvent
@@ -829,6 +821,19 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     }
     [self waitForExpectations:expectations timeout:5.0];
     XCTAssertEqual([fileManager getAllStoredEvents].count, (unsigned long)0);
+}
+
+- (void)testDisabledClient {
+    NSError *error = nil;
+    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:&error];
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"abc";
+    SentryClient.logLevel = kSentryLogLevelDebug;
+    self.client.enabled = @NO;
+    [self.client sendEvent:event withCompletionHandler:nil];
+
+    XCTAssertEqual([fileManager getAllStoredEvents].count, (unsigned long)1);
 }
 
 @end

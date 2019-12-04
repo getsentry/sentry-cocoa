@@ -1,26 +1,38 @@
 branches:
   only:
     - master
+    - /^release\/.+$/
 
 language: objective-c
 osx_image: xcode9.4
+addons:
+  homebrew:
+    packages:
+      - swiftlint
+    update: true
 
 cache:
   - bundler
 
 rvm:
-  - 2.3
+  - 2.4
 
 script: travis_retry .travis/run.sh
 
 env:
   matrix:
+    - LANE=lint
     - LANE=test
     - LANE=pod
-    - LANE=lint
+
+before_install:
+  - gem update --system
+  - gem install bundler
 
 jobs:
   include:
+      env: LANE=test
+      script: .travis/run.sh
       env: LANE=deploy
       script: .travis/stage-carthage.sh
       after_success:
@@ -30,7 +42,7 @@ jobs:
 notifications:
   webhooks:
     urls:
-      - https://zeus.ci/hooks/b0f1479e-c596-11e7-88ed-0a580a280308/public/provider/travis/webhook
+      - https://zeus.ci/hooks/f24f7238-0798-11ea-a9f5-b2c6ac7e8a44/public/provider/travis/webhook
     on_success: always
     on_failure: always
     on_start: always

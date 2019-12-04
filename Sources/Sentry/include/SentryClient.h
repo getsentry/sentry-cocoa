@@ -57,6 +57,21 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
+ * This property will be filled before the event is sent.
+ */
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+
+/**
+ * This property will be filled before the event is sent.
+ */
+@property(nonatomic, copy) NSString *_Nullable dist;
+
+/**
+ * The environment used for this event
+ */
+@property(nonatomic, copy) NSString *_Nullable environment;
+    
+/**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
  * when sending the crashreport
  */
@@ -68,9 +83,14 @@ NS_SWIFT_NAME(Client)
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
 /**
- * Contains the last successfully sent event
+ * Contains the breadcrumbs which will be sent with the event
  */
 @property(nonatomic, strong) SentryBreadcrumbStore *breadcrumbs;
+    
+/**
+ * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
+ */
+@property(nonatomic, copy) NSNumber *enabled;
 
 /**
  * This block can be used to modify the event before it will be serialized and sent
@@ -128,11 +148,26 @@ NS_SWIFT_NAME(Client)
  */
 - (_Nullable instancetype)initWithDsn:(NSString *)dsn
                      didFailWithError:(NSError *_Nullable *_Nullable)error;
+    
+/**
+ * Initializes a SentryClient. Pass in an dictionary of options.
+ *
+ * @param options Options dictionary
+ * @param error NSError reference object
+ * @return SentryClient
+ */
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * This automatically adds breadcrumbs for different user actions.
  */
 - (void)enableAutomaticBreadcrumbTracking;
+
+/**
+ * Track memory pressure notifcation on UIApplications and send an event for it to Sentry.
+ */
+- (void)trackMemoryPressureAsEvent;
 
 /**
  * Sends and event to sentry. Internally calls @selector(sendEvent:useClientProperties:withCompletionHandler:) with
@@ -144,14 +179,14 @@ NS_SWIFT_NAME(Client)
 NS_SWIFT_NAME(send(event:completion:));
 
 /**
- * This function stores an event to disk. It will be send with the next batch.
+ * This function stores an event to disk. It will be sent with the next batch.
  * This function is mainly used for react native.
  * @param event SentryEvent that should be sent
  */
 - (void)storeEvent:(SentryEvent *)event;
 
 /**
- * Clears all context related variables tags, extra and user
+ * Clears all context related variables: tags, extra and user
  */
 - (void)clearContext;
 

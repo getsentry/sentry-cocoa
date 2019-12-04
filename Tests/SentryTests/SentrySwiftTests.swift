@@ -34,6 +34,39 @@ class SentrySwiftTests: XCTestCase {
         XCTAssertNotNil(client)
     }
     
+    func testOptions() {
+        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        XCTAssertNotNil(client)
+    }
+    
+    func testDisabled() {
+        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": false])
+        XCTAssertNotNil(client)
+        
+        client!.beforeSendRequest = { request in
+            XCTAssertTrue(false)
+        }
+        
+        let event2 = Event(level: .debug)
+        event2.extra = ["a": "b"]
+        client!.send(event: event2)
+    }
+    
+    func testEnabled() {
+        let client = try? Client(options: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": true])
+        XCTAssertNotNil(client)
+        
+        client!.beforeSendRequest = { request in
+            XCTAssertTrue(true)
+        }
+        
+        let event2 = Event(level: .debug)
+        event2.extra = ["a": "b"]
+        client!.send(event: event2) { (error) in
+            XCTAssertNil(error)
+        }
+    }
+    
     func testFunctionCalls() {
         let event = Event(level: .debug)
         event.message = "Test Message"

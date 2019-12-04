@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryInstallation.h"
-#import "NSDate+Extras.h"
+#import "NSDate+SentryExtras.h"
 
 @interface SentryBreadcrumbTracker (Private)
 

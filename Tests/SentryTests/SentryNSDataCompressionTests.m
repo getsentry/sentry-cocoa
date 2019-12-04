@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "NSData+Compression.h"
+#import "NSData+SentryCompression.h"
 
 @interface SentryNSDataCompressionTests : XCTestCase
 
@@ -67,7 +67,7 @@
         unsigned char byte = (unsigned char) i;
         [data appendBytes:&byte length:1];
     }
-    
+
     NSError *error = nil;
     NSData *original = [NSData dataWithData:data];
     NSData *compressed = [original sentry_gzippedWithCompressionLevel:INT_MAX error:&error];

@@ -114,7 +114,7 @@ static bool advanceCursor(SentryCrashStackCursor *cursor)
     nextAddress = context->currentFrame.return_address;
 
 successfulExit:
-    cursor->stackEntry.address = nextAddress;
+    cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
     cursor->state.currentDepth++;
     return true;
 }

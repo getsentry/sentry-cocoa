@@ -16,8 +16,8 @@
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryContext.h>
 #import <Sentry/SentryDebugMeta.h>
-#import <Sentry/NSDate+Extras.h>
-#import <Sentry/NSDictionary+Sanitize.h>
+#import <Sentry/NSDate+SentryExtras.h>
+#import <Sentry/NSDictionary+SentrySanitize.h>
 
 #else
 #import "SentryEvent.h"
@@ -28,8 +28,8 @@
 #import "SentryException.h"
 #import "SentryStacktrace.h"
 #import "SentryContext.h"
-#import "NSDate+Extras.h"
-#import "NSDictionary+Sanitize.h"
+#import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,9 +39,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithLevel:(enum SentrySeverity)level {
     self = [super init];
     if (self) {
-        self.eventId = [[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+        self.eventId = [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
         self.level = level;
         self.platform = @"cocoa";
+    }
+    return self;
+}
+
+- (instancetype)initWithJSON:(NSData *)json {
+    self = [self initWithLevel:kSentrySeverityInfo];
+    if (self) {
+        self.json = json;
     }
     return self;
 }
@@ -92,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addExceptions:(NSMutableDictionary *)serializedData {
     NSMutableArray *exceptions = [NSMutableArray new];
-    for (SentryThread *exception in self.exceptions) {
+    for (SentryException *exception in self.exceptions) {
         [exceptions addObject:[exception serialize]];
     }
     if (exceptions.count > 0) {
@@ -155,6 +163,16 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
+    [serializedData setValue:self.type forKey:@"type"];
+    if (nil != self.type && [self.type isEqualToString:@"transaction"]) {
+        if (nil != self.startTimestamp) {
+            [serializedData setValue:[self.startTimestamp sentry_toIso8601String] forKey:@"start_timestamp"];
+        } else {
+            // start timestamp should never be empty
+            [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"start_timestamp"];
+        }
+        
+    }
 }
 
 @end

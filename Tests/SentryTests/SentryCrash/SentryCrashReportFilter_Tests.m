@@ -29,7 +29,7 @@
 
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportFilterBasic.h"
-#import "NSError+SimpleConstructor.h"
+#import "NSError+SentrySimpleConstructor.h"
 
 
 @interface SentryCrash_TestNilFilter: NSObject <SentryCrashReportFilter>

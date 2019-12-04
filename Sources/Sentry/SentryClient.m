@@ -22,6 +22,7 @@
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
+#import <Sentry/SentryOptions.h>
 #else
 #import "SentryClient.h"
 #import "SentryClient+Internal.h"
@@ -37,12 +38,16 @@
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
+#import "SentryOptions.h"
 #endif
 
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.1.0";
+NSString *const SentryClientVersionString = @"4.4.2";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryClient *sharedClient = nil;
@@ -60,6 +65,9 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryClient
 
+@synthesize environment = _environment;
+@synthesize releaseName = _releaseName;
+@synthesize dist = _dist;
 @synthesize tags = _tags;
 @synthesize extra = _extra;
 @synthesize user = _user;
@@ -70,25 +78,48 @@ static SentryInstallation *installation = nil;
 
 #pragma mark Initializer
 
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                         didFailWithError:(NSError *_Nullable *_Nullable)error {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-    return [self initWithDsn:dsn
-              requestManager:[[SentryQueueableRequestManager alloc] initWithSession:session]
-            didFailWithError:error];
+    return [self initWithOptions:options
+                  requestManager:[[SentryQueueableRequestManager alloc] initWithSession:session]
+                didFailWithError:error];
+}
+    
+    
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+    return [self initWithOptions:@{@"dsn": dsn}
+                didFailWithError:error];
 }
 
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-requestManager:(id <SentryRequestManager>)requestManager
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                           requestManager:(id <SentryRequestManager>)requestManager
+                         didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
         [self restoreContextBeforeCrash];
         [self setupQueueing];
         _extra = [NSDictionary new];
         _tags = [NSDictionary new];
-        self.dsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
+        
+        SentryOptions *sentryOptions = [[SentryOptions alloc] initWithOptions:options didFailWithError:error];
+        if (nil != error && nil != *error) {
+            [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
+        
+        if (nil == sentryOptions.enabled) {
+            self.enabled = @YES;
+        } else {
+            self.enabled = sentryOptions.enabled;
+        }
+        self.dsn = sentryOptions.dsn;
+        self.environment = sentryOptions.environment;
+        self.releaseName = sentryOptions.releaseName;
+        self.dist = sentryOptions.dist;
+        
         self.requestManager = requestManager;
         if (logLevel > 1) { // If loglevel is set > None
             NSLog(@"Sentry Started -- Version: %@", self.class.versionString);
@@ -99,8 +130,9 @@ requestManager:(id <SentryRequestManager>)requestManager
             [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
+        
         // We want to send all stored events on start up
-        if ([self.requestManager isReady]) {
+        if ([self.enabled boolValue] && [self.requestManager isReady]) {
             [self sendAllStoredEvents];
         }
     }
@@ -127,6 +159,20 @@ requestManager:(id <SentryRequestManager>)requestManager
 
 - (void)enableAutomaticBreadcrumbTracking {
     [[SentryBreadcrumbTracker alloc] start];
+}
+
+- (void)trackMemoryPressureAsEvent {
+    #if SENTRY_HAS_UIKIT
+    __weak SentryClient *weakSelf = self;
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+    event.message = @"Memory Warning";
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [weakSelf storeEvent:event];
+                                                }];
+    #endif
 }
 
 #pragma mark Static Getter/Setter
@@ -206,7 +252,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     NSString *storedEventPath = [self.fileManager storeEvent:event];
-
+    
+    if (![self.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+    
     __block SentryClient *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // We check if we should leave the event locally stored and try to send it again later
@@ -219,7 +270,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
                                                               object:nil
                                                             userInfo:[event serialize]];
             // Send all stored events in background if the queue is ready
-            if ([_self.requestManager isReady]) {
+            if ([_self.enabled boolValue] && [_self.requestManager isReady]) {
                 [_self sendAllStoredEvents];
             }
         }
@@ -238,7 +289,11 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 }
 
 - (void)sendAllStoredEvents {
+    dispatch_group_t dispatchGroup = dispatch_group_create();
+
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
+        dispatch_group_enter(dispatchGroup);
+
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
@@ -258,8 +313,16 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
             if (response != nil) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
+
+            dispatch_group_leave(dispatchGroup);
         }];
     }
+
+    dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
+        [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/allStoredEventsSent"
+                                                          object:nil
+                                                        userInfo:nil];
+    });
 }
 
 - (void)setSharedPropertiesOnEvent:(SentryEvent *)event {
@@ -296,6 +359,18 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
+    
+    if (nil != self.environment && nil == event.environment) {
+        event.environment = self.environment;
+    }
+    
+    if (nil != self.releaseName && nil == event.releaseName) {
+        event.releaseName = self.releaseName;
+    }
+    
+    if (nil != self.dist && nil == event.dist) {
+        event.dist = self.dist;
+    }
 }
 
 - (void)appendStacktraceToEvent:(SentryEvent *)event {
@@ -324,8 +399,29 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [[NSUserDefaults standardUserDefaults] synchronize];
     _user = user;
 }
+    
+- (void)setReleaseName:(NSString *_Nullable)releaseName {
+    [[NSUserDefaults standardUserDefaults] setObject:releaseName forKey:@"sentry.io.releaseName"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _releaseName = releaseName;
+}
+    
+- (void)setDist:(NSString *_Nullable)dist {
+    [[NSUserDefaults standardUserDefaults] setObject:dist forKey:@"sentry.io.dist"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _dist = dist;
+}
+    
+- (void)setEnvironment:(NSString *_Nullable)environment {
+    [[NSUserDefaults standardUserDefaults] setObject:environment forKey:@"sentry.io.environment"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _environment = environment;
+}
 
 - (void)clearContext {
+    [self setReleaseName:nil];
+    [self setDist:nil];
+    [self setEnvironment:nil];
     [self setUser:nil];
     [self setExtra:[NSDictionary new]];
     [self setTags:[NSDictionary new]];
@@ -336,6 +432,9 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.tags"] forKey:@"tags"];
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.extra"] forKey:@"extra"];
     [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.user"] forKey:@"user"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.releaseName"] forKey:@"releaseName"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.dist"] forKey:@"dist"];
+    [context setValue:[[NSUserDefaults standardUserDefaults] objectForKey:@"sentry.io.environment"] forKey:@"environment"];
     self.lastContext = context;
 }
 
@@ -354,7 +453,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     self.fileManager.maxEvents = maxEvents;
 }
 
--(void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+- (void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
     self.fileManager.maxBreadcrumbs = maxBreadcrumbs;
 }
 

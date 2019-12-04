@@ -18,7 +18,7 @@ MACH_O_TYPE = mh_dylib
 FRAMEWORK_VERSION = A
 
 PRODUCT_NAME = Sentry
-CURRENT_PROJECT_VERSION = 4.1.0
+CURRENT_PROJECT_VERSION = 4.4.2
 INFOPLIST_FILE = Sources/Sentry/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 ALWAYS_SEARCH_USER_PATHS = NO
@@ -45,4 +45,4 @@ MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 
 // SWIFT_VERSION is only recognized by Xcode 8 and higher.
 // Prior versions of Xcode support only one Swift version.
-//SWIFT_VERSION = 3.1
+// SWIFT_VERSION = 3.1

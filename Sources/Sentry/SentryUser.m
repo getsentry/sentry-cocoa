@@ -9,11 +9,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryUser.h>
-#import <Sentry/NSDictionary+Sanitize.h>
+#import <Sentry/NSDictionary+SentrySanitize.h>
 
 #else
 #import "SentryUser.h"
-#import "NSDictionary+Sanitize.h"
+#import "NSDictionary+SentrySanitize.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
