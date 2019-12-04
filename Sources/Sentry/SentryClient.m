@@ -57,7 +57,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 static SentryInstallation *installation = nil;
 
-@interface SentryClient()
+@interface SentryClient ()
 
 @property(nonatomic, strong) SentryTransport* transport;
 
