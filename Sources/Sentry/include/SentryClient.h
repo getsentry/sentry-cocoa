@@ -47,11 +47,11 @@ SENTRY_NO_INIT
 
 @property(nonatomic, strong) SentryOptions *options;
 
-
 /**
- * This block can be used to modify the event before it will be serialized and sent
+ * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
+ * Setting this property sets shouldSendEvent callback and applies a random event sampler.
  */
-@property(nonatomic, copy) SentryBeforeSerializeEvent _Nullable beforeSerializeEvent;
+@property(nonatomic) float sampleRate;
 
 /**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
@@ -59,7 +59,11 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
 
-@property(nonatomic, strong) SentryTransport* transport;
+/**
+ * This block can be used to prevent the event from being sent.
+ * @return BOOL
+ */
+@property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
 
 
 /**
@@ -82,7 +86,7 @@ SENTRY_NO_INIT
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error;
 
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope;
 
 /// SentryCrash
 /// Functions below will only do something if SentryCrash is linked

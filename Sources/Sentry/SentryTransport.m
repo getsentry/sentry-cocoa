@@ -55,9 +55,7 @@
 
 @implementation SentryTransport
 
-@synthesize sampleRate = _sampleRate;
 @synthesize maxEvents = _maxEvents;
-@synthesize maxBreadcrumbs = _maxBreadcrumbs;
 
 - (id)initWithOptions:(SentryOptions *)options {
   if (self = [super init]) {
@@ -77,32 +75,12 @@
   return self;
 }
 
-- (void)setSampleRate:(float)sampleRate {
-    if (sampleRate < 0 || sampleRate > 1) {
-        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
-        return;
-    }
-    _sampleRate = sampleRate;
-    self.shouldSendEvent = ^BOOL(SentryEvent *_Nonnull event) {
-        return (sampleRate >= ((double)arc4random() / 0x100000000));
-    };
-}
-
 - (void)storeEvent:(SentryEvent *)event {
     [self.fileManager storeEvent:event];
 }
 
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-
-    if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
-        NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
-        [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
-        if (completionHandler) {
-            completionHandler(NSErrorFromSentryError(kSentryErrorEventNotSent, message));
-        }
-        return;
-    }
 
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
@@ -145,15 +123,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }];
 }
 
-
 - (void)setMaxEvents:(NSUInteger)maxEvents {
     self.fileManager.maxEvents = maxEvents;
 }
-
-- (void)setMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
-    self.fileManager.maxBreadcrumbs = maxBreadcrumbs;
-}
-
 
 - (void)setupQueueing {
     self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {

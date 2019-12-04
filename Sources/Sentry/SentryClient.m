@@ -57,8 +57,15 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 static SentryInstallation *installation = nil;
 
+@interface SentryClient()
+
+@property(nonatomic, strong) SentryTransport* transport;
+
+@end
+
 @implementation SentryClient
 
+@synthesize sampleRate = _sampleRate;
 @synthesize options = _options;
 @synthesize transport = _transport;
 @dynamic logLevel;
@@ -99,7 +106,16 @@ static SentryInstallation *installation = nil;
     return [self initWithOptions:options didFailWithError:error];
 }
 
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope {
+- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    if (nil != self.shouldSendEvent && !self.shouldSendEvent(event)) {
+        NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
+        [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
+//        if (completionHandler) {
+//            completionHandler(NSErrorFromSentryError(kSentryErrorEventNotSent, message));
+//        }
+        return;
+    }
+
     [self prepareEvent:event scope:scope useClientProperties:YES];
     [self.transport sendEvent:event withCompletionHandler:nil];
 }
@@ -201,8 +217,8 @@ static SentryInstallation *installation = nil;
         [self setSharedPropertiesOnEvent:event scope:scope];
     }
 
-    if (nil != self.beforeSerializeEvent) {
-        self.beforeSerializeEvent(event);
+    if (nil != self.options.beforeSend) {
+        self.options.beforeSend(event);
     }
 }
 
@@ -255,6 +271,17 @@ static SentryInstallation *installation = nil;
     if (nil != dist && nil == event.dist) {
         event.dist = dist;
     }
+}
+
+- (void)setSampleRate:(float)sampleRate {
+    if (sampleRate < 0 || sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
+        return;
+    }
+    _sampleRate = sampleRate;
+    self.shouldSendEvent = ^BOOL(SentryEvent *_Nonnull event) {
+        return (sampleRate >= ((double)arc4random() / 0x100000000));
+    };
 }
 
 @end

@@ -31,18 +31,6 @@ SENTRY_NO_INIT
 @property(nonatomic, copy) SentryBeforeSendRequest _Nullable beforeSendRequest;
 
 /**
- * This block can be used to prevent the event from being sent.
- * @return BOOL
- */
-@property(nonatomic, copy) SentryShouldSendEvent _Nullable shouldSendEvent;
-
-/**
- * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0
- * Setting this property sets shouldSendEvent callback and applies a random event sampler.
- */
-@property(nonatomic) float sampleRate;
-
-/**
  * This block can be used to prevent the event from being deleted after a failed send attempt.
  * Default is it will only be stored once after you hit a rate limit or there is no internet connect/cannot connect.
  * Also note that if an event fails to be sent again after it was queued, it will be discarded regardless.
