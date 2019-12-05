@@ -47,8 +47,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO(fetzig): dry: get version string from Sentry.xconfig instead.
-NSString *const SentryClientVersionString = @"5.0.0";
+NSString *const SentryClientVersionString = @"4.4.3";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryLogLevel logLevel = kSentryLogLevelError;

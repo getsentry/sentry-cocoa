@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.3
+
+- feat: Swift Package Manager support #352
+- fix: travis lane lint #345
+
 ## 4.4.2
 
 - feat: Prefer snprintf over sprintf #342
