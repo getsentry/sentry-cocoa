@@ -15,7 +15,7 @@
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
-#import "SentrySentryStackLayer.h"
+#import "SentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryIntegrationProtocol.h"
 #endif
