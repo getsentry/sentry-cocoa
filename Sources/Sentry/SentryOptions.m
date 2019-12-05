@@ -84,9 +84,10 @@
         self.integrations = [SentryOptions defaultIntegrations];
     }
 
-    float sampleRate = [[options objectForKey:@"sample_rate"] floatValue];
-    if (sampleRate < 0 || sampleRate > 1) {
+    NSNumber *sampleRate = [options objectForKey:@"sample_rate"];
+    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1.0) {
         [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
+        self.sampleRate = nil;
     } else {
         self.sampleRate = sampleRate;
     }
@@ -97,11 +98,11 @@
  returns BOOL
  */
 - (BOOL)checkSampleRate {
-    if (self.sampleRate < 0 || self.sampleRate > 1) {
+    if (nil == self.sampleRate || [self.sampleRate floatValue] < 0 || [self.sampleRate floatValue] > 1) {
         [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0, checkSampleRate is skipping check and returns YES" andLevel:kSentryLogLevelError];
         return YES;
     }
-    return (self.sampleRate >= ((double)arc4random() / 0x100000000));
+    return ([self.sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
 @end

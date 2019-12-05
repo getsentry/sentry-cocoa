@@ -61,20 +61,25 @@ SENTRY_NO_INIT
 @property(nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
 
 /**
- Array of integtations to install.
+ * Array of integtations to install.
  */
 @property(nonatomic, copy) NSArray<NSString *>* _Nullable integrations;
 
 /**
- Array of default integrations. Will be used if integrations are nil
+ * Array of default integrations. Will be used if integrations are nil
  */
 + (NSArray<NSString *>*)defaultIntegrations;
 
 /**
  * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0.
+ * valid settings are 0.0 - 1.0 and nil
  */
-@property(nonatomic) float sampleRate;
+@property(nonatomic, copy) NSNumber *_Nullable sampleRate;
 
+/**
+ * returns BOOL chance of YES is defined by sampleRate.
+ * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
+ */
 - (BOOL)checkSampleRate;
 
 @end
