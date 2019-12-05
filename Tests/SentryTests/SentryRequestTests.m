@@ -164,7 +164,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 - (void)tearDown {
     [super tearDown];
     requestShouldReturnCode = 200;
-    [self.client clearContext];
+    // TODO(fetzig) reaplaced this with `bindClient:nil` but should reset scope as well. check how.
+    //[self.client clearContext];
+    [SentrySDK.currentHub bindClient:nil];
     [self clearAllFiles];
     [self.requestManager cancelAllOperations];
 }
