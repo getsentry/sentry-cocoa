@@ -70,6 +70,13 @@ SENTRY_NO_INIT
  */
 + (NSArray<NSString *>*)defaultIntegrations;
 
+/**
+ * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0.
+ */
+@property(nonatomic) float sampleRate;
+
+- (BOOL)checkSampleRate;
+
 @end
 
 NS_ASSUME_NONNULL_END

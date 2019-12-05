@@ -60,7 +60,6 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 @implementation SentryClient
 
-@synthesize sampleRate = _sampleRate;
 @synthesize options = _options;
 @synthesize transport = _transport;
 @dynamic logLevel;
@@ -99,8 +98,8 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 }
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    if (NO == [self checkSampleRate]) {
-        NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
+    if (NO == [self.options checkSampleRate]) {
+        NSString *message = @"[SentryClient.options checkSampleRate] returned NO so we will not send the event";
         [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
         return;
     }
@@ -196,26 +195,6 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     if (nil != dist && nil == event.dist) {
         event.dist = dist;
     }
-}
-
-- (void)setSampleRate:(float)sampleRate {
-    if (sampleRate < 0 || sampleRate > 1) {
-        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
-        return;
-    }
-    _sampleRate = sampleRate;
-}
-
-/**
- checks if event should be sent according to sampleRate
- returns BOOL
- */
-- (BOOL)checkSampleRate {
-    if (self.sampleRate < 0 || self.sampleRate > 1) {
-        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0, checkSampleRate is skipping check and returns YES" andLevel:kSentryLogLevelError];
-        return YES;
-    }
-    return (self.sampleRate >= ((double)arc4random() / 0x100000000));
 }
 
 @end

@@ -11,11 +11,13 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
+#import <Sentry/SentryLog.h>
 
 #else
 #import "SentryOptions.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryLog.h"
 #endif
 
 @implementation SentryOptions
@@ -81,6 +83,25 @@
         // fallback to defaultIntegrations
         self.integrations = [SentryOptions defaultIntegrations];
     }
+
+    float sampleRate = [[options objectForKey:@"sample_rate"] floatValue];
+    if (sampleRate < 0 || sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
+    } else {
+        self.sampleRate = sampleRate;
+    }
+}
+
+/**
+ checks if event should be sent according to sampleRate
+ returns BOOL
+ */
+- (BOOL)checkSampleRate {
+    if (self.sampleRate < 0 || self.sampleRate > 1) {
+        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0, checkSampleRate is skipping check and returns YES" andLevel:kSentryLogLevelError];
+        return YES;
+    }
+    return (self.sampleRate >= ((double)arc4random() / 0x100000000));
 }
 
 @end

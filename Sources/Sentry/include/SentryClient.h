@@ -48,11 +48,6 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) SentryOptions *options;
 
 /**
- * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0.
- */
-@property(nonatomic) float sampleRate;
-
-/**
  * This will be filled on every startup with a dictionary with extra, tags, user which will be used
  * when sending the crashreport
  */
