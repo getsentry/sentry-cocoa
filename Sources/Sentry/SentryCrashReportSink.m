@@ -11,7 +11,6 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryCrashReportSink.h>
 #import <Sentry/SentryCrashReportConverter.h>
-#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryException.h>
@@ -26,7 +25,6 @@
 #import "SentryCrashReportSink.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryClient.h"
-#import "SentryClient+Internal.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryLog.h"
@@ -40,17 +38,8 @@
 @implementation SentryCrashReportSink
 
 - (void)handleConvertedEvent:(SentryEvent *)event report:(NSDictionary *)report sentReports:(NSMutableArray *)sentReports {
-    if (nil != event.exceptions.firstObject && [event.exceptions.firstObject.value isEqualToString:@"SENTRY_SNAPSHOT"]) {
-        [SentryLog logWithMessage:@"Snapshotting stacktrace" andLevel:kSentryLogLevelDebug];
-
-
-        [SentrySDK.currentHub getClient]._snapshotThreads = @[event.exceptions.firstObject.thread];
-        [SentrySDK.currentHub getClient]._debugMeta = event.debugMeta;
-    } else {
-        [sentReports addObject:report];
-
-        [SentrySDK captureEvent:event];
-    }
+    [sentReports addObject:report];
+    [SentrySDK captureEvent:event];
 }
 
 - (void)filterReports:(NSArray *)reports

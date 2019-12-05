@@ -84,57 +84,6 @@ SENTRY_NO_INIT
 /// SentryCrash
 /// Functions below will only do something if SentryCrash is linked
 
-/**
- * This function tries to start the SentryCrash handler, return YES if successfully started
- * otherwise it will return false and set error
- *
- * @param error if SentryCrash is not available error will be set
- * @return successful
- */
-- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
- * Report a custom, user defined exception. Only works if SentryCrash is linked.
- * This can be useful when dealing with scripting languages.
- *
- * If terminateProgram is true, all sentries will be uninstalled and the application will
- * terminate with an abort().
- *
- * @param name The exception name (for namespacing exception types).
- * @param reason A description of why the exception occurred.
- * @param language A unique language identifier.
- * @param lineOfCode A copy of the offending line of code (nil = ignore).
- * @param stackTrace An array of frames (dictionaries or strings) representing the call stack leading to the exception (nil = ignore).
- * @param logAllThreads If YES, suspend all threads and log their state. Note that this incurs a
- *                      performance penalty, so it's best to use only on fatal errors.
- * @param terminateProgram If YES, do not return from this function call. Terminate the program instead.
- */
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram;
-
-/**
- * Returns true if the app crashed before launching now
- */
-- (BOOL)crashedLastLaunch;
-
-/**
- * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
- * Please note to also call appendStacktraceToEvent in the callback in order to send the stacktrace with the event.
- */
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted;
-
-/**
- * This appends the stored stacktrace (if existant) to the event.
- *
- * @param event SentryEvent event
- */
-- (void)appendStacktraceToEvent:(SentryEvent *)event;
-
 @end
 
 NS_ASSUME_NONNULL_END

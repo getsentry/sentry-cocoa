@@ -9,7 +9,6 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -26,7 +25,6 @@
 #import <Sentry/SentryTransport.h>
 #else
 #import "SentryClient.h"
-#import "SentryClient+Internal.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -54,8 +52,6 @@ NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryLogLevel logLevel = kSentryLogLevelError;
-
-static SentryInstallation *installation = nil;
 
 @interface SentryClient ()
 
@@ -140,73 +136,9 @@ static SentryInstallation *installation = nil;
 
 #pragma mark Event
 
-
-- (void)appendStacktraceToEvent:(SentryEvent *)event {
-    if (nil != self._snapshotThreads && nil != self._debugMeta) {
-        event.threads = self._snapshotThreads;
-        event.debugMeta = self._debugMeta;
-    }
-}
-
 #pragma mark Global properties
 
 #pragma mark SentryCrash
-
-- (BOOL)crashedLastLaunch {
-    return SentryCrash.sharedInstance.crashedLastLaunch;
-}
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    [SentryLog logWithMessage:@"SentryCrashHandler started" andLevel:kSentryLogLevelDebug];
-    static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
-        installation = [[SentryInstallation alloc] init];
-        [installation install];
-        [installation sendAllReports];
-    });
-    return YES;
-}
-#pragma GCC diagnostic pop
-
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram {
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    [SentryCrash.sharedInstance reportUserException:name
-                                         reason:reason
-                                       language:language
-                                     lineOfCode:lineOfCode
-                                     stackTrace:stackTrace
-                                  logAllThreads:logAllThreads
-                               terminateProgram:terminateProgram];
-    [installation sendAllReports];
-}
-
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    [SentryCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
-                                         reason:@"SENTRY_SNAPSHOT"
-                                       language:@""
-                                     lineOfCode:@""
-                                     stackTrace:[[NSArray alloc] init]
-                                  logAllThreads:NO
-                               terminateProgram:NO];
-    [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
-        snapshotCompleted();
-    }];
-}
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope {

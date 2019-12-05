@@ -11,11 +11,13 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
+#import <Sentry/SentryIntegrationProtocol.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentrySentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryIntegrationProtocol.h"
 #endif
 
 @interface SentryHub()
@@ -34,13 +36,6 @@
         [self setStack:[@[layer] mutableCopy]];
     }
     return self;
-}
-/**
- */
-- (void)setupWithClient:(SentryClient * _Nullable)client {
-    SentryStackLayer *stackLayer = [[SentryStackLayer alloc] init];
-    stackLayer.scope = [[SentryScope alloc] init];
-    [self setStack:[@[stackLayer] mutableCopy]];
 }
 
 - (void)captureEvent:(SentryEvent *)event {
@@ -61,6 +56,10 @@
 - (void)bindClient:(SentryClient * _Nullable)client {
     if (nil != [self getStackTop]) {
         [self getStackTop].client = client;
+
+        // TODO(fetzig) this might be the wrong place to install integrations
+        //              maybe build in some constraint to prevent calling integrations multiple time.
+        [self installIntegrations];
     }
 }
 
@@ -98,6 +97,18 @@
     if (nil != top.client && nil != top.scope) {
         callback(top.scope);
     }
+}
+
+- (BOOL)installIntegrations {
+    BOOL success = YES;
+    SentryOptions *options = [self getClient].options;
+    for (NSString *integrationName in [self getClient].options.integrations) {
+        Class integrationClass = NSClassFromString(integrationName);
+        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
+
+        success = success && [integrationInstance installWithOptions:options];
+    }
+    return success;
 }
 
 @end

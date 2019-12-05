@@ -76,6 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 //- `Hub::last_event_id()`: Should return the last event ID emitted by the current scope. This is for instance used to implement user feedback dialogs.
 //- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
 
+/**
+ install integrations
+ returns BOOL YES if **all** integrations installed sucessfully
+ returns BOOL NO if at least one integration install failed
+ */
+- (BOOL)installIntegrations;
+
 @end
 
 NS_ASSUME_NONNULL_END

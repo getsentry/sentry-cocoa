@@ -74,6 +74,13 @@
     if (nil != [options objectForKey:@"beforeSend"]) {
         self.beforeSend = [options objectForKey:@"beforeSend"];
     }
+
+    if (nil != [options objectForKey:@"integrations"]) {
+        self.integrations = [options objectForKey:@"integrations"];
+    } else {
+        // fallback to defaultIntegrations
+        self.integrations = [SentryOptions defaultIntegrations];
+    }
 }
 
 @end

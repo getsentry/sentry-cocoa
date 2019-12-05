@@ -9,7 +9,6 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryScope.h>
-#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -24,7 +23,6 @@
 #import <Sentry/SentryOptions.h>
 #else
 #import "SentryScope.h"
-#import "SentryClient+Internal.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
