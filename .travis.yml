@@ -20,15 +20,6 @@ cache:
 rvm:
   - 2.4
 
-# TODO(fetzig) why? this makes no sense.
-script: travis_retry .travis/run.sh
-
-env:
-  matrix:
-    - LANE=lint
-    - LANE=oc_lint
-    - LANE=test
-    # - LANE=pod
 
 before_install:
   - gem update --system
