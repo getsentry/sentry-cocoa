@@ -10,8 +10,9 @@
 
 @implementation SentryCrashIntegration
 
-+ (nonnull NSString *)identifier {
-    return @"SentryCrashIntegration";
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options {
+    // TODO(fetzig)
+    return YES;
 }
 
 @end

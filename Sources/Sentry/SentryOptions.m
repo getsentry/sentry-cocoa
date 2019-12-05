@@ -22,7 +22,7 @@
 
 + (NSArray<NSString *>*)defaultIntegrations {
     return @[
-        "SentryCrashIntegration"
+        @"SentryCrashIntegration"
     ];
 }
 
