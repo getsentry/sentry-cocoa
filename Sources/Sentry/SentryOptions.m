@@ -20,6 +20,12 @@
 
 @implementation SentryOptions
 
++ (NSArray<NSString *>*)defaultIntegrations {
+    return @[
+        "SentryCrashIntegration"
+    ];
+}
+
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                       didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];

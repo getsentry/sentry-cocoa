@@ -60,6 +60,16 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
 
+/**
+ Array of integtations to install.
+ */
+@property(nonatomic, copy) NSArray<NSString *>* _Nullable integrations;
+
+/**
+ Array of default integrations. Will be used if integrations are nil
+ */
++ (NSArray<NSString *>*)defaultIntegrations;
+
 @end
 
 NS_ASSUME_NONNULL_END

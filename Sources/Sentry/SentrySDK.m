@@ -83,6 +83,10 @@ static SentryHub * currentHub;
     // TODO(fetzig): do this via "integration"
     [[SentrySDK.currentHub getClient] startCrashHandlerWithError:&error];
 
+    //Class arrayClass = NSClassFromString (name);
+    //id anInstance = [[arrayClass alloc] init];
+
+
     if (nil != error) {
         NSLog(@"%@", error);
     }
