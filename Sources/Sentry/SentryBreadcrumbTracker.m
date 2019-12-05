@@ -51,6 +51,8 @@
                                                     crumb.message = @"Memory Warning";
                                                     [SentrySDK.currentHub addBreadcrumb:crumb];
                                                 }];
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker trackApplicationUIKitNotifications] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
      
@@ -87,6 +89,8 @@
                     }
                     return SentrySWCallOriginal(action, target, sender, event);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
 
@@ -117,6 +121,8 @@
                     }
                     SentrySWCallOriginal(animated);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
 

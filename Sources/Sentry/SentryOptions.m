@@ -24,7 +24,9 @@
 
 + (NSArray<NSString *>*)defaultIntegrations {
     return @[
-        @"SentryCrashIntegration"
+        @"SentryCrashIntegration",
+        @"SentryUIKitMemoryWarningIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration"
     ];
 }
 
