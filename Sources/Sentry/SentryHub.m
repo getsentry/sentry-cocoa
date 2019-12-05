@@ -44,7 +44,7 @@
 }
 
 - (void)captureEvent:(SentryEvent *)event {
-    [[self getClient] sendEvent:event scope:[self getScope] withCompletionHandler:nil];
+    [[self getClient] captureEvent:event withScope:[self getScope]];
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
