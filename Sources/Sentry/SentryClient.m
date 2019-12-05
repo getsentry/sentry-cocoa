@@ -70,18 +70,15 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                          didFailWithError:(NSError *_Nullable *_Nullable)error {
 
-
     if (self = [super init]) {
-//            //[self restoreContextBeforeCrash];
-//            [self setupQueueing];
-            self.options = options;
+        self.options = options;
 
-            // We want to send all stored events on start up
-            if ([self.options.enabled boolValue]) {
-                [self.transport sendAllStoredEvents];
-            }
+        // We want to send all stored events on start up
+        if ([self.options.enabled boolValue]) {
+            [self.transport sendAllStoredEvents];
         }
-        return self;
+    }
+    return self;
 }
 
 - (SentryTransport *)transport {
