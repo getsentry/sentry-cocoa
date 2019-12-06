@@ -12,17 +12,23 @@
 #import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryIntegrationProtocol.h>
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryLog.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentrySDK.h"
+#import "SentryLog.h"
 #endif
 
 @interface SentryHub()
 
 @property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+
 
 @end
 
@@ -59,7 +65,7 @@
 
         // TODO(fetzig) this might be the wrong place to install integrations
         //              maybe build in some constraint to prevent calling integrations multiple time.
-        [self installIntegrations];
+        [self doInstallIntegrations];
     }
 }
 
@@ -99,16 +105,20 @@
     }
 }
 
-- (BOOL)installIntegrations {
-    BOOL success = YES;
+- (BOOL)doInstallIntegrations {
+    // TODO(fetzig) change this. instead of skipping whenever integrations have already been installed, check the integrations one by one, and skip those that are already installed.
+    if (SentrySDK.currentHub.installedIntegrations.count > 0) {
+        [SentryLog logWithMessage:@"[SentryHub doInstallIntegrations] there are already installed integrations. skipping isntall." andLevel:kSentryLogLevelError];
+        return NO;
+    }
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
-
-        success = success && [integrationInstance installWithOptions:options];
+        [integrationInstance installWithOptions:options];
+        [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
-    return success;
+    return [self getClient].options.integrations.count == SentrySDK.currentHub.installedIntegrations.count;
 }
 
 @end

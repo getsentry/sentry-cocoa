@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
  returns BOOL YES if **all** integrations installed sucessfully
  returns BOOL NO if at least one integration install failed
  */
-- (BOOL)installIntegrations;
+- (BOOL)doInstallIntegrations;
 
 @end
 
