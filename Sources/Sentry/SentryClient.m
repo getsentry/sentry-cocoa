@@ -66,9 +66,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 #pragma mark Initializer
 
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                         didFailWithError:(NSError *_Nullable *_Nullable)error {
-
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
         self.options = options;
 
@@ -94,7 +92,7 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
         [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
         return nil;
     }
-    return [self initWithOptions:options didFailWithError:error];
+    return [self initWithOptions:options];
 }
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {

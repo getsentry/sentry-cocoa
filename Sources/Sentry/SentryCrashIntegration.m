@@ -35,6 +35,18 @@ static SentryInstallation *installation = nil;
     return [self startCrashHandlerWithError:&error];
 }
 
+- (nonnull NSString *)name {
+    return NSStringFromClass([self class]);
+}
+
+- (nonnull NSString *)version {
+    return @"1.0";
+}
+
+- (nonnull NSString *)identifier {
+    return [NSString stringWithFormat:@"%@-%@", [self name], [self version]];
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {

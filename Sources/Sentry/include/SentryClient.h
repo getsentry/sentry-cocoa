@@ -68,11 +68,9 @@ SENTRY_NO_INIT
  * Initializes a SentryClient. Pass in an dictionary of options.
  *
  * @param options Options dictionary
- * @param error NSError reference object
  * @return SentryClient
  */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                         didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope;
 

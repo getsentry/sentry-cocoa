@@ -65,16 +65,9 @@ static SentryHub * currentHub;
 }
 
 + (void)startWithOptions:(SentryOptions *)options {
-    NSError *error = nil;
-
     if ([SentrySDK.currentHub getClient] == nil) {
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options didFailWithError:&error];
+        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [SentrySDK.currentHub bindClient:newClient];
-
-        if (nil != error) {
-            NSLog(@"%@", error);
-            return;
-        }
     }
 }
 

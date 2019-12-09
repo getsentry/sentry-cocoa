@@ -106,19 +106,32 @@
 }
 
 - (BOOL)doInstallIntegrations {
-    // TODO(fetzig) change this. instead of skipping whenever integrations have already been installed, check the integrations one by one, and skip those that are already installed.
-    if (SentrySDK.currentHub.installedIntegrations.count > 0) {
-        [SentryLog logWithMessage:@"[SentryHub doInstallIntegrations] there are already installed integrations. skipping isntall." andLevel:kSentryLogLevelError];
-        return NO;
-    }
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
+        if (nil == integrationClass) {
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] couldn't find \"%@\" -> skipping.", integrationName];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
+            continue;
+        } else if ([SentrySDK.currentHub isInstalledIntegration:integrationClass]) {
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.", integrationName];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
+            continue;
+        }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         [integrationInstance installWithOptions:options];
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
     return [self getClient].options.integrations.count == SentrySDK.currentHub.installedIntegrations.count;
+}
+
+- (BOOL)isInstalledIntegration:(Class)integrationClass {
+    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+        if ([item isKindOfClass:integrationClass]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end
