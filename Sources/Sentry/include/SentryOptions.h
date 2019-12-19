@@ -76,12 +76,6 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, copy) NSNumber *_Nullable sampleRate;
 
-/**
- * returns BOOL chance of YES is defined by sampleRate.
- * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
- */
-- (BOOL)checkSampleRate;
-
 @end
 
 NS_ASSUME_NONNULL_END

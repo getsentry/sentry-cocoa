@@ -48,23 +48,6 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) SentryOptions *options;
 
 /**
- * This will be filled on every startup with a dictionary with extra, tags, user which will be used
- * when sending the crashreport
- */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable lastContext;
-
-
-/**
- * Initializes a SentryClient. Pass your private DSN string.
- *
- * @param dsn DSN string of sentry
- * @param error NSError reference object
- * @return SentryClient
- */
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                     didFailWithError:(NSError *_Nullable *_Nullable)error;
-    
-/**
  * Initializes a SentryClient. Pass in an dictionary of options.
  *
  * @param options Options dictionary

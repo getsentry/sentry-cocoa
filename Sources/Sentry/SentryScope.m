@@ -89,12 +89,48 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (NSDictionary<NSString *, id> *) serialize {
+- (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [[self serializeBreadcrumbs] mutableCopy];
     [serializedData setValue:self.tags forKey:@"tags"];
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:[self.user serialize] forKey:@"user"];
     return serializedData;
+}
+
+- (void)applyToEvent:(SentryEvent *)event {
+    if (nil != self.tags) {
+        if (nil == event.tags) {
+            event.tags = self.tags;
+        } else {
+            NSMutableDictionary *newTags = [NSMutableDictionary new];
+            [newTags addEntriesFromDictionary:self.tags];
+            [newTags addEntriesFromDictionary:event.tags];
+            event.tags = newTags;
+        }
+    }
+
+    if (nil != self.extra) {
+        if (nil == event.extra) {
+            event.extra = self.extra;
+        } else {
+            NSMutableDictionary *newExtra = [NSMutableDictionary new];
+            [newExtra addEntriesFromDictionary:self.extra];
+            [newExtra addEntriesFromDictionary:event.extra];
+            event.extra = newExtra;
+        }
+    }
+
+    if (nil != self.user && nil == event.user) {
+        event.user = self.user;
+    }
+
+    if (nil == event.breadcrumbsSerialized) {
+        event.breadcrumbsSerialized = [self serializeBreadcrumbs];
+    }
+
+    if (nil == event.infoDict) {
+        event.infoDict = [[NSBundle mainBundle] infoDictionary];
+    }
 }
 
 @end

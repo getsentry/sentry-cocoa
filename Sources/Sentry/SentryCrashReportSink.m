@@ -50,7 +50,6 @@
         for (NSDictionary *report in reports) {
             SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
             if (nil != [SentrySDK.currentHub getClient]) {
-                reportConverter.userContext = [SentrySDK.currentHub getClient].lastContext;
                 SentryEvent *event = [reportConverter convertReportToEvent];
                 [self handleConvertedEvent:event report:report sentReports:sentReports];
             } else {

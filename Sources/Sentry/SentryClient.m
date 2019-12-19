@@ -47,7 +47,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.4.3";
+NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryLogLevel logLevel = kSentryLogLevelError;
@@ -84,31 +84,24 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     }
     return _transport;
 }
-    
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": dsn} didFailWithError:error];
-    if (nil != error && nil != *error) {
-        [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
-        return nil;
-    }
-    return [self initWithOptions:options];
-}
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    if (NO == [self.options checkSampleRate]) {
-        NSString *message = @"[SentryClient.options checkSampleRate] returned NO so we will not send the event";
-        [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
         [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
     }
 }
 
-#pragma mark Static Getter/Setter
+/**
+* returns BOOL chance of YES is defined by sampleRate.
+* if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
+*/
+- (BOOL)checkSampleRate:(NSNumber *)sampleRate {
+    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
+        return YES;
+    }
+    return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
+}
 
 + (NSString *)versionString {
     return SentryClientVersionString;
@@ -127,58 +120,24 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     return logLevel;
 }
 
-#pragma mark Event
-
-#pragma mark Global properties
-
-#pragma mark SentryCrash
+#pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope {
     NSParameterAssert(event);
-    [self setSharedPropertiesOnEvent:event scope:scope];
-
-    if (nil != self.options.beforeSend) {
-        return self.options.beforeSend(event);
+    
+    if (NO == [self.options.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SDK is disabled, will not do anything" andLevel:kSentryLogLevelDebug];
+        return nil;
     }
-    return event;
-}
-
-- (void)setSharedPropertiesOnEvent:(SentryEvent *)event
-                             scope:(SentryScope *)scope {
-    if (nil != scope.tags) {
-        if (nil == event.tags) {
-            event.tags = scope.tags;
-        } else {
-            NSMutableDictionary *newTags = [NSMutableDictionary new];
-            [newTags addEntriesFromDictionary:scope.tags];
-            [newTags addEntriesFromDictionary:event.tags];
-            event.tags = newTags;
-        }
-    }
-
-    if (nil != scope.extra) {
-        if (nil == event.extra) {
-            event.extra = scope.extra;
-        } else {
-            NSMutableDictionary *newExtra = [NSMutableDictionary new];
-            [newExtra addEntriesFromDictionary:scope.extra];
-            [newExtra addEntriesFromDictionary:event.extra];
-            event.extra = newExtra;
-        }
-    }
-
-    if (nil != scope.user && nil == event.user) {
-        event.user = scope.user;
-    }
-
-    if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = [scope serializeBreadcrumbs];
-    }
-
-    if (nil == event.infoDict) {
-        event.infoDict = [[NSBundle mainBundle] infoDictionary];
-    }
+    
+    if (NO == [self checkSampleRate:self.options.sampleRate]) {
+        [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
+        return nil;
+    }    
+    
+    [scope applyToEvent:event];
+    
     NSString * environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
@@ -193,7 +152,14 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     if (nil != dist && nil == event.dist) {
         event.dist = dist;
     }
+
+    if (nil != self.options.beforeSend) {
+        return self.options.beforeSend(event);
+    }
+    
+    return event;
 }
+
 
 @end
 
