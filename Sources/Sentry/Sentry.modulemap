@@ -6,7 +6,6 @@ framework module Sentry {
 
     explicit module Private {
         header "SentryDsn.h"
-        header "SentryClient+Internal.h"
         header "SentryError.h"
         header "SentryAsynchronousOperation.h"
         header "SentryRequestOperation.h"

@@ -108,16 +108,6 @@ SENTRY_NO_INIT
 //- `configure_scope(callback)`: Calls a callback with a scope object that can be reconfigured. This is used to attach contextual data for future events in the same scope.
 + (void)configureScope:(void(^)(SentryScope *scope))callback;
 
-/**
- * This automatically adds breadcrumbs for different user actions.
- */
-+ (void)enableAutomaticBreadcrumbTracking;
-
-/**
- * Track memory pressure notifcation on UIApplications and send an event for it to Sentry.
- */
-+ (void)trackMemoryPressureAsEvent;
-
 @end
 
 NS_ASSUME_NONNULL_END

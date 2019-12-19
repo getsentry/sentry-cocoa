@@ -11,14 +11,24 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
+#import <Sentry/SentryLog.h>
 
 #else
 #import "SentryOptions.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryLog.h"
 #endif
 
 @implementation SentryOptions
+
++ (NSArray<NSString *>*)defaultIntegrations {
+    return @[
+        @"SentryCrashIntegration",
+        @"SentryUIKitMemoryWarningIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration"
+    ];
+}
 
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                       didFailWithError:(NSError *_Nullable *_Nullable)error {
@@ -35,9 +45,11 @@
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        *error = NSErrorFromSentryError(kSentryErrorInvalidDsnError, @"Dsn cannot be empty");
+        self.enabled = @NO;
+        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
         return;
     }
+    
     self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
     
     if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {
@@ -58,8 +70,8 @@
         self.enabled = @YES;
     }
 
-    if (nil != [options objectForKey:@"max_breadcrumbs"]) {
-        self.maxBreadcrumbs = [[options objectForKey:@"max_breadcrumbs"] unsignedIntValue];
+    if (nil != [options objectForKey:@"maxBreadcrumbs"]) {
+        self.maxBreadcrumbs = [[options objectForKey:@"maxBreadcrumbs"] unsignedIntValue];
     } else {
         // fallback value
         self.maxBreadcrumbs = [@100 unsignedIntValue];
@@ -67,6 +79,20 @@
 
     if (nil != [options objectForKey:@"beforeSend"]) {
         self.beforeSend = [options objectForKey:@"beforeSend"];
+    }
+
+    if (nil != [options objectForKey:@"integrations"]) {
+        self.integrations = [options objectForKey:@"integrations"];
+    } else {
+        // fallback to defaultIntegrations
+        self.integrations = [SentryOptions defaultIntegrations];
+    }
+
+    NSNumber *sampleRate = [options objectForKey:@"sampleRate"];
+    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1.0) {
+        self.sampleRate = @1;
+    } else {
+        self.sampleRate = sampleRate;
     }
 }
 

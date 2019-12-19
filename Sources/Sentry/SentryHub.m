@@ -11,16 +11,24 @@
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
+#import <Sentry/SentryIntegrationProtocol.h>
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryLog.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
-#import "SentrySentryStackLayer.h"
+#import "SentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryIntegrationProtocol.h"
+#import "SentrySDK.h"
+#import "SentryLog.h"
 #endif
 
 @interface SentryHub()
 
 @property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+
 
 @end
 
@@ -34,13 +42,6 @@
         [self setStack:[@[layer] mutableCopy]];
     }
     return self;
-}
-/**
- */
-- (void)setupWithClient:(SentryClient * _Nullable)client {
-    SentryStackLayer *stackLayer = [[SentryStackLayer alloc] init];
-    stackLayer.scope = [[SentryScope alloc] init];
-    [self setStack:[@[stackLayer] mutableCopy]];
 }
 
 - (void)captureEvent:(SentryEvent *)event {
@@ -61,6 +62,10 @@
 - (void)bindClient:(SentryClient * _Nullable)client {
     if (nil != [self getStackTop]) {
         [self getStackTop].client = client;
+
+        // TODO(fetzig) this might be the wrong place to install integrations
+        //              maybe build in some constraint to prevent calling integrations multiple time.
+        [self doInstallIntegrations];
     }
 }
 
@@ -98,6 +103,40 @@
     if (nil != top.client && nil != top.scope) {
         callback(top.scope);
     }
+}
+
+/**
+* install integrations and populates `SentryHub.integrations`
+* returns BOOL YES if **all** integrations installed sucessfully
+* returns BOOL NO if at least one integration install failed, or if `SentryHub.integrations.count > 0`
+*/
+- (BOOL)doInstallIntegrations {
+    SentryOptions *options = [self getClient].options;
+    for (NSString *integrationName in [self getClient].options.integrations) {
+        Class integrationClass = NSClassFromString(integrationName);
+        if (nil == integrationClass) {
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] couldn't find \"%@\" -> skipping.", integrationName];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
+            continue;
+        } else if ([SentrySDK.currentHub isInstalledIntegration:integrationClass]) {
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.", integrationName];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
+            continue;
+        }
+        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
+        [integrationInstance installWithOptions:options];
+        [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
+    }
+    return [self getClient].options.integrations.count == SentrySDK.currentHub.installedIntegrations.count;
+}
+
+- (BOOL)isInstalledIntegration:(Class)integrationClass {
+    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+        if ([item isKindOfClass:integrationClass]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end
