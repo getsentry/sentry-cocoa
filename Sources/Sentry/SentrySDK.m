@@ -25,10 +25,6 @@
 #import "SentryBreadcrumbTracker.h"
 #endif
 
-#if SENTRY_HAS_UIKIT
-#import <UIKit/UIKit.h>
-#endif
-
 @interface SentrySDK ()
 
 /**
@@ -69,22 +65,9 @@ static SentryHub * currentHub;
 }
 
 + (void)startWithOptions:(SentryOptions *)options {
-    NSError *error = nil;
-
     if ([SentrySDK.currentHub getClient] == nil) {
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options didFailWithError:&error];
+        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [SentrySDK.currentHub bindClient:newClient];
-
-        if (nil != error) {
-            NSLog(@"%@", error);
-        }
-    }
-
-    // TODO(fetzig): do this via "integration"
-    [[SentrySDK.currentHub getClient] startCrashHandlerWithError:&error];
-
-    if (nil != error) {
-        NSLog(@"%@", error);
     }
 }
 
@@ -117,25 +100,6 @@ static SentryHub * currentHub;
 // TODO(fetzig): requires scope that is detached from SentryClient.finish this as soon as SentryScope has been implemented.
 + (void)configureScope:(void(^)(SentryScope *scope))callback {
     [SentrySDK.currentHub configureScope:callback];
-}
-
-// TODO(fetzig): move to integrations once we have it
-+ (void)enableAutomaticBreadcrumbTracking {
-    [[SentryBreadcrumbTracker alloc] start];
-}
-
-// TODO(fetzig): move to integration once we have it
-+ (void)trackMemoryPressureAsEvent {
-    #if SENTRY_HAS_UIKIT
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
-    event.message = @"Memory Warning";
-    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [SentrySDK captureEvent:event];
-                                                }];
-    #endif
 }
 
 #ifndef __clang_analyzer__

@@ -182,11 +182,11 @@
 //    XCTAssertNil([SentrySDK.currentHub getClient]);
 //}
 
-- (void)testUserException {
-    NSError *error = nil;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:[NSArray new] logAllThreads:YES terminateProgram:NO];
-}
+//- (void)testUserException {
+//    NSError *error = nil;
+//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+//    [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:[NSArray new] logAllThreads:YES terminateProgram:NO];
+//}
 
 - (void)testSeverity {
     XCTAssertEqualObjects(@"fatal", SentrySeverityNames[kSentrySeverityFatal]);

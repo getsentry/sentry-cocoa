@@ -53,8 +53,11 @@ NS_SWIFT_NAME(Scope)
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs;
 - (void)clearBreadcrumbs;
+
 - (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
 - (NSDictionary<NSString *, id> *) serialize;
+
+- (void)applyToEvent:(SentryEvent *)event;
 
 @end
 

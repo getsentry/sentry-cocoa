@@ -11,7 +11,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
-#import "SentryClient+Internal.h"
+#import "SentryClient.h"
 
 NSInteger requestShouldReturnCode = 200;
 NSString *dsn = @"https://username:password@app.getsentry.com/12345";

@@ -9,7 +9,6 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryClient+Internal.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -26,7 +25,6 @@
 #import <Sentry/SentryTransport.h>
 #else
 #import "SentryClient.h"
-#import "SentryClient+Internal.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -49,12 +47,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"4.4.3";
+NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
 static SentryLogLevel logLevel = kSentryLogLevelError;
-
-static SentryInstallation *installation = nil;
 
 @interface SentryClient ()
 
@@ -64,28 +60,22 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryClient
 
-@synthesize sampleRate = _sampleRate;
 @synthesize options = _options;
 @synthesize transport = _transport;
 @dynamic logLevel;
 
 #pragma mark Initializer
 
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                         didFailWithError:(NSError *_Nullable *_Nullable)error {
-
-
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
-//            //[self restoreContextBeforeCrash];
-//            [self setupQueueing];
-            self.options = options;
+        self.options = options;
 
-            // We want to send all stored events on start up
-            if ([self.options.enabled boolValue]) {
-                [self.transport sendAllStoredEvents];
-            }
+        // We want to send all stored events on start up
+        if ([self.options.enabled boolValue]) {
+            [self.transport sendAllStoredEvents];
         }
-        return self;
+    }
+    return self;
 }
 
 - (SentryTransport *)transport {
@@ -94,31 +84,24 @@ static SentryInstallation *installation = nil;
     }
     return _transport;
 }
-    
-- (_Nullable instancetype)initWithDsn:(NSString *)dsn
-                     didFailWithError:(NSError *_Nullable *_Nullable)error {
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": dsn} didFailWithError:error];
-    if (nil != error && nil != *error) {
-        [SentryLog logWithMessage:(*error).localizedDescription andLevel:kSentryLogLevelError];
-        return nil;
-    }
-    return [self initWithOptions:options didFailWithError:error];
-}
 
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    if (NO == [self checkSampleRate]) {
-        NSString *message = @"SentryClient shouldSendEvent returned NO so we will not send the event";
-        [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
         [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
     }
 }
 
-#pragma mark Static Getter/Setter
+/**
+* returns BOOL chance of YES is defined by sampleRate.
+* if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
+*/
+- (BOOL)checkSampleRate:(NSNumber *)sampleRate {
+    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
+        return YES;
+    }
+    return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
+}
 
 + (NSString *)versionString {
     return SentryClientVersionString;
@@ -137,122 +120,24 @@ static SentryInstallation *installation = nil;
     return logLevel;
 }
 
-#pragma mark Event
-
-
-- (void)appendStacktraceToEvent:(SentryEvent *)event {
-    if (nil != self._snapshotThreads && nil != self._debugMeta) {
-        event.threads = self._snapshotThreads;
-        event.debugMeta = self._debugMeta;
-    }
-}
-
-#pragma mark Global properties
-
-#pragma mark SentryCrash
-
-- (BOOL)crashedLastLaunch {
-    return SentryCrash.sharedInstance.crashedLastLaunch;
-}
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    [SentryLog logWithMessage:@"SentryCrashHandler started" andLevel:kSentryLogLevelDebug];
-    static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
-        installation = [[SentryInstallation alloc] init];
-        [installation install];
-        [installation sendAllReports];
-    });
-    return YES;
-}
-#pragma GCC diagnostic pop
-
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram {
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    [SentryCrash.sharedInstance reportUserException:name
-                                         reason:reason
-                                       language:language
-                                     lineOfCode:lineOfCode
-                                     stackTrace:stackTrace
-                                  logAllThreads:logAllThreads
-                               terminateProgram:terminateProgram];
-    [installation sendAllReports];
-}
-
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    [SentryCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
-                                         reason:@"SENTRY_SNAPSHOT"
-                                       language:@""
-                                     lineOfCode:@""
-                                     stackTrace:[[NSArray alloc] init]
-                                  logAllThreads:NO
-                               terminateProgram:NO];
-    [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
-        snapshotCompleted();
-    }];
-}
+#pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope {
     NSParameterAssert(event);
-    [self setSharedPropertiesOnEvent:event scope:scope];
-
-    if (nil != self.options.beforeSend) {
-        return self.options.beforeSend(event);
+    
+    if (NO == [self.options.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SDK is disabled, will not do anything" andLevel:kSentryLogLevelDebug];
+        return nil;
     }
-    return event;
-}
-
-- (void)setSharedPropertiesOnEvent:(SentryEvent *)event
-                             scope:(SentryScope *)scope {
-    if (nil != scope.tags) {
-        if (nil == event.tags) {
-            event.tags = scope.tags;
-        } else {
-            NSMutableDictionary *newTags = [NSMutableDictionary new];
-            [newTags addEntriesFromDictionary:scope.tags];
-            [newTags addEntriesFromDictionary:event.tags];
-            event.tags = newTags;
-        }
-    }
-
-    if (nil != scope.extra) {
-        if (nil == event.extra) {
-            event.extra = scope.extra;
-        } else {
-            NSMutableDictionary *newExtra = [NSMutableDictionary new];
-            [newExtra addEntriesFromDictionary:scope.extra];
-            [newExtra addEntriesFromDictionary:event.extra];
-            event.extra = newExtra;
-        }
-    }
-
-    if (nil != scope.user && nil == event.user) {
-        event.user = scope.user;
-    }
-
-    if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = [scope serializeBreadcrumbs];
-    }
-
-    if (nil == event.infoDict) {
-        event.infoDict = [[NSBundle mainBundle] infoDictionary];
-    }
+    
+    if (NO == [self checkSampleRate:self.options.sampleRate]) {
+        [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
+        return nil;
+    }    
+    
+    [scope applyToEvent:event];
+    
     NSString * environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
@@ -267,27 +152,14 @@ static SentryInstallation *installation = nil;
     if (nil != dist && nil == event.dist) {
         event.dist = dist;
     }
+
+    if (nil != self.options.beforeSend) {
+        return self.options.beforeSend(event);
+    }
+    
+    return event;
 }
 
-- (void)setSampleRate:(float)sampleRate {
-    if (sampleRate < 0 || sampleRate > 1) {
-        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0" andLevel:kSentryLogLevelError];
-        return;
-    }
-    _sampleRate = sampleRate;
-}
-
-/**
- checks if event should be sent according to sampleRate
- returns BOOL
- */
-- (BOOL)checkSampleRate {
-    if (self.sampleRate < 0 || self.sampleRate > 1) {
-        [SentryLog logWithMessage:@"sampleRate must be between 0.0 and 1.0, checkSampleRate is skipping check and returns YES" andLevel:kSentryLogLevelError];
-        return YES;
-    }
-    return (self.sampleRate >= ((double)arc4random() / 0x100000000));
-}
 
 @end
 

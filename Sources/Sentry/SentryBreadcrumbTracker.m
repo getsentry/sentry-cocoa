@@ -15,6 +15,7 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentrySwizzle.h>
+#import <Sentry/SentryLog.h>
 
 #else
 #import "SentryClient.h"
@@ -24,6 +25,7 @@
 #import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
+#import "SentryLog.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -51,6 +53,8 @@
                                                     crumb.message = @"Memory Warning";
                                                     [SentrySDK.currentHub addBreadcrumb:crumb];
                                                 }];
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker trackApplicationUIKitNotifications] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
      
@@ -87,6 +91,8 @@
                     }
                     return SentrySWCallOriginal(action, target, sender, event);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
 
@@ -117,6 +123,8 @@
                     }
                     SentrySWCallOriginal(animated);
             }), SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing." andLevel:kSentryLogLevelDebug];
 #endif
 }
 
