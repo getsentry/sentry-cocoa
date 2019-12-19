@@ -41,18 +41,6 @@
     return YES;
 }
 
-- (nonnull NSString *)name {
-    return NSStringFromClass([self class]);
-}
-
-- (nonnull NSString *)version {
-    return @"1.0";
-}
-
-- (nonnull NSString *)identifier {
-    return [NSString stringWithFormat:@"%@-%@", [self name], [self version]];
-}
-
 - (void)trackMemoryPressureAsEvent {
 #if SENTRY_HAS_UIKIT
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];

@@ -15,6 +15,7 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentrySwizzle.h>
+#import <Sentry/SentryLog.h>
 
 #else
 #import "SentryClient.h"
@@ -24,6 +25,7 @@
 #import "SentrySwizzle.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
+#import "SentryLog.h"
 #endif
 
 #if SENTRY_HAS_UIKIT

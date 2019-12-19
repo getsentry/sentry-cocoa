@@ -29,23 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)installWithOptions:(SentryOptions *)options;
 
-/**
- * version of integration
- */
-- (NSString *)version;
-
-/**
- * name of integration
- * class name in most cases
- */
-- (NSString *)name;
-
-/**
- * combination of name and version.
- * supposed to be attached to the event so event processors to identify event data format.
- */
-- (NSString *)identifier;
-
 @end
 
 NS_ASSUME_NONNULL_END

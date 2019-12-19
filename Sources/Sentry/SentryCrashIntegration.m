@@ -35,18 +35,6 @@ static SentryInstallation *installation = nil;
     return [self startCrashHandlerWithError:&error];
 }
 
-- (nonnull NSString *)name {
-    return NSStringFromClass([self class]);
-}
-
-- (nonnull NSString *)version {
-    return @"1.0";
-}
-
-- (nonnull NSString *)identifier {
-    return [NSString stringWithFormat:@"%@-%@", [self name], [self version]];
-}
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
@@ -81,24 +69,6 @@ static SentryInstallation *installation = nil;
                                   logAllThreads:logAllThreads
                                terminateProgram:terminateProgram];
     [installation sendAllReports];
-}
-
-// TODO(fetzig) this was in client, used for testing only, not sure if we can still use this (for testing). maybe move it to hub or static-sdk?
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted {
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-    [SentryCrash.sharedInstance reportUserException:@"SENTRY_SNAPSHOT"
-                                         reason:@"SENTRY_SNAPSHOT"
-                                       language:@""
-                                     lineOfCode:@""
-                                     stackTrace:[[NSArray alloc] init]
-                                  logAllThreads:NO
-                               terminateProgram:NO];
-    [installation sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
-        snapshotCompleted();
-    }];
 }
 
 - (BOOL)crashedLastLaunch {

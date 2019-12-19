@@ -69,12 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(fetzig)
 //- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
 
-/**
- * install integrations and populates `SentryHub.integrations`
- * returns BOOL YES if **all** integrations installed sucessfully
- * returns BOOL NO if at least one integration install failed, or if `SentryHub.integrations.count > 0`
- */
-- (BOOL)doInstallIntegrations;
 
 @end
 

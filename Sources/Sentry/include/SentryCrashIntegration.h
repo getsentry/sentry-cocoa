@@ -54,12 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
            terminateProgram:(BOOL)terminateProgram;
 
 /**
- * This will snapshot the whole stacktrace at the time when its called. This stacktrace will be attached with the next sent event.
- * Please note to also call appendStacktraceToEvent in the callback in order to send the stacktrace with the event.
- */
-- (void)snapshotStacktrace:(void (^)(void))snapshotCompleted;
-
-/**
  * Returns true if the app crashed before launching now
  */
 - (BOOL)crashedLastLaunch;
