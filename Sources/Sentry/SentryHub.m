@@ -45,7 +45,10 @@
 }
 
 - (void)captureEvent:(SentryEvent *)event {
-    [[self getClient] captureEvent:event withScope:[self getScope]];
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        [client captureEvent:event withScope:[self getScope]];
+    }
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
