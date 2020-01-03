@@ -315,7 +315,10 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
     }
     writeToLog("\n");
 
-    free(stringBuffer);
+    if(stringBuffer != NULL)
+    {
+        free(stringBuffer);
+    }
     CFRelease(entry);
 }
 
