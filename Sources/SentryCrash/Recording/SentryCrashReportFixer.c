@@ -257,7 +257,7 @@ char* sentrycrashcrf_fixupCrashReport(const char* crashReport)
     int crashReportLength = (int)strlen(crashReport);
     int fixedReportLength = (int)(crashReportLength * 1.5);
     char* fixedReport = malloc((unsigned)fixedReportLength);
-    if (fixedReport == NULL)
+    if(fixedReport == NULL)
     {
         free(stringBuffer);
         SentryCrashLOG_ERROR("Failed to allocate fixed report buffer of size %ld", fixedReportLength);

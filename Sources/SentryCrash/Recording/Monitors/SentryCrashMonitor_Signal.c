@@ -130,7 +130,7 @@ static bool installSignalHandler()
         g_signalStack.ss_size = SIGSTKSZ;
         g_signalStack.ss_sp = malloc(g_signalStack.ss_size);
 
-        if (g_signalStack.ss_sp == NULL)
+        if(g_signalStack.ss_sp == NULL)
         {
             SentryCrashLOG_ERROR("Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
             goto failed;

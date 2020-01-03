@@ -1843,7 +1843,7 @@ void sentrycrashreport_setDoNotIntrospectClasses(const char** doNotIntrospectCla
     {
         for(int i = 0; i < oldClassesLength; i++)
         {
-            if (oldClasses[i] != NULL)
+            if(oldClasses[i] != NULL)
             {
                 free((void*)oldClasses[i]);
             }
