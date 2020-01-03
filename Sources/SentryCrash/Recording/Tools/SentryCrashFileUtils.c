@@ -111,17 +111,20 @@ static void dirContents(const char* path, char*** entries, int* count)
     }
 
     entryList = calloc((unsigned)entryCount, sizeof(char*));
-    struct dirent* ent;
-    int index = 0;
-    while((ent = readdir(dir)))
+    if(entryList != NULL)
     {
-        if(index >= entryCount)
+        struct dirent* ent;
+        int index = 0;
+        while((ent = readdir(dir)))
         {
-            SentryCrashLOG_ERROR("Contents of %s have been mutated", path);
-            goto done;
+            if(index >= entryCount)
+            {
+                SentryCrashLOG_ERROR("Contents of %s have been mutated", path);
+                goto done;
+            }
+            entryList[index] = strdup(ent->d_name);
+            index++;
         }
-        entryList[index] = strdup(ent->d_name);
-        index++;
     }
 
 done:
