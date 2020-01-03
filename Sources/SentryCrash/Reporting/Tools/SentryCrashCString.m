@@ -80,9 +80,16 @@
     {
         _length = length;
         char* bytes = malloc((unsigned)_length+1);
-        memcpy(bytes, data, _length);
-        bytes[_length] = 0;
-        _bytes = bytes;
+        if(bytes != NULL)
+        {
+            memcpy(bytes, data, _length);
+            bytes[_length] = 0;
+            _bytes = bytes;
+        }
+        else
+        {
+            _length = 0;
+        }
     }
     return self;
 }
