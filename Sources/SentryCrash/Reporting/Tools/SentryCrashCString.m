@@ -61,7 +61,10 @@
     if((self = [super init]))
     {
         _bytes = strdup(string);
-        _length = strlen(_bytes);
+        if(_bytes != NULL)
+        {
+            _length = strlen(_bytes);
+        }
     }
     return self;
 }
