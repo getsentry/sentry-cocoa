@@ -88,7 +88,7 @@ static SentryHub * currentHub;
 }
 
 + (void)captureMessage:(NSString *)message {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event.message = message;
     [SentrySDK captureEvent:event];
 }
