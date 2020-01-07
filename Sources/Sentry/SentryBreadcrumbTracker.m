@@ -62,7 +62,6 @@
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"started"];
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
-
     [SentrySDK addBreadcrumb:crumb];
 }
 
