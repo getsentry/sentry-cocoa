@@ -109,15 +109,6 @@ NSString *const SentryClientSdkName = @"sentry-cocoa";
     return SentryClientSdkName;
 }
 
-//+ (void)setLogLevel:(SentryLogLevel)level {
-//    NSParameterAssert(level);
-//    logLevel = level;
-//}
-//
-//+ (SentryLogLevel)logLevel {
-//    return logLevel;
-//}
-
 #pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
