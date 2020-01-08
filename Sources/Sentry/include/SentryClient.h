@@ -40,11 +40,6 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, class, readonly, copy) NSString *sdkName;
 
-/**
- * Set logLevel for the current client default kSentryLogLevelError
- */
-@property(nonatomic, class) SentryLogLevel logLevel;
-
 @property(nonatomic, strong) SentryOptions *options;
 
 /**
