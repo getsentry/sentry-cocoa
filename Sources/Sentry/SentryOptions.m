@@ -51,6 +51,18 @@
     }
     
     self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
+
+    if (nil != [options objectForKey:@"debug"]) {
+        self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
+    } else {
+        self.debug = @NO;
+    }
+
+    if ([self.debug isEqual:@YES])  {
+        self.logLevel = kSentryLogLevelVerbose;
+    } else {
+        self.logLevel = kSentryLogLevelError;
+    }
     
     if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = [options objectForKey:@"release"];

@@ -50,7 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const SentryClientVersionString = @"5.0.0";
 NSString *const SentryClientSdkName = @"sentry-cocoa";
 
-static SentryLogLevel logLevel = kSentryLogLevelError;
 
 @interface SentryClient ()
 
@@ -62,7 +61,6 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
 
 @synthesize options = _options;
 @synthesize transport = _transport;
-@dynamic logLevel;
 
 #pragma mark Initializer
 
@@ -111,14 +109,14 @@ static SentryLogLevel logLevel = kSentryLogLevelError;
     return SentryClientSdkName;
 }
 
-+ (void)setLogLevel:(SentryLogLevel)level {
-    NSParameterAssert(level);
-    logLevel = level;
-}
-
-+ (SentryLogLevel)logLevel {
-    return logLevel;
-}
+//+ (void)setLogLevel:(SentryLogLevel)level {
+//    NSParameterAssert(level);
+//    logLevel = level;
+//}
+//
+//+ (SentryLogLevel)logLevel {
+//    return logLevel;
+//}
 
 #pragma mark prepareEvent
 

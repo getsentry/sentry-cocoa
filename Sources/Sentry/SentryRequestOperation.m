@@ -12,12 +12,14 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryClient.h>
+#import <Sentry/SentrySDK.h>
 
 #else
 #import "SentryRequestOperation.h"
 #import "SentryLog.h"
 #import "SentryError.h"
 #import "SentryClient.h"
+#import "SentrySDK.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
             
             // We only have these if's here because of performance reasons
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld", (long) statusCode] andLevel:kSentryLogLevelDebug];
-            if (SentryClient.logLevel == kSentryLogLevelVerbose) {
+            if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
             }
             
