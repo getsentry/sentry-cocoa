@@ -47,10 +47,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const SentryClientVersionString = @"5.0.0";
-NSString *const SentryClientSdkName = @"sentry-cocoa";
-
-
 @interface SentryClient ()
 
 @property(nonatomic, strong) SentryTransport* transport;
