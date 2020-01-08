@@ -97,14 +97,6 @@ NS_ASSUME_NONNULL_BEGIN
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-+ (NSString *)versionString {
-    return SentryClientVersionString;
-}
-
-+ (NSString *)sdkName {
-    return SentryClientSdkName;
-}
-
 //+ (void)setLogLevel:(SentryLogLevel)level {
 //    NSParameterAssert(level);
 //    logLevel = level;
