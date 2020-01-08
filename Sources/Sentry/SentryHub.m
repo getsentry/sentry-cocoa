@@ -110,8 +110,7 @@
 
 /**
 * install integrations and populates `SentryHub.integrations`
-* returns BOOL YES if **all** integrations installed sucessfully
-* returns BOOL NO if at least one integration install failed, or if `SentryHub.integrations.count > 0`
+* returns BOOL YES if count of installed integrations is equal to options.integrations
 */
 - (BOOL)doInstallIntegrations {
     SentryOptions *options = [self getClient].options;
