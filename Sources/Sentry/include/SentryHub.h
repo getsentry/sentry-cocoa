@@ -26,14 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 
 /**
- creates a new hub by cloning the top stack of another hub
- TODO(fetzig): check this in sentry-python a.s.o.
- */
-//- (instancetype)initFromTop:(SentryHub *)hub;
-
-/**
  Capture message / exception call into capture event
- TODO(fetzig): As an additional argument it also takes a Hint.
  */
 - (void)captureEvent:(SentryEvent *)event;
 

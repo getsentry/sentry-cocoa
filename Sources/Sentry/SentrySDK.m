@@ -30,7 +30,7 @@
 /**
  holds the current hub instance
  */
-@property (class) SentryHub * currentHub; // TODO(fetzig) check if copy is needed
+@property (class) SentryHub * currentHub;
 
 @end
 
@@ -97,7 +97,6 @@ static SentryHub * currentHub;
     [SentrySDK.currentHub addBreadcrumb:crumb];
 }
 
-// TODO(fetzig): requires scope that is detached from SentryClient.finish this as soon as SentryScope has been implemented.
 + (void)configureScope:(void(^)(SentryScope *scope))callback {
     [SentrySDK.currentHub configureScope:callback];
 }
