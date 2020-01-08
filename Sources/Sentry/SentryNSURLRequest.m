@@ -15,6 +15,7 @@
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/NSData+SentryCompression.h>
+#import <Sentry/SentrySDK.h>
 
 #else
 #import "SentryDsn.h"
@@ -24,6 +25,7 @@
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "NSData+SentryCompression.h"
+#import "SentrySDK.h"
 
 #endif
 
@@ -58,11 +60,11 @@ NSTimeInterval const SentryRequestTimeout = 15;
         }
         
         jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                           options:SentryClient.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
-                                                             error:error];
+                                                   options:[SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
+                                                     error:error];
     }
     
-    if (SentryClient.logLevel == kSentryLogLevelVerbose) {
+    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
         [SentryLog logWithMessage:@"Sending JSON -------------------------------" andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:@"--------------------------------------------" andLevel:kSentryLogLevelVerbose];
