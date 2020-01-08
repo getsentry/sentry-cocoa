@@ -42,6 +42,9 @@
     return self;
 }
 
+/**
+ populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
+ */
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
