@@ -66,8 +66,6 @@
     if (nil != [self getStackTop]) {
         [self getStackTop].client = client;
 
-        // TODO(fetzig) this might be the wrong place to install integrations
-        //              maybe build in some constraint to prevent calling integrations multiple time.
         [self doInstallIntegrations];
     }
 }

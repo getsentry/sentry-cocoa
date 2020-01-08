@@ -99,12 +99,9 @@ SENTRY_NO_INIT
  If the total number of breadcrumbs exceeds the `max_breadcrumbs` setting, the oldest breadcrumb is removed in turn.
  
  uses default `SentryHub`
- 
- TODO(fetzig): As soon as `SentryScope` handles the scope and `SentryClient` is stateless, `crumb` will be added to `SentryScope`.
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(add(crumb:));
 
-// TODO(fetzig): configureScope() requires a `SentryScope` that is detached from SentryClient. Add this method as soon as SentryScope has been implemented.
 //- `configure_scope(callback)`: Calls a callback with a scope object that can be reconfigured. This is used to attach contextual data for future events in the same scope.
 + (void)configureScope:(void(^)(SentryScope *scope))callback;
 
