@@ -97,15 +97,6 @@ NS_ASSUME_NONNULL_BEGIN
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-//+ (void)setLogLevel:(SentryLogLevel)level {
-//    NSParameterAssert(level);
-//    logLevel = level;
-//}
-//
-//+ (SentryLogLevel)logLevel {
-//    return logLevel;
-//}
-
 #pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
