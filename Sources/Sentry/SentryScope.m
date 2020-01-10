@@ -21,6 +21,7 @@
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
+#import <Sentry/SentryContext.h>
 #else
 #import "SentryScope.h"
 #import "SentryLog.h"
@@ -35,6 +36,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryCrash.h"
 #import "SentryOptions.h"
+#import "SentryContext.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -131,6 +133,21 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil == event.infoDict) {
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
+
+    for (NSString *key in [self.context allKeys]) {
+        if ([event.context respondsToSelector:NSSelectorFromString(key)]) {
+
+        }
+    }
+
+    // add context to event.context.otherContexts
+    NSMutableDictionary *newOtherContexts = [[NSMutableDictionary alloc] initWithDictionary:event.context.otherContexts];
+    [newOtherContexts addEntriesFromDictionary:self.context];
+    event.context.otherContexts = [newOtherContexts copy];
+}
+
+- (void)setContextValue:(id)value forKey:(NSString *)key {
+    [self.context setValue:value forKey:key];
 }
 
 @end
