@@ -125,8 +125,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     NSMutableDictionary *sdk = @{
-                                 @"name": SentryClient.sdkName,
-                                 @"version": SentryClient.versionString
+                                 @"name": SentryMeta.sdkName,
+                                 @"version": SentryMeta.versionString
                                  }.mutableCopy;
     if (self.extra[@"__sentry_sdk_integrations"]) {
         [sdk setValue:self.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];

@@ -119,7 +119,7 @@ static NSString *newHeaderPart(NSString *key, id value) {
 static NSString *newAuthHeader(NSURL *url) {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryClient.versionString])];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryMeta.versionString])];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger) [[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {
