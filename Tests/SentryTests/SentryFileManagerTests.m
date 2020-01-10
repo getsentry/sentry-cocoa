@@ -21,7 +21,7 @@
 
 - (void)setUp {
     [super setUp];
-    SentryClient.logLevel = kSentryLogLevelDebug;
+    //SentryClient.logLevel = kSentryLogLevelDebug;
     NSError *error = nil;
     self.fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:&error];
     XCTAssertNil(error);
@@ -29,7 +29,7 @@
 
 - (void)tearDown {
     [super tearDown];
-    SentryClient.logLevel = kSentryLogLevelError;
+    //SentryClient.logLevel = kSentryLogLevelError;
     [self.fileManager deleteAllStoredEvents];
     [self.fileManager deleteAllStoredBreadcrumbs];
     [self.fileManager deleteAllFolders];
