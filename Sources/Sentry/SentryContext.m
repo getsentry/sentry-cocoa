@@ -66,9 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)generatedOsContext {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     [serializedData setValue:@"iOS" forKey:@"name"];
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
     [serializedData setValue:@"macOS" forKey:@"name"];
 #elif TARGET_OS_TV
     [serializedData setValue:@"tvOS" forKey:@"name"];
