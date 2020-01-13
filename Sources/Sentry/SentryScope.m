@@ -134,12 +134,6 @@ NS_ASSUME_NONNULL_BEGIN
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
 
-    for (NSString *key in [self.context allKeys]) {
-        if ([event.context respondsToSelector:NSSelectorFromString(key)]) {
-
-        }
-    }
-
     // add context to event.context.otherContexts
     NSMutableDictionary *newOtherContexts = [[NSMutableDictionary alloc] initWithDictionary:event.context.otherContexts];
     [newOtherContexts addEntriesFromDictionary:self.context];
