@@ -165,7 +165,7 @@ NS_SWIFT_NAME(Client)
 - (void)enableAutomaticBreadcrumbTracking;
 
 /**
- * Track memory pressure notifcation on UIApplications and send an event for it to Sentry.
+ * Track memory pressure notification on UIApplications and send an event for it to Sentry.
  */
 - (void)trackMemoryPressureAsEvent;
 
