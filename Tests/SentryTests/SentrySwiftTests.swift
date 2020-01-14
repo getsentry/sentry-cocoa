@@ -26,25 +26,25 @@ class SentrySwiftTests: XCTestCase {
     }
     
     func testWrongDsn() {
-        XCTAssertThrowsError(try Client(dsn: "http://sentry.io"))
+        XCTAssertThrowsError(try Sentry.Options(dict: ["dsn": "http://sentry.io"]))
     }
     
     func testCorrectDsn() {
-        let client = try? Client(dsn: "https://username:password@app.getsentry.com/12345")
-        XCTAssertNotNil(client)
+        let options = try? Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        XCTAssertNotNil(options)
     }
     
     func testOptions() {
         let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345"])
 
-        let client = try? Client(options: options)
+        let client = Client(options: options)
         XCTAssertNotNil(client)
     }
     
     func testDisabled() {
         let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": false])
 
-        let client = try? Client(options: options)
+        let client = Client(options: options)
         SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
 
@@ -62,7 +62,7 @@ class SentrySwiftTests: XCTestCase {
     func testEnabled() {
         let options = try! Sentry.Options(dict: ["dsn": "https://username:password@app.getsentry.com/12345", "enabled": true])
 
-        let client = try? Client(options: options)
+        let client = Client(options: options)
         SentrySDK.currentHub().bindClient(client)
         XCTAssertNotNil(client)
         
@@ -115,7 +115,7 @@ class SentrySwiftTests: XCTestCase {
 //            XCTAssertNil(error)
 //        }
 //
-        Client.logLevel = .debug
+        //Client.logLevel = .debug
         // TODO(fetzig) reaplaced this with `bindClient:nil` but should reset scope as well. check how.
         //SentrySDK.currentHub().getClient()!.clearContext()
         SentrySDK.currentHub().bindClient(nil)

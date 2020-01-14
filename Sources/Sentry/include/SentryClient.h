@@ -50,6 +50,9 @@ SENTRY_NO_INIT
  */
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
 
+/**
+ * sends event
+ */
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope;
 
 /// SentryCrash
