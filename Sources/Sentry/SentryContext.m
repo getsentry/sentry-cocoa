@@ -51,7 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     [serializedData setValue:self.deviceContext forKey:@"device"];
 
-    // TODO(fetzig): this can lead to overwriting of os/app/device data. is that intentional?
     [serializedData addEntriesFromDictionary:self.otherContexts];
 
     return serializedData;
