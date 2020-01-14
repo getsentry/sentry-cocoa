@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.deviceContext = [self generatedDeviceContext];
     }
     [serializedData setValue:self.deviceContext forKey:@"device"];
-    
+
     [serializedData addEntriesFromDictionary:self.otherContexts];
 
     return serializedData;

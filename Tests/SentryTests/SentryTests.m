@@ -31,8 +31,10 @@
 
 - (void)testSharedClient {
     NSError *error = nil;
-    SentryClient.logLevel = kSentryLogLevelNone;
-    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+    //SentryClient.logLevel = kSentryLogLevelNone;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"} didFailWithError:&error];
+
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);
     XCTAssertNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:client];

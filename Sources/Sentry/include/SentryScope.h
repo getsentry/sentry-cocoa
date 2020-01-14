@@ -47,6 +47,12 @@ NS_SWIFT_NAME(Scope)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
+ * used to manipulate values in SentryEvent.context
+ * keys have to match SentryContext properties.
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable context;
+
+/**
  * Contains the breadcrumbs which will be sent with the event
  */
 @property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
@@ -58,6 +64,12 @@ NS_SWIFT_NAME(Scope)
 - (NSDictionary<NSString *, id> *) serialize;
 
 - (void)applyToEvent:(SentryEvent *)event;
+
+/**
+ * sets context values which will overwrite SentryEvent.context when event is
+ * "enrichted" with scope before sending event.
+ */
+- (void)setContextValue:(id)value forKey:(NSString *)key;
 
 @end
 
