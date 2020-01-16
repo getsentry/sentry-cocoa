@@ -105,7 +105,7 @@ static Monitor g_monitors[] =
 };
 static int g_monitorsCount = sizeof(g_monitors) / sizeof(*g_monitors);
 
-static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
+static SentryCrashMonitorType g_activeMonitors = (SentryCrashMonitorType)SentryCrashMonitorTypeNone;
 
 static bool g_handlingFatalException = false;
 static bool g_crashedDuringExceptionHandling = false;
@@ -172,17 +172,17 @@ void sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
             SentryCrashLOGBASIC_WARN("    * This means that most crashes WILL NOT BE RECORDED while debugging! *");
             SentryCrashLOGBASIC_WARN("    **********************************************************************");
         }
-        monitorTypes &= SentryCrashMonitorTypeDebuggerSafe;
+        monitorTypes = (SentryCrashMonitorType)monitorTypes & SentryCrashMonitorTypeDebuggerSafe;
     }
     if(g_requiresAsyncSafety && (monitorTypes & SentryCrashMonitorTypeAsyncUnsafe))
     {
         SentryCrashLOG_DEBUG("Async-safe environment detected. Masking out unsafe monitors.");
-        monitorTypes &= SentryCrashMonitorTypeAsyncSafe;
+        monitorTypes = (SentryCrashMonitorType)monitorTypes & SentryCrashMonitorTypeAsyncSafe;
     }
 
     SentryCrashLOG_DEBUG("Changing active monitors from 0x%x tp 0x%x.", g_activeMonitors, monitorTypes);
 
-    SentryCrashMonitorType activeMonitors = SentryCrashMonitorTypeNone;
+    SentryCrashMonitorType activeMonitors = (SentryCrashMonitorType)SentryCrashMonitorTypeNone;
     for(int i = 0; i < g_monitorsCount; i++)
     {
         Monitor* monitor = &g_monitors[i];
@@ -223,7 +223,7 @@ bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
     if(g_crashedDuringExceptionHandling)
     {
         SentryCrashLOG_INFO("Detected crash in the crash reporter. Uninstalling SentryCrash.");
-        sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
+        sentrycrashcm_setActiveMonitors((SentryCrashMonitorType)SentryCrashMonitorTypeNone);
     }
     return g_crashedDuringExceptionHandling;
 }
@@ -251,7 +251,7 @@ void sentrycrashcm_handleException(struct SentryCrash_MonitorContext* context)
     } else {
         if(g_handlingFatalException && !g_crashedDuringExceptionHandling) {
             SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
-            sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
+            sentrycrashcm_setActiveMonitors((SentryCrashMonitorType)SentryCrashMonitorTypeNone);
         }
     }
 }

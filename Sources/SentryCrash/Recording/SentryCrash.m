@@ -503,9 +503,9 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
     NSError* error = nil;
     NSMutableDictionary* crashReport = [SentryCrashJSONCodec decode:jsonData
-                                                   options:SentryCrashJSONDecodeOptionIgnoreNullInArray |
+                                                   options:(SentryCrashJSONDecodeOption)(SentryCrashJSONDecodeOptionIgnoreNullInArray |
                                                            SentryCrashJSONDecodeOptionIgnoreNullInObject |
-                                                           SentryCrashJSONDecodeOptionKeepPartialObject
+                                                           SentryCrashJSONDecodeOptionKeepPartialObject)
                                                      error:&error];
     if(error != nil)
     {

@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryStacktrace
 
+@synthesize frames = _frames;
+@synthesize registers = _registers;
+
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
                      registers:(NSDictionary<NSString *, NSString *> *)registers {
     self = [super init];

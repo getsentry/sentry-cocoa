@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation NSData (SentryCompression)
 
 - (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
-                                           error:(NSError *_Nullable *_Nullable)error {
+                                           error:(NSError *_Nullable __autoreleasing *_Nullable)error {
     uInt length = (uInt) [self length];
     if (length == 0) {
         return [NSData data];

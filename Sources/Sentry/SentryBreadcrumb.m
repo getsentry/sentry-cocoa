@@ -21,6 +21,13 @@
 
 @implementation SentryBreadcrumb
 
+@synthesize level = _level;
+@synthesize category = _category;
+@synthesize timestamp = _timestamp;
+@synthesize type = _type;
+@synthesize message = _message;
+@synthesize data = _data;
+
 - (instancetype)initWithLevel:(enum SentrySeverity)level category:(NSString *)category {
     self = [super init];
     if (self) {

@@ -42,9 +42,11 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
 @implementation SentryNSURLRequest
 
+@synthesize dsn = _dsn;
+
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
                                          andEvent:(SentryEvent *)event
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
+                                 didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     NSData *jsonData;
     if (nil != event.json) {
         // If we have event.json, this has been set from JS and should be sent directly
@@ -74,7 +76,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
 
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
                                           andData:(NSData *)data
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
+                                 didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {

@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <uuid/uuid.h>
 
+#include "SentryCrashID.h"
 
 void sentrycrashid_generate(char* destinationBuffer37Bytes)
 {

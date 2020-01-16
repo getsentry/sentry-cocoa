@@ -141,6 +141,9 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  */
 @interface SentrySwizzleInfo : NSObject
 
+/// The selector of the swizzled method.
+@property(nonatomic, readonly) SEL selector;
+
 /**
  Returns the original implementation of the swizzled method.
 
@@ -151,9 +154,6 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
  @return A function pointer to the original implementation of the swizzled method.
  */
 - (SentrySwizzleOriginalIMP)getOriginalImplementation;
-
-/// The selector of the swizzled method.
-@property(nonatomic, readonly) SEL selector;
 
 @end
 

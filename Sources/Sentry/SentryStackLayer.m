@@ -15,6 +15,8 @@
 
 @implementation SentryStackLayer
 
+@synthesize client = _client;
+@synthesize scope = _scope;
 
 @end
 

@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryUser
 
+@synthesize userId = _userId;
+@synthesize email = _email;
+@synthesize username = _username;
+@synthesize extra = _extra;
+
 - (instancetype)initWithUserId:(NSString *)userId {
     self = [super init];
     if (self) {

@@ -28,6 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryContext
 
+@synthesize osContext = _osContext;
+@synthesize deviceContext = _deviceContext;
+@synthesize appContext = _appContext;
+@synthesize otherContexts = _otherContexts;
+
 - (instancetype)init {
     return [super init];
 }

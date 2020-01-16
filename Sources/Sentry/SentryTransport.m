@@ -51,7 +51,13 @@
 
 @implementation SentryTransport
 
+@synthesize shouldQueueEvent = _shouldQueueEvent;
+@synthesize lastEvent = _lastEvent;
 @synthesize maxEvents = _maxEvents;
+@synthesize maxBreadcrumbs = _maxBreadcrumbs;
+@synthesize fileManager = _fileManager;
+@synthesize requestManager = _requestManager;
+@synthesize options = _options;
 
 - (id)initWithOptions:(SentryOptions *)options {
   if (self = [super init]) {
@@ -124,7 +130,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)setupQueueing {
-    self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event __unused, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error __unused) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the request completes successfully or fails,
         // the response parameter contains that information.

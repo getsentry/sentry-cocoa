@@ -36,6 +36,9 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <mach/mach.h>
+
+bool sentrycrashcpu_i_fillState(const thread_t thread, const thread_state_t state, const thread_state_flavor_t flavor, const mach_msg_type_number_t stateCount);
 
 /** Get the current CPU architecture.
  *

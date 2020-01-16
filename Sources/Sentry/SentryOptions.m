@@ -22,6 +22,19 @@
 
 @implementation SentryOptions
 
+@synthesize dsn = _dsn;
+@synthesize debug = _debug;
+@synthesize logLevel = _logLevel;
+@synthesize releaseName = _releaseName;
+@synthesize dist = _dist;
+@synthesize environment = _environment;
+@synthesize enabled = _enabled;
+@synthesize maxBreadcrumbs = _maxBreadcrumbs;
+@synthesize beforeSend = _beforeSend;
+@synthesize integrations = _integrations;
+@synthesize sampleRate = _sampleRate;
+
+
 + (NSArray<NSString *>*)defaultIntegrations {
     return @[
         @"SentryCrashIntegration",
@@ -31,7 +44,7 @@
 }
 
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error {
+                      didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     self = [super init];
     if (self) {
         [self validateOptions:options didFailWithError:error];
@@ -45,15 +58,18 @@
 /**
  populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options
-       didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
+       didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
         self.enabled = @NO;
         [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
-        return;
+        return false;
     }
     
     self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
+    if (nil != error && nil != *error) {
+        return false;
+    }
 
     if (nil != [options objectForKey:@"debug"]) {
         self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
@@ -109,6 +125,7 @@
     } else {
         self.sampleRate = sampleRate;
     }
+    return true;
 }
 
 @end

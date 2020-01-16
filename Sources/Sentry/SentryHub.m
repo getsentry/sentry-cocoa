@@ -29,10 +29,12 @@
 @property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
 @property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
-
 @end
 
 @implementation SentryHub
+
+@synthesize stack = _stack;
+@synthesize installedIntegrations = _installedIntegrations;
 
 - (instancetype)init {
     if (self = [super init]) {

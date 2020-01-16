@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryQueueableRequestManager
 
+
+@synthesize queue = _queue;
+@synthesize session = _session;
+
 - (instancetype)initWithSession:(NSURLSession *)session {
     self = [super init];
     if (self) {

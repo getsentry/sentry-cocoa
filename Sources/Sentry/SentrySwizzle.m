@@ -31,6 +31,9 @@ typedef IMP (^SentrySwizzleImpProvider)(void);
 
 @implementation SentrySwizzleInfo
 
+@synthesize selector = _selector;
+@synthesize impProviderBlock = _impProviderBlock;
+
 - (SentrySwizzleOriginalIMP)getOriginalImplementation {
     NSAssert(_impProviderBlock, nil);
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.

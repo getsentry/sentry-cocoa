@@ -33,6 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryRequestOperation
 
+@synthesize task = _task;
+@synthesize request = _request;
+
 - (instancetype)initWithSession:(NSURLSession *)session request:(NSURLRequest *)request
               completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
     self = [super init];

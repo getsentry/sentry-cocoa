@@ -51,6 +51,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryScope
 
+@synthesize user = _user;
+@synthesize tags = _tags;
+@synthesize extra = _extra;
+@synthesize context = _context;
+@synthesize breadcrumbs = _breadcrumbs;
+
 #pragma mark Initializer
 
 - (instancetype)init {

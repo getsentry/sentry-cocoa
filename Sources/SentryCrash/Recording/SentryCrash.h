@@ -24,12 +24,19 @@
 // THE SOFTWARE.
 //
 
+#if __has_include(<Sentry/Sentry.h>)
 
-#import <Foundation/Foundation.h>
+#import <Sentry/SentryCrashReportWriter.h>
+#import <Sentry/SentryCrashReportFilter.h>
+#import <Sentry/SentryCrashMonitorType.h>
+
+#else
 
 #import "SentryCrashReportWriter.h"
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashMonitorType.h"
+
+#endif
 
 typedef enum
 {

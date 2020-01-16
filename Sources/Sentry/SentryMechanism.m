@@ -18,6 +18,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMechanism
 
+@synthesize type = _type;
+@synthesize desc = _desc;
+@synthesize data = _data;
+@synthesize handled = _handled;
+@synthesize helpLink = _helpLink;
+@synthesize meta = _meta;
+
 - (instancetype)initWithType:(NSString *)type {
     self = [super init];
     if (self) {

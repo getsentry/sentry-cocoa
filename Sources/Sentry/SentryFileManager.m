@@ -40,6 +40,13 @@ NSInteger const defaultMaxBreadcrumbs = 200;
 
 @implementation SentryFileManager
 
+@synthesize maxEvents = _maxEvents;
+@synthesize maxBreadcrumbs = _maxBreadcrumbs;
+@synthesize sentryPath = _sentryPath;
+@synthesize breadcrumbsPath = _breadcrumbsPath;
+@synthesize eventsPath = _eventsPath;
+@synthesize currentFileCounter = _currentFileCounter;
+
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error {
     self = [super init];
     if (self) {

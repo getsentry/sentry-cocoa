@@ -36,6 +36,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
 
+@synthesize eventId = _eventId;
+@synthesize message = _message;
+@synthesize timestamp = _timestamp;
+@synthesize startTimestamp = _startTimestamp;
+@synthesize level = _level;
+@synthesize platform = _platform;
+@synthesize logger = _logger;
+@synthesize serverName = _serverName;
+@synthesize releaseName = _releaseName;
+@synthesize dist = _dist;
+@synthesize environment = _environment;
+@synthesize transaction = _transaction;
+@synthesize type = _type;
+@synthesize tags = _tags;
+@synthesize extra = _extra;
+@synthesize sdk = _sdk;
+@synthesize modules = _modules;
+@synthesize fingerprint = _fingerprint;
+@synthesize user = _user;
+@synthesize context = _context;
+@synthesize threads = _threads;
+@synthesize exceptions = _exceptions;
+@synthesize stacktrace = _stacktrace;
+@synthesize debugMeta = _debugMeta;
+@synthesize breadcrumbsSerialized = _breadcrumbsSerialized;
+@synthesize infoDict = _infoDict;
+@synthesize json = _json;
+
+
 - (instancetype)initWithLevel:(enum SentrySeverity)level {
     self = [super init];
     if (self) {

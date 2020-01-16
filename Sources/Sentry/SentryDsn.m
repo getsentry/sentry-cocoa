@@ -28,7 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDsn
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
+@synthesize url = _url;
+
+- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     self = [super init];
     if (self) {
         self.url = [self convertDsnString:dsnString didFailWithError:error];
@@ -50,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
     return output;
 }
 
-- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     NSString *trimmedDsnString = [dsnString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:trimmedDsnString];

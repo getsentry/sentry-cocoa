@@ -18,6 +18,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryFrame
 
+@synthesize symbolAddress = _symbolAddress;
+@synthesize fileName = _fileName;
+@synthesize function = _function;
+@synthesize module = _module;
+@synthesize package = _package;
+@synthesize imageAddress = _imageAddress;
+@synthesize platform = _platform;
+@synthesize instructionAddress = _instructionAddress;
+@synthesize lineNumber = _lineNumber;
+@synthesize columnNumber = _columnNumber;
+
 - (instancetype)init {
     self = [super init];
     if (self) {

@@ -47,7 +47,7 @@
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                                                     object:nil
                                                      queue:nil
-                                                usingBlock:^(NSNotification *notification) {
+                                                usingBlock:^(NSNotification *notification __unused) {
                                                     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
                                                     crumb.type = @"system";
                                                     crumb.message = @"Memory Warning";

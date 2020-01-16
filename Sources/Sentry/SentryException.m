@@ -24,6 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryException
 
+@synthesize value = _value;
+@synthesize type = _type;
+@synthesize mechanism = _mechanism;
+@synthesize module = _module;
+@synthesize userReported = _userReported;
+@synthesize thread = _thread;
+
 - (instancetype)initWithValue:(NSString *)value type:(NSString *)type {
     self = [super init];
     if (self) {

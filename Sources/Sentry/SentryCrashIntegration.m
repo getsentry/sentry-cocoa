@@ -29,6 +29,8 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryCrashIntegration
 
+@synthesize options = _options;
+
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options {
     self.options = options;
     NSError *error = nil;
@@ -37,7 +39,7 @@ static SentryInstallation *installation = nil;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-- (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
+- (BOOL)startCrashHandlerWithError:(NSError *_Nullable __autoreleasing *_Nullable)error {
     [SentryLog logWithMessage:@"SentryCrashHandler started" andLevel:kSentryLogLevelDebug];
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{

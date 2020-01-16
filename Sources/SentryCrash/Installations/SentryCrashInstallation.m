@@ -141,7 +141,9 @@ static void crashCallback(const SentryCrashReportWriter* writer)
     }
 
     NSError* error = nil;
-    NSData* jsonData = [SentryCrashJSONCodec encode:value options:SentryCrashJSONEncodeOptionPretty | SentryCrashJSONEncodeOptionSorted error:&error];
+    NSData* jsonData = [SentryCrashJSONCodec encode:value
+                                            options:(SentryCrashJSONEncodeOption)(SentryCrashJSONEncodeOptionPretty | SentryCrashJSONEncodeOptionSorted)
+                                              error:&error];
     if(jsonData == nil)
     {
         SentryCrashLOG_ERROR(@"Could not set value %@ for property %@: %@", value, self.key, error);

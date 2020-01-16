@@ -18,6 +18,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDebugMeta
 
+
+@synthesize uuid = _uuid;
+@synthesize type = _type;
+@synthesize cpuType = _cpuType;
+@synthesize cpuSubType = _cpuSubType;
+@synthesize name = _name;
+@synthesize imageSize = _imageSize;
+@synthesize imageVmAddress = _imageVmAddress;
+@synthesize imageAddress = _imageAddress;
+@synthesize majorVersion = _majorVersion;
+@synthesize minorVersion = _minorVersion;
+@synthesize revisionVersion = _revisionVersion;
+
 - (instancetype)init {
     return [super init];
 }

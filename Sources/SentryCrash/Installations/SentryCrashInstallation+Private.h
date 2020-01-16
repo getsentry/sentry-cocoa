@@ -25,7 +25,15 @@
 //
 
 
+
+#if __has_include(<Sentry/Sentry.h>)
+
+#import <Sentry/SentryCrashInstallation.h>
+#else
+
 #import "SentryCrashInstallation.h"
+#endif
+
 
 
 /** Implement a property to be used as a "key". */

@@ -48,6 +48,15 @@
 
 @implementation SentryCrashReportConverter
 
+@synthesize userContext = _userContext;
+@synthesize report = _report;
+@synthesize crashedThreadIndex = _crashedThreadIndex;
+@synthesize exceptionContext = _exceptionContext;
+@synthesize binaryImages = _binaryImages;
+@synthesize threads = _threads;
+@synthesize systemContext = _systemContext;
+@synthesize diagnosis = _diagnosis;
+
 static inline NSString *hexAddress(NSNumber *value) {
     return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }

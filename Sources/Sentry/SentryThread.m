@@ -20,6 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryThread
 
+@synthesize threadId = _threadId;
+@synthesize name = _name;
+@synthesize stacktrace = _stacktrace;
+@synthesize crashed = _crashed;
+@synthesize current = _current;
+
 - (instancetype)initWithThreadId:(NSNumber *)threadId {
     self = [super init];
     if (self) {

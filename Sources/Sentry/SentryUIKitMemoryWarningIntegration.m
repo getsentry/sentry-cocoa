@@ -35,6 +35,8 @@
 
 @implementation SentryUIKitMemoryWarningIntegration
 
+@synthesize options = _options;
+
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options {
     self.options = options;
     [self trackMemoryPressureAsEvent];
@@ -48,7 +50,7 @@
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                                                     object:nil
                                                      queue:nil
-                                                usingBlock:^(NSNotification *notification) {
+                                                usingBlock:^(NSNotification *notification __unused) {
                                                     [SentrySDK captureEvent:event];
                                                 }];
 #else

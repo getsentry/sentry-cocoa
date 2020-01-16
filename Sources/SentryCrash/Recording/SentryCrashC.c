@@ -61,7 +61,7 @@ static volatile bool g_installed = 0;
 static bool g_shouldAddConsoleLogToReport = false;
 static bool g_shouldPrintPreviousLog = false;
 static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
-static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
+static SentryCrashMonitorType g_monitoring = (SentryCrashMonitorType)SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 
 

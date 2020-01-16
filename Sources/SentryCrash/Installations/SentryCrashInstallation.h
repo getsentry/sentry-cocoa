@@ -24,10 +24,16 @@
 // THE SOFTWARE.
 //
 
+#if __has_include(<Sentry/Sentry.h>)
 
-#import <Foundation/Foundation.h>
+#import <Sentry/SentryCrashReportFilter.h>
+#import <Sentry/SentryCrashReportWriter.h>
+
+#else
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
+#endif
+
 
 
 /**
