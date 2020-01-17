@@ -11,6 +11,7 @@
 #import "SentryContext.h"
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryMeta.h"
 
 @interface SentryInterfacesTests : XCTestCase
 

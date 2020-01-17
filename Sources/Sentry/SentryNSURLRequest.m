@@ -16,6 +16,7 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/NSData+SentryCompression.h>
 #import <Sentry/SentrySDK.h>
+#import <Sentry/SentryMeta.h>
 
 #else
 #import "SentryDsn.h"
@@ -26,6 +27,7 @@
 #import "SentryLog.h"
 #import "NSData+SentryCompression.h"
 #import "SentrySDK.h"
+#import "SentryMeta.h"
 
 #endif
 

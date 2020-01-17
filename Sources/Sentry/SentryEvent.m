@@ -18,6 +18,7 @@
 #import <Sentry/SentryDebugMeta.h>
 #import <Sentry/NSDate+SentryExtras.h>
 #import <Sentry/NSDictionary+SentrySanitize.h>
+#import <Sentry/SentryMeta.h>
 
 #else
 #import "SentryEvent.h"
@@ -30,6 +31,7 @@
 #import "SentryContext.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryMeta.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
