@@ -305,7 +305,7 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 
     int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
     char* stringBuffer = malloc((unsigned)bufferLength);
-    if(CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
+    if(stringBuffer != NULL && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
     {
         writeToLog(stringBuffer);
     }
@@ -315,7 +315,10 @@ void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
     }
     writeToLog("\n");
 
-    free(stringBuffer);
+    if(stringBuffer != NULL)
+    {
+        free(stringBuffer);
+    }
     CFRelease(entry);
 }
 
