@@ -16,6 +16,7 @@
 #import <Sentry/SentryLog.h>
 #import <Sentry/NSData+SentryCompression.h>
 #import <Sentry/SentrySDK.h>
+#import <Sentry/SentryMeta.h>
 
 #else
 #import "SentryDsn.h"
@@ -26,6 +27,7 @@
 #import "SentryLog.h"
 #import "NSData+SentryCompression.h"
 #import "SentrySDK.h"
+#import "SentryMeta.h"
 
 #endif
 
@@ -119,7 +121,7 @@ static NSString *newHeaderPart(NSString *key, id value) {
 static NSString *newAuthHeader(NSURL *url) {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryClient.versionString])];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryMeta.versionString])];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger) [[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {

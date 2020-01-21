@@ -11,6 +11,7 @@
 #import "SentryContext.h"
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryMeta.h"
 
 @interface SentryInterfacesTests : XCTestCase
 
@@ -103,7 +104,7 @@
                                  @"platform": @"cocoa",
                                  @"release": @"a-b",
                                  @"dist": @"c",
-                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
 
@@ -113,7 +114,7 @@
                                  @"event_id": event2.eventId,
                                  @"level": @"info",
                                  @"platform": @"cocoa",
-                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event2 serialize], serialized2);
 
@@ -349,7 +350,7 @@
                                  @"platform": @"cocoa",
                                  @"release": @"a-b",
                                  @"dist": @"c",
-                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString, @"integrations": @[@"react-native"]},
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString, @"integrations": @[@"react-native"]},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
 
@@ -371,7 +372,7 @@
                                  @"platform": @"cocoa",
                                  @"release": @"a-b",
                                  @"dist": @"c",
-                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString, @"integrations": @[@"react-native"]},
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString, @"integrations": @[@"react-native"]},
                                  @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event serialize], serialized);
 

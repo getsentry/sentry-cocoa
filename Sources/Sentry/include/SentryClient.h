@@ -30,16 +30,6 @@ NS_SWIFT_NAME(Client)
 @interface SentryClient : NSObject
 SENTRY_NO_INIT
 
-/**
- * Return a version string e.g: 1.2.3 (3)
- */
-@property(nonatomic, class, readonly, copy) NSString *versionString;
-
-/**
- * Return a string sentry-cocoa
- */
-@property(nonatomic, class, readonly, copy) NSString *sdkName;
-
 @property(nonatomic, strong) SentryOptions *options;
 
 /**

@@ -457,7 +457,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //                                     @"platform": @"cocoa",
 //                                     @"release": @"a-b",
 //                                     @"dist": @"c",
-//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
 //                                     @"tags": @{@"a": @"b"},
 //                                     @"timestamp": [date sentry_toIso8601String]};
 //        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
@@ -505,7 +505,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //                                     @"platform": @"cocoa",
 //                                     @"release": @"a-b",
 //                                     @"dist": @"c",
-//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
 //                                     @"tags": @{@"a": @"b", @"1": @"2"},
 //                                     @"timestamp": [date sentry_toIso8601String]};
 //        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);
@@ -558,7 +558,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //                                     @"platform": @"cocoa",
 //                                     @"release": @"a-b",
 //                                     @"dist": @"c",
-//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
+//                                     @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
 //                                     @"tags": @{@"a": @"1"},
 //                                     @"timestamp": [date sentry_toIso8601String]};
 //        XCTAssertEqualObjects([self.client.lastEvent serialize], serialized);

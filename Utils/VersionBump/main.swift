@@ -6,7 +6,7 @@ let fromVersionFile = "./Sentry.podspec"
 
 let files = [
     "./Sentry.podspec",
-    "./Sources/Sentry/SentryClient.m",
+    "./Sources/Sentry/SentryMeta.m",
     "./Sources/Configuration/Sentry.xcconfig"
 ]
 

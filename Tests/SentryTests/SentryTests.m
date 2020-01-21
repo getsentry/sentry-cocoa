@@ -10,6 +10,7 @@
 #import <Sentry/Sentry.h>
 #import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryMeta.h"
 
 @interface SentryBreadcrumbTracker (Private)
 
@@ -26,7 +27,7 @@
 - (void)testVersion {
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
     NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
-    XCTAssert([version isEqualToString:SentryClient.versionString]);
+    XCTAssert([version isEqualToString:SentryMeta.versionString]);
 }
 
 - (void)testSharedClient {
