@@ -24,10 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryIntegrationProtocol <NSObject>
 
 /**
- * installs the integration and returns YES if no error(s) occured
- * NOTE: SentryOptions argument isn't always needed by the actual class implementing this protocol.
+ * installs the integration and returns YES if successful.
  */
 - (BOOL)installWithOptions:(SentryOptions *)options;
+
+@optional
+- (SentryEvent *)processEvent:(SentryEvent *)event;
 
 @end
 

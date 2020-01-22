@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
     // This is important here, since we probably use __sentry internal extras before
     [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
-    
+
     return serializedData;
 }
 
@@ -157,11 +157,8 @@ NS_ASSUME_NONNULL_BEGIN
     
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
     
-    if (nil == self.context) {
-        self.context = [[SentryContext alloc] init];
-    }
     [serializedData setValue:[self.context serialize] forKey:@"contexts"];
-    
+
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];

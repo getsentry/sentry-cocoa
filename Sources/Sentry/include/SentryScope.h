@@ -63,7 +63,7 @@ NS_SWIFT_NAME(Scope)
 - (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
 - (NSDictionary<NSString *, id> *) serialize;
 
-- (void)applyToEvent:(SentryEvent *)event;
+- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event;
 
 /**
  * sets context values which will overwrite SentryEvent.context when event is

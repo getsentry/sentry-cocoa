@@ -22,6 +22,7 @@
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryContext.h>
+#import <Sentry/SentryGlobalEventProcessor.h>
 #else
 #import "SentryScope.h"
 #import "SentryLog.h"
@@ -37,6 +38,7 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryContext.h"
+#import "SentryGlobalEventProcessor.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -99,7 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (void)applyToEvent:(SentryEvent *)event {
+- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event {
+    NSLog(@"applyToEvent");
     if (nil != self.tags) {
         if (nil == event.tags) {
             event.tags = self.tags;
@@ -134,14 +137,33 @@ NS_ASSUME_NONNULL_BEGIN
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
 
+    event = [self callEventProcessors:event];
+    if (nil == event) {
+        return nil;
+    }
+
     // add context to event.context.otherContexts
     NSMutableDictionary *newOtherContexts = [[NSMutableDictionary alloc] initWithDictionary:event.context.otherContexts];
     [newOtherContexts addEntriesFromDictionary:self.context];
     event.context.otherContexts = [newOtherContexts copy];
+    return event;
 }
 
 - (void)setContextValue:(id)value forKey:(NSString *)key {
     [self.context setValue:value forKey:key];
+}
+
+- (SentryEvent *)callEventProcessors:(SentryEvent *)event {
+    NSLog(@"callEventProcessors");
+    SentryEvent *newEvent = event;
+
+    NSLog(@"SentryGlobalEventProcessor.shared.processors %d", SentryGlobalEventProcessor.shared.processors.count);
+
+    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
+        NSLog(@"callEventProcessors looop");
+        newEvent = processor(newEvent);
+    }
+    return newEvent;
 }
 
 @end

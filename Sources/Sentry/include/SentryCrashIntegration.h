@@ -21,6 +21,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCrashIntegration : NSObject <SentryIntegrationProtocol>
 
 /**
+ * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
+ *
+ * @return NSDictionary system info.
+ */
++ (NSDictionary *)systemInfo;
+
+/**
  * This function tries to start the SentryCrash handler, return YES if successfully started
  * otherwise it will return false and set error
  *
@@ -54,7 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
            terminateProgram:(BOOL)terminateProgram;
 
 /**
- * Returns true if the app crashed before launching now
+ * Tells if app crashed last time it tried to launch.
+ * @return BOOL
  */
 - (BOOL)crashedLastLaunch;
 

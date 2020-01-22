@@ -23,6 +23,10 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryTransport.h>
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryIntegrationProtocol.h>
+#import <Sentry/SentryGlobalEventProcessor.h>
+
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
@@ -39,6 +43,9 @@
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryTransport.h"
+#import "SentrySDK.h"
+#import "SentryIntegrationProtocol.h"
+#import "SentryGlobalEventProcessor.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -102,6 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope {
     NSParameterAssert(event);
+    NSLog(@"prepareEvent");
     
     if (NO == [self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SDK is disabled, will not do anything" andLevel:kSentryLogLevelDebug];
@@ -112,8 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
         return nil;
     }    
-    
-    [scope applyToEvent:event];
+
     
     NSString * environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
@@ -130,13 +137,13 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = dist;
     }
 
+    // TODO fetzig: this might be the wrong place for beforeSend(...)
     if (nil != self.options.beforeSend) {
-        return self.options.beforeSend(event);
+        event = self.options.beforeSend(event);
     }
-    
-    return event;
-}
 
+    return [scope applyToEvent:event];
+}
 
 @end
 
