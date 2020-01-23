@@ -10,7 +10,6 @@
 ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20tvOS%20%7C%20OSX-333333.svg)
 ![langauges](https://img.shields.io/badge/languages-Swift%20%7C%20ObjC-333333.svg)
 [![CocoaPods Shield](https://img.shields.io/cocoapods/v/Sentry.svg)](https://cocoapods.org/pods/Sentry)
-[![CocoaPods Shield](https://img.shields.io/cocoapods/dt/Sentry.svg)](https://cocoapods.org/pods/Sentry)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![codecov](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)
 
