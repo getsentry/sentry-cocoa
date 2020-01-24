@@ -466,8 +466,8 @@
 		7DC27EC623997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC27EC323997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.h */; };
 		7DC27EC723997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC27EC423997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m */; };
 		7DC27EC823997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC27EC423997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m */; };
-		7DC83100239826280043DD9A /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */; };
-		7DC83101239826280043DD9A /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */; };
+		7DC83100239826280043DD9A /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7DC83101239826280043DD9A /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7DC8310A2398283C0043DD9A /* SentryCrashIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC831082398283C0043DD9A /* SentryCrashIntegration.h */; };
 		7DC8310B2398283C0043DD9A /* SentryCrashIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC831082398283C0043DD9A /* SentryCrashIntegration.h */; };
 		7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC831092398283C0043DD9A /* SentryCrashIntegration.m */; };
