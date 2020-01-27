@@ -39,7 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self fixSystemName];
     [serializedData setValue:self.appContext forKey:@"app"];
     [serializedData setValue:self.deviceContext forKey:@"device"];
-    [serializedData addEntriesFromDictionary:self.otherContexts];
+
+    // merge context added by user `customContext` into context dict
+    [serializedData addEntriesFromDictionary:self.customContext];
 
     return serializedData;
 }

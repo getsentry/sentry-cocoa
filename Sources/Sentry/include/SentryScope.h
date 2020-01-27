@@ -14,12 +14,14 @@
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentrySerializable.h>
+#import <Sentry/SentryContext.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
+#import "SentryContext.h"
 #endif
 
 @class SentryUser;
@@ -50,7 +52,7 @@ NS_SWIFT_NAME(Scope)
  * used to manipulate values in SentryEvent.context
  * keys have to match SentryContext properties.
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable context;
+@property(nonatomic, strong) SentryContext *_Nullable context;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
