@@ -11,7 +11,7 @@
 [![CocoaPods compadible](https://img.shields.io/cocoapods/v/Sentry.svg)](https://cocoapods.org/pods/Sentry)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
-[![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)](http://cocoadocs.org/docsets/Sentry)
+![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)
 [![Twitter](https://img.shields.io/badge/twitter-@getsentry-blue.svg?style=flat)](http://twitter.com/getsentry)
 
 
