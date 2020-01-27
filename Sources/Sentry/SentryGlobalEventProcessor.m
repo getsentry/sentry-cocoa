@@ -6,7 +6,15 @@
 //  Copyright © 2020 Sentry. All rights reserved.
 //
 
+#if __has_include(<Sentry/Sentry.h>)
+
+#import <Sentry/SentryGlobalEventProcessor.h>
+#import <Sentry/SentryLog.h>
+
+#else
 #import "SentryGlobalEventProcessor.h"
+#import "SentryLog.h"
+#endif
 
 @implementation SentryGlobalEventProcessor
 
@@ -29,9 +37,8 @@
 }
 
 - (BOOL)addEventProcessor:(SentryEventProcessor)newProcessor {
-    NSLog(@"addEventProcessor before %lu", (unsigned long)self.processors.count);
     [self.processors addObject:newProcessor];
-    NSLog(@"addEventProcessor after %lu", (unsigned long)self.processors.count);
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryGlobalEventProcessor addEventProcessor: %lu", self.processors.count] andLevel:kSentryLogLevelDebug];
     return YES;
 }
 

@@ -48,7 +48,7 @@ static SentryInstallation *installation = nil;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options {
-    NSLog(@"installWithOptions");
+    [SentryLog logWithMessage:@"SentryCrashIntegration attempts to install" andLevel:kSentryLogLevelDebug];
     self.options = options;
     NSError *error = nil;
     BOOL isInstalled = [self startCrashHandlerWithError:&error];
@@ -61,7 +61,7 @@ static SentryInstallation *installation = nil;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 - (BOOL)startCrashHandlerWithError:(NSError *_Nullable *_Nullable)error {
-    [SentryLog logWithMessage:@"SentryCrashHandler started" andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"SentryCrashIntegration installing" andLevel:kSentryLogLevelDebug];
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
         installation = [[SentryInstallation alloc] init];
@@ -102,11 +102,12 @@ static SentryInstallation *installation = nil;
 }
 
 - (void)addEventProcessor {
-    NSLog(@"addEventProcessor");
+    [SentryLog logWithMessage:@"SentryCrashIntegration addEventProcessor" andLevel:kSentryLogLevelDebug];
     SentryEventProcessor eventProcessor = ^SentryEvent * _Nullable(SentryEvent * _Nonnull event) {
 
         // skip early if integration (and therefore this event processor) isn't active on current client
         if (NO == [SentrySDK.currentHub isIntegrationActiveInBoundClient:@"SentryCrashIntegration"]) {
+            [SentryLog logWithMessage:@"SentryCrashIntegration event processor exits early! Triggered but current client has no SentryCrashIntegration installed." andLevel:kSentryLogLevelError];
             return event;
         }
 
@@ -183,7 +184,6 @@ static SentryInstallation *installation = nil;
 
         event.context.appContext = appData;
 
-        NSLog(@"SentryCrashIntegration eventProcessor DONE");
         return event;
     };
 

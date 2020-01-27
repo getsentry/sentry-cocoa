@@ -102,7 +102,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event {
-    NSLog(@"applyToEvent");
     if (nil != self.tags) {
         if (nil == event.tags) {
             event.tags = self.tags;
@@ -142,10 +141,6 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    // add context to event.context.otherContexts
-    NSMutableDictionary *newOtherContexts = [[NSMutableDictionary alloc] initWithDictionary:event.context.otherContexts];
-    [newOtherContexts addEntriesFromDictionary:self.context];
-    event.context.otherContexts = [newOtherContexts copy];
     return event;
 }
 
@@ -154,14 +149,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryEvent *)callEventProcessors:(SentryEvent *)event {
-    NSLog(@"callEventProcessors");
     SentryEvent *newEvent = event;
 
-    NSLog(@"SentryGlobalEventProcessor.shared.processors %d", SentryGlobalEventProcessor.shared.processors.count);
-
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
-        NSLog(@"callEventProcessors looop");
+
         newEvent = processor(newEvent);
+
+        if (nil == newEvent) {
+            [SentryLog logWithMessage:@"SentryScope callEventProcessors: an event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
+            break;
+        }
     }
     return newEvent;
 }

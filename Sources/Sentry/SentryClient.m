@@ -109,7 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope {
     NSParameterAssert(event);
-    NSLog(@"prepareEvent");
     
     if (NO == [self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SDK is disabled, will not do anything" andLevel:kSentryLogLevelDebug];

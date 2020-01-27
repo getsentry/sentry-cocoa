@@ -15,6 +15,7 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryHub.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
+#import <Sentry/SentryLog.h>
 #else
 #import "SentrySDK.h"
 #import "SentryClient.h"
@@ -23,6 +24,7 @@
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryLog.h"
 #endif
 
 @interface SentrySDK ()
@@ -58,7 +60,7 @@ static SentryHub * currentHub;
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
-        NSLog(@"%@", error);
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentrySDK startWithOptionsDict: ERROR: %@", error] andLevel:kSentryLogLevelDebug];
     } else {
         [SentrySDK startWithOptions:options];
     }
