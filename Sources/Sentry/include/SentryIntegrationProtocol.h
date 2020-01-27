@@ -28,9 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)installWithOptions:(SentryOptions *)options;
 
-@optional
-- (SentryEvent *)processEvent:(SentryEvent *)event;
-
 @end
 
 NS_ASSUME_NONNULL_END
