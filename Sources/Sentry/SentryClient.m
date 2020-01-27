@@ -89,14 +89,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
-        [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+
+        if (nil != self.options.beforeSend) {
+            event = self.options.beforeSend(event);
+        }
+
+        if (nil != event) {
+            [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+        }
     }
 }
 
 /**
-* returns BOOL chance of YES is defined by sampleRate.
-* if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
-*/
+ * returns BOOL chance of YES is defined by sampleRate.
+ * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
+ */
 - (BOOL)checkSampleRate:(NSNumber *)sampleRate {
     if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
         return YES;
@@ -136,12 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = dist;
     }
 
-    // TODO fetzig: this might be the wrong place for beforeSend(...)
-    if (nil != self.options.beforeSend) {
-        event = self.options.beforeSend(event);
-    }
+    event = [scope applyToEvent:event];
 
-    return [scope applyToEvent:event];
+    return event;
 }
 
 @end
