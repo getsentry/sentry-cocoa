@@ -12,7 +12,6 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
 [![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)](http://cocoadocs.org/docsets/Sentry)
-![langauges](https://img.shields.io/badge/languages-Swift%20%7C%20ObjC-333333.svg)
 [![Twitter](https://img.shields.io/badge/twitter-@getsentry-blue.svg?style=flat)](http://twitter.com/getsentry)
 
 
