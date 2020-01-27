@@ -41,7 +41,11 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryCrashIntegration
 
-
+/**
+ * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
+ *
+ * @return NSDictionary system info.
+ */
 + (NSDictionary *)systemInfo {
     static NSDictionary *sharedInfo = nil;
     static dispatch_once_t onceToken;
@@ -108,9 +112,10 @@ static SentryInstallation *installation = nil;
 - (void)addEventProcessor {
     [SentryLog logWithMessage:@"SentryCrashIntegration addEventProcessor" andLevel:kSentryLogLevelDebug];
     SentryEventProcessor eventProcessor = ^SentryEvent * _Nullable(SentryEvent * _Nonnull event) {
+        NSString * integrationName = NSStringFromClass(SentryCrashIntegration.class);
 
         // skip early if integration (and therefore this event processor) isn't active on current client
-        if (NO == [SentrySDK.currentHub isIntegrationActiveInBoundClient:@"SentryCrashIntegration"]) {
+        if (NO == [SentrySDK.currentHub isIntegrationActiveInBoundClient:integrationName]) {
             [SentryLog logWithMessage:@"SentryCrashIntegration event processor exits early! Triggered but current client has no SentryCrashIntegration installed." andLevel:kSentryLogLevelError];
             return event;
         }
