@@ -46,6 +46,7 @@
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
 @property(nonatomic, weak) SentryOptions *options;
+@property(nonatomic, strong) NSDate *_Nullable rateLimitDeadline;
 
 @end
 
@@ -97,6 +98,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return;
     }
 
+    if ([self isRateLimitActive]) {
+        [SentryLog logWithMessage:@"SentryClient rate limit is active. event will be stored to send later." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     __block SentryTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // We check if we should leave the event locally stored and try to send it again later
@@ -119,11 +125,30 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }];
 }
 
+- (BOOL)isRateLimitActive {
+    if (nil == self.rateLimitDeadline) {
+        return NO;
+    }
+
+    NSDate * now = [NSDate date];
+    NSComparisonResult result = [now compare:self.rateLimitDeadline];
+
+    if (result == NSOrderedAscending) {
+        return YES;
+    } else {
+        self.rateLimitDeadline = nil;
+        return NO;
+    }
+
+    return NO;
+}
+
 - (void)setMaxEvents:(NSUInteger)maxEvents {
     self.fileManager.maxEvents = maxEvents;
 }
 
 - (void)setupQueueing {
+    __block SentryTransport *_self = self;
     self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the request completes successfully or fails,
@@ -134,11 +159,49 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             return YES;
         } else if ([response statusCode] == 429) {
             [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
+            [_self updateRateLimit:response];
             return YES;
         }
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
+}
+
+
+- (void)updateRateLimit:(NSHTTPURLResponse *)response {
+    self.rateLimitDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+}
+
+/**
+ * parses value of HTTP Header "Retry-After" which in most cases is sent in
+ * combination with HTTP status 429 Too Many Requests.
+ *
+ * Retry-After can hold seconds or a date. This date is used as the `rateLimitDeadline`.
+ *
+ * @return NSDate representation of Retry-After. nil if parsing was unsuccessful.
+ */
+- (NSDate * __nullable)parseRetryAfterHeader:(NSString *)retryAfterHeader {
+    if (nil == retryAfterHeader) {
+      return nil;
+    }
+
+    NSDate *now = [NSDate date];
+
+    // try to parse as integer (seconds)
+    double retryAfterSeconds = [retryAfterHeader doubleValue];
+
+    if (0 != retryAfterSeconds) {
+        [now dateByAddingTimeInterval:retryAfterSeconds];
+        return now;
+    }
+
+    // try to parse as date
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
+    NSDate *retryAfterDate = [dateFormatter dateFromString:retryAfterHeader];
+
+    // returns nil if parsing was unsuccessful
+    return retryAfterDate;
 }
 
 
