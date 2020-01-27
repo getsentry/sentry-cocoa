@@ -7,7 +7,6 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
-#import <UIKit/UIKit.h>
 #import <Sentry/SentryCrashIntegration.h>
 #import <Sentry/SentryInstallation.h>
 #import <Sentry/SentryOptions.h>
@@ -26,6 +25,11 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentrySDK.h"
 #endif
+
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
+
 
 static SentryInstallation *installation = nil;
 
