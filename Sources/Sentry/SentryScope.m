@@ -136,7 +136,10 @@ NS_ASSUME_NONNULL_BEGIN
         event.infoDict = [[NSBundle mainBundle] infoDictionary];
     }
 
+    event.context.customContext = self.context;
+
     event = [self callEventProcessors:event];
+
     if (nil == event) {
         return nil;
     }
@@ -145,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setContextValue:(id)value forKey:(NSString *)key {
-    [self.context.customContext setValue:value forKey:key];
+    [self.context setValue:value forKey:key];
 }
 
 - (SentryEvent *)callEventProcessors:(SentryEvent *)event {

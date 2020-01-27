@@ -49,10 +49,9 @@ NS_SWIFT_NAME(Scope)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
- * used to manipulate values in SentryEvent.context
- * keys have to match SentryContext properties.
+ * used to add values in event context.
  */
-@property(nonatomic, strong) SentryContext *_Nullable context;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable context;
 
 /**
  * Contains the breadcrumbs which will be sent with the event

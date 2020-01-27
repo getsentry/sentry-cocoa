@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.eventId = [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
         self.level = level;
         self.platform = @"cocoa";
+        self.context = [[SentryContext alloc] init];
     }
     return self;
 }
