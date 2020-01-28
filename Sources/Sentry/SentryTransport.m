@@ -46,7 +46,7 @@
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
 @property(nonatomic, weak) SentryOptions *options;
-@property(nonatomic, strong) NSDate *_Nullable rateLimitDeadline;
+@property(nonatomic, strong) NSDate *_Nullable radioSilenceDeadline;
 
 @end
 
@@ -79,6 +79,17 @@
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
+    // FIXME fetzig: these checks (enabled and radio silence) have been moved to the top of this method. check if this is correct.
+    if (![self.options.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
+    if ([self isRadioSilence]) {
+        [SentryLog logWithMessage:@"SentryClient radio silence. 'Rate Limit' of DNS reached. Event will be stored to send later." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     NSError *requestError = nil;
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                              andEvent:event
@@ -93,20 +104,15 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:@"SentryClient is disabled, event will be stored to send later." andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
-    if ([self isRateLimitActive]) {
-        [SentryLog logWithMessage:@"SentryClient rate limit is active. event will be stored to send later." andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
     __block SentryTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        // We check if we should leave the event locally stored and try to send it again later
+
+
+        // FIXME fetzig: response processing is inconsistent, see `sendAllStoredEvents`. here is shouldQueueEvent checked. in case of no response the event is stored/queued[sic!]. the opposite happens when sent via `sendAllStoredEvents`. this makes sense when thinking about it (don't retry more than once). but needs at least a comment. check this!
+
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
+            // don't need to queue this -> it most likely got sent
+            // thus we can remove the event from disk
             [_self.fileManager removeFileAtPath:storedEventPath];
         }
         if (nil == error) {
@@ -114,10 +120,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
                                                               object:nil
                                                             userInfo:[event serialize]];
-            // Send all stored events in background if the queue is ready
-            if ([self.options.enabled boolValue] && [_self.requestManager isReady]) {
-                [_self sendAllStoredEvents];
-            }
+            [_self sendAllStoredEvents];
         }
         if (completionHandler) {
             completionHandler(error);
@@ -125,18 +128,18 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }];
 }
 
-- (BOOL)isRateLimitActive {
-    if (nil == self.rateLimitDeadline) {
+- (BOOL)isRadioSilence {
+    if (nil == self.radioSilenceDeadline) {
         return NO;
     }
 
     NSDate * now = [NSDate date];
-    NSComparisonResult result = [now compare:self.rateLimitDeadline];
+    NSComparisonResult result = [now compare:self.radioSilenceDeadline];
 
     if (result == NSOrderedAscending) {
         return YES;
     } else {
-        self.rateLimitDeadline = nil;
+        self.radioSilenceDeadline = nil;
         return NO;
     }
 
@@ -157,9 +160,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // In case response is nil, we want to queue the event locally since this
             // indicates no internet connection
             return YES;
-        } else if ([response statusCode] == 429) {
-            [SentryLog logWithMessage:@"Rate limit reached, event will be stored and sent later" andLevel:kSentryLogLevelError];
-            [_self updateRateLimit:response];
+        } else if ([response statusCode] == 429) { // HTTP 429 Too Many Requests
+            [SentryLog logWithMessage:@"Rate limit exceeded, event will be stored and sent later" andLevel:kSentryLogLevelError];
+            [_self updateRadioSilenceDealine:response];
             return YES;
         }
         // In all other cases we don't want to retry sending it and just discard the event
@@ -168,39 +171,59 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 
-- (void)updateRateLimit:(NSHTTPURLResponse *)response {
-    self.rateLimitDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+/**
+ * When rate limit has been exceeded we updates the radio silence deadline and
+ * therefor activates radio silence for at least
+ * 60 seconds (default, see `defaultRadioSilenceDeadline`).
+ */
+- (void)updateRadioSilenceDealine:(NSHTTPURLResponse *)response {
+    if ([response statusCode] == 429) { // --> 429 only!
+        self.radioSilenceDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+    }
+}
+
+/**
+ * used if actual time/deadline couldn't be determinded.
+ */
+- (NSDate *)defaultRadioSilenceDeadline {
+    NSDate *now = [NSDate date];
+    return [now dateByAddingTimeInterval:60];
 }
 
 /**
  * parses value of HTTP Header "Retry-After" which in most cases is sent in
  * combination with HTTP status 429 Too Many Requests.
  *
- * Retry-After can hold seconds or a date. This date is used as the `rateLimitDeadline`.
+ * Retry-After value is a time-delta in seconds or a date.
+ * In every case this method computes the date aka. `radioSilenceDeadline`.
  *
- * @return NSDate representation of Retry-After. nil if parsing was unsuccessful.
+ * @return NSDate representation of Retry-After.
+ *         As fallback "now + 1 minute" is returned if parsing was unsuccessful.
  */
-- (NSDate * __nullable)parseRetryAfterHeader:(NSString *)retryAfterHeader {
-    if (nil == retryAfterHeader) {
-      return nil;
+- (NSDate *)parseRetryAfterHeader:(NSString * __nullable)retryAfterHeader {
+    if (nil == retryAfterHeader || 0 == [retryAfterHeader length]) {
+        return [self defaultRadioSilenceDeadline];
     }
 
     NSDate *now = [NSDate date];
 
-    // try to parse as integer (seconds)
+    // try to parse as double
     double retryAfterSeconds = [retryAfterHeader doubleValue];
-
+    NSLog(@"parseRetryAfterHeader 120 as string is this in double: %f", retryAfterSeconds);
     if (0 != retryAfterSeconds) {
         [now dateByAddingTimeInterval:retryAfterSeconds];
         return now;
     }
 
-    // try to parse as date
+    // parsing as seconds failed, try to parse as date
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
     NSDate *retryAfterDate = [dateFormatter dateFromString:retryAfterHeader];
 
-    // returns nil if parsing was unsuccessful
+    if (nil == retryAfterDate) {
+        // parsing as seconds and date failed
+        return [self defaultRadioSilenceDeadline];
+    }
     return retryAfterDate;
 }
 
@@ -210,14 +233,35 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
     [self.requestManager addRequest:request completionHandler:completionHandler];
 }
 
-- (void)sendAllStoredEvents {
+- (BOOL) isReadyForAllEventsUpload {
+    if (![self.options.enabled boolValue]) {
+        return NO;
+    }
+
+    if ([self isRadioSilence]) {
+        return NO;
+    }
 
     if (![self.requestManager isReady]) {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (void)sendAllStoredEvents {
+    if (![self isReadyForAllEventsUpload]) {
         return;
     }
     dispatch_group_t dispatchGroup = dispatch_group_create();
 
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
+
+        // NOTE: we could check for `isRadioSilence` to prevent more requests
+        //       but this makes little to no difference since requests have most
+        //       likely been triggered before the first response is processed.
+        //       Amount of events stored will in most cases not be very big.
+
         dispatch_group_enter(dispatchGroup);
 
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
@@ -236,6 +280,9 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
             }
             // We want to delete the event here no matter what (if we had an internet connection)
             // since it has been tried already
+
+            // FIXME fetzig: response processing is inconsistent, see `sendEvent`. check this!
+
             if (response != nil) {
                 [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
             }
