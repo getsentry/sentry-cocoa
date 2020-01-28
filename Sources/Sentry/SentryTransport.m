@@ -51,7 +51,7 @@
  * datetime until we keep radio silence. Populated when response has HTTP 429
  * and "Retry-After" header -> rate limit exceeded.
  */
-@property(nonatomic, strong) NSDate *_Nullable radioSilenceDeadline;
+@property(atomic, strong) NSDate *_Nullable radioSilenceDeadline;
 
 @end
 
@@ -184,7 +184,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)setupQueueing {
-    __block SentryTransport *_self = self;
     self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the
@@ -195,8 +194,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // this indicates no internet connection
             return YES;
         } else if ([response statusCode] == 429) { // HTTP 429 Too Many Requests
-            [SentryLog logWithMessage:@"Rate limit exceeded, event will be stored and sent later" andLevel:kSentryLogLevelError];
-            [_self updateRadioSilenceDealine:response];
+            [SentryLog logWithMessage:@"Rate limit exceeded, event will be stored and sent later" andLevel:kSentryLogLevelDebug];
             return YES;
         }
         // In all other cases we don't want to retry sending it and just discard the event
@@ -204,21 +202,36 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     };
 }
 
-- (void)  sendRequest:(SentryNSURLRequest *)request
-withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
-    [self.requestManager addRequest:request completionHandler:completionHandler];
+- (void) sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
+
+    __weak typeof(self) weakSelf = self;
+    [self.requestManager addRequest:request
+                  completionHandler:^(NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+
+        __strong typeof(self) strongSelf = weakSelf;
+        [strongSelf updateRadioSilenceDealine:response];
+        if (completionHandler) {
+            completionHandler(response, error);
+        }
+    }];
 }
 
-- (BOOL) isReadySendEvent {
+/**
+ * validation for `sendEvent:...`
+ *
+ * @return BOOL NO if options.enabled = false or rate limit exceeded
+ */
+- (BOOL)isReadySendEvent {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = fasle)" andLevel:kSentryLogLevelDebug];
-        return;
+        return NO;
     }
 
     if ([self isRadioSilence]) {
         [SentryLog logWithMessage:@"SentryClient radio silence. 'Rate Limit' of DNS reached." andLevel:kSentryLogLevelDebug];
-        return;
+        return NO;
     }
+    return YES;
 }
 
 /**
@@ -226,7 +239,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
  *
  * @return BOOL YES if ready to send requests.
  */
-- (BOOL) isReadySendAllStoredEvents {
+- (BOOL)isReadySendAllStoredEvents {
     if (![self isReadySendEvent]) {
         return NO;
     }
@@ -271,7 +284,7 @@ withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandle
 
     // try to parse as double/seconds
     double retryAfterSeconds = [retryAfterHeader doubleValue];
-    NSLog(@"parseRetryAfterHeader 120 as string is this in double: %f", retryAfterSeconds);
+    NSLog(@"parseRetryAfterHeader string '%@' to double: %f", retryAfterHeader, retryAfterSeconds);
     if (0 != retryAfterSeconds) {
         [now dateByAddingTimeInterval:retryAfterSeconds];
         return now;
