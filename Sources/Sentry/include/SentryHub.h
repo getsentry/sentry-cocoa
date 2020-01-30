@@ -14,16 +14,20 @@
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentryIntegrationProtocol.h>
 #else
 #import "SentryClient.h"
 #import "SentryScope.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
+#import "SentryIntegrationProtocol.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
+
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 /**
  Capture message / exception call into capture event
@@ -62,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(fetzig)
 //- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
 
+
+- (BOOL)isIntegrationActiveInBoundClient:(NSString *)integrationName;
 
 @end
 
