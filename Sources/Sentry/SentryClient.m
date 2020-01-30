@@ -23,6 +23,10 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryTransport.h>
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryIntegrationProtocol.h>
+#import <Sentry/SentryGlobalEventProcessor.h>
+
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
@@ -39,6 +43,9 @@
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryTransport.h"
+#import "SentrySDK.h"
+#import "SentryIntegrationProtocol.h"
+#import "SentryGlobalEventProcessor.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -82,14 +89,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
-        [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+
+        if (nil != self.options.beforeSend) {
+            event = self.options.beforeSend(event);
+        }
+
+        if (nil != event) {
+            [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+        }
     }
 }
 
 /**
-* returns BOOL chance of YES is defined by sampleRate.
-* if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
-*/
+ * returns BOOL chance of YES is defined by sampleRate.
+ * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate is 1.0)
+ */
 - (BOOL)checkSampleRate:(NSNumber *)sampleRate {
     if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
         return YES;
@@ -112,8 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
         return nil;
     }    
-    
-    [scope applyToEvent:event];
+
     
     NSString * environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
@@ -130,13 +143,10 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = dist;
     }
 
-    if (nil != self.options.beforeSend) {
-        return self.options.beforeSend(event);
-    }
-    
+    event = [scope applyToEvent:event];
+
     return event;
 }
-
 
 @end
 

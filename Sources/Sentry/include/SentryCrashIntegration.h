@@ -54,7 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
            terminateProgram:(BOOL)terminateProgram;
 
 /**
- * Returns true if the app crashed before launching now
+ * Tells if app crashed last time it tried to launch.
+ * @return BOOL
  */
 - (BOOL)crashedLastLaunch;
 

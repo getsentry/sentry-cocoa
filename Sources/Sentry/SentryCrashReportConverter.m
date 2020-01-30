@@ -91,7 +91,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
-    event.context = [self convertContext];
     
     event.releaseName = self.userContext[@"releaseName"];
     event.dist = self.userContext[@"dist"];
@@ -130,60 +129,6 @@ static inline NSString *hexAddress(NSNumber *value) {
         user.extra = self.userContext[@"user"][@"extra"];
     }
     return user;
-}
-
-- (SentryContext *)convertContext {
-    SentryContext *context = [[SentryContext alloc] init];
-
-    [self addOsContext:context];
-    [self addDeviceContext:context];
-    [self addAppContext:context];
-
-    return context;
-}
-
-- (void)addAppContext:(SentryContext *)context {
-    NSMutableDictionary *appContext = [NSMutableDictionary new];
-    [appContext setValue:self.systemContext[@"app_start_time"] forKey:@"app_start_time"];
-    [appContext setValue:self.systemContext[@"device_app_hash"] forKey:@"device_app_hash"];
-    [appContext setValue:self.systemContext[@"CFBundleIdentifier"] forKey:@"app_identifier"];
-    [appContext setValue:self.systemContext[@"CFBundleName"] forKey:@"app_name"];
-    [appContext setValue:self.systemContext[@"CFBundleVersion"] forKey:@"app_build"];
-    [appContext setValue:self.systemContext[@"CFBundleShortVersionString"] forKey:@"app_version"];
-    [appContext setValue:self.systemContext[@"CFBundleExecutablePath"] forKey:@"executable_path"];
-    [appContext setValue:self.systemContext[@"build_type"] forKey:@"build_type"];
-    context.appContext = appContext;
-}
-
-- (void)addDeviceContext:(SentryContext *)context {
-    NSMutableDictionary *deviceContext = [NSMutableDictionary new];
-    [deviceContext setValue:self.family forKey:@"family"];
-    [deviceContext setValue:self.systemContext[@"cpu_arch"] forKey:@"arch"];
-    [deviceContext setValue:self.systemContext[@"boot_time"] forKey:@"boot_time"];
-    [deviceContext setValue:self.systemContext[@"timezone"] forKey:@"time_zone"];
-    [deviceContext setValue:self.systemContext[@"memory"][@"size"] forKey:@"memory_size"];
-    [deviceContext setValue:self.systemContext[@"memory"][@"usable"] forKey:@"usable_memory"];
-    [deviceContext setValue:self.systemContext[@"memory"][@"free"] forKey:@"free_memory"];
-    [deviceContext setValue:self.systemContext[@"storage"] forKey:@"storage_size"];
-    [deviceContext setValue:self.systemContext[@"machine"] forKey:@"model"];
-    [deviceContext setValue:self.systemContext[@"model"] forKey:@"model_id"];
-    context.deviceContext = deviceContext;
-}
-
-- (void)addOsContext:(SentryContext *)context {
-    NSMutableDictionary *osContext = [NSMutableDictionary new];
-    [osContext setValue:self.systemContext[@"system_name"] forKey:@"name"];
-    [osContext setValue:self.systemContext[@"system_version"] forKey:@"version"];
-    [osContext setValue:self.systemContext[@"os_version"] forKey:@"build"];
-    [osContext setValue:self.systemContext[@"kernel_version"] forKey:@"kernel_version"];
-    [osContext setValue:self.systemContext[@"jailbroken"] forKey:@"rooted"];
-    context.osContext = osContext;
-}
-
-- (NSString *)family {
-    NSString *systemName = self.systemContext[@"system_name"];
-    NSArray *components = [systemName componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    return components[0];
 }
 
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {

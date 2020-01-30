@@ -14,12 +14,14 @@
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentrySerializable.h>
+#import <Sentry/SentryContext.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
+#import "SentryContext.h"
 #endif
 
 @class SentryUser;
@@ -47,8 +49,7 @@ NS_SWIFT_NAME(Scope)
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
- * used to manipulate values in SentryEvent.context
- * keys have to match SentryContext properties.
+ * used to add values in event context.
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable context;
 
@@ -63,7 +64,7 @@ NS_SWIFT_NAME(Scope)
 - (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
 - (NSDictionary<NSString *, id> *) serialize;
 
-- (void)applyToEvent:(SentryEvent *)event;
+- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event;
 
 /**
  * sets context values which will overwrite SentryEvent.context when event is

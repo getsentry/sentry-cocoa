@@ -39,7 +39,7 @@ NS_SWIFT_NAME(Context)
 /**
  * User set contexts should go here
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable otherContexts;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable customContext;
 
 
 - (instancetype)init;

@@ -27,8 +27,6 @@
 @interface SentryHub()
 
 @property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
-@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
-
 
 @end
 
@@ -106,9 +104,9 @@
 }
 
 /**
-* install integrations and populates `SentryHub.integrations`
-* returns BOOL YES if count of installed integrations is equal to options.integrations
-*/
+ * Install integrations and keeps ref in `SentryHub.integrations`
+ * @return BOOL Count of installed integrations (`SentryHub.integrations`) is equal to `options.integrations`
+ */
 - (BOOL)doInstallIntegrations {
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
@@ -117,7 +115,7 @@
             NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] couldn't find \"%@\" -> skipping.", integrationName];
             [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
             continue;
-        } else if ([SentrySDK.currentHub isInstalledIntegration:integrationClass]) {
+        } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
             NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.", integrationName];
             [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
             continue;
@@ -129,13 +127,24 @@
     return [self getClient].options.integrations.count == SentrySDK.currentHub.installedIntegrations.count;
 }
 
-- (BOOL)isInstalledIntegration:(Class)integrationClass {
+/**
+ * Checks if a specific Integration (`integrationClass`) has been installed.
+ * @return BOOL If instance of `integrationClass` exists within `SentryHub.installedIntegrations`.
+ */
+- (BOOL)isIntegrationInstalled:(Class)integrationClass {
     for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
         if ([item isKindOfClass:integrationClass]) {
             return YES;
         }
     }
     return NO;
+}
+
+/**
+ * Checks if integration is activated for bound client.
+ */
+- (BOOL)isIntegrationActiveInBoundClient:(NSString *)integrationName {
+    return NSNotFound != [[self getClient].options.integrations indexOfObject:integrationName];
 }
 
 @end
