@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub * currentHub;
 
-+ (SentryHub *) currentHub {
++ (SentryHub *)currentHub {
     @synchronized(self) {
         if (nil == currentHub) {
             currentHub = [[SentryHub alloc] init];
@@ -50,7 +50,7 @@ static SentryHub * currentHub;
     }
 }
 
-+ (void) setCurrentHub:(SentryHub *)hub {
++ (void)setCurrentHub:(SentryHub *)hub {
     @synchronized(self) {
         currentHub = hub;
     }
