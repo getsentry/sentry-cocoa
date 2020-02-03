@@ -23,7 +23,7 @@ SENTRY_NO_INIT
 
 + (instancetype)shared;
 
-- (BOOL)addEventProcessor:(SentryEventProcessor)newProcessor;
+- (void)addEventProcessor:(SentryEventProcessor)newProcessor;
 
 @end
 

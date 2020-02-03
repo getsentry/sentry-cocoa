@@ -36,9 +36,8 @@
     return self;
 }
 
-- (BOOL)addEventProcessor:(SentryEventProcessor)newProcessor {
+- (void)addEventProcessor:(SentryEventProcessor)newProcessor {
     [self.processors addObject:newProcessor];
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryGlobalEventProcessor addEventProcessor: %lu", self.processors.count] andLevel:kSentryLogLevelDebug];
     return YES;
 }
 
