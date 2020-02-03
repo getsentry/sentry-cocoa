@@ -39,16 +39,6 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
-/**
- * Increase the max number of events we store offline.
- * Be careful with this setting since too high numbers may cause your quota to exceed.
- */
-@property(nonatomic, assign) NSUInteger maxEvents;
-
-/**
- * Increase the max number of breadcrumbs we store offline.
- */
-@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 - (id)initWithOptions:(SentryOptions *)options;
 
@@ -79,15 +69,6 @@ NS_SWIFT_NAME(send(event:completion:));
  * Triggers NSNotification @"Sentry/allStoredEventsSent" when done.
  */
 - (void)sendAllStoredEvents;
-
-/**
- * This function stores an event to disk. It will be sent with the next batch.
- * This function is mainly used for react native.
- * @param event SentryEvent that should be sent
- */
-- (void)storeEvent:(SentryEvent *)event;
-
-
 
 @end
 

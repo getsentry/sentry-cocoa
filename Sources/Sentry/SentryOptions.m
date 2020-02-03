@@ -62,7 +62,7 @@
     }
 
     if ([self.debug isEqual:@YES])  {
-        self.logLevel = kSentryLogLevelVerbose;
+        self.logLevel = kSentryLogLevelDebug;
     } else {
         self.logLevel = kSentryLogLevelError;
     }
