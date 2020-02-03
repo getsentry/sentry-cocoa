@@ -68,14 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
             @"level": SentrySeverityNames[self.level],
             @"platform": @"cocoa",
     }.mutableCopy;
-
-    if (nil == self.releaseName && nil == self.dist && nil != self.infoDict) {
-        self.releaseName = [NSString stringWithFormat:@"%@-%@", self.infoDict[@"CFBundleIdentifier"], self.infoDict[@"CFBundleShortVersionString"]];
-        self.dist = self.infoDict[@"CFBundleVersion"];
-    }
     
     [self addSimpleProperties:serializedData];
-    
     [self addOptionalListProperties:serializedData];
     
     // This is important here, since we probably use __sentry internal extras before

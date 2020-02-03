@@ -128,18 +128,25 @@ NS_ASSUME_NONNULL_BEGIN
     }    
 
     
-    NSString * environment = self.options.environment;
+    NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
     }
+    
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    if (nil != infoDict) {
+        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+            infoDict[@"CFBundleVersion"]];
+        event.dist = infoDict[@"CFBundleVersion"];
+    }
 
-    NSString * releaseName = self.options.releaseName;
-    if (nil != releaseName && nil == event.releaseName) {
+    NSString *releaseName = self.options.releaseName;
+    if (nil != releaseName) {
         event.releaseName = releaseName;
     }
 
-    NSString * dist = self.options.dist;
-    if (nil != dist && nil == event.dist) {
+    NSString *dist = self.options.dist;
+    if (nil != dist) {
         event.dist = dist;
     }
 
