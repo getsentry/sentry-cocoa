@@ -62,8 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
             [frames addObject:[frame serialize]];
         }
     }
-    [serializedData setValue:frames forKey:@"frames"];
-
+    if (frames.count > 0) {
+        [serializedData setValue:frames forKey:@"frames"];
+    }
     // This is here because we wanted to be conform with the old json
     if (self.registers.count > 0) {
         [serializedData setValue:self.registers forKey:@"registers"];
