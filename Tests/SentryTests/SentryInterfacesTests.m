@@ -32,25 +32,13 @@
     debugMeta2.uuid = @"abcde";
     debugMeta2.imageAddress = @"0x0000000100034000";
     debugMeta2.type = @"1";
-    debugMeta2.cpuSubType = @(2);
-    debugMeta2.cpuType = @(3);
-    debugMeta2.imageVmAddress = @"0x01";
     debugMeta2.imageSize = @(4);
     debugMeta2.name = @"name";
-    debugMeta2.revisionVersion = @(10);
-    debugMeta2.minorVersion = @(20);
-    debugMeta2.majorVersion = @(30);
     NSDictionary *serialized2 = @{@"image_addr": @"0x0000000100034000",
-                                  @"image_vmaddr": @"0x01",
                                   @"image_addr": @"0x02",
                                   @"image_size": @(4),
                                   @"type": @"1",
                                   @"name": @"name",
-                                  @"cpu_subtype": @(2),
-                                  @"cpu_type": @(3),
-                                  @"revision_version": @(10),
-                                  @"minor_version": @(20),
-                                  @"major_version": @(30),
                                   @"uuid": @"abcde"};
     XCTAssertEqualObjects([debugMeta2 serialize], serialized2);
 }
