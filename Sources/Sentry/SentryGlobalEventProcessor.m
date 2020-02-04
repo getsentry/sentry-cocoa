@@ -38,7 +38,6 @@
 
 - (void)addEventProcessor:(SentryEventProcessor)newProcessor {
     [self.processors addObject:newProcessor];
-    return YES;
 }
 
 @end
