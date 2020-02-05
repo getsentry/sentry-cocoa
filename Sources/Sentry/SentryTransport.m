@@ -210,7 +210,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  */
 - (BOOL)isReadySendEvent {
     if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = fasle)" andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
     }
 
