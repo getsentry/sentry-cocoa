@@ -28,7 +28,7 @@
 - (void)testLoadCrash
 {
     NSBundle* bundle = [NSBundle bundleForClass:[self class]];
-    NSString* rawPath = [bundle pathForResource:@"raw" ofType:@"json"];
+    NSString* rawPath = [bundle pathForResource:@"Resources/raw" ofType:@"json"];
     NSData* rawData = [NSData dataWithContentsOfFile:rawPath];
     char* fixedBytes = sentrycrashcrf_fixupCrashReport(rawData.bytes);
 //    NSLog(@"%@", [[NSString alloc] initWithData:[NSData dataWithBytes:fixedBytes length:strlen(fixedBytes)] encoding:NSUTF8StringEncoding]);
@@ -38,7 +38,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(fixedObjects);
 
-    NSString* processedPath = [bundle pathForResource:@"processed" ofType:@"json"];
+    NSString* processedPath = [bundle pathForResource:@"Resources/processed" ofType:@"json"];
     NSData* processedData = [NSData dataWithContentsOfFile:processedPath];
     id processedObjects = [NSJSONSerialization JSONObjectWithData:processedData options:0 error:&error];
     XCTAssertNil(error);

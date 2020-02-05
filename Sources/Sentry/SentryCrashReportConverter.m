@@ -167,7 +167,8 @@ static inline NSString *hexAddress(NSNumber *value) {
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
-    if (stripCrashedStacktrace && [threadDictionary[@"crashed"] boolValue]) {
+    if (thread.stacktrace.frames.count == 0) {
+        // If we don't have any frames, we discard the whole frame
         thread.stacktrace = nil;
     }
     thread.crashed = threadDictionary[@"crashed"];
@@ -364,7 +365,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger) self.threads.count; threadIndex++) {
         SentryThread *thread = [self threadAtIndex:threadIndex stripCrashedStacktrace:YES];
-        if (thread) {
+        if (thread && nil != thread.stacktrace) {
             [result addObject:thread];
         }
     }
