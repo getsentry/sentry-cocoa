@@ -12,16 +12,8 @@
 
 #endif
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/NSData+SentryCompression.h>
-#import <Sentry/SentryError.h>
-
-#else
 #import "NSData+SentryCompression.h"
 #import "SentryError.h"
-#endif
-
 
 NS_ASSUME_NONNULL_BEGIN
 

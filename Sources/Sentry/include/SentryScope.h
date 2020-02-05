@@ -8,21 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentrySerializable.h>
-#import <Sentry/SentryContext.h>
-
-#else
 #import "SentryDefines.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
 #import "SentryContext.h"
-#endif
 
 @class SentryUser;
 

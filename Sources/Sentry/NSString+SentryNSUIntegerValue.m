@@ -6,15 +6,7 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/NSString+SentryNSUIntegerValue.h>
-
-#else
 #import "NSString+SentryNSUIntegerValue.h"
-#endif
 
 @implementation NSString (SentryNSUIntegerValue)
 

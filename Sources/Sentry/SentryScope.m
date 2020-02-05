@@ -6,24 +6,6 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryQueueableRequestManager.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryContext.h>
-#import <Sentry/SentryGlobalEventProcessor.h>
-#else
 #import "SentryScope.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
@@ -39,7 +21,6 @@
 #import "SentryOptions.h"
 #import "SentryContext.h"
 #import "SentryGlobalEventProcessor.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

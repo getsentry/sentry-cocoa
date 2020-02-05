@@ -6,19 +6,9 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryCrashExceptionApplication.h>
-#import <Sentry/SentryCrash.h>
-
-#else
 #import "SentryDefines.h"
 #import "SentryCrashExceptionApplication.h"
 #import "SentryCrash.h"
-#endif
-
 
 @implementation SentryCrashExceptionApplication
 

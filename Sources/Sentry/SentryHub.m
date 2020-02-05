@@ -6,15 +6,6 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryStackLayer.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryIntegrationProtocol.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryLog.h>
-#else
 #import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentryStackLayer.h"
@@ -22,7 +13,6 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
-#endif
 
 @interface SentryHub()
 

@@ -6,24 +6,6 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryTransport.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryQueueableRequestManager.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryScope.h>
-#else
 #import "SentryTransport.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
@@ -39,7 +21,6 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
-#endif
 
 @interface SentryTransport ()
 

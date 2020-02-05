@@ -6,18 +6,9 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryStacktrace.h>
-#import <Sentry/SentryFrame.h>
-#import <Sentry/SentryLog.h>
-
-#else
 #import "SentryStacktrace.h"
 #import "SentryFrame.h"
 #import "SentryLog.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

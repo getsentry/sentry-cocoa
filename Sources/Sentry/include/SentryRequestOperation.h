@@ -8,15 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryQueueableRequestManager.h>
-#import <Sentry/SentryAsynchronousOperation.h>
-
-#else
 #import "SentryQueueableRequestManager.h"
 #import "SentryAsynchronousOperation.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -6,18 +6,9 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/NSDate+SentryExtras.h>
-#import <Sentry/NSDictionary+SentrySanitize.h>
-
-#else
 #import "SentryBreadcrumb.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
-#endif
-
 
 @implementation SentryBreadcrumb
 

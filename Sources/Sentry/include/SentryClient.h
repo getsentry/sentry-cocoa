@@ -8,19 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryTransport.h>
-
-#else
 #import "SentryDefines.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryTransport.h"
-#endif
 
 @class SentryEvent, SentryThread;
 

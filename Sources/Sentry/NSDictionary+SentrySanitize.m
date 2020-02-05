@@ -6,15 +6,8 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/NSDictionary+SentrySanitize.h>
-#import <Sentry/NSDate+SentryExtras.h>
-
-#else
 #import "NSDictionary+SentrySanitize.h"
 #import "NSDate+SentryExtras.h"
-#endif
 
 @implementation NSDictionary (SentrySanitize)
 

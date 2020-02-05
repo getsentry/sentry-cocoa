@@ -6,19 +6,10 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryContext.h>
-#import <Sentry/SentryDefines.h>
-
-#import <Sentry/SentryCrash.h>
-
-#else
 #import "SentryContext.h"
 #import "SentryDefines.h"
-
 #import "SentryCrash.h"
-#endif
+
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

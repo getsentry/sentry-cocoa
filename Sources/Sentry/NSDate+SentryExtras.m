@@ -6,15 +6,7 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/NSDate+SentryExtras.h>
-
-#else
 #import "NSDate+SentryExtras.h"
-#endif
-
 
 NS_ASSUME_NONNULL_BEGIN
 

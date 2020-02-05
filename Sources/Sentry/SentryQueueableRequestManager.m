@@ -6,17 +6,9 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryQueueableRequestManager.h>
-#import <Sentry/SentryRequestOperation.h>
-#import <Sentry/SentryLog.h>
-
-#else
 #import "SentryQueueableRequestManager.h"
 #import "SentryRequestOperation.h"
 #import "SentryLog.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

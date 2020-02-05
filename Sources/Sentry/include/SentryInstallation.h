@@ -8,13 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryCrashInstallation.h>
-#else
 #import "SentryCrash.h"
 #import "SentryCrashInstallation.h"
-#endif
 
 @interface SentryInstallation : SentryCrashInstallation
 

@@ -6,13 +6,7 @@
 //  Copyright © 2018 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryMechanism.h>
-
-#else
 #import "SentryMechanism.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

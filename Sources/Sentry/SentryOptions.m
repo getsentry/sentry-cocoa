@@ -6,19 +6,10 @@
 //  Copyright © 2019 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-
-#else
 #import "SentryOptions.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
-#endif
 
 @implementation SentryOptions
 

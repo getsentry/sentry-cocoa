@@ -6,20 +6,6 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryJavaScriptBridgeHelper.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryFrame.h>
-#import <Sentry/SentryException.h>
-#import <Sentry/SentryThread.h>
-#import <Sentry/SentryStacktrace.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryBreadcrumb.h>
-
-#else
 #import "SentryJavaScriptBridgeHelper.h"
 #import "SentryError.h"
 #import "SentryLog.h"
@@ -30,7 +16,6 @@
 #import "SentryStacktrace.h"
 #import "SentryUser.h"
 #import "SentryBreadcrumb.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

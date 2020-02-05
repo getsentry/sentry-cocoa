@@ -6,15 +6,8 @@
 //  Copyright © 2020 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryGlobalEventProcessor.h>
-#import <Sentry/SentryLog.h>
-
-#else
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
-#endif
 
 @implementation SentryGlobalEventProcessor
 

@@ -7,13 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryAutoBreadcrumbTrackingIntegration.h>
-
-#else
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

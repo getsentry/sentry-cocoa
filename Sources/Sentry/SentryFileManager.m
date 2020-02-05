@@ -6,23 +6,12 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryDsn.h>
-
-#else
 #import "SentryFileManager.h"
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDsn.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
