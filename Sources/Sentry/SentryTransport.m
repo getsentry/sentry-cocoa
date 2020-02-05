@@ -215,7 +215,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     if ([self isRadioSilence]) {
-        [SentryLog logWithMessage:@"SentryClient radio silence. 'Rate Limit' of DNS reached." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"SentryClient radio silence. 'Rate Limit' of DSN reached." andLevel:kSentryLogLevelDebug];
         return NO;
     }
     return YES;
