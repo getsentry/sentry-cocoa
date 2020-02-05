@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
   s.version      = "4.4.3"
-  s.summary      = "Sentry client for cocoa"
+  s.summary      = "Sentry SDK for iOS/tvOS/macOS"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
   s.authors      = "Sentry"
@@ -19,9 +19,11 @@ Pod::Spec.new do |s|
   s.xcconfig = { 'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES' }
 
   s.default_subspecs = ['Core']
-
+  
   s.subspec 'Core' do |sp|
     sp.source_files = "Sources/Sentry/**/*.{h,m}",
                       "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
+
+    sp.ios.vendored_frameworks = "Sources/PLCrashreporter/iOS Framework/CrashReporter.framework"
   end
 end

@@ -10,6 +10,9 @@
 #import <Sentry/Sentry.h>
 #import "SentryQueueableRequestManager.h"
 #import "SentryFileManager.h"
+#import "SentryRequestOperation.h"
+#import "SentryLog.h"
+#import "SentryDsn.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryClient.h"
 

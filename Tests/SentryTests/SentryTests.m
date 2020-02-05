@@ -11,6 +11,7 @@
 #import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryMeta.h"
+#import "SentryBreadcrumbTracker.h"
 
 @interface SentryBreadcrumbTracker (Private)
 

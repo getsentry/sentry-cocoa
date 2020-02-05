@@ -65,7 +65,6 @@
 		639FCFAC1EBC811400778193 /* SentryUser.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFAA1EBC811400778193 /* SentryUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639FCFAD1EBC811400778193 /* SentryUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCFAB1EBC811400778193 /* SentryUser.m */; };
 		63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA75ED1EB8B3C400D153DE /* SentryClient.m */; };
-		63AA766A1EB8CB2F00D153DE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; };
 		63AA76701EB8CB4B00D153DE /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA75951EB8AEDB00D153DE /* SentryTests.m */; };
 		63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA76781EB8D20500D153DE /* SentryLog.m */; };
 		63AA76971EB9C1C200D153DE /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -279,6 +278,10 @@
 		63D1EC7423EB057A00E4A49A /* SentryFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 636085111ED47BE600E8599E /* SentryFileManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63D1EC7523EB057A00E4A49A /* Container+SentryDeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FBF20DA4C1000CDBAE8 /* Container+SentryDeepSearch.h */; };
 		63D1EC7623EB057A00E4A49A /* SentryCrashReportConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6344DDB71EC3115C00D9160D /* SentryCrashReportConverter.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		63D1EC8023EB0D7100E4A49A /* CrashReporter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D1EC7F23EB0D7100E4A49A /* CrashReporter.framework */; };
+		63D1EC8123EB0D7100E4A49A /* CrashReporter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 63D1EC7F23EB0D7100E4A49A /* CrashReporter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		63D1EC8323EB14FE00E4A49A /* CrashReporter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D1EC7F23EB0D7100E4A49A /* CrashReporter.framework */; };
+		63D1EC8623EB159400E4A49A /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D1EC7B23EB057A00E4A49A /* Sentry-iOS.framework */; };
 		63EED6BE2237923600E02400 /* SentryOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 63EED6BC2237923600E02400 /* SentryOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63EED6C02237923600E02400 /* SentryOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 63EED6BD2237923600E02400 /* SentryOptions.m */; };
 		63EED6C32237989300E02400 /* SentryOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 63EED6C22237989300E02400 /* SentryOptionsTest.m */; };
@@ -439,14 +442,28 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		63AA766B1EB8CB2F00D153DE /* PBXContainerItemProxy */ = {
+		63D1EC8423EB158900E4A49A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteGlobalIDString = 63D1EBB323EB057A00E4A49A;
 			remoteInfo = "Sentry-iOS";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		63D1EC8223EB0D7100E4A49A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				63D1EC8123EB0D7100E4A49A /* CrashReporter.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
@@ -537,6 +554,8 @@
 		63BE856E1ECEC6DE00DC44F5 /* NSDate+SentryExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDate+SentryExtras.h"; path = "include/NSDate+SentryExtras.h"; sourceTree = "<group>"; };
 		63BE856F1ECEC6DE00DC44F5 /* NSDate+SentryExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+SentryExtras.m"; sourceTree = "<group>"; };
 		63D1EC7B23EB057A00E4A49A /* Sentry-iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "Sentry-iOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		63D1EC7D23EB0C0300E4A49A /* Sentry-iOS.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Sentry-iOS.xcconfig"; sourceTree = "<group>"; };
+		63D1EC7F23EB0D7100E4A49A /* CrashReporter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CrashReporter.framework; path = "Sources/PLCrashreporter/iOS Framework/CrashReporter.framework"; sourceTree = "<group>"; };
 		63EED6BC2237923600E02400 /* SentryOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryOptions.h; path = include/SentryOptions.h; sourceTree = "<group>"; };
 		63EED6BD2237923600E02400 /* SentryOptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryOptions.m; sourceTree = "<group>"; };
 		63EED6C22237989300E02400 /* SentryOptionsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryOptionsTest.m; sourceTree = "<group>"; };
@@ -737,7 +756,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63AA766A1EB8CB2F00D153DE /* Sentry.framework in Frameworks */,
+				63D1EC8623EB159400E4A49A /* Sentry-iOS.framework in Frameworks */,
+				63D1EC8323EB14FE00E4A49A /* CrashReporter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,6 +766,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				63D1EC1023EB057A00E4A49A /* libz.tbd in Frameworks */,
+				63D1EC8023EB0D7100E4A49A /* CrashReporter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -818,6 +839,7 @@
 		6304360C1EC05CEF00C4D3FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				63D1EC7F23EB0D7100E4A49A /* CrashReporter.framework */,
 				6387B82F1ED851970045A84C /* libz.tbd */,
 				6304360D1EC05CEF00C4D3FA /* libz.tbd */,
 			);
@@ -981,6 +1003,7 @@
 		63AA75A31EB8AFDF00D153DE /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				63D1EC7D23EB0C0300E4A49A /* Sentry-iOS.xcconfig */,
 				63AA75C51EB8B00100D153DE /* Sentry.xcconfig */,
 			);
 			path = Configuration;
@@ -1538,7 +1561,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
+				63D1EC8523EB158900E4A49A /* PBXTargetDependency */,
 			);
 			name = SentryTests;
 			productName = "Tests-iOS";
@@ -1553,6 +1576,7 @@
 				63D1EC0F23EB057A00E4A49A /* Frameworks */,
 				63D1EC1123EB057A00E4A49A /* Headers */,
 				63D1EC7723EB057A00E4A49A /* Resources */,
+				63D1EC8223EB0D7100E4A49A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1570,7 +1594,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
 					63AA759A1EB8AEF500D153DE = {
@@ -1880,10 +1904,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */ = {
+		63D1EC8523EB158900E4A49A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
-			targetProxy = 63AA766B1EB8CB2F00D153DE /* PBXContainerItemProxy */;
+			target = 63D1EBB323EB057A00E4A49A /* Sentry-iOS */;
+			targetProxy = 63D1EC8423EB158900E4A49A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2080,6 +2104,10 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/PLCrashreporter/iOS\\ Framework",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
@@ -2108,6 +2136,10 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/PLCrashreporter/iOS\\ Framework",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
@@ -2124,7 +2156,7 @@
 		};
 		63D1EC7923EB057A00E4A49A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
+			baseConfigurationReference = 63D1EC7D23EB0C0300E4A49A /* Sentry-iOS.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
@@ -2137,6 +2169,10 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/PLCrashreporter/iOS\\ Framework",
+				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = "";
@@ -2156,7 +2192,7 @@
 		};
 		63D1EC7A23EB057A00E4A49A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
+			baseConfigurationReference = 63D1EC7D23EB0C0300E4A49A /* Sentry-iOS.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
@@ -2169,6 +2205,10 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/PLCrashreporter/iOS\\ Framework",
+				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = s;
 				HEADER_SEARCH_PATHS = "";

@@ -15,10 +15,14 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentrySDK.h"
 
+#import <sys/types.h>
+#import <sys/sysctl.h>
+
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>
 #endif
 
+#import <CrashReporter/CrashReporter.h>
 
 static SentryInstallation *installation = nil;
 
@@ -30,28 +34,76 @@ static SentryInstallation *installation = nil;
 
 @implementation SentryCrashIntegration
 
-/**
- * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
- *
- * @return NSDictionary system info.
- */
-+ (NSDictionary *)systemInfo {
-    static NSDictionary *sharedInfo = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInfo = SentryCrash.sharedInstance.systemInfo;
-    });
-    return sharedInfo;
+
+static bool is_debugger_running (void) {
+#if !TARGET_OS_IPHONE
+    return false;
+#endif
+
+    struct kinfo_proc info;
+    size_t info_size = sizeof(info);
+    int name[4];
+    
+    name[0] = CTL_KERN;
+    name[1] = KERN_PROC;
+    name[2] = KERN_PROC_PID;
+    name[3] = getpid();
+    
+    if (sysctl(name, 4, &info, &info_size, NULL, 0) == -1) {
+        NSLog(@"sysctl() failed: %s", strerror(errno));
+        return false;
+    }
+
+    if ((info.kp_proc.p_flag & P_TRACED) != 0)
+        return true;
+    
+    return false;
 }
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options {
     self.options = options;
     NSError *error = nil;
-    BOOL isInstalled = [self startCrashHandlerWithError:&error];
-    if (isInstalled == YES) {
-        [self addEventProcessor];
+//    BOOL isInstalled = [self startCrashHandlerWithError:&error];
+//    if (isInstalled == YES) {
+//        [self addEventProcessor];
+//    }
+    PLCrashReporterConfig *config = [[PLCrashReporterConfig alloc] initWithSignalHandlerType: PLCrashReporterSignalHandlerTypeMach
+                                                                           symbolicationStrategy: PLCrashReporterSymbolicationStrategyAll] ;
+       PLCrashReporter *reporter = [[PLCrashReporter alloc] initWithConfiguration: config];
+    if (!is_debugger_running()) {
+        [reporter enableCrashReporter];
     }
-    return isInstalled;
+    
+    if ([reporter hasPendingCrashReport]) {
+        NSData *data = [reporter loadPendingCrashReportDataAndReturnError: &error];
+        if (data == nil) {
+            NSLog(@"Failed to load crash report data: %@", error);
+        }
+        
+        NSFileManager *fm = [NSFileManager defaultManager];
+        NSError *error;
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        if (![fm createDirectoryAtPath: documentsDirectory withIntermediateDirectories: YES attributes:nil error: &error]) {
+            NSLog(@"Could not create documents directory: %@", error);
+        }
+
+        PLCrashReport *report = [[PLCrashReport alloc] initWithData: data error: &error];
+        NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport: report withTextFormat: PLCrashReportTextFormatiOS];
+        
+
+        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"demo2.plcrash"];
+        NSLog(@"%@", outputPath);
+        if (![data writeToFile: outputPath atomically: YES]) {
+            NSLog(@"Failed to write crash report");
+        }
+        
+        [reporter purgePendingCrashReport];
+        NSLog(@"%@", text);
+    }
+    
+    return YES;
 }
 
 #pragma GCC diagnostic push
@@ -66,35 +118,6 @@ static SentryInstallation *installation = nil;
     return YES;
 }
 #pragma GCC diagnostic pop
-
-// TODO(fetzig) this was in client, used for testing only, not sure if we can
-// still use this (for testing). maybe move it to hub or static-sdk?
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram {
-
-    if (nil == installation) {
-        [SentryLog logWithMessage:@"SentryCrash has not been initialized, call startCrashHandlerWithError" andLevel:kSentryLogLevelError];
-        return;
-    }
-
-    [SentryCrash.sharedInstance reportUserException:name
-                                             reason:reason
-                                           language:language
-                                         lineOfCode:lineOfCode
-                                         stackTrace:stackTrace
-                                      logAllThreads:logAllThreads
-                                   terminateProgram:terminateProgram];
-    [installation sendAllReports];
-}
-
-- (BOOL)crashedLastLaunch {
-    return SentryCrash.sharedInstance.crashedLastLaunch;
-}
 
 - (void)addEventProcessor {
     [SentryLog logWithMessage:@"SentryCrashIntegration addEventProcessor" andLevel:kSentryLogLevelDebug];
@@ -133,10 +156,11 @@ static SentryInstallation *installation = nil;
         [osData setValue:systemVersion forKey:@"version"];
 #endif
 
-        NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
-        [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
-        [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
-        [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
+        // TODO
+//        NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
+//        [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
+//        [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
+//        [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
 
         event.context.osContext = osData;
 
@@ -147,19 +171,19 @@ static SentryInstallation *installation = nil;
 #if TARGET_OS_SIMULATOR
         [deviceData setValue:@(YES) forKey:@"simulator"];
 #endif
-
-        NSString *family = [[systemInfo[@"systemName"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject];
-
-        [deviceData setValue:family forKey:@"family"];
-        [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
-        [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
-        [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-        [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
-        [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
-        [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
-        [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
-        [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
-        [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
+// TODO
+//        NSString *family = [[systemInfo[@"systemName"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject];
+//
+//        [deviceData setValue:family forKey:@"family"];
+//        [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
+//        [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
+//        [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
+//        [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+//        [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
+//        [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
+//        [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
+//        [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
+//        [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 
         event.context.deviceContext = deviceData;
 
@@ -173,10 +197,11 @@ static SentryInstallation *installation = nil;
         [appData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
         [appData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
 
-        [appData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
-        [appData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
-        [appData setValue:systemInfo[@"appID"] forKey:@"app_id"];
-        [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
+        // TODO
+//        [appData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
+//        [appData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
+//        [appData setValue:systemInfo[@"appID"] forKey:@"app_id"];
+//        [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 
         event.context.appContext = appData;
 
