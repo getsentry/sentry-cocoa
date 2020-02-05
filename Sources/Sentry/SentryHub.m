@@ -105,9 +105,8 @@
 
 /**
  * Install integrations and keeps ref in `SentryHub.integrations`
- * @return BOOL Count of installed integrations (`SentryHub.integrations`) is equal to `options.integrations`
  */
-- (BOOL)doInstallIntegrations {
+- (void)doInstallIntegrations {
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
@@ -122,9 +121,9 @@
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         [integrationInstance installWithOptions:options];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName] andLevel:kSentryLogLevelDebug];
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
-    return [self getClient].options.integrations.count == SentrySDK.currentHub.installedIntegrations.count;
 }
 
 /**

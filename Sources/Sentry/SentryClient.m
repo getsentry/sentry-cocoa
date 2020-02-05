@@ -71,10 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         self.options = options;
 
-        // We want to send all stored events on start up
-        if ([self.options.enabled boolValue]) {
-            [self.transport sendAllStoredEvents];
-        }
+        [self.transport sendAllStoredEvents];
     }
     return self;
 }
