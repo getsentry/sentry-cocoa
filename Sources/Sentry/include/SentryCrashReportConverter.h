@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryEvent;
+@class PLCrashReport;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithReport:(NSDictionary *)report;
 
 - (SentryEvent *)convertReportToEvent;
+- (SentryEvent *)convertToEvent;
+- (instancetype)initWithPLCrashReport:(PLCrashReport *)report;
 
 @end
 

@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryCrashReportConverter.h"
+#import <CrashReporter/CrashReporter.h>
 
 NSString *reportPath = @"";
 
@@ -103,141 +104,158 @@ NSString *reportPath = @"";
 //    SentryEvent *event = [reportConverter convertReportToEvent];
 //    XCTAssertEqualObjects([[event serialize] valueForKeyPath:@"contexts.os.name"], @"iOS");
 //}
+//
+//- (void)testMissingBinary {
+//    reportPath = @"Resources/Crash-missing-binary-images";
+//    [self isValidReport];
+//}
+//
+//- (void)testMissingCrashError {
+//    reportPath = @"Resources/Crash-missing-crash-error";
+//    [self isValidReport];
+//}
+//
+//- (void)testMissingThreads {
+//    reportPath = @"Resources/Crash-missing-crash-threads";
+//    [self isValidReport];
+//}
+//
+//- (void)testMissingCrash {
+//    reportPath = @"Resources/Crash-missing-crash";
+//    [self isValidReport];
+//}
+//
+//- (void)testMissingUser {
+//    reportPath = @"Resources/Crash-missing-user";
+//    [self isValidReport];
+//}
+//
+//- (void)testNSException {
+//    reportPath = @"Resources/NSException";
+//    [self isValidReport];
+//}
+//
+//- (void)testStackoverflow {
+//    reportPath = @"Resources/StackOverflow";
+//    [self isValidReport];
+//}
+//
+//- (void)testCPPException {
+//    reportPath = @"Resources/CPPException";
+//    [self isValidReport];
+//}
+//
+//- (void)testNXPage {
+//    reportPath = @"Resources/NX-Page";
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    SentryException *exception = event.exceptions.firstObject;
+//    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
+//}
+//
+//- (void)testReactNative {
+//    reportPath = @"Resources/ReactNative";
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+////    Error: SentryClient: Test throw error
+//    XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
+//    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"SentryClient: Test throw error");
+//    [self isValidReport];
+//}
+//
+//- (void)testIncomplete {
+//    reportPath = @"Resources/incomplete";
+//    [self isValidReport];
+//}
+//
+//- (void)testDuplicateFrame {
+//    reportPath = @"Resources/dup-frame";
+//    // There are 23 frames in the report but it should remove the duplicate
+//    [self isValidReport];
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    SentryException *exception = event.exceptions.firstObject;
+//    XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
+//    XCTAssertEqualObjects(exception.value, @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50");
+//}
+//
+//- (void)testNewNSException {
+//    reportPath = @"Resources/sentry-ios-cocoapods-report-0000000053800000";
+//    [self isValidReport];
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    SentryException *exception = event.exceptions.firstObject;
+//    XCTAssertEqualObjects(exception.value, @"this is the reason");
+//}
+//
+//- (void)testFatalError {
+//    reportPath = @"Resources/fatalError";
+//    [self isValidReport];
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: > fatal error > hello my crash is here");
+//}
+//
+//- (void)testUserInfo {
+//    reportPath = @"Resources/fatalError";
+//    [self isValidReport];
+//    NSDictionary *rawCrash = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+//    reportConverter.userContext = @{@"tags": @{@"a": @"b",@"c": @"d"},
+//                                    @"extra": @{@"a": @"b",@"c": @"d",@"e": @"f"},
+//                                    @"user": @{
+//                                            @"email": @"john@apple.com",
+//                                            @"extra":     @{
+//                                                    @"is_admin": @(NO)
+//                                                    },
+//                                            @"id": @"12341",
+//                                            @"username": @"username"
+//                                            }};
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    NSDictionary *serializedUser = @{
+//                                     @"email": @"john@apple.com",
+//                                     @"extra":     @{
+//                                         @"is_admin": @(NO)
+//                                     },
+//                                     @"id": @"12341",
+//                                     @"username": @"username"
+//                                     };
+//    [self compareDict:serializedUser withDict:[event.user serialize]];
+//    XCTAssertEqual(event.tags.count, (unsigned long)2);
+//    XCTAssertEqual(event.extra.count, (unsigned long)3);
+//}
 
-- (void)testMissingBinary {
-    reportPath = @"Resources/Crash-missing-binary-images";
-    [self isValidReport];
-}
-
-- (void)testMissingCrashError {
-    reportPath = @"Resources/Crash-missing-crash-error";
-    [self isValidReport];
-}
-
-- (void)testMissingThreads {
-    reportPath = @"Resources/Crash-missing-crash-threads";
-    [self isValidReport];
-}
-
-- (void)testMissingCrash {
-    reportPath = @"Resources/Crash-missing-crash";
-    [self isValidReport];
-}
-
-- (void)testMissingUser {
-    reportPath = @"Resources/Crash-missing-user";
-    [self isValidReport];
-}
-
-- (void)testNSException {
-    reportPath = @"Resources/NSException";
-    [self isValidReport];
-}
-
-- (void)testStackoverflow {
-    reportPath = @"Resources/StackOverflow";
-    [self isValidReport];
-}
-
-- (void)testCPPException {
-    reportPath = @"Resources/CPPException";
-    [self isValidReport];
-}
 
 - (void)testNXPage {
-    reportPath = @"Resources/NX-Page";
-    [self isValidReport];
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
+    reportPath = @"Resources/demo1";
+    PLCrashReport *report = [self getPLCrashReport];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithPLCrashReport:report];
+    SentryEvent *event = [reportConverter convertToEvent];
+    [SentrySDK startWithOptionsDict:@{
+        @"dsn": @"https://92c7f871bb724ba6bd020311fcef88ea@sentry.io/69433",
+        @"debug": @YES
+    }];
+    [SentrySDK captureEvent:event];
+    
+    [NSThread sleepForTimeInterval:5];
+//    SentryException *exception = event.exceptions.firstObject;
+//    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
 }
 
-- (void)testReactNative {
-    reportPath = @"Resources/ReactNative";
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-//    Error: SentryClient: Test throw error
-    XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
-    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"SentryClient: Test throw error");
-    [self isValidReport];
-}
-
-- (void)testIncomplete {
-    reportPath = @"Resources/incomplete";
-    [self isValidReport];
-}
-
-- (void)testDuplicateFrame {
-    reportPath = @"Resources/dup-frame";
-    // There are 23 frames in the report but it should remove the duplicate
-    [self isValidReport];
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
-    XCTAssertEqualObjects(exception.value, @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50");
-}
-
-- (void)testNewNSException {
-    reportPath = @"Resources/sentry-ios-cocoapods-report-0000000053800000";
-    [self isValidReport];
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(exception.value, @"this is the reason");
-}
-
-- (void)testFatalError {
-    reportPath = @"Resources/fatalError";
-    [self isValidReport];
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertEqualObjects(event.exceptions.firstObject.value, @"crash: > fatal error > hello my crash is here");
-}
-
-- (void)testUserInfo {
-    reportPath = @"Resources/fatalError";
-    [self isValidReport];
-    NSDictionary *rawCrash = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-    reportConverter.userContext = @{@"tags": @{@"a": @"b",@"c": @"d"},
-                                    @"extra": @{@"a": @"b",@"c": @"d",@"e": @"f"},
-                                    @"user": @{
-                                            @"email": @"john@apple.com",
-                                            @"extra":     @{
-                                                    @"is_admin": @(NO)
-                                                    },
-                                            @"id": @"12341",
-                                            @"username": @"username"
-                                            }};
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    NSDictionary *serializedUser = @{
-                                     @"email": @"john@apple.com",
-                                     @"extra":     @{
-                                         @"is_admin": @(NO)
-                                     },
-                                     @"id": @"12341",
-                                     @"username": @"username"
-                                     };
-    [self compareDict:serializedUser withDict:[event.user serialize]];
-    XCTAssertEqual(event.tags.count, (unsigned long)2);
-    XCTAssertEqual(event.extra.count, (unsigned long)3);
-}
 
 #pragma mark private helper
-
-- (void)isValidReport {
-    NSDictionary *report = [self getCrashReport];
-    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
-}
+//
+//- (void)isValidReport {
+//    NSDictionary *report = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
+//    SentryEvent *event = [reportConverter convertReportToEvent];
+//    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
+//}
 
 - (void)compareDict:(NSDictionary *)one withDict:(NSDictionary *)two {
     XCTAssertEqual([one allKeys].count, [two allKeys].count, @"one: %@, two: %@", one, two);
@@ -263,9 +281,15 @@ NSString *reportPath = @"";
 }
 
 - (NSDictionary *)getCrashReport {
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:reportPath ofType:@"json"];
-    NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
-    return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    NSString *path = [[NSBundle bundleForClass:self.class] pathForResource:reportPath ofType:@"plcrash"];
+    NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]];
+    return [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+}
+
+- (PLCrashReport *)getPLCrashReport {
+    NSString *path = [[NSBundle bundleForClass:self.class] pathForResource:reportPath ofType:@"plcrash"];
+    NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]];
+    return [[PLCrashReport alloc] initWithData:data error:nil];
 }
 
 - (void)printJson:(SentryEvent *)event {

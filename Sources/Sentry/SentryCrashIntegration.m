@@ -14,6 +14,7 @@
 #import "SentryContext.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentrySDK.h"
+#import "SentryCrashReportConverter.h"
 
 #import <sys/types.h>
 #import <sys/sysctl.h>
@@ -79,28 +80,32 @@ static bool is_debugger_running (void) {
         if (data == nil) {
             NSLog(@"Failed to load crash report data: %@", error);
         }
-        
-        NSFileManager *fm = [NSFileManager defaultManager];
-        NSError *error;
-        
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths objectAtIndex:0];
-        if (![fm createDirectoryAtPath: documentsDirectory withIntermediateDirectories: YES attributes:nil error: &error]) {
-            NSLog(@"Could not create documents directory: %@", error);
-        }
+//
+//        NSFileManager *fm = [NSFileManager defaultManager];
+//        NSError *error;
+//
+//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//        NSString *documentsDirectory = [paths objectAtIndex:0];
+//        if (![fm createDirectoryAtPath: documentsDirectory withIntermediateDirectories: YES attributes:nil error: &error]) {
+//            NSLog(@"Could not create documents directory: %@", error);
+//        }
 
         PLCrashReport *report = [[PLCrashReport alloc] initWithData: data error: &error];
-        NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport: report withTextFormat: PLCrashReportTextFormatiOS];
+//        NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport: report withTextFormat: PLCrashReportTextFormatiOS];
+//
+//
+//        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"demo2.plcrash"];
+//        NSLog(@"%@", outputPath);
+//        if (![data writeToFile: outputPath atomically: YES]) {
+//            NSLog(@"Failed to write crash report");
+//        }
+        SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithPLCrashReport:report];
+        SentryEvent *event = [reportConverter convertToEvent];
         
-
-        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"demo2.plcrash"];
-        NSLog(@"%@", outputPath);
-        if (![data writeToFile: outputPath atomically: YES]) {
-            NSLog(@"Failed to write crash report");
-        }
+        [SentrySDK captureEvent:event];
         
         [reporter purgePendingCrashReport];
-        NSLog(@"%@", text);
+//        NSLog(@"%@", text);
     }
     
     return YES;

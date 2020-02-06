@@ -18,8 +18,11 @@
 #import "SentryMechanism.h"
 #import "NSDate+SentryExtras.h"
 
+#import <CrashReporter/CrashReporter.h>
+
 @interface SentryCrashReportConverter ()
 
+@property(nonatomic, strong) PLCrashReport *plCrashReport;
 @property(nonatomic, strong) NSDictionary *report;
 @property(nonatomic, assign) NSInteger crashedThreadIndex;
 @property(nonatomic, strong) NSDictionary *exceptionContext;
@@ -355,5 +358,124 @@ static inline NSString *hexAddress(NSNumber *value) {
     }
     return result;
 }
+
+
+
+
+
+- (instancetype)initWithPLCrashReport:(PLCrashReport *)report {
+    self = [super init];
+    if (self) {
+        self.plCrashReport = report;
+        
+        
+        
+//          self.report = report;
+//        self.binaryImages = report[@"binary_images"];
+//        self.systemContext = report[@"system"];
+//
+//        NSDictionary *crashContext;
+//        // This is an incomplete crash report
+//        if (nil != report[@"recrash_report"][@"crash"]) {
+//            crashContext = report[@"recrash_report"][@"crash"];
+//        } else {
+//            crashContext = report[@"crash"];
+//        }
+//
+//        self.diagnosis = crashContext[@"diagnosis"];
+//        self.exceptionContext = crashContext[@"error"];
+//        self.threads = crashContext[@"threads"];
+//        for (NSUInteger i = 0; i < self.threads.count; i++) {
+//            NSDictionary *thread = self.threads[i];
+//            if ([thread[@"crashed"] boolValue]) {
+//                self.crashedThreadIndex = (NSInteger) i;
+//                break;
+//            }
+//        }
+    }
+    return self;
+}
+
+
+- (SentryEvent *)convertToEvent {
+    SentryException *exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:@"Unknown Exception"];
+    if (self.plCrashReport.hasExceptionInfo) {
+        exception = [[SentryException alloc] initWithValue:self.plCrashReport.exceptionInfo.exceptionName type:self.plCrashReport.exceptionInfo.exceptionReason];
+    }
+    
+    NSMutableArray *threads = [NSMutableArray new];
+    for (PLCrashReportThreadInfo *plThread in self.plCrashReport.threads) {
+        SentryThread *thread = [[SentryThread alloc] initWithThreadId:[NSNumber numberWithLong:plThread.threadNumber]];
+
+        NSMutableArray *frames = [NSMutableArray new];
+        for (PLCrashReportStackFrameInfo *plFrame in plThread.stackFrames) {
+            SentryFrame *frame = [[SentryFrame alloc] init];
+            frame.function = plFrame.symbolInfo.symbolName;
+            frame.instructionAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.instructionPointer]);
+            frame.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.startAddress]);
+            frame.symbolAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.endAddress]);
+            [frames addObject:frame];
+        }
+        NSMutableDictionary *registers = [NSMutableDictionary new];
+        for (PLCrashReportRegisterInfo *plRegister in plThread.registers) {
+            [registers setValue:hexAddress([NSNumber numberWithUnsignedLongLong:plRegister.registerValue]) forKey:plRegister.registerName];
+        }
+        SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:[frames reverseObjectEnumerator].allObjects registers:registers];
+        thread.stacktrace = stacktrace;
+        if (thread.stacktrace.frames.count == 0) {
+            // If we don't have any frames, we discard the whole frame
+            thread.stacktrace = nil;
+        }
+        thread.crashed = [NSNumber numberWithBool:plThread.crashed];
+        if (plThread.crashed) {
+            exception.thread = thread;
+        }
+//            thread.current = [NSNumber numberWithBool:plThread.current];
+//            thread.name
+        [threads addObject:thread];
+    }
+    
+    NSMutableArray<SentryDebugMeta *> *debugImages = [NSMutableArray new];
+    for (PLCrashReportBinaryImageInfo *plImage in self.plCrashReport.images) {
+       SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+        
+       debugMeta.uuid = plImage.imageUUID;
+        debugMeta.type = @"apple";
+       debugMeta.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plImage.imageBaseAddress]);
+       debugMeta.imageSize = [NSNumber numberWithUnsignedLongLong:plImage.imageSize];
+       debugMeta.name = plImage.imageName;
+       
+       [debugImages addObject:debugMeta];
+    }
+    
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+//    if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
+//        event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
+//    } else {
+//        event.timestamp = [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+//    }
+    event.debugMeta = debugImages;
+    event.threads = threads;
+    event.exceptions = @[exception];
+    
+//    event.releaseName = self.userContext[@"releaseName"];
+//    event.dist = self.userContext[@"dist"];
+//    event.environment = self.userContext[@"environment"];
+    
+    // We want to set the release and dist to the version from the crash report itself
+    // otherwise it can happend that we have two different version when the app crashes
+    // right before an app update #218 #219
+//    if (nil == event.releaseName && event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"]) {
+//        event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
+//    }
+//    if (nil == event.dist && event.context.appContext[@"app_build"]) {
+//        event.dist = event.context.appContext[@"app_build"];
+//    }
+//    event.extra = [self convertExtra];
+//    event.tags = [self convertTags];
+//    event.user = [self convertUser];
+    return event;
+}
+
 
 @end
