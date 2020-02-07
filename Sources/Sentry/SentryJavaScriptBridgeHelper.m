@@ -164,12 +164,6 @@ NS_ASSUME_NONNULL_BEGIN
         SentryFrame *sentryFrame = [[SentryFrame alloc] init];
         sentryFrame.fileName = [NSString stringWithFormat:@"app:///%@", simpleFilename];
         sentryFrame.function = frame[@"methodName"];
-        if (nil != frame[@"lineNumber"]) {
-            sentryFrame.lineNumber = frame[@"lineNumber"];
-        }
-        if (nil != frame[@"column"]) {
-            sentryFrame.columnNumber = frame[@"column"];
-        }
         sentryFrame.platform = @"javascript";
         [frames addObject:sentryFrame];
     }

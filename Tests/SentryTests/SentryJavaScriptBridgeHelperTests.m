@@ -232,8 +232,6 @@ NSString *rnReportPath = @"";
     XCTAssertEqual(frames2.count, (NSUInteger)2);
     XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).function, @"2");
     XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).fileName, @"app:///index.js");
-    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).lineNumber, @"2");
-    XCTAssertEqualObjects(((SentryFrame *)[frames2 objectAtIndex:0]).columnNumber, @"2");
 }
 
 - (void)testCordovaEvent {

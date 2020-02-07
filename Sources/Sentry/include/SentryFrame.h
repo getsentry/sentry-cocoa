@@ -57,14 +57,9 @@ NS_SWIFT_NAME(Frame)
 @property(nonatomic, copy) NSString *_Nullable instructionAddress;
 
 /**
- * User for react native, will be ignored for cocoa frames
+ * Says if the app is inApp or not
  */
-@property(nonatomic, copy) NSNumber *_Nullable lineNumber;
-
-/**
- * User for react native, will be ignored for cocoa frames
- */
-@property(nonatomic, copy) NSNumber *_Nullable columnNumber;
+@property(nonatomic, copy) NSNumber *_Nullable inApp;
 
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;

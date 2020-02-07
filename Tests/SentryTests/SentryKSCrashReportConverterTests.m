@@ -232,7 +232,7 @@ NSString *reportPath = @"";
 
 
 - (void)testNXPage {
-    reportPath = @"Resources/demo1";
+    reportPath = @"Resources/nsexception";
     PLCrashReport *report = [self getPLCrashReport];
     SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithPLCrashReport:report];
     SentryEvent *event = [reportConverter convertToEvent];

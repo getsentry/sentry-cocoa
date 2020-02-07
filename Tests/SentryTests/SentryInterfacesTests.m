@@ -57,8 +57,6 @@
     frame2.fileName = @"file://b.swift";
     frame2.function = @"[hey2 alloc]";
     frame2.module = @"b";
-    frame2.lineNumber = @(100);
-    frame2.columnNumber = @(200);
     frame2.package = @"package";
     frame2.imageAddress = @"image_addr";
     frame2.instructionAddress = @"instruction_addr";

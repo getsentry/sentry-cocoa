@@ -68,11 +68,13 @@ static bool is_debugger_running (void) {
 //    if (isInstalled == YES) {
 //        [self addEventProcessor];
 //    }
-    PLCrashReporterConfig *config = [[PLCrashReporterConfig alloc] initWithSignalHandlerType: PLCrashReporterSignalHandlerTypeMach
-                                                                           symbolicationStrategy: PLCrashReporterSymbolicationStrategyAll] ;
-       PLCrashReporter *reporter = [[PLCrashReporter alloc] initWithConfiguration: config];
+    PLCrashReporterConfig *config = [[PLCrashReporterConfig alloc] initWithSignalHandlerType:PLCrashReporterSignalHandlerTypeMach
+                                                                       symbolicationStrategy:PLCrashReporterSymbolicationStrategyAll];
+    PLCrashReporter *reporter = [[PLCrashReporter alloc] initWithConfiguration: config];
     if (!is_debugger_running()) {
         [reporter enableCrashReporter];
+    } else {
+        [SentryLog logWithMessage:@"Debugger is attached, will not collect crashes." andLevel:kSentryLogLevelDebug];
     }
     
     if ([reporter hasPendingCrashReport]) {
@@ -80,32 +82,32 @@ static bool is_debugger_running (void) {
         if (data == nil) {
             NSLog(@"Failed to load crash report data: %@", error);
         }
-//
-//        NSFileManager *fm = [NSFileManager defaultManager];
-//        NSError *error;
-//
-//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//        NSString *documentsDirectory = [paths objectAtIndex:0];
-//        if (![fm createDirectoryAtPath: documentsDirectory withIntermediateDirectories: YES attributes:nil error: &error]) {
-//            NSLog(@"Could not create documents directory: %@", error);
-//        }
+
+        NSFileManager *fm = [NSFileManager defaultManager];
+        NSError *error;
+
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        if (![fm createDirectoryAtPath: documentsDirectory withIntermediateDirectories: YES attributes:nil error: &error]) {
+            NSLog(@"Could not create documents directory: %@", error);
+        }
 
         PLCrashReport *report = [[PLCrashReport alloc] initWithData: data error: &error];
-//        NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport: report withTextFormat: PLCrashReportTextFormatiOS];
-//
-//
-//        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"demo2.plcrash"];
-//        NSLog(@"%@", outputPath);
-//        if (![data writeToFile: outputPath atomically: YES]) {
-//            NSLog(@"Failed to write crash report");
-//        }
+        NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport: report withTextFormat: PLCrashReportTextFormatiOS];
+        NSLog(@"%@", text);
+        
+        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"nsexception.plcrash"];
+        NSLog(@"%@", outputPath);
+        if (![data writeToFile: outputPath atomically: YES]) {
+            NSLog(@"Failed to write crash report");
+        }
         SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithPLCrashReport:report];
         SentryEvent *event = [reportConverter convertToEvent];
         
         [SentrySDK captureEvent:event];
         
         [reporter purgePendingCrashReport];
-//        NSLog(@"%@", text);
+        
     }
     
     return YES;

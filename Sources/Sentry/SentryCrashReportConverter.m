@@ -20,6 +20,8 @@
 
 #import <CrashReporter/CrashReporter.h>
 
+#define RETURN_NAME_FOR_ENUM(A) case A: return #A
+
 @interface SentryCrashReportConverter ()
 
 @property(nonatomic, strong) PLCrashReport *plCrashReport;
@@ -38,6 +40,25 @@
 static inline NSString *hexAddress(NSNumber *value) {
     return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }
+
+const char* sentry_mach_exceptionName(const int64_t exceptionType)
+{
+    switch (exceptionType)
+    {
+            RETURN_NAME_FOR_ENUM(EXC_BAD_ACCESS);
+            RETURN_NAME_FOR_ENUM(EXC_BAD_INSTRUCTION);
+            RETURN_NAME_FOR_ENUM(EXC_ARITHMETIC);
+            RETURN_NAME_FOR_ENUM(EXC_EMULATION);
+            RETURN_NAME_FOR_ENUM(EXC_SOFTWARE);
+            RETURN_NAME_FOR_ENUM(EXC_BREAKPOINT);
+            RETURN_NAME_FOR_ENUM(EXC_SYSCALL);
+            RETURN_NAME_FOR_ENUM(EXC_MACH_SYSCALL);
+            RETURN_NAME_FOR_ENUM(EXC_RPC_ALERT);
+            RETURN_NAME_FOR_ENUM(EXC_CRASH);
+    }
+    return NULL;
+}
+
 
 - (instancetype)initWithReport:(NSDictionary *)report {
     self = [super init];
@@ -396,56 +417,151 @@ static inline NSString *hexAddress(NSNumber *value) {
     return self;
 }
 
+- (NSArray *)convertPLStackFrames:(NSArray *)stackFrames withBaseAddress:(uint64_t)baseAddress andSize:(uint64_t)size {
+    NSMutableArray *frames = [NSMutableArray new];
+    for (PLCrashReportStackFrameInfo *plFrame in stackFrames) {
+        SentryFrame *frame = [[SentryFrame alloc] init];
+        if (plFrame.symbolInfo.symbolName) {
+            frame.function = plFrame.symbolInfo.symbolName;
+        }
+        frame.instructionAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.instructionPointer]);
+        frame.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.startAddress]);
+        frame.symbolAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.endAddress]);
+        if (plFrame.symbolInfo.startAddress >= baseAddress && plFrame.symbolInfo.startAddress < baseAddress+size) {
+            frame.inApp = @YES;
+        }
+        [frames addObject:frame];
+    }
+    return [frames reverseObjectEnumerator].allObjects;
+}
 
 - (SentryEvent *)convertToEvent {
-    SentryException *exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:@"Unknown Exception"];
-    if (self.plCrashReport.hasExceptionInfo) {
-        exception = [[SentryException alloc] initWithValue:self.plCrashReport.exceptionInfo.exceptionName type:self.plCrashReport.exceptionInfo.exceptionReason];
+    uint64_t baseAddress = 0;
+    uint64_t size = 0;
+    
+    NSMutableArray<SentryDebugMeta *> *debugImages = [NSMutableArray new];
+    for (PLCrashReportBinaryImageInfo *plImage in self.plCrashReport.images) {
+        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+        debugMeta.uuid = plImage.imageUUID;
+        debugMeta.type = @"apple";
+        debugMeta.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plImage.imageBaseAddress]);
+        if (baseAddress == 0) {
+            baseAddress = plImage.imageBaseAddress;
+        }
+        debugMeta.imageSize = [NSNumber numberWithUnsignedLongLong:plImage.imageSize];
+        if (size == 0) {
+            size = plImage.imageSize;
+        }
+        debugMeta.name = plImage.imageName;
+        [debugImages addObject:debugMeta];
     }
+    
+    SentryException *exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:@"Unknown Type"];
+    
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@""];
+    mechanism.handled = @(NO);
+    
+    NSMutableDictionary *meta = [NSMutableDictionary new];
+    if (nil != self.plCrashReport.machExceptionInfo) {
+        NSMutableDictionary *machException = [NSMutableDictionary new];
+        [machException setValue:[NSNumber numberWithUnsignedLongLong:self.plCrashReport.machExceptionInfo.type] forKey:@"exception"];
+        [machException setValue:[self.plCrashReport.machExceptionInfo.codes lastObject] forKey:@"subcode"];
+        [machException setValue:[self.plCrashReport.machExceptionInfo.codes firstObject] forKey:@"code"];
+        [meta setValue:machException forKey:@"mach_exception"];
+    }
+    if (nil != self.plCrashReport.signalInfo && self.plCrashReport.signalInfo.code && self.plCrashReport.signalInfo.name) {
+        NSMutableDictionary *signal = [NSMutableDictionary new];
+        [signal setValue:hexAddress([NSNumber numberWithUnsignedLongLong:self.plCrashReport.signalInfo.address]) forKey:@"address"];
+        [signal setValue:self.plCrashReport.signalInfo.code forKey:@"code_name"];
+        [signal setValue:self.plCrashReport.signalInfo.name forKey:@"name"];
+        [meta setValue:signal forKey:@"signal"];    
+    }
+    
+    mechanism.meta = meta;
+    
+    if (self.plCrashReport.signalInfo) {
+        exception = [[SentryException alloc] initWithValue: [NSString stringWithFormat:@"%@ (%@)", self.plCrashReport.signalInfo.name, self.plCrashReport.signalInfo.code] type:self.plCrashReport.signalInfo.name];
+    }
+    
+    if (self.plCrashReport.machExceptionInfo.type) {
+        exception.type = [NSString stringWithUTF8String:sentry_mach_exceptionName(self.plCrashReport.machExceptionInfo.type)];
+        mechanism.type = @"mach";
+    }
+    
+    if (self.plCrashReport.hasExceptionInfo) {
+//        self.plCrashReport.uuidRef filter dupes
+        
+//        self.plCrashReport.exceptionInfo.stackFrames
+        exception = [[SentryException alloc] initWithValue:self.plCrashReport.exceptionInfo.exceptionReason type:self.plCrashReport.exceptionInfo.exceptionName];
+        SentryThread *exceptionThread = [[SentryThread alloc] initWithThreadId:@0];
+        exceptionThread.stacktrace = [[SentryStacktrace alloc] initWithFrames:[self convertPLStackFrames:self.plCrashReport.exceptionInfo.stackFrames withBaseAddress:baseAddress andSize:size] registers:@{}];
+        exception.thread = exceptionThread;
+        mechanism.type = @"nsexception";
+    }
+    
+    
+    exception.mechanism = mechanism;
+    
+//    if self.plCrashReport.hasProcessInfo
+//    self.plCrashReport.processInfo.native YES
+//    self.plCrashReport.processInfo.parentProcessID 26034
+//    self.plCrashReport.processInfo.parentProcessName launchd_sim
+//    self.plCrashReport.processInfo.processID 28672
+//    self.plCrashReport.processInfo.processName sentry-ios-cocoa
+//    self.plCrashReport.processInfo.processPath /Users/haza/Library/Developer/CoreSimulator/Devices/98089135-8D3D-43C7-970F-6D9B57FB3A0D/data/Containers/Bundle/Application/04B58277-52F4-4971-A934-05C24C24F94D/sentry-ios-cocoapods.app/sentry-ios-cocoapods
+//    self.plCrashReport.processInfo.processStartTime 2020-02-05 15:14:31 +0000
+    
+//    self.plCrashReport.applicationInfo.applicationIdentifier io.sentry.sentry-ios-cocoapods
+//    self.plCrashReport.applicationInfo.applicationMarketingVersion 1.0
+//    self.plCrashReport.applicationInfo.applicationVersion 1
+    
+//    self.plCrashReport.hasMachineInfo
+//    self.plCrashReport.machineInfo.logicalProcessorCount 16
+//    self.plCrashReport.machineInfo.modelName x86_64
+//    self.plCrashReport.machineInfo.processorCount 8
+//    self.plCrashReport.machineInfo.processorInfo.type 7
+//    self.plCrashReport.machineInfo.processorInfo.subtype 8
+//    self.plCrashReport.machineInfo.processorInfo.typeEncoding PLCrashReportProcessorTypeEncodingMach
+    
+//    self.plCrashReport.machExceptionInfo.codes
+//    <__NSArrayM 0x7fbd3694b1d0>(
+//    1,
+//    0
+//    )
+//    self.plCrashReport.machExceptionInfo.type 1
+    
+//    self.plCrashReport.signalInfo.address nil
+//    self.plCrashReport.signalInfo.code SEGV_MAPERR
+//    self.plCrashReport.signalInfo.name SIGSEGV
+    
+//    self.plCrashReport.systemInfo.operatingSystem PLCrashReportOperatingSystemiPhoneSimulator
+//    self.plCrashReport.systemInfo.operatingSystemBuild 19C57
+//    self.plCrashReport.systemInfo.operatingSystemVersion 13.3
+    
     
     NSMutableArray *threads = [NSMutableArray new];
     for (PLCrashReportThreadInfo *plThread in self.plCrashReport.threads) {
         SentryThread *thread = [[SentryThread alloc] initWithThreadId:[NSNumber numberWithLong:plThread.threadNumber]];
 
-        NSMutableArray *frames = [NSMutableArray new];
-        for (PLCrashReportStackFrameInfo *plFrame in plThread.stackFrames) {
-            SentryFrame *frame = [[SentryFrame alloc] init];
-            frame.function = plFrame.symbolInfo.symbolName;
-            frame.instructionAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.instructionPointer]);
-            frame.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.startAddress]);
-            frame.symbolAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plFrame.symbolInfo.endAddress]);
-            [frames addObject:frame];
-        }
+        NSArray *frames = [self convertPLStackFrames:plThread.stackFrames withBaseAddress:baseAddress andSize:size];
+        
         NSMutableDictionary *registers = [NSMutableDictionary new];
         for (PLCrashReportRegisterInfo *plRegister in plThread.registers) {
             [registers setValue:hexAddress([NSNumber numberWithUnsignedLongLong:plRegister.registerValue]) forKey:plRegister.registerName];
         }
-        SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:[frames reverseObjectEnumerator].allObjects registers:registers];
+        SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames registers:registers];
         thread.stacktrace = stacktrace;
         if (thread.stacktrace.frames.count == 0) {
             // If we don't have any frames, we discard the whole frame
             thread.stacktrace = nil;
         }
         thread.crashed = [NSNumber numberWithBool:plThread.crashed];
-        if (plThread.crashed) {
+        if (plThread.crashed && exception.thread == nil) {
             exception.thread = thread;
         }
 //            thread.current = [NSNumber numberWithBool:plThread.current];
 //            thread.name
         [threads addObject:thread];
-    }
-    
-    NSMutableArray<SentryDebugMeta *> *debugImages = [NSMutableArray new];
-    for (PLCrashReportBinaryImageInfo *plImage in self.plCrashReport.images) {
-       SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-        
-       debugMeta.uuid = plImage.imageUUID;
-        debugMeta.type = @"apple";
-       debugMeta.imageAddress = hexAddress([NSNumber numberWithUnsignedLongLong:plImage.imageBaseAddress]);
-       debugMeta.imageSize = [NSNumber numberWithUnsignedLongLong:plImage.imageSize];
-       debugMeta.name = plImage.imageName;
-       
-       [debugImages addObject:debugMeta];
     }
     
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
