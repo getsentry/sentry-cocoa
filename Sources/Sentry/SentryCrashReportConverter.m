@@ -41,24 +41,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
 }
 
-const char* sentry_mach_exceptionName(const int64_t exceptionType)
-{
-    switch (exceptionType)
-    {
-            RETURN_NAME_FOR_ENUM(EXC_BAD_ACCESS);
-            RETURN_NAME_FOR_ENUM(EXC_BAD_INSTRUCTION);
-            RETURN_NAME_FOR_ENUM(EXC_ARITHMETIC);
-            RETURN_NAME_FOR_ENUM(EXC_EMULATION);
-            RETURN_NAME_FOR_ENUM(EXC_SOFTWARE);
-            RETURN_NAME_FOR_ENUM(EXC_BREAKPOINT);
-            RETURN_NAME_FOR_ENUM(EXC_SYSCALL);
-            RETURN_NAME_FOR_ENUM(EXC_MACH_SYSCALL);
-            RETURN_NAME_FOR_ENUM(EXC_RPC_ALERT);
-            RETURN_NAME_FOR_ENUM(EXC_CRASH);
-    }
-    return NULL;
-}
-
 
 - (instancetype)initWithReport:(NSDictionary *)report {
     self = [super init];
@@ -484,7 +466,7 @@ const char* sentry_mach_exceptionName(const int64_t exceptionType)
     }
     
     if (self.plCrashReport.machExceptionInfo.type) {
-        exception.type = [NSString stringWithUTF8String:sentry_mach_exceptionName(self.plCrashReport.machExceptionInfo.type)];
+//        exception.type = [NSString stringWithUTF8String:sentry_plcrash_mach_exceptionName(self.plCrashReport.machExceptionInfo.type)];
         mechanism.type = @"mach";
     }
     
