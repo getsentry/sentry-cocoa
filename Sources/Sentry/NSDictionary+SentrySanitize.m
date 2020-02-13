@@ -20,7 +20,14 @@
 
 - (NSDictionary *)sentry_sanitize {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (NSString *key in self.allKeys) {
+    for (id rawKey in self.allKeys) {
+        NSString *key;
+        if ([rawKey isKindOfClass:[NSString class]]) {
+            key = rawKey;
+        } else {
+            key = [rawKey description];
+        }
+
         if ([[self objectForKey:key] isKindOfClass:NSDictionary.class]) {
             [dict setValue:[((NSDictionary *)[self objectForKey:key]) sentry_sanitize] forKey:key];
         } else if ([[self objectForKey:key] isKindOfClass:NSDate.class]) {
