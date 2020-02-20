@@ -133,6 +133,12 @@ NSString *reportPath = @"";
     [self isValidReport];
 }
 
+- (void)testUnknownTypeException {
+    reportPath = @"Resources/UnknownTypeException";
+    [self isValidReport];
+}
+
+
 - (void)testStackoverflow {
     reportPath = @"Resources/StackOverflow";
     [self isValidReport];
