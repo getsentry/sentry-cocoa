@@ -77,7 +77,7 @@ static PLCrashReporter *reporter = nil;
         NSString *text = [PLCrashReportTextFormatter stringValueForCrashReport:report withTextFormat:PLCrashReportTextFormatiOS];
         NSLog(@"%@", text);
         
-        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent: @"nsexception.plcrash"];
+        NSString *outputPath = [documentsDirectory stringByAppendingPathComponent:@"nsexception.plcrash"];
         NSLog(@"%@", outputPath);
         if (![data writeToFile: outputPath atomically: YES]) {
             NSLog(@"Failed to write crash report");
@@ -326,56 +326,6 @@ static const char* sentry_getCPUArchForCPUType(cpu_type_t cpuType, cpu_subtype_t
     }
 
     return NULL;
-}
-
-
-/** Generate a 20 byte SHA1 hash that remains unique across a single device and
- * application. This is slightly different from the Apple crash report key,
- * which is unique to the device, regardless of the application.
- *
- * @return The stringified hex representation of the hash for this device + app.
- */
-static const char* getDeviceAndAppHash()
-{
-    NSMutableData* data = nil;
-
-#if SENTRY_HAS_UIKIT
-    if([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)])
-    {
-        data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
-    }
-    else
-#endif
-    {
-        data = [NSMutableData dataWithLength:6];
-        sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
-    }
-
-    // Append some device-specific data.
-    [data appendData:(NSData* _Nonnull )[nsstringSysctl(@"hw.machine") dataUsingEncoding:NSUTF8StringEncoding]];
-    [data appendData:(NSData* _Nonnull )[nsstringSysctl(@"hw.model") dataUsingEncoding:NSUTF8StringEncoding]];
-    const char* cpuArch = getCurrentCPUArch();
-    [data appendBytes:cpuArch length:strlen(cpuArch)];
-
-    // Append the bundle ID.
-    NSData* bundleID = [[[NSBundle mainBundle] bundleIdentifier] dataUsingEncoding:NSUTF8StringEncoding];
-    if(bundleID != nil)
-    {
-        [data appendData:bundleID];
-    }
-
-    // SHA the whole thing.
-    uint8_t sha[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1([data bytes], (CC_LONG)[data length], sha);
-
-    NSMutableString* hash = [NSMutableString string];
-    for(unsigned i = 0; i < sizeof(sha); i++)
-    {
-        [hash appendFormat:@"%02x", sha[i]];
-    }
-
-    return cString(hash);
 }
 
 + (void)addOsContextToEvent:(SentryEvent *)event fromPLCrashReport:(PLCrashReport *)report {
