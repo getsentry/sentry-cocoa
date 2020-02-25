@@ -12,7 +12,6 @@
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
-#import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryDsn.h>
 
 #else
@@ -20,19 +19,16 @@
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
-#import "SentryBreadcrumb.h"
 #import "SentryDsn.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 NSInteger const defaultMaxEvents = 10;
-NSInteger const defaultMaxBreadcrumbs = 200;
 
 @interface SentryFileManager ()
 
 @property(nonatomic, copy) NSString *sentryPath;
-@property(nonatomic, copy) NSString *breadcrumbsPath;
 @property(nonatomic, copy) NSString *eventsPath;
 @property(nonatomic, assign) NSUInteger currentFileCounter;
 
@@ -53,11 +49,6 @@ NSInteger const defaultMaxBreadcrumbs = 200;
             [self.class createDirectoryAtPath:self.sentryPath withError:error];
         }
 
-        self.breadcrumbsPath = [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs"];
-        if (![fileManager fileExistsAtPath:self.breadcrumbsPath]) {
-            [self.class createDirectoryAtPath:self.breadcrumbsPath withError:error];
-        }
-
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         if (![fileManager fileExistsAtPath:self.eventsPath]) {
             [self.class createDirectoryAtPath:self.eventsPath withError:error];
@@ -65,14 +56,12 @@ NSInteger const defaultMaxBreadcrumbs = 200;
 
         self.currentFileCounter = 0;
         self.maxEvents = defaultMaxEvents;
-        self.maxBreadcrumbs = defaultMaxBreadcrumbs;
     }
     return self;
 }
 
 - (void)deleteAllFolders {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:self.breadcrumbsPath error:nil];
     [fileManager removeItemAtPath:self.eventsPath error:nil];
     [fileManager removeItemAtPath:self.sentryPath error:nil];
 }
@@ -86,10 +75,6 @@ NSInteger const defaultMaxBreadcrumbs = 200;
 
 - (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEvents {
     return [self allFilesContentInFolder:self.eventsPath];
-}
-
-- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredBreadcrumbs {
-    return [self allFilesContentInFolder:self.breadcrumbsPath];
 }
 
 - (NSArray<NSDictionary<NSString *, id> *> *)allFilesContentInFolder:(NSString *)path {
@@ -110,12 +95,6 @@ NSInteger const defaultMaxBreadcrumbs = 200;
 - (void)deleteAllStoredEvents {
     for (NSString *path in [self allFilesInFolder:self.eventsPath]) {
         [self removeFileAtPath:[self.eventsPath stringByAppendingPathComponent:path]];
-    }
-}
-
-- (void)deleteAllStoredBreadcrumbs {
-    for (NSString *path in [self allFilesInFolder:self.breadcrumbsPath]) {
-        [self removeFileAtPath:[self.breadcrumbsPath stringByAppendingPathComponent:path]];
     }
 }
 
@@ -156,18 +135,6 @@ NSInteger const defaultMaxBreadcrumbs = 200;
             result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
         }
         [self handleFileManagerLimit:self.eventsPath maxCount:maxCount];
-        return result;
-    }
-}
-
-- (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb {
-    return [self storeBreadcrumb:crumb maxCount:self.maxBreadcrumbs];
-}
-
-- (NSString *)storeBreadcrumb:(SentryBreadcrumb *)crumb maxCount:(NSUInteger)maxCount {
-    @synchronized (self) {
-        NSString *result = [self storeDictionary:[crumb serialize] toPath:self.breadcrumbsPath];
-        [self handleFileManagerLimit:self.breadcrumbsPath maxCount:MIN(maxCount, self.maxBreadcrumbs)];
         return result;
     }
 }

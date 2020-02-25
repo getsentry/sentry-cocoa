@@ -16,7 +16,7 @@ framework module Sentry {
         header "SentryLog.h"
         header "SentryBreadcrumbTracker.h"
         header "SentryCrashExceptionApplication.h"
-        header "SentryScope+Private.h"
+        //header "SentryScope+Private.h"
         
         header "NSString+SentryNSUIntegerValue.h"
         header "NSData+SentryCompression.h"

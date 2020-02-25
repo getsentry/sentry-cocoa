@@ -224,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (sentryUser.userId == nil && sentryUser.email == nil && sentryUser.username == nil) {
         return nil;
     }
-    sentryUser.data = user[@"extra"];
+    sentryUser.data = user[@"data"];
     return sentryUser;
 }
 

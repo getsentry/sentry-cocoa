@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "SentryContext.h"
+
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryMeta.h"
@@ -216,12 +216,12 @@
     XCTAssertNotNil(user2.userId);
     user2.email = @"a@b.com";
     user2.username = @"tony";
-    user2.extra = @{@"test": @"a"};
+    user2.data = @{@"test": @"a"};
     NSDictionary *serialized2 = @{
                                   @"id": @"1",
                                   @"email": @"a@b.com",
                                   @"username": @"tony",
-                                  @"extra": @{@"test": @"a"}
+                                  @"data": @{@"test": @"a"}
                                   };
     XCTAssertEqualObjects([user2 serialize], serialized2);
 }

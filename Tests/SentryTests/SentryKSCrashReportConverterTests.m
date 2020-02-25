@@ -210,7 +210,7 @@ NSString *reportPath = @"";
                                     @"extra": @{@"a": @"b",@"c": @"d",@"e": @"f"},
                                     @"user": @{
                                             @"email": @"john@apple.com",
-                                            @"extra":     @{
+                                            @"data":     @{
                                                     @"is_admin": @(NO)
                                                     },
                                             @"id": @"12341",
@@ -219,7 +219,7 @@ NSString *reportPath = @"";
     SentryEvent *event = [reportConverter convertReportToEvent];
     NSDictionary *serializedUser = @{
                                      @"email": @"john@apple.com",
-                                     @"extra":     @{
+                                     @"data":     @{
                                          @"is_admin": @(NO)
                                      },
                                      @"id": @"12341",

@@ -53,7 +53,7 @@ NSString *rnReportPath = @"";
         XCTAssertEqualObjects(user1.userId, user1Expectation.userId);
         XCTAssertNil(user1.username);
         XCTAssertNil(user1.email);
-        XCTAssertNil(user1.extra);
+        XCTAssertNil(user1.data);
     }
     
     SentryUser *user2 = [SentryJavaScriptBridgeHelper createSentryUserFromJavaScriptUser:@{@"username": @"user"}];
@@ -62,7 +62,7 @@ NSString *rnReportPath = @"";
     XCTAssertEqualObjects(user2.username, user2Expectation.username);
     XCTAssertNil(user2.userId);
     XCTAssertNil(user2.email);
-    XCTAssertNil(user2.extra);
+    XCTAssertNil(user2.data);
     
     SentryUser *user3 = [SentryJavaScriptBridgeHelper createSentryUserFromJavaScriptUser:@{@"email": @"email"}];
     SentryUser *user3Expectation = [[SentryUser alloc] init];
@@ -70,13 +70,13 @@ NSString *rnReportPath = @"";
     XCTAssertEqualObjects(user3.email, user3Expectation.email);
     XCTAssertNil(user3.userId);
     XCTAssertNil(user3.username);
-    XCTAssertNil(user3.extra);
+    XCTAssertNil(user3.data);
     
-    SentryUser *user4 = [SentryJavaScriptBridgeHelper createSentryUserFromJavaScriptUser:@{@"email": @"email", @"extra":  @{@"yo": @"foo"}}];
+    SentryUser *user4 = [SentryJavaScriptBridgeHelper createSentryUserFromJavaScriptUser:@{@"email": @"email", @"data":  @{@"yo": @"foo"}}];
     SentryUser *user4Expectation = [[SentryUser alloc] init];
     user4Expectation.email = @"email";
     XCTAssertEqualObjects(user4.email, user4Expectation.email);
-    XCTAssertEqualObjects(user4.extra, @{@"yo": @"foo"});
+    XCTAssertEqualObjects(user4.data, @{@"yo": @"foo"});
     XCTAssertNil(user4.userId);
     XCTAssertNil(user4.username);
     

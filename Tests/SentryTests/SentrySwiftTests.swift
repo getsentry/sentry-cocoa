@@ -15,7 +15,6 @@ class SentrySwiftTests: XCTestCase {
         super.setUp()
         let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"))
         fileManager.deleteAllStoredEvents()
-        fileManager.deleteAllStoredBreadcrumbs()
         fileManager.deleteAllFolders()
         SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
     }

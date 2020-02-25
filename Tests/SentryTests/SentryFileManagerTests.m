@@ -31,7 +31,6 @@
     [super tearDown];
     //SentryClient.logLevel = kSentryLogLevelError;
     [self.fileManager deleteAllStoredEvents];
-    [self.fileManager deleteAllStoredBreadcrumbs];
     [self.fileManager deleteAllFolders];
 }
 
@@ -72,17 +71,6 @@
 //    XCTAssertEqualObjects(((NSDictionary *)events.firstObject)[@"data"], jsonData);
 //}
 
-- (void)testBreadcrumbStoring {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
-    [self.fileManager storeBreadcrumb:crumb];
-    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
-    XCTAssertTrue(crumbs.count == 1);
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[crumb serialize]
-                                                       options:0
-                                                         error:nil];
-    XCTAssertEqualObjects(((NSDictionary *)crumbs.firstObject)[@"data"], jsonData);
-}
-
 - (void)testCreateDir {
     NSError *error = nil;
     [SentryFileManager createDirectoryAtPath:@"a" withError:&error];
@@ -113,15 +101,6 @@
     XCTAssertEqual(events.count, (unsigned long)10);
 }
 
-- (void)testBreadcrumbStoringHardLimit {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
-    for (NSInteger i = 0; i <= 210; i++) {
-        [self.fileManager storeBreadcrumb:crumb];
-    }
-    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
-    XCTAssertEqual(crumbs.count, (unsigned long)200);
-}
-
 - (void)testEventStoringHardLimitSet {
     self.fileManager.maxEvents = 15;
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
@@ -130,16 +109,6 @@
     }
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertEqual(events.count, (unsigned long)15);
-}
-
-- (void)testBreadcrumbStoringHardLimitSet {
-    self.fileManager.maxBreadcrumbs = 205;
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"category"];
-    for (NSInteger i = 0; i <= 210; i++) {
-        [self.fileManager storeBreadcrumb:crumb];
-    }
-    NSArray<NSDictionary<NSString *, NSData *>*> *crumbs = [self.fileManager getAllStoredBreadcrumbs];
-    XCTAssertEqual(crumbs.count, (unsigned long)205);
 }
 
 //- (void)testEventLimitOverClient {

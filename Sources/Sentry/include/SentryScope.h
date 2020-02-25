@@ -11,13 +11,13 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDefines.h>
-#import <Sentry/SentryFileManager.h>
+#import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentrySerializable.h>
 
 #else
 #import "SentryDefines.h"
-#import "SentryFileManager.h"
+#import "SentryBreadcrumb.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
 #endif

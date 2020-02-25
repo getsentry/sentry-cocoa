@@ -22,8 +22,8 @@
 		632331F62404FFA8008D91D6 /* SentryScopeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 632331F52404FFA8008D91D6 /* SentryScopeTests.m */; };
 		632331F9240506DF008D91D6 /* SentryScope+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632331F7240506DF008D91D6 /* SentryScope+Private.h */; };
 		632331FA240506DF008D91D6 /* SentryScope+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 632331F8240506DF008D91D6 /* SentryScope+Private.m */; };
-		632331FB24050AB8008D91D6 /* SentryScope+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632331F7240506DF008D91D6 /* SentryScope+Private.h */; };
 		632331FC24050B12008D91D6 /* SentryScope+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 632331F8240506DF008D91D6 /* SentryScope+Private.m */; };
+		632331FD240524FB008D91D6 /* SentryScope+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632331F7240506DF008D91D6 /* SentryScope+Private.h */; };
 		63295AF51EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AF31EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		63295AF61EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AF31EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		63295AF71EF3C7DB002D4490 /* NSDictionary+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 63295AF41EF3C7DB002D4490 /* NSDictionary+SentrySanitize.m */; };
@@ -985,6 +985,8 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
+				639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */,
+				639889B61EDECFA800EA7442 /* SentryBreadcrumbTracker.m */,
 				7DC831082398283C0043DD9A /* SentryCrashIntegration.h */,
 				7DC831092398283C0043DD9A /* SentryCrashIntegration.m */,
 				7DC27EBD23997D48006998B5 /* SentryUIKitMemoryWarningIntegration.h */,
@@ -1007,8 +1009,6 @@
 				63AA76781EB8D20500D153DE /* SentryLog.m */,
 				636085111ED47BE600E8599E /* SentryFileManager.h */,
 				636085121ED47BE600E8599E /* SentryFileManager.m */,
-				639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */,
-				639889B61EDECFA800EA7442 /* SentryBreadcrumbTracker.m */,
 				639889B91EDED18400EA7442 /* SentrySwizzle.h */,
 				639889BA1EDED18400EA7442 /* SentrySwizzle.m */,
 				632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */,
@@ -1401,6 +1401,7 @@
 				63FE714E20DA4C1100CDBAE8 /* SentryCrashJSONCodec.h in Headers */,
 				63FE718020DA4C1100CDBAE8 /* SentryCrashReportFields.h in Headers */,
 				63FE70D220DA4C1000CDBAE8 /* SentryCrashMonitorContext.h in Headers */,
+				632331FD240524FB008D91D6 /* SentryScope+Private.h in Headers */,
 				6387B81B1ED850BC0045A84C /* SentryNSURLRequest.h in Headers */,
 				6387B8201ED850D10045A84C /* SentryBreadcrumb.h in Headers */,
 				7D0637042382B34300B30749 /* SentryScope.h in Headers */,
@@ -1435,7 +1436,6 @@
 				6387B81E1ED850C90045A84C /* SentryLog.h in Headers */,
 				6387B8271ED851000045A84C /* SentryDebugMeta.h in Headers */,
 				63FE712C20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */,
-				632331FB24050AB8008D91D6 /* SentryScope+Private.h in Headers */,
 				63FE70EC20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h in Headers */,
 				63FE718420DA4C1100CDBAE8 /* SentryCrashReportFixer.h in Headers */,
 				63FE70FA20DA4C1000CDBAE8 /* SentryCrashMonitor.h in Headers */,

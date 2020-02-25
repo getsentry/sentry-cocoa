@@ -43,7 +43,6 @@
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
 @property(nonatomic, strong) NSString *diagnosis;
-@property(nonatomic, strong) NSDictionary *userContext;
 
 @end
 
@@ -162,8 +161,6 @@ static inline NSString *hexAddress(NSNumber *value) {
     }
     return kSentrySeverityError;
 }
-
-
 
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
     NSDictionary *thread = [self.threads objectAtIndex:threadIndex];

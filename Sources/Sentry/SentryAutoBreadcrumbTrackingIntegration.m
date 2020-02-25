@@ -29,10 +29,9 @@
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options {
+- (void)installWithOptions:(nonnull SentryOptions *)options {
     self.options = options;
     [self enableAutomaticBreadcrumbTracking];
-    return YES;
 }
 
 - (void)enableAutomaticBreadcrumbTracking {
