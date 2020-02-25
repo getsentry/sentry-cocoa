@@ -206,10 +206,12 @@ NS_ASSUME_NONNULL_BEGIN
         event.user = self.user;
     }
 
-    if (nil == event.breadcrumbsSerialized) {
-        event.breadcrumbsSerialized = [self serializeBreadcrumbs];
+    if (nil != self.breadcrumbs) {
+        if (nil == event.breadcrumbs) {
+            event.breadcrumbs = self.breadcrumbs;
+        }
     }
-
+    
     if (nil != self.context) {
         if (nil == event.context) {
             event.context = self.context;

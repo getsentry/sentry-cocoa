@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext, SentryBreadcrumb;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -157,7 +157,7 @@ SENTRY_NO_INIT
 /**
  * This contains all breadcrumbs available at the time when the event occurred/will be sent
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable breadcrumbsSerialized;
+@property(nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
  * JSON baggage, that will only be filled if initWithJSON is called.

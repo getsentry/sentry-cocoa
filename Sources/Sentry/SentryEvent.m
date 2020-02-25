@@ -9,6 +9,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryUser.h>
 #import <Sentry/SentryThread.h>
@@ -21,6 +22,7 @@
 
 #else
 #import "SentryEvent.h"
+#import "SentryBreadcrumb.h"
 #import "SentryDebugMeta.h"
 #import "SentryClient.h"
 #import "SentryUser.h"
@@ -147,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
     
-    [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
+    [serializedData setValue:[self serializeBreadcrumbs] forKey:@"breadcrumbs"];
     
     [serializedData setValue:self.context forKey:@"contexts"];
 
@@ -164,6 +166,14 @@ NS_ASSUME_NONNULL_BEGIN
         }
         
     }
+}
+
+- (NSMutableArray *)serializeBreadcrumbs {
+    NSMutableArray *crumbs = [NSMutableArray new];
+    for (SentryBreadcrumb *crumb in self.breadcrumbs) {
+        [crumbs addObject:[crumb serialize]];
+    }
+    return crumbs;
 }
 
 @end

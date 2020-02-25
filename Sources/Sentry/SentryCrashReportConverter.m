@@ -10,6 +10,7 @@
 
 #import <Sentry/SentryCrashReportConverter.h>
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryDebugMeta.h>
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryStacktrace.h>
@@ -22,6 +23,7 @@
 #else
 #import "SentryCrashReportConverter.h"
 #import "SentryEvent.h"
+#import "SentryBreadcrumb.h"
 #import "SentryDebugMeta.h"
 #import "SentryThread.h"
 #import "SentryStacktrace.h"
@@ -109,31 +111,59 @@ static inline NSString *hexAddress(NSNumber *value) {
 //        event.dist = event.context.appContext[@"app_build"];
 //    }
     event.extra = [self.userContext objectForKey:@"extra"];
-    event.tags = [self convertTags];
+    event.tags = [self.userContext objectForKey:@"tags"];
+    event.context = [self.userContext objectForKey:@"context"];
     event.user = [self convertUser];
-    //event.breadcrumbsSerialized = [self.userContext objectForKey:@"breadcrumbs"];
+    event.breadcrumbs = [self convertBreadcrumbs];
     return event;
-}
-
-- (NSDictionary<NSString *, id <NSSecureCoding>> *_Nullable)convertExtra {
-    return self.userContext[@"extra"];
-}
-
-- (NSDictionary<NSString *, NSString *> *_Nullable)convertTags {
-    return self.userContext[@"tags"];
 }
 
 - (SentryUser *_Nullable)convertUser {
     SentryUser *user = nil;
-    if (nil != self.userContext[@"user"]) {
+    if (nil != [self.userContext objectForKey:@"user"]) {
+        NSDictionary *storedUser = [self.userContext objectForKey:@"user"];
         user = [[SentryUser alloc] init];
-        user.userId = self.userContext[@"user"][@"id"];
-        user.email = self.userContext[@"user"][@"email"];
-        user.username = self.userContext[@"user"][@"username"];
-        user.data = self.userContext[@"user"][@"data"];
+        user.userId = [storedUser objectForKey:@"id"];
+        user.email = [storedUser objectForKey:@"email"];
+        user.username = [storedUser objectForKey:@"username"];
+        user.data = [storedUser objectForKey:@"data"];
     }
     return user;
 }
+
+
+- (NSMutableArray <SentryBreadcrumb *>*)convertBreadcrumbs {
+    NSMutableArray *breadcrumbs = [NSMutableArray new];
+    if (nil != [self.userContext objectForKey:@"breadcrumbs"]) {
+        NSArray *storedBreadcrumbs = [self.userContext objectForKey:@"breadcrumbs"];
+        for (NSDictionary *storedCrumb in storedBreadcrumbs) {
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:[self sentrySeverityFromLevel:[storedCrumb objectForKey:@"level"]]
+                                                                     category:[storedCrumb objectForKey:@"category"]];
+            crumb.message = [storedCrumb objectForKey:@"message"];
+            crumb.type = [storedCrumb objectForKey:@"type"];
+            crumb.timestamp = [NSDate sentry_fromIso8601String:[storedCrumb objectForKey:@"timestamp"]];
+            [breadcrumbs addObject:crumb];
+        }
+    }
+    return breadcrumbs;
+}
+
+- (SentrySeverity)sentrySeverityFromLevel:(NSString *)level {
+    if ([level isEqualToString:@"fatal"]) {
+        return kSentrySeverityFatal;
+    } else if ([level isEqualToString:@"warning"]) {
+        return kSentrySeverityWarning;
+    } else if ([level isEqualToString:@"info"] || [level isEqualToString:@"log"]) {
+        return kSentrySeverityInfo;
+    } else if ([level isEqualToString:@"debug"]) {
+        return kSentrySeverityDebug;
+    } else if ([level isEqualToString:@"error"]) {
+        return kSentrySeverityError;
+    }
+    return kSentrySeverityError;
+}
+
+
 
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
     NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
