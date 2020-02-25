@@ -14,7 +14,6 @@
 #import <Sentry/SentryThread.h>
 #import <Sentry/SentryException.h>
 #import <Sentry/SentryStacktrace.h>
-#import <Sentry/SentryContext.h>
 #import <Sentry/SentryDebugMeta.h>
 #import <Sentry/NSDate+SentryExtras.h>
 #import <Sentry/NSDictionary+SentrySanitize.h>
@@ -28,7 +27,6 @@
 #import "SentryThread.h"
 #import "SentryException.h"
 #import "SentryStacktrace.h"
-#import "SentryContext.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryMeta.h"
@@ -44,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
         self.eventId = [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
         self.level = level;
         self.platform = @"cocoa";
-        self.context = [[SentryContext alloc] init];
     }
     return self;
 }
@@ -152,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     [serializedData setValue:self.breadcrumbsSerialized[@"breadcrumbs"] forKey:@"breadcrumbs"];
     
-    [serializedData setValue:[self.context serialize] forKey:@"contexts"];
+    [serializedData setValue:self.context forKey:@"contexts"];
 
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];

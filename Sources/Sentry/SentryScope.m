@@ -9,6 +9,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryScope.h>
+#import <Sentry/SentryScope+Private.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
@@ -21,10 +22,10 @@
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
-#import <Sentry/SentryContext.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
 #else
 #import "SentryScope.h"
+#import "SentryScope+Private.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -37,7 +38,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryCrash.h"
 #import "SentryOptions.h"
-#import "SentryContext.h"
 #import "SentryGlobalEventProcessor.h"
 #endif
 
@@ -78,11 +78,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryScope
 
+@synthesize extra = _extra;
+@synthesize tags = _tags;
+@synthesize user = _user;
+@synthesize context = _context;
+@synthesize breadcrumbs = _breadcrumbs;
+
 #pragma mark Initializer
 
 - (instancetype)init {
     if (self = [super init]) {
-        // nothing to do here
+        self.listeners = [NSMutableArray new];
+        [self clear];
     }
     return self;
 }
@@ -91,11 +98,60 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    [self.breadcrumbs addObject:crumb];
+    [_breadcrumbs addObject:crumb];
+    [self notifyListeners];
+}
+
+- (void)clear {
+    _breadcrumbs = [NSMutableArray new];
+    _user = nil;
+    _tags = [NSMutableDictionary new];
+    _extra = [NSMutableDictionary new];
+    _context = [NSMutableDictionary new];
+    [self notifyListeners];
 }
 
 - (void)clearBreadcrumbs {
-    [self.breadcrumbs removeAllObjects];
+    [_breadcrumbs removeAllObjects];
+    [self notifyListeners];
+}
+
+- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
+    [_context setValue:value forKey:key];
+    [self notifyListeners];
+}
+
+- (void)setExtraValue:(id)value forKey:(NSString *)key {
+    [_extra setValue:value forKey:key];
+    [self notifyListeners];
+}
+
+- (void)setExtra:(NSDictionary<NSString *,id> *_Nullable)extra {
+    if (extra == nil) {
+        _extra = [NSMutableDictionary new];
+    } else {
+        _extra = extra.mutableCopy;
+    }
+    [self notifyListeners];
+}
+
+- (void)setTagValue:(id)value forKey:(NSString *)key {
+    [_tags setValue:value forKey:key];
+    [self notifyListeners];
+}
+
+- (void)setTags:(NSDictionary<NSString *,NSString *> *_Nullable)tags {
+    if (tags == nil) {
+        _tags = [NSMutableDictionary new];
+    } else {
+        _tags = tags.mutableCopy;
+    }
+    [self notifyListeners];
+}
+
+- (void)setUser:(SentryUser *_Nullable)user {
+    _user = user;
+    [self notifyListeners];
 }
 
 - (NSDictionary<NSString *, id> *)serializeBreadcrumbs {
@@ -154,7 +210,16 @@ NS_ASSUME_NONNULL_BEGIN
         event.breadcrumbsSerialized = [self serializeBreadcrumbs];
     }
 
-    event.context.customContext = self.context;
+    if (nil != self.context) {
+        if (nil == event.context) {
+            event.context = self.context;
+        } else {
+            NSMutableDictionary *newContext = [NSMutableDictionary new];
+            [newContext addEntriesFromDictionary:self.context];
+            [newContext addEntriesFromDictionary:event.context];
+            event.context = newContext;
+        }
+    }
 
     event = [self callEventProcessors:event];
 
@@ -163,10 +228,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return event;
-}
-
-- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
-    [self.context setValue:value forKey:key];
 }
 
 - (SentryEvent *)callEventProcessors:(SentryEvent *)event {

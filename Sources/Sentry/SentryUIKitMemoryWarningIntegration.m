@@ -35,10 +35,9 @@
 
 @implementation SentryUIKitMemoryWarningIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options {
+- (void)installWithOptions:(nonnull SentryOptions *)options {
     self.options = options;
     [self trackMemoryPressureAsEvent];
-    return YES;
 }
 
 - (void)trackMemoryPressureAsEvent {

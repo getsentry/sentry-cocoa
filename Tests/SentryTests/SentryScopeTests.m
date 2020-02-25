@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "SentryBreadcrumb.h"
 #import "SentryScope.h"
+#import "SentryScope+Private.h"
 
 @interface SentryScopeTests : XCTestCase
 
@@ -71,6 +72,10 @@
     #warning TODO implement
 }
 
+- (void)testClear {
+    #warning TODO implement
+}
+
 - (void)testClearBreadcrumb {
     SentryScope *scope = [[SentryScope alloc] init];
     [scope clearBreadcrumbs];
@@ -79,5 +84,15 @@
     XCTAssertTrue([[[scope serialize] objectForKey:@"breadcrumbs"] count] == 0);
 }
 
+- (void)testListeners {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Should call scope listener"];
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope addScopeListener:^(SentryScope * _Nonnull scope) {
+        XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
+        [expectation fulfill];
+    }];
+    [scope setExtra:@{@"a": @"b"}];
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
 
 @end

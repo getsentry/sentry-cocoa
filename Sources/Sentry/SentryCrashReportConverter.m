@@ -15,7 +15,6 @@
 #import <Sentry/SentryStacktrace.h>
 #import <Sentry/SentryFrame.h>
 #import <Sentry/SentryException.h>
-#import <Sentry/SentryContext.h>
 #import <Sentry/SentryUser.h>
 #import <Sentry/SentryMechanism.h>
 #import <Sentry/NSDate+SentryExtras.h>
@@ -28,7 +27,6 @@
 #import "SentryStacktrace.h"
 #import "SentryFrame.h"
 #import "SentryException.h"
-#import "SentryContext.h"
 #import "SentryUser.h"
 #import "SentryMechanism.h"
 #import "NSDate+SentryExtras.h"
@@ -43,6 +41,7 @@
 @property(nonatomic, strong) NSArray *threads;
 @property(nonatomic, strong) NSDictionary *systemContext;
 @property(nonatomic, strong) NSString *diagnosis;
+@property(nonatomic, strong) NSDictionary *userContext;
 
 @end
 
@@ -58,6 +57,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         self.report = report;
         self.binaryImages = report[@"binary_images"];
         self.systemContext = report[@"system"];
+        self.userContext = report[@"user"];
 
         NSDictionary *crashContext;
         // This is an incomplete crash report
@@ -92,6 +92,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
     
+    // TODO(hazat)
     event.releaseName = self.userContext[@"releaseName"];
     event.dist = self.userContext[@"dist"];
     event.environment = self.userContext[@"environment"];
@@ -99,15 +100,18 @@ static inline NSString *hexAddress(NSNumber *value) {
     // We want to set the release and dist to the version from the crash report itself
     // otherwise it can happend that we have two different version when the app crashes
     // right before an app update #218 #219
-    if (nil == event.releaseName && event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"]) {
-        event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
-    }
-    if (nil == event.dist && event.context.appContext[@"app_build"]) {
-        event.dist = event.context.appContext[@"app_build"];
-    }
-    event.extra = [self convertExtra];
+    // TODO(hazat)
+//    if (nil == event.releaseName && event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"]) {
+//        event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
+//    }
+    // TODO(hazat)
+//    if (nil == event.dist && event.context.appContext[@"app_build"]) {
+//        event.dist = event.context.appContext[@"app_build"];
+//    }
+    event.extra = [self.userContext objectForKey:@"extra"];
     event.tags = [self convertTags];
     event.user = [self convertUser];
+    //event.breadcrumbsSerialized = [self.userContext objectForKey:@"breadcrumbs"];
     return event;
 }
 
@@ -126,7 +130,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         user.userId = self.userContext[@"user"][@"id"];
         user.email = self.userContext[@"user"][@"email"];
         user.username = self.userContext[@"user"][@"username"];
-        user.extra = self.userContext[@"user"][@"extra"];
+        user.data = self.userContext[@"user"][@"data"];
     }
     return user;
 }

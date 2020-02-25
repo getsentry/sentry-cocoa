@@ -14,14 +14,12 @@
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentrySerializable.h>
-#import <Sentry/SentryContext.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
-#import "SentryContext.h"
 #endif
 
 @class SentryUser;
@@ -83,6 +81,11 @@ NS_SWIFT_NAME(Scope)
  * "enrichted" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
+
+/**
+ * Clears the current Scope
+ */
+- (void)clear;
 
 @end
 

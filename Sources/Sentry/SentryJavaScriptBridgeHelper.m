@@ -34,6 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// 
 @implementation SentryJavaScriptBridgeHelper
 
 + (NSNumberFormatter *)numberFormatter {
@@ -223,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (sentryUser.userId == nil && sentryUser.email == nil && sentryUser.username == nil) {
         return nil;
     }
-    sentryUser.extra = user[@"extra"];
+    sentryUser.data = user[@"extra"];
     return sentryUser;
 }
 

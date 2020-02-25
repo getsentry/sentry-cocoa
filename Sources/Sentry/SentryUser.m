@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.userId forKey:@"id"];
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
-    [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
+    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     
     return serializedData;
 }

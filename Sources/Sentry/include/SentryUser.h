@@ -39,7 +39,7 @@ NS_SWIFT_NAME(User)
 /**
  * Optional: Additional data
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
 /**
  * Initializes a SentryUser with the id

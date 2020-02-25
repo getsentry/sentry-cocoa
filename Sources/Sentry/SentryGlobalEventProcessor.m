@@ -18,8 +18,6 @@
 
 @implementation SentryGlobalEventProcessor
 
-@synthesize processors = _processors;
-
 + (instancetype)shared {
     static SentryGlobalEventProcessor *instance = nil;
     static dispatch_once_t onceToken;

@@ -132,7 +132,7 @@ SENTRY_NO_INIT
 /**
  * This object contains meta information, will be set automatically overwrite only if you know what you are doing
  */
-@property(nonatomic, strong) SentryContext *_Nullable context;
+@property(nonatomic, strong) NSDictionary<NSString *, NSDictionary<NSString *, id>*> *_Nullable context;
 
 /**
  * Contains SentryThread if an crash occurred of it's an user reported exception

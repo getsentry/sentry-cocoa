@@ -14,8 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryCrashReportConverter : NSObject
 
-@property(nonatomic, strong) NSDictionary *userContext;
-
 - (instancetype)initWithReport:(NSDictionary *)report;
 
 - (SentryEvent *)convertReportToEvent;
