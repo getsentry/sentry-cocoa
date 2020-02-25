@@ -139,9 +139,6 @@
     return NO;
 }
 
-/**
- * Checks if integration is activated for bound client.
- */
 - (id _Nullable)getIntegration:(NSString *)integrationName {
     NSArray *integrations = [self getClient].options.integrations;
     if (![integrations containsObject:integrationName]) {

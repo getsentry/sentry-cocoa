@@ -51,7 +51,7 @@
                                                     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
                                                     crumb.type = @"system";
                                                     crumb.message = @"Memory Warning";
-                                                    [SentrySDK.currentHub addBreadcrumb:crumb];
+                                                    [SentrySDK addBreadcrumb:crumb];
                                                 }];
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker trackApplicationUIKitNotifications] does nothing." andLevel:kSentryLogLevelDebug];

@@ -58,13 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
 //- `Hub::bind_client(new_client)`: Binds a different client to the hub. If the hub is also the owner of the client that was created by `init` it needs to keep a reference to it still if the hub is the object responsible for disposing it.
 - (void)bindClient:(SentryClient *_Nullable)client;
 
-// TODO(fetzig)
-//- `Hub::last_event_id()`: Should return the last event ID emitted by the current scope. This is for instance used to implement user feedback dialogs.
-
-// TODO(fetzig)
-//- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
-
-
+/**
+ * Checks if integration is activated for bound client and returns it.
+ */
 - (id _Nullable)getIntegration:(NSString *)integrationName;
 
 @end

@@ -236,9 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEvent *newEvent = event;
 
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
-
         newEvent = processor(newEvent);
-
         if (nil == newEvent) {
             [SentryLog logWithMessage:@"SentryScope callEventProcessors: an event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
             break;
