@@ -74,7 +74,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds the Scope to the event
  */
-- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event;
+- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
 
 /**
  * Cets context values which will overwrite SentryEvent.context when event is

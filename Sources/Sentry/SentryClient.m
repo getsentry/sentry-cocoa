@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = dist;
     }
 
-    event = [scope applyToEvent:event];
+    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
     return event;
 }

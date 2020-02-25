@@ -27,6 +27,7 @@
 @interface SentryHub()
 
 @property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 @end
 
@@ -50,9 +51,6 @@
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    // TODO
-//    withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs
-//    [self getClient].options.maxBreadcrumbs
     [[self getScope] addBreadcrumb:crumb];
 }
 
@@ -79,8 +77,8 @@
 }
 
 - (SentryScope *)pushScope {
-    SentryScope * scope = [[[self getStackTop] scope] copy];
-    SentryClient * client = [[self getClient] copy];
+    SentryScope *scope = [[[self getStackTop] scope] copy];
+    SentryClient *client = [[self getClient] copy];
     SentryStackLayer *newLayer = [[SentryStackLayer alloc] init];
     newLayer.scope = scope;
     newLayer.client = client;
@@ -144,8 +142,12 @@
 /**
  * Checks if integration is activated for bound client.
  */
-- (BOOL)isIntegrationActiveInBoundClient:(NSString *)integrationName {
-    return NSNotFound != [[self getClient].options.integrations indexOfObject:integrationName];
+- (id _Nullable)getIntegration:(NSString *)integrationName {
+    NSArray *integrations = [self getClient].options.integrations;
+    if (![integrations containsObject:integrationName]) {
+        return nil;
+    }
+    return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
 @end

@@ -42,13 +42,16 @@
 
 - (void)trackMemoryPressureAsEvent {
 #if SENTRY_HAS_UIKIT
+    NSString __block *integrationName = NSStringFromClass(SentryUIKitMemoryWarningIntegration.class);
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
     event.message = @"Memory Warning";
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
-                                                    [SentrySDK captureEvent:event];
+                                                    if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
+                                                        [SentrySDK captureEvent:event];
+                                                    }
                                                 }];
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryUIKitMemoryWarningIntegration does nothing." andLevel:kSentryLogLevelDebug];

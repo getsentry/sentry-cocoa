@@ -27,8 +27,6 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 
-@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
-
 /**
  Capture message / exception call into capture event
  */
@@ -55,10 +53,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  returns current client (or none)
  */
-- (SentryClient * _Nullable)getClient;
+- (SentryClient *_Nullable)getClient;
 
 //- `Hub::bind_client(new_client)`: Binds a different client to the hub. If the hub is also the owner of the client that was created by `init` it needs to keep a reference to it still if the hub is the object responsible for disposing it.
-- (void)bindClient:(SentryClient * _Nullable)client;
+- (void)bindClient:(SentryClient *_Nullable)client;
 
 // TODO(fetzig)
 //- `Hub::last_event_id()`: Should return the last event ID emitted by the current scope. This is for instance used to implement user feedback dialogs.
@@ -67,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 //- `Hub::run(hub, callback)` `hub.run(callback)`, `run_in_hub(hub, callback)` (optional): Runs a callback with the hub bound as the current hub.
 
 
-- (BOOL)isIntegrationActiveInBoundClient:(NSString *)integrationName;
+- (id _Nullable)getIntegration:(NSString *)integrationName;
 
 @end
 

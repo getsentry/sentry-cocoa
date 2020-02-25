@@ -74,11 +74,9 @@ static SentryInstallation *installation = nil;
 - (void)configureScope {
     // We need to make sure to set always the scope to KSCrash so we have it in case of a crash
     NSString *integrationName = NSStringFromClass(SentryCrashIntegration.class);
-    if ([SentrySDK.currentHub isIntegrationActiveInBoundClient:integrationName]) {
+    if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
         [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull outerScope) {
-
             // OS
-
             NSMutableDictionary *osData = [NSMutableDictionary new];
 
             #if TARGET_OS_OSX || TARGET_OS_MACCATALYST

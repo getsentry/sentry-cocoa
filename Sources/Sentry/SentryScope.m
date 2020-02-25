@@ -179,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event {
+- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs {
     if (nil != self.tags) {
         if (nil == event.tags) {
             event.tags = self.tags;
@@ -208,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (nil != self.breadcrumbs) {
         if (nil == event.breadcrumbs) {
-            event.breadcrumbs = self.breadcrumbs;
+            event.breadcrumbs = [self.breadcrumbs subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [self.breadcrumbs count]))];
         }
     }
     
