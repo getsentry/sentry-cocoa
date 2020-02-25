@@ -26,7 +26,8 @@
 
 @interface SentryHub()
 
-@property (nonatomic, strong) NSMutableArray<SentryStackLayer *> *stack;
+@property (nonatomic, strong) SentryClient *_Nullable client;
+@property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 @end
@@ -35,71 +36,71 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        SentryScope *scope = [[SentryScope alloc] init];
-        SentryStackLayer *layer = [[SentryStackLayer alloc] init];
-        layer.scope = scope;
-        [self setStack:[@[layer] mutableCopy]];
+        self.scope = [[SentryScope alloc] init];
     }
     return self;
 }
 
-- (void)captureEvent:(SentryEvent *)event {
+- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        [client captureEvent:event withScope:[self getScope]];
+        if (nil == scope) {
+            [client captureEvent:event withScopes:@[self.scope]];
+        } else {
+            [client captureEvent:event withScopes:@[self.scope, scope]];
+        }
+    }
+}
+
+- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        if (nil == scope) {
+            [client captureMessage:message withScopes:@[self.scope]];
+        } else {
+            [client captureMessage:message withScopes:@[self.scope, scope]];
+        }
+    }
+}
+
+- (void)captureError:(NSError *)error withScope:(SentryScope *)scope {
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        if (nil == scope) {
+            [client captureError:error withScopes:@[self.scope]];
+        } else {
+            [client captureError:error withScopes:@[self.scope, scope]];
+        }
+    }
+}
+
+-(void)captureException:(NSException *)exception withScope:(SentryScope *)scope {
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        if (nil == scope) {
+            [client captureException:exception withScopes:@[self.scope]];
+        } else {
+            [client captureException:exception withScopes:@[self.scope, scope]];
+        }
     }
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [[self getScope] addBreadcrumb:crumb];
+    [self.scope addBreadcrumb:crumb];
 }
 
-- (SentryClient * _Nullable)getClient {
-    if (nil != [self getStackTop]) {
-        return [[self getStackTop] client];
-    }
-    return nil;
+- (SentryClient *_Nullable)getClient {
+    return self.getClient;
 }
 
 - (void)bindClient:(SentryClient * _Nullable)client {
-    if (nil != [self getStackTop]) {
-        [self getStackTop].client = client;
-        [self doInstallIntegrations];
-    }
-}
-
-- (SentryStackLayer *)getStackTop {
-    return self.stack[self.stack.count - 1];
-}
-
-- (SentryScope *)getScope {
-    return [self getStackTop].scope;
-}
-
-- (SentryScope *)pushScope {
-    SentryScope *scope = [[[self getStackTop] scope] copy];
-    SentryClient *client = [[self getClient] copy];
-    SentryStackLayer *newLayer = [[SentryStackLayer alloc] init];
-    newLayer.scope = scope;
-    newLayer.client = client;
-    [self.stack addObject:newLayer];
-    return scope;
-}
-
-- (void)popScope {
-    [self.stack removeLastObject];
-}
-
-- (void)withScope:(void(^)(SentryScope * scope))callback {
-    SentryScope *scope = [self pushScope];
-    callback(scope);
-    [self popScope];
+    self.client = client;
+    [self doInstallIntegrations];
 }
 
 - (void)configureScope:(void(^)(SentryScope *scope))callback {
-    SentryStackLayer *top = [self getStackTop];
-    if (nil != top.client && nil != top.scope) {
-        callback(top.scope);
+    if (nil != self.client && nil != self.scope) {
+        callback(self.scope);
     }
 }
 

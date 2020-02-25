@@ -202,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    if (nil != self.user && nil == event.user) {
+    if (nil != self.user) {
         event.user = self.user;
     }
 
@@ -223,26 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    event = [self callEventProcessors:event];
-
-    if (nil == event) {
-        return nil;
-    }
-
     return event;
-}
-
-- (SentryEvent *)callEventProcessors:(SentryEvent *)event {
-    SentryEvent *newEvent = event;
-
-    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
-        newEvent = processor(newEvent);
-        if (nil == newEvent) {
-            [SentryLog logWithMessage:@"SentryScope callEventProcessors: an event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
-            break;
-        }
-    }
-    return newEvent;
 }
 
 @end

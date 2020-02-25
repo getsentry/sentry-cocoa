@@ -70,7 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
         self.options = options;
-
         [self.transport sendAllStoredEvents];
     }
     return self;
@@ -83,14 +82,33 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
-    if (nil != preparedEvent) {
+- (void)captureMessage:(NSString *)message withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    // TODO: Attach stacktrace?
+    event.message = message;
+    [self captureEvent:event withScopes:scopes];
+}
 
+- (void)captureException:(NSException *)exception withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    // TODO: Capture Stacktrace
+    event.message = exception.reason;
+    [self captureEvent:event withScopes:scopes];
+}
+
+- (void)captureError:(NSError *)error withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    // TODO: Capture Stacktrace
+    event.message = error.localizedDescription;
+    [self captureEvent:event withScopes:scopes];
+}
+
+- (void)captureEvent:(SentryEvent *)event withScopes:(NSArray<SentryScope *>*_Nullable)scopes {
+    SentryEvent *preparedEvent = [self prepareEvent:event withScopes:scopes];
+    if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
         }
-
         if (nil != event) {
             [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
         }
@@ -111,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope {
+                            withScopes:(NSArray<SentryScope *>*_Nullable)scopes {
     NSParameterAssert(event);
     
     if (NO == [self.options.enabled boolValue]) {
@@ -124,19 +142,17 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }    
 
-    
-    NSString *environment = self.options.environment;
-    if (nil != environment && nil == event.environment) {
-        event.environment = environment;
-    }
-    
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    if (nil != infoDict) {
+    if (nil != infoDict && nil == event.releaseName) {
         event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
             infoDict[@"CFBundleVersion"]];
+    }
+    if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }
 
+    // Options win over default, and scope wins over options
+    // So the order matters
     NSString *releaseName = self.options.releaseName;
     if (nil != releaseName) {
         event.releaseName = releaseName;
@@ -146,11 +162,34 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != dist) {
         event.dist = dist;
     }
-
-    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-
-    return event;
+    
+    NSString *environment = self.options.environment;
+    if (nil != environment && nil == event.environment) {
+        event.environment = environment;
+    }
+    
+    if (nil != scopes) {
+        for (SentryScope *scope in scopes) {
+            event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+        }
+    }
+    
+    return [self callEventProcessors:event];
 }
+
+- (SentryEvent *)callEventProcessors:(SentryEvent *)event {
+    SentryEvent *newEvent = event;
+
+    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
+        newEvent = processor(newEvent);
+        if (nil == newEvent) {
+            [SentryLog logWithMessage:@"SentryScope callEventProcessors: an event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
+            break;
+        }
+    }
+    return newEvent;
+}
+
 
 @end
 

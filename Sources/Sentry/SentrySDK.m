@@ -74,16 +74,26 @@ static SentryHub * currentHub;
 }
 
 + (void)captureEvent:(SentryEvent *)event {
-    [SentrySDK.currentHub captureEvent:event];
+    [SentrySDK captureEvent:event withScope:nil];
+}
+
++ (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
 + (void)captureError:(NSError *)error {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = error.localizedDescription;
-    [SentrySDK captureEvent:event];
+    [SentrySDK captureError:error withScope:nil];
+}
+
++ (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureError:error withScope:scope];
 }
 
 + (void)captureException:(NSException *)exception {
+    [SentrySDK captureException:exception withScope:nil];
+}
+
++ (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     event.message = exception.reason;
     [SentrySDK captureEvent:event];
@@ -93,6 +103,10 @@ static SentryHub * currentHub;
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event.message = message;
     [SentrySDK captureEvent:event];
+}
+
++ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK captureMessage:message withScope:nil];
 }
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb {

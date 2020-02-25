@@ -41,12 +41,24 @@ SENTRY_NO_INIT
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
 
 /**
- * sends event
+ * Captures an SentryEvent
  */
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope;
+- (void)captureEvent:(SentryEvent *)event withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(event:scopes:));
 
-/// SentryCrash
-/// Functions below will only do something if SentryCrash is linked
+/**
+ * Captures a NSError
+ */
+- (void)captureError:(NSError *)error withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(error:scopes:));
+
+/**
+ * Captures a NSException
+ */
+- (void)captureException:(NSException *)exception withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(exception:scopes:));
+
+/**
+* Captures a Message
+*/
+- (void)captureMessage:(NSString *)message withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(message:scopes:));
 
 @end
 

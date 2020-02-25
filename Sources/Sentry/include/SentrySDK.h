@@ -71,6 +71,7 @@ SENTRY_NO_INIT
  USAGE: Create a `SentryEvent`, fill it up with data, and send it with this method.
  */
 + (void)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
++ (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  captures an error aka. sends an NSError to sentry.
@@ -78,6 +79,7 @@ SENTRY_NO_INIT
  uses default `SentryHub`
  */
 + (void)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
++ (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  captures an exception aka. sends an NSException to sentry.
@@ -85,6 +87,7 @@ SENTRY_NO_INIT
  uses default `SentryHub`
  */
 + (void)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
++ (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  captures a message aka. sends a string to sentry.
@@ -92,6 +95,7 @@ SENTRY_NO_INIT
  uses default `SentryHub`
  */
 + (void)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
++ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  adds a SentryBreadcrumb to the SentryClient.
