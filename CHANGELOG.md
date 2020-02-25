@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Convert values in dictioanry to string when sanitize #509
+
 ## 5.0.2
 
 - fix: Keep maximum rate limit #498
