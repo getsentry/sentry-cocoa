@@ -160,11 +160,6 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable breadcrumbsSerialized;
 
 /**
- * This property is there for setting main bundle of the app
- */
-@property(nonatomic, strong) NSDictionary *infoDict;
-
-/**
  * JSON baggage, that will only be filled if initWithJSON is called.
  */
 @property(nonatomic, strong) NSData *json;

@@ -111,13 +111,9 @@
                         NSString *viewControllerName = [SentryBreadcrumbTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                         crumb.data = @{@"controller": viewControllerName};
 
-                        // TODO(fetzig): don't know if configureScope is the right way to do this.
                         [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
-                            [scope addBreadcrumb:crumb withMaxBreadcrumbs:[SentrySDK.currentHub getClient].options.maxBreadcrumbs];
-
-                            NSMutableDictionary *prevExtra = scope.extra.mutableCopy;
-                            [prevExtra setValue:viewControllerName forKey:@"__sentry_transaction"];
-                            scope.extra = prevExtra;
+                            [scope addBreadcrumb:crumb];
+                            [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
                         }];
                     }
                     SentrySWCallOriginal(animated);

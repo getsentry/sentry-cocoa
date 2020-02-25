@@ -49,6 +49,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScope ()
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+@property(nonatomic, strong) SentryUser *_Nullable user;
+
+/**
+ * Set global tags -> these will be sent with every event
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
+
+/**
+ * Set global extra -> these will be sent with every event
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+
+/**
+ * used to add values in event context.
+ */
+@property(nonatomic, strong) NSDictionary<NSString *, NSDictionary<NSString *, id>*> *_Nullable context;
+
+/**
+ * Contains the breadcrumbs which will be sent with the event
+ */
+@property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
+
 @end
 
 @implementation SentryScope
@@ -64,12 +89,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Global properties
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs {
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
     [self.breadcrumbs addObject:crumb];
-    if ([self.breadcrumbs count] > maxBreadcrumbs) {
-        [self.breadcrumbs removeObjectAtIndex:0];
-    }
 }
 
 - (void)clearBreadcrumbs {
@@ -80,12 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     NSMutableArray *crumbs = [NSMutableArray new];
+    
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
-        id serializedCrumb = [NSJSONSerialization JSONObjectWithData:[crumb serialize][@"data"] options:0 error:nil];
-        if (serializedCrumb != nil) {
-            [crumbs addObject:serializedCrumb];
-        }
+        [crumbs addObject:[crumb serialize]];
     }
+    
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
@@ -97,6 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = [[self serializeBreadcrumbs] mutableCopy];
     [serializedData setValue:self.tags forKey:@"tags"];
     [serializedData setValue:self.extra forKey:@"extra"];
+    [serializedData setValue:self.context forKey:@"context"];
     [serializedData setValue:[self.user serialize] forKey:@"user"];
     return serializedData;
 }
@@ -132,10 +154,6 @@ NS_ASSUME_NONNULL_BEGIN
         event.breadcrumbsSerialized = [self serializeBreadcrumbs];
     }
 
-    if (nil == event.infoDict) {
-        event.infoDict = [[NSBundle mainBundle] infoDictionary];
-    }
-
     event.context.customContext = self.context;
 
     event = [self callEventProcessors:event];
@@ -147,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
     return event;
 }
 
-- (void)setContextValue:(id)value forKey:(NSString *)key {
+- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
     [self.context setValue:value forKey:key];
 }
 

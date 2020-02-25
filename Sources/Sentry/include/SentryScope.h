@@ -36,41 +36,53 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global user -> thus will be sent with every event
  */
-@property(nonatomic, strong) SentryUser *_Nullable user;
+- (void)setUser:(SentryUser * _Nullable)user;
 
 /**
  * Set global tags -> these will be sent with every event
  */
-@property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
+- (void)setTagValue:(id)value forKey:(NSString *)key;
 
 /**
- * used to add values in event context.
+ * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable context;
+- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra;
 
 /**
- * Contains the breadcrumbs which will be sent with the event
+ * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
+- (void)setExtraValue:(id)value forKey:(NSString *)key;
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs;
+/**
+ * Add a breadcrumb to the scope
+ */
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
+
+/**
+ * Clears all breadcrumbs in the scope
+ */
 - (void)clearBreadcrumbs;
 
-- (NSDictionary<NSString *, id> *) serializeBreadcrumbs;
-- (NSDictionary<NSString *, id> *) serialize;
+/**
+ * Serializes the Scope to JSON
+ */
+- (NSDictionary<NSString *, id> *)serialize;
 
+/**
+ * Adds the Scope to the event
+ */
 - (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event;
 
 /**
- * sets context values which will overwrite SentryEvent.context when event is
+ * Cets context values which will overwrite SentryEvent.context when event is
  * "enrichted" with scope before sending event.
  */
-- (void)setContextValue:(id)value forKey:(NSString *)key;
+- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
 
 @end
 

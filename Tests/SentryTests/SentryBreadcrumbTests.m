@@ -95,17 +95,6 @@
 //    XCTAssertEqual(scope.breadcrumbs.count, (unsigned long)220);
 //}
 
-- (void)testClearBreadcumb {
-    NSError *error = nil;
-//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-    SentryScope *scope = [[SentryScope alloc] init];
-    XCTAssertNil(error);
-    [scope clearBreadcrumbs];
-    [scope addBreadcrumb:[self getBreadcrumb] withMaxBreadcrumbs:50];
-    [scope clearBreadcrumbs];
-    XCTAssertTrue(scope.breadcrumbs.count == 0);
-}
-
 //- (void)testSerialize {
 //    NSError *error = nil;
 ////    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];

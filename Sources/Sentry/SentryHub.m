@@ -50,7 +50,10 @@
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [[self getScope] addBreadcrumb:crumb withMaxBreadcrumbs:[self getClient].options.maxBreadcrumbs];
+    // TODO
+//    withMaxBreadcrumbs:(NSUInteger)maxBreadcrumbs
+//    [self getClient].options.maxBreadcrumbs
+    [[self getScope] addBreadcrumb:crumb];
 }
 
 - (SentryClient * _Nullable)getClient {
@@ -63,7 +66,6 @@
 - (void)bindClient:(SentryClient * _Nullable)client {
     if (nil != [self getStackTop]) {
         [self getStackTop].client = client;
-
         [self doInstallIntegrations];
     }
 }

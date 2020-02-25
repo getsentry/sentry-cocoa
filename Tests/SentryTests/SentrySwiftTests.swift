@@ -54,7 +54,7 @@ class SentrySwiftTests: XCTestCase {
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
-        scope.extra = ["a": "b"]
+        scope.setExtra(["a": "b"])
         client!.capture(event2, with: scope)
         //send(event: event2, scope: scope)
     }
@@ -72,7 +72,7 @@ class SentrySwiftTests: XCTestCase {
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
-        scope.extra = ["a": "b"]
+        scope.setExtra(["a": "b"])
         client!.capture(event2, with: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
@@ -88,7 +88,7 @@ class SentrySwiftTests: XCTestCase {
         event.message = "Test Message"
         event.environment = "staging"
         let scope = Sentry.Scope()
-        scope.extra = ["ios": true]
+        scope.setExtra(["ios": true])
         XCTAssertNotNil(event.serialize())
         SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
         print("#####################")
@@ -98,7 +98,7 @@ class SentrySwiftTests: XCTestCase {
 
         let event2 = Event(level: .debug)
         let scope2 = Sentry.Scope()
-        scope2.extra = ["a": "b"]
+        scope2.setExtra(["a": "b"])
         XCTAssertNotNil(event2.serialize())
 
         SentrySDK.currentHub().getClient()?.options.beforeSend = { event in
