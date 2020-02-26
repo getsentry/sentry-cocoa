@@ -151,8 +151,8 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = infoDict[@"CFBundleVersion"];
     }
 
-    // Options win over default, and scope wins over options
-    // So the order matters
+    // Use the values from SentryOptions as a fallback,
+    // in case not yet set directly in the event nor in the scope:
     NSString *releaseName = self.options.releaseName;
     if (nil != releaseName) {
         event.releaseName = releaseName;
@@ -181,13 +181,12 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
         if (nil == newEvent) {
-            [SentryLog logWithMessage:@"SentryScope callEventProcessors: an event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
+            [SentryLog logWithMessage:@"SentryScope callEventProcessors: An event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
             break;
         }
     }
     return newEvent;
 }
-
 
 @end
 
