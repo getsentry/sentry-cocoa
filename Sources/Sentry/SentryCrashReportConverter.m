@@ -83,7 +83,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryEvent *)convertReportToEvent {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
     if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
         event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
     } else {
@@ -92,28 +92,29 @@ static inline NSString *hexAddress(NSNumber *value) {
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
+    event.releaseName = [self.userContext objectForKey:@"release"]; // serialized the key is just release
+    event.dist = [self.userContext objectForKey:@"dist"];
+    event.environment = [self.userContext objectForKey:@"environment"];
+    event.context = [self.userContext objectForKey:@"context"];
+    event.extra = [self.userContext objectForKey:@"extra"];
+    event.tags = [self.userContext objectForKey:@"tags"];
+//    event.level we do not set the level here since this always resulted from a fatal crash
     
-    // TODO(hazat)
-    event.releaseName = self.userContext[@"releaseName"];
-    event.dist = self.userContext[@"dist"];
-    event.environment = self.userContext[@"environment"];
+    event.user = [self convertUser];
+    event.breadcrumbs = [self convertBreadcrumbs];
     
+    NSDictionary *appContext = [event.context objectForKey:@"app"];
     // We want to set the release and dist to the version from the crash report itself
     // otherwise it can happend that we have two different version when the app crashes
     // right before an app update #218 #219
-    // TODO(hazat)
-//    if (nil == event.releaseName && event.context.appContext[@"app_identifier"] && event.context.appContext[@"app_version"]) {
-//        event.releaseName = [NSString stringWithFormat:@"%@-%@", event.context.appContext[@"app_identifier"], event.context.appContext[@"app_version"]];
-//    }
-    // TODO(hazat)
-//    if (nil == event.dist && event.context.appContext[@"app_build"]) {
-//        event.dist = event.context.appContext[@"app_build"];
-//    }
-    event.extra = [self.userContext objectForKey:@"extra"];
-    event.tags = [self.userContext objectForKey:@"tags"];
-    event.context = [self.userContext objectForKey:@"context"];
-    event.user = [self convertUser];
-    event.breadcrumbs = [self convertBreadcrumbs];
+    if (nil == event.releaseName && [appContext objectForKey:@"app_identifier"] && [appContext objectForKey:@"app_version"] && [appContext objectForKey:@"app_build"]) {
+        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", [appContext objectForKey:@"app_identifier"], [appContext objectForKey:@"app_version"], [appContext objectForKey:@"app_build"]];
+    }
+     
+    if (nil == event.dist && [appContext objectForKey:@"app_build"]) {
+        event.dist = [appContext objectForKey:@"app_build"];
+    }
+    
     return event;
 }
 
@@ -147,19 +148,19 @@ static inline NSString *hexAddress(NSNumber *value) {
     return breadcrumbs;
 }
 
-- (SentrySeverity)sentrySeverityFromLevel:(NSString *)level {
+- (SentryLevel)sentrySeverityFromLevel:(NSString *)level {
     if ([level isEqualToString:@"fatal"]) {
-        return kSentrySeverityFatal;
+        return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {
-        return kSentrySeverityWarning;
+        return kSentryLevelWarning;
     } else if ([level isEqualToString:@"info"] || [level isEqualToString:@"log"]) {
-        return kSentrySeverityInfo;
+        return kSentryLevelInfo;
     } else if ([level isEqualToString:@"debug"]) {
-        return kSentrySeverityDebug;
+        return kSentryLevelDebug;
     } else if ([level isEqualToString:@"error"]) {
-        return kSentrySeverityError;
+        return kSentryLevelError;
     }
-    return kSentrySeverityError;
+    return kSentryLevelError;
 }
 
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
@@ -259,15 +260,9 @@ static inline NSString *hexAddress(NSNumber *value) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
         debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
-        debugMeta.cpuType = sourceImage[@"cpu_type"];
-        debugMeta.cpuSubType = sourceImage[@"cpu_subtype"];
         debugMeta.imageAddress = hexAddress(sourceImage[@"image_addr"]);
         debugMeta.imageSize = sourceImage[@"image_size"];
-        debugMeta.imageVmAddress = hexAddress(sourceImage[@"image_vmaddr"]);
         debugMeta.name = sourceImage[@"name"];
-        debugMeta.majorVersion = sourceImage[@"major_version"];
-        debugMeta.minorVersion = sourceImage[@"minor_version"];
-        debugMeta.revisionVersion = sourceImage[@"revision_version"];
         [result addObject:debugMeta];
     }
     return result;

@@ -35,7 +35,7 @@
 }
 
 - (void)testEventStoring {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     [self.fileManager storeEvent:event];
     NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
     XCTAssertTrue(events.count == 1);
@@ -93,7 +93,7 @@
 }
 
 - (void)testEventStoringHardLimit {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     for (NSInteger i = 0; i <= 20; i++) {
         [self.fileManager storeEvent:event];
     }
@@ -103,7 +103,7 @@
 
 - (void)testEventStoringHardLimitSet {
     self.fileManager.maxEvents = 15;
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     for (NSInteger i = 0; i <= 20; i++) {
         [self.fileManager storeEvent:event];
     }

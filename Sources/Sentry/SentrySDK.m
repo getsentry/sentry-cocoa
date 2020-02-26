@@ -56,43 +56,79 @@ static SentryHub * currentHub;
     }
 }
 
-+ (void)startWithOptionsDict:(NSDictionary<NSString *,id> *)optionsDict {
++ (id)initWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"SentrySDK startWithOptionsDict: ERROR: %@", error] andLevel:kSentryLogLevelDebug];
     } else {
-        [SentrySDK startWithOptions:options];
+        [SentrySDK initWithOptionsObject:options];
     }
+    return nil;
 }
 
-+ (void)startWithOptions:(SentryOptions *)options {
++ (id)initWithOptionsObject:(SentryOptions *)options {
     if ([SentrySDK.currentHub getClient] == nil) {
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [SentrySDK.currentHub bindClient:newClient];
     }
+    return nil;
 }
 
 + (void)captureEvent:(SentryEvent *)event {
-    [SentrySDK.currentHub captureEvent:event];
+    [SentrySDK captureEvent:event withScope:nil];
+}
+
++ (void)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    block(scope);
+    [SentrySDK captureEvent:event withScope:scope];
+}
+
++ (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
 + (void)captureError:(NSError *)error {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = error.localizedDescription;
-    [SentrySDK captureEvent:event];
+    [SentrySDK captureError:error withScope:nil];
+}
+
++ (void)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    block(scope);
+    [SentrySDK captureError:error withScope:scope];
+}
+
++ (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureError:error withScope:scope];
 }
 
 + (void)captureException:(NSException *)exception {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
-    event.message = exception.reason;
-    [SentrySDK captureEvent:event];
+    [SentrySDK captureException:exception withScope:nil];
+}
+
++ (void)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    block(scope);
+    [SentrySDK captureException:exception withScope:scope];
+}
+
++ (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureException:exception withScope:scope];
 }
 
 + (void)captureMessage:(NSString *)message {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
-    event.message = message;
-    [SentrySDK captureEvent:event];
+    [SentrySDK captureMessage:message withScope:nil];
+}
+
++ (void)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope * _Nonnull))block {
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    block(scope);
+    [SentrySDK captureMessage:message withScope:scope];
+}
+
++ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+    [SentrySDK.currentHub captureMessage:message withScope:scope];
 }
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb {

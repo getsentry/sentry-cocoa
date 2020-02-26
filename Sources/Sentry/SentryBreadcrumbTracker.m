@@ -48,7 +48,7 @@
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
-                                                    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityWarning category:@"Device"];
+                                                    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning category:@"Device"];
                                                     crumb.type = @"system";
                                                     crumb.message = @"Memory Warning";
                                                     [SentrySDK addBreadcrumb:crumb];
@@ -59,7 +59,7 @@
 }
      
 - (void)addEnabledCrumb {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"started"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"started"];
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
     [SentrySDK addBreadcrumb:crumb];
@@ -82,7 +82,7 @@
                                 data = @{@"view": [NSString stringWithFormat:@"%@", touch.view]};
                             }
                         }
-                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"touch"];
+                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"touch"];
                         crumb.type = @"user";
                         crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
                         crumb.data = data;
@@ -105,7 +105,7 @@
             SentrySWArguments(BOOL animated),
             SentrySWReplacement({
                     if (nil != [SentrySDK.currentHub getClient]) {
-                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"UIViewController"];
+                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"UIViewController"];
                         crumb.type = @"navigation";
                         crumb.message = @"viewDidAppear";
                         NSString *viewControllerName = [SentryBreadcrumbTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];

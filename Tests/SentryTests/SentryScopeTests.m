@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "SentryBreadcrumb.h"
 #import "SentryScope.h"
+#import "SentryUser.h"
 #import "SentryScope+Private.h"
 
 @interface SentryScopeTests : XCTestCase
@@ -26,14 +27,13 @@
 }
 
 - (SentryBreadcrumb *)getBreadcrumb {
-    return [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    return [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 }
 
 - (void)testSetExtra {
     SentryScope *scope = [[SentryScope alloc] init];
-    [scope setExtra:@{@"c": @"d"}];
-    [scope setExtra:@{@"a": @"b"}];
-    XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
+    [scope setExtras:@{@"c": @"d"}];
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"c": @"d"});
 }
 
 - (void)testSetExtraValueForKey {
@@ -79,24 +79,21 @@
 - (void)testReleaseSerializes {
     SentryScope *scope = [[SentryScope alloc] init];
     NSString *expectedReleaseName = @"io.sentry.cocoa@5.0.0-deadbeef";
-    scope.releaseName = expectedReleaseName;
-    XCTAssertEqual(scope.releaseName, expectedReleaseName);
+    [scope setReleaseName:expectedReleaseName];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"release"], expectedReleaseName);
 }
 
 - (void)testDistSerializes {
     SentryScope *scope = [[SentryScope alloc] init];
     NSString *expectedDist = @"dist-1.0";
-    scope.dist = expectedDist;
-    XCTAssertEqual(scope.dist, expectedDist);
+    [scope setDist:expectedDist];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"dist"], expectedDist);
 }
 
 - (void)testEnvironmentSerializes {
     SentryScope *scope = [[SentryScope alloc] init];
     NSString *expectedEnvironment = @"production";
-    scope.environment = expectedEnvironment;
-    XCTAssertEqual(scope.environment, expectedEnvironment);
+    [scope setEnvironment:expectedEnvironment];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
 }
 
@@ -115,8 +112,37 @@
         XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
         [expectation fulfill];
     }];
-    [scope setExtra:@{@"a": @"b"}];
+    [scope setExtras:@{@"a": @"b"}];
     [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+- (void)testInitWithScope {
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setExtras:@{@"a": @"b"}];
+    [scope setTags:@{@"b": @"c"}];
+    [scope addBreadcrumb:[self getBreadcrumb]];
+    [scope setUser:[[SentryUser alloc] initWithUserId:@"id"]];
+    [scope setContextValue:@{@"e": @"f"} forKey:@"myContext"];
+    [scope setReleaseName:@"123"];
+    [scope setDist:@"456"];
+    [scope setEnvironment:@"789"];
+    
+    NSMutableDictionary *snapshot = [scope serialize].mutableCopy;
+    
+    SentryScope *cloned = [[SentryScope alloc] initWithScope:scope];
+    XCTAssertEqualObjects(snapshot, [cloned serialize]);
+    
+    [cloned setExtras:@{@"aa": @"b"}];
+    [cloned setTags:@{@"ab": @"c"}];
+    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http2"]];
+    [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];
+    [cloned setContextValue:@{@"ae": @"af"} forKey:@"myContext"];
+    [cloned setReleaseName:@"a123"];
+    [cloned setDist:@"a456"];
+    [cloned setEnvironment:@"a789"];
+    
+    XCTAssertEqualObjects(snapshot, [scope serialize]);
+    XCTAssertNotEqualObjects([scope serialize], [cloned serialize]);
 }
 
 @end

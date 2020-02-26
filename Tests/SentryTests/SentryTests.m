@@ -44,7 +44,7 @@
 }
 
 - (void)testSDKDefaultHub {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
     //[SentrySDK.currentHub reset];
@@ -118,13 +118,13 @@
 //}
 
 - (void)testSDKBreadCrumbAdd {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     // TODO(fetzig)
     //[[SentrySDK.currentHub getClient].breadcrumbs clear];
 
     //XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count, (unsigned long)0);
 
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"testCategory"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"testCategory"];
     crumb.type = @"testType";
     crumb.message = @"testMessage";
     crumb.data = @{@"testDataKey": @"testDataVaue"};
@@ -139,9 +139,9 @@
 }
 
 - (void)testSDKCaptureEvent {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
 
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
     event.timestamp = [NSDate date];
     event.message = @"testy test";
@@ -153,7 +153,7 @@
 }
 
 - (void)testSDKCaptureError {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
 
     NSError *error = [NSError errorWithDomain:@"testworld" code:200 userInfo:@{NSLocalizedDescriptionKey: @"test ran out of money"}];
     [SentrySDK captureError:error];
@@ -192,11 +192,11 @@
 //}
 
 - (void)testSeverity {
-    XCTAssertEqualObjects(@"fatal", SentrySeverityNames[kSentrySeverityFatal]);
-    XCTAssertEqualObjects(@"error", SentrySeverityNames[kSentrySeverityError]);
-    XCTAssertEqualObjects(@"warning", SentrySeverityNames[kSentrySeverityWarning]);
-    XCTAssertEqualObjects(@"info", SentrySeverityNames[kSentrySeverityInfo]);
-    XCTAssertEqualObjects(@"debug", SentrySeverityNames[kSentrySeverityDebug]);
+    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
+    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
+    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
+    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);
+    XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentryLevelDebug]);
 }
 
 - (void)testDateCategory {

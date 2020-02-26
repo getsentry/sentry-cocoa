@@ -16,7 +16,8 @@ class SentrySwiftTests: XCTestCase {
         let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"))
         fileManager.deleteAllStoredEvents()
         fileManager.deleteAllFolders()
-        SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        _ = SentrySDK(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+//        SentrySDK.init(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
     }
     
     override func tearDown() {
@@ -53,8 +54,8 @@ class SentrySwiftTests: XCTestCase {
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
-        scope.setExtra(["a": "b"])
-        client!.capture(event2, with: scope)
+        scope.setExtras(["a": "b"])
+        client!.capture(event: event2, scope: scope)
         //send(event: event2, scope: scope)
     }
     
@@ -71,8 +72,8 @@ class SentrySwiftTests: XCTestCase {
         
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
-        scope.setExtra(["a": "b"])
-        client!.capture(event2, with: scope)
+        scope.setExtras(["a": "b"])
+        client!.capture(event: event2, scope: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
         // 2) update test accordingly
@@ -87,17 +88,17 @@ class SentrySwiftTests: XCTestCase {
         event.message = "Test Message"
         event.environment = "staging"
         let scope = Sentry.Scope()
-        scope.setExtra(["ios": true])
+        scope.setExtras(["ios": true])
         XCTAssertNotNil(event.serialize())
-        SentrySDK.start(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        _ = SentrySDK(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
         print("#####################")
         print(SentrySDK.currentHub().getClient() ?? "no client")
 
-        SentrySDK.currentHub().getClient()!.capture(event, with: scope)
+        SentrySDK.currentHub().getClient()!.capture(event: event, scope: scope)
 
         let event2 = Event(level: .debug)
         let scope2 = Sentry.Scope()
-        scope2.setExtra(["a": "b"])
+        scope2.setExtras(["a": "b"])
         XCTAssertNotNil(event2.serialize())
 
         SentrySDK.currentHub().getClient()?.options.beforeSend = { event in
@@ -105,7 +106,7 @@ class SentrySwiftTests: XCTestCase {
             return event
         }
         
-        SentrySDK.currentHub().getClient()!.capture(event2, with: scope)
+        SentrySDK.currentHub().getClient()!.capture(event: event2, scope: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
         // 2) update test accordingly

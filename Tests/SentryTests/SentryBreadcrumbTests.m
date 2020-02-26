@@ -153,7 +153,7 @@
 //}
 
 - (SentryBreadcrumb *)getBreadcrumb {
-    return [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    return [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 }
 
 @end

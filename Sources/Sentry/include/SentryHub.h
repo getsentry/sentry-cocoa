@@ -28,34 +28,48 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 
 /**
- Capture message / exception call into capture event
+ * Captures an SentryEvent
  */
-- (void)captureEvent:(SentryEvent *)event;
+- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
 
-// TODO(fetzig): add those once whe have scope
-//- Hub::push_scope(): Pushes a new scope layer that inherits the previous data. This should return a disposable or stack guard for languages where it makes sense. When the “internally scoped hub” concurrency model is used calls to this are often necessary as otherwise a scope might be accidentally incorrectly shared.
-- (SentryScope *)pushScope;
+/**
+ * Captures a NSError
+ */
+- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
 
-//- `Hub::with_scope(callback)` (optional): In Python this could be a context manager, in Ruby a block function. Pushes and pops a scope for integration work.
-- (void)withScope:(void(^)(SentryScope *))callback;
+/**
+ * Captures a NSException
+ */
+- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
 
-// TODO(fetzig)
-//- `Hub::pop_scope()` (optional): Only exists in languages without better resource management. Better to have this function on a return value of `push_scope` or to use `with_scope`. This is also sometimes called `pop_scope_unsafe` to indicate that this method should not be used directly.
+/**
+ * Captures a Message
+ */
+- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
-//- `Hub::configure_scope(callback)`: Invokes the callback with a mutable reference to the scope for modifications This can also be a `with` statement in languages that have it (Python).
+/**
+ * Invokes the callback with a mutable reference to the scope for modifications.
+ */
 - (void)configureScope:(void(^)(SentryScope *scope))callback;
 
 /**
- Adds a breadcrumb to the current client.
+ * Adds a breadcrumb to the current scope.
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
 /**
- returns current client (or none)
+ * Returns a client if there is a bound client on the Hub.
  */
 - (SentryClient *_Nullable)getClient;
 
-//- `Hub::bind_client(new_client)`: Binds a different client to the hub. If the hub is also the owner of the client that was created by `init` it needs to keep a reference to it still if the hub is the object responsible for disposing it.
+/**
+ * Returns a scope either the current or new.
+ */
+- (SentryScope *)getScope;
+
+/**
+ * Binds a different client to the hub.
+ */
 - (void)bindClient:(SentryClient *_Nullable)client;
 
 /**

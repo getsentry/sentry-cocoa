@@ -70,7 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
         self.options = options;
-
         [self.transport sendAllStoredEvents];
     }
     return self;
@@ -83,14 +82,33 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
+- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    // TODO: Attach stacktrace?
+    event.message = message;
+    [self captureEvent:event withScope:scope];
+}
+
+- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    // TODO: Capture Stacktrace
+    event.message = exception.reason;
+    [self captureEvent:event withScope:scope];
+}
+
+- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    // TODO: Capture Stacktrace
+    event.message = error.localizedDescription;
+    [self captureEvent:event withScope:scope];
+}
+
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
-
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
         }
-
         if (nil != event) {
             [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
         }
@@ -111,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope {
+                             withScope:(SentryScope *_Nullable)scope {
     NSParameterAssert(event);
     
     if (NO == [self.options.enabled boolValue]) {
@@ -122,16 +140,16 @@ NS_ASSUME_NONNULL_BEGIN
     if (NO == [self checkSampleRate:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
         return nil;
-    }
-    
+    }    
+
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    if (nil != infoDict) {
+    if (nil != infoDict && nil == event.releaseName) {
         event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
             infoDict[@"CFBundleVersion"]];
+    }
+    if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }
-
-    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
     // Use the values from SentryOptions as a fallback,
     // in case not yet set directly in the event nor in the scope:
@@ -144,13 +162,30 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != dist) {
         event.dist = dist;
     }
-
+    
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
     }
     
-    return event;
+    if (nil != scope) {
+        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+    }
+    
+    return [self callEventProcessors:event];
+}
+
+- (SentryEvent *)callEventProcessors:(SentryEvent *)event {
+    SentryEvent *newEvent = event;
+
+    for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
+        newEvent = processor(newEvent);
+        if (nil == newEvent) {
+            [SentryLog logWithMessage:@"SentryScope callEventProcessors: An event processor decided to remove this event." andLevel:kSentryLogLevelDebug];
+            break;
+        }
+    }
+    return newEvent;
 }
 
 @end

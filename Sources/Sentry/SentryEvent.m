@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEvent
 
-- (instancetype)initWithLevel:(enum SentrySeverity)level {
+- (instancetype)initWithLevel:(enum SentryLevel)level {
     self = [super init];
     if (self) {
         self.eventId = [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithJSON:(NSData *)json {
-    self = [self initWithLevel:kSentrySeverityInfo];
+    self = [self initWithLevel:kSentryLevelInfo];
     if (self) {
         self.json = json;
     }
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = @{
             @"event_id": self.eventId,
             @"timestamp": [self.timestamp sentry_toIso8601String],
-            @"level": SentrySeverityNames[self.level],
+            @"level": SentryLevelNames[self.level],
             @"platform": @"cocoa",
     }.mutableCopy;
     

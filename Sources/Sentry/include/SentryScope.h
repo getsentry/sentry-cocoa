@@ -30,6 +30,7 @@ NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
 - (instancetype)init;
+- (instancetype)initWithScope:(SentryScope *)scope;
 
 /**
  * Set global user -> thus will be sent with every event
@@ -44,17 +45,45 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setTagValue:(id)value forKey:(NSString *)key;
+- (void)setTagValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
+// TODO: key is first arg.
+//- (void)setTagKey:(NSString *key withValue:(id)value;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra;
+- (void)setExtras:(NSDictionary<NSString *, id> *_Nullable)extras;
 
 /**
  * Set global extra -> these will be sent with every event
  */
 - (void)setExtraValue:(id)value forKey:(NSString *)key;
+
+/**
+ * Set release in the scope
+ */
+- (void)setReleaseName:(NSString *_Nullable)releaseName;
+
+/**
+ * Set dist in the scope
+ */
+- (void)setDist:(NSString *_Nullable)dist;
+
+/**
+* Set environment in the scope
+*/
+- (void)setEnvironment:(NSString *_Nullable)environment;
+
+/**
+* Sets the fingerprint in the scope
+*/
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint;
+
+/**
+* Sets the level in the scope
+*/
+- (void)setLevel:(enum SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope
@@ -81,21 +110,6 @@ NS_SWIFT_NAME(Scope)
  * "enrichted" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
-
-/**
- * The release version name of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-
-/**
- * This distribution of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable dist;
-
-/**
- * The environment used in this scope.
- */
-@property(nonatomic, copy) NSString *_Nullable environment;
 
 /**
  * Clears the current Scope

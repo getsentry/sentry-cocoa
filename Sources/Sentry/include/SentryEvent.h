@@ -47,7 +47,7 @@ SENTRY_NO_INIT
 /**
  * SentrySeverity of the event
  */
-@property(nonatomic) enum SentrySeverity level;
+@property(nonatomic) enum SentryLevel level;
 
 /**
  * Platform this will be used for symbolicating on the server should be "cocoa"
@@ -169,7 +169,7 @@ SENTRY_NO_INIT
  * @param level SentrySeverity
  * @return SentryEvent
  */
-- (instancetype)initWithLevel:(enum SentrySeverity)level;
+- (instancetype)initWithLevel:(enum SentryLevel)level;
 
 /**
  * Init an SentryEvent with a JSON blob that completly bypasses all other attributes in the event.
