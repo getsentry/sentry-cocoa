@@ -58,7 +58,7 @@ SENTRY_NO_INIT
 /**
  * Initializer for SentryBreadcrumb
  *
- * @param level SentrySeverity
+ * @param level SentryLevel
  * @param category String
  * @return SentryBreadcrumb
  */

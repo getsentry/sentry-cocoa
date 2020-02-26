@@ -79,7 +79,7 @@
 
 //- (void)testEvent {
 //    NSDate *date = [NSDate date];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event.timestamp = date;
 //    event.environment = @"bla";
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
@@ -96,7 +96,7 @@
 //                                 @"timestamp": [date sentry_toIso8601String]};
 //    XCTAssertEqualObjects([event serialize], serialized);
 //
-//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event2.timestamp = date;
 //    NSDictionary *serialized2 = @{@"contexts": [[[SentryContext alloc] init] serialize],
 //                                 @"event_id": event2.eventId,
@@ -106,7 +106,7 @@
 //                                 @"timestamp": [date sentry_toIso8601String]};
 //    XCTAssertEqualObjects([event2 serialize], serialized2);
 //
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event3.timestamp = date;
 //    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
 //    NSDictionary *serialized3 = @{@"contexts": [[[SentryContext alloc] init] serialize],
@@ -122,7 +122,7 @@
 //- (void)testTransactionEvent {
 //    NSDate *date = [NSDate date];
 //
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event.timestamp = date;
 //    event.extra = @{@"__sentry_transaction": @"yoyoyo"};
 //    event.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
@@ -137,7 +137,7 @@
 //                                 @"timestamp": [date sentry_toIso8601String]};
 //    XCTAssertEqualObjects([event serialize], serialized);
 //
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event3.timestamp = date;
 //    event3.transaction = @"UIViewControllerTest";
 //    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
@@ -305,7 +305,7 @@
 //- (void)testBreadcrumbStore {
 //    SentryBreadcrumbs *store = [[SentryBreadcrumbs alloc] init];
 //    [store clear];
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"http"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"http"];
 //    [store addBreadcrumb:crumb];
 //    NSDate *date = [NSDate date];
 //    crumb.timestamp = date;
@@ -324,7 +324,7 @@
 
 //- (void)testEventSdkIntegrations {
 //    NSDate *date = [NSDate date];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    event.timestamp = date;
 //    event.environment = @"bla";
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
@@ -345,7 +345,7 @@
 
 //- (void)testEventFingerprint {
 //    NSDate *date = [NSDate date];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    [event setFingerprint:@[@"test"]];
 //    event.environment = @"bla";
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};

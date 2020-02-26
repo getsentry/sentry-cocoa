@@ -60,7 +60,7 @@
 //    NSError *error = nil;
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
 //    XCTAssertNil(error);
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    SentryScope *scope = [SentryScope new];
 //    [client storeEvent:event scope:scope];
 //    NSArray<NSDictionary<NSString *, NSData *>*> *events = [self.fileManager getAllStoredEvents];
@@ -116,7 +116,7 @@
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
 //    SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    client.maxEvents = 16;
 //    for (NSInteger i = 0; i <= 20; i++) {
 //        [client storeEvent:event scope:scope];

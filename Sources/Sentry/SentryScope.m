@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
 
 /**
- * SentrySeverity of the event
+ * SentryLevel of the event
  */
 @property(nonatomic) enum SentryLevel level;
 

@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (level == nil) {
         level = @"info";
     }
-    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:[self.class sentrySeverityFromLevel:level]
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:[self.class sentryLevelFromLevel:level]
                                                              category:jsonBreadcrumb[@"category"]];
     breadcrumb.message = jsonBreadcrumb[@"message"];
     if ([jsonBreadcrumb[@"timestamp"] integerValue] > 0) {
@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (SentryEvent *)createSentryEventFromJavaScriptEvent:(NSDictionary *)jsonEvent {
-    SentryLevel level = [self.class sentrySeverityFromLevel:jsonEvent[@"level"]];
+    SentryLevel level = [self.class sentryLevelFromLevel:jsonEvent[@"level"]];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
     if (jsonEvent[@"event_id"]) {
         event.eventId = jsonEvent[@"event_id"];
@@ -228,7 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
     return sentryUser;
 }
 
-+ (SentryLevel)sentrySeverityFromLevel:(NSString *)level {
++ (SentryLevel)sentryLevelFromLevel:(NSString *)level {
     if ([level isEqualToString:@"fatal"]) {
         return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {

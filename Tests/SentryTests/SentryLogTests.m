@@ -22,7 +22,7 @@
     [SentryLog logWithMessage:@"2" andLevel:kSentryLogLevelDebug];
     [SentryLog logWithMessage:@"3" andLevel:kSentryLogLevelVerbose];
     [SentryLog logWithMessage:@"4" andLevel:kSentryLogLevelNone];
-    //SentryClient.logLevel = kSentrySeverityError;
+    //SentryClient.logLevel = kSentryLevelError;
 }
 
 @end

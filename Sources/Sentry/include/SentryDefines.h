@@ -66,7 +66,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 };
 
 /**
- * Level of severity
+ * Sentry level
  */
 typedef NS_ENUM(NSUInteger, SentryLevel) {
     // Defaults to None which doesn't get serialized

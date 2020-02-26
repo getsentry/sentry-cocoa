@@ -239,7 +239,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestFailedSerialization {
 //    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
-//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    scope.extra = @{@"a": event1};
@@ -321,7 +321,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestQueueWithDifferentEvents1 {
 //    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
-//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event1 scope:scope withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -339,7 +339,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestQueueWithDifferentEvents2 {
 //    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish2"];
-//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event2 scope:scope withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -357,7 +357,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestQueueWithDifferentEvents3 {
 //    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish3"];
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event3 scope:scope withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -375,7 +375,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestQueueWithDifferentEvents4 {
 //    XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
-//    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event4 scope:scope withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -393,7 +393,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testRequestQueueMultipleEvents {
 //    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish1"];
-//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //
 //    SentryScope *scope1 = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event1 scope:scope1 withCompletionHandler:^(NSError * _Nullable error) {
@@ -409,7 +409,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    }];
 //
 //    XCTestExpectation *expectation4 = [self expectationWithDescription:@"Request should finish4"];
-//    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope4 = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event4 scope:scope4 withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -432,11 +432,11 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    scope.extra = @{@"c": @"d"};
 //    scope.user = [[SentryUser alloc] initWithUserId:@"XXXXXX"];
 //    NSDate *date = [NSDate date];
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"you"];
 //    crumb.timestamp = date;
 //    [scope.breadcrumbs addBreadcrumb:crumb];
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
 //    crumb.timestamp = date;
 //    [self.client sendEvent:event scope:scope withCompletionHandler:^(NSError * _Nullable error) {
@@ -479,11 +479,11 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    scope.tags = @{@"a": @"b"};
 //    scope.extra = @{@"c": @"d"};
 //    NSDate *date = [NSDate date];
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"you"];
 //    crumb.timestamp = date;
 //    [scope.breadcrumbs addBreadcrumb:crumb];
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
 //    event.timestamp = date;
 //    event.tags = @{@"1": @"2"};
@@ -528,14 +528,14 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    }];
 //
 //    NSDate *date = [NSDate date];
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityInfo category:@"you"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"you"];
 //    crumb.timestamp = date;
 //    [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
 //        [scope.breadcrumbs addBreadcrumb:crumb];
 //    }];
 //
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish4"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
 //    event.timestamp = date;
@@ -577,7 +577,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //- (void)testRequestQueueWithAndFlushItAfterSuccess {
 //    requestShouldReturnCode = 429;
 //    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event1 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //    SentryScope *scope1 = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event1 scope:scope1 withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNotNil(error);
@@ -589,7 +589,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    requestShouldReturnCode = 200;
 //
 //    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //    SentryScope *scope2 = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event2 scope:scope2 withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -602,7 +602,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    requestShouldReturnCode = 200;
 //
 //    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 //    SentryScope *scope3 = [[SentryScope alloc] initWithOptions:self.client.options];
 //    [self.client sendEvent:event3 scope:scope3 withCompletionHandler:^(NSError * _Nullable error) {
 //        XCTAssertNil(error);
@@ -635,7 +635,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //- (void)testBlockBeforeSerializeEvent {
 //    NSDictionary *tags = @{@"a": @"b"};
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    self.client.beforeSerializeEvent = ^(SentryEvent * _Nonnull event) {
 //        event.tags = tags;
@@ -658,7 +658,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig): fixme
 //- (void)testBlockBeforeSendRequest {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    self.client.beforeSendRequest = ^(SentryNSURLRequest * _Nonnull request) {
 //        [request setValue:@"12345" forHTTPHeaderField:@"X-TEST"];
@@ -682,7 +682,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //- (void)testSnapshotStacktrace {
 //    XCTestExpectation *expectationSnap = [self expectationWithDescription:@"Snapshot"];
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //
 //    SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(9999)];
@@ -717,7 +717,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testShouldSendEventNo {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    __weak id weakSelf = self;
@@ -746,7 +746,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testShouldSendEventYes {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    __weak id weakSelf = self;
@@ -775,7 +775,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testSamplingZero {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    self.client.sampleRate = 0.0;
@@ -795,7 +795,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testSamplingOne {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    self.client.sampleRate = 1.0;
@@ -816,7 +816,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 // TODO(fetzig) fixme
 //- (void)testSamplingBogus {
 //    XCTestExpectation *expectation = [self expectationWithDescription:@"Request should finish"];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    self.client.sampleRate = -123.0;
@@ -843,7 +843,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    NSMutableArray *expectations = [NSMutableArray new];
 //    for (NSInteger i = 0; i <= 20; i++) {
 //        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", (long)i]];
-//        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //        SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //        event.message = @"abc";
 //        [self.client sendEvent:event scope:scope withCompletionHandler:^(NSError * _Nullable error) {
@@ -876,7 +876,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    NSMutableArray *expectations = [NSMutableArray new];
 //    for (NSInteger i = 0; i <= 3; i++) {
 //        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request should fail %ld", (long)i]];
-//        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //        SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //        event.message = @"abc";
 //        [self.client sendEvent:event scope:scope withCompletionHandler:^(NSError * _Nullable error) {
@@ -894,7 +894,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 //    NSError *error = nil;
 //    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil] didFailWithError:&error];
 //
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityWarning];
+//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 //    SentryScope *scope = [[SentryScope alloc] initWithOptions:self.client.options];
 //    event.message = @"abc";
 //    SentryClient.logLevel = kSentryLogLevelDebug;

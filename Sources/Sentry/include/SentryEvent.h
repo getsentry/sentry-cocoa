@@ -44,7 +44,7 @@ NS_SWIFT_NAME(Event)
 @property(nonatomic, strong) NSDate *_Nullable startTimestamp;
 
 /**
- * SentrySeverity of the event
+ * SentryLevel of the event
  */
 @property(nonatomic) enum SentryLevel level;
 
@@ -171,7 +171,7 @@ NS_SWIFT_NAME(Event)
 
 /**
  * Init an SentryEvent will set all needed fields by default
- * @param level SentrySeverity
+ * @param level SentryLevel
  * @return SentryEvent
  */
 - (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
