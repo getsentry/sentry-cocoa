@@ -68,18 +68,19 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 /**
  * Level of severity
  */
-typedef NS_ENUM(NSInteger, SentrySeverity) {
-    kSentrySeverityFatal = 0,
-    kSentrySeverityError = 1,
-    kSentrySeverityWarning = 2,
-    kSentrySeverityInfo = 3,
-    kSentrySeverityDebug = 4,
+typedef NS_ENUM(NSInteger, SentryLevel) {
+    kSentryLevelNone = -1,
+    kSentryLevelFatal = 0,
+    kSentryLevelError = 1,
+    kSentryLevelWarning = 2,
+    kSentryLevelInfo = 3,
+    kSentryLevelDebug = 4,
 };
 
 /**
  * Static internal helper to convert enum to string
  */
-static NSString *_Nonnull const SentrySeverityNames[] = {
+static NSString *_Nonnull const SentryLevelNames[] = {
         @"fatal",
         @"error",
         @"warning",

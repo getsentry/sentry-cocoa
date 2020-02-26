@@ -27,13 +27,13 @@
 }
 
 - (SentryBreadcrumb *)getBreadcrumb {
-    return [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+    return [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 }
 
 - (void)testSetExtra {
     SentryScope *scope = [[SentryScope alloc] init];
-    [scope setExtra:@{@"c": @"d"}];
-    [scope setExtra:@{@"a": @"b"}];
+    [scope setExtras:@{@"c": @"d"}];
+    [scope setExtras:@{@"a": @"b"}];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
 }
 
@@ -113,13 +113,13 @@
         XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
         [expectation fulfill];
     }];
-    [scope setExtra:@{@"a": @"b"}];
+    [scope setExtras:@{@"a": @"b"}];
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
 - (void)testInitWithScope {
     SentryScope *scope = [[SentryScope alloc] init];
-    [scope setExtra:@{@"a": @"b"}];
+    [scope setExtras:@{@"a": @"b"}];
     [scope setTags:@{@"b": @"c"}];
     [scope addBreadcrumb:[self getBreadcrumb]];
     [scope setUser:[[SentryUser alloc] initWithUserId:@"id"]];
@@ -133,7 +133,7 @@
     SentryScope *cloned = [[SentryScope alloc] initWithScope:scope];
     XCTAssertEqualObjects(snapshot, [cloned serialize]);
     
-    [cloned setExtra:@{@"aa": @"b"}];
+    [cloned setExtras:@{@"aa": @"b"}];
     [cloned setTags:@{@"ab": @"c"}];
     [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http2"]];
     [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];

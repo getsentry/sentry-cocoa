@@ -83,21 +83,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     // TODO: Attach stacktrace?
     event.message = message;
     [self captureEvent:event withScope:scope];
 }
 
 - (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     // TODO: Capture Stacktrace
     event.message = exception.reason;
     [self captureEvent:event withScope:scope];
 }
 
 - (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     // TODO: Capture Stacktrace
     event.message = error.localizedDescription;
     [self captureEvent:event withScope:scope];

@@ -50,7 +50,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtra:(NSDictionary<NSString *, id> *_Nullable)extra;
+- (void)setExtras:(NSDictionary<NSString *, id> *_Nullable)extras;
 
 /**
  * Set global extra -> these will be sent with every event
@@ -80,7 +80,7 @@ NS_SWIFT_NAME(Scope)
 /**
 * Sets the level in the scope
 */
-- (void)setLevel:(enum SentrySeverity)level;
+- (void)setLevel:(enum SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope

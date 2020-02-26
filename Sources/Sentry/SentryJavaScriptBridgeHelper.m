@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (SentryEvent *)createSentryEventFromJavaScriptEvent:(NSDictionary *)jsonEvent {
-    SentrySeverity level = [self.class sentrySeverityFromLevel:jsonEvent[@"level"]];
+    SentryLevel level = [self.class sentrySeverityFromLevel:jsonEvent[@"level"]];
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
     if (jsonEvent[@"event_id"]) {
         event.eventId = jsonEvent[@"event_id"];
@@ -228,19 +228,19 @@ NS_ASSUME_NONNULL_BEGIN
     return sentryUser;
 }
 
-+ (SentrySeverity)sentrySeverityFromLevel:(NSString *)level {
++ (SentryLevel)sentrySeverityFromLevel:(NSString *)level {
     if ([level isEqualToString:@"fatal"]) {
-        return kSentrySeverityFatal;
+        return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {
-        return kSentrySeverityWarning;
+        return kSentryLevelWarning;
     } else if ([level isEqualToString:@"info"] || [level isEqualToString:@"log"]) {
-        return kSentrySeverityInfo;
+        return kSentryLevelInfo;
     } else if ([level isEqualToString:@"debug"]) {
-        return kSentrySeverityDebug;
+        return kSentryLevelDebug;
     } else if ([level isEqualToString:@"error"]) {
-        return kSentrySeverityError;
+        return kSentryLevelError;
     }
-    return kSentrySeverityError;
+    return kSentryLevelError;
 }
 
 + (SentryLogLevel)sentryLogLevelFromJavaScriptLevel:(int)level {

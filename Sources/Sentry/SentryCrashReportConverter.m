@@ -83,7 +83,7 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 - (SentryEvent *)convertReportToEvent {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
     if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
         event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
     } else {
@@ -148,19 +148,19 @@ static inline NSString *hexAddress(NSNumber *value) {
     return breadcrumbs;
 }
 
-- (SentrySeverity)sentrySeverityFromLevel:(NSString *)level {
+- (SentryLevel)sentrySeverityFromLevel:(NSString *)level {
     if ([level isEqualToString:@"fatal"]) {
-        return kSentrySeverityFatal;
+        return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {
-        return kSentrySeverityWarning;
+        return kSentryLevelWarning;
     } else if ([level isEqualToString:@"info"] || [level isEqualToString:@"log"]) {
-        return kSentrySeverityInfo;
+        return kSentryLevelInfo;
     } else if ([level isEqualToString:@"debug"]) {
-        return kSentrySeverityDebug;
+        return kSentryLevelDebug;
     } else if ([level isEqualToString:@"error"]) {
-        return kSentrySeverityError;
+        return kSentryLevelError;
     }
-    return kSentrySeverityError;
+    return kSentryLevelError;
 }
 
 - (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {

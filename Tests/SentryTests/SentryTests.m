@@ -192,11 +192,11 @@
 //}
 
 - (void)testSeverity {
-    XCTAssertEqualObjects(@"fatal", SentrySeverityNames[kSentrySeverityFatal]);
-    XCTAssertEqualObjects(@"error", SentrySeverityNames[kSentrySeverityError]);
-    XCTAssertEqualObjects(@"warning", SentrySeverityNames[kSentrySeverityWarning]);
-    XCTAssertEqualObjects(@"info", SentrySeverityNames[kSentrySeverityInfo]);
-    XCTAssertEqualObjects(@"debug", SentrySeverityNames[kSentrySeverityDebug]);
+    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentrySeverityFatal]);
+    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentrySeverityError]);
+    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentrySeverityWarning]);
+    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentrySeverityInfo]);
+    XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentrySeverityDebug]);
 }
 
 - (void)testDateCategory {

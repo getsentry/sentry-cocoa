@@ -18,7 +18,7 @@ NSString *rnReportPath = @"";
 + (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
 + (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
 + (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
-+ (SentrySeverity)sentrySeverityFromLevel:(NSString *)level;
++ (SentryLevel)sentrySeverityFromLevel:(NSString *)level;
 
 @end
 
@@ -29,14 +29,14 @@ NSString *rnReportPath = @"";
 @implementation SentryJavaScriptBridgeHelperTests
 
 - (void)testSentrySeverityFromLevel {
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:nil], kSentrySeverityError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"log"], kSentrySeverityInfo);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"info"], kSentrySeverityInfo);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"bla"], kSentrySeverityError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"error"], kSentrySeverityError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"fatal"], kSentrySeverityFatal);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"debug"], kSentrySeverityDebug);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"warning"], kSentrySeverityWarning);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:nil], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"log"], kSentryLevelInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"info"], kSentryLevelInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"bla"], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"error"], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"fatal"], kSentryLevelFatal);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"debug"], kSentryLevelDebug);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentrySeverityFromLevel:@"warning"], kSentryLevelWarning);
 }
 
 - (void)testSanitizeDictionary {
@@ -107,7 +107,7 @@ NSString *rnReportPath = @"";
                                                                                                               @"timestamp": [NSString stringWithFormat:@"%ld", (long)date.timeIntervalSince1970],
                                                                                                               }];
     XCTAssertEqualObjects(crumb2.message, @"test");
-    XCTAssertEqual(crumb2.level, kSentrySeverityInfo);
+    XCTAssertEqual(crumb2.level, kSentryLevelInfo);
     XCTAssertEqualObjects(crumb2.category, @"action");
     XCTAssertTrue([crumb2.timestamp compare:date]);
     

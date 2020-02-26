@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 /**
  * Level of breadcrumb
  */
-@property(nonatomic) enum SentrySeverity level;
+@property(nonatomic) enum SentryLevel level;
 
 /**
  * Category of bookmark, can be any string
@@ -62,7 +62,7 @@ SENTRY_NO_INIT
  * @param category String
  * @return SentryBreadcrumb
  */
-- (instancetype)initWithLevel:(enum SentrySeverity)level category:(NSString *)category;
+- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category;
 
 - (NSDictionary<NSString *, id> *)serialize;
 
