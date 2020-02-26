@@ -72,6 +72,15 @@ NS_SWIFT_NAME(Scope)
 */
 - (void)setEnvironment:(NSString *_Nullable)environment;
 
+/**
+* Sets the fingerprint in the scope
+*/
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint;
+
+/**
+* Sets the level in the scope
+*/
+- (void)setLevel:(enum SentrySeverity)level;
 
 /**
  * Add a breadcrumb to the scope

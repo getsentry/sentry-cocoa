@@ -89,6 +89,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy) NSString *_Nullable environment;
 
+/**
+ * Set the fingerprint of an event to determine the grouping
+ */
+@property(nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
+
+/**
+ * SentrySeverity of the event
+ */
+@property(nonatomic) enum SentrySeverity level;
+
 @end
 
 @implementation SentryScope
@@ -101,6 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize releaseName = _releaseName;
 @synthesize dist = _dist;
 @synthesize environment = _environment;
+@synthesize fingerprint = _fingerprint;
+@synthesize level = _level;
 
 #pragma mark Initializer
 
@@ -132,6 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
         self.releaseName = scope.releaseName;
         self.dist = scope.dist;
         self.environment = scope.environment;
+        self.level = scope.level;
+        self.fingerprint = scope.fingerprint;
     }
     return self;
 }
@@ -153,6 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
     _releaseName = nil;
     _dist = nil;
     _environment = nil;
+    _level = nil;
+    _fingerprint = [NSMutableArray new];
     [self notifyListeners];
 }
 
@@ -214,6 +230,21 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint {
+    if (fingerprint == nil) {
+        _fingerprint = [NSMutableArray new];
+    } else {
+        _fingerprint = fingerprint.mutableCopy;
+    }
+    _fingerprint = fingerprint;
+    [self notifyListeners];
+}
+
+- (void)setLevel:(enum SentrySeverity)level {
+    _level = level;
+    [self notifyListeners];
+}
+
 - (NSDictionary<NSString *, id> *)serializeBreadcrumbs {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
@@ -269,24 +300,34 @@ NS_ASSUME_NONNULL_BEGIN
         event.user = self.user;
     }
     
-    NSString* releaseName = [self releaseName];
+    NSString *releaseName = [self releaseName];
     if (nil != releaseName && nil == event.releaseName) {
         // release can also be set via options but scope takes precedence.
         event.releaseName = releaseName;
     }
     
-    NSString* dist = self.dist;
+    NSString *dist = self.dist;
     if (nil != dist && nil == event.dist) {
         // dist can also be set via options but scope takes precedence.
         event.dist = dist;
     }
     
-    NSString* environment = self.environment;
+    NSString *environment = self.environment;
     if (nil != environment && nil == event.environment) {
         // environment can also be set via options but scope takes precedence.
         event.environment = environment;
     }
 
+    NSArray *fingerprint = self.fingerprint;
+    if (fingerprint.count > 0 && nil == event.fingerprint) {
+        event.fingerprint = fingerprint.mutableCopy;
+    }
+    
+    if (self.level) {
+        // We always want to set the level from the scope since this has benn set on purpose
+        event.level = self.level;
+    }
+    
     if (nil != self.breadcrumbs) {
         if (nil == event.breadcrumbs) {
             event.breadcrumbs = [self.breadcrumbs subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [self.breadcrumbs count]))];
