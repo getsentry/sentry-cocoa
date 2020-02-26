@@ -160,31 +160,31 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)clear {
-    self.breadcrumbs = [NSMutableArray new];
-    self.user = nil;
-    self.tags = [NSMutableDictionary new];
-    self.extra = [NSMutableDictionary new];
-    self.context = [NSMutableDictionary new];
-    self.releaseName = nil;
-    self.dist = nil;
-    self.environment = nil;
-    self.level = kSentryLevelNone;
-    self.fingerprint = [NSMutableArray new];
+    _breadcrumbs = [NSMutableArray new];
+    _user = nil;
+    _tags = [NSMutableDictionary new];
+    _extra = [NSMutableDictionary new];
+    _context = [NSMutableDictionary new];
+    _releaseName = nil;
+    _dist = nil;
+    _environment = nil;
+    _level = kSentryLevelNone;
+    _fingerprint = [NSMutableArray new];
     [self notifyListeners];
 }
 
 - (void)clearBreadcrumbs {
-    [self.breadcrumbs removeAllObjects];
+    [_breadcrumbs removeAllObjects];
     [self notifyListeners];
 }
 
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
-    [self.context setValue:value forKey:key];
+    [_context setValue:value forKey:key];
     [self notifyListeners];
 }
 
 - (void)setExtraValue:(id)value forKey:(NSString *)key {
-    [self.extra setValue:value forKey:key];
+    [_extra setValue:value forKey:key];
     [self notifyListeners];
 }
 
@@ -193,57 +193,57 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized (self) {
-        [self.extra addEntriesFromDictionary:extras];
+        [_extra addEntriesFromDictionary:extras];
     }
     [self notifyListeners];
 }
 
 - (void)setTagValue:(id)value forKey:(NSString *)key {
-    [self.tags setValue:value forKey:key];
+    [_tags setValue:value forKey:key];
     [self notifyListeners];
 }
 
 - (void)setTags:(NSMutableDictionary<NSString *,NSString *> *_Nullable)tags {
     if (tags == nil) {
-        self.tags = [NSMutableDictionary new];
+        _tags = [NSMutableDictionary new];
     } else {
-        self.tags = tags.mutableCopy;
+        _tags = tags.mutableCopy;
     }
     [self notifyListeners];
 }
 
 - (void)setUser:(SentryUser *_Nullable)user {
-    self.user = user;
+    _user = user;
     [self notifyListeners];
 }
 
 - (void)setReleaseName:(NSString *_Nullable)releaseName {
-    self.releaseName = releaseName;
+    _releaseName = releaseName;
     [self notifyListeners];
 }
 
 - (void)setDist:(NSString *_Nullable)dist {
-    self.dist = dist;
+    _dist = dist;
     [self notifyListeners];
 }
 
 - (void)setEnvironment:(NSString *_Nullable)environment {
-    self.environment = environment;
+    _environment = environment;
     [self notifyListeners];
 }
 
 - (void)setFingerprint:(NSMutableArray<NSString *> *_Nullable)fingerprint {
     if (fingerprint == nil) {
-        self.fingerprint = [NSMutableArray new];
+        _fingerprint = [NSMutableArray new];
     } else {
-        self.fingerprint = fingerprint.mutableCopy;
+        _fingerprint = fingerprint.mutableCopy;
     }
-    self.fingerprint = fingerprint;
+    _fingerprint = fingerprint;
     [self notifyListeners];
 }
 
 - (void)setLevel:(enum SentryLevel)level {
-    self.level = level;
+    _level = level;
     [self notifyListeners];
 }
 

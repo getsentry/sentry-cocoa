@@ -45,7 +45,10 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setTagValue:(id)value forKey:(NSString *)key;
+- (void)setTagValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
+// TODO: key is first arg.
+//- (void)setTagKey:(NSString *key withValue:(id)value;
 
 /**
  * Set global extra -> these will be sent with every event
