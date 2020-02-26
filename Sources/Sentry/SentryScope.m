@@ -60,6 +60,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
 /**
+ * The release version name of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+
+/**
+ * This distribution of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable dist;
+
+/**
+ * The environment used in this scope.
+ */
+@property(nonatomic, copy) NSString *_Nullable environment;
+
+/**
  * Set global extra -> these will be sent with every event
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
@@ -83,6 +98,9 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize user = _user;
 @synthesize context = _context;
 @synthesize breadcrumbs = _breadcrumbs;
+@synthesize releaseName = _releaseName;
+@synthesize dist = _dist;
+@synthesize environment = _environment;
 
 #pragma mark Initializer
 
@@ -176,6 +194,9 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.extra forKey:@"extra"];
     [serializedData setValue:self.context forKey:@"context"];
     [serializedData setValue:[self.user serialize] forKey:@"user"];
+    [serializedData setValue:self.releaseName forKey:@"release"];
+    [serializedData setValue:self.dist forKey:@"dist"];
+    [serializedData setValue:self.environment forKey:@"environment"];
     return serializedData;
 }
 
@@ -204,6 +225,24 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (nil != self.user && nil == event.user) {
         event.user = self.user;
+    }
+    
+    NSString* releaseName = [self releaseName];
+    if (nil != releaseName && nil == event.releaseName) {
+        // release can also be set via options but scope takes precedence.
+        event.releaseName = releaseName;
+    }
+    
+    NSString* dist = self.dist;
+    if (nil != dist && nil == event.dist) {
+        // dist can also be set via options but scope takes precedence.
+        event.dist = dist;
+    }
+    
+    NSString* environment = self.environment;
+    if (nil != environment && nil == event.environment) {
+        // environment can also be set via options but scope takes precedence.
+        event.environment = environment;
     }
 
     if (nil != self.breadcrumbs) {
