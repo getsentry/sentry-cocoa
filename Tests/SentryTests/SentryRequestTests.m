@@ -177,7 +177,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     self.client = [[SentryClient alloc] initWithOptions:@{@"dsn": dsn}
                                          requestManager:self.requestManager
                                        didFailWithError:nil];
-    self.event = [[SentryEvent alloc] initWithLevel:kSentrySeverityDebug];
+    self.event = [[SentryEvent alloc] initWithLevel:kSentryLevelDebug];
 }
 
 // TODO(fetzig) fixme

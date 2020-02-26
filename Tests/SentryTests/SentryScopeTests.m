@@ -33,8 +33,7 @@
 - (void)testSetExtra {
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setExtras:@{@"c": @"d"}];
-    [scope setExtras:@{@"a": @"b"}];
-    XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"a": @"b"});
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"c": @"d"});
 }
 
 - (void)testSetExtraValueForKey {
@@ -135,7 +134,7 @@
     
     [cloned setExtras:@{@"aa": @"b"}];
     [cloned setTags:@{@"ab": @"c"}];
-    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http2"]];
+    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http2"]];
     [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];
     [cloned setContextValue:@{@"ae": @"af"} forKey:@"myContext"];
     [cloned setReleaseName:@"a123"];
