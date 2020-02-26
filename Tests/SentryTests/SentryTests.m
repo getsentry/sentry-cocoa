@@ -191,12 +191,23 @@
 //    [client reportUserException:@"a" reason:@"b" language:@"c" lineOfCode:@"1" stackTrace:[NSArray new] logAllThreads:YES terminateProgram:NO];
 //}
 
-- (void)testSeverity {
-    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
-    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
-    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
-    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);
+- (void)testLevelNames {
+    NSInteger highest = kSentryLevelFatal;
+    XCTAssertEqualObjects(@"none", SentryLevelNames[kSentryLevelNone]);
     XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentryLevelDebug]);
+    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);
+    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
+    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
+    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
+    XCTAssertEqualObjects(nil, SentryLevelNames[highest + 1]);
+}
+
+- (void)testLevelOrder {
+    XCTAssertGreaterThan(kSentryLevelFatal, kSentryLevelError);
+    XCTAssertGreaterThan(kSentryLevelError, kSentryLevelWarning);
+    XCTAssertGreaterThan(kSentryLevelWarning, kSentryLevelInfo);
+    XCTAssertGreaterThan(kSentryLevelInfo, kSentryLevelDebug);
+    XCTAssertGreaterThan(kSentryLevelDebug, kSentryLevelNone);
 }
 
 - (void)testDateCategory {
