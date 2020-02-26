@@ -122,12 +122,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (NO == [self checkSampleRate:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event" andLevel:kSentryLogLevelDebug];
         return nil;
-    }    
-
-    
-    NSString *environment = self.options.environment;
-    if (nil != environment && nil == event.environment) {
-        event.environment = environment;
     }
     
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
@@ -137,6 +131,10 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = infoDict[@"CFBundleVersion"];
     }
 
+    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+
+    // Use the values from SentryOptions as a fallback,
+    // in case not yet set directly in the event nor in the scope:
     NSString *releaseName = self.options.releaseName;
     if (nil != releaseName) {
         event.releaseName = releaseName;
@@ -147,8 +145,11 @@ NS_ASSUME_NONNULL_BEGIN
         event.dist = dist;
     }
 
-    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-
+    NSString *environment = self.options.environment;
+    if (nil != environment && nil == event.environment) {
+        event.environment = environment;
+    }
+    
     return event;
 }
 
