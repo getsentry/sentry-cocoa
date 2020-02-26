@@ -74,6 +74,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbs;
 
+/**
+ * The release version name of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+
+/**
+ * This distribution of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable dist;
+
+/**
+ * The environment used in this scope.
+ */
+@property(nonatomic, copy) NSString *_Nullable environment;
+
 @end
 
 @implementation SentryScope
@@ -97,6 +112,30 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithScope:(SentryScope *)scope {
+    if (self = [super init]) {
+        self.listeners = [NSMutableArray new];
+        self.extra = scope.extra.mutableCopy;
+        self.tags = scope.tags.mutableCopy;
+        SentryUser *scopeUser = scope.user;
+        SentryUser *user = nil;
+        if (nil != scopeUser) {
+            user = [[SentryUser alloc] init];
+            user.userId = scopeUser.userId;
+            user.data = scopeUser.data;
+            user.username = scopeUser.username;
+            user.email = scopeUser.email;
+        }
+        self.user = user;
+        self.context = scope.context.mutableCopy;
+        self.breadcrumbs = scope.breadcrumbs.mutableCopy;
+        self.releaseName = scope.releaseName;
+        self.dist = scope.dist;
+        self.environment = scope.environment;
+    }
+    return self;
+}
+
 #pragma mark Global properties
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
@@ -111,6 +150,9 @@ NS_ASSUME_NONNULL_BEGIN
     _tags = [NSMutableDictionary new];
     _extra = [NSMutableDictionary new];
     _context = [NSMutableDictionary new];
+    _releaseName = nil;
+    _dist = nil;
+    _environment = nil;
     [self notifyListeners];
 }
 
@@ -154,6 +196,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUser:(SentryUser *_Nullable)user {
     _user = user;
+    [self notifyListeners];
+}
+
+- (void)setReleaseName:(NSString *_Nullable)releaseName {
+    _releaseName = releaseName;
+    [self notifyListeners];
+}
+
+- (void)setDist:(NSString *_Nullable)dist {
+    _dist = dist;
+    [self notifyListeners];
+}
+
+- (void)setEnvironment:(NSString *_Nullable)environment {
+    _environment = environment;
     [self notifyListeners];
 }
 

@@ -34,7 +34,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.scope = [[SentryScope alloc] init];
+        self.scope = [self getScope];
     }
     return self;
 }
@@ -42,44 +42,28 @@
 - (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        if (nil == scope) {
-            [client captureEvent:event withScopes:@[self.scope]];
-        } else {
-            [client captureEvent:event withScopes:@[self.scope, scope]];
-        }
+        [client captureEvent:event withScope:scope];
     }
 }
 
 - (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        if (nil == scope) {
-            [client captureMessage:message withScopes:@[self.scope]];
-        } else {
-            [client captureMessage:message withScopes:@[self.scope, scope]];
-        }
+        [client captureMessage:message withScope:scope];
     }
 }
 
-- (void)captureError:(NSError *)error withScope:(SentryScope *)scope {
+- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        if (nil == scope) {
-            [client captureError:error withScopes:@[self.scope]];
-        } else {
-            [client captureError:error withScopes:@[self.scope, scope]];
-        }
+        [client captureError:error withScope:scope];
     }
 }
 
-- (void)captureException:(NSException *)exception withScope:(SentryScope *)scope {
+- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        if (nil == scope) {
-            [client captureException:exception withScope:@[self.scope]];
-        } else {
-            [client captureException:exception withScopes:@[self.scope, scope]];
-        }
+        [client captureException:exception withScope:scope];
     }
 }
 
@@ -88,7 +72,14 @@
 }
 
 - (SentryClient *_Nullable)getClient {
-    return self.getClient;
+    return self.client;
+}
+
+- (SentryScope *)getScope {
+    if (self.scope == nil) {
+        self.scope = [[SentryScope alloc] init];
+    }
+    return self.scope;
 }
 
 - (void)bindClient:(SentryClient * _Nullable)client {

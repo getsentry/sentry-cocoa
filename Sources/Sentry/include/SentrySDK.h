@@ -99,7 +99,7 @@ SENTRY_NO_INIT
  uses default `SentryHub`
  */
 + (void)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
-+ (void)captureMessage:(NSString *)message withcope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
++ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 + (void)captureMessage:(NSString *)message withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
 
 /**

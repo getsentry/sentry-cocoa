@@ -54,7 +54,7 @@ class SentrySwiftTests: XCTestCase {
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.setExtra(["a": "b"])
-        client!.capture(event2, with: scope)
+        client!.capture(event: event2, scope: scope)
         //send(event: event2, scope: scope)
     }
     
@@ -72,7 +72,7 @@ class SentrySwiftTests: XCTestCase {
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.setExtra(["a": "b"])
-        client!.capture(event2, with: scope)
+        client!.capture(event: event2, scope: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
         // 2) update test accordingly
@@ -93,7 +93,7 @@ class SentrySwiftTests: XCTestCase {
         print("#####################")
         print(SentrySDK.currentHub().getClient() ?? "no client")
 
-        SentrySDK.currentHub().getClient()!.capture(event, with: scope)
+        SentrySDK.currentHub().getClient()!.capture(event: event, scope: scope)
 
         let event2 = Event(level: .debug)
         let scope2 = Sentry.Scope()
@@ -105,7 +105,7 @@ class SentrySwiftTests: XCTestCase {
             return event
         }
         
-        SentrySDK.currentHub().getClient()!.capture(event2, with: scope)
+        SentrySDK.currentHub().getClient()!.capture(event: event2, scope: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
         // 2) update test accordingly

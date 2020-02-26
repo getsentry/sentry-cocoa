@@ -63,6 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryClient *_Nullable)getClient;
 
 /**
+ * Returns a scope either the current or new.
+ */
+- (SentryScope *)getScope;
+
+/**
  * Binds a different client to the hub.
  */
 - (void)bindClient:(SentryClient *_Nullable)client;

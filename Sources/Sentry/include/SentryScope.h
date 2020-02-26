@@ -30,6 +30,7 @@ NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
 - (instancetype)init;
+- (instancetype)initWithScope:(SentryScope *)scope;
 
 /**
  * Set global user -> thus will be sent with every event
@@ -57,6 +58,22 @@ NS_SWIFT_NAME(Scope)
 - (void)setExtraValue:(id)value forKey:(NSString *)key;
 
 /**
+ * Set release in the scope
+ */
+- (void)setReleaseName:(NSString *_Nullable)releaseName;
+
+/**
+ * Set dist in the scope
+ */
+- (void)setDist:(NSString *_Nullable)dist;
+
+/**
+* Set environment in the scope
+*/
+- (void)setEnvironment:(NSString *_Nullable)environment;
+
+
+/**
  * Add a breadcrumb to the scope
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
@@ -81,21 +98,6 @@ NS_SWIFT_NAME(Scope)
  * "enrichted" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
-
-/**
- * The release version name of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-
-/**
- * This distribution of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable dist;
-
-/**
- * The environment used in this scope.
- */
-@property(nonatomic, copy) NSString *_Nullable environment;
 
 /**
  * Clears the current Scope
