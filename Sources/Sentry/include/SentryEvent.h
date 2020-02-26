@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
-SENTRY_NO_INIT
 
 /**
  * This will be set by the initializer. Should be an UUID with the "-".
@@ -166,10 +165,16 @@ SENTRY_NO_INIT
 
 /**
  * Init an SentryEvent will set all needed fields by default
+ * @return SentryEvent
+ */
+- (instancetype)init;
+
+/**
+ * Init an SentryEvent will set all needed fields by default
  * @param level SentrySeverity
  * @return SentryEvent
  */
-- (instancetype)initWithLevel:(enum SentryLevel)level;
+- (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
 
 /**
  * Init an SentryEvent with a JSON blob that completly bypasses all other attributes in the event.
