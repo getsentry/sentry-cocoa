@@ -44,7 +44,7 @@
 }
 
 - (void)testSDKDefaultHub {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
     //[SentrySDK.currentHub reset];
@@ -118,7 +118,7 @@
 //}
 
 - (void)testSDKBreadCrumbAdd {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
     // TODO(fetzig)
     //[[SentrySDK.currentHub getClient].breadcrumbs clear];
 
@@ -139,7 +139,7 @@
 }
 
 - (void)testSDKCaptureEvent {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityFatal];
 
@@ -153,7 +153,7 @@
 }
 
 - (void)testSDKCaptureError {
-    [SentrySDK startWithOptionsDict:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
+    [SentrySDK initWithOptions:@{@"dsn": @"https://username:password@app.getsentry.com/12345"}];
 
     NSError *error = [NSError errorWithDomain:@"testworld" code:200 userInfo:@{NSLocalizedDescriptionKey: @"test ran out of money"}];
     [SentrySDK captureError:error];

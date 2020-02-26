@@ -54,14 +54,14 @@ SENTRY_NO_INIT
 
  adds options to hub/client and starts error monitoring.
  */
-+ (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
++ (instancetype)initWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(init(options:));
 
 /**
  starts sentry with options and starts crash handler
  
  Inits and configures Sentry (SentryHub, SentryClient) and starts crash handler
  */
-+ (void)startWithOptionsDict:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
++ (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(init(options:));
 
 /**
  captures an event aka. sends an event to sentry

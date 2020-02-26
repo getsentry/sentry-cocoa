@@ -56,21 +56,23 @@ static SentryHub * currentHub;
     }
 }
 
-+ (void)startWithOptionsDict:(NSDictionary<NSString *,id> *)optionsDict {
++ (id)initWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"SentrySDK startWithOptionsDict: ERROR: %@", error] andLevel:kSentryLogLevelDebug];
     } else {
-        [SentrySDK startWithOptions:options];
+        [SentrySDK initWithOptionsObject:options];
     }
+    return nil;
 }
 
-+ (void)startWithOptions:(SentryOptions *)options {
++ (id)initWithOptionsObject:(SentryOptions *)options {
     if ([SentrySDK.currentHub getClient] == nil) {
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [SentrySDK.currentHub bindClient:newClient];
     }
+    return nil;
 }
 
 + (void)captureEvent:(SentryEvent *)event {
