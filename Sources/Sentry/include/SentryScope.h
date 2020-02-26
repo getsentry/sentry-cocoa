@@ -83,6 +83,21 @@ NS_SWIFT_NAME(Scope)
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
 
 /**
+ * The release version name of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable releaseName;
+
+/**
+ * This distribution of the application.
+ */
+@property(nonatomic, copy) NSString *_Nullable dist;
+
+/**
+ * The environment used in this scope.
+ */
+@property(nonatomic, copy) NSString *_Nullable environment;
+
+/**
  * Clears the current Scope
  */
 - (void)clear;

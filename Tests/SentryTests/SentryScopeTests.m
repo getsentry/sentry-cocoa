@@ -76,6 +76,30 @@
     #warning TODO implement
 }
 
+- (void)testReleaseSerializes {
+    SentryScope *scope = [[SentryScope alloc] init];
+    NSString *expectedReleaseName = @"io.sentry.cocoa@5.0.0-deadbeef";
+    scope.releaseName = expectedReleaseName;
+    XCTAssertEqual(scope.releaseName, expectedReleaseName);
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"release"], expectedReleaseName);
+}
+
+- (void)testDistSerializes {
+    SentryScope *scope = [[SentryScope alloc] init];
+    NSString *expectedDist = @"dist-1.0";
+    scope.dist = expectedDist;
+    XCTAssertEqual(scope.dist, expectedDist);
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"dist"], expectedDist);
+}
+
+- (void)testEnvironmentSerializes {
+    SentryScope *scope = [[SentryScope alloc] init];
+    NSString *expectedEnvironment = @"production";
+    scope.environment = expectedEnvironment;
+    XCTAssertEqual(scope.environment, expectedEnvironment);
+    XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
+}
+
 - (void)testClearBreadcrumb {
     SentryScope *scope = [[SentryScope alloc] init];
     [scope clearBreadcrumbs];

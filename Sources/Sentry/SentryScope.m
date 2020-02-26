@@ -60,21 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
 /**
- * The release version name of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-
-/**
- * This distribution of the application.
- */
-@property(nonatomic, copy) NSString *_Nullable dist;
-
-/**
- * The environment used in this scope.
- */
-@property(nonatomic, copy) NSString *_Nullable environment;
-
-/**
  * Set global extra -> these will be sent with every event
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
