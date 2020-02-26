@@ -18,7 +18,7 @@ NSString *rnReportPath = @"";
 + (NSArray *)parseRavenFrames:(NSArray *)ravenFrames;
 + (NSArray<SentryFrame *> *)convertReactNativeStacktrace:(NSArray *)stacktrace;
 + (void)addExceptionToEvent:(SentryEvent *)event type:(NSString *)type value:(NSString *)value frames:(NSArray *)frames;
-+ (SentryLevel)sentryLevelFromLevel:(NSString *)level;
++ (SentryLevel)sentryLevelFromString:(NSString *)level;
 
 @end
 
@@ -29,14 +29,14 @@ NSString *rnReportPath = @"";
 @implementation SentryJavaScriptBridgeHelperTests
 
 - (void)testSentryLevelFromString {
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:nil], kSentryLevelError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"log"], kSentryLevelInfo);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"info"], kSentryLevelInfo);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"bla"], kSentryLevelError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"error"], kSentryLevelError);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"fatal"], kSentryLevelFatal);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"debug"], kSentryLevelDebug);
-    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromLevel:@"warning"], kSentryLevelWarning);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:nil], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"log"], kSentryLevelInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"info"], kSentryLevelInfo);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"bla"], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"error"], kSentryLevelError);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"fatal"], kSentryLevelFatal);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"debug"], kSentryLevelDebug);
+    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"warning"], kSentryLevelWarning);
 }
 
 - (void)testSanitizeDictionary {
