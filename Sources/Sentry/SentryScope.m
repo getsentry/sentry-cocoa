@@ -270,6 +270,10 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
+    [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
+    if (self.level) {
+        [serializedData setValue:SentrySeverityNames[self.level] forKey:@"level"];
+    }
     return serializedData;
 }
 
