@@ -82,29 +82,29 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
-- (void)captureMessage:(NSString *)message withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     // TODO: Attach stacktrace?
     event.message = message;
-    [self captureEvent:event withScopes:scopes];
+    [self captureEvent:event withScope:scope];
 }
 
-- (void)captureException:(NSException *)exception withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     // TODO: Capture Stacktrace
     event.message = exception.reason;
-    [self captureEvent:event withScopes:scopes];
+    [self captureEvent:event withScope:scope];
 }
 
-- (void)captureError:(NSError *)error withScopes:(NSArray<SentryScope *> *_Nullable)scopes {
+- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentrySeverityError];
     // TODO: Capture Stacktrace
     event.message = error.localizedDescription;
-    [self captureEvent:event withScopes:scopes];
+    [self captureEvent:event withScope:scope];
 }
 
-- (void)captureEvent:(SentryEvent *)event withScopes:(NSArray<SentryScope *>*_Nullable)scopes {
-    SentryEvent *preparedEvent = [self prepareEvent:event withScopes:scopes];
+- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark prepareEvent
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                            withScopes:(NSArray<SentryScope *>*_Nullable)scopes {
+                             withScope:(SentryScope *_Nullable)scope {
     NSParameterAssert(event);
     
     if (NO == [self.options.enabled boolValue]) {
@@ -168,10 +168,8 @@ NS_ASSUME_NONNULL_BEGIN
         event.environment = environment;
     }
     
-    if (nil != scopes) {
-        for (SentryScope *scope in scopes) {
-            event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-        }
+    if (nil != scope) {
+        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
     }
     
     return [self callEventProcessors:event];

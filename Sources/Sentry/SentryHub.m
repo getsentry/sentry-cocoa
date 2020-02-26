@@ -9,7 +9,6 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryHub.h>
 #import <Sentry/SentryClient.h>
-#import <Sentry/SentryStackLayer.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentrySDK.h>
@@ -17,7 +16,6 @@
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
-#import "SentryStackLayer.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentrySDK.h"
@@ -74,11 +72,11 @@
     }
 }
 
--(void)captureException:(NSException *)exception withScope:(SentryScope *)scope {
+- (void)captureException:(NSException *)exception withScope:(SentryScope *)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
         if (nil == scope) {
-            [client captureException:exception withScopes:@[self.scope]];
+            [client captureException:exception withScope:@[self.scope]];
         } else {
             [client captureException:exception withScopes:@[self.scope, scope]];
         }

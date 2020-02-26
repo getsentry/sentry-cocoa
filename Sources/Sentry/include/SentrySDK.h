@@ -72,6 +72,7 @@ SENTRY_NO_INIT
  */
 + (void)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 + (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
++ (void)captureEvent:(SentryEvent *)event withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  captures an error aka. sends an NSError to sentry.
@@ -80,6 +81,7 @@ SENTRY_NO_INIT
  */
 + (void)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
 + (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
++ (void)captureError:(NSError *)error withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  captures an exception aka. sends an NSException to sentry.
@@ -88,6 +90,8 @@ SENTRY_NO_INIT
  */
 + (void)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 + (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
++ (void)captureException:(NSException *)exception withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(exception:block:));
+
 
 /**
  captures a message aka. sends a string to sentry.
@@ -95,7 +99,8 @@ SENTRY_NO_INIT
  uses default `SentryHub`
  */
 + (void)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
-+ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
++ (void)captureMessage:(NSString *)message withcope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
++ (void)captureMessage:(NSString *)message withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
 
 /**
  adds a SentryBreadcrumb to the SentryClient.

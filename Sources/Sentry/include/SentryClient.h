@@ -43,22 +43,22 @@ SENTRY_NO_INIT
 /**
  * Captures an SentryEvent
  */
-- (void)captureEvent:(SentryEvent *)event withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(event:scopes:));
+- (void)captureEvent:(SentryEvent *)event withScopes:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a NSError
  */
-- (void)captureError:(NSError *)error withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(error:scopes:));
+- (void)captureError:(NSError *)error withScopes:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures a NSException
  */
-- (void)captureException:(NSException *)exception withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(exception:scopes:));
+- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
 * Captures a Message
 */
-- (void)captureMessage:(NSString *)message withScopes:(NSArray<SentryScope *>*_Nullable)scopes NS_SWIFT_NAME(capture(message:scopes:));
+- (void)captureMessage:(NSString *)message withScopes:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
 @end
 
