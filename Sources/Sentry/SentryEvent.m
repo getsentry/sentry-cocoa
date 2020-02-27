@@ -180,6 +180,9 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
         [crumbs addObject:[crumb serialize]];
     }
+    if (crumbs.count <= 0) {
+        return nil;
+    }
     return crumbs;
 }
 

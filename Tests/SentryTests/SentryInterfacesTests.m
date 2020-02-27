@@ -77,91 +77,82 @@
     XCTAssertEqualObjects([frame2 serialize], serialized2);
 }
 
-//- (void)testEvent {
-//    NSDate *date = [NSDate date];
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-//    event.timestamp = date;
-//    event.environment = @"bla";
-//    event.infoDict = @{@"CFBundleIdentifier": @"a", @"CFBundleShortVersionString": @"b", @"CFBundleVersion": @"c"};
-//    event.extra = @{@"__sentry_stacktrace": @"f", @"date": date};
-//    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
-//                                 @"event_id": event.eventId,
-//                                 @"extra": @{@"date": [date sentry_toIso8601String]},
-//                                 @"level": @"info",
-//                                 @"environment": @"bla",
-//                                 @"platform": @"cocoa",
-//                                 @"release": @"a-b",
-//                                 @"dist": @"c",
-//                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
-//                                 @"timestamp": [date sentry_toIso8601String]};
-//    XCTAssertEqualObjects([event serialize], serialized);
-//
-//    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-//    event2.timestamp = date;
-//    NSDictionary *serialized2 = @{@"contexts": [[[SentryContext alloc] init] serialize],
-//                                 @"event_id": event2.eventId,
-//                                 @"level": @"info",
-//                                 @"platform": @"cocoa",
-//                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
-//                                 @"timestamp": [date sentry_toIso8601String]};
-//    XCTAssertEqualObjects([event2 serialize], serialized2);
-//
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-//    event3.timestamp = date;
-//    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
-//    NSDictionary *serialized3 = @{@"contexts": [[[SentryContext alloc] init] serialize],
-//                                  @"event_id": event3.eventId,
-//                                  @"level": @"info",
-//                                  @"platform": @"cocoa",
-//                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
-//                                            @"integrations": @[@"sentry-cocoa"]},
-//                                  @"timestamp": [date sentry_toIso8601String]};
-//    XCTAssertEqualObjects([event3 serialize], serialized3);
-//}
-//
-//- (void)testTransactionEvent {
-//    NSDate *date = [NSDate date];
-//
-//    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-//    event.timestamp = date;
-//    event.extra = @{@"__sentry_transaction": @"yoyoyo"};
-//    event.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
-//    NSDictionary *serialized = @{@"contexts": [[[SentryContext alloc] init] serialize],
-//                                 @"event_id": event.eventId,
-//                                 @"level": @"info",
-//                                 @"extra": @{},
-//                                 @"transaction": @"yoyoyo",
-//                                 @"platform": @"cocoa",
-//                                 @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
-//                                           @"integrations": @[@"sentry-cocoa"]},
-//                                 @"timestamp": [date sentry_toIso8601String]};
-//    XCTAssertEqualObjects([event serialize], serialized);
-//
-//    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-//    event3.timestamp = date;
-//    event3.transaction = @"UIViewControllerTest";
-//    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
-//    NSDictionary *serialized3 = @{@"contexts": [[[SentryContext alloc] init] serialize],
-//                                  @"event_id": event3.eventId,
-//                                  @"level": @"info",
-//                                  @"transaction": @"UIViewControllerTest",
-//                                  @"platform": @"cocoa",
-//                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
-//                                            @"integrations": @[@"sentry-cocoa"]},
-//                                  @"timestamp": [date sentry_toIso8601String]};
-//    XCTAssertEqualObjects([event3 serialize], serialized3);
-    // SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // event4.timestamp = date;
-    // event4.extra = @{@"key": @{@1: @"1"}};
-    // NSDictionary *serialized4 = @{@"contexts": [[[SentryContext alloc] init] serialize],
-    //                               @"event_id": event4.eventId,
-    //                               @"extra": @{@"key": @{@"1": @"1"}},
-    //                               @"level": @"info",
-    //                               @"platform": @"cocoa",
-    //                               @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
-    //                               @"timestamp": [date sentry_toIso8601String]};
-    // XCTAssertEqualObjects([event4 serialize], serialized4);
-//}
+- (void)testEvent {
+    NSDate *date = [NSDate date];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event.timestamp = date;
+    event.environment = @"bla";
+    event.extra = @{@"__sentry_stacktrace": @"f", @"date": date};
+    NSDictionary *serialized = @{@"event_id": event.eventId,
+                                 @"extra": @{@"date": [date sentry_toIso8601String]},
+                                 @"level": @"info",
+                                 @"environment": @"bla",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
+                                 @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event serialize], serialized);
+
+    SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event2.timestamp = date;
+    NSDictionary *serialized2 = @{@"event_id": event2.eventId,
+                                 @"level": @"info",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
+                                 @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event2 serialize], serialized2);
+
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event3.timestamp = date;
+    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized3 = @{@"event_id": event3.eventId,
+                                  @"level": @"info",
+                                  @"platform": @"cocoa",
+                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                            @"integrations": @[@"sentry-cocoa"]},
+                                  @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event3 serialize], serialized3);
+}
+
+- (void)testTransactionEvent {
+    NSDate *date = [NSDate date];
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event.timestamp = date;
+    event.extra = @{@"__sentry_transaction": @"yoyoyo"};
+    event.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized = @{@"event_id": event.eventId,
+                                 @"level": @"info",
+                                 @"extra": @{},
+                                 @"transaction": @"yoyoyo",
+                                 @"platform": @"cocoa",
+                                 @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                           @"integrations": @[@"sentry-cocoa"]},
+                                 @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event serialize], serialized);
+
+    SentryEvent *event3 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event3.timestamp = date;
+    event3.transaction = @"UIViewControllerTest";
+    event3.sdk = @{@"version": @"0.15.2", @"name": @"sentry-react-native", @"integrations": @[@"sentry-cocoa"]};
+    NSDictionary *serialized3 = @{@"event_id": event3.eventId,
+                                  @"level": @"info",
+                                  @"transaction": @"UIViewControllerTest",
+                                  @"platform": @"cocoa",
+                                  @"sdk": @{@"name": @"sentry-react-native", @"version": @"0.15.2",
+                                            @"integrations": @[@"sentry-cocoa"]},
+                                  @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event3 serialize], serialized3);
+     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+     event4.timestamp = date;
+     event4.extra = @{@"key": @{@1: @"1"}};
+    NSDictionary *serialized4 = @{@"event_id": event4.eventId,
+                                   @"extra": @{@"key": @{@"1": @"1"}},
+                                   @"level": @"info",
+                                   @"platform": @"cocoa",
+                                   @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryMeta.versionString},
+                                   @"timestamp": [date sentry_toIso8601String]};
+     XCTAssertEqualObjects([event4 serialize], serialized4);
+}
 
 
 
