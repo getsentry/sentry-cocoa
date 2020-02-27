@@ -66,24 +66,27 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 };
 
 /**
- * Level of severity
+ * Sentry level
  */
-typedef NS_ENUM(NSInteger, SentryLevel) {
-    kSentryLevelNone = -1,
-    kSentryLevelFatal = 0,
-    kSentryLevelError = 1,
-    kSentryLevelWarning = 2,
-    kSentryLevelInfo = 3,
-    kSentryLevelDebug = 4,
+typedef NS_ENUM(NSUInteger, SentryLevel) {
+    // Defaults to None which doesn't get serialized
+    kSentryLevelNone = 0,
+    // Goes from Debug to Fatal so possible to: (level > Info) { .. }
+    kSentryLevelDebug = 1,
+    kSentryLevelInfo = 2,
+    kSentryLevelWarning = 3,
+    kSentryLevelError = 4,
+    kSentryLevelFatal = 5,
 };
 
 /**
  * Static internal helper to convert enum to string
  */
 static NSString *_Nonnull const SentryLevelNames[] = {
-        @"fatal",
-        @"error",
-        @"warning",
-        @"info",
+        @"none",
         @"debug",
+        @"info",
+        @"warning",
+        @"error",
+        @"fatal",
 };

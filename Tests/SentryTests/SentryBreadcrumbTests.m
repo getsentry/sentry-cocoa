@@ -99,7 +99,7 @@
 ////    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
 //    SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 //    NSDate *date = [NSDate date];
 //    crumb.timestamp = date;
 //    crumb.data = @{@"data": date, @"dict": @{@"date": date}};
@@ -124,22 +124,22 @@
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
 //    SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 //    NSDate *date = [NSDate dateWithTimeIntervalSince1970:10];
 //    crumb.timestamp = date;
 //    [scope.breadcrumbs addBreadcrumb:crumb];
 //
-//    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+//    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 //    NSDate *date2 = [NSDate dateWithTimeIntervalSince1970:899990];
 //    crumb2.timestamp = date2;
 //    [scope.breadcrumbs addBreadcrumb:crumb2];
 //
-//    SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+//    SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 //    NSDate *date3 = [NSDate dateWithTimeIntervalSince1970:5];
 //    crumb3.timestamp = date3;
 //    [scope.breadcrumbs addBreadcrumb:crumb3];
 //
-//    SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc] initWithLevel:kSentrySeverityDebug category:@"http"];
+//    SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
 //    NSDate *date4 = [NSDate dateWithTimeIntervalSince1970:11];
 //    crumb4.timestamp = date4;
 //    [scope.breadcrumbs addBreadcrumb:crumb4];

@@ -137,7 +137,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     if (nil != [self.userContext objectForKey:@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = [self.userContext objectForKey:@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:[self sentrySeverityFromLevel:[storedCrumb objectForKey:@"level"]]
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:[self sentryLevelFromString:[storedCrumb objectForKey:@"level"]]
                                                                      category:[storedCrumb objectForKey:@"category"]];
             crumb.message = [storedCrumb objectForKey:@"message"];
             crumb.type = [storedCrumb objectForKey:@"type"];
@@ -148,7 +148,7 @@ static inline NSString *hexAddress(NSNumber *value) {
     return breadcrumbs;
 }
 
-- (SentryLevel)sentrySeverityFromLevel:(NSString *)level {
+- (SentryLevel)sentryLevelFromString:(NSString *)level {
     if ([level isEqualToString:@"fatal"]) {
         return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {

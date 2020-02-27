@@ -47,9 +47,6 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)setTagValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
-// TODO: key is first arg.
-//- (void)setTagKey:(NSString *key withValue:(id)value;
-
 /**
  * Set global extra -> these will be sent with every event
  */
@@ -58,12 +55,12 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtraValue:(id)value forKey:(NSString *)key;
+- (void)setExtraValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Set release in the scope
  */
-- (void)setReleaseName:(NSString *_Nullable)releaseName;
+- (void)setRelease:(NSString *_Nullable)releaseName;
 
 /**
  * Set dist in the scope
@@ -109,7 +106,7 @@ NS_SWIFT_NAME(Scope)
  * Cets context values which will overwrite SentryEvent.context when event is
  * "enrichted" with scope before sending event.
  */
-- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key;
+- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key NS_SWIFT_NAME(setContext(value:key:));
 
 /**
  * Clears the current Scope
