@@ -109,10 +109,16 @@ SENTRY_NO_INIT
  
  uses default `SentryHub`
  */
-+ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(add(crumb:));
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
 
 //- `configure_scope(callback)`: Calls a callback with a scope object that can be reconfigured. This is used to attach contextual data for future events in the same scope.
 + (void)configureScope:(void(^)(SentryScope *scope))callback;
+
+
+/**
+ * Set logLevel for the current client default kSentryLogLevelError
+ */
+@property(nonatomic, class) SentryLogLevel logLevel;
 
 @end
 

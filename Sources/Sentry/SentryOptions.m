@@ -12,12 +12,14 @@
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
+#import <Sentry/SentrySDK.h>
 
 #else
 #import "SentryOptions.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentrySDK.h"
 #endif
 
 @implementation SentryOptions
@@ -47,14 +49,7 @@
  */
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
-    if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        self.enabled = @NO;
-        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
-        return;
-    }
     
-    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
-
     if (nil != [options objectForKey:@"debug"]) {
         self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
     } else {
@@ -62,9 +57,20 @@
     }
 
     if ([self.debug isEqual:@YES])  {
-        self.logLevel = kSentryLogLevelDebug;
+        SentrySDK.logLevel = kSentryLogLevelDebug;
     } else {
-        self.logLevel = kSentryLogLevelError;
+        SentrySDK.logLevel = kSentryLogLevelError;
+    }
+    
+    if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
+        self.enabled = @NO;
+        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
+        return;
+    }
+    
+    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
+    if (nil != error && nil != *error) {
+        self.enabled = @NO;
     }
     
     if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {

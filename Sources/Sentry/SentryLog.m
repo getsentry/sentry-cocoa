@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level {
     SentryLogLevel defaultLevel = kSentryLogLevelError;
-    if ([SentrySDK.currentHub getClient].options.logLevel > 0) {
-        defaultLevel = [SentrySDK.currentHub getClient].options.logLevel;
+    if (SentrySDK.logLevel > 0) {
+        defaultLevel = SentrySDK.logLevel;
     }
     if (level <= defaultLevel && level != kSentryLogLevelNone) {
         NSLog(@"Sentry - %@:: %@", [self.class logLevelToString:level], message);
