@@ -281,5 +281,20 @@ NSString *reportPath = @"";
 
     NSLog(@"%@", [NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
 }
+//
+//
+//- (void)testSentryLevelFromString {
+//    NSDictionary *report = [self getCrashReport];
+//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:nil], kSentryLevelError);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"log"], kSentryLevelInfo);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"info"], kSentryLevelInfo);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"bla"], kSentryLevelError);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"error"], kSentryLevelError);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"fatal"], kSentryLevelFatal);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"debug"], kSentryLevelDebug);
+//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"warning"], kSentryLevelWarning);
+//}
+
 
 @end

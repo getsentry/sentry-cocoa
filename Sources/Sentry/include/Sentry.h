@@ -38,8 +38,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryTransport.h>
 
-#import <Sentry/SentryJavaScriptBridgeHelper.h>
-
 #else
 
 #import "SentryCrash.h"
@@ -63,7 +61,5 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryDebugMeta.h"
 #import "SentryBreadcrumb.h"
 #import "SentryTransport.h"
-
-#import "SentryJavaScriptBridgeHelper.h"
 
 #endif
