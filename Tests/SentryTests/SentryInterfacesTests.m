@@ -131,10 +131,10 @@
 
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentrySeverityInfo];
     event4.timestamp = date;
-    event4.extra = @{@"key": @{@1: @"1"}};
+    event4.extra = @{@"key": @{@1: @"1", @2: [NSDate dateWithTimeIntervalSince1970:1582803326]}};
     NSDictionary *serialized4 = @{@"contexts": [[[SentryContext alloc] init] serialize],
                                   @"event_id": event4.eventId,
-                                  @"extra": @{@"key": @{@"1": @"1"}},
+                                  @"extra": @{@"key": @{@"1": @"1", @"2": @"2020-02-27T11:35:26Z"}},
                                   @"level": @"info",
                                   @"platform": @"cocoa",
                                   @"sdk": @{@"name": @"sentry-cocoa", @"version": SentryClient.versionString},
