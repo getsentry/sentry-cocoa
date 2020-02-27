@@ -27,6 +27,8 @@
 #import "SentryLog.h"
 #endif
 
+static SentryLogLevel logLevel = kSentryLogLevelError;
+
 @interface SentrySDK ()
 
 /**
@@ -39,7 +41,9 @@
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
-static SentryHub * currentHub;
+static SentryHub *currentHub;
+
+@dynamic logLevel;
 
 + (SentryHub *)currentHub {
     @synchronized(self) {
@@ -76,7 +80,7 @@ static SentryHub * currentHub;
 }
 
 + (void)captureEvent:(SentryEvent *)event {
-    [SentrySDK captureEvent:event withScope:nil];
+    [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (void)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
@@ -90,7 +94,7 @@ static SentryHub * currentHub;
 }
 
 + (void)captureError:(NSError *)error {
-    [SentrySDK captureError:error withScope:nil];
+    [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (void)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
@@ -104,7 +108,7 @@ static SentryHub * currentHub;
 }
 
 + (void)captureException:(NSException *)exception {
-    [SentrySDK captureException:exception withScope:nil];
+    [SentrySDK captureException:exception withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (void)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
@@ -118,7 +122,7 @@ static SentryHub * currentHub;
 }
 
 + (void)captureMessage:(NSString *)message {
-    [SentrySDK captureMessage:message withScope:nil];
+    [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (void)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope * _Nonnull))block {
@@ -137,6 +141,15 @@ static SentryHub * currentHub;
 
 + (void)configureScope:(void(^)(SentryScope *scope))callback {
     [SentrySDK.currentHub configureScope:callback];
+}
+
++ (void)setLogLevel:(SentryLogLevel)level {
+    NSParameterAssert(level);
+    logLevel = level;
+}
+
++ (SentryLogLevel)logLevel {
+    return logLevel;
 }
 
 #ifndef __clang_analyzer__

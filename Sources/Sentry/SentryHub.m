@@ -32,6 +32,8 @@
 
 @implementation SentryHub
 
+@synthesize scope;
+
 - (instancetype)init {
     if (self = [super init]) {
         self.scope = [self getScope];

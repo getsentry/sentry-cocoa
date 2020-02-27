@@ -154,8 +154,6 @@
      XCTAssertEqualObjects([event4 serialize], serialized4);
 }
 
-
-
 - (void)testSetDistToNil {
     SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     eventEmptyDist.releaseName = @"abc";
