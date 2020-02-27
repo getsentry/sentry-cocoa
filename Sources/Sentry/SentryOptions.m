@@ -102,6 +102,10 @@
         self.beforeSend = [options objectForKey:@"beforeSend"];
     }
 
+    if (nil != [options objectForKey:@"beforeBreadcrumb"]) {
+        self.beforeBreadcrumb = [options objectForKey:@"beforeBreadcrumb"];
+    }
+
     if (nil != [options objectForKey:@"integrations"]) {
         self.integrations = [options objectForKey:@"integrations"];
     } else {
