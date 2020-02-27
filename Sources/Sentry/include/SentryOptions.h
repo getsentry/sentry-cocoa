@@ -73,6 +73,11 @@ SENTRY_NO_INIT
 @property(nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
 
 /**
+ * This block can be used to modify the event before it will be serialized and sent
+ */
+@property(nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
+
+/**
  * Array of integtations to install.
  */
 @property(nonatomic, copy) NSArray<NSString *>* _Nullable integrations;
