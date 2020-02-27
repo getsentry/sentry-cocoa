@@ -79,7 +79,7 @@
 - (void)testReleaseSerializes {
     SentryScope *scope = [[SentryScope alloc] init];
     NSString *expectedReleaseName = @"io.sentry.cocoa@5.0.0-deadbeef";
-    [scope setReleaseName:expectedReleaseName];
+    [scope setRelease:expectedReleaseName];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"release"], expectedReleaseName);
 }
 
@@ -123,9 +123,10 @@
     [scope addBreadcrumb:[self getBreadcrumb]];
     [scope setUser:[[SentryUser alloc] initWithUserId:@"id"]];
     [scope setContextValue:@{@"e": @"f"} forKey:@"myContext"];
-    [scope setReleaseName:@"123"];
+    [scope setRelease:@"123"];
     [scope setDist:@"456"];
     [scope setEnvironment:@"789"];
+    [scope setFingerprint:@[@"a"]];
     
     NSMutableDictionary *snapshot = [scope serialize].mutableCopy;
     
@@ -137,7 +138,7 @@
     [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http2"]];
     [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];
     [cloned setContextValue:@{@"ae": @"af"} forKey:@"myContext"];
-    [cloned setReleaseName:@"a123"];
+    [cloned setRelease:@"a123"];
     [cloned setDist:@"a456"];
     [cloned setEnvironment:@"a789"];
     
