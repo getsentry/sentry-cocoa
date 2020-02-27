@@ -36,7 +36,7 @@
                       didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
-        [self validateOptions:options didFailWithError:*error];
+        [self validateOptions:options didFailWithError:error];
         if (nil != error && nil != *error) {
             return nil;
         }
@@ -48,7 +48,7 @@
  populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
-       didFailWithError:(NSError *_Nullable)error {
+       didFailWithError:(NSError *_Nullable *_Nullable)error {
     
     if (nil != [options objectForKey:@"debug"]) {
         self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
@@ -68,10 +68,8 @@
         return;
     }
     
-    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:&error];
-    if (nil != error) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"DSN validation: %@", error.localizedDescription] andLevel:kSentryLogLevelError];
-        [SentryLog logWithMessage:@"Will disable the SDK" andLevel:kSentryLogLevelError];
+    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
+    if (nil != error && nil != *error) {
         self.enabled = @NO;
     }
     

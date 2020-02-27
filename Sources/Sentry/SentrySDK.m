@@ -64,7 +64,8 @@ static SentryHub *currentHub;
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentrySDK startWithOptionsDict: ERROR: %@", error] andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"Error while initalizting the SDK" andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error] andLevel:kSentryLogLevelError];
     } else {
         [SentrySDK initWithOptionsObject:options];
     }
