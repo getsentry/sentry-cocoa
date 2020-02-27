@@ -12,7 +12,8 @@ let files = [
 
 let args = CommandLine.arguments
 
-let regex = Regex("[0-9]+\\.[0-9]+\\.[0-9]+")
+let semver: StaticString = "([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?"
+let regex = Regex(semver)
 if regex.firstMatch(in: args[1]) == nil {
     exit(errormessage: "version number must fit x.x.x format" )
 }
@@ -20,7 +21,7 @@ if regex.firstMatch(in: args[1]) == nil {
 let fromVersionFileHandler = try open(fromVersionFile)
 let fromFileContent: String = fromVersionFileHandler.read()
 
-for match in Regex("[0-9]+\\.[0-9]+\\.[0-9]+", options: [.dotMatchesLineSeparators]).allMatches(in: fromFileContent) {
+for match in Regex(semver, options: [.dotMatchesLineSeparators]).allMatches(in: fromFileContent) {
     let fromVersion = match.matchedString
     let toVersion = args[1]
 
