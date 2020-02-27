@@ -30,7 +30,7 @@
 
         if ([[self objectForKey:rawKey] isKindOfClass:NSDictionary.class]) {
             [dict setValue:[((NSDictionary *)[self objectForKey:rawKey]) sentry_sanitize] forKey:stringKey];
-        } else if ([[self objectForKey:stringKey] isKindOfClass:NSDate.class]) {
+        } else if ([[self objectForKey:rawKey] isKindOfClass:NSDate.class]) {
             [dict setValue:[((NSDate *)[self objectForKey:rawKey]) sentry_toIso8601String] forKey:stringKey];
         } else if ([stringKey hasPrefix:@"__sentry"]) {
             continue; // We don't want to add __sentry variables
