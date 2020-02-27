@@ -20,15 +20,22 @@
 
 - (NSDictionary *)sentry_sanitize {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (NSString *key in self.allKeys) {
-        if ([[self objectForKey:key] isKindOfClass:NSDictionary.class]) {
-            [dict setValue:[((NSDictionary *)[self objectForKey:key]) sentry_sanitize] forKey:key];
-        } else if ([[self objectForKey:key] isKindOfClass:NSDate.class]) {
-            [dict setValue:[((NSDate *)[self objectForKey:key]) sentry_toIso8601String] forKey:key];
-        } else if ([key hasPrefix:@"__sentry"]) {
+    for (id rawKey in self.allKeys) {
+        NSString *stringKey;
+        if ([rawKey isKindOfClass:[NSString class]]) {
+            stringKey = rawKey;
+        } else {
+            stringKey = [rawKey description];
+        }
+
+        if ([[self objectForKey:rawKey] isKindOfClass:NSDictionary.class]) {
+            [dict setValue:[((NSDictionary *)[self objectForKey:rawKey]) sentry_sanitize] forKey:stringKey];
+        } else if ([[self objectForKey:stringKey] isKindOfClass:NSDate.class]) {
+            [dict setValue:[((NSDate *)[self objectForKey:rawKey]) sentry_toIso8601String] forKey:stringKey];
+        } else if ([stringKey hasPrefix:@"__sentry"]) {
             continue; // We don't want to add __sentry variables
         } else {
-            [dict setValue:[self objectForKey:key] forKey:key];
+            [dict setValue:[self objectForKey:rawKey] forKey:stringKey];
         }
     }
     return dict;
