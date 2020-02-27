@@ -82,28 +82,28 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
-- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     // TODO: Attach stacktrace?
     event.message = message;
-    [self captureEvent:event withScope:scope];
+    return [self captureEvent:event withScope:scope];
 }
 
-- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     // TODO: Capture Stacktrace
     event.message = exception.reason;
-    [self captureEvent:event withScope:scope];
+    return [self captureEvent:event withScope:scope];
 }
 
-- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     // TODO: Capture Stacktrace
     event.message = error.localizedDescription;
-    [self captureEvent:event withScope:scope];
+    return [self captureEvent:event withScope:scope];
 }
 
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
@@ -111,8 +111,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
         if (nil != event) {
             [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+            return event.eventId;
         }
     }
+    return nil;
 }
 
 /**

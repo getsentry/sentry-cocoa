@@ -41,32 +41,36 @@
     return self;
 }
 
-- (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        [client captureEvent:event withScope:scope];
+        return [client captureEvent:event withScope:scope];
     }
+    return nil;
 }
 
-- (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        [client captureMessage:message withScope:scope];
+        return [client captureMessage:message withScope:scope];
     }
+    return nil;
 }
 
-- (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        [client captureError:error withScope:scope];
+        return [client captureError:error withScope:scope];
     }
+    return nil;
 }
 
-- (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryClient *client = [self getClient];
     if (nil != client) {
-        [client captureException:exception withScope:scope];
+        return [client captureException:exception withScope:scope];
     }
+    return nil;
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {

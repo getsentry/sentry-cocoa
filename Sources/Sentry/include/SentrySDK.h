@@ -70,27 +70,27 @@ SENTRY_NO_INIT
  
  USAGE: Create a `SentryEvent`, fill it up with data, and send it with this method.
  */
-+ (void)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
-+ (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
-+ (void)captureEvent:(SentryEvent *)event withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  captures an error aka. sends an NSError to sentry.
  
  uses default `SentryHub`
  */
-+ (void)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
-+ (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
-+ (void)captureError:(NSError *)error withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
++ (NSString *_Nullable)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
++ (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
++ (NSString *_Nullable)captureError:(NSError *)error withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  captures an exception aka. sends an NSException to sentry.
  
  uses default `SentryHub`
  */
-+ (void)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
-+ (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
-+ (void)captureException:(NSException *)exception withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(exception:block:));
++ (NSString *_Nullable)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
++ (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
++ (NSString *_Nullable)captureException:(NSException *)exception withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(exception:block:));
 
 
 /**
@@ -98,9 +98,9 @@ SENTRY_NO_INIT
  
  uses default `SentryHub`
  */
-+ (void)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
-+ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
-+ (void)captureMessage:(NSString *)message withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
++ (NSString *_Nullable)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
++ (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
++ (NSString *_Nullable)captureMessage:(NSString *)message withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
 
 /**
  adds a SentryBreadcrumb to the SentryClient.
@@ -113,7 +113,6 @@ SENTRY_NO_INIT
 
 //- `configure_scope(callback)`: Calls a callback with a scope object that can be reconfigured. This is used to attach contextual data for future events in the same scope.
 + (void)configureScope:(void(^)(SentryScope *scope))callback;
-
 
 /**
  * Set logLevel for the current client default kSentryLogLevelError

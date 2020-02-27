@@ -27,7 +27,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func captureMessage(_ sender: Any) {
-        SentrySDK.capture(message: "Yeah captured a Message")
+        let eventId = SentrySDK.capture(message: "Yeah captured a Message")
+        // Returns eventId in case of successfull processed event
+        // otherwise nil
+        print("\(String(describing: eventId))")
     }
     
     @IBAction func captureError(_ sender: Any) {

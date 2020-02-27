@@ -80,60 +80,60 @@ static SentryHub *currentHub;
     return nil;
 }
 
-+ (void)captureEvent:(SentryEvent *)event {
-    [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event {
+    return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
 }
 
-+ (void)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
-    [SentrySDK captureEvent:event withScope:scope];
+    return [SentrySDK captureEvent:event withScope:scope];
 }
 
-+ (void)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
-    [SentrySDK.currentHub captureEvent:event withScope:scope];
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
-+ (void)captureError:(NSError *)error {
-    [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
++ (NSString *_Nullable)captureError:(NSError *)error {
+    return [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
 }
 
-+ (void)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
++ (NSString *_Nullable)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
-    [SentrySDK captureError:error withScope:scope];
+    return [SentrySDK captureError:error withScope:scope];
 }
 
-+ (void)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
-    [SentrySDK.currentHub captureError:error withScope:scope];
++ (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+    return [SentrySDK.currentHub captureError:error withScope:scope];
 }
 
-+ (void)captureException:(NSException *)exception {
-    [SentrySDK captureException:exception withScope:[SentrySDK.currentHub getScope]];
++ (NSString *_Nullable)captureException:(NSException *)exception {
+    return [SentrySDK captureException:exception withScope:[SentrySDK.currentHub getScope]];
 }
 
-+ (void)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
++ (NSString *_Nullable)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *_Nonnull))block {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
-    [SentrySDK captureException:exception withScope:scope];
+    return [SentrySDK captureException:exception withScope:scope];
 }
 
-+ (void)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
-    [SentrySDK.currentHub captureException:exception withScope:scope];
++ (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+    return [SentrySDK.currentHub captureException:exception withScope:scope];
 }
 
-+ (void)captureMessage:(NSString *)message {
-    [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
++ (NSString *_Nullable)captureMessage:(NSString *)message {
+    return [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
 }
 
-+ (void)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope * _Nonnull))block {
++ (NSString *_Nullable)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope * _Nonnull))block {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
-    [SentrySDK captureMessage:message withScope:scope];
+    return [SentrySDK captureMessage:message withScope:scope];
 }
 
-+ (void)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
-    [SentrySDK.currentHub captureMessage:message withScope:scope];
++ (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
+    return [SentrySDK.currentHub captureMessage:message withScope:scope];
 }
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
