@@ -74,6 +74,13 @@
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
+    SentryBeforeBreadcrumbCallback callback = [[[self client] options] beforeBreadcrumb];
+    if (nil != callback) {
+        crumb = callback(crumb);
+    }
+    if (nil == crumb) {
+        return;
+    }
     [self.scope addBreadcrumb:crumb];
 }
 
