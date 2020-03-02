@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		155E00972408647900CB59B9 /* SentryHubTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 155E00962408647900CB59B9 /* SentryHubTests.m */; };
-		15E0A8E1240C41CE00F044E3 /* SentryEnvelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8E0240C41CE00F044E3 /* SentryEnvelope.h */; };
+		15E0A8E1240C41CE00F044E3 /* SentryEnvelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8E0240C41CE00F044E3 /* SentryEnvelope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		15E0A8E3240C435900F044E3 /* SentryEnvelopeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8E2240C435900F044E3 /* SentryEnvelopeTests.m */; };
 		15E0A8E5240C457D00F044E3 /* SentryEnvelope.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8E4240C457D00F044E3 /* SentryEnvelope.m */; };
 		15E0A8E6240C489400F044E3 /* SentryEnvelope.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8E4240C457D00F044E3 /* SentryEnvelope.m */; };
@@ -148,6 +148,7 @@
 		63988A251EDFF8E900EA7442 /* SentryBreadcrumbTracker.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */; };
 		63988A261EDFF8E900EA7442 /* Sentry.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; };
 		63988A271EDFF8E900EA7442 /* SentryClient.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 63AA76941EB9C1C200D153DE /* SentryClient.h */; };
+		639EA557240D46A0009A03C7 /* SentryEnvelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8E0240C41CE00F044E3 /* SentryEnvelope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639FCF931EBC746F00778193 /* SentryDsnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF921EBC746F00778193 /* SentryDsnTests.m */; };
 		639FCF951EBC749B00778193 /* SentryRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF941EBC749B00778193 /* SentryRequestTests.m */; };
 		639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCF961EBC7B9700778193 /* SentryEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1457,6 +1458,7 @@
 				6387B8281ED851070045A84C /* SentryCrashReportSink.h in Headers */,
 				63FE713E20DA4C1100CDBAE8 /* SentryCrashLogger.h in Headers */,
 				6387B82B1ED851190045A84C /* SentryCrashReportConverter.h in Headers */,
+				639EA557240D46A0009A03C7 /* SentryEnvelope.h in Headers */,
 				6387B8231ED850E60045A84C /* NSData+SentryCompression.h in Headers */,
 				63FE715020DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */,
 				63FE714C20DA4C1100CDBAE8 /* SentryCrashString.h in Headers */,
