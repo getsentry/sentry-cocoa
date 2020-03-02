@@ -1,8 +1,6 @@
 #if __has_include(<Sentry/Sentry.h>)
-//#import <Sentry/SentryEvent.h>
-//#import <Sentry/SentryEnvelope.h>
-#import "SentryEnvelope.h"
-#import "SentryEvent.h"
+#import <Sentry/SentryEvent.h>
+#import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"

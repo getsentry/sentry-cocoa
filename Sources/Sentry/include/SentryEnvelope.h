@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
 #else
@@ -20,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SentryEnvelopeItemHeader : NSObject
-    
+SENTRY_NO_INIT
+
 - (instancetype)initWithType:(NSString *)type
                 length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
 
@@ -33,9 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SentryEnvelopeItem : NSObject
+SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
-
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
                 data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 
@@ -52,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SentryEnvelope : NSObject
+SENTRY_NO_INIT
 
 - (instancetype)initWithId:(NSString *)id
                 singleItem:(SentryEnvelopeItem *)item;
@@ -60,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                     singleItem:(SentryEnvelopeItem *)item;
 
 - (instancetype)initWithId:(NSString *)id
-                         items:(NSArray<SentryEnvelopeItem *> *)items;
+                     items:(NSArray<SentryEnvelopeItem *> *)items;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                          items:(NSArray<SentryEnvelopeItem *> *)items NS_DESIGNATED_INITIALIZER;
@@ -73,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The envelope items.
  */
-@property(nonatomic, readonly, strong) NSArray<SentryEnvelopeItem *> * items;
+@property(nonatomic, readonly, strong) NSArray<SentryEnvelopeItem *> *items;
 
 @end
 
