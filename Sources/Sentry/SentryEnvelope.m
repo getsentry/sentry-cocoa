@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithId:(NSString *) envelopeId {
     if (self = [super init]) {
-        self->_envelopeId = envelopeId;
+        _envelopeId = envelopeId;
     }
     return self;
 }
@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithType:(NSString *)type
                 length:(NSUInteger)length {
     if (self = [super init]) {
-        self->_type = type;
-        self->_length = length;
+        _type = type;
+        _length = length;
     }
     return self;
 }
@@ -42,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
                           data:(NSData *)data {
     if (self = [super init]) {
-        self->_header = header;
-        self->_data = data;
+        _header = header;
+        _data = data;
     }
     return self;
 }
@@ -77,8 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                          items:(NSArray<SentryEnvelopeItem *> *)items {
     if (self = [super init]) {
-        self->_header = header;
-        self->_items = items;
+        _header = header;
+        _items = items;
     }
     return self;
 }
