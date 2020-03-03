@@ -16,6 +16,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         SentrySDK.configureScope { (scope) in
             scope.setEnvironment("debug")
+            scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
         }
     }
@@ -27,7 +28,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func captureMessage(_ sender: Any) {
-        let eventId = SentrySDK.capture(message: "Yeah captured a Message")
+        let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
