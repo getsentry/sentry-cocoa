@@ -33,6 +33,17 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithNSException:(NSException *)exception {
+    self = [super init];
+    if (self) {
+        self.value = exception.reason;
+        self.type = exception.name;
+        self.mechanism = [[SentryMechanism alloc] initWithType:@"NSException"];
+        self.mechanism.handled = @(YES);
+    }
+    return self;
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 

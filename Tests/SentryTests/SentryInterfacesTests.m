@@ -9,7 +9,6 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 
-#import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryMeta.h"
 
