@@ -26,7 +26,7 @@
 }
 
 - (IBAction)addBreadcrumb:(id)sender {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"ui"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
     crumb.message = @"tapped addBreadcrumb";
     [SentrySDK addBreadcrumb:crumb];
 }

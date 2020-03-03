@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Breadcrumb)
 @interface SentryBreadcrumb : NSObject <SentrySerializable>
-SENTRY_NO_INIT
 
 /**
  * Level of breadcrumb
@@ -63,6 +62,8 @@ SENTRY_NO_INIT
  * @return SentryBreadcrumb
  */
 - (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category;
+- (instancetype)init;
++ (instancetype)new NS_UNAVAILABLE;
 
 - (NSDictionary<NSString *, id> *)serialize;
 

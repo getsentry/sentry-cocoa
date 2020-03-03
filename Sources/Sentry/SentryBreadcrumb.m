@@ -31,6 +31,10 @@
     return self;
 }
 
+- (instancetype)init {
+    return [self initWithLevel:kSentryLevelInfo category:@"default"];
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
