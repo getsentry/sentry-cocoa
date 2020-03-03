@@ -228,6 +228,33 @@
     XCTAssertEqualObjects([user2 serialize], serialized2);
 }
 
+- (void)testUserCopy {
+    SentryUser *user = [[SentryUser alloc] init];
+    user.userId = @"1";
+    user.email = @"a@b.com";
+    user.username = @"tony";
+    user.data = @{@"test": @"a"};
+    
+    SentryUser *user2 = user.copy;
+    NSDictionary *serialized = [user serialize].mutableCopy;
+    XCTAssertEqualObjects(serialized, [user2 serialize]);
+    
+    user2.userId = @"2";
+    user2.email = @"b@b.com";
+    user2.username = @"1tony";
+    user2.data = @{@"1test": @"a"};
+    
+    XCTAssertEqualObjects([user serialize], serialized);
+    
+    NSDictionary *serialized2 = @{
+        @"id": @"2",
+        @"email": @"b@b.com",
+        @"username": @"1tony",
+        @"data": @{@"1test": @"a"}
+    };
+    XCTAssertEqualObjects([user2 serialize], serialized2);
+}
+
 - (void)testException {
     SentryException *exception = [[SentryException alloc] initWithValue:@"value" type:@"type"];
     XCTAssertNotNil(exception.value);

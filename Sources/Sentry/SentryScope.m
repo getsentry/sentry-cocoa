@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil != scopeUser) {
             user = [[SentryUser alloc] init];
             user.userId = scopeUser.userId;
-            user.data = scopeUser.data;
+            user.data = scopeUser.data.mutableCopy;
             user.username = scopeUser.username;
             user.email = scopeUser.email;
         }
@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
-        self.fingerprintArray = scope.fingerprintArray;
+        self.fingerprintArray = scope.fingerprintArray.mutableCopy;
     }
     return self;
 }
@@ -128,16 +128,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)clear {
-    self.breadcrumbArray = [NSMutableArray new];
-    self.userObject = nil;
-    self.tagDictionary = [NSMutableDictionary new];
-    self.extraDictionary = [NSMutableDictionary new];
-    self.contextDictionary = [NSMutableDictionary new];
-    self.releaseString = nil;
-    self.distString = nil;
-    self.environmentString = nil;
-    self.levelEnum = kSentryLevelNone;
-    self.fingerprintArray = [NSMutableArray new];
+    @synchronized (self) {
+        self.breadcrumbArray = [NSMutableArray new];
+        self.userObject = nil;
+        self.tagDictionary = [NSMutableDictionary new];
+        self.extraDictionary = [NSMutableDictionary new];
+        self.contextDictionary = [NSMutableDictionary new];
+        self.releaseString = nil;
+        self.distString = nil;
+        self.environmentString = nil;
+        self.levelEnum = kSentryLevelNone;
+        self.fingerprintArray = [NSMutableArray new];
+    }
     [self notifyListeners];
 }
 
@@ -149,12 +151,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
-    [self.contextDictionary setValue:value forKey:key];
+    @synchronized (self) {
+        [self.contextDictionary setValue:value forKey:key];
+    }
     [self notifyListeners];
 }
 
 - (void)setExtraValue:(id)value forKey:(NSString *)key {
-    [self.extraDictionary setValue:value forKey:key];
+    @synchronized (self) {
+        [self.extraDictionary setValue:value forKey:key];
+    }
     [self notifyListeners];
 }
 
@@ -169,7 +175,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setTagValue:(id)value forKey:(NSString *)key {
-    [self.tagDictionary setValue:value forKey:key];
+    @synchronized (self) {
+        [self.tagDictionary setValue:value forKey:key];
+    }
     [self notifyListeners];
 }
 
@@ -203,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)setFingerprint:(NSMutableArray<NSString *> *_Nullable)fingerprint {
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint {
     @synchronized (self) {
         if (fingerprint == nil) {
             self.fingerprintArray = [NSMutableArray new];
@@ -221,18 +229,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<NSString *, id> *)serializeBreadcrumbs {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
-
     NSMutableArray *crumbs = [NSMutableArray new];
     
     for (SentryBreadcrumb *crumb in self.breadcrumbArray) {
         [crumbs addObject:[crumb serialize]];
     }
-    
+ 
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
-
+    
     return serializedData;
 }
 
@@ -255,78 +262,80 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs {
-    if (nil != self.tagDictionary) {
-        if (nil == event.tags) {
-            event.tags = self.tagDictionary;
-        } else {
-            NSMutableDictionary *newTags = [NSMutableDictionary new];
-            [newTags addEntriesFromDictionary:self.tagDictionary];
-            [newTags addEntriesFromDictionary:event.tags];
-            event.tags = newTags;
+    @synchronized (self) {
+        if (nil != self.tagDictionary) {
+            if (nil == event.tags) {
+                event.tags = self.tagDictionary.copy;
+            } else {
+                NSMutableDictionary *newTags = [NSMutableDictionary new];
+                [newTags addEntriesFromDictionary:self.tagDictionary];
+                [newTags addEntriesFromDictionary:event.tags];
+                event.tags = newTags;
+            }
         }
-    }
 
-    if (nil != self.extraDictionary) {
-        if (nil == event.extra) {
-            event.extra = self.extraDictionary;
-        } else {
-            NSMutableDictionary *newExtra = [NSMutableDictionary new];
-            [newExtra addEntriesFromDictionary:self.extraDictionary];
-            [newExtra addEntriesFromDictionary:event.extra];
-            event.extra = newExtra;
+        if (nil != self.extraDictionary) {
+            if (nil == event.extra) {
+                event.extra = self.extraDictionary.copy;
+            } else {
+                NSMutableDictionary *newExtra = [NSMutableDictionary new];
+                [newExtra addEntriesFromDictionary:self.extraDictionary];
+                [newExtra addEntriesFromDictionary:event.extra];
+                event.extra = newExtra;
+            }
         }
-    }
 
-    if (nil != self.userObject) {
-        event.user = self.userObject;
-    }
-    
-    NSString *releaseName = [self releaseString];
-    if (nil != releaseName && nil == event.releaseName) {
-        // release can also be set via options but scope takes precedence.
-        event.releaseName = releaseName;
-    }
-    
-    NSString *dist = self.distString;
-    if (nil != dist && nil == event.dist) {
-        // dist can also be set via options but scope takes precedence.
-        event.dist = dist;
-    }
-    
-    NSString *environment = self.environmentString;
-    if (nil != environment && nil == event.environment) {
-        // environment can also be set via options but scope takes precedence.
-        event.environment = environment;
-    }
-
-    NSArray *fingerprint = self.fingerprintArray;
-    if (fingerprint.count > 0 && nil == event.fingerprint) {
-        event.fingerprint = fingerprint.mutableCopy;
-    }
-    
-    if (self.levelEnum != kSentryLevelNone) {
-        // We always want to set the level from the scope since this has benn set on purpose
-        event.level = self.levelEnum;
-    }
-    
-    if (nil != self.breadcrumbArray) {
-        if (nil == event.breadcrumbs) {
-            event.breadcrumbs = [self.breadcrumbArray subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
+        if (nil != self.userObject) {
+            event.user = self.userObject.copy;
         }
-    }
-    
-    if (nil != self.contextDictionary) {
-        if (nil == event.context) {
-            event.context = self.contextDictionary;
-        } else {
-            NSMutableDictionary *newContext = [NSMutableDictionary new];
-            [newContext addEntriesFromDictionary:self.contextDictionary];
-            [newContext addEntriesFromDictionary:event.context];
-            event.context = newContext;
+        
+        NSString *releaseName = [self releaseString];
+        if (nil != releaseName && nil == event.releaseName) {
+            // release can also be set via options but scope takes precedence.
+            event.releaseName = releaseName;
         }
-    }
+        
+        NSString *dist = self.distString;
+        if (nil != dist && nil == event.dist) {
+            // dist can also be set via options but scope takes precedence.
+            event.dist = dist;
+        }
+        
+        NSString *environment = self.environmentString;
+        if (nil != environment && nil == event.environment) {
+            // environment can also be set via options but scope takes precedence.
+            event.environment = environment;
+        }
 
-    return event;
+        NSArray *fingerprint = self.fingerprintArray;
+        if (fingerprint.count > 0 && nil == event.fingerprint) {
+            event.fingerprint = fingerprint.mutableCopy;
+        }
+        
+        if (self.levelEnum != kSentryLevelNone) {
+            // We always want to set the level from the scope since this has benn set on purpose
+            event.level = self.levelEnum;
+        }
+        
+        if (nil != self.breadcrumbArray) {
+            if (nil == event.breadcrumbs) {
+                event.breadcrumbs = [self.breadcrumbArray subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
+            }
+        }
+        
+        if (nil != self.contextDictionary) {
+            if (nil == event.context) {
+                event.context = self.contextDictionary;
+            } else {
+                NSMutableDictionary *newContext = [NSMutableDictionary new];
+                [newContext addEntriesFromDictionary:self.contextDictionary];
+                [newContext addEntriesFromDictionary:event.context];
+                event.context = newContext;
+            }
+        }
+
+        return event;
+    }
 }
 
 @end

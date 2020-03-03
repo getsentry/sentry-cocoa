@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(User)
-@interface SentryUser : NSObject <SentrySerializable>
+@interface SentryUser : NSObject <SentrySerializable, NSCopying>
 
 /**
  * Optional: Id of the user
