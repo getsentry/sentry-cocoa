@@ -79,6 +79,7 @@
         crumb = callback(crumb);
     }
     if (nil == crumb) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Discarded Breadcrumb in `beforeBreadcrumb`"] andLevel:kSentryLogLevelDebug];
         return;
     }
     [self.scope addBreadcrumb:crumb];

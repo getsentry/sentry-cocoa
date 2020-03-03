@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil != scopeUser) {
             user = [[SentryUser alloc] init];
             user.userId = scopeUser.userId;
-            user.data = scopeUser.data;
+            user.data = scopeUser.data.mutableCopy;
             user.username = scopeUser.username;
             user.email = scopeUser.email;
         }
@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
-        self.fingerprintArray = scope.fingerprintArray;
+        self.fingerprintArray = scope.fingerprintArray.mutableCopy;
     }
     return self;
 }
@@ -211,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)setFingerprint:(NSMutableArray<NSString *> *_Nullable)fingerprint {
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint {
     @synchronized (self) {
         if (fingerprint == nil) {
             self.fingerprintArray = [NSMutableArray new];
