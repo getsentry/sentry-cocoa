@@ -8,6 +8,7 @@
 
 
 #if __has_include(<Sentry/Sentry.h>)
+#import <Sentry/SentryMeta.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryScope.h>
@@ -17,6 +18,7 @@
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryLog.h>
 #else
+#import "SentryMeta.h"
 #import "SentrySDK.h"
 #import "SentryClient.h"
 #import "SentryScope.h"
@@ -64,7 +66,7 @@ static SentryHub *currentHub;
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
-        [SentryLog logWithMessage:@"Error while initalizting the SDK" andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"Error while initializing the SDK" andLevel:kSentryLogLevelError];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error] andLevel:kSentryLogLevelError];
     } else {
         [SentrySDK initWithOptionsObject:options];
@@ -77,6 +79,7 @@ static SentryHub *currentHub;
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
         [SentrySDK.currentHub bindClient:newClient];
     }
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@", SentryMeta.versionString] andLevel:kSentryLogLevelDebug];
     return nil;
 }
 

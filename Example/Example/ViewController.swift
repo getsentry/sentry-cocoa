@@ -16,18 +16,19 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         SentrySDK.configureScope { (scope) in
             scope.setEnvironment("debug")
+            scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
         }
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {
-        let crumb = Breadcrumb(level: .info, category: "ui")
+        let crumb = Breadcrumb()
         crumb.message = "tapped addBreadcrumb"
         SentrySDK.addBreadcrumb(crumb: crumb)
     }
     
     @IBAction func captureMessage(_ sender: Any) {
-        let eventId = SentrySDK.capture(message: "Yeah captured a Message")
+        let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")

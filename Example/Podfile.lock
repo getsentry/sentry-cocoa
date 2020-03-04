@@ -1,7 +1,7 @@
 PODS:
-  - Sentry (4.4.3):
-    - Sentry/Core (= 4.4.3)
-  - Sentry/Core (4.4.3)
+  - Sentry (5.0.0-rc.0):
+    - Sentry/Core (= 5.0.0-rc.0)
+  - Sentry/Core (5.0.0-rc.0)
 
 DEPENDENCIES:
   - Sentry (from `../`)
@@ -11,8 +11,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
+  Sentry: c971423238ee8035c081c46f6287e7e60656673c
 
-PODFILE CHECKSUM: aaa6fa49e912ac3d369910ab8fe763c6bea10884
+PODFILE CHECKSUM: af1e4d758b8b0361821288d7216a327b15e9f891
 
 COCOAPODS: 1.8.4
