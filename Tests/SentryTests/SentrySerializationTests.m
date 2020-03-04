@@ -1,14 +1,14 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
-#import "SentryEnvelope.h"
+#import "SentrySerialization.h"
 
-@interface SentryEnvelopeTests : XCTestCase
+@interface SentrySerializationTests : XCTestCase
 
 @end
 
-@implementation SentryEnvelopeTests
+@implementation SentrySerializationTests
 
-- (void)testSentryEnvelopeFromEvent {
+- (void)testSentryEnvelopeSerializesWithEvent {
     SentryEvent *event = [[SentryEvent alloc] init];
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
@@ -18,11 +18,11 @@
     XCTAssertEqual(1, envelope.items.count);
     XCTAssertEqualObjects(@"event", [envelope.items objectAtIndex:0].header.type);
 
-    NSData *json = [NSJSONSerialization dataWithJSONObject:[event serialize]
+    NSData *serializedEnvelope = [SentrySerialization dataWithEnvelope:envelope
                                                    options:0
                                                      error:nil];
-    XCTAssertEqual(json.length, [envelope.items objectAtIndex:0].header.length);
-    XCTAssertTrue([[envelope.items objectAtIndex:0].data isEqualToData: json]);
+    SentryEnvelope *deserializedEnvelope = [SentrySerialization envelopeWithData:serializedEnvelope];
+    XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId);
 }
 
 - (void)testSentryEnvelopeWithExplicitInitMessages {

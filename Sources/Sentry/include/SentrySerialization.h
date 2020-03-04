@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
                                 options:(NSJSONWritingOptions)opt
                                   error:(NSError *_Nullable *_Nullable)error;
 
++ (SentryEnvelope *) envelopeWithData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END

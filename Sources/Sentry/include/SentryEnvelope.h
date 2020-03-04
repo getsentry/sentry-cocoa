@@ -14,9 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * The envelope identifier..
+ * The event identifier, if available.
+ * An event id exist if the envelope contains an event of items within it are related.
+ * i.e Attachments
  */
-@property(nonatomic, readonly, copy) NSString *envelopeId;
+@property(nonatomic, readonly, copy) NSString *_Nullable eventId;
 
 @end
 

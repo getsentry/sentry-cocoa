@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithId:(NSString *) envelopeId {
     if (self = [super init]) {
-        _envelopeId = envelopeId;
+        _eventId = envelopeId;
     }
     return self;
 }

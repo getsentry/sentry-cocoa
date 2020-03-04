@@ -36,7 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
                                 error:(NSError *_Nullable *_Nullable)error {
 
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
-    NSData *header = [SentrySerialization dataWithJSONObject:envelope.header options:opt error:error];
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    if (nil != envelope.header.eventId) {
+        [serializedData setValue:envelope.header.eventId forKey:@"eventId"];
+    }
+    NSData *header = [SentrySerialization dataWithJSONObject:serializedData options:opt error:error];
     if (nil == header) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope header cannot be converted to JSON."] andLevel:kSentryLogLevelError];
         if (error) {
@@ -48,7 +52,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (int i = 0; i < envelope.items.count; ++i) {
         [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        NSData *itemHeader = [SentrySerialization dataWithJSONObject:envelope.items[i].header options:opt error:error];
+        NSMutableDictionary *serializedData = [NSMutableDictionary new];
+        if (nil != envelope.items[i].header) {
+            if (nil != envelope.items[i].header.type) {
+                [serializedData setValue:envelope.items[i].header.type forKey:@"type"];
+            }
+            if (nil != envelope.items[i].header.length) {
+                [serializedData setValue:
+                        [NSNumber numberWithUnsignedInteger:envelope.items[i].header.length] forKey:@"length"];
+            }
+        }
+        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedData options:opt error:error];
         if (nil == itemHeader) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope item header cannot be converted to JSON."] andLevel:kSentryLogLevelError];
             if (error) {
@@ -62,6 +76,17 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return envelopeData;
+}
+
++ (SentryEnvelope *) envelopeWithData:(NSData *)data {
+    NSString *myString = [[NSString alloc] initWithData:<#(nonnull NSData *)#> encoding:<#(NSStringEncoding)#>:myData encoding:NSUTF8StringEncoding];
+    NSString *header = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLine];
+    if (nil == header) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Not a valid envelope."] andLevel:kSentryLogLevelError];
+        return nil;
+    }
+    NSString *firstItemHeader = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    return nil;
 }
 
 
