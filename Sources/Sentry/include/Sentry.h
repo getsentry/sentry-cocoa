@@ -16,6 +16,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #if __has_include(<Sentry/Sentry.h>)
 
+#import <Sentry/SentrySerialization.h>
 #import <Sentry/SentryEnvelope.h>
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentrySDK.h>
@@ -41,6 +42,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #else
 
+#import "SentrySerialization.h"
 #import "SentryEnvelope.h"
 #import "SentryCrash.h"
 #import "SentrySDK.h"

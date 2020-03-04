@@ -17,7 +17,7 @@
 #import <Sentry/NSData+SentryCompression.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryMeta.h>
-
+#import <Sentry/SentrySerialization.h>
 #else
 #import "SentryDsn.h"
 #import "SentryNSURLRequest.h"
@@ -28,7 +28,7 @@
 #import "NSData+SentryCompression.h"
 #import "SentrySDK.h"
 #import "SentryMeta.h"
-
+#import "SentrySerialization.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,16 +54,17 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [SentryLog logWithMessage:@"Using event->json attribute instead of serializing event" andLevel:kSentryLogLevelVerbose];
     } else {
         NSDictionary *serialized = [event serialize];
-        if (![NSJSONSerialization isValidJSONObject:serialized]) {
+        jsonData = [SentrySerialization dataWithJSONObject:serialized
+                                                   options:[SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose
+                                                           ? NSJSONWritingPrettyPrinted : 0
+                                                     error:error];
+        if (nil == jsonData) {
             if (error) {
+                // TODO: We're possibly overriding an error set by the actual code that failed ^
                 *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
             }
             return nil;
         }
-        
-        jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                   options:[SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
-                                                     error:error];
     }
     
     if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {

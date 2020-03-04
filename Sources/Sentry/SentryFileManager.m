@@ -7,19 +7,19 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryDsn.h>
-
+#import <Sentry/SentrySerialization.h>
 #else
 #import "SentryFileManager.h"
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
 #import "SentryDsn.h"
+#import "SentrySerialization.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -149,14 +149,10 @@ NSInteger const defaultMaxEvents = 10;
 }
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path {
-    if ([NSJSONSerialization isValidJSONObject:dictionary]) {
-        NSData *saveData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
-        return [self storeData:saveData toPath:path];
-    } else {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON, failed to write file %@", path]
-                         andLevel:kSentryLogLevelError];
-    }
-    return path;
+    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary options:0 error:nil];
+    return nil != saveData
+            ? [self storeData:saveData toPath:path]
+            : path; // TODO: Should we return null instead? Whoever is using this return value is being tricked.
 }
 
 - (void)handleFileManagerLimit:(NSString *)path maxCount:(NSUInteger)maxCount {
