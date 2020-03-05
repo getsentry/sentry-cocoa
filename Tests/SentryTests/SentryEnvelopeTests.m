@@ -14,7 +14,7 @@
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId singleItem:item];
 
-    XCTAssertEqual(event.eventId, envelope.header.envelopeId);
+    XCTAssertEqual(event.eventId, envelope.header.eventId);
     XCTAssertEqual(1, envelope.items.count);
     XCTAssertEqualObjects(@"event", [envelope.items objectAtIndex:0].header.type);
 
@@ -36,7 +36,7 @@
     SentryEnvelopeHeader *header = [[SentryEnvelopeHeader alloc] initWithId:envelopeId];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:header singleItem:item];
 
-    XCTAssertEqual(envelopeId, envelope.header.envelopeId);
+    XCTAssertEqual(envelopeId, envelope.header.eventId);
     XCTAssertEqual(1, envelope.items.count);
     XCTAssertEqualObjects(@"attachment", [envelope.items objectAtIndex:0].header.type);
     XCTAssertEqual(attachment.length, [envelope.items objectAtIndex:0].header.length);
@@ -60,7 +60,7 @@
     NSString *envelopeId = @"hopefully valid envelope id";
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:envelopeId items:items];
 
-    XCTAssertEqual(envelopeId, envelope.header.envelopeId);
+    XCTAssertEqual(envelopeId, envelope.header.eventId);
     XCTAssertEqual(itemCount, envelope.items.count);
 
     for (NSUInteger j = 0; j < itemCount; ++j) {
