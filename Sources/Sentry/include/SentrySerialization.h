@@ -16,11 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
                                 options:(NSJSONWritingOptions)opt
                                   error:(NSError *_Nullable *_Nullable)error;
 
+// TODO: use (NSOutputStream *)outputStream
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
                                 options:(NSJSONWritingOptions)opt
                                   error:(NSError *_Nullable *_Nullable)error;
 
-+ (SentryEnvelope *) envelopeWithData:(NSData *)data;
+// TODO: (NSInputStream *)inputStream
++ (SentryEnvelope *_Nullable) envelopeWithData:(NSData *)data;
 
 @end
 

@@ -9,9 +9,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryEnvelopeHeader : NSObject
+SENTRY_NO_INIT
 
-- (instancetype)initWithId:(NSString *) envelopeId NS_DESIGNATED_INITIALIZER;
-- (instancetype)init;
+// id can be null if no event in the envelope or attachment related to event
+- (instancetype)initWithId:(NSString *_Nullable) eventId NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
@@ -58,13 +59,15 @@ SENTRY_NO_INIT
 @interface SentryEnvelope : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithId:(NSString *)id
+// If no event, or no data related to event, id will be null
+- (instancetype)initWithId:(NSString *_Nullable)id
                 singleItem:(SentryEnvelopeItem *)item;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                     singleItem:(SentryEnvelopeItem *)item;
 
-- (instancetype)initWithId:(NSString *)id
+// If no event, or no data related to event, id will be null
+- (instancetype)initWithId:(NSString *_Nullable)id
                      items:(NSArray<SentryEnvelopeItem *> *)items;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header

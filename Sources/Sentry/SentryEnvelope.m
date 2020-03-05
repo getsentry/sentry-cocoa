@@ -10,16 +10,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEnvelopeHeader
 
-- (instancetype)initWithId:(NSString *) envelopeId {
+// id can be null if no event in the envelope or attachment related to event
+- (instancetype)initWithId:(NSString *_Nullable) eventId {
     if (self = [super init]) {
-        _eventId = envelopeId;
+        _eventId = eventId;
     }
     return self;
-}
-
-// When envelope doesn't have a SentryEvent item
-- (instancetype)init {
-    return [self initWithId:[[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString]];
 }
 
 @end
@@ -59,12 +55,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryEnvelope
 
-- (instancetype)initWithId:(NSString *)id
+- (instancetype)initWithId:(NSString *_Nullable)id
                 singleItem:(SentryEnvelopeItem *)item {
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] singleItem:item];
 }
 
-- (instancetype)initWithId:(NSString *)id
+- (instancetype)initWithId:(NSString *_Nullable)id
                      items:(NSArray<SentryEnvelopeItem *> *)items {
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] items: items];
 }
