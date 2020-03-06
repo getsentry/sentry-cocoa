@@ -30,7 +30,9 @@
 
 @end
 
-@implementation SentryHub
+@implementation SentryHub {
+    NSObject *_sessionLock;
+}
 
 @synthesize scope;
 
@@ -38,7 +40,45 @@
     if (self = [super init]) {
         self.scope = [self getScope];
     }
+    _sessionLock = [[NSObject alloc] init];
     return self;
+}
+
+- (void)startSession {
+    SentrySession *currentSession = nil;
+    SentryScope *scope = [self getScope];
+    @synchronized (_sessionLock) {
+        if (nil != _session) {
+            currentSession = _session;
+        }
+        _session = [[SentrySession alloc] init];
+        [scope applyToSession:_session];
+    }
+    // What would be the status? No explicit call to endSession was done. Log warning?
+    [self endSession:currentSession];
+}
+
+- (void)endSession {
+    SentrySession *currentSession = nil;
+    @synchronized (_sessionLock) {
+        currentSession = _session;
+        _session = nil;
+    }
+    [self endSession:currentSession];
+}
+
+- (void)endSession:(SentrySession *)session {
+    if (nil != session) {
+        [session close:kSentrySessionStatusExited];
+        SentryClient *client = [self getClient];
+//        [client captureSession:currentSession];
+    }
+};
+
+- (void)incrementSessionErrors {
+    @synchronized (_sessionLock) {
+        [_session incrementErrors];
+    }
 }
 
 - (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
@@ -58,6 +98,7 @@
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
+    [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureError:error withScope:scope];
@@ -66,6 +107,7 @@
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
+    [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureException:exception withScope:scope];

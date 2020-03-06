@@ -27,6 +27,12 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 
+// Since there's no scope stack, single hub instance, experimenting with holding session here.
+@property(nonatomic, readonly, strong) SentrySession *session;
+
+- (void)startSession;
+- (void)endSession;
+
 /**
  * Captures an SentryEvent
  */
