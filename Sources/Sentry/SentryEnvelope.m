@@ -1,8 +1,10 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryEvent.h"
+#import "SentrySession.h"
 #import "SentryEnvelope.h"
 #endif
 
@@ -43,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return self;
 }
+
 - (instancetype)initWithEvent:(SentryEvent *)event {
     NSData *json = [NSJSONSerialization dataWithJSONObject:[event serialize]
                                                    options:0
@@ -51,6 +54,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"event" length:json.length] data:json];
 }
 
+- (instancetype)initWitSession:(SentrySession *)session {
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize]
+                                                   options:0
+            // TODO: handle error
+                                                     error:nil];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"event" length:json.length] data:json];
+}
 @end
 
 @implementation SentryEnvelope

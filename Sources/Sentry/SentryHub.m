@@ -71,7 +71,7 @@
     if (nil != session) {
         [session close:kSentrySessionStatusExited];
         SentryClient *client = [self getClient];
-//        [client captureSession:currentSession];
+        [client captureSession:session];
     }
 };
 

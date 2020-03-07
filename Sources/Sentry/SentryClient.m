@@ -7,7 +7,6 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
@@ -26,7 +25,8 @@
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
-
+#import <Sentry/SentrySession.h>
+#import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
@@ -46,6 +46,8 @@
 #import "SentrySDK.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentrySession.h"
+#import "SentryEnvelope.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -115,6 +117,12 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     return nil;
+}
+
+- (void)captureSession:(SentrySession *)session {
+//    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+//    SentryEnvelope *envelope = [[SentryEnvelope alloc] initSingleItem:item];
+//    [self.transport sendEnvelope:envelope withCompletionHandler:nil];
 }
 
 /**

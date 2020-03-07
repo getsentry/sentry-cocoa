@@ -37,6 +37,11 @@ NS_SWIFT_NAME(User)
 @property(nonatomic, copy) NSString *_Nullable username;
 
 /**
+ * Optional: IP Address
+ */
+@property(nonatomic, copy) NSString *_Nullable ipAddress;
+
+/**
  * Optional: Additional data
  */
 @property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;

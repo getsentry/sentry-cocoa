@@ -32,9 +32,9 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @property(nonatomic, strong) NSNumber *_Nullable duration;
 @property(nonatomic, copy) NSString *_Nullable releaseName;
 @property(nonatomic, copy) NSString *_Nullable environment;
-@property(nonatomic, copy) NSString *_Nullable userAgent;
-@property(nonatomic, copy) NSString *_Nullable ipAddress;
-@property(nonatomic, copy) NSString *_Nullable user;
+@property(nonatomic, copy) SentryUser *_Nullable user;
+
+- (NSDictionary<NSString *, id> *)serialize;
 
 @end
 
