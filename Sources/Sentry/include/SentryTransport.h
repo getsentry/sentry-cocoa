@@ -8,15 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryEvent.h>
-
+#import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryDefines.h"
 #import "SentryScope.h"
 #import "SentryEvent.h"
+#import "SentryEnvelope.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -53,9 +53,11 @@ SENTRY_NO_INIT
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
-- (void)    sendEvent:(SentryEvent *)event
+- (void)sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
 NS_SWIFT_NAME(send(event:completion:));
+
+- (void)sendEnvelope:(SentryEnvelope *)envelope;
 
 /**
  * Sends all events stored on disk. Those events haven't been uploaded

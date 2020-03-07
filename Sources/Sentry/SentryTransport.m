@@ -23,6 +23,7 @@
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
+#import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryTransport.h"
 #import "SentrySDK.h"
@@ -39,6 +40,7 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
+#import "SentryEnvelope.h"
 #endif
 
 @interface SentryTransport ()
@@ -75,7 +77,7 @@
   return self;
 }
 
-- (void)    sendEvent:(SentryEvent *)event
+- (void)sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
     // FIXME fetzig: these checks (within `isReadySendEvent`) have been moved to
@@ -119,6 +121,10 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             completionHandler(error);
         }
     }];
+}
+
+- (void)sendEnvelope:(SentryEnvelope *)envelope {
+    // TODO: Send to envelope on unwrap and send known types
 }
 
 - (void)sendAllStoredEvents {

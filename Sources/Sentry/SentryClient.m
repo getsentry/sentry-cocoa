@@ -120,9 +120,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)captureSession:(SentrySession *)session {
-//    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-//    SentryEnvelope *envelope = [[SentryEnvelope alloc] initSingleItem:item];
-//    [self.transport sendEnvelope:envelope withCompletionHandler:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
+    [self.transport sendEnvelope:envelope];
+}
+
+- (void)captureSessions:(NSArray<SentrySession *> *)sessions {
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSessions:sessions];
+    [self.transport sendEnvelope:envelope];
 }
 
 /**
