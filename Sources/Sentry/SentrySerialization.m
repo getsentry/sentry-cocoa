@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSInteger itemHeaderStart = envelopeHeaderIndex + 1;
 
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
-    int endOfEnvelope = data.length - envelopeHeaderIndex;
+    unsigned long endOfEnvelope = data.length - envelopeHeaderIndex;
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
             if (endOfEnvelope == i) i++; // 0 byte attachment
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
             }
             NSNumber *bodyLengthNumber = [headerDictionary valueForKey:@"length"];
-            NSUInteger *bodyLength = [bodyLengthNumber unsignedIntegerValue];
+            NSUInteger bodyLength = [bodyLengthNumber unsignedIntegerValue];
             if (endOfEnvelope == i && bodyLength != 0) {
                 [SentryLog logWithMessage:[NSString
                             stringWithFormat:@"Envelope item has no data but header indicates it's length is %d.", (int)bodyLength]
