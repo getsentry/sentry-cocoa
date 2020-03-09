@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.5.0
+
+- fix: Mac Catalyst detection
+- fix: Add null checks in crash reporter
+- fix: Check type of key before use it as NSString (#383)
+- fix: Use rawKey to get object from dictionary (#392)
+- fix: Change instantiating SentryMechanism of unknown exception type (#385)
+
 ## 4.4.3
 
 - feat: Swift Package Manager support #352
