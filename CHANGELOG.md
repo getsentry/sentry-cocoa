@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.0-alpha.0
+
+***BREAKING***: This is the first public release of our new `5.0.0` #339 version of the SDK.
+The majority of the public API of the SDK changed, now it's more streamlined with other Sentry SDKs and prepared for future updates.
+Please read the migration guide how to use the new SDK [MIGRATION.MD](MIGRATION.md)
+
 ## 4.5.0
 
 - fix: Mac Catalyst detection
