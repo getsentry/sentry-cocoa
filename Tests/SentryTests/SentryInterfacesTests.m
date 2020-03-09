@@ -111,6 +111,17 @@
                                             @"integrations": @[@"sentry-cocoa"]},
                                   @"timestamp": [date sentry_toIso8601String]};
     XCTAssertEqualObjects([event3 serialize], serialized3);
+
+    SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    event4.timestamp = date;
+    event4.extra = @{@"key": @{@1: @"1", @2: [NSDate dateWithTimeIntervalSince1970:1582803326]}};
+    NSDictionary *serialized4 = @{@"event_id": event4.eventId,
+                                  @"extra": @{@"key": @{@"1": @"1", @"2": @"2020-02-27T11:35:26Z"}},
+                                  @"level": @"info",
+                                  @"platform": @"cocoa",
+                                  @"sdk": @{@"name": @"sentry.cocoa", @"version": SentryMeta.versionString},
+                                  @"timestamp": [date sentry_toIso8601String]};
+    XCTAssertEqualObjects([event4 serialize], serialized4);
 }
 
 - (void)testTransactionEvent {
