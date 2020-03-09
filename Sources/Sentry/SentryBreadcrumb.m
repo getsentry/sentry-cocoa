@@ -21,7 +21,7 @@
 
 @implementation SentryBreadcrumb
 
-- (instancetype)initWithLevel:(enum SentrySeverity)level category:(NSString *)category {
+- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category {
     self = [super init];
     if (self) {
         self.level = level;
@@ -31,10 +31,14 @@
     return self;
 }
 
+- (instancetype)init {
+    return [self initWithLevel:kSentryLevelInfo category:@"default"];
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-    [serializedData setValue:SentrySeverityNames[self.level] forKey:@"level"];
+    [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];
     [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];

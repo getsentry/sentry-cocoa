@@ -18,11 +18,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext, SentryBreadcrumb;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
-SENTRY_NO_INIT
 
 /**
  * This will be set by the initializer. Should be an UUID with the "-".
@@ -45,9 +44,9 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) NSDate *_Nullable startTimestamp;
 
 /**
- * SentrySeverity of the event
+ * SentryLevel of the event
  */
-@property(nonatomic) enum SentrySeverity level;
+@property(nonatomic) enum SentryLevel level;
 
 /**
  * Platform this will be used for symbolicating on the server should be "cocoa"
@@ -132,7 +131,7 @@ SENTRY_NO_INIT
 /**
  * This object contains meta information, will be set automatically overwrite only if you know what you are doing
  */
-@property(nonatomic, strong) SentryContext *_Nullable context;
+@property(nonatomic, strong) NSDictionary<NSString *, NSDictionary<NSString *, id>*> *_Nullable context;
 
 /**
  * Contains SentryThread if an crash occurred of it's an user reported exception
@@ -157,12 +156,7 @@ SENTRY_NO_INIT
 /**
  * This contains all breadcrumbs available at the time when the event occurred/will be sent
  */
-@property(nonatomic, strong) NSDictionary<NSString *, id> *_Nullable breadcrumbsSerialized;
-
-/**
- * This property is there for setting main bundle of the app
- */
-@property(nonatomic, strong) NSDictionary *infoDict;
+@property(nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
  * JSON baggage, that will only be filled if initWithJSON is called.
@@ -171,10 +165,16 @@ SENTRY_NO_INIT
 
 /**
  * Init an SentryEvent will set all needed fields by default
- * @param level SentrySeverity
  * @return SentryEvent
  */
-- (instancetype)initWithLevel:(enum SentrySeverity)level;
+- (instancetype)init;
+
+/**
+ * Init an SentryEvent will set all needed fields by default
+ * @param level SentryLevel
+ * @return SentryEvent
+ */
+- (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
 
 /**
  * Init an SentryEvent with a JSON blob that completly bypasses all other attributes in the event.

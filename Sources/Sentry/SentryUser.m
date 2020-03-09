@@ -32,13 +32,22 @@ NS_ASSUME_NONNULL_BEGIN
     return [super init];
 }
 
+- (id)copyWithZone:(nullable NSZone *)zone {
+    SentryUser *user = [[SentryUser allocWithZone:zone] init];
+    user.userId = self.userId;
+    user.email = self.email;
+    user.username = self.username;
+    user.data = self.data.mutableCopy;
+    return user;
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
     
     [serializedData setValue:self.userId forKey:@"id"];
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
-    [serializedData setValue:[self.extra sentry_sanitize] forKey:@"extra"];
+    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     
     return serializedData;
 }

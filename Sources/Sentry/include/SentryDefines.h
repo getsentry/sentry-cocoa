@@ -30,7 +30,7 @@
 - (instancetype)init NS_UNAVAILABLE; \
 + (instancetype)new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryNSURLRequest;
+@class SentryEvent, SentryNSURLRequest, SentryBreadcrumb;
 
 /**
  * Block used for returning after a request finished
@@ -42,19 +42,18 @@ typedef void (^SentryRequestFinished)(NSError *_Nullable error);
  * regardless if an error occured or not
  */
 typedef void (^SentryRequestOperationFinished)(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+/**
+ * Block can be used to mutate a breadcrumb before it's added to the scope.
+ * To avoid adding the breadcrumb altogether, return nil instead.
+ */
+typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(SentryBreadcrumb *_Nonnull breadcrumb);
 
 /**
- * Block can be used to mutate event before its send
+ * Block can be used to mutate event before its send.
+ * To avoid sending the event altogether, return nil instead.
  */
-typedef void (^SentryBeforeSerializeEvent)(SentryEvent *_Nonnull event);
-/**
- * Block can be used to mutate NSURLRequest e.g.: add headers before request is executed
- */
-typedef void (^SentryBeforeSendRequest)(SentryNSURLRequest *_Nonnull request);
-/**
- * Block can be used to prevent the event from being sent
- */
-typedef BOOL (^SentryShouldSendEvent)(SentryEvent *_Nonnull event);
+typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
 /**
  * Block can be used to determine if an event should be queued and stored locally.
  * It will be tried to send again after next successful send.
@@ -73,23 +72,27 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 };
 
 /**
- * Level of severity
+ * Sentry level
  */
-typedef NS_ENUM(NSInteger, SentrySeverity) {
-    kSentrySeverityFatal = 0,
-    kSentrySeverityError = 1,
-    kSentrySeverityWarning = 2,
-    kSentrySeverityInfo = 3,
-    kSentrySeverityDebug = 4,
+typedef NS_ENUM(NSUInteger, SentryLevel) {
+    // Defaults to None which doesn't get serialized
+    kSentryLevelNone = 0,
+    // Goes from Debug to Fatal so possible to: (level > Info) { .. }
+    kSentryLevelDebug = 1,
+    kSentryLevelInfo = 2,
+    kSentryLevelWarning = 3,
+    kSentryLevelError = 4,
+    kSentryLevelFatal = 5,
 };
 
 /**
  * Static internal helper to convert enum to string
  */
-static NSString *_Nonnull const SentrySeverityNames[] = {
-        @"fatal",
-        @"error",
-        @"warning",
-        @"info",
+static NSString *_Nonnull const SentryLevelNames[] = {
+        @"none",
         @"debug",
+        @"info",
+        @"warning",
+        @"error",
+        @"fatal",
 };

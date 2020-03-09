@@ -2,12 +2,15 @@ branches:
   only:
     - master
     - /^release\/.+$/
+    - 5.x
 
 language: objective-c
-osx_image: xcode9.4
+osx_image: xcode11.2
 addons:
   homebrew:
+    taps: oclint/formulae
     packages:
+      - oclint
       - swiftlint
     update: true
 
@@ -22,6 +25,7 @@ script: travis_retry .travis/run.sh
 env:
   matrix:
     - LANE=lint
+    # - LANE=oc_lint
     - LANE=test
     # - LANE=pod
 
@@ -33,6 +37,10 @@ jobs:
   include:
       env: LANE=test
       script: .travis/run.sh
+      env: LANE=lint
+      script: .travis/run.sh
+      # env: LANE=oc_lint
+      # script: .travis/run.sh
       env: LANE=deploy
       script: .travis/stage-carthage.sh
       after_success:

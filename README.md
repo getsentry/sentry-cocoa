@@ -3,7 +3,7 @@
         <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
     </a>
 <br/>
-    <h1>Official Sentry SDK for iOS/macOS/tvOS/watchOS<sup>(1)</sup>.</h1>
+    <h1>Official Sentry SDK for iOS/tvOS/macOS/watchOS<sup>(1)</sup>.</h1>
 </p>
 
 [![Travis](https://img.shields.io/travis/getsentry/sentry-cocoa.svg?maxAge=2592000)](https://travis-ci.com/getsentry/sentry-cocoa)
@@ -16,28 +16,35 @@
 
 
 
-This SDK is written in Objective-C but also works for Swift projects.
+This SDK is written in Objective-C but also provides a nice Swift interface.
+
+# Initialization
+
+*Remember to call this as early in your application life cycle as possible*
+Ideally in `applicationDidFinishLaunching` in `AppDelegate`
 
 ```swift
 import Sentry
 
-func application(application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+// ....
 
-    // Create a Sentry client and start crash handler
-    do {
-        Client.shared = try Client(dsn: "___PUBLIC_DSN___")
-        try Client.shared?.startCrashHandler()
-    } catch let error {
-        print("\(error)")
-        // Wrong DSN or KSCrash not installed
-    }
-
-    return true
-}
+ _ = SentrySDK(options: [
+    "dsn": "___PUBLIC_DSN___",
+    "debug": true // Helpful to see what's going on
+])
 ```
 
-- [Installation](https://docs.sentry.io/clients/cocoa/#installation)
-- [Documentation](https://docs.sentry.io/clients/cocoa/)
+```objective-c
+@import Sentry;
+
+// ....
+
+[SentrySDK initWithOptions:@{
+    @"dsn": @"___PUBLIC_DSN___",
+    @"debug": @(YES) // Helpful to see what's going on
+}];
+```
+
+- [Documentation](https://docs.sentry.io/platforms/cocoa/)
 
 <sup>(1)</sup>limited symbolication support

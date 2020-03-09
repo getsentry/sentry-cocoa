@@ -31,6 +31,7 @@
 #include "SentryCrashLogger.h"
 
 #include <mach/mach.h>
+#include <_types/_uint8_t.h>
 
 
 static inline int copySafely(const void* restrict const src, void* restrict const dst, const int byteCount)

@@ -15,7 +15,9 @@
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/NSData+SentryCompression.h>
-
+#import <Sentry/SentrySDK.h>
+#import <Sentry/SentryMeta.h>
+#import <Sentry/SentrySerialization.h>
 #else
 #import "SentryDsn.h"
 #import "SentryNSURLRequest.h"
@@ -24,7 +26,9 @@
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "NSData+SentryCompression.h"
-
+#import "SentrySDK.h"
+#import "SentryMeta.h"
+#import "SentrySerialization.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,19 +54,20 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [SentryLog logWithMessage:@"Using event->json attribute instead of serializing event" andLevel:kSentryLogLevelVerbose];
     } else {
         NSDictionary *serialized = [event serialize];
-        if (![NSJSONSerialization isValidJSONObject:serialized]) {
+        jsonData = [SentrySerialization dataWithJSONObject:serialized
+                                                   options:[SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose
+                                                           ? NSJSONWritingPrettyPrinted : 0
+                                                     error:error];
+        if (nil == jsonData) {
             if (error) {
+                // TODO: We're possibly overriding an error set by the actual code that failed ^
                 *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
             }
             return nil;
         }
-        
-        jsonData = [NSJSONSerialization dataWithJSONObject:serialized
-                                                           options:SentryClient.logLevel == kSentryLogLevelVerbose ? NSJSONWritingPrettyPrinted : 0
-                                                             error:error];
     }
     
-    if (SentryClient.logLevel == kSentryLogLevelVerbose) {
+    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
         [SentryLog logWithMessage:@"Sending JSON -------------------------------" andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:@"--------------------------------------------" andLevel:kSentryLogLevelVerbose];
@@ -117,7 +122,7 @@ static NSString *newHeaderPart(NSString *key, id value) {
 static NSString *newAuthHeader(NSURL *url) {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
-    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryClient.versionString])];
+    [string appendFormat:@"%@,", newHeaderPart(@"sentry_client", [NSString stringWithFormat:@"sentry-cocoa/%@", SentryMeta.versionString])];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger) [[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {

@@ -5,12 +5,21 @@ end
 
 lane :localcoverage do
     test
-    sh('cd ..; slather coverage --input-format profdata Sentry.xcodeproj')
+    #sh('cd ..; slather coverage --input-format profdata Sentry.xcodeproj')
+
+    slather(
+        html: true,
+        scheme: "Sentry",
+        output_directory: "fastlane/test_output/slather",
+        show: true
+    )
 end
 
 lane :oc_lint do
-  sh('cd ..; xcodebuild clean build -project Sentry.xcodeproj -scheme Sentry -configuration Debug | tee xcodebuild.log; oclint-xcodebuild -output compile_commands.json xcodebuild.log')
-  oclint
+  sh('cd ..; xcodebuild clean; xcodebuild COMPILER_INDEX_STORE_ENABLE=NO | xcpretty -r json-compilation-database --output compile_commands.json')
+  oclint(
+    exclude_regex: /SentryCrash/  # Exclude all files matching this regex
+  )
 end
 
 lane :lint do

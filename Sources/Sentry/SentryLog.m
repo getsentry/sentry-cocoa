@@ -10,10 +10,12 @@
 
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryLog.h>
+#import <Sentry/SentrySDK.h>
 
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
+#import "SentrySDK.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level {
     SentryLogLevel defaultLevel = kSentryLogLevelError;
-    if (SentryClient.logLevel > 0) {
-        defaultLevel = SentryClient.logLevel;
+    if (SentrySDK.logLevel > 0) {
+        defaultLevel = SentrySDK.logLevel;
     }
     if (level <= defaultLevel && level != kSentryLogLevelNone) {
         NSLog(@"Sentry - %@:: %@", [self.class logLevelToString:level], message);

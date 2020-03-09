@@ -11,6 +11,15 @@ build-carthage:
 	carthage build --no-skip-current --cache-builds
 	carthage archive Sentry --output Sentry.framework.zip
 
+# call this like `make bump-version TO=5.0.0-rc.0`
+bump-version: clean-version-bump	
+	@echo "--> Bumping version from ${TO}"	
+	./Utils/VersionBump/.build/debug/VersionBump ${TO}	
+
+clean-version-bump:	
+	@echo "--> Clean VersionBump"	
+	cd Utils/VersionBump && rm -rf .build && swift build
+
 release: bump-version git-commit-add
 
 pod-lint:
