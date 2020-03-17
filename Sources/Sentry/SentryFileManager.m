@@ -139,6 +139,14 @@ NSInteger const defaultMaxEvents = 10;
     }
 }
 
+- (NSString *)storeEnvelope:(SentryEnvelope *)envelope {
+    @synchronized (self) {
+        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope options:0 error:nil] toPath:self.eventsPath];
+        [self handleFileManagerLimit:self.eventsPath maxCount:self.maxEvents];
+        return result;
+    }
+}
+
 - (NSString *)storeData:(NSData *)data toPath:(NSString *)path {
     @synchronized (self) {
         NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];

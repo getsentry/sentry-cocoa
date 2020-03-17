@@ -26,6 +26,7 @@
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
+#import <Sentry/SentryEnvelope.h>
 
 #else
 #import "SentryClient.h"
@@ -46,6 +47,7 @@
 #import "SentrySDK.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryEnvelope.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -115,6 +117,12 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     return nil;
+}
+
+- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope {
+    // TODO: What is about beforeSend
+    [self.transport sendEnvelope:envelope withCompletionHandler:nil];
+    return envelope.header.eventId;
 }
 
 /**
