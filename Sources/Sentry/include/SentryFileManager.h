@@ -16,7 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryEvent, SentryDsn;
+@class SentryEvent, SentryDsn, SentryEnvelope;
 
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
@@ -24,6 +24,7 @@ SENTRY_NO_INIT
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error;
 
 - (NSString *)storeEvent:(SentryEvent *)event;
+- (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
