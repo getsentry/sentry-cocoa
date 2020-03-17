@@ -30,7 +30,7 @@
 - (instancetype)init NS_UNAVAILABLE; \
 + (instancetype)new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryNSURLRequest, SentryBreadcrumb;
+@class SentryEvent, SentryNSURLRequest, SentryBreadcrumb, SentryEnvelope;
 
 /**
  * Block used for returning after a request finished
@@ -60,7 +60,7 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
  * Note that this will only be called once the event is created and send manully.
  * Once it has been queued once it will be discarded if it fails again.
  */
-typedef BOOL (^SentryShouldQueueEvent)(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+typedef BOOL (^SentryShouldQueueEvent)(SentryEnvelope *_Nullable envelope, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Loglevel
  */

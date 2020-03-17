@@ -24,6 +24,7 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryEnvelope.h>
+#import <Sentry/SentrySerialization.h>
 #else
 #import "SentryTransport.h"
 #import "SentrySDK.h"
@@ -41,6 +42,7 @@
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryEnvelope.h"
+#import "SentrySerialization.h"
 #endif
 
 @interface SentryTransport ()
@@ -77,19 +79,16 @@
   return self;
 }
 
-- (void)sendEvent:(SentryEvent *)event
+// TODO: needs refactoring
+- (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-
-    // FIXME fetzig: these checks (within `isReadySendEvent`) have been moved to
-    //               the top of this method. where after creation of `storedEventPath`.
-    //               better readablity and sooner dropout of the method make much sense.
-    //               check if this is correct.
-    if (![self isReadySendEvent]) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"We are hard rate limited, will drop event. Until: %@", self.radioSilenceDeadline] andLevel:kSentryLogLevelDebug];
+    if (![self isReadyToSend]) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"We are hard rate limited, will drop event. Until: %@", self.radioSilenceDeadline] andLevel:kSentryLogLevelError];
         return;
     }
-
+    
     NSError *requestError = nil;
+    // TODO: We do multiple serializations here, we can improve this
     SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                              andEvent:event
                                                                      didFailWithError:&requestError];
@@ -101,21 +100,18 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return;
     }
 
+    // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
     __block SentryTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(event, response, error) == NO) {
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(nil, response, error) == NO) {
             // don't need to queue this -> it most likely got sent
             // thus we can remove the event from disk
             [_self.fileManager removeFileAtPath:storedEventPath];
-        }
-        if (nil == error) {
-            _self.lastEvent = event;
-            [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
-                                                              object:nil
-                                                            userInfo:[event serialize]];
-            [_self sendAllStoredEvents];
+            if (nil == error) {
+                [_self sendAllStoredEvents];
+            }
         }
         if (completionHandler) {
             completionHandler(error);
@@ -123,10 +119,47 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }];
 }
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope {
-    // TODO: Send to envelope on unwrap and send known types
+// TODO: needs refactoring
+- (void)    sendEnvelope:(SentryEnvelope *)envelope
+   withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    if (![self isReadyToSend]) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"We are hard rate limited, will drop event. Until: %@", self.radioSilenceDeadline] andLevel:kSentryLogLevelError];
+        return;
+    }
+    
+    NSError *requestError = nil;
+    // TODO: We do multiple serializations here, we can improve this
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+                                                                              andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
+                                                                     didFailWithError:&requestError];
+    if (nil != requestError) {
+        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
+        if (completionHandler) {
+            completionHandler(requestError);
+        }
+        return;
+    }
+
+    // TODO: We do multiple serializations here, we can improve this
+    NSString *storedEventPath = [self.fileManager storeEnvelope:envelope];
+
+    __block SentryTransport *_self = self;
+    [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(envelope, response, error) == NO) {
+            // don't need to queue this -> it most likely got sent
+            // thus we can remove the event from disk
+            [_self.fileManager removeFileAtPath:storedEventPath];
+            if (nil == error) {
+                [_self sendAllStoredEvents];
+            }
+        }
+        if (completionHandler) {
+            completionHandler(error);
+        }
+    }];
 }
 
+// TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllStoredEvents {
     if (![self isReadySendAllStoredEvents]) {
         return;
@@ -134,28 +167,13 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     dispatch_group_t dispatchGroup = dispatch_group_create();
     for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
-
-        // NOTE: we could check for `isRadioSilence` to prevent more requests
-        //       but this makes little to no difference since requests have most
-        //       likely been triggered before the first response is processed.
-        //       Amount of events stored will in most cases not be very big.
-
         dispatch_group_enter(dispatchGroup);
 
         SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                                   andData:fileDictionary[@"data"]
                                                                          didFailWithError:nil];
         [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            if (nil == error) {
-                NSDictionary *serializedEvent = [NSJSONSerialization JSONObjectWithData:fileDictionary[@"data"]
-                                                                                options:0
-                                                                                  error:nil];
-                if (nil != serializedEvent) {
-                    [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/eventSentSuccessfully"
-                                                                      object:nil
-                                                                    userInfo:serializedEvent];
-                }
-            }
+            // TODO: How does beforeSend work here
             // We want to delete the event here no matter what (if we had an internet connection)
             // since it has been tried already.
             if (response != nil) {
@@ -165,22 +183,13 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             dispatch_group_leave(dispatchGroup);
         }];
     }
-
-    // FIXME fetzig: can't find any observer for this notification.
-    // not in this repo, not in consuming SDKs like sentry-react-native, not in
-    // the docs. Check if it's used/required -> add comment or remove.
-    dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
-        [NSNotificationCenter.defaultCenter postNotificationName:@"Sentry/allStoredEventsSent"
-                                                          object:nil
-                                                        userInfo:nil];
-    });
 }
 
 #pragma mark private methods
 
 - (void)setupQueueing {
     __block SentryTransport *_self = self;
-    self.shouldQueueEvent = ^BOOL(SentryEvent *_Nonnull event, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    self.shouldQueueEvent = ^BOOL(SentryEnvelope *envelope, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the
         // request completes successfully or fails, the response parameter
@@ -214,7 +223,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  *
  * @return BOOL NO if options.enabled = false or rate limit exceeded
  */
-- (BOOL)isReadySendEvent {
+- (BOOL)isReadyToSend {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
@@ -228,12 +237,12 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 /**
- * analog to isReadySendEvent but with additional checks regarding batch upload.
+ * analog to isReadyToSend but with additional checks regarding batch upload.
  *
  * @return BOOL YES if ready to send requests.
  */
 - (BOOL)isReadySendAllStoredEvents {
-    if (![self isReadySendEvent]) {
+    if (![self isReadyToSend]) {
         return NO;
     }
 

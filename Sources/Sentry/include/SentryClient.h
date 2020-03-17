@@ -22,7 +22,7 @@
 #import "SentrySession.h"
 #endif
 
-@class SentryEvent, SentryThread;
+@class SentryEvent, SentryThread, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,6 +61,8 @@ SENTRY_NO_INIT
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
+
+- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 @end
 

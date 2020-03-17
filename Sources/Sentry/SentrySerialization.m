@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
     return data;
 }
 
+// TODO: I think we shouldn't allow to pass options here. Setting pretty print on the json could destory the envelope
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
                               options:(NSJSONWritingOptions)opt
                                 error:(NSError *_Nullable *_Nullable)error {

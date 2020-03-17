@@ -79,6 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] items:envelopeItems];
 }
 
+- (instancetype)initWithEvent:(SentryEvent *)event {
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
+    return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:event.eventId] singleItem:item];
+}
+
 - (instancetype)initWithId:(NSString *_Nullable)id
                 singleItem:(SentryEnvelopeItem *)item {
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] singleItem:item];

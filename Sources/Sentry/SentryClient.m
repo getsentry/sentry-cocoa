@@ -27,6 +27,7 @@
 #import <Sentry/SentryGlobalEventProcessor.h>
 #import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
+
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
@@ -121,12 +122,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSession:(SentrySession *)session {
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
-    [self.transport sendEnvelope:envelope];
+    [self captureEnvelope:envelope];
 }
 
 - (void)captureSessions:(NSArray<SentrySession *> *)sessions {
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSessions:sessions];
-    [self.transport sendEnvelope:envelope];
+    [self captureEnvelope:envelope];
+}
+
+- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope {
+    // TODO: What is about beforeSend
+    [self.transport sendEnvelope:envelope withCompletionHandler:nil];
+    return envelope.header.eventId;
 }
 
 /**

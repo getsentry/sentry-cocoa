@@ -57,7 +57,9 @@ SENTRY_NO_INIT
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
 NS_SWIFT_NAME(send(event:completion:));
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope;
+- (void) sendEnvelope:(SentryEnvelope *)envelope
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+NS_SWIFT_NAME(send(envelope:completion:));
 
 /**
  * Sends all events stored on disk. Those events haven't been uploaded

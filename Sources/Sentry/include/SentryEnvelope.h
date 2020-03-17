@@ -91,6 +91,9 @@ SENTRY_NO_INIT
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                          items:(NSArray<SentryEnvelopeItem *> *)items NS_DESIGNATED_INITIALIZER;
 
+// Convenience init for a single event
+- (instancetype)initWithEvent:(SentryEvent *)event;
+
 /**
  * The envelope header.
  */
