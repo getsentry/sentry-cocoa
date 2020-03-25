@@ -57,9 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
         case kSentrySessionStatusAbnormal:
             statusString = @"abnormal";
             break;
-        case kSentrySessionStatusDegraded:
-            statusString = @"degraded";
-            break;
         default:
             // TODO: Log warning
             break;

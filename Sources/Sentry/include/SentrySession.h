@@ -11,7 +11,6 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
     kSentrySessionStatusExited = 1,
     kSentrySessionStatusCrashed = 2,
     kSentrySessionStatusAbnormal = 3,
-    kSentrySessionStatusDegraded = 4,
 };
 
 @interface SentrySession : NSObject
