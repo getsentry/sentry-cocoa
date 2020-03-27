@@ -25,9 +25,11 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @property(nonatomic, readonly, strong) NSDate *started;
 @property(nonatomic, readonly) enum SentrySessionStatus *status;
 @property(nonatomic, readonly) NSInteger *errors;
+@property(nonatomic, readonly) NSInteger *sequence;
 
 @property(nonatomic, copy) NSString *_Nullable distinctId;
-@property(nonatomic, strong) NSDate *timestamp;
+@property(nonatomic, copy) NSNumber *_Nullable init;
+@property(nonatomic, strong) NSDate *_Nullable timestamp;
 @property(nonatomic, strong) NSNumber *_Nullable duration;
 @property(nonatomic, copy) NSString *_Nullable releaseName;
 @property(nonatomic, copy) NSString *_Nullable environment;
