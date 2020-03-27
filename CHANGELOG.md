@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.0-beta.0
+
+- feat: Added internal `captureEnvelope` method
+
 ## 5.0.0-alpha.0
 
 ***BREAKING***: This is the first public release of our new `5.0.0` #339 version of the SDK.
