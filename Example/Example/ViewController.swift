@@ -18,6 +18,9 @@ class ViewController: UIViewController {
             scope.setEnvironment("debug")
             scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
+            let u = Sentry.User(userId: "1")
+            u.email = "tony@example.com"
+            scope.setUser(u)
         }
     }
     

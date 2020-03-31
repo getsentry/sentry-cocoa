@@ -22,6 +22,9 @@
         [scope setEnvironment:@"debug"];
         [scope setTagValue:@"objc" forKey:@"langauge"];
         [scope setExtraValue:[NSString stringWithFormat:@"%@", self] forKey:@"currentViewController"];
+        SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+        user.email = @"tony@example.com";
+        [scope setUser:user];
     }];
 }
 

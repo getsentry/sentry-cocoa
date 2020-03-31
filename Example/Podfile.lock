@@ -1,7 +1,7 @@
 PODS:
-  - Sentry (5.0.0-rc.0):
-    - Sentry/Core (= 5.0.0-rc.0)
-  - Sentry/Core (5.0.0-rc.0)
+  - Sentry (5.0.0-beta.0):
+    - Sentry/Core (= 5.0.0-beta.0)
+  - Sentry/Core (5.0.0-beta.0)
 
 DEPENDENCIES:
   - Sentry (from `../`)
@@ -11,7 +11,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Sentry: c971423238ee8035c081c46f6287e7e60656673c
+  Sentry: 5657b4b53c666d4143ae288697e7ec49dff370a3
 
 PODFILE CHECKSUM: af1e4d758b8b0361821288d7216a327b15e9f891
 
