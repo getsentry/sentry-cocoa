@@ -28,7 +28,8 @@
     return @[
         @"SentryCrashIntegration",
         @"SentryUIKitMemoryWarningIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration"
+        @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration"
     ];
 }
 
@@ -118,6 +119,18 @@
         self.sampleRate = @1;
     } else {
         self.sampleRate = sampleRate;
+    }
+
+    if (nil != [options objectForKey:@"enableSessionTracking"]) {
+        self.enableSessionTracking = [NSNumber numberWithBool:[[options objectForKey:@"enableSessionTracking"] boolValue]];
+    } else {
+        self.enableSessionTracking = @NO; // TODO: Opt-out?
+    }
+
+    if (nil != [options objectForKey:@"sessionTrackingIntervalMillis"]) {
+        self.sessionTrackingIntervalMillis = [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
+    } else {
+        self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }
 }
 

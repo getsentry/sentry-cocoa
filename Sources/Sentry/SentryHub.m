@@ -54,8 +54,9 @@
         _session = [[SentrySession alloc] init];
         [scope applyToSession:_session];
     }
-    // What would be the status? No explicit call to endSession was done. Log warning?
-    [self endSession:currentSession];
+    // TODO: We mark abnormal because start was called while a session was open?
+    [currentSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
+    [self captureSession:currentSession];
 }
 
 - (void)endSession {
@@ -64,12 +65,30 @@
         currentSession = _session;
         _session = nil;
     }
-    [self endSession:currentSession];
+
+    [currentSession endSessionWithStatus:nil timestamp:[NSDate date]];
+    [self captureSession:currentSession];
 }
 
-- (void)endSession:(SentrySession *)session {
+- (void)endSessionWithStatus:(SentrySessionStatus *)status
+                   timestamp:(NSDate *)timestamp {
+    SentrySession *currentSession = nil;
+    @synchronized (_sessionLock) {
+        currentSession = _session;
+        _session = nil;
+    }
+    
+    if (nil == currentSession) {
+        // TODO: log
+        return;
+    }
+
+    [currentSession endSessionWithStatus:status timestamp:timestamp];
+    [self captureSession:currentSession];
+}
+
+- (void)captureSession:(SentrySession *)session {
     if (nil != session) {
-        [session close:kSentrySessionStatusExited];
         SentryClient *client = [self getClient];
         [client captureSession:session];
     }
