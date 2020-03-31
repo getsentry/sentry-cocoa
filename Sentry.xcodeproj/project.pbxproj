@@ -74,6 +74,7 @@
 		6344DDBA1EC3115C00D9160D /* SentryCrashReportConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6344DDB81EC3115C00D9160D /* SentryCrashReportConverter.m */; };
 		635B3F381EBC6E2500A6176D /* SentryAsynchronousOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		635B3F391EBC6E2500A6176D /* SentryAsynchronousOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 635B3F371EBC6E2500A6176D /* SentryAsynchronousOperation.m */; };
+		635EE26E243333A0004CB27A /* SentryThreadTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 635EE26D243333A0004CB27A /* SentryThreadTests.m */; };
 		6360850D1ED2AFE100E8599E /* SentryBreadcrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6360850E1ED2AFE100E8599E /* SentryBreadcrumb.m in Sources */ = {isa = PBXBuildFile; fileRef = 6360850C1ED2AFE100E8599E /* SentryBreadcrumb.m */; };
 		636085101ED2C1CB00E8599E /* SentryBreadcrumbTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6360850F1ED2C1CB00E8599E /* SentryBreadcrumbTests.m */; };
@@ -597,6 +598,7 @@
 		6344DDB81EC3115C00D9160D /* SentryCrashReportConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashReportConverter.m; sourceTree = "<group>"; };
 		635B3F361EBC6E2500A6176D /* SentryAsynchronousOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryAsynchronousOperation.h; path = include/SentryAsynchronousOperation.h; sourceTree = "<group>"; };
 		635B3F371EBC6E2500A6176D /* SentryAsynchronousOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryAsynchronousOperation.m; sourceTree = "<group>"; };
+		635EE26D243333A0004CB27A /* SentryThreadTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryThreadTests.m; sourceTree = "<group>"; };
 		6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryBreadcrumb.h; path = include/SentryBreadcrumb.h; sourceTree = "<group>"; };
 		6360850C1ED2AFE100E8599E /* SentryBreadcrumb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryBreadcrumb.m; sourceTree = "<group>"; };
 		6360850F1ED2C1CB00E8599E /* SentryBreadcrumbTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryBreadcrumbTests.m; sourceTree = "<group>"; };
@@ -1099,6 +1101,7 @@
 				15E0A8E2240C435900F044E3 /* SentryEnvelopeTests.m */,
 				15E0A8EF240F638200F044E3 /* SentrySerializationTests.m */,
 				15360CF22433C59500112302 /* SentryInstallationTests.m */,
+				635EE26D243333A0004CB27A /* SentryThreadTests.m */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -1968,6 +1971,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				630436161EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m in Sources */,
+				635EE26E243333A0004CB27A /* SentryThreadTests.m in Sources */,
 				63FE722420DA66EC00CDBAE8 /* SentryCrashMonitor_NSException_Tests.m in Sources */,
 				63B819141EC352A7002FDF4C /* SentryInterfacesTests.m in Sources */,
 				15E0A8E3240C435900F044E3 /* SentryEnvelopeTests.m in Sources */,
