@@ -90,6 +90,9 @@ event.extra = @{@"ios": @(YES)};
 SentrySDK.capture(message: "Test Message") { (scope) in
     scope.setEnvironment("staging")
     scope.setExtras(["ios": true])
+    let u = Sentry.User(userId: "1")
+    u.email = "tony@example.com"
+    scope.setUser(u)
 }
 ```
 
@@ -97,6 +100,9 @@ SentrySDK.capture(message: "Test Message") { (scope) in
 [SentrySDK captureMessage:@"Test Message" withScopeBlock:^(SentryScope * _Nonnull scope) {
     [scope setEnvironment:@"staging"];
     [scope setExtras:@{@"ios": @(YES)}];
+    SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+    user.email = @"tony@example.com";
+    [scope setUser:user];
 }];
 ```
 
