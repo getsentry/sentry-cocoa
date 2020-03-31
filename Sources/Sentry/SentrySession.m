@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSString* statusString = nil;
         switch (_status) {
             case kSentrySessionStatusOk:
-                statusString = @"Ok";
+                statusString = @"ok";
                 break;
             case kSentrySessionStatusExited:
                 statusString = @"exited";
