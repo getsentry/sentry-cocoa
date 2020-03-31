@@ -16,8 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         _ = SentrySDK(options: [
-            "dsn": "",
-            "debug": true
+            "dsn": "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394",
+            "debug": true,
+            "enableSessionTracking": true,
+            "sessionTrackingIntervalMillis": 5000 // 5 seconds session timeout for testing
         ])
         return true
     }

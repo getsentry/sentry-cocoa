@@ -17,13 +17,14 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (void)close:(SentrySessionStatus)status;
+- (void)endSessionWithStatus:(SentrySessionStatus *)status
+               timestamp:(NSDate *)timestamp;
 
 - (void)incrementErrors;
 
 @property(nonatomic, readonly, strong) NSUUID *sessionId;
 @property(nonatomic, readonly, strong) NSDate *started;
-@property(nonatomic, readonly) enum SentrySessionStatus *status;
+@property(nonatomic, readonly) enum SentrySessionStatus status;
 @property(nonatomic, readonly) NSInteger *errors;
 @property(nonatomic, readonly) NSInteger *sequence;
 
