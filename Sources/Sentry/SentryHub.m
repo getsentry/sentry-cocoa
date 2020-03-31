@@ -54,7 +54,6 @@
         _session = [[SentrySession alloc] init];
         [scope applyToSession:_session];
     }
-    // TODO: We mark abnormal because start was called while a session was open?
     [currentSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
     [self captureSession:currentSession];
 }
