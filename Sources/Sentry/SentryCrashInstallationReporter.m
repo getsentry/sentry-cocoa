@@ -18,7 +18,7 @@
 
 #else
 #import "SentryDefines.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryCrashReportSink.h"
 #import "SentryLog.h"
 

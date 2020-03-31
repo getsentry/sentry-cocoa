@@ -37,7 +37,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"

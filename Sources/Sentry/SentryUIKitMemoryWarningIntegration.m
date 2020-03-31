@@ -16,7 +16,7 @@
 #import <Sentry/SentrySDK.h>
 #else
 #import "SentryUIKitMemoryWarningIntegration.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"

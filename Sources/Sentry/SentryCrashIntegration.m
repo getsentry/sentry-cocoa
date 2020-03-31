@@ -18,7 +18,7 @@
 #import <Sentry/SentryScope+Private.h>
 #else
 #import "SentryCrashIntegration.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
