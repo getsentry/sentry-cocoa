@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-* Automatically tracks session start and stop.
+* Automatically tracks session start and end.
 */
 @interface SentryAutoSessionTrackingIntegration : NSObject
 
