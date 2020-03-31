@@ -9,7 +9,7 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryDefines.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryCrashReportSink.h>
 #import <Sentry/SentryLog.h>
 
@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryInstallation
+@implementation SentryCrashInstallationReporter
 
 - (id)init {
     return [super initWithRequiredProperties:[NSArray new]];

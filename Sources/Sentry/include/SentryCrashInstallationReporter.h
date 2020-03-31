@@ -16,7 +16,7 @@
 #import "SentryCrashInstallation.h"
 #endif
 
-@interface SentryInstallation : SentryCrashInstallation
+@interface SentryCrashInstallationReporter : SentryCrashInstallation
 
 - (void)sendAllReports;
 
