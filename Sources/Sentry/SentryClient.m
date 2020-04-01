@@ -15,7 +15,7 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
@@ -37,7 +37,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
@@ -164,10 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
     }    
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    if (nil != infoDict && nil == event.releaseName) {
-        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-            infoDict[@"CFBundleVersion"]];
-    }
+//    if (nil != infoDict && nil == event.releaseName) {
+//        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+//            infoDict[@"CFBundleVersion"]];
+//    }
     if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }

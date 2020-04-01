@@ -17,7 +17,7 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
@@ -35,7 +35,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
@@ -129,8 +129,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                              andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.dsn
+                                                                               andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
