@@ -93,6 +93,25 @@ NSTimeInterval const SentryRequestTimeout = 15;
     return self;
 }
 
+// TODO: Get refactored out to be a single init method
+- (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
+                                             andData:(NSData *)data
+                                 didFailWithError:(NSError *_Nullable *_Nullable)error {
+    NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
+    self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
+    if (self) {
+        NSString *authHeader = newAuthHeader(dsn.url);
+
+        self.HTTPMethod = @"POST";
+        [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
+        [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
+        [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
+        [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+    }
+    return self;
+}
+
 + (NSURL *)getStoreUrlFromDsn:(SentryDsn *)dsn {
     NSURL *url = dsn.url;
     NSString *projectId = url.lastPathComponent;

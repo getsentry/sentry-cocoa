@@ -39,6 +39,12 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.scope = [self getScope];
+        // TODO: needs a home. For now defining default release here to be set before integrations
+        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+        if (nil != infoDict) {
+            [self.scope setRelease:[NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+                infoDict[@"CFBundleVersion"]]];
+        }
     }
     _sessionLock = [[NSObject alloc] init];
     return self;
@@ -53,6 +59,8 @@
         }
         _session = [[SentrySession alloc] init];
         [scope applyToSession:_session];
+        // TODO: Capture outside the lock. Not the reference in the scope.
+        [self captureSession:_session];
     }
     [currentSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
     [self captureSession:currentSession];

@@ -164,10 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
     }    
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    if (nil != infoDict && nil == event.releaseName) {
-        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-            infoDict[@"CFBundleVersion"]];
-    }
+//    if (nil != infoDict && nil == event.releaseName) {
+//        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+//            infoDict[@"CFBundleVersion"]];
+//    }
     if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }

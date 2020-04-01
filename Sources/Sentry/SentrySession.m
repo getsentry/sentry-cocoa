@@ -1,9 +1,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentrySession.h>
+#import <Sentry/SentryInstallation.h>
 #import <Sentry/NSDate+SentryExtras.h>
 #import "SentryUser.h"
 #else
 #import "SentrySession.h"
+#import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryUser.h"
 #endif
@@ -17,7 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
         _sessionId = [NSUUID UUID];
         _started = [NSDate date];
         _status = kSentrySessionStatusOk;
+        _sequence = 1;
         _errors = 0;
+        _init = @YES;
     }
     return self;
 }
@@ -26,18 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
                    timestamp:(NSDate *)timestamp {
     @synchronized (self) {
         _init = nil;
-
-        if (nil == timestamp) {
-            _timestamp = [NSDate date];
-        } else {
-            _timestamp = timestamp;
-        }
+        _sequence++;
 
         NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
         _duration = [NSNumber numberWithLongLong:secondsBetween];
 
         if (nil != status) {
-            _status = status;
+            _status = *status;
         } else if (_status == kSentrySessionStatusOk) {
             // From star to end no state transition (i.e: no errors).
             _status = kSentrySessionStatusExited;
@@ -50,7 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)incrementErrors {
     @synchronized (self) {
+        _init = nil;
         _errors++;
+        _sequence++;
         _status = kSentrySessionStatusAbnormal;
     }
 }
@@ -58,11 +59,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize {
     @synchronized (self) {
         NSMutableDictionary *serializedData = @{
-                @"sid": _sessionId,
-                @"errors": [@(*_errors) stringValue],
+                @"sid": _sessionId.UUIDString,
+                @"errors": [NSNumber numberWithLong:_errors],
                 @"started": [_started sentry_toIso8601String],
         }.mutableCopy;
-
+        
+        if (nil != _init) {
+            [serializedData setValue:_init forKey:@"init"];
+        }
+        
         NSString* statusString = nil;
         switch (_status) {
             case kSentrySessionStatusOk:
@@ -86,22 +91,18 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:statusString forKey:@"status"];
         }
 
-        if (nil != _timestamp) {
-            [serializedData setValue:[_timestamp sentry_toIso8601String] forKey:@"timestamp"];
-        }
-
-        if (nil != _init) {
-            [serializedData setValue:_init forKey:@"init"];
-        }
+        NSDate *timestamp = nil != _timestamp ? _timestamp : [NSDate date];
+        [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
         if (nil != _duration) {
-            NSNumber *duration = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970] * 1000];
-            [serializedData setValue:duration forKey:@"duration"];
+            [serializedData setValue:_duration forKey:@"duration"];
+        } else if (nil == _init) {
+            NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+            [serializedData setValue:[NSNumber numberWithLongLong:secondsBetween] forKey:@"duration"];
         }
 
-        if (nil != _sequence) {
-            [serializedData setValue:[@(*_sequence) stringValue] forKey:@"seq"];
-        }
+        // TODO: seq to be just unix time in mills?
+        [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
 
         // TODO: Add the following under `attrs`. Except 'did'
         if (nil != _releaseName) {
@@ -114,24 +115,27 @@ NS_ASSUME_NONNULL_BEGIN
 
         SentryUser *currentUser = _user;
         NSString *did = _distinctId;
-        if (nil != currentUser) {
-            NSString *ipAddress = currentUser.ipAddress;
-            if (nil != ipAddress) {
-                [serializedData setValue:ipAddress forKey:@"ip_address"];
-            }
-            if (nil == did) {
-                if (nil != currentUser.userId) {
-                    did = currentUser.userId;
-                } else if (nil != currentUser.email) {
-                    did == currentUser.email;
-                } else if (nil != currentUser.username) {
-                    did == currentUser.username;
-                }
-            }
+        if (nil == did) {
+            did = [SentryInstallation id];
         }
+//        if (nil != currentUser) {
+//            NSString *ipAddress = currentUser.ipAddress;
+//            if (nil != ipAddress) {
+//                [serializedData setValue:ipAddress forKey:@"ip_address"];
+//            }
+//            if (nil == did) {
+//                if (nil != currentUser.userId) {
+//                    did = currentUser.userId;
+//                } else if (nil != currentUser.email) {
+//                    did == currentUser.email;
+//                } else if (nil != currentUser.username) {
+//                    did == currentUser.username;
+//                }
+//            }
+//        }
 
         if (nil != did) {
-            [serializedData setValue:_distinctId forKey:@"did"];
+            [serializedData setValue:did forKey:@"did"];
         }
 
         return serializedData;
