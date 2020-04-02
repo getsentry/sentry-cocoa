@@ -109,6 +109,10 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
+    
+    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope request with data: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
+    }
     return self;
 }
 

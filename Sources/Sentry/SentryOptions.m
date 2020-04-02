@@ -58,6 +58,11 @@
     }
 
     if ([self.debug isEqual:@YES])  {
+        // In other SDKs there's debug=true + diagnosticLevel where we can control how chatty the SDK is.
+        // Ideally we'd support all the levels here, and perhaps name it `diagnosticLevel` to align more.
+        if ([@"verbose" isEqual:[options objectForKey:@"logLevel"]]) {
+            SentrySDK.logLevel = kSentryLogLevelVerbose;
+        }
         SentrySDK.logLevel = kSentryLogLevelDebug;
     } else {
         SentrySDK.logLevel = kSentryLogLevelError;

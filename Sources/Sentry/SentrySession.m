@@ -105,13 +105,18 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
 
         // TODO: Add the following under `attrs`. Except 'did'
-        if (nil != _releaseName) {
-            [serializedData setValue:_releaseName forKey:@"release"];
+        if (nil != _releaseName || nil != _environment) {
+            NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];
+            if (nil != _releaseName) {
+                [attrs setValue:_releaseName forKey:@"release"];
+            }
+
+            if (nil != _environment) {
+                [attrs setValue:_environment forKey:@"environment"];
+            }
+            [serializedData setValue:attrs forKey:@"attrs"];
         }
 
-        if (nil != _environment) {
-            [serializedData setValue:_environment forKey:@"environment"];
-        }
 
         SentryUser *currentUser = _user;
         NSString *did = _distinctId;
