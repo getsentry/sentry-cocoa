@@ -28,7 +28,8 @@
     return @[
         @"SentryCrashIntegration",
         @"SentryUIKitMemoryWarningIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration"
+        @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration"
     ];
 }
 
@@ -57,6 +58,11 @@
     }
 
     if ([self.debug isEqual:@YES])  {
+        // In other SDKs there's debug=true + diagnosticLevel where we can control how chatty the SDK is.
+        // Ideally we'd support all the levels here, and perhaps name it `diagnosticLevel` to align more.
+        if ([@"verbose" isEqual:[options objectForKey:@"logLevel"]]) {
+            SentrySDK.logLevel = kSentryLogLevelVerbose;
+        }
         SentrySDK.logLevel = kSentryLogLevelDebug;
     } else {
         SentrySDK.logLevel = kSentryLogLevelError;
@@ -118,6 +124,18 @@
         self.sampleRate = @1;
     } else {
         self.sampleRate = sampleRate;
+    }
+
+    if (nil != [options objectForKey:@"enableAutoSessionTracking"]) {
+        self.enableAutoSessionTracking = [NSNumber numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"] boolValue]];
+    } else {
+        self.enableAutoSessionTracking = @NO; // TODO: Opt-out?
+    }
+
+    if (nil != [options objectForKey:@"sessionTrackingIntervalMillis"]) {
+        self.sessionTrackingIntervalMillis = [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
+    } else {
+        self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }
 }
 

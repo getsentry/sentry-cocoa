@@ -92,8 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithScope:(SentryScope *)scope {
-    if (self = [super init]) {
-        self.listeners = [NSMutableArray new];
+    if (self = [self init]) {
         self.extraDictionary = scope.extraDictionary.mutableCopy;
         self.tagDictionary = scope.tagDictionary.mutableCopy;
         SentryUser *scopeUser = scope.userObject;
@@ -258,6 +257,26 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
         }
         return serializedData;
+    }
+}
+
+- (void)applyToSession:(SentrySession *)session {
+    @synchronized (self) {
+        if (nil != self.userObject) {
+            session.user = self.userObject.copy;
+        }
+
+        NSString *releaseName = [self releaseString];
+        if (nil != releaseName) {
+            // TODO: Make sure release set on options is applied to the scope so it's available now
+            session.releaseName = releaseName;
+        }
+
+        NSString *environment = self.environmentString;
+        if (nil != environment) {
+            // TODO: Make sure environment set on options is applied to the scope so it's available now
+            session.environment = environment;
+        }
     }
 }
 

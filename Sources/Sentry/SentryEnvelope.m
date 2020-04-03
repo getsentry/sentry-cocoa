@@ -1,8 +1,10 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
 #else
 #import "SentryEvent.h"
+#import "SentrySession.h"
 #import "SentryEnvelope.h"
 #endif
 
@@ -43,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return self;
 }
+
 - (instancetype)initWithEvent:(SentryEvent *)event {
     NSData *json = [NSJSONSerialization dataWithJSONObject:[event serialize]
                                                    options:0
@@ -51,9 +54,30 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"event" length:json.length] data:json];
 }
 
+- (instancetype)initWithSession:(SentrySession *)session {
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize]
+                                                   options:0
+            // TODO: handle error
+                                                     error:nil];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"session" length:json.length] data:json];
+}
 @end
 
 @implementation SentryEnvelope
+
+- (instancetype)initWithSession:(SentrySession *)session {
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+    return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] singleItem:item];
+}
+
+- (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions {
+    NSMutableArray *envelopeItems = [[NSMutableArray alloc] initWithCapacity:sessions.count];
+    for (int i = 0; i < sessions.count; ++i) {
+        SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:[sessions objectAtIndex:i]];
+        [envelopeItems addObject:item];
+    }
+    return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] items:envelopeItems];
+}
 
 - (instancetype)initWithEvent:(SentryEvent *)event {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];

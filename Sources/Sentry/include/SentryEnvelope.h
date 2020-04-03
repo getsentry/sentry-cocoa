@@ -2,8 +2,10 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
+#import <Sentry/SentrySession.h>
 #else
 #import "SentryEvent.h"
+#import "SentrySession.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,6 +43,7 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
+- (instancetype)initWithSession:(SentrySession *)session;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
                 data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 
@@ -69,6 +72,21 @@ SENTRY_NO_INIT
 // If no event, or no data related to event, id will be null
 - (instancetype)initWithId:(NSString *_Nullable)id
                      items:(NSArray<SentryEnvelopeItem *> *)items;
+
+/**
+ * Initializes a SentryEnvelope with a single session.
+ * @param session to init the envelope with.
+ * @return an initialized SentryEnvelope
+ */
+- (instancetype)initWithSession:(SentrySession *)session;
+
+/**
+ * Initializes a SentryEnvelope with a list of sessions.
+ * Can be used when an operations that starts a session closes an ongoing session
+ * @param sessions to init the envelope with.
+ * @return an initialized SentryEnvelope
+ */
+- (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                          items:(NSArray<SentryEnvelopeItem *> *)items NS_DESIGNATED_INITIALIZER;

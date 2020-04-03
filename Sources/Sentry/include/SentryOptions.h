@@ -78,7 +78,7 @@ SENTRY_NO_INIT
 @property(nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
 /**
- * Array of integtations to install.
+ * Array of integrations to install.
  */
 @property(nonatomic, copy) NSArray<NSString *>* _Nullable integrations;
 
@@ -92,6 +92,16 @@ SENTRY_NO_INIT
  * valid settings are 0.0 - 1.0 and nil
  */
 @property(nonatomic, copy) NSNumber *_Nullable sampleRate;
+
+/**
+ * Whether to enable automatic session tracking.
+ */
+@property(nonatomic, copy) NSNumber *enableAutoSessionTracking;
+
+/**
+ * The interval to end a session if the App goes to the background.
+ */
+@property(nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
 
 @end
 
