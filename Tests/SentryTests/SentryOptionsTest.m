@@ -81,21 +81,6 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(options.dist, @"hhh");
 }
-    
-//- (void)testEnabled {
-//    NSError *error = nil;
-//    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
-//    XCTAssertNil(error);
-//    XCTAssertFalse([options.enabled boolValue]);
-//
-//    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @YES} didFailWithError:&error];
-//    XCTAssertNil(error);
-//    XCTAssertTrue([options.enabled boolValue]);
-//
-//    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @NO} didFailWithError:&error];
-//    XCTAssertNil(error);
-//    XCTAssertFalse([options.enabled boolValue]);
-//}
 
 -(void)testValidDebug {
     [self testDebugWith:@YES expected:@YES];
@@ -103,7 +88,8 @@
 }
 
 -(void)testInvalidDebug {
-    [self testDebugWith:@"bla" expected:@NO];
+    [self testDebugWith:@"Invalid" expected:@NO];
+    [self testDebugWith:@NO expected:@NO];
 }
 
 -(void)testDebugWith: (NSObject*) debugValue
@@ -113,6 +99,28 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(expectedValue, options.debug);
+}
+
+-(void)testValidEnabled {
+    [self testEnabledWith:@YES expected:@YES];
+    [self testEnabledWith:@"YES" expected:@YES];
+}
+
+-(void)testInvalidEnabled {
+    [self testEnabledWith:@"Invalid" expected:@NO];
+    [self testEnabledWith:@NO expected:@NO];
+}
+
+-(void)testEnabledWith: (NSObject*) enabledValue
+              expected:(NSNumber*) expectedValue {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn": @"https://username:password@sentry.io/1",
+        @"enabled": enabledValue
+    } didFailWithError:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(expectedValue, options.enabled);
 }
 
 
