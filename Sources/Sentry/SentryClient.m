@@ -7,7 +7,6 @@
 //
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryClient.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
@@ -16,7 +15,7 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
@@ -26,6 +25,7 @@
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
+#import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
 
 #else
@@ -37,7 +37,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
@@ -47,6 +47,7 @@
 #import "SentrySDK.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentrySession.h"
 #import "SentryEnvelope.h"
 #endif
 
@@ -119,6 +120,16 @@ NS_ASSUME_NONNULL_BEGIN
     return nil;
 }
 
+- (void)captureSession:(SentrySession *)session {
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
+    [self captureEnvelope:envelope];
+}
+
+- (void)captureSessions:(NSArray<SentrySession *> *)sessions {
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSessions:sessions];
+    [self captureEnvelope:envelope];
+}
+
 - (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope {
     // TODO: What is about beforeSend
     [self.transport sendEnvelope:envelope withCompletionHandler:nil];
@@ -153,10 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
     }    
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    if (nil != infoDict && nil == event.releaseName) {
-        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-            infoDict[@"CFBundleVersion"]];
-    }
+//    if (nil != infoDict && nil == event.releaseName) {
+//        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+//            infoDict[@"CFBundleVersion"]];
+//    }
     if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }

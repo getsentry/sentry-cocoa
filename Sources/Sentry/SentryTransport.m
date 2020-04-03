@@ -17,7 +17,7 @@
 #import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryFileManager.h>
 #import <Sentry/SentryBreadcrumbTracker.h>
 #import <Sentry/SentryCrash.h>
@@ -35,13 +35,13 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryFileManager.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
-#import "SentryEnvelope.m"
+#import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #endif
 
@@ -120,7 +120,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 // TODO: needs refactoring
-- (void)    sendEnvelope:(SentryEnvelope *)envelope
+- (void)sendEnvelope:(SentryEnvelope *)envelope
    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if (![self isReadyToSend]) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"We are hard rate limited, will drop event. Until: %@", self.radioSilenceDeadline] andLevel:kSentryLogLevelError];
@@ -129,8 +129,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                              andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
+    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.dsn
+                                                                               andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
@@ -200,7 +200,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             return YES;
         } else if ([response statusCode] == 429) { // HTTP 429 Too Many Requests
             [SentryLog logWithMessage:@"Rate limit exceeded, event will be dropped" andLevel:kSentryLogLevelDebug];
-            [_self updateRadioSilenceDealine:response];
+            [_self updateRadioSilenceDeadline:response];
             // In case of 429 we do not even want to store the event
             return NO;
         }
@@ -209,7 +209,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     };
 }
 
-- (void) sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
+- (void)sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
     [self.requestManager addRequest:request
                   completionHandler:^(NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (completionHandler) {
@@ -256,7 +256,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 #pragma mark rate limit
 
 /**
- * used if actual time/deadline couldn't be determinded.
+ * used if actual time/deadline couldn't be determined.
  */
 - (NSDate *)defaultRadioSilenceDeadline {
     return [[NSDate date] dateByAddingTimeInterval:60];
@@ -325,7 +325,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  * therefor activates radio silence for at least
  * 60 seconds (default, see `defaultRadioSilenceDeadline`).
  */
-- (void)updateRadioSilenceDealine:(NSHTTPURLResponse *)response {
+- (void)updateRadioSilenceDeadline:(NSHTTPURLResponse *)response {
     self.radioSilenceDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
 }
 
