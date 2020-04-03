@@ -12,11 +12,13 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryCrashExceptionApplication.h>
 #import <Sentry/SentryCrash.h>
+#import <Sentry/SentrySDK.h>
 
 #else
 #import "SentryDefines.h"
 #import "SentryCrashExceptionApplication.h"
 #import "SentryCrash.h"
+#import "SentrySDK.h"
 #endif
 
 
@@ -31,6 +33,12 @@
     }
     [super reportException:exception];
 }
+
+- (void)_crashOnException:(NSException *)exception {
+    [SentrySDK captureException:exception];
+    abort();
+}
+
 #endif
 
 @end
