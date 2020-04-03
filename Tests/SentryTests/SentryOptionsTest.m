@@ -89,6 +89,24 @@
 //    XCTAssertFalse([options.enabled boolValue]);
 //}
 
+-(void)testValidDebug {
+    [self testDebugWith:@YES expected:@YES];
+    [self testDebugWith:@"YES" expected:@YES];
+}
+
+-(void)testInvalidDebug {
+    [self testDebugWith:@"bla" expected:@NO];
+}
+
+-(void)testDebugWith: (NSObject*) debugValue
+        expected: (NSNumber*) expectedValue {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"debug": debugValue} didFailWithError:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(expectedValue, options.debug);
+}
+
 -(void)assertInvalidDns: (SentryOptions*) options
                andError: (NSError*) error {
     XCTAssertNil(options.dsn);
