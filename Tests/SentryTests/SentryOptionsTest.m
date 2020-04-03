@@ -23,7 +23,23 @@
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
     
     // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
-    [self assertInvalidDns:options andError:error];
+    [self assertDidabled:options andError:error];
+}
+
+- (void)testInvalidDsnBoolean {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
+    
+    // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
+    [self assertDidabled:options andError:error];
+}
+
+-(void)assertDidabled: (SentryOptions*) options
+               andError: (NSError*) error {
+    XCTAssertNil(options.dsn);
+    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertEqual(@NO, options.debug);
+    XCTAssertNil(error);
 }
 
 - (void)testInvalidDsn {
@@ -31,14 +47,6 @@
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://sentry.io"} didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
-}
-
-- (void)testInvalidDsnBoolean {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
-    
-        // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
-    [self assertInvalidDns:options andError:error];
 }
     
 - (void)testRelease {
@@ -107,12 +115,5 @@
     XCTAssertEqual(expectedValue, options.debug);
 }
 
--(void)assertInvalidDns: (SentryOptions*) options
-               andError: (NSError*) error {
-    XCTAssertNil(options.dsn);
-    XCTAssertEqual(@NO, options.enabled);
-    XCTAssertEqual(@NO, options.debug);
-    XCTAssertNil(error);
-}
 
 @end
