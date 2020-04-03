@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (void)endSessionWithStatus:(SentrySessionStatus *)status
+- (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
                timestamp:(NSDate *)timestamp;
 
 - (void)incrementErrors;

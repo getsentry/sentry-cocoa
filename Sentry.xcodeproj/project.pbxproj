@@ -17,8 +17,8 @@
 		15360CDB2432846700112302 /* SentryAutoSessionTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CD52432832400112302 /* SentryAutoSessionTrackingIntegration.m */; };
 		15360CED2433A15500112302 /* SentryInstallation.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CEC2433A15500112302 /* SentryInstallation.m */; };
 		15360CEE2433A15500112302 /* SentryInstallation.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CEC2433A15500112302 /* SentryInstallation.m */; };
-		15360CF02433A16D00112302 /* SentryInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 15360CEF2433A16D00112302 /* SentryInstallation.h */; };
-		15360CF12433A16D00112302 /* SentryInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 15360CEF2433A16D00112302 /* SentryInstallation.h */; };
+		15360CF02433A16D00112302 /* SentryInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 15360CEF2433A16D00112302 /* SentryInstallation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		15360CF12433A16D00112302 /* SentryInstallation.h in Headers */ = {isa = PBXBuildFile; fileRef = 15360CEF2433A16D00112302 /* SentryInstallation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		15360CF52433C59B00112302 /* SentryInstallationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CF22433C59500112302 /* SentryInstallationTests.m */; };
 		155E00972408647900CB59B9 /* SentryHubTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 155E00962408647900CB59B9 /* SentryHubTests.m */; };
 		15E0A8E1240C41CE00F044E3 /* SentryEnvelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8E0240C41CE00F044E3 /* SentryEnvelope.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -134,14 +134,14 @@
 		6387B82E1ED851540045A84C /* SentryRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		638DC9A01EBC6B6400A66E41 /* SentryRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */; };
-		639889B71EDECFA800EA7442 /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */; };
+		639889B71EDECFA800EA7442 /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639889B81EDECFA800EA7442 /* SentryBreadcrumbTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889B61EDECFA800EA7442 /* SentryBreadcrumbTracker.m */; };
 		639889BB1EDED18400EA7442 /* SentrySwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* SentrySwizzle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639889BC1EDED18400EA7442 /* SentrySwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* SentrySwizzle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639889BD1EDED18400EA7442 /* SentrySwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889BA1EDED18400EA7442 /* SentrySwizzle.m */; };
 		639889BE1EDED18400EA7442 /* SentrySwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889BA1EDED18400EA7442 /* SentrySwizzle.m */; };
 		639889BF1EDED18A00EA7442 /* SentryBreadcrumbTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889B61EDECFA800EA7442 /* SentryBreadcrumbTracker.m */; };
-		639889C01EDED18D00EA7442 /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */; };
+		639889C01EDED18D00EA7442 /* SentryBreadcrumbTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		639889D41EDF06C100EA7442 /* SentrySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639889D31EDF06C100EA7442 /* SentrySwiftTests.swift */; };
 		63988A0B1EDFF8E900EA7442 /* SentrySwizzle.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 639889B91EDED18400EA7442 /* SentrySwizzle.h */; };
 		63988A0C1EDFF8E900EA7442 /* SentrySerializable.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; };

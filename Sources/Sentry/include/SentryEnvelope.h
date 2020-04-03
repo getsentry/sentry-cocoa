@@ -75,7 +75,7 @@ SENTRY_NO_INIT
 
 /**
  * Initializes a SentryEnvelope with a single session.
- * @param session
+ * @param session to init the envelope with.
  * @return an initialized SentryEnvelope
  */
 - (instancetype)initWithSession:(SentrySession *)session;
@@ -83,7 +83,7 @@ SENTRY_NO_INIT
 /**
  * Initializes a SentryEnvelope with a list of sessions.
  * Can be used when an operations that starts a session closes an ongoing session
- * @param sessions
+ * @param sessions to init the envelope with.
  * @return an initialized SentryEnvelope
  */
 - (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions;

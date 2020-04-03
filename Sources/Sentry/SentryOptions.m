@@ -126,10 +126,10 @@
         self.sampleRate = sampleRate;
     }
 
-    if (nil != [options objectForKey:@"enableSessionTracking"]) {
-        self.enableSessionTracking = [NSNumber numberWithBool:[[options objectForKey:@"enableSessionTracking"] boolValue]];
+    if (nil != [options objectForKey:@"enableAutoSessionTracking"]) {
+        self.enableAutoSessionTracking = [NSNumber numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"] boolValue]];
     } else {
-        self.enableSessionTracking = @NO; // TODO: Opt-out?
+        self.enableAutoSessionTracking = @NO; // TODO: Opt-out?
     }
 
     if (nil != [options objectForKey:@"sessionTrackingIntervalMillis"]) {

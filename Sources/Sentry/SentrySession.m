@@ -2,12 +2,10 @@
 #import <Sentry/SentrySession.h>
 #import <Sentry/SentryInstallation.h>
 #import <Sentry/NSDate+SentryExtras.h>
-#import "SentryUser.h"
 #else
 #import "SentrySession.h"
 #import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
-#import "SentryUser.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)endSessionWithStatus:(SentrySessionStatus *)status
+- (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
                    timestamp:(NSDate *)timestamp {
     @synchronized (self) {
         _init = nil;
@@ -117,27 +115,10 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:attrs forKey:@"attrs"];
         }
 
-
-        SentryUser *currentUser = _user;
         NSString *did = _distinctId;
         if (nil == did) {
             did = [SentryInstallation id];
         }
-//        if (nil != currentUser) {
-//            NSString *ipAddress = currentUser.ipAddress;
-//            if (nil != ipAddress) {
-//                [serializedData setValue:ipAddress forKey:@"ip_address"];
-//            }
-//            if (nil == did) {
-//                if (nil != currentUser.userId) {
-//                    did = currentUser.userId;
-//                } else if (nil != currentUser.email) {
-//                    did == currentUser.email;
-//                } else if (nil != currentUser.username) {
-//                    did == currentUser.username;
-//                }
-//            }
-//        }
 
         if (nil != did) {
             [serializedData setValue:did forKey:@"did"];

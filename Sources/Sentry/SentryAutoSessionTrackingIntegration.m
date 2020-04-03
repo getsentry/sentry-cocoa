@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryAutoSessionTrackingIntegration
 
 - (void)installWithOptions:(nonnull SentryOptions *)options {
-    if ([options.enableSessionTracking isEqual:@YES]) {
+    if ([options.enableAutoSessionTracking isEqual:@YES]) {
         SentrySessionTracker *tracker = [[SentrySessionTracker alloc] initWithOptions:options];
         [tracker start];
         self.tracker = tracker;

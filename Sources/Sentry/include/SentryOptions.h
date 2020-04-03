@@ -96,7 +96,7 @@ SENTRY_NO_INIT
 /**
  * Whether to enable automatic session tracking.
  */
-@property(nonatomic, copy) NSNumber *enableSessionTracking;
+@property(nonatomic, copy) NSNumber *enableAutoSessionTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
