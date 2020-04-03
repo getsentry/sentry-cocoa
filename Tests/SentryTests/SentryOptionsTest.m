@@ -17,13 +17,14 @@
 
 @implementation SentryOptionsTest
 
-// TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix.
-//- (void)testEmptyDsn {
-//    NSError *error = nil;
-//    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
-//    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
-//    XCTAssertNil(options);
-//}
+
+- (void)testEmptyDsn {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
+    
+    // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
+    [self assertInvalidDns:options andError:error];
+}
 
 - (void)testInvalidDsn {
     NSError *error = nil;
@@ -32,13 +33,13 @@
     XCTAssertNil(options);
 }
 
-// TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix.
-//- (void)testInvalidDsnBoolean {
-//    NSError *error = nil;
-//    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
-//    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
-//    XCTAssertNil(options);
-//}
+- (void)testInvalidDsnBoolean {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
+    
+        // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
+    [self assertInvalidDns:options andError:error];
+}
     
 - (void)testRelease {
     NSError *error = nil;
@@ -78,14 +79,22 @@
 //    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
 //    XCTAssertNil(error);
 //    XCTAssertFalse([options.enabled boolValue]);
-//    
+//
 //    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @YES} didFailWithError:&error];
 //    XCTAssertNil(error);
 //    XCTAssertTrue([options.enabled boolValue]);
-//    
+//
 //    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"enabled": @NO} didFailWithError:&error];
 //    XCTAssertNil(error);
 //    XCTAssertFalse([options.enabled boolValue]);
 //}
+
+-(void)assertInvalidDns: (SentryOptions*) options
+               andError: (NSError*) error {
+    XCTAssertNil(options.dsn);
+    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertEqual(@NO, options.debug);
+    XCTAssertNil(error);
+}
 
 @end
