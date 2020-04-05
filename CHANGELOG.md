@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add `_crashOnException:` to handle exceptions for AppKit apps on macOS 
+
 ## 5.0.0-beta.0
 
 - feat: Added internal `captureEnvelope` method
