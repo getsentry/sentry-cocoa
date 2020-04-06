@@ -127,13 +127,38 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
 
 -(void)testEnabledWith: (NSObject*) enabledValue
               expected:(NSNumber*) expectedValue {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc]
-                              initWithDict:@{ @"dsn": validDSN, @"enabled": enabledValue}
-                              didFailWithError:&error];
-    
-    XCTAssertNil(error);
+    SentryOptions *options = [self getValidOptions: @{@"enabled": enabledValue}];
+                    
     XCTAssertEqual(expectedValue, options.enabled);
+}
+
+-(void)testMaxBreadCrumbs {
+    NSNumber* maxBreadCrumbs = @20;
+    
+    SentryOptions *options = [self getValidOptions: @{@"maxBreadcrumbs": maxBreadCrumbs}];
+    
+    XCTAssertEqual([maxBreadCrumbs unsignedIntValue], options.maxBreadcrumbs);
+}
+
+-(void)testMaxBreadCrumbsFallback {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
+}
+
+-(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {
+    NSError *error = nil;
+    
+    NSMutableDictionary<NSString *, id>* options = [[NSMutableDictionary alloc] init];
+    options[@"dsn"] = validDSN;
+    
+    [options addEntriesFromDictionary:dict];
+    
+    SentryOptions *sentryOptions = [[SentryOptions alloc]
+                              initWithDict:options
+                              didFailWithError:&error];
+    XCTAssertNil(error);
+    return sentryOptions;
 }
 
 @end
