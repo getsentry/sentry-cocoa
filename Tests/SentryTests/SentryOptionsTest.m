@@ -198,6 +198,31 @@
     XCTAssertEqual(@1, options.sampleRate);
 }
 
+-(void)testEnableAutoSessionTracking {
+    SentryOptions *options = [self getValidOptions:@{@"enableAutoSessionTracking": @YES}];
+    
+    XCTAssertEqual(@YES, options.enableAutoSessionTracking);
+}
+
+-(void)testEnableAutoSessionTrackingNotSet {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+}
+
+-(void)testSessionTrackingIntervalMillis {
+    NSNumber* sessionTracking = @2000;
+    SentryOptions *options = [self getValidOptions:@{@"sessionTrackingIntervalMillis": sessionTracking}];
+    
+    XCTAssertEqual([sessionTracking unsignedIntValue], options.sessionTrackingIntervalMillis);
+}
+
+-(void)testSessionTrackingIntervalMillisDefaultValue {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
+}
+
 -(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {
     NSError *error = nil;
     
