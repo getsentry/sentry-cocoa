@@ -17,13 +17,14 @@
 
 @implementation SentryOptionsTest
 
+static NSString* validDSN = @"https://username:password@sentry.io/1";
 
 - (void)testEmptyDsn {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
     
     // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
-    [self assertDidabled:options andError:error];
+    [self assertDisabled:options andError:error];
 }
 
 - (void)testInvalidDsnBoolean {
@@ -31,10 +32,10 @@
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
     
     // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
-    [self assertDidabled:options andError:error];
+    [self assertDisabled:options andError:error];
 }
 
--(void)assertDidabled: (SentryOptions*) options
+-(void)assertDisabled: (SentryOptions*) options
                andError: (NSError*) error {
     XCTAssertNil(options.dsn);
     XCTAssertEqual(@NO, options.enabled);
@@ -51,33 +52,33 @@
     
 - (void)testRelease {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN } didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertNil(options.releaseName);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"release": @"abc"} didFailWithError:&error];
+    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"release": @"abc"} didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(options.releaseName, @"abc");
 }
     
 - (void)testEnvironment {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN} didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertNil(options.environment);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"environment": @"xxx"} didFailWithError:&error];
+    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"environment": @"xxx"} didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(options.environment, @"xxx");
 }
 
 - (void)testDist {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1"} didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN} didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertNil(options.dist);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username:password@sentry.io/1", @"dist": @"hhh"} didFailWithError:&error];
+    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"dist": @"hhh"} didFailWithError:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(options.dist, @"hhh");
 }
@@ -115,13 +116,12 @@
               expected:(NSNumber*) expectedValue {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
-        @"dsn": @"https://username:password@sentry.io/1",
+        @"dsn": validDSN,
         @"enabled": enabledValue
     } didFailWithError:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual(expectedValue, options.enabled);
 }
-
 
 @end
