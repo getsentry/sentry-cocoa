@@ -5,6 +5,7 @@ branches:
     - 5.x
 
 os: osx
+language: objective-c
 osx_image: xcode11.2
 addons:
   homebrew:
