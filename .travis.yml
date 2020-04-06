@@ -19,10 +19,9 @@ rvm:
   - 2.4
 
 env:
-  - XCWORKSPACE=Sentry.xcworkspace
   matrix:
-    - LANE=lint
-    - LANE=test
+    - LANE=lint XCWORKSPACE=Sentry.xcworkspace
+    - LANE=test XCWORKSPACE=Sentry.xcworkspace
 
 before_install:
   - gem update --system
