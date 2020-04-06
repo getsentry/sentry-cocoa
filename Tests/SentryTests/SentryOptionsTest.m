@@ -17,8 +17,6 @@
 
 @implementation SentryOptionsTest
 
-static NSString* validDSN = @"https://username:password@sentry.io/1";
-
 - (void)testEmptyDsn {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
@@ -49,35 +47,26 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
 }
     
 - (void)testRelease {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN } didFailWithError:&error];
-    XCTAssertNil(error);
+    SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.releaseName);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"release": @"abc"} didFailWithError:&error];
-    XCTAssertNil(error);
+    options = [self getValidOptions:@{@"release": @"abc"}];
     XCTAssertEqualObjects(options.releaseName, @"abc");
 }
     
 - (void)testEnvironment {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN} didFailWithError:&error];
-    XCTAssertNil(error);
+    SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.environment);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"environment": @"xxx"} didFailWithError:&error];
-    XCTAssertNil(error);
+    options = [self getValidOptions:@{@"environment": @"xxx"}];
     XCTAssertEqualObjects(options.environment, @"xxx");
 }
 
 - (void)testDist {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN} didFailWithError:&error];
-    XCTAssertNil(error);
+    SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.dist);
     
-    options = [[SentryOptions alloc] initWithDict:@{@"dsn": validDSN, @"dist": @"hhh"} didFailWithError:&error];
-    XCTAssertNil(error);
+    options = [self getValidOptions:@{@"dist": @"hhh"}];
     XCTAssertEqualObjects(options.dist, @"hhh");
 }
 
@@ -150,7 +139,7 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
     NSError *error = nil;
     
     NSMutableDictionary<NSString *, id>* options = [[NSMutableDictionary alloc] init];
-    options[@"dsn"] = validDSN;
+    options[@"dsn"] = @"https://username:password@sentry.io/1";
     
     [options addEntriesFromDictionary:dict];
     
