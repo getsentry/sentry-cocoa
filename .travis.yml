@@ -4,7 +4,7 @@ branches:
     - /^release\/.+$/
     - 5.x
 
-language: objective-c
+os: osx
 osx_image: xcode11.2
 addons:
   homebrew:
@@ -15,29 +15,24 @@ addons:
 cache:
   - bundler
 
-rvm:
-  - 2.4
-
-env:
-  matrix:
-    - LANE=lint
-    - LANE=test
-
 before_install:
   - gem update --system
   - gem install bundler
 
 jobs:
   include:
-      env: LANE=test
-      script: .travis/run.sh
-      env: LANE=lint
-      script: .travis/run.sh
-      env: LANE=deploy
-      script: .travis/stage-carthage.sh
-      after_success:
-        - npm install -g @zeus-ci/cli
-        - zeus upload -t "application/zip+carthage" Sentry.framework.zip
+      - name: Test
+        env: LANE=test XCWORKSPACE=Sentry.xcworkspace
+        script: .travis/run.sh
+      - name: Lint
+        env: LANE=lint XCWORKSPACE=Sentry.xcworkspace
+        script: .travis/run.sh
+      - name: Deploy
+        env: LANE=deploy XCWORKSPACE=Sentry.xcworkspace
+        script: .travis/stage-carthage.sh
+        after_success:
+          - npm install -g @zeus-ci/cli
+          - zeus upload -t "application/zip+carthage" Sentry.framework.zip
 
 notifications:
   webhooks:
