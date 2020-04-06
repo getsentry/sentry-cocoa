@@ -135,6 +135,21 @@
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
 }
 
+-(void)testBeforeSend {
+    SentryEvent* (^callback) (SentryEvent* event) = ^(SentryEvent* event) {
+        return event;
+    };
+    SentryOptions *options = [self getValidOptions:@{@"beforeSend": callback}];
+    
+    XCTAssertEqual(callback, options.beforeSend);
+}
+
+-(void)testBeforeSendIsEmpty {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertNil(options.beforeSend);
+}
+
 -(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {
     NSError *error = nil;
     
