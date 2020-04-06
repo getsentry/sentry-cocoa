@@ -178,6 +178,26 @@
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations], @"Default integrations are not set correctly");
 }
 
+-(void)testSampleRateLowerBound {
+    NSNumber* sampleRateLowerBound = @0;
+    SentryOptions *options = [self getValidOptions:@{@"sampleRate": sampleRateLowerBound}];
+    XCTAssertEqual(sampleRateLowerBound, options.sampleRate);
+    
+    NSNumber* sampleRateTooLow = @-0.01;
+    options = [self getValidOptions:@{@"sampleRate": sampleRateTooLow}];
+    XCTAssertEqual(@1, options.sampleRate);
+}
+
+-(void)testSampleRateUpperBound {
+    NSNumber* sampleRateUpperBound = @1;
+    SentryOptions *options = [self getValidOptions:@{@"sampleRate": sampleRateUpperBound}];
+    XCTAssertEqual(sampleRateUpperBound, options.sampleRate);
+    
+    NSNumber* sampleRateTooHigh = @1.01;
+    options = [self getValidOptions:@{@"sampleRate": sampleRateTooHigh}];
+    XCTAssertEqual(@1, options.sampleRate);
+}
+
 -(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {
     NSError *error = nil;
     
