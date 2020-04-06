@@ -22,8 +22,7 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
 - (void)testEmptyDsn {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
-    
-    // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
+
     [self assertDisabled:options andError:error];
 }
 
@@ -31,7 +30,6 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @YES} didFailWithError:&error];
     
-    // TODO(fetzig): not sure if this test needs an update or SentryOptions/SentryDsn needs a fix. Maybe the error should be set to kSentryErrorInvalidDsnError
     [self assertDisabled:options andError:error];
 }
 
