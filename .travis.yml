@@ -19,8 +19,8 @@ rvm:
   - 2.4
 
 env:
+  - XCWORKSPACE=Sentry.xcworkspace
   matrix:
-    - XCWORKSPACE=Sentry.xcworkspace
     - LANE=lint
     - LANE=test
 
