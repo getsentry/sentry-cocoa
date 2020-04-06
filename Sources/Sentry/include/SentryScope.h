@@ -9,17 +9,17 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryBreadcrumb.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentrySerializable.h>
-
+#import <Sentry/SentrySession.h>
 #else
 #import "SentryDefines.h"
 #import "SentryBreadcrumb.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
+#import "SentrySession.h"
 #endif
 
 @class SentryUser;
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
-- (instancetype)init;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithScope:(SentryScope *)scope;
 
 /**
@@ -101,6 +101,8 @@ NS_SWIFT_NAME(Scope)
  * Adds the Scope to the event
  */
 - (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
+
+- (void)applyToSession:(SentrySession *)session;
 
 /**
  * Cets context values which will overwrite SentryEvent.context when event is

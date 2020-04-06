@@ -8,7 +8,7 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryCrashIntegration.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
@@ -18,7 +18,7 @@
 #import <Sentry/SentryScope+Private.h>
 #else
 #import "SentryCrashIntegration.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
@@ -32,7 +32,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-static SentryInstallation *installation = nil;
+static SentryCrashInstallationReporter *installation = nil;
 
 @interface SentryCrashIntegration ()
 
@@ -65,7 +65,7 @@ static SentryInstallation *installation = nil;
 - (void)startCrashHandler {
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
-        installation = [[SentryInstallation alloc] init];
+        installation = [[SentryCrashInstallationReporter alloc] init];
         [installation install];
         [installation sendAllReports];
     });

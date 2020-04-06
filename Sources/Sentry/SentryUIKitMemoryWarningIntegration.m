@@ -9,14 +9,14 @@
 #if __has_include(<Sentry/Sentry.h>)
 
 #import <Sentry/SentryUIKitMemoryWarningIntegration.h>
-#import <Sentry/SentryInstallation.h>
+#import <Sentry/SentryCrashInstallationReporter.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentrySDK.h>
 #else
 #import "SentryUIKitMemoryWarningIntegration.h"
-#import "SentryInstallation.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"

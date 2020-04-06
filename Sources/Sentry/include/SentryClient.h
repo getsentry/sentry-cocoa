@@ -9,17 +9,17 @@
 #import <Foundation/Foundation.h>
 
 #if __has_include(<Sentry/Sentry.h>)
-
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryTransport.h>
-
+#import <Sentry/SentrySession.h>
 #else
 #import "SentryDefines.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryTransport.h"
+#import "SentrySession.h"
 #endif
 
 @class SentryEvent, SentryThread, SentryEnvelope;
@@ -60,9 +60,8 @@ SENTRY_NO_INIT
 */
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
-/**
-* Captures a Message
-*/
+- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
+
 - (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 @end

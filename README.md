@@ -14,8 +14,6 @@
 ![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)
 [![Twitter](https://img.shields.io/badge/twitter-@getsentry-blue.svg?style=flat)](http://twitter.com/getsentry)
 
-
-
 This SDK is written in Objective-C but also provides a nice Swift interface.
 
 # Initialization
