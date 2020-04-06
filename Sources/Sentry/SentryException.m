@@ -44,6 +44,18 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+
+- (instancetype)initWithNSError:(NSError *)error {
+    self = [super init];
+    if (self) {
+        self.value = error.localizedDescription;
+        self.type = error.domain;
+        self.mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
+        self.mechanism.handled = @(YES);
+    }
+    return self;
+}
+
 - (NSDictionary<NSString *, id> *)serialize {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 

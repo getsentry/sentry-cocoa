@@ -56,8 +56,6 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithThreadId:(NSNumber *)threadId;
 
-- (instancetype)initWithCallStack:(NSString *)callstack;
-
 @end
 
 NS_ASSUME_NONNULL_END

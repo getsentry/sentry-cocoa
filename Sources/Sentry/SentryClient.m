@@ -28,6 +28,9 @@
 #import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
 #import <Sentry/SentryThread.h>
+#import <Sentry/SentryThreads.h>
+#import <Sentry/SentryBinaryImages.h>
+#import <Sentry/SentryException.h>
 #else
 #import "SentryClient.h"
 #import "SentryLog.h"
@@ -49,7 +52,10 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentrySession.h"
 #import "SentryEnvelope.h"
-#import "SentryThread.m"
+#import "SentryThread.h"
+#import "SentryThreads.h"
+#import "SentryBinaryImages.h"
+#import "SentryException.h"
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -86,43 +92,29 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
-- (void)attachThreadWithStacktraceToEvent:(SentryEvent *)event {
-    NSLog(@"a %@", [NSThread callStackSymbols]);
-    NSLog(@"b %@", [NSThread callStackReturnAddresses]);
-    NSString *sourceString = [NSString stringWithFormat:@"%@", [NSThread callStackSymbols]];
-    // Example: 1   UIKit                               0x00540c89 -[UIApplication _callInitializationDelegatesForURL:payload:suspended:] + 1163
-    NSCharacterSet *separatorSet = [NSCharacterSet characterSetWithCharactersInString:@"\n"];
-    NSMutableArray *array = [NSMutableArray arrayWithArray:[sourceString componentsSeparatedByCharactersInSet:separatorSet]];
-    [array removeObject:@""];
-
-    NSLog(@"Source %@", sourceString);
-    NSLog(@"Stack = %@", [array objectAtIndex:0]);
-    NSLog(@"Framework = %@", [array objectAtIndex:1]);
-    NSLog(@"Memory address = %@", [array objectAtIndex:2]);
-    NSLog(@"Class caller = %@", [array objectAtIndex:3]);
-    NSLog(@"Function caller = %@", [array objectAtIndex:4]);
-}
-
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO Add attach stacktrace
+    // TODO: check for `attachStacktrace` option and only then do:
+    // event.debugMeta = [SentryBinaryImages getDebugMeta];
+    // event.threads = [SentryThreads getAllThreads];
+    // --------------------
     event.message = message;
     return [self captureEvent:event withScope:scope];
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: NSException.callStackSymbols
-    // TODO: NSException.callStackReturnAddresses
-    [self attachThreadWithStacktraceToEvent:event];
-    event.message = exception.reason;
+    event.exceptions = @[[[SentryException alloc] initWithNSException:exception]]; // In there we should also get all threads
+    event.debugMeta = [SentryBinaryImages getDebugMeta];
+    event.threads = [SentryThreads getAllThreads];
     return [self captureEvent:event withScope:scope];
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    [self attachThreadWithStacktraceToEvent:event];
-    event.message = error.localizedDescription;
+    event.exceptions = @[[[SentryException alloc] initWithNSError:error]];
+    event.debugMeta = [SentryBinaryImages getDebugMeta];
+    event.threads = [SentryThreads getAllThreads];
     return [self captureEvent:event withScope:scope];
 }
 

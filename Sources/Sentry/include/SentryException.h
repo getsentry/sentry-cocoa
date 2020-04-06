@@ -62,6 +62,9 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithValue:(NSString *)value type:(NSString *)type;
 
+- (instancetype)initWithNSException:(NSException *)exception;
+- (instancetype)initWithNSError:(NSError *)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
