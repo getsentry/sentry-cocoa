@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "SentryError.h"
 #import "SentryOptions.h"
-
+#import "SentrySDK.h"
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -82,22 +82,37 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
 }
 
 -(void)testValidDebug {
-    [self testDebugWith:@YES expected:@YES];
-    [self testDebugWith:@"YES" expected:@YES];
+    [self testDebugWith:@YES expected:@YES expectedLogLevel:kSentryLogLevelDebug];
+    [self testDebugWith:@"YES" expected:@YES expectedLogLevel:kSentryLogLevelDebug];
 }
 
 -(void)testInvalidDebug {
-    [self testDebugWith:@"Invalid" expected:@NO];
-    [self testDebugWith:@NO expected:@NO];
+    [self testDebugWith:@"Invalid" expected:@NO expectedLogLevel:kSentryLogLevelError];
+    [self testDebugWith:@NO expected:@NO expectedLogLevel:kSentryLogLevelError];
 }
 
 -(void)testDebugWith: (NSObject*) debugValue
-        expected: (NSNumber*) expectedValue {
+        expected: (NSNumber*) expectedDebugValue
+    expectedLogLevel: (SentryLogLevel) expectedLogLevel {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"debug": debugValue} didFailWithError:&error];
     
+    
     XCTAssertNil(error);
-    XCTAssertEqual(expectedValue, options.debug);
+    XCTAssertEqual(expectedDebugValue, options.debug);
+    XCTAssertEqual(expectedLogLevel, SentrySDK.logLevel);
+}
+
+-(void)testDebugWithVerbose {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc]
+                              initWithDict:@{@"debug": @YES, @"logLevel": @"verbose"}
+                              didFailWithError:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(@YES, options.debug);
+    // TODO (bruno-garcia) I guess we want it to be verbose.
+    XCTAssertEqual(kSentryLogLevelDebug, SentrySDK.logLevel);
 }
 
 -(void)testValidEnabled {
@@ -113,10 +128,9 @@ static NSString* validDSN = @"https://username:password@sentry.io/1";
 -(void)testEnabledWith: (NSObject*) enabledValue
               expected:(NSNumber*) expectedValue {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
-        @"dsn": validDSN,
-        @"enabled": enabledValue
-    } didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc]
+                              initWithDict:@{ @"dsn": validDSN, @"enabled": enabledValue}
+                              didFailWithError:&error];
     
     XCTAssertNil(error);
     XCTAssertEqual(expectedValue, options.enabled);
