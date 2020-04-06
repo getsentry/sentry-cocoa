@@ -8,9 +8,7 @@ language: objective-c
 osx_image: xcode11.2
 addons:
   homebrew:
-    taps: oclint/formulae
     packages:
-      - oclint
       - swiftlint
     update: true
 
@@ -19,8 +17,6 @@ cache:
 
 rvm:
   - 2.4
-
-script: travis_retry .travis/run.sh
 
 env:
   matrix:
