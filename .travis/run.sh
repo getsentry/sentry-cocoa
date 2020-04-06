@@ -6,8 +6,6 @@ if [ "$LANE" = "lint" ]; then
         echo "We don't run linter for PRs, because Danger!"
         exit 0;
     fi
-elif [ "$LANE" = "pod" ]; then
-    pod repo update
 fi
 
 bundle exec fastlane $LANE

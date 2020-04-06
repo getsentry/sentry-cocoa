@@ -25,9 +25,7 @@ script: travis_retry .travis/run.sh
 env:
   matrix:
     - LANE=lint
-    # - LANE=oc_lint
     - LANE=test
-    # - LANE=pod
 
 before_install:
   - gem update --system
@@ -39,8 +37,6 @@ jobs:
       script: .travis/run.sh
       env: LANE=lint
       script: .travis/run.sh
-      # env: LANE=oc_lint
-      # script: .travis/run.sh
       env: LANE=deploy
       script: .travis/stage-carthage.sh
       after_success:
