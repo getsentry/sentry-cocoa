@@ -150,6 +150,34 @@
     XCTAssertNil(options.beforeSend);
 }
 
+-(void)testBeforeBreadcrumb {
+    SentryBreadcrumb* (^callback) (SentryBreadcrumb* event) = ^(SentryBreadcrumb* breadcrumb) {
+        return breadcrumb;
+    };
+    SentryOptions *options = [self getValidOptions:@{@"beforeBreadcrumb": callback}];
+    
+    XCTAssertEqual(callback, options.beforeBreadcrumb);
+}
+
+-(void)testBeforeBreadcrumbIsEmpty {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertNil(options.beforeBreadcrumb);
+}
+
+-(void)testIntegrations {
+    NSArray<NSString *>* integrations = @[ @"integration1", @"integration2" ];
+    SentryOptions *options = [self getValidOptions:@{@"integrations": integrations}];
+    
+    XCTAssertEqual(integrations, options.integrations);
+}
+
+-(void)testDefaultIntegrations {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations], @"Default integrations are not set correctly");
+}
+
 -(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {
     NSError *error = nil;
     
