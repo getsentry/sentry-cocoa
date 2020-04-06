@@ -129,7 +129,7 @@
     XCTAssertEqual([maxBreadCrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
--(void)testMaxBreadCrumbsFallback {
+-(void)testDefaultMaxBreadCrumbs {
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
@@ -144,7 +144,7 @@
     XCTAssertEqual(callback, options.beforeSend);
 }
 
--(void)testBeforeSendIsEmpty {
+-(void)testDefaultBeforeSend {
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertNil(options.beforeSend);
@@ -159,7 +159,7 @@
     XCTAssertEqual(callback, options.beforeBreadcrumb);
 }
 
--(void)testBeforeBreadcrumbIsEmpty {
+-(void)testDefaultBeforeBreadcrumb {
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertNil(options.beforeBreadcrumb);
@@ -198,13 +198,19 @@
     XCTAssertEqual(@1, options.sampleRate);
 }
 
+-(void)testSampleRateNotSet {
+    SentryOptions *options = [self getValidOptions:@{}];
+    
+    XCTAssertEqual(@1, options.sampleRate);
+}
+
 -(void)testEnableAutoSessionTracking {
     SentryOptions *options = [self getValidOptions:@{@"enableAutoSessionTracking": @YES}];
     
     XCTAssertEqual(@YES, options.enableAutoSessionTracking);
 }
 
--(void)testEnableAutoSessionTrackingNotSet {
+-(void)testDefaultEnableAutoSessionTracking {
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertEqual(@NO, options.enableAutoSessionTracking);
@@ -217,7 +223,7 @@
     XCTAssertEqual([sessionTracking unsignedIntValue], options.sessionTrackingIntervalMillis);
 }
 
--(void)testSessionTrackingIntervalMillisDefaultValue {
+-(void)testDefaultSessionTrackingIntervalMillis {
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
