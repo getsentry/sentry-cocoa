@@ -8,7 +8,7 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 
-#import <Sentry/SentryTransport.h>
+#import <Sentry/SentryHttpTransport.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryLog.h>
 #import <Sentry/SentryDsn.h>
@@ -45,7 +45,7 @@
 #import "SentrySerialization.h"
 #endif
 
-@interface SentryTransport ()
+@interface SentryHttpTransport ()
 
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
@@ -59,7 +59,7 @@
 
 @end
 
-@implementation SentryTransport
+@implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options {
   if (self = [super init]) {
@@ -103,7 +103,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    __block SentryTransport *_self = self;
+    __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(nil, response, error) == NO) {
             // don't need to queue this -> it most likely got sent
@@ -143,7 +143,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEnvelope:envelope];
 
-    __block SentryTransport *_self = self;
+    __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(envelope, response, error) == NO) {
             // don't need to queue this -> it most likely got sent
@@ -188,7 +188,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 #pragma mark private methods
 
 - (void)setupQueueing {
-    __block SentryTransport *_self = self;
+    __block SentryHttpTransport *_self = self;
     self.shouldQueueEvent = ^BOOL(SentryEnvelope *envelope, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the

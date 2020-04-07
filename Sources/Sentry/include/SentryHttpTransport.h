@@ -21,7 +21,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryTransport : NSObject
+@interface SentryHttpTransport : NSObject
 SENTRY_NO_INIT
 
 /**

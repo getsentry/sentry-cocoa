@@ -12,7 +12,7 @@
 #import <Sentry/SentryDefines.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
-#import <Sentry/SentryTransport.h>
+#import <Sentry/SentryHttpTransport.h>
 #import <Sentry/SentrySession.h>
 #else
 #import "SentryDefines.h"
