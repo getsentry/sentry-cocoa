@@ -19,6 +19,7 @@
 #import <Sentry/NSDate+SentryExtras.h>
 #import <Sentry/NSDictionary+SentrySanitize.h>
 #import <Sentry/SentryMeta.h>
+#import "SentryEnvelope.h"
 
 #else
 #import "SentryEvent.h"

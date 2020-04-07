@@ -22,6 +22,7 @@
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryHttpTransport.h>
+#import <Sentry/SentryTransport.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
@@ -59,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClient ()
 
-@property(nonatomic, strong) SentryHttpTransport* transport;
+@property(nonatomic, strong) id <SentryTransport> transport;
 
 @end
 
@@ -75,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (SentryHttpTransport *)transport {
+- (id<SentryTransport>)transport {
     if (_transport == nil) {
         _transport = [[SentryHttpTransport alloc] initWithOptions:self.options];
     }
