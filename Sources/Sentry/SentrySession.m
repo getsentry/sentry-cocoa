@@ -24,6 +24,43 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
+    if (self = [super init]) {
+        _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
+        _distinctId = [jsonObject valueForKey:@"did"];
+        NSString *startedString = [jsonObject valueForKey:@"started"];
+        if (nil != startedString) {
+            _started = [NSDate sentry_fromIso8601String:startedString];
+        }
+        NSString *timestampString = [jsonObject valueForKey:@"timestamp"];
+        if (nil != timestampString) {
+            _timestamp = [NSDate sentry_fromIso8601String:timestampString];
+        }
+        NSString *status = [jsonObject valueForKey:@"status"];
+        if ([@"ok" isEqualToString:status]) {
+            _status = kSentrySessionStatusOk;
+        } else if ([@"exited" isEqualToString:status]) {
+            _status = kSentrySessionStatusExited;
+        } else if ([@"crashed" isEqualToString:status]) {
+            _status = kSentrySessionStatusCrashed;
+        } else if ([@"abnormal" isEqualToString:status]) {
+            _status = kSentrySessionStatusAbnormal;
+        }
+        _sequence = [jsonObject valueForKey:@"seq"];
+        _errors = [jsonObject valueForKey:@"errors"];
+        id init = [jsonObject valueForKey:@"init"];;
+        if (nil != init) {
+            _init = init;
+        }
+        id attrs = [jsonObject valueForKey:@"attrs"];
+        if (nil != attrs) {
+            _releaseName = [attrs valueForKey:@"release"];
+            _environment = [attrs valueForKey:@"environment"];
+        }
+    }
+    return self;
+}
+
 - (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
                    timestamp:(NSDate *)timestamp {
     @synchronized (self) {
@@ -61,11 +98,11 @@ NS_ASSUME_NONNULL_BEGIN
                 @"errors": [NSNumber numberWithLong:_errors],
                 @"started": [_started sentry_toIso8601String],
         }.mutableCopy;
-        
+
         if (nil != _init) {
             [serializedData setValue:_init forKey:@"init"];
         }
-        
+
         NSString* statusString = nil;
         switch (_status) {
             case kSentrySessionStatusOk:

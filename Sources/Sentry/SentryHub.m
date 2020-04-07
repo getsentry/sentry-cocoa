@@ -13,6 +13,8 @@
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryLog.h>
+#import "SentryFileManager.h"
+
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
@@ -51,19 +53,20 @@
 }
 
 - (void)startSession {
-    SentrySession *currentSession = nil;
+    SentrySession *lastSession = nil;
     SentryScope *scope = [self getScope];
     @synchronized (_sessionLock) {
         if (nil != _session) {
-            currentSession = _session;
+            lastSession = _session;
         }
         _session = [[SentrySession alloc] init];
         [scope applyToSession:_session];
+        [self storeCurrentSession:_session];
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [currentSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
-    [self captureSession:currentSession];
+    [lastSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
+    [self captureSession:lastSession];
 }
 
 - (void)endSession {
@@ -71,6 +74,7 @@
     @synchronized (_sessionLock) {
         currentSession = _session;
         _session = nil;
+        [self deleteCurrentSession];
     }
 
     [currentSession endSessionWithStatus:nil timestamp:[NSDate date]];
@@ -83,6 +87,7 @@
     @synchronized (_sessionLock) {
         currentSession = _session;
         _session = nil;
+        [self deleteCurrentSession];
     }
     
     if (nil == currentSession) {
@@ -92,6 +97,14 @@
 
     [currentSession endSessionWithStatus:status timestamp:timestamp];
     [self captureSession:currentSession];
+}
+
+- (void)storeCurrentSession:(SentrySession *)session {
+    [[[self getClient] fileManager] storeCurrentSession:session];
+}
+
+- (void)deleteCurrentSession {
+    [[[self getClient] fileManager] deleteCurrentSession];
 }
 
 - (void)captureSession:(SentrySession *)session {
@@ -104,6 +117,7 @@
 - (void)incrementSessionErrors {
     @synchronized (_sessionLock) {
         [_session incrementErrors];
+        [self storeCurrentSession:_session];
     }
 }
 

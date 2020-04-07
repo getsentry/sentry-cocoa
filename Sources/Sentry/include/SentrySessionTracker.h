@@ -12,5 +12,4 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options;
 - (void)start;
-
 @end

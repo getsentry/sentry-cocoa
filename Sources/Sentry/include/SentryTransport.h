@@ -12,11 +12,13 @@
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryEnvelope.h>
+#import <Sentry/SentryFileManager.h>
 #else
 #import "SentryDefines.h"
 #import "SentryScope.h"
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"
+#import "SentryFileManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,7 +42,7 @@ SENTRY_NO_INIT
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
 
-- (id)initWithOptions:(SentryOptions *)options;
+- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager;
 
 /**
  * Sends and event to sentry.

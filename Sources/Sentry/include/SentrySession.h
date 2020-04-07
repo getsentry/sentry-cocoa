@@ -16,6 +16,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @interface SentrySession : NSObject
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
 - (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
                timestamp:(NSDate *)timestamp;

@@ -61,19 +61,15 @@
 
 @implementation SentryTransport
 
-- (id)initWithOptions:(SentryOptions *)options {
+- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager {
   if (self = [super init]) {
       self.options = options;
       NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
       NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
       self.requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
 
-      NSError* error = nil;
-      self.fileManager = [[SentryFileManager alloc] initWithDsn:options.dsn didFailWithError:&error];
-      if (nil != error) {
-          [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
-          return nil;
-      }
+      self.fileManager = sentryFileManager;
+
       [self setupQueueing];
   }
   return self;
