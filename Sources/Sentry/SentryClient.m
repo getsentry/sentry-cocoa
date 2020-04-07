@@ -65,9 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClient
 
-@synthesize options = _options;
-@synthesize transport = _transport;
-
 #pragma mark Initializer
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
