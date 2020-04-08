@@ -12,7 +12,7 @@
 #import "SentrySDK.h"
 #import "SentryTests-Swift.h"
 
-@class SentryTestTransport;
+@class TestTransport;
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -233,7 +233,7 @@
 }
 
 -(void)testTransport {
-    SentryTestTransport *transport = [[SentryTestTransport alloc] init];
+    TestTransport *transport = [[TestTransport alloc] init];
     SentryOptions *options = [self getValidOptions:@{@"transport": transport }];
     
     XCTAssertEqual(transport, options.transport);

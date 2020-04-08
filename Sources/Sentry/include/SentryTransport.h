@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sends data to the Sentry server.
  */
+NS_SWIFT_NAME(Transport)
 @protocol SentryTransport <NSObject>
 
 /**

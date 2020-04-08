@@ -9,7 +9,8 @@
 import Foundation
 
 @objc
-public class SentryTestTransport: NSObject, SentryTransport {
+public class TestTransport: NSObject, Transport {
+   
     public func send(event: Event, completion completionHandler: SentryRequestFinished? = nil) {
         
     }
@@ -21,6 +22,4 @@ public class SentryTestTransport: NSObject, SentryTransport {
     public func sendAllStoredEvents() {
         
     }
-    
-    
 }
