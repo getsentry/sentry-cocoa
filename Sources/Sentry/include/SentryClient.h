@@ -23,6 +23,7 @@
 #endif
 
 @class SentryEvent, SentryThread, SentryEnvelope;
+@class SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,6 +64,8 @@ SENTRY_NO_INIT
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 - (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
+
+- (SentryFileManager *)fileManager;
 
 @end
 

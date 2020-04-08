@@ -20,29 +20,76 @@ NS_ASSUME_NONNULL_BEGIN
         _sequence = 1;
         _errors = 0;
         _init = @YES;
+        _distinctId = [SentryInstallation id];
     }
     return self;
 }
 
-- (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
-                   timestamp:(NSDate *)timestamp {
-    @synchronized (self) {
-        _init = nil;
-        _sequence++;
-
-        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-        _duration = [NSNumber numberWithLongLong:secondsBetween];
-
-        if (nil != status) {
-            _status = *status;
-        } else if (_status == kSentrySessionStatusOk) {
-            // From star to end no state transition (i.e: no errors).
+- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
+    if (self = [super init]) {
+        _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
+        _distinctId = [jsonObject valueForKey:@"did"];
+        NSString *startedString = [jsonObject valueForKey:@"started"];
+        if (nil != startedString) {
+            _started = [NSDate sentry_fromIso8601String:startedString];
+        }
+        NSString *timestampString = [jsonObject valueForKey:@"timestamp"];
+        if (nil != timestampString) {
+            _timestamp = [NSDate sentry_fromIso8601String:timestampString];
+        }
+        NSString *status = [jsonObject valueForKey:@"status"];
+        if ([@"ok" isEqualToString:status]) {
+            _status = kSentrySessionStatusOk;
+        } else if ([@"exited" isEqualToString:status]) {
             _status = kSentrySessionStatusExited;
-        } else {
-            // State transition should be changed by the methods in this object or explicitly passed.
+        } else if ([@"crashed" isEqualToString:status]) {
+            _status = kSentrySessionStatusCrashed;
+        } else if ([@"abnormal" isEqualToString:status]) {
             _status = kSentrySessionStatusAbnormal;
-        };
+        }
+        _sequence = [[jsonObject valueForKey:@"seq"] unsignedIntegerValue];
+        _errors = [[jsonObject valueForKey:@"errors"] unsignedIntegerValue];
+        id init = [jsonObject valueForKey:@"init"];
+        if (nil != init) {
+            _init = init;
+        }
+        NSNumber *duration = [jsonObject valueForKey:@"duration"];
+        if (nil != duration) {
+            _duration = duration;
+        }
+        id attrs = [jsonObject valueForKey:@"attrs"];
+        if (nil != attrs) {
+            _releaseName = [attrs valueForKey:@"release"];
+            _environment = [attrs valueForKey:@"environment"];
+        }
     }
+    return self;
+}
+
+- (void)endSession {
+    @synchronized (self) {
+        [self defaultEnd];
+        if (_status == kSentrySessionStatusOk) {
+            // From start to end no state transition (i.e: no errors).
+            _status = kSentrySessionStatusExited;
+        }
+    }
+}
+
+- (void)crashedSession {
+    @synchronized (self) {
+        [self defaultEnd];
+        _status = kSentrySessionStatusCrashed;
+    }
+}
+
+- (void)defaultEnd {
+    _init = nil;
+    _sequence++;
+
+    _timestamp = [NSDate date];
+    NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+    _duration = [NSNumber numberWithLongLong:secondsBetween];
 }
 
 - (void)incrementErrors {
@@ -61,11 +108,11 @@ NS_ASSUME_NONNULL_BEGIN
                 @"errors": [NSNumber numberWithLong:_errors],
                 @"started": [_started sentry_toIso8601String],
         }.mutableCopy;
-        
+
         if (nil != _init) {
             [serializedData setValue:_init forKey:@"init"];
         }
-        
+
         NSString* statusString = nil;
         switch (_status) {
             case kSentrySessionStatusOk:
@@ -115,14 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:attrs forKey:@"attrs"];
         }
 
-        NSString *did = _distinctId;
-        if (nil == did) {
-            did = [SentryInstallation id];
-        }
-
-        if (nil != did) {
-            [serializedData setValue:did forKey:@"did"];
-        }
+        [serializedData setValue:_distinctId forKey:@"did"];
 
         return serializedData;
     }

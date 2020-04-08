@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDate *)sentry_fromIso8601String:(NSString *)string;
 
 - (NSString *)sentry_toIso8601String;
+- (NSString *)sentry_toIso8601MillisecondString;
 
 @end
 

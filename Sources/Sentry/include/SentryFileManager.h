@@ -10,8 +10,10 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>
+#import <Sentry/SentrySession.h>
 #else
 #import "SentryDefines.h"
+#import "SentrySession.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,10 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
-- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error;
+- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)storeEvent:(SentryEvent *)event;
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
+
+- (void)storeCurrentSession:(SentrySession *)session;
+- (SentrySession *_Nullable)readCurrentSession;
+- (void)deleteCurrentSession;
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 

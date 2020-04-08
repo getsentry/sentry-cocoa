@@ -27,6 +27,7 @@
 #import <Sentry/SentryGlobalEventProcessor.h>
 #import <Sentry/SentrySession.h>
 #import <Sentry/SentryEnvelope.h>
+#import "SentryFileManager.h"
 
 #else
 #import "SentryClient.h"
@@ -60,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClient ()
 
 @property(nonatomic, strong) SentryTransport* transport;
+@property(nonatomic, strong) SentryFileManager* fileManager;
 
 @end
 
@@ -80,7 +82,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryTransport *)transport {
     if (_transport == nil) {
-        _transport = [[SentryTransport alloc] initWithOptions:self.options];
+        NSError* error = nil;
+        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:_options.dsn didFailWithError:&error];
+        if (nil != error) {
+            [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
+        self.fileManager = fileManager;
+        _transport = [[SentryTransport alloc] initWithOptions:self.options sentryFileManager:fileManager];
     }
     return _transport;
 }
