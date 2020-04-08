@@ -3,3 +3,4 @@
 //
 
 #import "SentryFileManager.h"
+#import "SentryTransportInitializer.h"

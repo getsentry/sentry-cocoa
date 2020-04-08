@@ -10,6 +10,8 @@ import Foundation
 
 @objc
 public class TestTransport: NSObject, Transport {
+    
+    var sendAllStoredEventsInvocations: UInt = 0
    
     public func send(event: Event, completion completionHandler: SentryRequestFinished? = nil) {
         
@@ -20,6 +22,6 @@ public class TestTransport: NSObject, Transport {
     }
     
     public func sendAllStoredEvents() {
-        
+        sendAllStoredEventsInvocations += 1
     }
 }
