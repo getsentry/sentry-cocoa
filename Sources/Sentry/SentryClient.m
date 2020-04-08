@@ -23,7 +23,7 @@
 #import <Sentry/SentryScope.h>
 #import <Sentry/SentryHttpTransport.h>
 #import <Sentry/SentryTransport.h>
-#import <Sentry/SentryTransportInitializer.h>
+#import <Sentry/SentryTransportFactory.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<SentryTransport>)transport {
     if (_transport == nil) {
-        _transport = [SentryTransportInitializer initTransport:self.options sentryFileManager: self.fileManager];
+        _transport = [SentryTransportFactory initTransport:self.options sentryFileManager: self.fileManager];
     }
     return _transport;
 }
