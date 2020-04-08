@@ -15,6 +15,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: align with unified SDK api
 /**
  * Sends data to the Sentry server.
  */
