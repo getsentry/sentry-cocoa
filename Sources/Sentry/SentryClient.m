@@ -94,10 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
     return _transport;
 }
 
-- (SentryFileManager *)fileManager {
-    return self.fileManager;
-}
-
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     // TODO: Attach stacktrace?
