@@ -42,7 +42,6 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
 
-
 - (id)initWithOptions:(SentryOptions *)options;
 
 @end

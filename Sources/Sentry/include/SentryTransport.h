@@ -15,10 +15,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Sends data to the Sentry server.
+ */
 @protocol SentryTransport <NSObject>
 
 /**
- * Sends and event to sentry.
+ * Sends an event to sentry.
  * Triggerd when a event occurs. Thus the first try to upload an event.
  * CompletionHandler will be called if set.
  *
