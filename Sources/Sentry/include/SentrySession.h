@@ -18,8 +18,8 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
-- (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
-               timestamp:(NSDate *)timestamp;
+- (void)endSession;
+- (void)crashedSession;
 
 - (void)incrementErrors;
 
@@ -28,8 +28,8 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @property(nonatomic, readonly) enum SentrySessionStatus status;
 @property(nonatomic, readonly) NSInteger errors;
 @property(nonatomic, readonly) NSInteger sequence;
+@property(nonatomic, strong) NSString *distinctId;
 
-@property(nonatomic, copy) NSString *_Nullable distinctId;
 @property(nonatomic, copy) NSNumber *_Nullable init;
 @property(nonatomic, strong) NSDate *_Nullable timestamp;
 @property(nonatomic, strong) NSNumber *_Nullable duration;

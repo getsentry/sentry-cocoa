@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
         _sequence = 1;
         _errors = 0;
         _init = @YES;
+        _distinctId = [SentryInstallation id];
     }
     return self;
 }
@@ -46,11 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
         } else if ([@"abnormal" isEqualToString:status]) {
             _status = kSentrySessionStatusAbnormal;
         }
-        _sequence = [jsonObject valueForKey:@"seq"];
-        _errors = [jsonObject valueForKey:@"errors"];
-        id init = [jsonObject valueForKey:@"init"];;
+        _sequence = [[jsonObject valueForKey:@"seq"] unsignedIntegerValue];
+        _errors = [[jsonObject valueForKey:@"errors"] unsignedIntegerValue];
+        id init = [jsonObject valueForKey:@"init"];
         if (nil != init) {
             _init = init;
+        }
+        NSNumber *duration = [jsonObject valueForKey:@"duration"];
+        if (nil != duration) {
+            _duration = duration;
         }
         id attrs = [jsonObject valueForKey:@"attrs"];
         if (nil != attrs) {
@@ -61,25 +66,30 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)endSessionWithStatus:(SentrySessionStatus *_Nullable)status
-                   timestamp:(NSDate *)timestamp {
+- (void)endSession {
     @synchronized (self) {
-        _init = nil;
-        _sequence++;
-
-        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-        _duration = [NSNumber numberWithLongLong:secondsBetween];
-
-        if (nil != status) {
-            _status = *status;
-        } else if (_status == kSentrySessionStatusOk) {
-            // From star to end no state transition (i.e: no errors).
+        [self defaultEnd];
+        if (_status == kSentrySessionStatusOk) {
+            // From start to end no state transition (i.e: no errors).
             _status = kSentrySessionStatusExited;
-        } else {
-            // State transition should be changed by the methods in this object or explicitly passed.
-            _status = kSentrySessionStatusAbnormal;
-        };
+        }
     }
+}
+
+- (void)crashedSession {
+    @synchronized (self) {
+        [self defaultEnd];
+        _status = kSentrySessionStatusCrashed;
+    }
+}
+
+- (void)defaultEnd {
+    _init = nil;
+    _sequence++;
+
+    _timestamp = [NSDate date];
+    NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+    _duration = [NSNumber numberWithLongLong:secondsBetween];
 }
 
 - (void)incrementErrors {
@@ -152,14 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:attrs forKey:@"attrs"];
         }
 
-        NSString *did = _distinctId;
-        if (nil == did) {
-            did = [SentryInstallation id];
-        }
-
-        if (nil != did) {
-            [serializedData setValue:did forKey:@"did"];
-        }
+        [serializedData setValue:_distinctId forKey:@"did"];
 
         return serializedData;
     }

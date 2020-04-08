@@ -65,24 +65,11 @@
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSessionWithStatus:kSentrySessionStatusAbnormal timestamp:[NSDate date]];
+    [lastSession endSession];
     [self captureSession:lastSession];
 }
 
 - (void)endSession {
-    SentrySession *currentSession = nil;
-    @synchronized (_sessionLock) {
-        currentSession = _session;
-        _session = nil;
-        [self deleteCurrentSession];
-    }
-
-    [currentSession endSessionWithStatus:nil timestamp:[NSDate date]];
-    [self captureSession:currentSession];
-}
-
-- (void)endSessionWithStatus:(SentrySessionStatus *)status
-                   timestamp:(NSDate *)timestamp {
     SentrySession *currentSession = nil;
     @synchronized (_sessionLock) {
         currentSession = _session;
@@ -95,7 +82,7 @@
         return;
     }
 
-    [currentSession endSessionWithStatus:status timestamp:timestamp];
+    [currentSession endSession];
     [self captureSession:currentSession];
 }
 
