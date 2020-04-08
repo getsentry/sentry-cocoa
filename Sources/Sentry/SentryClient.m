@@ -83,16 +83,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<SentryTransport>)transport {
     if (_transport == nil) {
+        _transport = [SentryTransportInitializer initTransport:self.options sentryFileManager: self.fileManager];
+    }
+    return _transport;
+}
+
+- (SentryFileManager*)fileManager {
+    if(_fileManager == nil) {
         NSError* error = nil;
-        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:_options.dsn didFailWithError:&error];
+        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:self.options.dsn didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
-        self.fileManager = fileManager;
-        _transport = [SentryTransportInitializer initTransport:self.options sentryFileManager:fileManager];
+        _fileManager = fileManager;
     }
-    return _transport;
+    return _fileManager;
 }
 
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
