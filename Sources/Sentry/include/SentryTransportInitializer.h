@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(TransportInitializer)
 @interface SentryTransportInitializer : NSObject
 
-+ (id<SentryTransport>_Nonnull) initTransport:(SentryOptions *) options;
++ (id<SentryTransport>_Nonnull) initTransport:(SentryOptions *) options
+                            sentryFileManager:(SentryFileManager *)sentryFileManager;
 
 @end
 

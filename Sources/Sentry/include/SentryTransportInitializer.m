@@ -28,12 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTransportInitializer
 
-+ (id<SentryTransport>_Nonnull) initTransport:(SentryOptions *) options {
++ (id<SentryTransport>_Nonnull) initTransport:(SentryOptions *) options
+                            sentryFileManager:(SentryFileManager *) sentryFileManager {
     if(nil != options.transport) {
         return options.transport;
     }
     else {
-        return [[SentryHttpTransport alloc] initWithOptions:options];
+        return [[SentryHttpTransport alloc] initWithOptions:options sentryFileManager:sentryFileManager];
     }
 }
 

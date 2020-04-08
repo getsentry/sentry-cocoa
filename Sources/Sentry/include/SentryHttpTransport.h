@@ -27,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHttpTransport : NSObject <SentryTransport>
 SENTRY_NO_INIT
 
+
+- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager;
+
 /**
  * This is triggered after the first upload attempt of an event. Checks if event
  * should stay on disk to be uploaded when `sendAllStoredEvents` is triggerd.
@@ -41,8 +44,6 @@ SENTRY_NO_INIT
  * Contains the last successfully sent event
  */
 @property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
-
-- (id)initWithOptions:(SentryOptions *)options;
 
 @end
 

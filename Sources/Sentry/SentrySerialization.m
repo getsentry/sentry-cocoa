@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
     return envelopeData;
 }
 
-+ (SentryEnvelope *_Nullable) envelopeWithData:(NSData *)data {
++ (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data {
     SentryEnvelopeHeader *envelopeHeader = nil;
     const unsigned char *bytes = [data bytes];
     int envelopeHeaderIndex = 0;
@@ -135,24 +135,24 @@ NS_ASSUME_NONNULL_BEGIN
             NSUInteger bodyLength = [bodyLengthNumber unsignedIntegerValue];
             if (endOfEnvelope == i && bodyLength != 0) {
                 [SentryLog logWithMessage:[NSString
-                            stringWithFormat:@"Envelope item has no data but header indicates it's length is %d.", (int)bodyLength]
+                                stringWithFormat:@"Envelope item has no data but header indicates it's length is %d.", (int)bodyLength]
                                  andLevel:kSentryLogLevelError];
                 break;
             }
             SentryEnvelopeItemHeader *itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
-            #ifdef DEBUG
+#ifdef DEBUG
             if ([@"event" isEqual:type] || [@"session" isEqual:type]) {
                 NSString *event = [[NSString alloc] initWithData:itemBody encoding:NSUTF8StringEncoding];
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Event %@", event] andLevel:kSentryLogLevelDebug];
             }
-            #endif
+#endif
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader data:itemBody];
             [items addObject:envelopeItem];
             i = itemHeaderStart = i + 1 + [bodyLengthNumber integerValue];
         }
     }
-    
+
     if (items.count == 0) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope has no items."] andLevel:kSentryLogLevelError];
         return nil;
@@ -160,6 +160,23 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
     return envelope;
+}
+
++ (NSData *_Nullable)dataWithSession:(SentrySession *)session
+                              options:(NSJSONWritingOptions)opt
+                                error:(NSError *_Nullable *_Nullable)error {
+    return [self dataWithJSONObject:[session serialize] options:opt error:error];
+}
+
++ (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData {
+    NSError *error = nil;
+    NSDictionary *sessionDictionary = [NSJSONSerialization JSONObjectWithData:sessionData options:0 error:&error];
+    if (nil != error) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to deserialize session data %@", error] andLevel:kSentryLogLevelError];
+        return nil;
+    }
+    SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
+    return session;
 }
 
 @end

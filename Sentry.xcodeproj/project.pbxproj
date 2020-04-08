@@ -34,6 +34,7 @@
 		15E0A8F42411A47A00F044E3 /* SentrySession.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8F32411A47A00F044E3 /* SentrySession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		15E0A8F52411A47A00F044E3 /* SentrySession.h in Headers */ = {isa = PBXBuildFile; fileRef = 15E0A8F32411A47A00F044E3 /* SentrySession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		15E0A8F62411A50500F044E3 /* SentrySession.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8F12411A45A00F044E3 /* SentrySession.m */; };
+		59A96DCC0E0016BD7CAF45CC /* SentrySessionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A9630D12F6FEC2DEF3F2CA /* SentrySessionTests.m */; };
 		630435FE1EBCA9D900C4D3FA /* SentryNSURLRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		630435FF1EBCA9D900C4D3FA /* SentryNSURLRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */; };
 		6304360A1EC0595B00C4D3FA /* NSData+SentryCompression.h in Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* NSData+SentryCompression.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1118,10 +1119,11 @@
 				15E0A8E2240C435900F044E3 /* SentryEnvelopeTests.m */,
 				15E0A8EF240F638200F044E3 /* SentrySerializationTests.m */,
 				15360CF22433C59500112302 /* SentryInstallationTests.m */,
+				59A9630D12F6FEC2DEF3F2CA /* SentrySessionTests.m */,
 				7BAF3DB4243C743E008A5414 /* SentryClientTests.swift */,
-				7BAF3DC7243DB90E008A5414 /* TestTransport.swift */,
-				7BAF3DD1243DD05C008A5414 /* SentryTransportInitializerTests.swift */,
-				7BAF3DD6243DD4A1008A5414 /* TestConstants.swift */,
+                7BAF3DC7243DB90E008A5414 /* TestTransport.swift */,
+                7BAF3DD1243DD05C008A5414 /* SentryTransportInitializerTests.swift */,
+                7BAF3DD6243DD4A1008A5414 /* TestConstants.swift */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -2046,6 +2048,7 @@
 				63FE720F20DA66EC00CDBAE8 /* SentryCrashLogger_Tests.m in Sources */,
 				63FE721320DA66EC00CDBAE8 /* SentryCrashMonitor_Signal_Tests.m in Sources */,
 				63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */,
+				59A96DCC0E0016BD7CAF45CC /* SentrySessionTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

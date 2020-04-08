@@ -7,10 +7,11 @@
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryEnvelope.h>
-
+#import <Sentry/SentryFileManager.h>
 #else
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"
+#import "SentryFileManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
