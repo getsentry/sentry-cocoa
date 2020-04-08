@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryTransport *)transport {
     if (_transport == nil) {
         NSError* error = nil;
-        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:_options didFailWithError:&error];
+        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:_options.dsn didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
