@@ -9,11 +9,9 @@
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
-    
-    private let dsn = "https://username:password@app.getsentry.com/12345"
 
     func testDefault() throws {
-        let options =  try Options(dict: ["dsn": dsn])
+        let options =  try Options(dict: ["dsn": TestConstants.dsn])
         let result = TransportInitializer.initTransport(options)
         
         XCTAssertTrue( result.isKind(of: SentryHttpTransport.self))
@@ -21,7 +19,7 @@ class SentryTransportInitializerTests: XCTestCase {
     
     func testCustom() throws {
         let transport = TestTransport()
-        let options = try Options(dict: ["dsn": dsn, "transport": transport])
+        let options = try Options(dict: ["dsn": TestConstants.dsn, "transport": transport])
         let result = TransportInitializer.initTransport(options)
         
         XCTAssertTrue( result.isKind(of: TestTransport.self))

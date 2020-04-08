@@ -15,7 +15,6 @@ class SentryClientTest: XCTestCase {
     private var client: Client!
     private var transport: TestTransport!
     
-    private let dsn = "https://username:password@app.getsentry.com/12345"
     
     override func setUp() {
         super.setUp()
@@ -23,7 +22,7 @@ class SentryClientTest: XCTestCase {
         transport = TestTransport()
         
         do {
-            let options = try Options(dict: ["dsn": dsn,
+            let options = try Options(dict: ["dsn": TestConstants.dsn,
                                              "transport": transport])
             client = Client(options: options)
         } catch {
