@@ -1,11 +1,3 @@
-//
-//  SentryTransport.h
-//  Sentry
-//
-//  Created by Klemens Mantzos on 27.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>

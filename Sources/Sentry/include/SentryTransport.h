@@ -1,8 +1,3 @@
-//
-// Created by Philipp Hofmann on 07.04.20.
-// Copyright (c) 2020 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryEvent.h>

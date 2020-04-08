@@ -1,11 +1,3 @@
-//
-//  SentryTransportInitializerTests.swift
-//  SentryTests
-//
-//  Created by Philipp Hofmann on 08.04.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {

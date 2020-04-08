@@ -1,11 +1,3 @@
-//
-//  SentryClientTests.swift
-//  SentryTests
-//
-//  Created by Philipp Hofmann on 07.04.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 @testable import Sentry.SentryClient
 @testable import Sentry.SentryOptions
 import XCTest
@@ -44,7 +36,6 @@ class SentryClientTest: XCTestCase {
         let message = "message"
         client.capture(message: message, scope: nil)
         
-    
         let actual = transport.lastSentEvent
         XCTAssertEqual(SentryLevel.info, actual?.level)
         XCTAssertEqual(message, actual?.message)
