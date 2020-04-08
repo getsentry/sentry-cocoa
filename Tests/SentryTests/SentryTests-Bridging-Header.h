@@ -3,4 +3,3 @@
 //
 
 #import "SentryFileManager.h"
-//#import "SentryScope+Private.h"

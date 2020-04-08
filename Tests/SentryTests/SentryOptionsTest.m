@@ -10,7 +10,9 @@
 #import "SentryError.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
-#import "SentryTestTransport.h"
+#import "SentryTests-Swift.h"
+
+@class SentryTestTransport;
 
 @interface SentryOptionsTest : XCTestCase
 
