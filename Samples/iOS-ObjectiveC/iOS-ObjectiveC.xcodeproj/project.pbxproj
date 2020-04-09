@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		153E012E243F9DF800325FA6 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 153E0129243F9D9B00325FA6 /* Sentry.framework */; };
+		153E012F243F9DF800325FA6 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 153E0129243F9D9B00325FA6 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDCB243B036B0034958B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDCA243B036B0034958B /* AppDelegate.m */; };
 		637AFDCE243B036B0034958B /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDCD243B036B0034958B /* SceneDelegate.m */; };
 		637AFDD1243B036B0034958B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDD0243B036B0034958B /* ViewController.m */; };
@@ -16,7 +18,46 @@
 		637AFDDC243B036D0034958B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDDB243B036D0034958B /* main.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		153E0128243F9D9B00325FA6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		153E012A243F9D9B00325FA6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
+		153E012C243F9D9B00325FA6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6387B7C21ED84F910045A84C;
+			remoteInfo = SentryStatic;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		153E0130243F9DF800325FA6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				153E012F243F9DF800325FA6 /* Sentry.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		637AFDC6243B036B0034958B /* iOS-ObjectiveC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-ObjectiveC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDC9243B036B0034958B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		637AFDCA243B036B0034958B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -36,17 +77,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				153E012E243F9DF800325FA6 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		153E0121243F9D9B00325FA6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		153E0123243F9D9B00325FA6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				153E0129243F9D9B00325FA6 /* Sentry.framework */,
+				153E012B243F9D9B00325FA6 /* SentryTests.xctest */,
+				153E012D243F9D9B00325FA6 /* libSentryStatic.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		637AFDBD243B036B0034958B = {
 			isa = PBXGroup;
 			children = (
 				637AFDC8243B036B0034958B /* iOS-ObjectiveC */,
 				637AFDC7243B036B0034958B /* Products */,
+				153E0121243F9D9B00325FA6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -86,6 +147,7 @@
 				637AFDC2243B036B0034958B /* Sources */,
 				637AFDC3243B036B0034958B /* Frameworks */,
 				637AFDC4243B036B0034958B /* Resources */,
+				153E0130243F9DF800325FA6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -121,12 +183,42 @@
 			mainGroup = 637AFDBD243B036B0034958B;
 			productRefGroup = 637AFDC7243B036B0034958B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 153E0123243F9D9B00325FA6 /* Products */;
+					ProjectRef = 153E0122243F9D9B00325FA6 /* Sentry.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				637AFDC5243B036B0034958B /* iOS-ObjectiveC */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		153E0129243F9D9B00325FA6 /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 153E0128243F9D9B00325FA6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		153E012B243F9D9B00325FA6 /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 153E012A243F9D9B00325FA6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		153E012D243F9D9B00325FA6 /* libSentryStatic.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryStatic.a;
+			remoteRef = 153E012C243F9D9B00325FA6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		637AFDC4243B036B0034958B /* Resources */ = {
