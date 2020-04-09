@@ -8,8 +8,10 @@
 
 #if __has_include(<Sentry/Sentry.h>)
 #import <Sentry/SentryDefines.h>
+#import <Sentry/SentryTransport.h>
 #else
 #import "SentryDefines.h"
+#import "SentryTransport.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -102,6 +104,11 @@ SENTRY_NO_INIT
  * The interval to end a session if the App goes to the background.
  */
 @property(nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
+
+/**
+ * Set a custom implementation of SentryTransport.
+ */
+@property(nonatomic, strong) id<SentryTransport> _Nullable transport;
 
 @end
 

@@ -10,6 +10,9 @@
 #import "SentryError.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
+#import "SentryTests-Swift.h"
+
+@class TestTransport;
 
 @interface SentryOptionsTest : XCTestCase
 
@@ -227,6 +230,25 @@
     SentryOptions *options = [self getValidOptions:@{}];
     
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
+}
+
+-(void)testTransport {
+    TestTransport *transport = [[TestTransport alloc] init];
+    SentryOptions *options = [self getValidOptions:@{@"transport": transport }];
+    
+    XCTAssertEqual(transport, options.transport);
+}
+
+-(void)testTransportNotSet {
+    SentryOptions *options = [self getValidOptions:@{ }];
+    
+    XCTAssertNil(options.transport);
+}
+
+-(void)testTransportWithWrongType {
+    SentryOptions *options = [self getValidOptions:@{@"transport": @"hello" }];
+    
+    XCTAssertNil(options.transport);
 }
 
 -(SentryOptions *) getValidOptions:(NSDictionary<NSString *, id> *) dict {

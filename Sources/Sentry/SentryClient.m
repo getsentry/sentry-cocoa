@@ -21,7 +21,9 @@
 #import <Sentry/SentryCrash.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryScope.h>
+#import <Sentry/SentryHttpTransport.h>
 #import <Sentry/SentryTransport.h>
+#import <Sentry/SentryTransportFactory.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentryGlobalEventProcessor.h>
@@ -44,7 +46,9 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
+#import "SentryHttpTransport.h"
 #import "SentryTransport.h"
+#import "SentryTransportInitializer.h"
 #import "SentrySDK.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryGlobalEventProcessor.h"
@@ -60,15 +64,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClient ()
 
-@property(nonatomic, strong) SentryTransport* transport;
+@property(nonatomic, strong) id <SentryTransport> transport;
 @property(nonatomic, strong) SentryFileManager* fileManager;
 
 @end
 
 @implementation SentryClient
-
-@synthesize options = _options;
-@synthesize transport = _transport;
 
 #pragma mark Initializer
 
@@ -80,18 +81,24 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (SentryTransport *)transport {
+- (id<SentryTransport>)transport {
     if (_transport == nil) {
+        _transport = [SentryTransportFactory initTransport:self.options sentryFileManager: self.fileManager];
+    }
+    return _transport;
+}
+
+- (SentryFileManager*)fileManager {
+    if(_fileManager == nil) {
         NSError* error = nil;
-        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:_options.dsn didFailWithError:&error];
+        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:self.options.dsn didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
         }
-        self.fileManager = fileManager;
-        _transport = [[SentryTransport alloc] initWithOptions:self.options sentryFileManager:fileManager];
+        _fileManager = fileManager;
     }
-    return _transport;
+    return _fileManager;
 }
 
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope {
