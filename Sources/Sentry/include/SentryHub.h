@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startSession;
 - (void)endSession;
-- (void)endSessionWithStatus:(SentrySessionStatus* _Nullable)status
-                   timestamp:(NSDate* _Nullable)timestamp;
+- (void)endSessionWithTimestamp:(NSDate*)timestamp;
+- (void)closeCachedSession;
 
 /**
  * Captures an SentryEvent

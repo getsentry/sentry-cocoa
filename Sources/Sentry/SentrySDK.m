@@ -77,6 +77,7 @@ static SentryHub *currentHub;
 + (id)initWithOptionsObject:(SentryOptions *)options {
     if ([SentrySDK.currentHub getClient] == nil) {
         SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+        // TODO: Creating the hub on the getter to bind the client means the Hub is limited on what it can do during init
         [SentrySDK.currentHub bindClient:newClient];
     }
     [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@", SentryMeta.versionString] andLevel:kSentryLogLevelDebug];

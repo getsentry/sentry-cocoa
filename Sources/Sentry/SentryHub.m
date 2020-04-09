@@ -13,8 +13,8 @@
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryLog.h>
-#import "SentryFileManager.h"
-
+#import <Sentry/SentryCrash.h>
+#import <Sentry/SentryFileManager.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
@@ -22,6 +22,8 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
+#import "SentryCrash.h"
+#import "SentryFileManager.h"
 #endif
 
 @interface SentryHub()
@@ -53,6 +55,9 @@
 }
 
 - (void)startSession {
+    // TODO: This shouldn't be done here but since it can't be done during init (no client) and can't be done after bindClient (integrations runs)
+    [self closeCachedSession];
+
     SentrySession *lastSession = nil;
     SentryScope *scope = [self getScope];
     @synchronized (_sessionLock) {
@@ -86,6 +91,23 @@
     [self captureSession:currentSession];
 }
 
+- (void)endSessionWithTimestamp:(NSDate*)timestamp {
+    SentrySession *currentSession = nil;
+    @synchronized (_sessionLock) {
+        currentSession = _session;
+        _session = nil;
+        [self deleteCurrentSession];
+    }
+    
+    if (nil == currentSession) {
+        // TODO: log
+        return;
+    }
+
+    [currentSession endSessionWithTimestamp:timestamp];
+    [self captureSession:currentSession];
+}
+
 - (void)storeCurrentSession:(SentrySession *)session {
     [[[self getClient] fileManager] storeCurrentSession:session];
 }
@@ -94,12 +116,40 @@
     [[[self getClient] fileManager] deleteCurrentSession];
 }
 
+BOOL _closedCachedSesson = NO;
+
+// TODO: Ideally this would be done during init (read cached session to end it)
+// Doing it here since at Init time the Hub still has no client. Requires external code to bind one.
+// This method should not be public API
+- (void)closeCachedSession {
+    if (_closedCachedSesson) {
+        return;
+    }
+    _closedCachedSesson = YES;
+    
+    SentrySession *session = [[[self getClient] fileManager] readCurrentSession];
+    if (nil != session) {
+        SentryClient *client = [self getClient];
+        if (nil != session && nil != client) { // Make sure there's a client bound.
+            NSDate *timestamp = [NSDate date];
+            if (SentryCrash.sharedInstance.crashedLastLaunch) {
+                NSTimeInterval backgroundDurationSinceLastCrash = SentryCrash.sharedInstance.backgroundDurationSinceLastCrash;
+                // TODO: get the timestamp based on: backgroundDurationSinceLastCrash
+                [session crashedSession]; // TODO: Single method to mark as crashed with timestamp?
+            }
+            [session endSessionWithTimestamp:timestamp];
+            [self deleteCurrentSession];
+            [client captureSession:session];
+        }
+    }
+}
+
 - (void)captureSession:(SentrySession *)session {
     if (nil != session) {
         SentryClient *client = [self getClient];
         [client captureSession:session];
     }
-};
+}
 
 - (void)incrementSessionErrors {
     @synchronized (_sessionLock) {
@@ -165,6 +215,7 @@
     return self.scope;
 }
 
+// TODO: Can we get rid of the side effect of installing integrations? Now we can't do anything before running it (close sessions).
 - (void)bindClient:(SentryClient * _Nullable)client {
     self.client = client;
     [self doInstallIntegrations];

@@ -83,6 +83,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)endSessionWithTimestamp:(NSDate*)timestamp {
+    @synchronized (self) {
+        [self endSession];
+        _timestamp = timestamp;
+        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+        _duration = [NSNumber numberWithLongLong:secondsBetween];
+    }
+}
+
 - (void)defaultEnd {
     _init = nil;
     _sequence++;
