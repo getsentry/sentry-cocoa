@@ -1,21 +1,9 @@
-//
-//  SentryTransport.h
-//  Sentry
-//
-//  Created by Klemens Mantzos on 27.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 #if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryScope.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryEnvelope.h>
 #import <Sentry/SentryFileManager.h>
 #else
-#import "SentryDefines.h"
-#import "SentryScope.h"
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"
 #import "SentryFileManager.h"
@@ -23,29 +11,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryTransport : NSObject
-SENTRY_NO_INIT
-
+// TODO: align with unified SDK api
 /**
- * This is triggered after the first upload attempt of an event. Checks if event
- * should stay on disk to be uploaded when `sendAllStoredEvents` is triggerd.
- *
- * Within `sendAllStoredEvents` this function isn't triggerd.
- *
- * @return BOOL YES = store and try again later, NO = delete
+ * Sends data to the Sentry server.
  */
-@property(nonatomic, copy) SentryShouldQueueEvent _Nullable shouldQueueEvent;
+NS_SWIFT_NAME(Transport)
+@protocol SentryTransport <NSObject>
 
 /**
- * Contains the last successfully sent event
- */
-@property(nonatomic, strong) SentryEvent *_Nullable lastEvent;
-
-
-- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager;
-
-/**
- * Sends and event to sentry.
+ * Sends an event to sentry.
  * Triggerd when a event occurs. Thus the first try to upload an event.
  * CompletionHandler will be called if set.
  *
