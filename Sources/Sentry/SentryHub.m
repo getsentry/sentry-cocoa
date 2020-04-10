@@ -133,9 +133,7 @@ BOOL _closedCachedSesson = NO;
         if (nil != session && nil != client) { // Make sure there's a client bound.
             NSDate *timestamp = [NSDate date];
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
-                NSTimeInterval backgroundDurationSinceLastCrash = SentryCrash.sharedInstance.backgroundDurationSinceLastCrash;
-                // TODO: get the timestamp based on: backgroundDurationSinceLastCrash
-                [session crashedSession]; // TODO: Single method to mark as crashed with timestamp?
+                [session crashedSession];
             }
             [session endSessionWithTimestamp:timestamp];
             [self deleteCurrentSession];
