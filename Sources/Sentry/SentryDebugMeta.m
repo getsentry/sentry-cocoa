@@ -1,18 +1,4 @@
-//
-//  SentryDebugMeta.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 10/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDebugMeta.h>
-
-#else
 #import "SentryDebugMeta.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

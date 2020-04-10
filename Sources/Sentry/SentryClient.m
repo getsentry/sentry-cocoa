@@ -1,37 +1,3 @@
-//
-//  SentryClient.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 02/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryQueueableRequestManager.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryCrashInstallationReporter.h>
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryHttpTransport.h>
-#import <Sentry/SentryTransport.h>
-#import <Sentry/SentryTransportFactory.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryIntegrationProtocol.h>
-#import <Sentry/SentryGlobalEventProcessor.h>
-#import <Sentry/SentrySession.h>
-#import <Sentry/SentryEnvelope.h>
-#import "SentryFileManager.h"
-
-#else
 #import "SentryClient.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
@@ -48,13 +14,12 @@
 #import "SentryScope.h"
 #import "SentryHttpTransport.h"
 #import "SentryTransport.h"
-#import "SentryTransportInitializer.h"
+#import "SentryTransportFactory.h"
 #import "SentrySDK.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentrySession.h"
 #import "SentryEnvelope.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

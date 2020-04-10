@@ -1,24 +1,7 @@
-//
-//  SentryException.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 05/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryException.h>
-#import <Sentry/SentryThread.h>
-#import <Sentry/SentryMechanism.h>
-#import <Sentry/SentryStacktrace.h>
-
-#else
 #import "SentryException.h"
 #import "SentryThread.h"
 #import "SentryMechanism.h"
 #import "SentryStacktrace.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

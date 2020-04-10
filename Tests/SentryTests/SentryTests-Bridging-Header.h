@@ -4,3 +4,6 @@
 
 #import "SentryFileManager.h"
 #import "SentryTransportFactory.h"
+#import "SentryDsn.h"
+
+

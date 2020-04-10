@@ -1,20 +1,11 @@
 #import <Foundation/Foundation.h>
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryEnvelope.h>
-#import <Sentry/SentryTransport.h>
-#import <Sentry/SentryRequestManager.h>
 
-#else
 #import "SentryDefines.h"
 #import "SentryScope.h"
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"
 #import "SentryTransport.h"
 #import "SentryRequestManager.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

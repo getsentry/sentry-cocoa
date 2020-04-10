@@ -1,22 +1,3 @@
-//
-//  SentryCrashIntegration.m
-//  Sentry
-//
-//  Created by Klemens Mantzos on 04.12.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryCrashIntegration.h>
-#import <Sentry/SentryCrashInstallationReporter.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryGlobalEventProcessor.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryScope+Private.h>
-#else
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
@@ -26,7 +7,6 @@
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentryScope+Private.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

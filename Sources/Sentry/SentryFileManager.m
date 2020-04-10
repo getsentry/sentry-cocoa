@@ -1,26 +1,9 @@
-//
-//  SentryFileManager.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 23/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentrySerialization.h>
-#else
 #import "SentryFileManager.h"
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
 #import "SentryDsn.h"
 #import "SentrySerialization.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

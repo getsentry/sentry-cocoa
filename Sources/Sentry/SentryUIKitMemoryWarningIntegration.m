@@ -1,27 +1,9 @@
-//
-//  SentryUIKitMemoryWarningIntegration.m
-//  Sentry
-//
-//  Created by Klemens Mantzos on 05.12.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryUIKitMemoryWarningIntegration.h>
-#import <Sentry/SentryCrashInstallationReporter.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentrySDK.h>
-#else
 #import "SentryUIKitMemoryWarningIntegration.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
 #import "SentryEvent.h"
 #import "SentrySDK.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

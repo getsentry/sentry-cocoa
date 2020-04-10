@@ -1,14 +1,7 @@
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentrySerialization.h>
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryError.h>
-#else
 #import "SentrySerialization.h"
 #import "SentryDefines.h"
 #import "SentryLog.h"
 #import "SentryError.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,26 +1,7 @@
-//
-//  SentryCrashExceptionApplication.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 31.08.17.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryCrashExceptionApplication.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentrySDK.h>
-
-#else
 #import "SentryDefines.h"
 #import "SentryCrashExceptionApplication.h"
 #import "SentryCrash.h"
 #import "SentrySDK.h"
-#endif
-
 
 @implementation SentryCrashExceptionApplication
 

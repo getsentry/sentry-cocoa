@@ -1,26 +1,10 @@
-//
-//  SentrySDK.h
-//  Sentry
-//
-//  Created by Klemens Mantzos on 12.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryOptions.h>
-#else
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
 #import "SentryOptions.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

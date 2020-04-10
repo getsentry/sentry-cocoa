@@ -1,18 +1,10 @@
 #import <Foundation/Foundation.h>
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryTransportFactory.h>
-#import <Sentry/SentryTransport.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryHttpTransport.h>
-#import <Sentry/SentryQueueableRequestManager.h>
 
-#else
-#import "SentryTransportInitializer.h"
+#import "SentryTransportFactory.h"
 #import "SentryTransport.h"
 #import "SentryOptions.h"
 #import "SentryHttpTransport.h"
 #import "SentryQueueableRequestManager.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

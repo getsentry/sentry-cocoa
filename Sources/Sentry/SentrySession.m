@@ -1,12 +1,6 @@
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentrySession.h>
-#import <Sentry/SentryInstallation.h>
-#import <Sentry/NSDate+SentryExtras.h>
-#else
 #import "SentrySession.h"
 #import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

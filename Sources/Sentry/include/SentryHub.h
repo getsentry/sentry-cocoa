@@ -1,28 +1,9 @@
-//
-//  SentryHub.h
-//  Sentry
-//
-//  Created by Klemens Mantzos on 11.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryIntegrationProtocol.h>
-#else
 #import "SentryClient.h"
 #import "SentryScope.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
 #import "SentryIntegrationProtocol.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject

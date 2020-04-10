@@ -1,18 +1,5 @@
-//
-//  SentryOptions.h
-//  Sentry
-//
-//  Created by Daniel Griesser on 12.03.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryTransport.h>
-#else
 #import "SentryDefines.h"
 #import "SentryTransport.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,26 +1,8 @@
-//
-//  SentryScope.h
-//  Sentry
-//
-//  Created by Klemens Mantzos on 15.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentrySerializable.h>
-#import <Sentry/SentrySession.h>
-#else
 #import "SentryDefines.h"
 #import "SentryBreadcrumb.h"
 #import "SentryOptions.h"
 #import "SentrySerializable.h"
 #import "SentrySession.h"
-#endif
 
 @class SentryUser;
 

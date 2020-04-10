@@ -1,20 +1,7 @@
-//
-//  SentryMechanism.h
-//  Sentry
-//
-//  Created by Daniel Griesser on 17.05.18.
-//  Copyright © 2018 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentrySerializable.h>
-#else
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

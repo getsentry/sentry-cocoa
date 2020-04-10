@@ -1,11 +1,3 @@
-//
-//  SentryScope+Private.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 25.02.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 #import "SentryScope+Private.h"
 #import <objc/runtime.h>
 

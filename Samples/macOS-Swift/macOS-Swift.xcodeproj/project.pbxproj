@@ -7,22 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853442440C45A00DDE4CE /* Sentry.framework */; };
+		6308534F2440C5FB00DDE4CE /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853442440C45A00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDEF243B04320034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDEE243B04320034958B /* AppDelegate.swift */; };
 		637AFDF1243B04320034958B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDF0243B04320034958B /* ViewController.swift */; };
 		637AFDF3243B04340034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDF2243B04340034958B /* Assets.xcassets */; };
 		637AFDF6243B04340034958B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDF4243B04340034958B /* Main.storyboard */; };
-		637AFE00243B07420034958B /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 637AFDFF243B07420034958B /* Sentry.framework */; };
-		637AFE01243B07420034958B /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 637AFDFF243B07420034958B /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		630853432440C45A00DDE4CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		630853452440C45A00DDE4CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
+		6308534C2440C5F500DDE4CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
-		637AFE02243B07420034958B /* Embed Frameworks */ = {
+		630853502440C5FB00DDE4CE /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				637AFE01243B07420034958B /* Sentry.framework in Embed Frameworks */,
+				6308534F2440C5FB00DDE4CE /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -30,6 +54,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		637AFDEB243B04320034958B /* macOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "macOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDEE243B04320034958B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		637AFDF0243B04320034958B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -45,16 +70,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				637AFE00243B07420034958B /* Sentry.framework in Frameworks */,
+				6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6308533F2440C45A00DDE4CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				630853442440C45A00DDE4CE /* Sentry.framework */,
+				630853462440C45A00DDE4CE /* SentryTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		637AFDE2243B04320034958B = {
 			isa = PBXGroup;
 			children = (
+				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
 				637AFDED243B04320034958B /* macOS-Swift */,
 				637AFDEC243B04320034958B /* Products */,
 				637AFDFE243B07420034958B /* Frameworks */,
@@ -100,11 +135,12 @@
 				637AFDE7243B04320034958B /* Sources */,
 				637AFDE8243B04320034958B /* Frameworks */,
 				637AFDE9243B04320034958B /* Resources */,
-				637AFE02243B07420034958B /* Embed Frameworks */,
+				630853502440C5FB00DDE4CE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6308534D2440C5F500DDE4CE /* PBXTargetDependency */,
 			);
 			name = "macOS-Swift";
 			productName = "macOS-Swift";
@@ -137,12 +173,35 @@
 			mainGroup = 637AFDE2243B04320034958B;
 			productRefGroup = 637AFDEC243B04320034958B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 6308533F2440C45A00DDE4CE /* Products */;
+					ProjectRef = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				637AFDEA243B04320034958B /* macOS-Swift */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		630853442440C45A00DDE4CE /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 630853432440C45A00DDE4CE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		630853462440C45A00DDE4CE /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 630853452440C45A00DDE4CE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		637AFDE9243B04320034958B /* Resources */ = {
@@ -167,6 +226,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6308534D2440C5F500DDE4CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = 6308534C2440C5F500DDE4CE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		637AFDF4243B04340034958B /* Main.storyboard */ = {
