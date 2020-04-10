@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
-    if (self = [super init]) {
+    if (self = [self init]) {
         _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
         _distinctId = [jsonObject valueForKey:@"did"];
         NSString *startedString = [jsonObject valueForKey:@"started"];

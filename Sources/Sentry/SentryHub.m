@@ -40,17 +40,12 @@
 
 @synthesize scope;
 
-- (instancetype)init {
+- (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope {
     if (self = [super init]) {
-        self.scope = [self getScope];
-        // TODO: needs a home. For now defining default release here to be set before integrations
-        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-        if (nil != infoDict) {
-            [self.scope setRelease:[NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-                infoDict[@"CFBundleVersion"]]];
-        }
+        self.scope = scope;
+        [self bindClient:client];
+        _sessionLock = [[NSObject alloc] init];
     }
-    _sessionLock = [[NSObject alloc] init];
     return self;
 }
 
@@ -213,7 +208,6 @@ BOOL _closedCachedSesson = NO;
     return self.scope;
 }
 
-// TODO: Can we get rid of the side effect of installing integrations? Now we can't do anything before running it (close sessions).
 - (void)bindClient:(SentryClient * _Nullable)client {
     self.client = client;
     [self doInstallIntegrations];
@@ -229,6 +223,10 @@ BOOL _closedCachedSesson = NO;
  * Install integrations and keeps ref in `SentryHub.integrations`
  */
 - (void)doInstallIntegrations {
+    if (nil == [self getClient]) {
+        // Gatekeeper
+        return;
+    }
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
