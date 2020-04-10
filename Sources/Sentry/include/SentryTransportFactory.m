@@ -4,12 +4,14 @@
 #import <Sentry/SentryTransport.h>
 #import <Sentry/SentryOptions.h>
 #import <Sentry/SentryHttpTransport.h>
+#import <Sentry/SentryQueueableRequestManager.h>
 
 #else
 #import "SentryTransportInitializer.h"
 #import "SentryTransport.h"
 #import "SentryOptions.h"
 #import "SentryHttpTransport.h"
+#import "SentryQueueableRequestManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,7 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
         return options.transport;
     }
     else {
-        return [[SentryHttpTransport alloc] initWithOptions:options sentryFileManager:sentryFileManager];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+        id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
+        return [[SentryHttpTransport alloc] initWithOptions:options
+                                          sentryFileManager:sentryFileManager sentryRequestManager: requestManager];
     }
 }
 

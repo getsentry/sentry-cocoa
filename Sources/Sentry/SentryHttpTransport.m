@@ -6,7 +6,6 @@
 #import <Sentry/SentryDsn.h>
 #import <Sentry/SentryError.h>
 #import <Sentry/SentryUser.h>
-#import <Sentry/SentryQueueableRequestManager.h>
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryNSURLRequest.h>
 #import <Sentry/SentryCrashInstallationReporter.h>
@@ -24,7 +23,6 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryUser.h"
-#import "SentryQueueableRequestManager.h"
 #import "SentryEvent.h"
 #import "SentryNSURLRequest.h"
 #import "SentryCrashInstallationReporter.h"
@@ -53,13 +51,13 @@
 
 @implementation SentryHttpTransport
 
-- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager {
+- (id)initWithOptions:(SentryOptions *)options
+    sentryFileManager:(SentryFileManager *)sentryFileManager
+ sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager
+{
   if (self = [super init]) {
       self.options = options;
-      NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-      NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-      self.requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
-
+      self.requestManager = sentryRequestManager;
       self.fileManager = sentryFileManager;
 
       [self setupQueueing];

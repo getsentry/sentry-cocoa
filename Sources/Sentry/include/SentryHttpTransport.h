@@ -5,6 +5,7 @@
 #import <Sentry/SentryEvent.h>
 #import <Sentry/SentryEnvelope.h>
 #import <Sentry/SentryTransport.h>
+#import <Sentry/SentryRequestManager.h>
 
 #else
 #import "SentryDefines.h"
@@ -12,6 +13,7 @@
 #import "SentryEvent.h"
 #import "SentryEnvelope.h"
 #import "SentryTransport.h"
+#import "SentryRequestManager.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,7 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 
-- (id)initWithOptions:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager;
+- (id)initWithOptions:(SentryOptions *)options
+    sentryFileManager:(SentryFileManager *)sentryFileManager
+ sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager;
 
 /**
  * This is triggered after the first upload attempt of an event. Checks if event
