@@ -3,7 +3,4 @@ framework module Sentry {
 
     export *
     module * { export * }
-
-    explicit module Private {
-    }
 }

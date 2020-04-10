@@ -8,6 +8,7 @@
 
 @testable import Sentry
 import XCTest
+
 // 0x7fc9a4920b40
 class SentrySwiftTests: XCTestCase {
     

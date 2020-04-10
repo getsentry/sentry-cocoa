@@ -1,7 +1,6 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "SentryDsn.h"
-#import "SentryClient.h"
 #import "SentryError.h"
 
 NS_ASSUME_NONNULL_BEGIN
