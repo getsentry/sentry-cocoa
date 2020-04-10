@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 5.0.0-beta.1
+
+- feat: Added Session Feature
+- feat: New option `enableAutoSessionTracking` set to `true` if you want sessions to be enabled
 - feat: Add `_crashOnException:` to handle exceptions for AppKit apps on macOS 
 
 ## 5.0.0-beta.0
