@@ -1,26 +1,3 @@
-//
-//  SentryCrashReportConverter.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 10/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryCrashReportConverter.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryDebugMeta.h>
-#import <Sentry/SentryThread.h>
-#import <Sentry/SentryStacktrace.h>
-#import <Sentry/SentryFrame.h>
-#import <Sentry/SentryException.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryMechanism.h>
-#import <Sentry/NSDate+SentryExtras.h>
-
-#else
 #import "SentryCrashReportConverter.h"
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
@@ -32,7 +9,6 @@
 #import "SentryUser.h"
 #import "SentryMechanism.h"
 #import "NSDate+SentryExtras.h"
-#endif
 
 @interface SentryCrashReportConverter ()
 

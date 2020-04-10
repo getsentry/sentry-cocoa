@@ -1,27 +1,9 @@
-//
-//  SentryScope.m
-//  Sentry
-//
-//  Created by Klemens Mantzos on 15.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryScope+Private.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryGlobalEventProcessor.h>
-#else
 #import "SentryScope.h"
 #import "SentryScope+Private.h"
 #import "SentryLog.h"
 #import "SentryUser.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,26 +1,3 @@
-//
-//  SentryEvent.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 05/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryThread.h>
-#import <Sentry/SentryException.h>
-#import <Sentry/SentryStacktrace.h>
-#import <Sentry/SentryDebugMeta.h>
-#import <Sentry/NSDate+SentryExtras.h>
-#import <Sentry/NSDictionary+SentrySanitize.h>
-#import <Sentry/SentryMeta.h>
-
-#else
 #import "SentryEvent.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDebugMeta.h"
@@ -32,7 +9,6 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryMeta.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

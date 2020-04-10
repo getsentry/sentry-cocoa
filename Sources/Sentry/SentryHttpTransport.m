@@ -1,23 +1,4 @@
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryHttpTransport.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryUser.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryCrashInstallationReporter.h>
-#import <Sentry/SentryFileManager.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryScope.h>
-#import <Sentry/SentryEnvelope.h>
-#import <Sentry/SentrySerialization.h>
-#else
-#import "SentryTransport.h"
+#import "SentryHttpTransport.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
 #import "SentryDsn.h"
@@ -33,7 +14,6 @@
 #import "SentryScope.h"
 #import "SentryEnvelope.h"
 #import "SentrySerialization.h"
-#endif
 
 @interface SentryHttpTransport ()
 

@@ -1,23 +1,3 @@
-//
-//  SentryBreadcrumbTracker.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 31/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryBreadcrumb.h>
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryDefines.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentrySwizzle.h>
-#import <Sentry/SentryLog.h>
-
-#else
 #import "SentryClient.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
@@ -26,12 +6,10 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
 #import "SentryLog.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>
 #endif
-
 
 @implementation SentryBreadcrumbTracker
 

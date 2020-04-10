@@ -1,12 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentrySession.h>
-#else
 #import "SentryEvent.h"
 #import "SentrySession.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,16 +1,8 @@
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentrySessionTracker.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryLog.h>
-#else
 #import "SentryHub.h"
 #import "SentrySDK.h"
 #import "SentrySessionTracker.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
-#endif
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>

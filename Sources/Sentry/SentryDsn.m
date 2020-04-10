@@ -1,24 +1,8 @@
-//
-//  SentryDsn.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 03/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
 #import <CommonCrypto/CommonDigest.h>
 
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryError.h>
-
-#else
 #import "SentryDsn.h"
 #import "SentryClient.h"
 #import "SentryError.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

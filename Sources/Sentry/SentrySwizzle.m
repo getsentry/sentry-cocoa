@@ -1,19 +1,4 @@
-//
-//  SentrySwizzle.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 31/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//  Original implementation by Yan Rabovik on 05.09.13 https://github.com/rabovik/RSSwizzle
-
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentrySwizzle.h>
-
-#else
 #import "SentrySwizzle.h"
-#endif
 
 #import <objc/runtime.h>
 #include <pthread.h>

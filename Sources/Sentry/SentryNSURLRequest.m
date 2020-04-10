@@ -1,24 +1,3 @@
-//
-//  SentryNSURLRequest.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 05/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryNSURLRequest.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryEvent.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/NSData+SentryCompression.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryMeta.h>
-#import <Sentry/SentrySerialization.h>
-#else
 #import "SentryDsn.h"
 #import "SentryNSURLRequest.h"
 #import "SentryClient.h"
@@ -29,7 +8,6 @@
 #import "SentrySDK.h"
 #import "SentryMeta.h"
 #import "SentrySerialization.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

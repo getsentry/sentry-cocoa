@@ -1,18 +1,9 @@
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryAutoSessionTrackingIntegration.h>
-#import <Sentry/SentrySessionTracker.h>
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryLog.h>
-#else
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentrySessionTracker.h"
 #import "SentryOptions.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

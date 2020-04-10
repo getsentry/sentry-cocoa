@@ -1,21 +1,3 @@
-//
-//  SentryHub.m
-//  Sentry
-//
-//  Created by Klemens Mantzos on 11.11.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-#import <Sentry/SentryHub.h>
-#import <Sentry/SentryClient.h>
-#import <Sentry/SentryBreadcrumbTracker.h>
-#import <Sentry/SentryIntegrationProtocol.h>
-#import <Sentry/SentrySDK.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentryCrash.h>
-#import <Sentry/SentryFileManager.h>
-#else
 #import "SentryHub.h"
 #import "SentryClient.h"
 #import "SentryBreadcrumbTracker.h"
@@ -24,7 +6,6 @@
 #import "SentryLog.h"
 #import "SentryCrash.h"
 #import "SentryFileManager.h"
-#endif
 
 @interface SentryHub()
 

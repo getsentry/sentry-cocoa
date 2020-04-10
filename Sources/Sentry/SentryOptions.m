@@ -1,26 +1,8 @@
-//
-//  SentryOptions.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 12.03.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
-#if __has_include(<Sentry/Sentry.h>)
-
-#import <Sentry/SentryOptions.h>
-#import <Sentry/SentryDsn.h>
-#import <Sentry/SentryError.h>
-#import <Sentry/SentryLog.h>
-#import <Sentry/SentrySDK.h>
-
-#else
 #import "SentryOptions.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
-#endif
 
 @implementation SentryOptions
 
