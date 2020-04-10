@@ -5,6 +5,7 @@ framework module Sentry {
     module * { export * }
 
     explicit module Private {
+        header "SentryDefines.h"
         header "SentryDsn.h"
         header "SentryError.h"
         header "SentryAsynchronousOperation.h"

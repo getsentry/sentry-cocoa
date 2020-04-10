@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
@@ -19,7 +20,7 @@ class SentryTransportInitializerTests: XCTestCase {
         
         let result = TransportInitializer.initTransport(options, sentryFileManager: fileManager)
         
-        XCTAssertTrue( result.isKind(of: SentryHttpTransport.self))
+        XCTAssertTrue(result.isKind(of: SentryHttpTransport.self))
     }
     
     func testCustom() throws {
