@@ -50,7 +50,7 @@ static SentryHub *currentHub;
 + (SentryHub *)currentHub {
     @synchronized(self) {
         if (nil == currentHub) {
-            currentHub = [[SentryHub alloc] init];
+            currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         }
         return currentHub;
     }
@@ -75,10 +75,8 @@ static SentryHub *currentHub;
 }
 
 + (id)initWithOptionsObject:(SentryOptions *)options {
-    if ([SentrySDK.currentHub getClient] == nil) {
-        SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
-        [SentrySDK.currentHub bindClient:newClient];
-    }
+    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
     [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@", SentryMeta.versionString] andLevel:kSentryLogLevelDebug];
     return nil;
 }

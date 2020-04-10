@@ -15,10 +15,11 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 
 @interface SentrySession : NSObject
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)init;
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
 - (void)endSession;
+- (void)endSessionWithTimestamp:(NSDate*)timestamp;
 - (void)crashedSession;
 
 - (void)incrementErrors;

@@ -26,14 +26,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
+SENTRY_NO_INIT
+
+- (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope;
 
 // Since there's no scope stack, single hub instance, experimenting with holding session here.
 @property(nonatomic, readonly, strong) SentrySession *session;
 
 - (void)startSession;
 - (void)endSession;
-- (void)endSessionWithStatus:(SentrySessionStatus* _Nullable)status
-                   timestamp:(NSDate* _Nullable)timestamp;
+- (void)endSessionWithTimestamp:(NSDate*)timestamp;
 
 /**
  * Captures an SentryEvent

@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
+    // Note this doesn't use the main init method since it should only init fields that exist in the JSON.
     if (self = [super init]) {
         _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
         _distinctId = [jsonObject valueForKey:@"did"];
@@ -80,6 +81,15 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized (self) {
         [self defaultEnd];
         _status = kSentrySessionStatusCrashed;
+    }
+}
+
+- (void)endSessionWithTimestamp:(NSDate*)timestamp {
+    @synchronized (self) {
+        [self endSession];
+        _timestamp = timestamp;
+        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+        _duration = [NSNumber numberWithLongLong:secondsBetween];
     }
 }
 

@@ -87,6 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         self.listeners = [NSMutableArray new];
         [self clear];
+        // Default values
+        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+        if (nil != infoDict) {
+            [self setRelease:[NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
+                infoDict[@"CFBundleVersion"]]];
+        }
     }
     return self;
 }

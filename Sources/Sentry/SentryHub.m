@@ -13,8 +13,8 @@
 #import <Sentry/SentryIntegrationProtocol.h>
 #import <Sentry/SentrySDK.h>
 #import <Sentry/SentryLog.h>
-#import "SentryFileManager.h"
-
+#import <Sentry/SentryCrash.h>
+#import <Sentry/SentryFileManager.h>
 #else
 #import "SentryHub.h"
 #import "SentryClient.h"
@@ -22,6 +22,8 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
+#import "SentryCrash.h"
+#import "SentryFileManager.h"
 #endif
 
 @interface SentryHub()
@@ -38,17 +40,13 @@
 
 @synthesize scope;
 
-- (instancetype)init {
+- (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope {
     if (self = [super init]) {
-        self.scope = [self getScope];
-        // TODO: needs a home. For now defining default release here to be set before integrations
-        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-        if (nil != infoDict) {
-            [self.scope setRelease:[NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-                infoDict[@"CFBundleVersion"]]];
-        }
+        self.scope = scope;
+        [self bindClient:client];
+        _sessionLock = [[NSObject alloc] init];
+        [self closeCachedSession];
     }
-    _sessionLock = [[NSObject alloc] init];
     return self;
 }
 
@@ -86,6 +84,23 @@
     [self captureSession:currentSession];
 }
 
+- (void)endSessionWithTimestamp:(NSDate*)timestamp {
+    SentrySession *currentSession = nil;
+    @synchronized (_sessionLock) {
+        currentSession = _session;
+        _session = nil;
+        [self deleteCurrentSession];
+    }
+    
+    if (nil == currentSession) {
+        // TODO: log
+        return;
+    }
+
+    [currentSession endSessionWithTimestamp:timestamp];
+    [self captureSession:currentSession];
+}
+
 - (void)storeCurrentSession:(SentrySession *)session {
     [[[self getClient] fileManager] storeCurrentSession:session];
 }
@@ -94,12 +109,28 @@
     [[[self getClient] fileManager] deleteCurrentSession];
 }
 
+- (void)closeCachedSession {
+    SentrySession *session = [[[self getClient] fileManager] readCurrentSession];
+    if (nil != session) {
+        SentryClient *client = [self getClient];
+        if (nil != session && nil != client) { // Make sure there's a client bound.
+            NSDate *timestamp = [NSDate date];
+            if (SentryCrash.sharedInstance.crashedLastLaunch) {
+                [session crashedSession];
+            }
+            [session endSessionWithTimestamp:timestamp];
+            [self deleteCurrentSession];
+            [client captureSession:session];
+        }
+    }
+}
+
 - (void)captureSession:(SentrySession *)session {
     if (nil != session) {
         SentryClient *client = [self getClient];
         [client captureSession:session];
     }
-};
+}
 
 - (void)incrementSessionErrors {
     @synchronized (_sessionLock) {
@@ -180,6 +211,10 @@
  * Install integrations and keeps ref in `SentryHub.integrations`
  */
 - (void)doInstallIntegrations {
+    if (nil == [self getClient]) {
+        // Gatekeeper
+        return;
+    }
     SentryOptions *options = [self getClient].options;
     for (NSString *integrationName in [self getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);

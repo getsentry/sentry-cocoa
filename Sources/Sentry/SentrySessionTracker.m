@@ -45,7 +45,7 @@
                                                     NSTimeInterval secondsInBackground = [[NSDate date] timeIntervalSinceDate:from];
                                                     if (secondsInBackground * 1000 > (double)(self.options.sessionTrackingIntervalMillis)) {
                                                         SentryHub *hub = [SentrySDK currentHub];
-                                                        [hub endSessionWithStatus:nil timestamp:from];
+                                                        [hub endSessionWithTimestamp:from];
                                                         [hub startSession];
                                                     }
                                                     self.lastInForeground = nil;

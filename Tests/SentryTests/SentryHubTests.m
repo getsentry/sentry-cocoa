@@ -9,7 +9,9 @@
 @implementation SentryHubTests
 
 - (void)testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb {
-    SentryHub *hub = [[SentryHub alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username@sentry.io/1"} didFailWithError: nil];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
     // TODO: Add a better API
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError category:@"default"];
     [hub addBreadcrumb:crumb];
@@ -28,7 +30,7 @@
     };
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username@sentry.io/1", @"beforeBreadcrumb": beforeBreadcrumb} didFailWithError: &error];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    SentryHub *hub = [[SentryHub alloc] init];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:nil];
     [hub bindClient:client];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError category:@"default"];
