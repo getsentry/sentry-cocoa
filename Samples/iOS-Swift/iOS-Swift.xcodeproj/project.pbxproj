@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		153E0133243FA05800325FA6 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 153E0132243FA05800325FA6 /* Sentry.framework */; };
-		153E0134243FA05800325FA6 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 153E0132243FA05800325FA6 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		634C7EC324406A4200AFDE9F /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 634C7EC224406A4200AFDE9F /* Sentry.framework */; };
+		634C7EC424406A4200AFDE9F /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 634C7EC224406A4200AFDE9F /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		637AFDAA243B02760034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDA9243B02760034958B /* AppDelegate.swift */; };
 		637AFDAC243B02760034958B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDAB243B02760034958B /* SceneDelegate.swift */; };
 		637AFDAE243B02760034958B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDAD243B02760034958B /* ViewController.swift */; };
@@ -18,13 +18,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		153E0135243FA05800325FA6 /* Embed Frameworks */ = {
+		634C7EC524406A4200AFDE9F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				153E0134243FA05800325FA6 /* Sentry.framework in Embed Frameworks */,
+				634C7EC424406A4200AFDE9F /* Sentry.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -32,7 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		153E0132243FA05800325FA6 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		634C7EC224406A4200AFDE9F /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDA6243B02760034958B /* iOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDA9243B02760034958B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		637AFDAB243B02760034958B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -48,17 +48,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				153E0133243FA05800325FA6 /* Sentry.framework in Frameworks */,
+				634C7EC324406A4200AFDE9F /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		153E0131243FA05800325FA6 /* Frameworks */ = {
+		634C7EC124406A4200AFDE9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				153E0132243FA05800325FA6 /* Sentry.framework */,
+				634C7EC224406A4200AFDE9F /* Sentry.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -68,7 +68,7 @@
 			children = (
 				637AFDA8243B02760034958B /* iOS-Swift */,
 				637AFDA7243B02760034958B /* Products */,
-				153E0131243FA05800325FA6 /* Frameworks */,
+				634C7EC124406A4200AFDE9F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,7 +104,7 @@
 				637AFDA2243B02760034958B /* Sources */,
 				637AFDA3243B02760034958B /* Frameworks */,
 				637AFDA4243B02760034958B /* Resources */,
-				153E0135243FA05800325FA6 /* Embed Frameworks */,
+				634C7EC524406A4200AFDE9F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
