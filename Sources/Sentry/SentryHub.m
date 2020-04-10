@@ -45,14 +45,12 @@
         self.scope = scope;
         [self bindClient:client];
         _sessionLock = [[NSObject alloc] init];
+        [self closeCachedSession];
     }
     return self;
 }
 
 - (void)startSession {
-    // TODO: This shouldn't be done here but since it can't be done during init (no client) and can't be done after bindClient (integrations runs)
-    [self closeCachedSession];
-
     SentrySession *lastSession = nil;
     SentryScope *scope = [self getScope];
     @synchronized (_sessionLock) {
@@ -111,17 +109,7 @@
     [[[self getClient] fileManager] deleteCurrentSession];
 }
 
-BOOL _closedCachedSesson = NO;
-
-// TODO: Ideally this would be done during init (read cached session to end it)
-// Doing it here since at Init time the Hub still has no client. Requires external code to bind one.
-// This method should not be public API
 - (void)closeCachedSession {
-    if (_closedCachedSesson) {
-        return;
-    }
-    _closedCachedSesson = YES;
-    
     SentrySession *session = [[[self getClient] fileManager] readCurrentSession];
     if (nil != session) {
         SentryClient *client = [self getClient];

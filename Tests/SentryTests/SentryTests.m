@@ -198,7 +198,6 @@
     XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
     XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
     XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
-    XCTAssertEqualObjects(nil, SentryLevelNames[highest + 1]);
 }
 
 - (void)testLevelOrder {
