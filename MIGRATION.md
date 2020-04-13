@@ -106,4 +106,4 @@ SentrySDK.capture(message: "Test Message") { (scope) in
 }];
 ```
 
-For more features, useage examples and configuration options, please visit: https://docs.sentry.io/platforms/cocoa/
+For more features, usage examples and configuration options, please visit: https://docs.sentry.io/platforms/cocoa/
