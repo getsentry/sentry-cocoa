@@ -11,7 +11,6 @@
 
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
-@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 @end
 
@@ -179,39 +178,11 @@
 
 - (void)bindClient:(SentryClient * _Nullable)client {
     self.client = client;
-    [self doInstallIntegrations];
 }
 
 - (void)configureScope:(void(^)(SentryScope *scope))callback {
     if (nil != self.client && nil != self.scope) {
         callback(self.scope);
-    }
-}
-
-/**
- * Install integrations and keeps ref in `SentryHub.integrations`
- */
-- (void)doInstallIntegrations {
-    if (nil == [self getClient]) {
-        // Gatekeeper
-        return;
-    }
-    SentryOptions *options = [self getClient].options;
-    for (NSString *integrationName in [self getClient].options.integrations) {
-        Class integrationClass = NSClassFromString(integrationName);
-        if (nil == integrationClass) {
-            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] couldn't find \"%@\" -> skipping.", integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
-            continue;
-        } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
-            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.", integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
-            continue;
-        }
-        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
-        [integrationInstance installWithOptions:options];
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName] andLevel:kSentryLogLevelDebug];
-        [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }
 

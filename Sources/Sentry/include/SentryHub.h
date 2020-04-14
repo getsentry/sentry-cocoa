@@ -18,6 +18,8 @@ SENTRY_NO_INIT
 - (void)endSession;
 - (void)endSessionWithTimestamp:(NSDate*)timestamp;
 
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+
 /**
  * Captures an SentryEvent
  */
@@ -67,6 +69,13 @@ SENTRY_NO_INIT
  * Checks if integration is activated for bound client and returns it.
  */
 - (id _Nullable)getIntegration:(NSString *)integrationName;
+
+
+/**
+ * Checks if a specific Integration (`integrationClass`) has been installed.
+ * @return BOOL If instance of `integrationClass` exists within `SentryHub.installedIntegrations`.
+ */
+- (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
 @end
 

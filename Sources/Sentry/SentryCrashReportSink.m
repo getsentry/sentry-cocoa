@@ -34,7 +34,6 @@
             onCompletion(sentReports, TRUE, nil);
         }
     });
-
 }
 
 @end
