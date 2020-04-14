@@ -14,18 +14,14 @@ NS_ASSUME_NONNULL_BEGIN
 static id<SentryCurrentDateProvider> currentDateProvider;
 
 +(NSDate* _Nonnull) date {
-    @synchronized(self) {
-        if (nil == currentDateProvider) {
-            currentDateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
-        }
-        return [currentDateProvider date];
+    if (nil == currentDateProvider) {
+        currentDateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
     }
+    return [currentDateProvider date];
 }
 
 +(void) setCurrentDateProvider:(id<SentryCurrentDateProvider>) value {
-    @synchronized(self) {
-        currentDateProvider = value;
-    }
+    currentDateProvider = value;
 }
 
 @end
