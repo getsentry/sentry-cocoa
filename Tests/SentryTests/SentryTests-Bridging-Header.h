@@ -5,5 +5,5 @@
 #import "SentryFileManager.h"
 #import "SentryTransportFactory.h"
 #import "SentryDsn.h"
-
-
+#import "SentryCurrentDate.h"
+#import "SentryDefaultCurrentDateProvider.h"
