@@ -43,3 +43,12 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryCurrentDate.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryBreadcrumbTracker.h"
+#import "SentryCrashExceptionApplication.h"
+#import "SentryCrashInstallation.h"
+#import "SentryCrashInstallation+Private.h"
+#import "SentryError.h"
+#import "SentryQueueableRequestManager.h"
+#import "SentryTransportFactory.h"
+
+

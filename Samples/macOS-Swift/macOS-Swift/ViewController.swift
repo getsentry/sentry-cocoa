@@ -28,5 +28,8 @@ class ViewController: NSViewController {
         NSApp.perform("_crashOnException:", with: exception)
     }
     
+    @IBAction func sentryCrash(_ sender: Any) {
+        SentrySDK.crash()
+    }
 }
 
