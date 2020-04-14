@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 5.0.0-beta.2
+
+- feat: Fixed a bug in the order of how integrations are initalized (fixes not sending crashes on startup)
+
 ## 5.0.0-beta.1
 
 - feat: Added Session Feature
