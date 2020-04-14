@@ -2,12 +2,9 @@ import XCTest
 @testable import Sentry
 
 class SentryCurrentDateTests: XCTestCase {
-    
-    override func tearDown() {
-        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider())
-    }
 
     func testDefaultCurrentDateProvider()  {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider())
         let expected = Date.init()
         
         let actual =  CurrentDate.date()
