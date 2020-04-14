@@ -4,7 +4,8 @@
 
 ## 5.0.0-beta.2
 
-- feat: Fixed a bug in the order of how integrations are initalized (fixes not sending crashes on startup)
+- fix: The order of how integrations are initalized (fixes not sending crashes on startup)
+- fix: Add missing header files to umbrella header
 
 ## 5.0.0-beta.1
 
