@@ -74,4 +74,21 @@ class SentryRateLimitParserTests: XCTestCase {
     func testEmptyString() {
         XCTAssertEqual([:], RateLimitParser.parse(""))
     }
+    
+    func testGarbageHeaders() {
+        XCTAssertEqual([:], RateLimitParser.parse("Garb age13$@#"))
+        XCTAssertEqual([:], RateLimitParser.parse(";;;!,  ;"))
+        XCTAssertEqual([:], RateLimitParser.parse("  \n\n  "))
+        XCTAssertEqual([:], RateLimitParser.parse("\n\n"))
+    }
+    
+    func testValidHeaderAndGarbage() {
+        let expected = [
+            "transaction": CurrentDate.date().addingTimeInterval(50)
+        ]
+        
+        let actual = RateLimitParser.parse("A9813Hell,50:transaction:key,123Garbage")
+        
+        XCTAssertEqual(expected, actual)
+    }
 }
