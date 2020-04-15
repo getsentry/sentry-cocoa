@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 5.0.0-beta.3
+
+- fix: Persisting Scope with CrashReport
+
 ## 5.0.0-beta.2
 
 - fix: The order of how integrations are initalized (fixes not sending crashes on startup)
