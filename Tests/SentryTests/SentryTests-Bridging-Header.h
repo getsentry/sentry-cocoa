@@ -7,3 +7,4 @@
 #import "SentryDsn.h"
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryRateLimitParser.h"
