@@ -192,12 +192,13 @@ static inline NSString *hexAddress(NSNumber *value) {
     NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
     uintptr_t instructionAddress = (uintptr_t) [frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
-//    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"];
+    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"] || [binaryImage[@"name"] containsString:@".app"];
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = hexAddress(frameDictionary[@"symbol_addr"]);
     frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
+    frame.inApp = [NSNumber numberWithBool:isAppImage];
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];
     }
