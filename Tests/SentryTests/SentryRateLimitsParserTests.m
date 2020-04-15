@@ -14,7 +14,7 @@
 - (void)testNil {
     NSDictionary<NSString* , NSDate* > * actual = [SentryRateLimitParser parse:nil];
     
-    XCTAssertEqual(0,  [actual count]);
+    XCTAssertEqual(0, [actual count]);
 }
 
 @end
