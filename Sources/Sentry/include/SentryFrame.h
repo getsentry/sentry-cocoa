@@ -58,6 +58,11 @@ NS_SWIFT_NAME(Frame)
  */
 @property(nonatomic, copy) NSNumber *_Nullable columnNumber;
 
+/**
+ * Determines if the Frame is inApp or not
+ */
+@property(nonatomic, copy) NSNumber *_Nullable inApp;
+
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
