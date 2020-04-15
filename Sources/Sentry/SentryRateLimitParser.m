@@ -10,9 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryRateLimitParser
 
-+ (NSDictionary<NSString* , NSDate* > * _Nonnull)parse:(NSString *) header {
++ (NSDictionary<NSString *, NSDate *> * _Nonnull)parse:(NSString *)header {
     
-    NSMutableDictionary<NSString* , NSDate*> *rateLimits = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString *, NSDate *> *rateLimits = [[NSMutableDictionary alloc] init];
     
     if ([header length] == 0)  {
         return rateLimits;

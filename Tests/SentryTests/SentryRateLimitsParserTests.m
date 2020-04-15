@@ -12,7 +12,10 @@
 @implementation SentryRateLimitsParserTests
 
 - (void)testNil {
-    NSDictionary<NSString* , NSDate* > * actual = [SentryRateLimitParser parse:nil];
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
+    NSDictionary<NSString *, NSDate *> *actual = [SentryRateLimitParser parse:nil];
+    #pragma clang diagnostic pop
     
     XCTAssertEqual(0, [actual count]);
 }
