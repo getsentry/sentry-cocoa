@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized (self) {
         [self defaultEnd];
         if (_status == kSentrySessionStatusOk) {
-            // From start to end no state transition (i.e: no errors).
+            // From start to end no state transition.
             _status = kSentrySessionStatusExited;
         }
     }
@@ -101,7 +101,6 @@ NS_ASSUME_NONNULL_BEGIN
         _init = nil;
         _errors++;
         _sequence++;
-        _status = kSentrySessionStatusAbnormal;
     }
 }
 
