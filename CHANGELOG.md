@@ -5,6 +5,7 @@
 ## 5.0.0-beta.3
 
 - fix: Persisting Scope with CrashReport
+- fix: Frame in app detection #438
 
 ## 5.0.0-beta.2
 
