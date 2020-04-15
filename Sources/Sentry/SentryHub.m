@@ -162,7 +162,7 @@
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Discarded Breadcrumb in `beforeBreadcrumb`"] andLevel:kSentryLogLevelDebug];
         return;
     }
-    [self.scope addBreadcrumb:crumb];
+    [[self getScope] addBreadcrumb:crumb];
 }
 
 - (SentryClient *_Nullable)getClient {
@@ -181,8 +181,10 @@
 }
 
 - (void)configureScope:(void(^)(SentryScope *scope))callback {
-    if (nil != self.client && nil != self.scope) {
-        callback(self.scope);
+    SentryScope *scope = [self getScope];
+    SentryScope *client = [self getClient];
+    if (nil != client && nil != scope) {
+        callback(scope);
     }
 }
 
