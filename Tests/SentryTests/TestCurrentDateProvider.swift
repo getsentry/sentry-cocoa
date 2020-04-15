@@ -3,7 +3,13 @@ import Foundation
 @objc
 public class TestCurrentDateProvider : NSObject, CurrentDateProvider {
     
+    private var internalDate = Date(timeIntervalSinceReferenceDate: 0)
+    
     public func date() -> Date {
-        return Date(timeIntervalSinceReferenceDate: 0)
+        return internalDate
+    }
+    
+    public func setDate(date: Date) {
+        internalDate = date
     }
 }

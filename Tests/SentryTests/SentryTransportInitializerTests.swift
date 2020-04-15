@@ -7,16 +7,14 @@ class SentryTransportInitializerTests: XCTestCase {
     
     override func setUp() {
         do {
-            let dsn = try SentryDsn(string: TestConstants.dsn as String)
-            fileManager = try SentryFileManager.init(dsn: dsn)
+            fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
         } catch {
             XCTFail("SentryDsn could not be created")
         }
-        
     }
 
     func testDefault() throws {
-        let options =  try Options(dict: ["dsn": TestConstants.dsn])
+        let options =  try Options(dict: ["dsn": TestConstants.dsnAsString])
         
         let result = TransportInitializer.initTransport(options, sentryFileManager: fileManager)
         
@@ -25,7 +23,7 @@ class SentryTransportInitializerTests: XCTestCase {
     
     func testCustom() throws {
         let transport = TestTransport()
-        let options = try Options(dict: ["dsn": TestConstants.dsn, "transport": transport])
+        let options = try Options(dict: ["dsn": TestConstants.dsnAsString, "transport": transport])
         let result = TransportInitializer.initTransport(options, sentryFileManager: fileManager)
         
         XCTAssertTrue( result.isKind(of: TestTransport.self))

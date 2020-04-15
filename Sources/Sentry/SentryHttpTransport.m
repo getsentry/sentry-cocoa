@@ -14,6 +14,7 @@
 #import "SentryScope.h"
 #import "SentryEnvelope.h"
 #import "SentrySerialization.h"
+#import "SentryCurrentDate.h"
 
 @interface SentryHttpTransport ()
 
@@ -225,7 +226,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  * used if actual time/deadline couldn't be determined.
  */
 - (NSDate *)defaultRadioSilenceDeadline {
-    return [[NSDate date] dateByAddingTimeInterval:60];
+    return [[SentryCurrentDate date] dateByAddingTimeInterval:60];
 }
 
 /**
@@ -247,7 +248,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return [self defaultRadioSilenceDeadline];
     }
 
-    NSDate *now = [NSDate date];
+    NSDate *now = [SentryCurrentDate date];
 
     // try to parse as double/seconds
     double retryAfterSeconds = [retryAfterHeader doubleValue];
@@ -259,6 +260,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // parsing as double/seconds failed, try to parse as date
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
+    
+    // Http dates are always expressed in GMT, never in local time. See
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
+    
     NSDate *retryAfterDate = [dateFormatter dateFromString:retryAfterHeader];
 
     if (nil == retryAfterDate) {
@@ -273,7 +279,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return NO;
     }
 
-    NSDate *now = [NSDate date];
+    NSDate *now = [SentryCurrentDate date];
     NSComparisonResult result = [now compare:self.radioSilenceDeadline];
 
     if (result == NSOrderedAscending) {
