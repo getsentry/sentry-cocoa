@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add Sentry initialize #441
+
 ## 5.0.0-beta.3
 
 - fix: Persisting Scope with CrashReport
