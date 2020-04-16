@@ -16,7 +16,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 
 - (void)endSession;
 - (void)endSessionWithTimestamp:(NSDate*)timestamp;
-- (void)crashedSession;
+- (void)endSessionAsCrashed;
 
 - (void)incrementErrors;
 

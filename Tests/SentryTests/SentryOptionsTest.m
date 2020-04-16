@@ -103,8 +103,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(@YES, options.debug);
-    // TODO (bruno-garcia) I guess we want it to be verbose.
-    XCTAssertEqual(kSentryLogLevelDebug, SentrySDK.logLevel);
+    XCTAssertEqual(kSentryLogLevelVerbose, SentrySDK.logLevel);
 }
 
 -(void)testValidEnabled {

@@ -55,7 +55,8 @@ static SentryHub *currentHub;
 
 + (id)initWithOptionsObject:(SentryOptions *)options {
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
-    [SentrySDK.currentHub bindClient:newClient];
+    // The Hub needs to be initialized with a client so that closing a session can happen.
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
     [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@", SentryMeta.versionString] andLevel:kSentryLogLevelDebug];
     [SentrySDK installIntegrations];
     return nil;

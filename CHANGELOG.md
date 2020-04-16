@@ -5,10 +5,12 @@
 ## 5.0.0-beta.3
 
 - fix: Persisting Scope with CrashReport
+- fix: Frame in app detection #438
+- fix: Session ending as Crashed #439
 
 ## 5.0.0-beta.2
 
-- fix: The order of how integrations are initalized (fixes not sending crashes on startup)
+- fix: The order of how integrations are initialized (fixes not sending crashes on startup)
 - fix: Add missing header files to umbrella header
 
 ## 5.0.0-beta.1
