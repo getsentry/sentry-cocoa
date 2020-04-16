@@ -15,12 +15,14 @@
 #import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #import "SentryCurrentDate.h"
+#import "SentryHttpDateParser.h"
 
 @interface SentryHttpTransport ()
 
 @property(nonatomic, strong) SentryFileManager *fileManager;
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
 @property(nonatomic, weak) SentryOptions *options;
+@property(nonatomic, strong) SentryHttpDateParser *httpDateParser;
 
 /**
  * datetime until we keep radio silence. Populated when response has HTTP 429
@@ -40,6 +42,7 @@
       self.options = options;
       self.requestManager = sentryRequestManager;
       self.fileManager = sentryFileManager;
+      self.httpDateParser = [[SentryHttpDateParser alloc] init];
 
       [self setupQueueing];
   }
@@ -258,14 +261,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     // parsing as double/seconds failed, try to parse as date
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
-    
-    // Http dates are always expressed in GMT, never in local time. See
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
-    
-    NSDate *retryAfterDate = [dateFormatter dateFromString:retryAfterHeader];
+    NSDate *retryAfterDate = [self.httpDateParser dateFromString:retryAfterHeader];
 
     if (nil == retryAfterDate) {
         // parsing as seconds and date failed
