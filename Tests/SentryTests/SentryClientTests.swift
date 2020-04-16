@@ -14,7 +14,7 @@ class SentryClientTest: XCTestCase {
         transport = TestTransport()
         
         do {
-            let options = try Options(dict: ["dsn": TestConstants.dsn,
+            let options = try Options(dict: ["dsn": TestConstants.dsnAsString,
                                              "transport": transport])
             client = Client(options: options)
         } catch {
