@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDate * _Nullable)dateFromString:(NSString *)string {
+- (NSDate *_Nullable)dateFromString:(NSString *)string {
     return [self.dateFormatter dateFromString:string];
 }
 

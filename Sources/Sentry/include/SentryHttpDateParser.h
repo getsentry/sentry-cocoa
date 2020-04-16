@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(HttpDateParser)
 @interface SentryHttpDateParser : NSObject
 
-- (NSDate * _Nullable)dateFromString:(NSString *)string;
+- (NSDate *_Nullable)dateFromString:(NSString *)string;
 
 @end
 
