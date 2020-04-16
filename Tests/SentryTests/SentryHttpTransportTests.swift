@@ -28,6 +28,10 @@ class SentryHttpTransportTests: XCTestCase {
             XCTFail("SentryHttpTransport could not be created")
         }
     }
+    
+    override func tearDown() {
+        fileManager.deleteAllStoredEvents()
+    }
 
     func testSendOneEvent()  {
         sendEvent()
