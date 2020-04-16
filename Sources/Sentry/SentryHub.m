@@ -126,8 +126,10 @@
 
 - (void)incrementSessionErrors {
     @synchronized (_sessionLock) {
-        [_session incrementErrors];
-        [self storeCurrentSession:_session];
+        if (nil != _session) {
+            [_session incrementErrors];
+            [self storeCurrentSession:_session];
+        }
     }
 }
 
