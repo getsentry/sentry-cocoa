@@ -34,18 +34,24 @@ SENTRY_NO_INIT
 + (void)setCurrentHub:(SentryHub *)hub;
 
 /**
- entry point of static API
-
- adds options to hub/client and starts error monitoring.
- */
+* Use [SentrySDK initializeWithOptionsObject]
+*/
 + (instancetype)initWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(init(options:));
 
 /**
- starts sentry with options and starts crash handler
- 
- Inits and configures Sentry (SentryHub, SentryClient) and starts crash handler
+ * Use [SentrySDK initializeWithOptions]
  */
 + (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(init(options:));
+
+/**
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
+*/
++ (void)initializeWithOptions:(NSDictionary<NSString *,id> *)optionsDict NS_SWIFT_NAME(initialize(options:));
+
+/**
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
+*/
++ (void)initializeWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(initialize(options:));;
 
 /**
  captures an event aka. sends an event to sentry

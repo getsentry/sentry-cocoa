@@ -18,7 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    [SentrySDK initWithOptions:@{
+    [SentrySDK initializeWithOptions:@{
         @"dsn": @"https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394",
         @"debug": @(YES),
         @"logLevel": @"verbose",
