@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)crashedSession {
+- (void)endSessionAsCrashed {
     @synchronized (self) {
         [self defaultEnd];
         _status = kSentrySessionStatusCrashed;
