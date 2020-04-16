@@ -51,5 +51,4 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryQueueableRequestManager.h"
 #import "SentryTransportFactory.h"
 #import "SentryRateLimitParser.h"
-
-
+#import "SentryHttpDateParser.h"

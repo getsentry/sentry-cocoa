@@ -52,7 +52,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testRetryAfterHeaderHttpDate() {
-        let headerValue = formatAsHttpDate(date: CurrentDate.date().addingTimeInterval(1))
+        let headerValue = HttpDateFormatter.string(from: CurrentDate.date().addingTimeInterval(1))
         testRetryHeaderWith1Second(value: headerValue)
     }
     
@@ -110,13 +110,5 @@ class SentryHttpTransportTests: XCTestCase {
         currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
         sendEvent()
         XCTAssertEqual(2, requestManager.requests.count)
-    }
-    
-    private func formatAsHttpDate(date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"
-        dateFormatter.timeZone = TimeZone.init(abbreviation: "GMT")
-        
-        return dateFormatter.string(from: date)
     }
 }
