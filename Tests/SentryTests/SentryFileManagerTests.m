@@ -111,6 +111,20 @@
     XCTAssertEqual(events.count, (unsigned long)15);
 }
 
+- (void)testStoreAndReadCurrentSession {
+    SentrySession *expectedSession = [[SentrySession alloc] init];
+    [self.fileManager storeCurrentSession:expectedSession];
+    SentrySession *actualSession = [self.fileManager readCurrentSession];
+    XCTAssertTrue([expectedSession.distinctId isEqual:actualSession.distinctId]);
+}
+
+- (void)testStoreDeleteCurrentSession {
+    [self.fileManager storeCurrentSession:[[SentrySession alloc] init]];
+    [self.fileManager deleteCurrentSession];
+    SentrySession *actualSession = [self.fileManager readCurrentSession];
+    XCTAssertNil(actualSession);
+}
+
 //- (void)testEventLimitOverClient {
 //    NSError *error = nil;
 //    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];

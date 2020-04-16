@@ -56,7 +56,7 @@
     }
     
     if (nil == currentSession) {
-        // TODO: log
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No session to end."] andLevel:kSentryLogLevelDebug];
         return;
     }
 
@@ -73,7 +73,7 @@
     }
     
     if (nil == currentSession) {
-        // TODO: log
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No session to end with timestamp."] andLevel:kSentryLogLevelDebug];
         return;
     }
 
@@ -90,24 +90,36 @@
 }
 
 - (void)closeCachedSession {
-    SentrySession *session = [[[self getClient] fileManager] readCurrentSession];
+    SentryFileManager *fileManager = [[self getClient] fileManager];
+    SentrySession *session = [fileManager readCurrentSession];
     if (nil != session) {
         SentryClient *client = [self getClient];
         if (nil != session && nil != client) { // Make sure there's a client bound.
             NSDate *timestamp = [NSDate date];
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
-                [session crashedSession];
+                [SentryLog logWithMessage:[NSString stringWithFormat:@"Closing previous session as crashed."] andLevel:kSentryLogLevelDebug];
+                [session endSessionAsCrashed];
+            } else {
+                [SentryLog logWithMessage:[NSString stringWithFormat:@"Last session did not crash."] andLevel:kSentryLogLevelDebug];
+                [session endSessionWithTimestamp:timestamp];
             }
-            [session endSessionWithTimestamp:timestamp];
             [self deleteCurrentSession];
             [client captureSession:session];
         }
+    } else {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No cached session to close."] andLevel:kSentryLogLevelDebug];
     }
 }
 
 - (void)captureSession:(SentrySession *)session {
     if (nil != session) {
         SentryClient *client = [self getClient];
+
+        if (SentrySDK.logLevel == kSentryLogLevelVerbose) {
+            NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize] options:0 error:nil];
+            NSString *sessionString = [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@", sessionString] andLevel:kSentryLogLevelDebug];
+        }
         [client captureSession:session];
     }
 }
@@ -182,7 +194,7 @@
 
 - (void)configureScope:(void(^)(SentryScope *scope))callback {
     SentryScope *scope = [self getScope];
-    SentryScope *client = [self getClient];
+    SentryClient *client = [self getClient];
     if (nil != client && nil != scope) {
         callback(scope);
     }

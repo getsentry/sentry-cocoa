@@ -44,10 +44,14 @@
         // Ideally we'd support all the levels here, and perhaps name it `diagnosticLevel` to align more.
         if ([@"verbose" isEqual:[options objectForKey:@"logLevel"]]) {
             SentrySDK.logLevel = kSentryLogLevelVerbose;
+            _logLevel = kSentryLogLevelVerbose;
+        } else {
+            SentrySDK.logLevel = kSentryLogLevelDebug;
+            _logLevel = kSentryLogLevelDebug;
         }
-        SentrySDK.logLevel = kSentryLogLevelDebug;
     } else {
         SentrySDK.logLevel = kSentryLogLevelError;
+        _logLevel = kSentryLogLevelError;
     }
     
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
