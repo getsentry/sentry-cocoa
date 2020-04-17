@@ -42,28 +42,27 @@ static SentryHub *currentHub;
 }
  
 + (id)initWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
-    [SentrySDK initializeWithOptions:optionsDict];
+    [SentrySDK withOptions:optionsDict];
     return nil;
 }
 
 + (id)initWithOptionsObject:(SentryOptions *)options {
-    [SentrySDK initializeWithOptionsObject:options];
+    [SentrySDK withOptionsObject:options];
     return nil;
 }
 
-+ (void)initializeWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
++ (void)withOptions:(NSDictionary<NSString *,id> *)optionsDict {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
         [SentryLog logWithMessage:@"Error while initializing the SDK" andLevel:kSentryLogLevelError];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error] andLevel:kSentryLogLevelError];
     } else {
-        [SentrySDK initializeWithOptionsObject:options];
+        [SentrySDK withOptionsObject:options];
     }
-    return nil;
 }
 
-+ (void)initializeWithOptionsObject:(SentryOptions *)options {
++ (void)withOptionsObject:(SentryOptions *)options {
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session can happen.
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];

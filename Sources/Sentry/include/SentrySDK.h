@@ -46,12 +46,12 @@ SENTRY_NO_INIT
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
 */
-+ (void)initializeWithOptions:(NSDictionary<NSString *,id> *)optionsDict NS_SWIFT_NAME(initialize(options:));
++ (void)withOptions:(NSDictionary<NSString *,id> *)optionsDict NS_SWIFT_NAME(with(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
 */
-+ (void)initializeWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(initialize(options:));;
++ (void)withOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(with(options:));
 
 /**
  captures an event aka. sends an event to sentry
