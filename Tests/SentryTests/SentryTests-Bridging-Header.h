@@ -10,4 +10,6 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryRateLimitParser.h"
+#import "SentryRateLimits.h"
+#import "SentryDefaultRateLimits.h"
 #import "SentryHttpDateParser.h"

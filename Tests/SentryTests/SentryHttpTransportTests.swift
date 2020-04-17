@@ -1,13 +1,12 @@
 import XCTest
 
 class SentryHttpTransportTests: XCTestCase {
-    
-    private let defaultRetryAfterInSeconds = 60.0
 
     private var fileManager: SentryFileManager!
     private var options: Options!
     private var requestManager: TestRequestManager!
     private var currentDateProvider: TestCurrentDateProvider!
+    private var rateLimits: TestRateLimits!
     private var sut: SentryHttpTransport!
     
     override func setUp() {
@@ -19,10 +18,13 @@ class SentryHttpTransportTests: XCTestCase {
             
             requestManager = TestRequestManager(session: URLSession())
             options = try Options(dict: ["dsn": TestConstants.dsnAsString])
+            rateLimits = TestRateLimits()
+            
             sut = SentryHttpTransport(
                 options: options,
                 sentryFileManager: fileManager,
-                sentryRequestManager: requestManager
+                sentryRequestManager: requestManager,
+                sentryRateLimits: rateLimits
             )
         } catch {
             XCTFail("SentryHttpTransport could not be created")
@@ -47,47 +49,25 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, requestManager.requests.count)
     }
     
-    func testRetryAfterHeaderDeltaSeconds() {
-        testRetryHeaderWith1Second(value: "1")
-    }
-    
-    func testRetryAfterHeaderHttpDate() {
-        let headerValue = HttpDateFormatter.string(from: CurrentDate.date().addingTimeInterval(1))
-        testRetryHeaderWith1Second(value: headerValue)
-    }
-    
-    private func testRetryHeaderWith1Second(value: String) {
-        let response = createRetryAfterHeader(headerValue: value)
+    func test429ResponseUpdatesRateLimit() {
+        let response = createRetryAfterHeader(headerValue: "1")
         requestManager.returnResponse(response: response)
         
         // First response parses Retry-After header
         sendEvent()
-        XCTAssertEqual(1, requestManager.requests.count)
         
-        // Retry-After almost expired
-        let date = currentDateProvider.date()
-        currentDateProvider.setDate(date: date.addingTimeInterval(0.999))
+        XCTAssertEqual(1, rateLimits.responses.count)
+        XCTAssertEqual(response, rateLimits.responses[0])
+    }
+    
+    func testOptionsEnabledButRateLimitReached() {
+        rateLimits.isLimitRateReached = true
+        
         sendEvent()
-        XCTAssertEqual(1, requestManager.requests.count)
         
-        // Retry-After expired
-        currentDateProvider.setDate(date: date.addingTimeInterval(1))
-        sendEvent()
-        XCTAssertEqual(2, requestManager.requests.count)
+        XCTAssertEqual(0, requestManager.requests.count)
     }
-    
-    func testFaultyRetryAfterHeader() {
-        let response = createRetryAfterHeader(headerValue: "ABC")
-        
-        assertSetsDefaultRetryAfter(response: response)
-    }
-    
-    func testRetryAfterHeaderIsEmpty() {
-        let response = createRetryAfterHeader(headerValue: "")
-     
-        assertSetsDefaultRetryAfter(response: response)
-    }
-    
+  
     private func sendEvent() {
         sut.send(event: Event(), completion: nil)
     }
@@ -98,17 +78,5 @@ class SentryHttpTransportTests: XCTestCase {
             statusCode: 429,
             httpVersion: nil,
             headerFields: ["Retry-After": headerValue])!
-    }
-    
-    private func assertSetsDefaultRetryAfter(response: HTTPURLResponse) {
-        requestManager.returnResponse(response: response)
-        sendEvent()
-        
-        sendEvent()
-        XCTAssertEqual(1, requestManager.requests.count)
-        
-        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
-        sendEvent()
-        XCTAssertEqual(2, requestManager.requests.count)
     }
 }
