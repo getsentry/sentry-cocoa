@@ -51,7 +51,7 @@ static SentryHub *currentHub;
     return nil;
 }
 
-+ (id)initializeWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
++ (void)initializeWithOptions:(NSDictionary<NSString *,id> *)optionsDict {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
