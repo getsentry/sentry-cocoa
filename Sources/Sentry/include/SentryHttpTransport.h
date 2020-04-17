@@ -6,16 +6,17 @@
 #import "SentryEnvelope.h"
 #import "SentryTransport.h"
 #import "SentryRequestManager.h"
+#import "SentryRateLimits.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryHttpTransport : NSObject <SentryTransport>
 SENTRY_NO_INIT
 
-
 - (id)initWithOptions:(SentryOptions *)options
     sentryFileManager:(SentryFileManager *)sentryFileManager
- sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager;
+ sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager
+     sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits;
 
 /**
  * This is triggered after the first upload attempt of an event. Checks if event

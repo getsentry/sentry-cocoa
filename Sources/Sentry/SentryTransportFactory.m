@@ -5,6 +5,8 @@
 #import "SentryOptions.h"
 #import "SentryHttpTransport.h"
 #import "SentryQueueableRequestManager.h"
+#import "SentryRateLimits.h"
+#import "SentryDefaultRateLimits.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,8 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
         id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
+        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] init];
         return [[SentryHttpTransport alloc] initWithOptions:options
-                                          sentryFileManager:sentryFileManager sentryRequestManager: requestManager];
+                                          sentryFileManager:sentryFileManager sentryRequestManager: requestManager
+                                           sentryRateLimits: rateLimits];
     }
 }
 
