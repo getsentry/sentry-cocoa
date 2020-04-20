@@ -77,7 +77,6 @@
     if (nil != session) {
         SentryClient *client = [self getClient];
         if (nil != session && nil != client) { // Make sure there's a client bound.
-            // TODO: Is this value reliable?
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
                 NSDate *lastInForeground = [[NSDate date] dateByAddingTimeInterval:-SentryCrash.sharedInstance.activeDurationSinceLastCrash];
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Closing previous session as crashed."] andLevel:kSentryLogLevelDebug];
