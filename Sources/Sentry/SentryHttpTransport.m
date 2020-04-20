@@ -78,7 +78,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.dsn
+    NSURLRequest *request = [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.dsn
                                                                                andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
