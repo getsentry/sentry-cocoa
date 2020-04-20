@@ -52,7 +52,7 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
  * Note that this will only be called once the event is created and send manully.
  * Once it has been queued once it will be discarded if it fails again.
  */
-typedef BOOL (^SentryShouldQueueEvent)(SentryEnvelope *_Nullable envelope, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+typedef BOOL (^SentryShouldQueueEvent)(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Loglevel
  */

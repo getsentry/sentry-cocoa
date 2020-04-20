@@ -2,7 +2,7 @@ import Foundation
 
 public class TestRequestManager: NSObject, RequestManager {
     
-    private var nextResponse : HTTPURLResponse?
+    private var nextResponse : () -> HTTPURLResponse? = { return nil }
     public var isReady: Bool
     public var requests : [URLRequest] = []
     
@@ -15,7 +15,7 @@ public class TestRequestManager: NSObject, RequestManager {
         requests.append(request)
         
         if (nil != completionHandler) {
-            let response = nextResponse ?? HTTPURLResponse(coder: NSCoder())
+            let response = nextResponse() ?? HTTPURLResponse(coder: NSCoder())
             completionHandler!(response, nil)
         }
     }
@@ -24,7 +24,11 @@ public class TestRequestManager: NSObject, RequestManager {
         
     }
     
-    func returnResponse(response: HTTPURLResponse) {
+    func returnResponse(response: HTTPURLResponse?) {
+        nextResponse = { return response }
+    }
+    
+    func returnResponse(response: @escaping () -> HTTPURLResponse?) {
         nextResponse = response
     }
 }

@@ -13,4 +13,17 @@ struct TestConstants {
         
         return dsn!
     }
+    
+    static var eventWithSerializationError: Event {
+        let event = Event()
+        event.message = ""
+        event.sdk = ["event": Event()]
+        return event
+    }
+    
+    static var envelope: SentryEnvelope {
+        let event = Event()
+        let envelopeItem = SentryEnvelopeItem(event: event)
+        return SentryEnvelope(id: event.eventId, singleItem: envelopeItem)
+    }
 }
