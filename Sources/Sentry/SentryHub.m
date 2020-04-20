@@ -85,7 +85,7 @@
             } else {
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Last session did not crash."] andLevel:kSentryLogLevelDebug];
                 [session endSessionAbnormalWithTimestamp:session.timestamp];
-            }:
+            }
             [self deleteCurrentSession];
             [client captureSession:session];
         }
