@@ -66,20 +66,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    __block SentryHttpTransport *_self = self;
-    [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(nil, response, error) == NO) {
-            // don't need to queue this -> it most likely got sent
-            // thus we can remove the event from disk
-            [_self.fileManager removeFileAtPath:storedEventPath];
-            if (nil == error) {
-                [_self sendAllStoredEvents];
-            }
-        }
-        if (completionHandler) {
-            completionHandler(error);
-        }
-    }];
+    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:nil  withCompletionHandler:completionHandler];
 }
 
 // TODO: needs refactoring
@@ -105,20 +92,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEnvelope:envelope];
 
-    __block SentryHttpTransport *_self = self;
-    [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(envelope, response, error) == NO) {
-            // don't need to queue this -> it most likely got sent
-            // thus we can remove the event from disk
-            [_self.fileManager removeFileAtPath:storedEventPath];
-            if (nil == error) {
-                [_self sendAllStoredEvents];
-            }
-        }
-        if (completionHandler) {
-            completionHandler(error);
-        }
-    }];
+    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:envelope  withCompletionHandler:completionHandler];
 }
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
@@ -169,6 +143,26 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
+}
+
+- (void)sendRequest:(NSURLRequest *)request
+withStoredEventPath:(NSString *)storedEventPath
+withEnvelope:(SentryEnvelope *)envelope
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    __block SentryHttpTransport *_self = self;
+    [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(envelope, response, error) == NO) {
+            // don't need to queue this -> it most likely got sent
+            // thus we can remove the event from disk
+            [_self.fileManager removeFileAtPath:storedEventPath];
+            if (nil == error) {
+                [_self sendAllStoredEvents];
+            }
+        }
+        if (completionHandler) {
+            completionHandler(error);
+        }
+    }];
 }
 
 - (void)sendRequest:(NSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
