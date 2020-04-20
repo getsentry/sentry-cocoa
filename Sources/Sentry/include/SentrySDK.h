@@ -17,9 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySDK : NSObject
 SENTRY_NO_INIT
 
-
 /**
- returns current hub
+ * Returns current hub
  */
 + (SentryHub *)currentHub;
 
@@ -29,36 +28,38 @@ SENTRY_NO_INIT
 + (void)crash;
 
 /**
- sets current hub
+ * Sets current hub
  */
 + (void)setCurrentHub:(SentryHub *)hub;
 
 /**
-* Use [SentrySDK initializeWithOptionsObject]
-*/
-+ (instancetype)initWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(init(options:));
-
-/**
- * Use [SentrySDK initializeWithOptions]
+ * Use [SentrySDK startWithOptionsObject] / SentrySDK.start(:) instead
+ * @deprecated
  */
-+ (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(init(options:));
++ (instancetype)initWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(init(options:)) __attribute((deprecated(("Use startWithOptionsObject"))));
+
+/**
+ * Use [SentrySDK startWithOptions] / SentrySDK.start(:) instead
+ * @deprecated
+ */
++ (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(init(options:)) __attribute((deprecated(("Use startWithOptions"))));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
-*/
-+ (void)withOptions:(NSDictionary<NSString *,id> *)optionsDict NS_SWIFT_NAME(with(options:));
+ */
++ (void)startWithOptions:(NSDictionary<NSString *,id> *)optionsDict NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations
-*/
-+ (void)withOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(with(options:));
+ */
++ (void)startWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**
- captures an event aka. sends an event to sentry
-
- uses default `SentryHub`
- 
- USAGE: Create a `SentryEvent`, fill it up with data, and send it with this method.
+ * captures an event aka. sends an event to sentry
+ *
+ * uses default `SentryHub`
+ *
+ * USAGE: Create a `SentryEvent`, fill it up with data, and send it with this method.
  */
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
@@ -93,11 +94,8 @@ SENTRY_NO_INIT
 + (NSString *_Nullable)captureMessage:(NSString *)message withScopeBlock:(void(^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
 
 /**
- adds a SentryBreadcrumb to the SentryClient.
- 
- If the total number of breadcrumbs exceeds the `max_breadcrumbs` setting, the oldest breadcrumb is removed in turn.
- 
- uses default `SentryHub`
+ * Adds a SentryBreadcrumb to the current Scope on the `currentHub`.
+ * If the total number of breadcrumbs exceeds the `max_breadcrumbs` setting, the oldest breadcrumb is removed.
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
 

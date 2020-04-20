@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add Sentry initialize #441
+- feat: Add Sentry initialization function 'start' #441
 
 ## 5.0.0-beta.3
 
