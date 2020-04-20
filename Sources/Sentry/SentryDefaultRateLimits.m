@@ -56,13 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * used if actual time/deadline couldn't be determined.
- */
-- (NSDate *)defaultRadioSilenceDeadline {
-    return [[SentryCurrentDate date] dateByAddingTimeInterval:60];
-}
-
-/**
  * parses value of HTTP Header "Retry-After" which in most cases is sent in
  * combination with HTTP status 429 Too Many Requests.
  *
@@ -78,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSDate *)parseRetryAfterHeader:(NSString * __nullable)retryAfterHeader {
     if (nil == retryAfterHeader || 0 == [retryAfterHeader length]) {
-        return [self defaultRadioSilenceDeadline];
+        return [self defaultRetryAfterValue];
     }
 
     NSDate *now = [SentryCurrentDate date];
@@ -95,9 +88,13 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (nil == retryAfterDate) {
         // parsing as seconds and date failed
-        return [self defaultRadioSilenceDeadline];
+        return [self defaultRetryAfterValue];
     }
     return retryAfterDate;
+}
+
+- (NSDate *)defaultRetryAfterValue {
+    return [[SentryCurrentDate date] dateByAddingTimeInterval:60];
 }
 
 @end
