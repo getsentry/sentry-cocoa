@@ -125,7 +125,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 - (void)setupQueueing {
     __block SentryHttpTransport *_self = self;
-    self.shouldQueueEvent = ^BOOL(SentryEnvelope *envelope, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    self.shouldQueueEvent = ^BOOL(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the
         // request completes successfully or fails, the response parameter
@@ -151,7 +151,7 @@ withEnvelope:(SentryEnvelope *)envelope
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(envelope, response, error) == NO) {
+        if (self.shouldQueueEvent == nil || self.shouldQueueEvent(response, error) == NO) {
             // don't need to queue this -> it most likely got sent
             // thus we can remove the event from disk
             [_self.fileManager removeFileAtPath:storedEventPath];
