@@ -10,14 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryDefaultRateLimits ()
 
-@property(nonatomic, strong) NSDictionary<NSString *, NSDate *> *rateLimits;
+@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
 @property(nonatomic, strong) SentryHttpDateParser *httpDateParser;
-
-/**
- * datetime until we keep radio silence. Populated when response has HTTP 429
- * and "Retry-After" header -> rate limit exceeded.
- */
-@property(atomic, strong) NSDate *_Nullable radioSilenceDeadline;
 
 @end
 
@@ -26,25 +20,25 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.rateLimits = [[NSDictionary alloc] init];
+        self.rateLimits = [[NSMutableDictionary alloc] init];
         self.httpDateParser = [[SentryHttpDateParser alloc] init];
     }
     return self;
 }
 
 - (BOOL)isRateLimitReached:(NSString *)type {
-    if (nil == self.radioSilenceDeadline) {
+    if (nil == self.rateLimits[@"default"] ) {
         return NO;
     }
 
     NSDate *now = [SentryCurrentDate date];
-    NSComparisonResult result = [now compare:[self radioSilenceDeadline]];
+    NSComparisonResult result = [now compare:self.rateLimits[@"default"]];
 
     if (result == NSOrderedAscending) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  self.radioSilenceDeadline] andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  self.rateLimits[@"default"]] andLevel:kSentryLogLevelError];
         return YES;
     } else {
-        self.radioSilenceDeadline = nil;
+        self.rateLimits[@"default"] = nil;
         return NO;
     }
 }
@@ -55,7 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
  * 60 seconds (default, see `defaultRadioSilenceDeadline`).
  */
 - (void)update:(NSHTTPURLResponse *)response {
-    self.radioSilenceDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+    
+    NSDate* retryAfterHeaderDate = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+    
+    self.rateLimits[@"default"] = retryAfterHeaderDate;
 }
 
 /**
