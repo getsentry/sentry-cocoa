@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (BOOL)isRateLimitReached {
+- (BOOL)isRateLimitReached:(NSString *)type {
     if (nil == self.radioSilenceDeadline) {
         return NO;
     }

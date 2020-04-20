@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(RateLimits)
 @protocol SentryRateLimits <NSObject>
 
-- (BOOL)isRateLimitReached;
+- (BOOL)isRateLimitReached:(NSString *)type;
 
 - (void)update:(NSHTTPURLResponse *)response;
 

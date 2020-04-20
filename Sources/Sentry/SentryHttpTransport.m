@@ -185,7 +185,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return NO;
     }
 
-    if ([self.rateLimits isRateLimitReached]) {
+    if ([self.rateLimits isRateLimitReached:@""]) {
         return NO;
     }
     return YES;

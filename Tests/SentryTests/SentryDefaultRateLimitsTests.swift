@@ -16,7 +16,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     }
     
     func testNoUpdateCalled() {
-        XCTAssertFalse(sut.isRateLimitReached())
+        XCTAssertFalse(sut.isRateLimitReached(""))
     }
 
     func testRetryAfterHeaderDeltaSeconds() {
@@ -31,16 +31,16 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     private func testRetryHeaderWith1Second(value: String) {
         let response = createRetryAfterHeader(headerValue: value)
         sut.update(response)
-        XCTAssertTrue(sut.isRateLimitReached())
+        XCTAssertTrue(sut.isRateLimitReached(""))
         
         // Retry-After almost expired
         let date = currentDateProvider.date()
         currentDateProvider.setDate(date: date.addingTimeInterval(0.999))
-        XCTAssertTrue(sut.isRateLimitReached())
+        XCTAssertTrue(sut.isRateLimitReached(""))
         
         // Retry-After expired
         currentDateProvider.setDate(date: date.addingTimeInterval(1))
-        XCTAssertFalse(sut.isRateLimitReached())
+        XCTAssertFalse(sut.isRateLimitReached(""))
     }
     
     func testFaultyRetryAfterHeader() {
@@ -65,9 +65,9 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     
     private func assertSetsDefaultRetryAfter(response: HTTPURLResponse) {
         sut.update(response)
-        XCTAssertTrue(sut.isRateLimitReached())
+        XCTAssertTrue(sut.isRateLimitReached(""))
         
         currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
-        XCTAssertFalse(sut.isRateLimitReached())
+        XCTAssertFalse(sut.isRateLimitReached(""))
     }
 }
