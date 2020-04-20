@@ -3,14 +3,14 @@
 #import "SentryCurrentDate.h"
 #import "SentryHttpDateParser.h"
 #import "SentryLog.h"
+#import "SentryRateLimitParser.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
-/*
- * This code was moved from SentryHttpTransport and needs to be updated.
- */
 @interface SentryDefaultRateLimits ()
 
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
+@property(atomic, strong) NSDate *_Nullable retryAfterHeaderDate;
 @property(nonatomic, strong) SentryHttpDateParser *httpDateParser;
 
 @end
@@ -26,33 +26,49 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+//TODO remove rate limit from naming because is also retry header
 - (BOOL)isRateLimitReached:(NSString *)type {
-    if (nil == self.rateLimits[@"default"] ) {
-        return NO;
-    }
-
-    NSDate *now = [SentryCurrentDate date];
-    NSComparisonResult result = [now compare:self.rateLimits[@"default"]];
-
-    if (result == NSOrderedAscending) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  self.rateLimits[@"default"]] andLevel:kSentryLogLevelError];
+    NSDate *rateLimitDate = self.rateLimits[type];
+    BOOL isRateLimit = [self isExpired: rateLimitDate];
+    if (isRateLimit) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelError];
         return YES;
-    } else {
-        self.rateLimits[@"default"] = nil;
-        return NO;
     }
+    
+    if (nil != self.retryAfterHeaderDate) {
+         BOOL isRetryAfterLimit = [self isExpired:self.retryAfterHeaderDate];
+        
+        if (isRetryAfterLimit) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry After reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelError];
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
-/**
- * When rate limit has been exceeded we updates the radio silence deadline and
- * therefor activates radio silence for at least
- * 60 seconds (default, see `defaultRadioSilenceDeadline`).
- */
+- (BOOL)isExpired:(NSDate *)date {
+    NSDate *now = [SentryCurrentDate date];
+    NSComparisonResult result = [now compare:date];
+
+    if (result == NSOrderedAscending) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (void)update:(NSHTTPURLResponse *)response {
     
-    NSDate* retryAfterHeaderDate = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+    if (response.statusCode == 429) {
+        NSDate* retryAfterHeaderDate = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
+        
+        self.retryAfterHeaderDate = retryAfterHeaderDate;
+    }
     
-    self.rateLimits[@"default"] = retryAfterHeaderDate;
+    NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
+    NSDictionary<NSString *, NSDate *> * limits = [SentryRateLimitParser parse:rateLimitsHeader];
+    [self.rateLimits addEntriesFromDictionary:limits];
 }
 
 /**
