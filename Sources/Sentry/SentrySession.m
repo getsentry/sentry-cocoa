@@ -61,46 +61,53 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)endSession {
+- (void)endSessionExitedSessionWithTimestamp:(NSDate*)timestamp {
     @synchronized (self) {
-        [self defaultEnd];
-        if (_status == kSentrySessionStatusOk) {
-            // From start to end no state transition.
-            _status = kSentrySessionStatusExited;
-        }
+        [self changed];
+        _status = kSentrySessionStatusExited;
+        [self endSessionWithTimestamp:timestamp];
     }
 }
 
-- (void)endSessionAsCrashed {
+- (void)endSessionCrashedWithTimestamp:(NSDate*)timestamp {
     @synchronized (self) {
-        [self defaultEnd];
+        [self changed];
         _status = kSentrySessionStatusCrashed;
+        [self endSessionWithTimestamp:timestamp];
+    }
+}
+
+- (void)endSessionAbnormalWithTimestamp:(NSDate*)timestamp {
+    @synchronized (self) {
+        [self changed];
+        _status = kSentrySessionStatusAbnormal;
+        [self endSessionWithTimestamp:timestamp];
     }
 }
 
 - (void)endSessionWithTimestamp:(NSDate*)timestamp {
     @synchronized (self) {
-        [self endSession];
+        [self calculateDuration];
         _timestamp = timestamp;
         NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
         _duration = [NSNumber numberWithLongLong:secondsBetween];
     }
 }
 
-- (void)defaultEnd {
+- (void)changed {
     _init = nil;
     _sequence++;
+}
 
-    _timestamp = [NSDate date];
+- (void)calculateDuration {
     NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
     _duration = [NSNumber numberWithLongLong:secondsBetween];
 }
 
 - (void)incrementErrors {
     @synchronized (self) {
-        _init = nil;
+        [self changed];
         _errors++;
-        _sequence++;
     }
 }
 
