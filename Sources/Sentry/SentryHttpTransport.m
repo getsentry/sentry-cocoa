@@ -52,7 +52,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+    NSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
                                                                              andEvent:event
                                                                      didFailWithError:&requestError];
     if (nil != requestError) {
@@ -171,7 +171,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     };
 }
 
-- (void)sendRequest:(SentryNSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
+- (void)sendRequest:(NSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
     [self.requestManager addRequest:request
                   completionHandler:^(NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (completionHandler) {
