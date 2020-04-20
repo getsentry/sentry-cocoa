@@ -27,7 +27,7 @@ import Sentry
 
 // ....
 
- _ = SentrySDK(options: [
+SentrySDK.start(options: [
     "dsn": "___PUBLIC_DSN___",
     "debug": true // Helpful to see what's going on
 ])
@@ -38,7 +38,7 @@ import Sentry
 
 // ....
 
-[SentrySDK initWithOptions:@{
+[SentrySDK startWithOptions:@{
     @"dsn": @"___PUBLIC_DSN___",
     @"debug": @(YES) // Helpful to see what's going on
 }];
