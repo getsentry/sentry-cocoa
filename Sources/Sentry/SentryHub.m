@@ -25,7 +25,6 @@
         self.scope = scope;
         [self bindClient:client];
         _sessionLock = [[NSObject alloc] init];
-        [self closeCachedSession];
     }
     return self;
 }
@@ -43,25 +42,8 @@
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSession];
+    [lastSession endSessionExitedSessionWithTimestamp:[NSDate date]];
     [self captureSession:lastSession];
-}
-
-- (void)endSession {
-    SentrySession *currentSession = nil;
-    @synchronized (_sessionLock) {
-        currentSession = _session;
-        _session = nil;
-        [self deleteCurrentSession];
-    }
-    
-    if (nil == currentSession) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"No session to end."] andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
-    [currentSession endSession];
-    [self captureSession:currentSession];
 }
 
 - (void)endSessionWithTimestamp:(NSDate*)timestamp {
@@ -77,7 +59,7 @@
         return;
     }
 
-    [currentSession endSessionWithTimestamp:timestamp];
+    [currentSession endSessionExitedSessionWithTimestamp:timestamp];
     [self captureSession:currentSession];
 }
 
@@ -95,14 +77,15 @@
     if (nil != session) {
         SentryClient *client = [self getClient];
         if (nil != session && nil != client) { // Make sure there's a client bound.
-            NSDate *timestamp = [NSDate date];
+            // TODO: Is this value reliable?
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
+                NSDate *lastInForeground = [[NSDate date] dateByAddingTimeInterval:-SentryCrash.sharedInstance.activeDurationSinceLastCrash];
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Closing previous session as crashed."] andLevel:kSentryLogLevelDebug];
-                [session endSessionAsCrashed];
+                [session endSessionCrashedWithTimestamp:lastInForeground];
             } else {
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Last session did not crash."] andLevel:kSentryLogLevelDebug];
-                [session endSessionWithTimestamp:timestamp];
-            }
+                [session endSessionAbnormalWithTimestamp:session.timestamp];
+            }:
             [self deleteCurrentSession];
             [client captureSession:session];
         }
