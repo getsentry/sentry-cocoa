@@ -27,6 +27,7 @@
 - (void)start {
 #if SENTRY_HAS_UIKIT
     SentryHub *hub = [SentrySDK currentHub];
+    [hub closeCachedSession];
     [hub startSession];
 
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationWillEnterForegroundNotification

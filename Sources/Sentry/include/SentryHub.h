@@ -17,6 +17,7 @@ SENTRY_NO_INIT
 - (void)startSession;
 - (void)endSession;
 - (void)endSessionWithTimestamp:(NSDate*)timestamp;
+- (void)closeCachedSession;
 
 @property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 

@@ -3,7 +3,7 @@
         <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
     </a>
 <br/>
-    <h1>Official Sentry SDK for iOS/tvOS/macOS/watchOS<sup>(1)</sup>.</h1>
+    <h1>Official Sentry SDK for iOS / tvOS / macOS / watchOS <sup>(1)</sup>.</h1>
 </p>
 
 [![Travis](https://img.shields.io/travis/getsentry/sentry-cocoa.svg?maxAge=2592000)](https://travis-ci.com/getsentry/sentry-cocoa)
@@ -27,7 +27,7 @@ import Sentry
 
 // ....
 
- _ = SentrySDK(options: [
+SentrySDK.start(options: [
     "dsn": "___PUBLIC_DSN___",
     "debug": true // Helpful to see what's going on
 ])
@@ -38,7 +38,7 @@ import Sentry
 
 // ....
 
-[SentrySDK initWithOptions:@{
+[SentrySDK startWithOptions:@{
     @"dsn": @"___PUBLIC_DSN___",
     @"debug": @(YES) // Helpful to see what's going on
 }];

@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## unreleased
+
+## 5.0.0-beta.4
+
+- feat: Add Sentry initialization function 'start' #441
+- fix: Crashed sessions are marked as such #448
 
 ## 5.0.0-beta.3
 
