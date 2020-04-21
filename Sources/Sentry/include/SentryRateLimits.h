@@ -11,11 +11,10 @@ NS_SWIFT_NAME(RateLimits)
 @protocol SentryRateLimits <NSObject>
 
 /**
- Check if a type has reached a rate limit.
+Check if a type has reached a rate limit.
  @param type the type e.g. event, session, etc
  
  @return BOOL YES if limit is reached, NO otherwise.
- 
  */
 - (BOOL)isRateLimitActive:(NSString *)type;
 

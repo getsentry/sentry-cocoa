@@ -57,7 +57,6 @@ SENTRY_NO_INIT
 
 @end
 
-
 @interface SentryEnvelope : NSObject
 SENTRY_NO_INIT
 

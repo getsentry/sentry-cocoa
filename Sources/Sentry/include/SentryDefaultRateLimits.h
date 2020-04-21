@@ -7,8 +7,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Parses http responses from the Sentry server for rate limits and stores rate limits
- in memory. The server can communicate a rate limit either through a 429 status
+ Parses HTTP responses from the Sentry server for rate limits and stores them
+ in memory. The server can communicate a rate limit either through the 429 status
  code with a "Retry-After" header or through any response with a custom
  "X-Sentry-Rate-Limits" header. This class is thread safe.
 */
