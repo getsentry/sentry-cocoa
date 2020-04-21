@@ -8,8 +8,10 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryDefaultRateLimits ()
 
+/* Key is the type and value is valid until date */
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
-@property(atomic, strong) NSDate *_Nullable retryAfterHeaderDate;
+@property(nonatomic, strong) NSDate *_Nullable retryAfterHeaderDate;
+
 @property(nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
 @property(nonatomic, strong) SentryRateLimitParser *rateLimitParser;
 
@@ -28,14 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)isRateLimitActive:(NSString *)type {
-    return [self isCustomHeaderRateLimitActive:type] || [self isRetryAfterHeaderLimitActive];
+    @synchronized (self) {
+        return [self isCustomHeaderRateLimitActive:type] ||
+        [self isRetryAfterHeaderLimitActive];
+    }
 }
 
 - (BOOL)isCustomHeaderRateLimitActive:(NSString *)type {
     NSDate *rateLimitDate = self.rateLimits[type];
     BOOL isActive = [self isInFuture: rateLimitDate];
     if (isActive) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelDebug];
         return YES;
     } else {
         return NO;
@@ -49,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     BOOL isActive = [self isInFuture:self.retryAfterHeaderDate];
     if (isActive) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry-After limit reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry-After limit reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelDebug];
         return YES;
     } else {
         return NO;
@@ -66,15 +71,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)update:(NSHTTPURLResponse *)response {
+    NSDate* retryAfterHeaderDate = nil;
     if (response.statusCode == 429) {
-        NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
-        
-        self.retryAfterHeaderDate = retryAfterHeaderDate;
+        retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
     }
     
     NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
     NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
-    [self.rateLimits addEntriesFromDictionary:limits];
+    
+    // Keep the sync block as small as possible
+    @synchronized (self) {
+        if (nil != retryAfterHeaderDate) {
+            self.retryAfterHeaderDate = retryAfterHeaderDate;
+        }
+        
+        [self.rateLimits addEntriesFromDictionary:limits];
+    }
 }
 
 @end

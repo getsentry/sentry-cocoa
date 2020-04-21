@@ -21,8 +21,8 @@ class SentryHttpDateParserTests: XCTestCase {
     }
 
     func testWithMultipleWorkItemsInParallel() {
-        let queue1 = DispatchQueue(label: "1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        let queue2 = DispatchQueue(label: "2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue1 = DispatchQueue(label: "SentryHttpDateParserTests1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue2 = DispatchQueue(label: "SentryHttpDateParserTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         
         let group = DispatchGroup()
         for i in Array(0...1000) {
