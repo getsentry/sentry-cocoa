@@ -34,8 +34,8 @@ SENTRY_NO_INIT
 
 @end
 
-static const NSString *SentryEnvelopeItemTypeEvent = @"event";
-static const NSString *SentryEnvelopeItemTypeSession = @"session";
+static NSString * const SentryEnvelopeItemTypeEvent = @"event";
+static NSString * const SentryEnvelopeItemTypeSession = @"session";
 
 @interface SentryEnvelopeItem : NSObject
 SENTRY_NO_INIT
