@@ -85,16 +85,14 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertFalse(sut.isRateLimitActive(""))
     }
     
-    func testFaultyRetryAfterHeader() {
-        let response = createRetryAfterResponse(headerValue: "ABC")
-        
-        assertSetsDefaultRetryAfter(response: response)
-    }
-    
     func testRetryAfterHeaderIsEmpty() {
         let response = createRetryAfterResponse(headerValue: "")
      
-        assertSetsDefaultRetryAfter(response: response)
+        sut.update(response)
+        XCTAssertTrue(sut.isRateLimitActive(""))
+        
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
+        XCTAssertFalse(sut.isRateLimitActive(""))
     }
     
     private func createRetryAfterResponse(headerValue: String) -> HTTPURLResponse {
@@ -111,13 +109,5 @@ class SentryDefaultRateLimitsTests: XCTestCase {
             statusCode: 200,
             httpVersion: nil,
             headerFields: ["X-Sentry-Rate-Limits": headerValue])!
-    }
-    
-    private func assertSetsDefaultRetryAfter(response: HTTPURLResponse) {
-        sut.update(response)
-        XCTAssertTrue(sut.isRateLimitActive(""))
-        
-        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
-        XCTAssertFalse(sut.isRateLimitActive(""))
     }
 }
