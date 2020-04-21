@@ -20,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDate *_Nonnull)parse:(NSString *_Nullable)retryAfterHeader {
+- (NSDate *_Nullable)parse:(NSString *_Nullable)retryAfterHeader {
     if (nil == retryAfterHeader || 0 == [retryAfterHeader length]) {
-        return [self defaultRetryAfterValue];
+        return nil;
     }
 
     NSDate *now = [SentryCurrentDate date];
@@ -37,15 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     // parsing as double/seconds failed, try to parse as date
     NSDate *retryAfterDate = [self.httpDateParser dateFromString:retryAfterHeader];
 
-    if (nil == retryAfterDate) {
-        // parsing as seconds and date failed
-        return [self defaultRetryAfterValue];
-    }
     return retryAfterDate;
-}
-
-- (NSDate *)defaultRetryAfterValue {
-    return [[SentryCurrentDate date] dateByAddingTimeInterval:60];
 }
 
 @end

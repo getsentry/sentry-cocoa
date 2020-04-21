@@ -20,15 +20,15 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
     }
 
     func testNil()  {
-        testWith(header: nil, expected: defaultDate)
+        testWith(header: nil, expected: nil)
     }
     
     func testFaulty() {
-        testWith(header: "ABC", expected: defaultDate)
+        testWith(header: "ABC", expected: nil)
     }
     
     func testEmpty() {
-        testWith(header: "", expected: defaultDate)
+        testWith(header: "", expected: nil)
     }
     
     func test10Seconds() {
@@ -42,7 +42,7 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
         testWith(header: httpDateAsString, expected: expected)
     }
     
-    func testWith(header: String?, expected: Date) {
+    func testWith(header: String?, expected: Date?) {
         let actual = sut.parse(header)
         XCTAssertEqual(expected, actual)
     }

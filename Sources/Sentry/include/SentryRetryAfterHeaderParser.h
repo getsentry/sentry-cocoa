@@ -17,10 +17,9 @@ NS_SWIFT_NAME(RetryAfterHeaderParser)
  
  @param retryAfterHeader The header value.
  
- @return NSDate representation of Retry-After. If the date can't be parsed a default timeout
- of 60 seconds is returned.
+ @return NSDate representation of Retry-After. If the date can't be parsed nil is returned.
 */
-- (NSDate *_Nonnull)parse:(NSString *_Nullable)retryAfterHeader;
+- (NSDate *_Nullable)parse:(NSString *_Nullable)retryAfterHeader;
 
 @end
 

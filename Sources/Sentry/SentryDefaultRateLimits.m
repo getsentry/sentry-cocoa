@@ -74,6 +74,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate* retryAfterHeaderDate = nil;
     if (response.statusCode == 429) {
         retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+        
+        if (nil == retryAfterHeaderDate) {
+            // parsing failed use default value
+            retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
+        }
     }
     
     NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
