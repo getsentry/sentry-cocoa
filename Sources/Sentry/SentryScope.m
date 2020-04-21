@@ -124,14 +124,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withMaxCapacity:(NSUInteger)maxCapacity {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    @synchronized (self) {
-        [self.breadcrumbArray addObject:crumb];
-    }
-    [self notifyListeners];
-}
-
 - (void)clear {
     @synchronized (self) {
         self.breadcrumbArray = [NSMutableArray new];
