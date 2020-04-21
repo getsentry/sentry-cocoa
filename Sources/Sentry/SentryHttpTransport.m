@@ -66,7 +66,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:nil  withCompletionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEventPath envelope:nil  completionHandler:completionHandler];
 }
 
 // TODO: needs refactoring
@@ -90,9 +90,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     // TODO: We do multiple serializations here, we can improve this
-    NSString *storedEventPath = [self.fileManager storeEnvelope:envelope];
+    NSString *storedEnvelopePath = [self.fileManager storeEnvelope:envelope];
 
-    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:envelope  withCompletionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEnvelopePath envelope:envelope  completionHandler:completionHandler];
 }
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
@@ -143,15 +143,15 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)sendRequest:(NSURLRequest *)request
-withStoredEventPath:(NSString *)storedEventPath
-withEnvelope:(SentryEnvelope *)envelope
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+storedPath:(NSString *)storedPath
+envelope:(SentryEnvelope *)envelope
+completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(response, error) == NO) {
             // don't need to queue this -> it most likely got sent
             // thus we can remove the event from disk
-            [_self.fileManager removeFileAtPath:storedEventPath];
+            [_self.fileManager removeFileAtPath:storedPath];
             if (nil == error) {
                 [_self sendAllStoredEvents];
             }
