@@ -36,6 +36,35 @@
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"extra"], @{@"c": @"d"});
 }
 
+- (void)testBreadcrumbOlderReplacedByNewer {
+    NSUInteger expectedMaxBreadcrumb = 1;
+    SentryScope *scope = [[SentryScope alloc] initWithMaxBreadcrumbs:expectedMaxBreadcrumb];
+    SentryBreadcrumb *crumb1 = [[SentryBreadcrumb alloc] init];
+    [crumb1 setMessage:@"crumb 1"];
+    [scope addBreadcrumb:crumb1];
+    NSDictionary<NSString *, id> *scope1 = [scope serialize];
+    NSArray *scope1Crumbs = [scope1 objectForKey:@"breadcrumbs"];
+    XCTAssertEqual(expectedMaxBreadcrumb, [scope1Crumbs count]);
+
+    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] init];
+    [crumb2 setMessage:@"crumb 2"];
+    [scope addBreadcrumb:crumb2];
+    NSDictionary<NSString *, id> *scope2 = [scope serialize];
+    NSArray *scope2Crumbs = [scope2 objectForKey:@"breadcrumbs"];
+    XCTAssertEqual(expectedMaxBreadcrumb, [scope2Crumbs count]);
+}
+
+- (void)testDefaultMaxCapacity {
+    SentryScope *scope = [[SentryScope alloc] init];
+    for (int i = 0; i < 2000; ++i) {
+        [scope addBreadcrumb:[[SentryBreadcrumb alloc] init]];
+    }
+
+    NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
+    NSArray *scopeCrumbs = [scopeSerialized objectForKey:@"breadcrumbs"];
+    XCTAssertEqual(100, [scopeCrumbs count]);
+}
+
 - (void)testSetExtraValueForKey {
     #warning TODO implement
 }
