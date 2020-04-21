@@ -9,6 +9,7 @@
 #import "SentryDefaultRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryHttpDateParser.h"
+#import "SentryRateLimitParser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,10 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
         NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
         id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
         
+        
         SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
         SentryRetryAfterHeaderParser * retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
         
-        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithParsers:retryAfterHeaderParser];
+        SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
+        
+        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithParsers:retryAfterHeaderParser rateLimitParser:rateLimitParser];
         
         return [[SentryHttpTransport alloc] initWithOptions:options
                                           sentryFileManager:sentryFileManager sentryRequestManager: requestManager

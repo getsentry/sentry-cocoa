@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryRateLimitParser
 
-+ (NSDictionary<NSString *, NSDate *> *_Nonnull)parse:(NSString *)header {
+- (NSDictionary<NSString *, NSDate *> *_Nonnull)parse:(NSString *)header {
     
     NSMutableDictionary<NSString *, NSDate *> *rateLimits = [[NSMutableDictionary alloc] init];
     
@@ -39,12 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
     return rateLimits;
 }
 
-+ (NSString *)removeAllWhitespaces:(NSString *)string {
+- (NSString *)removeAllWhitespaces:(NSString *)string {
     NSArray *words = [string componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     return [words componentsJoinedByString:@""];
 }
 
-+ (NSNumber *)getRetryAfterInSeconds:(NSString *)string {
+- (NSNumber *)getRetryAfterInSeconds:(NSString *)string {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
     return [numberFormatter numberFromString:string];

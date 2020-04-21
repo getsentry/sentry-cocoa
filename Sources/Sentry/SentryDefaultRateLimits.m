@@ -11,15 +11,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
 @property(atomic, strong) NSDate *_Nullable retryAfterHeaderDate;
 @property(nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
+@property(nonatomic, strong) SentryRateLimitParser *rateLimitParser;
 
 @end
 
 @implementation SentryDefaultRateLimits
 
-- (instancetype) initWithParsers:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser {
+- (instancetype) initWithParsers:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+                 rateLimitParser:(SentryRateLimitParser *)rateLimitParser{
     if (self = [super init]) {
         self.rateLimits = [[NSMutableDictionary alloc] init];
         self.retryAfterHeaderParser = retryAfterHeaderParser;
+        self.rateLimitParser = rateLimitParser;
     }
     return self;
 }
@@ -71,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
-    NSDictionary<NSString *, NSDate *> * limits = [SentryRateLimitParser parse:rateLimitsHeader];
+    NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
     [self.rateLimits addEntriesFromDictionary:limits];
 }
 

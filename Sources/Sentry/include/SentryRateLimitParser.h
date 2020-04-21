@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(RateLimitParser)
 @interface SentryRateLimitParser : NSObject
 
-+ (NSDictionary<NSString *, NSDate *> *_Nonnull)parse:(NSString *)header;
+- (NSDictionary<NSString *, NSDate *> *_Nonnull)parse:(NSString *)header;
 
 @end
 
