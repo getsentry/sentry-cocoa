@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "SentryRateLimits.h"
 
+@class SentryRetryAfterHeaderParser;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -11,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 */
 NS_SWIFT_NAME(DefaultRateLimits)
 @interface SentryDefaultRateLimits : NSObject <SentryRateLimits>
+
+- (instancetype) initWithParsers:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser;
 
 - (BOOL)isRateLimitActive:(NSString *_Nonnull)type;
 

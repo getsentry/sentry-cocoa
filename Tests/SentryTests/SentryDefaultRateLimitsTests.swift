@@ -11,8 +11,8 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     override func setUp() {
         currentDateProvider = TestCurrentDateProvider()
         CurrentDate.setCurrentDateProvider(currentDateProvider)
-        
-        sut = DefaultRateLimits()
+    
+        sut = DefaultRateLimits(parsers: RetryAfterHeaderParser(httpDateParser: HttpDateParser()))
     }
     
     func testNoUpdateCalled() {
