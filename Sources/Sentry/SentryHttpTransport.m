@@ -46,7 +46,7 @@ sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
 // TODO: needs refactoring
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    if (![self isReadyToSend]) {
+    if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
         return;
     }
     
@@ -72,7 +72,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    if (![self isReadyToSend]) {
+    if (![self isReadyToSend:@""]) {
         return;
     }
     
@@ -134,12 +134,9 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // In case response is nil, we want to queue the event locally since
             // this indicates no internet connection
             return YES;
-        } else if ([response statusCode] == 429) { // HTTP 429 Too Many Requests
-            [SentryLog logWithMessage:@"Rate limit exceeded, event will be dropped" andLevel:kSentryLogLevelDebug];
-            [_self.rateLimits update:response];
-            // In case of 429 we do not even want to store the event
-            return NO;
         }
+        [_self.rateLimits update:response];
+        
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
@@ -179,13 +176,13 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  *
  * @return BOOL NO if options.enabled = false or rate limit exceeded
  */
-- (BOOL)isReadyToSend {
+- (BOOL)isReadyToSend:(NSString *_Nonnull)type {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
     }
 
-    if ([self.rateLimits isRateLimitActive:@""]) {
+    if ([self.rateLimits isRateLimitActive:type]) {
         return NO;
     }
     return YES;
@@ -197,7 +194,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  * @return BOOL YES if ready to send requests.
  */
 - (BOOL)isReadySendAllStoredEvents {
-    if (![self isReadyToSend]) {
+    if (![self isReadyToSend:@""]) {
         return NO;
     }
 

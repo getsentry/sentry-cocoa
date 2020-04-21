@@ -1,7 +1,7 @@
 import XCTest
 @testable import Sentry
 
-class SentrysutTests: XCTestCase {
+class SentryRateLimitsParserTests: XCTestCase {
     
     private var sut: RateLimitParser!
     

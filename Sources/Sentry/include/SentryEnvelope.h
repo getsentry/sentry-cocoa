@@ -34,6 +34,9 @@ SENTRY_NO_INIT
 
 @end
 
+static const NSString *SentryEnvelopeItemTypeEvent = @"event";
+static const NSString *SentryEnvelopeItemTypeSession = @"session";
+
 @interface SentryEnvelopeItem : NSObject
 SENTRY_NO_INIT
 
@@ -53,6 +56,7 @@ SENTRY_NO_INIT
 @property(nonatomic, readonly, strong) NSData *data;
 
 @end
+
 
 @interface SentryEnvelope : NSObject
 SENTRY_NO_INIT

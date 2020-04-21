@@ -93,16 +93,32 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(1, fileManager.getAllStoredEvents().count)
     }
     
-    func testSendEvent429ResponseUpdatesRateLimit() {
-        let response = given429Response()
+    func testSendEventWithRetryAfterResponse() {
+        let response = givenRetryAfterResponse()
         
         sendEvent()
         
         assertRateLimitUpdated(response: response)
     }
     
-    func testSendEnvelopeWith429ResponseUpdatesRateLimit() {
-        let response = given429Response()
+    func testSendEventWithRateLimitResponse() {
+        let response = givenRateLimitResponse()
+        
+        sendEvent()
+        
+        assertRateLimitUpdated(response: response)
+    }
+    
+    func testSendEnvelopeWithRetryAfterResponse() {
+        let response = givenRetryAfterResponse()
+        
+        sendEnvelope()
+        
+        assertRateLimitUpdated(response: response)
+    }
+    
+    func testSendEnvelopeWithRateLimitResponse() {
+        let response = givenRateLimitResponse()
         
         sendEnvelope()
         
@@ -144,12 +160,14 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(0, requestManager.requests.count)
     }
     
-    private func given429Response() -> HTTPURLResponse {
-        let response = HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
-            statusCode: 429,
-            httpVersion: nil,
-            headerFields: ["Retry-After": "1"])!
+    private func givenRetryAfterResponse() -> HTTPURLResponse {
+        let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
+        requestManager.returnResponse(response: response)
+        return response
+    }
+    
+    private func givenRateLimitResponse() -> HTTPURLResponse {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:event:key")
         requestManager.returnResponse(response: response)
         return response
     }

@@ -22,7 +22,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     func testRateLimitReached() {
         let type = "event"
         XCTAssertFalse(sut.isRateLimitActive(type))
-        let response = createRateLimitResponse(headerValue: "1:\(type):key")
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(type):key")
         sut.update(response)
         XCTAssertTrue(sut.isRateLimitActive(type))
         
@@ -71,7 +71,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     }
     
     private func testRetryHeaderWith1Second(value: String) {
-        let response = createRetryAfterResponse(headerValue: value)
+        let response = TestResponseFactory.createRetryAfterResponse(headerValue: value)
         sut.update(response)
         XCTAssertTrue(sut.isRateLimitActive(""))
         
@@ -86,28 +86,12 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     }
     
     func testRetryAfterHeaderIsEmpty() {
-        let response = createRetryAfterResponse(headerValue: "")
+        let response = TestResponseFactory.createRetryAfterResponse(headerValue: "")
      
         sut.update(response)
         XCTAssertTrue(sut.isRateLimitActive(""))
         
         currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(defaultRetryAfterInSeconds))
         XCTAssertFalse(sut.isRateLimitActive(""))
-    }
-    
-    private func createRetryAfterResponse(headerValue: String) -> HTTPURLResponse {
-        return HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
-            statusCode: 429,
-            httpVersion: nil,
-            headerFields: ["Retry-After": headerValue])!
-    }
-    
-    private func createRateLimitResponse(headerValue: String) -> HTTPURLResponse {
-        return HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["X-Sentry-Rate-Limits": headerValue])!
     }
 }
