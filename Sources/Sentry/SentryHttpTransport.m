@@ -72,6 +72,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    // TODO: Apply type based rate limiting
     if (![self isReadyToSend:@""]) {
         return;
     }
@@ -97,6 +98,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllStoredEvents {
+    // TODO: Apply type based rate limiting
     if (![self isReadySendAllStoredEvents]) {
         return;
     }
@@ -194,6 +196,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
  * @return BOOL YES if ready to send requests.
  */
 - (BOOL)isReadySendAllStoredEvents {
+    // TODO: Apply type based rate limiting
     if (![self isReadyToSend:@""]) {
         return NO;
     }
