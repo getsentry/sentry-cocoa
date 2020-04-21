@@ -26,31 +26,41 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-//TODO remove rate limit from naming because is also retry header
-- (BOOL)isRateLimitReached:(NSString *)type {
-    NSDate *rateLimitDate = self.rateLimits[type];
-    BOOL isRateLimit = [self isExpired: rateLimitDate];
-    if (isRateLimit) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelError];
+- (BOOL)isRateLimitActive:(NSString *)type {
+    if ([self isCustomHeaderRateLimitActive:type] || [self isRetryAfterHeaderLimitActive]) {
         return YES;
+    } else {
+        return NO;
     }
-    
-    if (nil != self.retryAfterHeaderDate) {
-         BOOL isRetryAfterLimit = [self isExpired:self.retryAfterHeaderDate];
-        
-        if (isRetryAfterLimit) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry After reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelError];
-            return YES;
-        }
-    }
-    
-    return NO;
 }
 
-- (BOOL)isExpired:(NSDate *)date {
-    NSDate *now = [SentryCurrentDate date];
-    NSComparisonResult result = [now compare:date];
+- (BOOL)isCustomHeaderRateLimitActive:(NSString *)type {
+    NSDate *rateLimitDate = self.rateLimits[type];
+    BOOL isActive = [self isInFuture: rateLimitDate];
+    if (isActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelError];
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
+- (BOOL)isRetryAfterHeaderLimitActive {
+    if (nil == self.retryAfterHeaderDate) {
+        return NO;
+    }
+    
+    BOOL isActive = [self isInFuture:self.retryAfterHeaderDate];
+    if (isActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry-After limit reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelError];
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (BOOL)isInFuture:(NSDate *)date {
+    NSComparisonResult result = [[SentryCurrentDate date] compare:date];
     if (result == NSOrderedAscending) {
         return YES;
     }

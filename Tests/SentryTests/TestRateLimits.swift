@@ -5,7 +5,7 @@ public class TestRateLimits : NSObject, RateLimits {
     public var responses : [HTTPURLResponse] = []
     public var isLimitRateReached: Bool = false
     
-    public func isRateLimitReached(_ type: String) -> Bool {
+    public func isRateLimitActive(_ type: String) -> Bool {
         return isLimitRateReached
     }
     
