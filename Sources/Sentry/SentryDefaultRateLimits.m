@@ -66,7 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)update:(NSHTTPURLResponse *)response {
-    
     if (response.statusCode == 429) {
         NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
         
