@@ -2,6 +2,10 @@
 
 ## unreleased
 
+## 5.0.0-beta.5
+
+- fix: Limit number of breadcrumbs #450
+
 ## 5.0.0-beta.4
 
 - feat: Add Sentry initialization function 'start' #441

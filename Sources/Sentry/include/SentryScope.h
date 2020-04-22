@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
+- (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
 
 /**

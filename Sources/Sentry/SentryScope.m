@@ -59,24 +59,31 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(atomic) enum SentryLevel levelEnum;
 
+@property(atomic) NSInteger maxBreadcrumbs;
+
 @end
 
 @implementation SentryScope
 
 #pragma mark Initializer
 
-- (instancetype)init {
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs {
     if (self = [super init]) {
         self.listeners = [NSMutableArray new];
+        self.maxBreadcrumbs = maxBreadcrumbs;
         [self clear];
         // Default values
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         if (nil != infoDict) {
             [self setRelease:[NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"], infoDict[@"CFBundleShortVersionString"],
-                infoDict[@"CFBundleVersion"]]];
+                                                        infoDict[@"CFBundleVersion"]]];
         }
     }
     return self;
+}
+
+- (instancetype)init {
+    return [self initWithMaxBreadcrumbs:100];
 }
 
 - (instancetype)initWithScope:(SentryScope *)scope {
@@ -110,6 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
     @synchronized (self) {
         [self.breadcrumbArray addObject:crumb];
+        if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
+            [self.breadcrumbArray removeObjectAtIndex:0];
+        }
     }
     [self notifyListeners];
 }
