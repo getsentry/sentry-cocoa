@@ -105,6 +105,18 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertFalse(sut.isRateLimitActive(""))
     }
     
+    func testAllTypes() {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
+        
+        sut.update(response)
+        XCTAssertTrue(sut.isRateLimitActive(""))
+        XCTAssertTrue(sut.isRateLimitActive("SomeType"))
+        
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(1))
+        XCTAssertFalse(sut.isRateLimitActive(""))
+        XCTAssertFalse(sut.isRateLimitActive("SomeType"))
+    }
+    
     func testMultipleConcurrentUpdates() {
         let queue1 = DispatchQueue(label: "SentryDefaultRateLimitsTests1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryDefaultRateLimitsTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])

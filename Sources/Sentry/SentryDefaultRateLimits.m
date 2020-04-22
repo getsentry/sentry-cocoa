@@ -39,7 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isCustomHeaderRateLimitActive:(NSString *)type {
     NSDate *rateLimitDate = self.rateLimits[type];
     BOOL isActive = [self isInFuture: rateLimitDate];
-    if (isActive) {
+    
+    NSDate *allTypesRateLimitDate = self.rateLimits[@""];
+    BOOL isAllTypesActive = [self isInFuture: allTypesRateLimitDate];
+    
+    if (isActive || isAllTypesActive) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelDebug];
         return YES;
     } else {
