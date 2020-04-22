@@ -4,7 +4,7 @@ struct TestResponseFactory {
         return HTTPURLResponse.init(
             url: URL.init(fileURLWithPath: ""),
             statusCode: 429,
-            httpVersion: "2",
+            httpVersion: "1.1",
             headerFields: ["Retry-After": headerValue])!
     }
     
@@ -12,7 +12,7 @@ struct TestResponseFactory {
         return HTTPURLResponse.init(
             url: URL.init(fileURLWithPath: ""),
             statusCode: 200,
-            httpVersion: nil,
+            httpVersion: "1.1",
             headerFields: ["X-Sentry-Rate-Limits": headerValue])!
     }
 }
