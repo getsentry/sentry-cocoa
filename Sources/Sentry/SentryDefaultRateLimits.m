@@ -71,26 +71,24 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)update:(NSHTTPURLResponse *)response {
-    NSDate* retryAfterHeaderDate = nil;
-    if (response.statusCode == 429) {
-        retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+    NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
+    if (nil != rateLimitsHeader) {
+        NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
+        
+        @synchronized (self) {
+            [self.rateLimits addEntriesFromDictionary:limits];
+        }
+    } else if (response.statusCode == 429) {
+        NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
         
         if (nil == retryAfterHeaderDate) {
             // parsing failed use default value
             retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
         }
-    }
-    
-    NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
-    NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
-    
-    // Keep the sync block as small as possible
-    @synchronized (self) {
-        if (nil != retryAfterHeaderDate) {
+        
+        @synchronized (self) {
             self.retryAfterHeaderDate = retryAfterHeaderDate;
         }
-        
-        [self.rateLimits addEntriesFromDictionary:limits];
     }
 }
 

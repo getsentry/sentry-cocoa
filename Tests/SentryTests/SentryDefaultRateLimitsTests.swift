@@ -36,28 +36,38 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertFalse(sut.isRateLimitActive(type))
     }
     
-    func testRateLimitExpiredButRetryAfterHeaderNot() {
+    func testRateLimitAndRetryHeader() {
         let type = "transaction"
         let response = HTTPURLResponse.init(
             url: URL.init(fileURLWithPath: ""),
             statusCode: 429,
-            httpVersion: nil,
+            httpVersion: "1.1",
             headerFields: [
                 "Retry-After": "2",
                 "X-Sentry-Rate-Limits": "1:\(type):key"
         ])!
         sut.update(response)
         XCTAssertTrue(sut.isRateLimitActive(type))
+        // If X-Sentry-Rate-Limits is set Retry-After is ignored
+        XCTAssertFalse(sut.isRateLimitActive("anyType"))
         
-        // Rate Limit expired, but Retry-After not
+        // Rate Limit expired
         let date = currentDateProvider.date()
-        currentDateProvider.setDate(date: date.addingTimeInterval(1.999))
-        XCTAssertTrue(sut.isRateLimitActive(type))
-        XCTAssertTrue(sut.isRateLimitActive("anyType"))
-        
-        // Retry-After expired
-        currentDateProvider.setDate(date: date.addingTimeInterval(2))
+        currentDateProvider.setDate(date: date.addingTimeInterval(1))
         XCTAssertFalse(sut.isRateLimitActive(type))
+        XCTAssertFalse(sut.isRateLimitActive("anyType"))
+    }
+    
+    func testRetryHeaderIn503() {
+        let response = HTTPURLResponse.init(
+            url: URL.init(fileURLWithPath: ""),
+            statusCode: 503,
+            httpVersion: "1.1",
+            headerFields: [
+                "Retry-After": "2"
+        ])!
+        sut.update(response)
+
         XCTAssertFalse(sut.isRateLimitActive("anyType"))
     }
 
