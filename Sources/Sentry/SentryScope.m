@@ -7,8 +7,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSInteger const defaultMaxBreadcrumbsCap = 250;
-
 @interface SentryScope ()
 
 /**
@@ -85,7 +83,7 @@ NSInteger const defaultMaxBreadcrumbsCap = 250;
 }
 
 - (instancetype)init {
-    return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbsCap];
+    return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
 }
 
 - (instancetype)initWithScope:(SentryScope *)scope {

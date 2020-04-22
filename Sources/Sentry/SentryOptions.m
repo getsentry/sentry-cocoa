@@ -87,7 +87,7 @@
         self.maxBreadcrumbs = [[options objectForKey:@"maxBreadcrumbs"] unsignedIntValue];
     } else {
         // fallback value
-        self.maxBreadcrumbs = [@100 unsignedIntValue];
+        self.maxBreadcrumbs = defaultMaxBreadcrumbs;
     }
 
     if (nil != [options objectForKey:@"beforeSend"]) {
