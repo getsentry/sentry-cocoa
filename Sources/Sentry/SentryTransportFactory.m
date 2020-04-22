@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
         SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
         SentryRetryAfterHeaderParser * retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
         SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
-        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithParsers:retryAfterHeaderParser rateLimitParser:rateLimitParser];
+        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser andRateLimitParser:rateLimitParser];
         
         return [[SentryHttpTransport alloc] initWithOptions:options
                                           sentryFileManager:sentryFileManager sentryRequestManager: requestManager

@@ -21,7 +21,7 @@ class SentryHttpTransportTests: XCTestCase {
             
             options = try Options(dict: ["dsn": TestConstants.dsnAsString])
             
-            rateLimits = DefaultRateLimits(parsers: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), rateLimitParser: RateLimitParser())
+            rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
             
             sut = SentryHttpTransport(
                 options: options,

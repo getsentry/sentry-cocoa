@@ -19,8 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDefaultRateLimits
 
-- (instancetype) initWithParsers:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
-                 rateLimitParser:(SentryRateLimitParser *)rateLimitParser{
+- (instancetype) initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+                 andRateLimitParser:(SentryRateLimitParser *)rateLimitParser{
     if (self = [super init]) {
         self.rateLimits = [[NSMutableDictionary alloc] init];
         self.retryAfterHeaderParser = retryAfterHeaderParser;
