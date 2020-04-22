@@ -25,12 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    NSDate *now = [SentryCurrentDate date];
-
-    // try to parse as double/seconds
-    double retryAfterSeconds = [retryAfterHeader doubleValue];
+    NSInteger retryAfterSeconds = [retryAfterHeader integerValue];
     if (0 != retryAfterSeconds) {
-        return [now dateByAddingTimeInterval:retryAfterSeconds];
+        return [[SentryCurrentDate date] dateByAddingTimeInterval:retryAfterSeconds];
     }
 
     // parsing as double/seconds failed, try to parse as date

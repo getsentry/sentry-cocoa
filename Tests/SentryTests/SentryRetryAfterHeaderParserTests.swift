@@ -36,6 +36,11 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
         testWith(header: "10", expected: date)
     }
     
+    func test10WithComma() {
+        let date = currentDateProvider.date().addingTimeInterval(10)
+        testWith(header: "10.20", expected: date)
+    }
+    
     func testHTTPDate() {
         let expected = currentDateProvider.date()
         let httpDateAsString = HttpDateFormatter.string(from: expected)
