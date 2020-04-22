@@ -14,7 +14,8 @@
 - (void)testNil {
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wnonnull"
-    NSDictionary<NSString *, NSDate *> *actual = [SentryRateLimitParser parse:nil];
+    SentryRateLimitParser *sut = [[SentryRateLimitParser alloc] init];
+    NSDictionary<NSString *, NSDate *> *actual = [sut parse:nil];
     #pragma clang diagnostic pop
     
     XCTAssertEqual(0, [actual count]);

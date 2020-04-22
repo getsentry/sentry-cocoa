@@ -2,20 +2,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO: implement new Rate Limit strategy.
-/*
- * Parses http responses from the Sentry server for rate limits.
- * The server sends either a 429 status code or a custom header
- * "X-Sentry-Rate-Limits".
- * If the server communicates that a rate limit is reached this
- * component saves the rate limit and returns NO for
- * isRateLimitReached.
- */
+/**
+ Parses HTTP responses from the Sentry server for rate limits.
+ When a rate limit is reached the SDK should stop data transmission
+ until the rate limit has expired.
+*/
 NS_SWIFT_NAME(RateLimits)
 @protocol SentryRateLimits <NSObject>
 
-- (BOOL)isRateLimitReached;
+/**
+Check if a type has reached a rate limit.
+ @param type the type e.g. event, session, etc
+ 
+ @return BOOL YES if limit is reached, NO otherwise.
+ */
+- (BOOL)isRateLimitActive:(NSString *)type;
 
+/**
+Should be called for each HTTP response of the Sentry
+ server. It checks the response for any communicated rate limits.
+ 
+ @param response The response from the server
+ */
 - (void)update:(NSHTTPURLResponse *)response;
 
 @end

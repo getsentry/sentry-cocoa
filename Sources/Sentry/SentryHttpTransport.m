@@ -46,7 +46,7 @@ sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
 // TODO: needs refactoring
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    if (![self isReadyToSend]) {
+    if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
         return;
     }
     
@@ -66,13 +66,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
 
-    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:nil  withCompletionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEventPath envelope:nil  completionHandler:completionHandler];
 }
 
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    if (![self isReadyToSend]) {
+    // TODO: Apply type based rate limiting
+    if (![self isReadyToSend:@""]) {
         return;
     }
     
@@ -90,13 +91,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
 
     // TODO: We do multiple serializations here, we can improve this
-    NSString *storedEventPath = [self.fileManager storeEnvelope:envelope];
+    NSString *storedEnvelopePath = [self.fileManager storeEnvelope:envelope];
 
-    [self sendRequest:request withStoredEventPath:storedEventPath withEnvelope:envelope  withCompletionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEnvelopePath envelope:envelope  completionHandler:completionHandler];
 }
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllStoredEvents {
+    // TODO: Apply type based rate limiting
     if (![self isReadySendAllStoredEvents]) {
         return;
     }
@@ -134,27 +136,24 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // In case response is nil, we want to queue the event locally since
             // this indicates no internet connection
             return YES;
-        } else if ([response statusCode] == 429) { // HTTP 429 Too Many Requests
-            [SentryLog logWithMessage:@"Rate limit exceeded, event will be dropped" andLevel:kSentryLogLevelDebug];
-            [_self.rateLimits update:response];
-            // In case of 429 we do not even want to store the event
-            return NO;
         }
+        [_self.rateLimits update:response];
+        
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
 }
 
 - (void)sendRequest:(NSURLRequest *)request
-withStoredEventPath:(NSString *)storedEventPath
-withEnvelope:(SentryEnvelope *)envelope
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+storedPath:(NSString *)storedPath
+envelope:(SentryEnvelope *)envelope
+completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(response, error) == NO) {
             // don't need to queue this -> it most likely got sent
             // thus we can remove the event from disk
-            [_self.fileManager removeFileAtPath:storedEventPath];
+            [_self.fileManager removeFileAtPath:storedPath];
             if (nil == error) {
                 [_self sendAllStoredEvents];
             }
@@ -179,13 +178,13 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  *
  * @return BOOL NO if options.enabled = false or rate limit exceeded
  */
-- (BOOL)isReadyToSend {
+- (BOOL)isReadyToSend:(NSString *_Nonnull)type {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
     }
 
-    if ([self.rateLimits isRateLimitReached]) {
+    if ([self.rateLimits isRateLimitActive:type]) {
         return NO;
     }
     return YES;
@@ -197,7 +196,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
  * @return BOOL YES if ready to send requests.
  */
 - (BOOL)isReadySendAllStoredEvents {
-    if (![self isReadyToSend]) {
+    // TODO: Apply type based rate limiting
+    if (![self isReadyToSend:@""]) {
         return NO;
     }
 

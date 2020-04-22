@@ -1,10 +1,13 @@
 import XCTest
 @testable import Sentry
 
-class SentryRateLimitParserTests: XCTestCase {
+class SentryRateLimitsParserTests: XCTestCase {
+    
+    private var sut: RateLimitParser!
     
     override func setUp() {
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        sut = RateLimitParser()
     }
     
     func testOneQuotaOneCategory() {
@@ -12,7 +15,7 @@ class SentryRateLimitParserTests: XCTestCase {
             "transaction": CurrentDate.date().addingTimeInterval(50)
         ]
         
-        let actual = RateLimitParser.parse("50:transaction:key")
+        let actual = sut.parse("50:transaction:key")
         
         XCTAssertEqual(expected, actual)
     }
@@ -24,7 +27,7 @@ class SentryRateLimitParserTests: XCTestCase {
             "event": retryAfter
         ]
         
-        let actual = RateLimitParser.parse("50:transaction;event:key")
+        let actual = sut.parse("50:transaction;event:key")
         
         XCTAssertEqual(expected, actual)
     }
@@ -38,7 +41,7 @@ class SentryRateLimitParserTests: XCTestCase {
             "security": retryAfter2700,
         ]
         
-        let actual = RateLimitParser.parse("50:transaction:key, 2700:default;event;security:organization")
+        let actual = sut.parse("50:transaction:key, 2700:default;event;security:organization")
         
         XCTAssertEqual(expected, actual)
     }
@@ -46,7 +49,7 @@ class SentryRateLimitParserTests: XCTestCase {
     func testInvalidRetryAfter() {
         let expected = ["default":CurrentDate.date().addingTimeInterval(1)]
         
-        let actual = RateLimitParser.parse("A1:transaction:key, 1:default:organization, -20:B:org, 0:event:key")
+        let actual = sut.parse("A1:transaction:key, 1:default:organization, -20:B:org, 0:event:key")
         
         XCTAssertEqual(expected, actual)
     }
@@ -54,7 +57,7 @@ class SentryRateLimitParserTests: XCTestCase {
     func testAllCategories() {
         let expected = ["" : CurrentDate.date().addingTimeInterval(1000)]
         
-        let actual = RateLimitParser.parse("1000::organization ")
+        let actual = sut.parse("1000::organization ")
         
         XCTAssertEqual(expected, actual)
     }
@@ -66,20 +69,20 @@ class SentryRateLimitParserTests: XCTestCase {
                         "event": retryAfter10
         ]
         
-        let actual = RateLimitParser.parse(" 67: :organization ,  10 :transa cti on; event: key")
+        let actual = sut.parse(" 67: :organization ,  10 :transa cti on; event: key")
         
         XCTAssertEqual(expected, actual)
     }
     
     func testEmptyString() {
-        XCTAssertEqual([:], RateLimitParser.parse(""))
+        XCTAssertEqual([:], sut.parse(""))
     }
     
     func testGarbageHeaders() {
-        XCTAssertEqual([:], RateLimitParser.parse("Garb age13$@#"))
-        XCTAssertEqual([:], RateLimitParser.parse(";;;!,  ;"))
-        XCTAssertEqual([:], RateLimitParser.parse("  \n\n  "))
-        XCTAssertEqual([:], RateLimitParser.parse("\n\n"))
+        XCTAssertEqual([:], sut.parse("Garb age13$@#"))
+        XCTAssertEqual([:], sut.parse(";;;!,  ;"))
+        XCTAssertEqual([:], sut.parse("  \n\n  "))
+        XCTAssertEqual([:], sut.parse("\n\n"))
     }
     
     func testValidHeaderAndGarbage() {
@@ -87,7 +90,7 @@ class SentryRateLimitParserTests: XCTestCase {
             "transaction": CurrentDate.date().addingTimeInterval(50)
         ]
         
-        let actual = RateLimitParser.parse("A9813Hell,50:transaction:key,123Garbage")
+        let actual = sut.parse("A9813Hell,50:transaction:key,123Garbage")
         
         XCTAssertEqual(expected, actual)
     }

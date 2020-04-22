@@ -1,106 +1,99 @@
 #import <Foundation/Foundation.h>
 #import "SentryDefaultRateLimits.h"
 #import "SentryCurrentDate.h"
-#import "SentryHttpDateParser.h"
 #import "SentryLog.h"
+#import "SentryRateLimitParser.h"
+#import "SentryRetryAfterHeaderParser.h"
 
 NS_ASSUME_NONNULL_BEGIN
-/*
- * This code was moved from SentryHttpTransport and needs to be updated.
- */
 @interface SentryDefaultRateLimits ()
 
-@property(nonatomic, strong) NSDictionary<NSString *, NSDate *> *rateLimits;
-@property(nonatomic, strong) SentryHttpDateParser *httpDateParser;
+/* Key is the type and value is valid until date */
+@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
+@property(nonatomic, strong) NSDate *_Nullable retryAfterHeaderDate;
 
-/**
- * datetime until we keep radio silence. Populated when response has HTTP 429
- * and "Retry-After" header -> rate limit exceeded.
- */
-@property(atomic, strong) NSDate *_Nullable radioSilenceDeadline;
+@property(nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
+@property(nonatomic, strong) SentryRateLimitParser *rateLimitParser;
 
 @end
 
 @implementation SentryDefaultRateLimits
 
-- (instancetype)init
-{
+- (instancetype) initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+                 andRateLimitParser:(SentryRateLimitParser *)rateLimitParser{
     if (self = [super init]) {
-        self.rateLimits = [[NSDictionary alloc] init];
-        self.httpDateParser = [[SentryHttpDateParser alloc] init];
+        self.rateLimits = [[NSMutableDictionary alloc] init];
+        self.retryAfterHeaderParser = retryAfterHeaderParser;
+        self.rateLimitParser = rateLimitParser;
     }
     return self;
 }
 
-- (BOOL)isRateLimitReached {
-    if (nil == self.radioSilenceDeadline) {
-        return NO;
+- (BOOL)isRateLimitActive:(NSString *)type {
+    @synchronized (self) {
+        return [self isCustomHeaderRateLimitActive:type] ||
+        [self isRetryAfterHeaderLimitActive];
     }
+}
 
-    NSDate *now = [SentryCurrentDate date];
-    NSComparisonResult result = [now compare:[self radioSilenceDeadline]];
-
-    if (result == NSOrderedAscending) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate limit reached until: %@",  self.radioSilenceDeadline] andLevel:kSentryLogLevelError];
+- (BOOL)isCustomHeaderRateLimitActive:(NSString *)type {
+    NSDate *rateLimitDate = self.rateLimits[type];
+    BOOL isActive = [self isInFuture: rateLimitDate];
+    
+    NSDate *allTypesRateLimitDate = self.rateLimits[@""];
+    BOOL isAllTypesActive = [self isInFuture: allTypesRateLimitDate];
+    
+    if (isActive || isAllTypesActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelDebug];
         return YES;
     } else {
-        self.radioSilenceDeadline = nil;
         return NO;
     }
 }
 
-/**
- * When rate limit has been exceeded we updates the radio silence deadline and
- * therefor activates radio silence for at least
- * 60 seconds (default, see `defaultRadioSilenceDeadline`).
- */
+- (BOOL)isRetryAfterHeaderLimitActive {
+    if (nil == self.retryAfterHeaderDate) {
+        return NO;
+    }
+    
+    BOOL isActive = [self isInFuture:self.retryAfterHeaderDate];
+    if (isActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Retry-After limit reached until: %@",  self.retryAfterHeaderDate] andLevel:kSentryLogLevelDebug];
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (BOOL)isInFuture:(NSDate *)date {
+    NSComparisonResult result = [[SentryCurrentDate date] compare:date];
+    if (result == NSOrderedAscending) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (void)update:(NSHTTPURLResponse *)response {
-    self.radioSilenceDeadline = [self parseRetryAfterHeader:response.allHeaderFields[@"Retry-After"]];
-}
-
-/**
- * used if actual time/deadline couldn't be determined.
- */
-- (NSDate *)defaultRadioSilenceDeadline {
-    return [[SentryCurrentDate date] dateByAddingTimeInterval:60];
-}
-
-/**
- * parses value of HTTP Header "Retry-After" which in most cases is sent in
- * combination with HTTP status 429 Too Many Requests.
- *
- * Retry-After value is a time-delta in seconds or a date.
- * In every case this method computes the date aka. `radioSilenceDeadline`.
- *
- * See RFC2616 for details on "Retry-After".
- * https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.37
- *
- * @return NSDate representation of Retry-After.
- *         As fallback `defaultRadioSilenceDeadline` is returned if parsing was
- *         unsuccessful.
- */
-- (NSDate *)parseRetryAfterHeader:(NSString * __nullable)retryAfterHeader {
-    if (nil == retryAfterHeader || 0 == [retryAfterHeader length]) {
-        return [self defaultRadioSilenceDeadline];
+    NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
+    if (nil != rateLimitsHeader) {
+        NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
+        
+        @synchronized (self) {
+            [self.rateLimits addEntriesFromDictionary:limits];
+        }
+    } else if (response.statusCode == 429) {
+        NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+        
+        if (nil == retryAfterHeaderDate) {
+            // parsing failed use default value
+            retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
+        }
+        
+        @synchronized (self) {
+            self.retryAfterHeaderDate = retryAfterHeaderDate;
+        }
     }
-
-    NSDate *now = [SentryCurrentDate date];
-
-    // try to parse as double/seconds
-    double retryAfterSeconds = [retryAfterHeader doubleValue];
-    NSLog(@"parseRetryAfterHeader string '%@' to double: %f", retryAfterHeader, retryAfterSeconds);
-    if (0 != retryAfterSeconds) {
-        return [now dateByAddingTimeInterval:retryAfterSeconds];
-    }
-
-    // parsing as double/seconds failed, try to parse as date
-    NSDate *retryAfterDate = [self.httpDateParser dateFromString:retryAfterHeader];
-
-    if (nil == retryAfterDate) {
-        // parsing as seconds and date failed
-        return [self defaultRadioSilenceDeadline];
-    }
-    return retryAfterDate;
 }
 
 @end
