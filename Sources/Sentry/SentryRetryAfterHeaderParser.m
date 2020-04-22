@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     // try to parse as double/seconds
     double retryAfterSeconds = [retryAfterHeader doubleValue];
-    NSLog(@"parseRetryAfterHeader string '%@' to double: %f", retryAfterHeader, retryAfterSeconds);
     if (0 != retryAfterSeconds) {
         return [now dateByAddingTimeInterval:retryAfterSeconds];
     }
