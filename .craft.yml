@@ -1,4 +1,4 @@
-minVersion: '0.9.1'
+minVersion: '0.9.3'
 github:
   owner: getsentry
   repo: sentry-cocoa
@@ -12,5 +12,6 @@ targets:
     specPath: Sentry.podspec
   - name: registry
     type: sdk
+    linkPrereleases: true
     config:
       canonical: 'cocoapods:sentry-cocoa'
