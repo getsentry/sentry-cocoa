@@ -43,10 +43,14 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate *allTypesRateLimitDate = self.rateLimits[@""];
     BOOL isAllTypesActive = [self isInFuture: allTypesRateLimitDate];
     
-    if (isActive || isAllTypesActive) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limits reached until: %@",  rateLimitDate] andLevel:kSentryLogLevelDebug];
+    if (isActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limit reached for type %@ until: %@", type, rateLimitDate] andLevel:kSentryLogLevelDebug];
         return YES;
-    } else {
+    } else if (isAllTypesActive) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limit reached for all types until: %@",  allTypesRateLimitDate] andLevel:kSentryLogLevelDebug];
+        return YES;
+    }
+    else {
         return NO;
     }
 }
