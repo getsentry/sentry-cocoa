@@ -54,6 +54,10 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, copy) NSNumber *enabled;
 
+/**
+ * How many breadcrumbs do you want to keep in memory?
+ * We have a hard cap limit on 250. Default is 100.
+ */
 @property(nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**

@@ -40,4 +40,71 @@
     XCTAssertNil(scopeBreadcrumbs);
 }
 
+- (void)testBreadcrumbLimitThroughOptionsUsingHubAddBreadcrumb {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn": @"https://username@sentry.io/1",
+        @"maxBreadcrumbs": @10
+        
+    } didFailWithError: &error];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:nil];
+    [hub bindClient:client];
+
+    for (int i = 0; i <= 15; i++) {
+        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError category:@"default"];
+        [hub addBreadcrumb:crumb];
+    }
+    SentryScope *scope = [hub getScope];
+    NSArray *scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
+    XCTAssertNotNil(scopeBreadcrumbs);
+    XCTAssertEqual([scopeBreadcrumbs count], 10);
+}
+
+- (void)testBreadcrumbLimitThroughOptionsUsingConfigureScope {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn": @"https://username@sentry.io/1",
+        @"maxBreadcrumbs": @10
+        
+    } didFailWithError: &error];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:nil];
+    [hub bindClient:client];
+
+    
+    for (int i = 0; i <= 15; i++) {
+        [hub configureScope:^(SentryScope * _Nonnull scope) {
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError category:@"default"];
+            [scope addBreadcrumb:crumb];
+        }];
+    }
+    SentryScope *scope = [hub getScope];
+    NSArray *scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
+    XCTAssertNotNil(scopeBreadcrumbs);
+    XCTAssertEqual([scopeBreadcrumbs count], 10);
+}
+
+- (void)testBreadcrumbHardCapLimit {
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn": @"https://username@sentry.io/1",
+    } didFailWithError: &error];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
+    [hub bindClient:client];
+
+    for (int i = 0; i <= 500; i++) {
+        [hub configureScope:^(SentryScope * _Nonnull scope) {
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError category:@"default"];
+            [scope addBreadcrumb:crumb];
+        }];
+    }
+    
+    SentryScope *scope = [hub getScope];
+    NSArray *scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
+    XCTAssertNotNil(scopeBreadcrumbs);
+    XCTAssertEqual([scopeBreadcrumbs count], 250);
+}
+
 @end

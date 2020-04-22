@@ -22,8 +22,8 @@
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope {
     if (self = [super init]) {
-        self.scope = scope;
         [self bindClient:client];
+        self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
     }
     return self;
@@ -166,10 +166,17 @@
 }
 
 - (SentryScope *)getScope {
-    if (self.scope == nil) {
-        self.scope = [[SentryScope alloc] init];
+    @synchronized (self) {
+        if (self.scope == nil) {
+            SentryClient *client = [self getClient];
+            if (nil != client) {
+                self.scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+            } else {
+                self.scope = [[SentryScope alloc] init];
+            }
+        }
+        return self.scope;
     }
-    return self.scope;
 }
 
 - (void)bindClient:(SentryClient * _Nullable)client {

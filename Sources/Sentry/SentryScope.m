@@ -7,6 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSInteger const defaultMaxBreadcrumbsCap = 250;
+
 @interface SentryScope ()
 
 /**
@@ -83,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init {
-    return [self initWithMaxBreadcrumbs:100];
+    return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbsCap];
 }
 
 - (instancetype)initWithScope:(SentryScope *)scope {
@@ -99,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
             user.username = scopeUser.username;
             user.email = scopeUser.email;
         }
+        self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = user;
         self.contextDictionary = scope.contextDictionary.mutableCopy;
         self.breadcrumbArray = scope.breadcrumbArray.mutableCopy;
