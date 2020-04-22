@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Use maxBreadcrumbs from options #451
+
 ## 5.0.0-beta.5
 
 - fix: Limit number of breadcrumbs #450

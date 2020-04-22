@@ -88,3 +88,5 @@ static NSString *_Nonnull const SentryLevelNames[] = {
         @"error",
         @"fatal",
 };
+
+static NSUInteger const defaultMaxBreadcrumbs = 100;
