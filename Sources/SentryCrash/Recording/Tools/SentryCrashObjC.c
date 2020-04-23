@@ -806,6 +806,9 @@ bool sentrycrashobjc_ivarNamed(const void* const classPtr, const char* name, Sen
     const struct ivar_list_t* ivars = getClassRO(classPtr)->ivars;
     uintptr_t ivarPtr = (uintptr_t)&ivars->first;
     const struct ivar_t* ivar = (void*)ivarPtr;
+    if (ivars == NULL) {
+        return false;
+    }
     for(int i = 0; i < (int)ivars->count; i++)
     {
         if(ivar->name != NULL && strcmp(name, ivar->name) == 0)
