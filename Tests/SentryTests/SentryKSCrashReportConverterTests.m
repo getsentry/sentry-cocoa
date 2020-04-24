@@ -20,58 +20,48 @@
     [super tearDown];
 }
 
-//- (void)testConvertReport {
-//    reportPath = @"Resources/crash-report-1";
-//    NSDictionary *report = [self getCrashReport];
-//
-//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
-//    SentryEvent *event = [reportConverter convertReportToEvent];
-//    XCTAssertNotNil(event);
-//    XCTAssertEqualObjects([NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
-//    XCTAssertEqual(event.debugMeta.count, (unsigned long)256);
-//    SentryDebugMeta *firstDebugImage = event.debugMeta.firstObject;
-//    XCTAssertTrue([firstDebugImage.name isEqualToString:@"/var/containers/Bundle/Application/94765405-4249-4E20-B1E7-9801C14D5645/CrashProbeiOS.app/CrashProbeiOS"]);
-//    XCTAssertTrue([firstDebugImage.uuid isEqualToString:@"363F8E49-2D2A-3A26-BF90-60D6A8896CF0"]);
-//    XCTAssertTrue([firstDebugImage.imageAddress isEqualToString:@"0x0000000100034000"]);
-//    XCTAssertTrue([firstDebugImage.imageVmAddress isEqualToString:@"0x0000000100000000"]);
-//    XCTAssertEqualObjects(firstDebugImage.imageSize, @(65536));
-//    XCTAssertEqualObjects(firstDebugImage.cpuType, @(16777228));
-//    XCTAssertEqualObjects(firstDebugImage.cpuSubType, @(0));
-//    XCTAssertEqualObjects(firstDebugImage.majorVersion, @(0));
-//    XCTAssertEqualObjects(firstDebugImage.minorVersion, @(0));
-//    XCTAssertEqualObjects(firstDebugImage.revisionVersion, @(0));
-//
-//    SentryException *exception = event.exceptions.firstObject;
-//    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
-//    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
-//    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
-//    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x4"], @"0x0000000102468000");
-//    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
-//
-//    XCTAssertEqualObjects(exception.thread.crashed, @(YES));
-//    XCTAssertEqualObjects(exception.thread.current, @(NO));
-//    XCTAssertEqualObjects(exception.thread.name, @"com.apple.main-thread");
-//    XCTAssertEqual(event.threads.count, (unsigned long)10);
-//
-//    XCTAssertEqual(event.exceptions.count, (unsigned long)1);
-//    SentryThread *firstThread = event.threads.firstObject;
-//    XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
-//    XCTAssertNil(firstThread.stacktrace);
-//    NSString *code = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
-//    NSString *number = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.number"]];
-//    NSString *exc = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"mach_exception.name"]];
-//    XCTAssertEqualObjects(code, @"0");
-//    XCTAssertEqualObjects(number, @"10");
-//    XCTAssertEqualObjects(exc, @"EXC_BAD_ACCESS");
-//    XCTAssertEqualObjects([exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
-//
-//    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
-//    XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
-//    XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
-//
-//    XCTAssertEqualObjects(event.releaseName, @"io.sentry.crashTest-1.4.1");
-//    XCTAssertEqualObjects(event.dist, @"201702072010");
-//}
+- (void)testConvertReport {
+    NSDictionary *report = [self getCrashReport:@"Resources/crash-report-1"];
+
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertNotNil(event);
+    XCTAssertEqualObjects([NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
+    XCTAssertEqual(event.debugMeta.count, (unsigned long)256);
+    SentryDebugMeta *firstDebugImage = event.debugMeta.firstObject;
+    XCTAssertTrue([firstDebugImage.name isEqualToString:@"/var/containers/Bundle/Application/94765405-4249-4E20-B1E7-9801C14D5645/CrashProbeiOS.app/CrashProbeiOS"]);
+    XCTAssertTrue([firstDebugImage.uuid isEqualToString:@"363F8E49-2D2A-3A26-BF90-60D6A8896CF0"]);
+    XCTAssertTrue([firstDebugImage.imageAddress isEqualToString:@"0x0000000100034000"]);
+    XCTAssertTrue([firstDebugImage.imageVmAddress isEqualToString:@"0x0000000100000000"]);
+    XCTAssertEqualObjects(firstDebugImage.imageSize, @(65536));
+    
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
+    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
+    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
+    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x4"], @"0x0000000102468000");
+    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
+
+    XCTAssertEqualObjects(exception.thread.crashed, @(YES));
+    XCTAssertEqualObjects(exception.thread.current, @(NO));
+    XCTAssertEqualObjects(exception.thread.name, @"com.apple.main-thread");
+    XCTAssertEqual(event.threads.count, (unsigned long)9);
+
+    XCTAssertEqual(event.exceptions.count, (unsigned long)1);
+    SentryThread *firstThread = event.threads.firstObject;
+    XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
+    NSString *code = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
+    NSString *number = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.number"]];
+    NSString *exc = [NSString stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"mach_exception.name"]];
+    XCTAssertEqualObjects(code, @"0");
+    XCTAssertEqualObjects(number, @"10");
+    XCTAssertEqualObjects(exc, @"EXC_BAD_ACCESS");
+    XCTAssertEqualObjects([exception.mechanism.data valueForKeyPath:@"relevant_address"], @"0x0000000102468000");
+
+    XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
+    XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
+    XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
+}
 
 - (void)testRawWithCrashReport {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/raw-crash"];
@@ -89,14 +79,9 @@
     }
 }
 
-//- (void)testAbort {
-//    reportPath = @"Resources/Abort";
-//    [self isValidReport];
-//    NSDictionary *rawCrash = [self getCrashReport];
-//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-//    SentryEvent *event = [reportConverter convertReportToEvent];
-//    XCTAssertEqualObjects([[event serialize] valueForKeyPath:@"contexts.os.name"], @"iOS");
-//}
+- (void)testAbort {
+    [self isValidReport:@"Resources/Abort"];
+}
 
 - (void)testMissingBinary {
     [self isValidReport:@"Resources/Crash-missing-binary-images"];
@@ -259,20 +244,5 @@
 
     NSLog(@"%@", [NSString stringWithFormat:@"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
 }
-//
-//
-//- (void)testSentryLevelFromString {
-//    NSDictionary *report = [self getCrashReport];
-//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:report];
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:nil], kSentryLevelError);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"log"], kSentryLevelInfo);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"info"], kSentryLevelInfo);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"bla"], kSentryLevelError);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"error"], kSentryLevelError);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"fatal"], kSentryLevelFatal);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"debug"], kSentryLevelDebug);
-//    XCTAssertEqual([SentryJavaScriptBridgeHelper sentryLevelFromString:@"warning"], kSentryLevelWarning);
-//}
-
 
 @end
