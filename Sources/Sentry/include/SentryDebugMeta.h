@@ -32,6 +32,11 @@ NS_SWIFT_NAME(DebugMeta)
  */
 @property(nonatomic, copy) NSString *_Nullable imageAddress;
 
+/**
+ * Image vm address
+ */
+@property(nonatomic, copy) NSString *_Nullable imageVmAddress;
+
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 

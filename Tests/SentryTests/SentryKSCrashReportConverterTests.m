@@ -76,24 +76,23 @@ NSString *reportPath = @"";
 //    XCTAssertEqualObjects(event.dist, @"201702072010");
 //}
 
-// TODO
-//- (void)testRawWithCrashReport {
-//    reportPath = @"Resources/raw-crash";
-//    NSDictionary *rawCrash = [self getCrashReport];
-//    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
-//    SentryEvent *event = [reportConverter convertReportToEvent];
-//    NSDictionary *serializedEvent = [event serialize];
-//
-//    reportPath = @"Resources/converted-event";
-//    NSDictionary *eventJson = [self getCrashReport];
-//
-//    NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
-//    NSArray *serializedDebugImages = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
-//    XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
-//    for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
-//        [self compareDict:[convertedDebugImages objectAtIndex:i] withDict:[serializedDebugImages objectAtIndex:i]];
-//    }
-//}
+- (void)testRawWithCrashReport {
+    reportPath = @"Resources/raw-crash";
+    NSDictionary *rawCrash = [self getCrashReport];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    NSDictionary *serializedEvent = [event serialize];
+
+    reportPath = @"Resources/converted-event";
+    NSDictionary *eventJson = [self getCrashReport];
+
+    NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
+    NSArray *serializedDebugImages = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
+    XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
+    for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
+        [self compareDict:[convertedDebugImages objectAtIndex:i] withDict:[serializedDebugImages objectAtIndex:i]];
+    }
+}
 
 //- (void)testAbort {
 //    reportPath = @"Resources/Abort";
