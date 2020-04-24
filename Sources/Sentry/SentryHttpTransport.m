@@ -98,35 +98,39 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllStoredEvents {
-    // TODO: Apply type based rate limiting
-    if (![self isReadySendAllStoredEvents]) {
+    if (![self.requestManager isReady]) {
         return;
     }
     
     dispatch_group_t dispatchGroup = dispatch_group_create();
-    for (NSDictionary<NSString *, id> *fileDictionary in [self.fileManager getAllStoredEvents]) {
+    for (NSDictionary<NSString *, id> *eventDictionary in [self.fileManager getAllStoredEvents]) {
         dispatch_group_enter(dispatchGroup);
+        
+        if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
+            [self.fileManager removeFileAtPath:eventDictionary[@"path"]];
+        } else {
+            SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+                                                                                      andData:eventDictionary[@"data"]
+                                                                             didFailWithError:nil];
+            
+            
+            [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+                // TODO: How does beforeSend work here
+                // We want to delete the event here no matter what (if we had an internet connection)
+                // since it has been tried already.
+                if (response != nil) {
+                    [self.fileManager removeFileAtPath:eventDictionary[@"path"]];
+                }
 
-        SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                                  andData:fileDictionary[@"data"]
-                                                                         didFailWithError:nil];
-        [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            // TODO: How does beforeSend work here
-            // We want to delete the event here no matter what (if we had an internet connection)
-            // since it has been tried already.
-            if (response != nil) {
-                [self.fileManager removeFileAtPath:fileDictionary[@"path"]];
-            }
-
-            dispatch_group_leave(dispatchGroup);
-        }];
+                dispatch_group_leave(dispatchGroup);
+            }];
+        }
     }
 }
 
 #pragma mark private methods
 
 - (void)setupQueueing {
-    __block SentryHttpTransport *_self = self;
     self.shouldQueueEvent = ^BOOL(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the
@@ -137,8 +141,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // this indicates no internet connection
             return YES;
         }
-        [_self.rateLimits update:response];
-        
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
@@ -165,8 +167,10 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)sendRequest:(NSURLRequest *)request withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler {
+    __block SentryHttpTransport *_self = self;
     [self.requestManager addRequest:request
                   completionHandler:^(NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+        [_self.rateLimits update:response];
         if (completionHandler) {
             completionHandler(response, error);
         }
@@ -187,24 +191,6 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     if ([self.rateLimits isRateLimitActive:type]) {
         return NO;
     }
-    return YES;
-}
-
-/**
- * analog to isReadyToSend but with additional checks regarding batch upload.
- *
- * @return BOOL YES if ready to send requests.
- */
-- (BOOL)isReadySendAllStoredEvents {
-    // TODO: Apply type based rate limiting
-    if (![self isReadyToSend:@""]) {
-        return NO;
-    }
-
-    if (![self.requestManager isReady]) {
-        return NO;
-    }
-
     return YES;
 }
 
