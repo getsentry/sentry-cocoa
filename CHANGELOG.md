@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: RateLimit for sendAllStoredEvents #458
 - fix: Use maxBreadcrumbs from options #451
 
 ## 5.0.0-beta.5

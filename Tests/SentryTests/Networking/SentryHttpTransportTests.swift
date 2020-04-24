@@ -41,7 +41,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testSendOneEvent()  {
         sendEvent()
         
-        assertOneRequestSent()
+        assertRequestsSent(requestCount: 1)
     }
     
     func testSendEventOptionsDisabled() {
@@ -49,7 +49,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent(callsCompletionHandler: false)
         sendEvent(callsCompletionHandler: false)
         
-        assertNoRequestSent()
+        assertRequestsSent(requestCount: 0)
     }
     
     func testSendEventWhenSessionRateLimitActive() {
@@ -57,15 +57,14 @@ class SentryHttpTransportTests: XCTestCase {
         
         sendEvent()
         
-        assertOneRequestSent()
+        assertRequestsSent(requestCount: 1)
     }
     
     func testSendAllEvents() {
         givenNoInternetConnection()
         sendEvent()
         
-        //TODO: apply RateLimits also to Envelope and sending events after they have been stored.
-        givenRateLimitResponse()
+        givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
         sendEnvelope()
         
         XCTAssertEqual(3, requestManager.requests.count)
@@ -84,22 +83,48 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(1, fileManager.getAllStoredEvents().count)
     }
     
-    func testSendAllEventsButNotReady2() {
+    func testSendAllEventsButRateLimitIsActive() {
         givenNoInternetConnection()
-        sendEnvelope()
+        sendEvent()
         
-        givenOkResponse()
         // Rate limit changes between sending the event succesfully
         // and calling sending all events. This can happen when for
         // example when multiple requests run in parallel.
-        requestManager.returnResponse(response: {
-            self.rateLimits.update(TestResponseFactory.createRetryAfterResponse(headerValue: "1"))
-            return HTTPURLResponse.init()
-        })
+        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        XCTAssertEqual(1, fileManager.getAllStoredEvents().count)
+        assertEventsStored(eventCount: 0)
+    }
+    
+    func testRateLimitGetsActiveWhileSendAllEvents() {
+        givenNoInternetConnection()
+        sendEvent()
+        sendEvent()
+        sendEvent()
+        
+        // 3 events are saved in the FileManager
+        // The first event is sent normally and triggers sendAllEvents.
+        // The first stored event from the FileManager gets sent and the response
+        // contains a rate limit.
+        // Now 2 events are still to be sent, but they get discarded cause of the
+        // active rate limit.
+        givenFirstRateLimitGetsActiveWithSecondResponse()
+        sendEvent()
+        
+        XCTAssertEqual(5, requestManager.requests.count)
+        assertEventsStored(eventCount: 0)
+    }
+    
+    func testSendAllEventsAllEventsDeletedWhenNotReady() {
+        givenNoInternetConnection()
+        sendEvent()
+        sendEvent()
+        assertEventsStored(eventCount: 2)
+        
+        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
+        sendEvent()
+        assertEventsStored(eventCount: 0)
     }
     
     func testSendEventWithRetryAfterResponse() {
@@ -111,7 +136,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testSendEventWithRateLimitResponse() {
-        let response = givenRateLimitResponse()
+        let response = givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
         
         sendEvent()
         
@@ -127,7 +152,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testSendEnvelopeWithRateLimitResponse() {
-        let response = givenRateLimitResponse()
+        let response = givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
         
         sendEnvelope()
         
@@ -135,24 +160,24 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testRateLimitForEvent() {
-        givenActiveRateLimitForEvent()
+        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
+
+        sendEvent()
         
-        sendEvent(callsCompletionHandler: false)
-        
-        assertNoRequestSent()
+        assertRequestsSent(requestCount: 1)
         
         // Retry-After almost expired
         let date = currentDateProvider.date()
         currentDateProvider.setDate(date: date.addingTimeInterval(0.999))
         sendEvent(callsCompletionHandler: false)
         
-        assertNoRequestSent()
+        assertRequestsSent(requestCount: 1)
         
         // Retry-After expired
         currentDateProvider.setDate(date: date.addingTimeInterval(1))
         sendEvent()
         
-        assertOneRequestSent()
+        assertRequestsSent(requestCount: 2)
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
@@ -169,14 +194,14 @@ class SentryHttpTransportTests: XCTestCase {
     func testSendOneEnvelope() {
         sendEnvelope()
         
-        assertOneRequestSent()
+        assertRequestsSent(requestCount: 1)
     }
     
     func testEnvelopeOptionsDisabled() {
         options.enabled = false
         sendEnvelope(callsCompletionHandler: false)
         
-        assertNoRequestSent()
+        assertRequestsSent(requestCount: 0)
     }
     
     private func givenRetryAfterResponse() -> HTTPURLResponse {
@@ -185,8 +210,8 @@ class SentryHttpTransportTests: XCTestCase {
         return response
     }
     
-    @discardableResult private func givenRateLimitResponse() -> HTTPURLResponse {
-        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key")
+    @discardableResult private func givenRateLimitResponse(forType type: String) -> HTTPURLResponse {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(type):key")
         requestManager.returnResponse(response: response)
         return response
     }
@@ -199,9 +224,17 @@ class SentryHttpTransportTests: XCTestCase {
         requestManager.returnResponse(response: HTTPURLResponse.init())
     }
     
-    private func givenActiveRateLimitForEvent() {
-           rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeEvent):key"))
-       }
+    func givenFirstRateLimitGetsActiveWithSecondResponse() {
+        var i = -1
+        requestManager.returnResponse { () -> HTTPURLResponse? in
+            i += 1
+            if (i == 0) {
+                return HTTPURLResponse.init()
+            } else {
+                return TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeEvent):key")
+            }
+        }
+    }
     
     private func sendEvent(callsCompletionHandler: Bool = true) {
         var completionHandlerWasCalled = false
@@ -226,13 +259,12 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertTrue(rateLimits.isRateLimitActive(SentryEnvelopeItemTypeSession))
     }
     
-    private func assertOneRequestSent() {
-        XCTAssertEqual(1, requestManager.requests.count)
-        XCTAssertEqual(0, fileManager.getAllStoredEvents().count)
+    private func assertRequestsSent(requestCount: Int) {
+        XCTAssertEqual(requestCount, requestManager.requests.count)
+        assertEventsStored(eventCount: 0)
     }
     
-    private func assertNoRequestSent() {
-        XCTAssertEqual(0, requestManager.requests.count)
-        XCTAssertEqual(0, fileManager.getAllStoredEvents().count)
+    private func assertEventsStored(eventCount: Int) {
+        XCTAssertEqual(eventCount, fileManager.getAllStoredEvents().count)
     }
 }
