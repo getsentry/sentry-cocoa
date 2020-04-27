@@ -48,13 +48,26 @@
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
-    
+
 - (void)testRelease {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertNil(options.releaseName);
-    
+
     options = [self getValidOptions:@{@"release": @"abc"}];
     XCTAssertEqualObjects(options.releaseName, @"abc");
+}
+
+- (void)testNoReleaseSetUsesDefault {
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.releaseName);
+
+    options = [self getValidOptions:@{@"release": @"abc"}];
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSString *expectedRelease = [NSString stringWithFormat:@"%@@%@+%@",
+                                                           infoDict[@"CFBundleIdentifier"],
+                                                           infoDict[@"CFBundleShortVersionString"],
+                                                           infoDict[@"CFBundleVersion"]];
+    XCTAssertEqualObjects(options.releaseName, expectedRelease);
 }
     
 - (void)testEnvironment {
