@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.0.0-beta.6
+
 - feat: RateLimit for sendAllStoredEvents #458
 - fix: Use maxBreadcrumbs from options #451
 - fix: Send vmaddr if available for apple crash reports #459
@@ -30,7 +32,7 @@
 
 - feat: Added Session Feature
 - feat: New option `enableAutoSessionTracking` set to `true` if you want sessions to be enabled
-- feat: Add `_crashOnException:` to handle exceptions for AppKit apps on macOS 
+- feat: Add `_crashOnException:` to handle exceptions for AppKit apps on macOS
 
 ## 5.0.0-beta.0
 
@@ -38,7 +40,7 @@
 
 ## 5.0.0-alpha.0
 
-***BREAKING***: This is the first public release of our new `5.0.0` #339 version of the SDK.
+**_BREAKING_**: This is the first public release of our new `5.0.0` #339 version of the SDK.
 The majority of the public API of the SDK changed, now it's more streamlined with other Sentry SDKs and prepared for future updates.
 Please read the migration guide how to use the new SDK [MIGRATION.MD](MIGRATION.md)
 
