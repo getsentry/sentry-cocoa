@@ -237,6 +237,10 @@ static inline NSString *hexAddress(NSNumber *value) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
         debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
+        // We default to 0 on the server if not sent
+        if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
+            debugMeta.imageVmAddress = hexAddress(sourceImage[@"image_vmaddr"]);
+        }
         debugMeta.imageAddress = hexAddress(sourceImage[@"image_addr"]);
         debugMeta.imageSize = sourceImage[@"image_size"];
         debugMeta.name = sourceImage[@"name"];

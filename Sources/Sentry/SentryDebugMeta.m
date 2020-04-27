@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.imageAddress forKey:@"image_addr"];
     [serializedData setValue:self.imageSize forKey:@"image_size"];
     [serializedData setValue:[self.name lastPathComponent] forKey:@"name"];
-
+    [serializedData setValue:self.imageVmAddress forKey:@"image_vmaddr"];
+    
     return serializedData;
 }
 

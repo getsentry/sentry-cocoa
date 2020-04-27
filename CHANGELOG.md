@@ -4,6 +4,7 @@
 
 - feat: RateLimit for sendAllStoredEvents #458
 - fix: Use maxBreadcrumbs from options #451
+- fix: Send vmaddr if available for apple crash reports #459
 
 ## 5.0.0-beta.5
 
