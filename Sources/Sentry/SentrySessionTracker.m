@@ -29,11 +29,11 @@
 - (void)start {
 __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
-NSNotificationName foreground = UIApplicationDidBecomeActiveNotification;
-NSNotificationName background = UIApplicationWillResignActiveNotification;
+NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
+NSNotificationName backgroundNotificationName = UIApplicationWillResignActiveNotification;
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-NSNotificationName foreground = NSApplicationDidBecomeActiveNotification;
-NSNotificationName background = NSApplicationWillResignActiveNotification;
+NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
+NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not track sessions automatically." andLevel:kSentryLogLevelDebug];
 #endif
@@ -42,13 +42,13 @@ NSNotificationName background = NSApplicationWillResignActiveNotification;
     SentryHub *hub = [SentrySDK currentHub];
     [hub closeCachedSession];
     [hub startSession];
-    [NSNotificationCenter.defaultCenter addObserverForName:foreground
+    [NSNotificationCenter.defaultCenter addObserverForName:foregroundNotificationName
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
                                                     [blockSelf didBecomeActive];
                                                 }];
-    [NSNotificationCenter.defaultCenter addObserverForName:background
+    [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
