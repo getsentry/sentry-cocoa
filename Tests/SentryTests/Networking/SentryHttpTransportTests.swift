@@ -35,7 +35,24 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     override func tearDown() {
-        fileManager.deleteAllStoredEvents()
+        fileManager.deleteAllStoredEventsAndEnvelopes()
+    }
+    
+    func testInitSendsCachedEventsAndEnvelopes() {
+        givenNoInternetConnection()
+        sendEvent()
+        assertEventsStored(eventCount: 1)
+        
+        givenOkResponse()
+        _ = SentryHttpTransport(
+            options: options,
+            sentryFileManager: fileManager,
+            sentryRequestManager: requestManager,
+            sentryRateLimits: rateLimits
+        )
+        
+        assertEventsStored(eventCount: 0)
+        assertRequestsSent(requestCount: 2)
     }
     
     func testSendOneEvent()  {
@@ -68,7 +85,20 @@ class SentryHttpTransportTests: XCTestCase {
         sendEnvelope()
         
         XCTAssertEqual(3, requestManager.requests.count)
-        XCTAssertEqual(0, fileManager.getAllStoredEvents().count)
+        XCTAssertEqual(0, fileManager.getAllStoredEventsAndEnvelopes().count)
+    }
+    
+    func testSendAllEventsSendsEnvelopes() {
+        givenNoInternetConnection()
+        let envelope = SentryEnvelope(session: SentrySession())
+        sendEnvelope(envelope: envelope)
+        sendEnvelope()
+        
+        givenOkResponse()
+        sendEvent()
+        
+        XCTAssertEqual(5, requestManager.requests.count)
+        XCTAssertEqual(0, fileManager.getAllStoredEventsAndEnvelopes().count)
     }
     
     func testSendAllEventsButNotReady() {
@@ -80,7 +110,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        XCTAssertEqual(1, fileManager.getAllStoredEvents().count)
+        XCTAssertEqual(1, fileManager.getAllStoredEventsAndEnvelopes().count)
     }
     
     func testSendAllEventsButRateLimitIsActive() {
@@ -245,9 +275,9 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(callsCompletionHandler, completionHandlerWasCalled)
     }
     
-    private func sendEnvelope(callsCompletionHandler: Bool = true) {
+    private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope, callsCompletionHandler: Bool = true) {
         var completionHandlerWasCalled = false
-        sut.send(envelope: TestConstants.envelope) { (error) in
+        sut.send(envelope: envelope) { (error) in
             XCTAssertNil(error)
             completionHandlerWasCalled = true
         }
@@ -265,6 +295,6 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func assertEventsStored(eventCount: Int) {
-        XCTAssertEqual(eventCount, fileManager.getAllStoredEvents().count)
+        XCTAssertEqual(eventCount, fileManager.getAllStoredEventsAndEnvelopes().count)
     }
 }

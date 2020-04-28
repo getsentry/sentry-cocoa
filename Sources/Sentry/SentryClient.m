@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
         self.options = options;
-        [self.transport sendAllStoredEvents];
     }
     return self;
 }

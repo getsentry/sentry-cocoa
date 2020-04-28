@@ -22,11 +22,11 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
-- (void)deleteAllStoredEvents;
+- (void)deleteAllStoredEventsAndEnvelopes;
 
 - (void)deleteAllFolders;
 
-- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEvents;
+- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEventsAndEnvelopes;
 
 - (BOOL)removeFileAtPath:(NSString *)path;
 

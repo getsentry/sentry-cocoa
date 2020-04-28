@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add auto session starting for macOS #463
+
 ## 5.0.0-beta.6
 
 - feat: RateLimit for sendAllStoredEvents #458

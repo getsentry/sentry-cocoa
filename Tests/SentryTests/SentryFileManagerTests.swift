@@ -2,14 +2,14 @@ import XCTest
 @testable import Sentry.SentryClient
 @testable import Sentry.SentryOptions
 
-class SentryFileManagerTestss: XCTestCase {
+class SentryFileManagerTests: XCTestCase {
     
-    private var fileManager : SentryFileManager!
+    private var sut : SentryFileManager!
     
     override func setUp() {
         super.setUp()
         do {
-            fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
+            sut = try SentryFileManager.init(dsn: TestConstants.dsn)
         } catch {
             XCTFail("SentryFileManager could not be created")
         }
@@ -17,16 +17,16 @@ class SentryFileManagerTestss: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        fileManager.deleteAllStoredEvents()
-        fileManager.deleteAllFolders()
+        sut.deleteAllStoredEventsAndEnvelopes()
+        sut.deleteAllFolders()
     }
     
     func testEventStoring() throws {
         let event = Event(level: SentryLevel.info)
         event.message = "message"
-        fileManager.store(event)
+        sut.store(event)
         
-        let events = fileManager.getAllStoredEvents()
+        let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertTrue(events.count == 1)
         
         let actualData = events[0]["data"] as! Data
@@ -45,8 +45,8 @@ class SentryFileManagerTestss: XCTestCase {
         let jsonData : Data = try JSONSerialization.data(withJSONObject: ["id", "1234"])
         
         let event = Event(json: jsonData)
-        fileManager.store(event)
-        let events = fileManager.getAllStoredEvents()
+        sut.store(event)
+        let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertTrue(events.count == 1)
         XCTAssertEqual(events[0]["data"] as! Data, jsonData)
     }
@@ -56,50 +56,70 @@ class SentryFileManagerTestss: XCTestCase {
     }
     
     func testAllFilesInFolder() {
-        let files = fileManager.allFiles(inFolder: "x")
+        let files = sut.allFiles(inFolder: "x")
         XCTAssertTrue(files.count == 0)
     }
     
     func testDeleteFileNotExsists() {
-        XCTAssertFalse(fileManager.removeFile(atPath: "x"))
+        XCTAssertFalse(sut.removeFile(atPath: "x"))
     }
     
     func testFailingStoreDictionary() {
-        fileManager.store(["date": Date() ], toPath: "")
-        let files = fileManager.allFiles(inFolder: "x")
+        sut.store(["date": Date() ], toPath: "")
+        let files = sut.allFiles(inFolder: "x")
         XCTAssertTrue(files.count == 0)
     }
     
     func testEventStoringHardLimit() {
         let event = Event(level: SentryLevel.info)
         for _ in 0...20 {
-            fileManager.store(event)
+            sut.store(event)
         }
-        let events = fileManager.getAllStoredEvents()
+        let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertEqual(events.count, 10)
     }
     
     func testEventStoringHardLimitSet() {
-        fileManager.maxEvents = 15
+        sut.maxEvents = 15
         let event = Event(level: SentryLevel.info)
         for _ in 0...20 {
-            fileManager.store(event)
+            sut.store(event)
         }
-        let events = fileManager.getAllStoredEvents()
+        let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertEqual(events.count, 15)
     }
     
     func testStoreAndReadCurrentSession() {
         let expectedSession = SentrySession()
-        fileManager.storeCurrentSession(expectedSession)
-        let actualSession = fileManager.readCurrentSession()
+        sut.storeCurrentSession(expectedSession)
+        let actualSession = sut.readCurrentSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
     
     func testStoreDeleteCurrentSession() {
-        fileManager.storeCurrentSession(SentrySession())
-        fileManager.deleteCurrentSession()
-        let actualSession = fileManager.readCurrentSession()
+        sut.storeCurrentSession(SentrySession())
+        sut.deleteCurrentSession()
+        let actualSession = sut.readCurrentSession()
         XCTAssertNil(actualSession)
+    }
+    
+    func testGetAllStoredEvents() {
+        sut.store(TestConstants.envelope)
+        sut.store(TestConstants.envelope)
+        
+        let result = sut.getAllStoredEventsAndEnvelopes()
+        
+        XCTAssertEqual(2, result.count)
+    }
+    
+    func testStoreEnvelope() throws {
+        let envelope = TestConstants.envelope
+        let envelopePath = sut.store(envelope)
+        
+        let expectedData = try SentrySerialization.data(with: envelope)
+        
+        let actualData = FileManager.default.contents(atPath: envelopePath)
+        
+        XCTAssertEqual(expectedData, actualData)
     }
 }
