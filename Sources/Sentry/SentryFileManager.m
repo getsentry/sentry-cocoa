@@ -9,7 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSInteger const defaultMaxEvents = 10;
-NSInteger const defaultMaxEnvelopes = 10;
+NSInteger const defaultMaxEnvelopes = 100;
 
 @interface SentryFileManager ()
 
