@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Adds setUser to SentrySDK and SentryHub #467
 - feat: Add auto session starting for macOS #463
 
 ## 5.0.0-beta.6
