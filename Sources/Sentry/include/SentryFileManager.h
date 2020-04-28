@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryEvent, SentryDsn, SentryEnvelope;
+@class SentryEvent, SentryDsn, SentryEnvelope, SentryFileContents;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -26,7 +26,7 @@ SENTRY_NO_INIT
 
 - (void)deleteAllFolders;
 
-- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEventsAndEnvelopes;
+- (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes;
 
 - (BOOL)removeFileAtPath:(NSString *)path;
 
