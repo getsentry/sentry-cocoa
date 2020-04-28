@@ -29,9 +29,9 @@
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
             if (nil != infoDict) {
                 self.releaseName = [NSString stringWithFormat:@"%@@%@+%@",
-                                                             infoDict[@"CFBundleIdentifier"],
-                                                             infoDict[@"CFBundleShortVersionString"],
-                                                             infoDict[@"CFBundleVersion"]];
+                                    infoDict[@"CFBundleIdentifier"],
+                                    infoDict[@"CFBundleShortVersionString"],
+                                    infoDict[@"CFBundleVersion"]];
             }
         }
     }
