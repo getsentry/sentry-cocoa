@@ -9,11 +9,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSInteger const defaultMaxEvents = 10;
+NSInteger const defaultMaxEnvelopes = 100;
 
 @interface SentryFileManager ()
 
 @property(nonatomic, copy) NSString *sentryPath;
-@property(nonatomic, copy) NSString *eventsAndEnvelopesPath;
+@property(nonatomic, copy) NSString *eventsPath;
+@property(nonatomic, copy) NSString *envelopesPath;
 @property(nonatomic, copy) NSString *currentSessionFilePath;
 @property(nonatomic, assign) NSUInteger currentFileCounter;
 
@@ -36,20 +38,24 @@ NSInteger const defaultMaxEvents = 10;
 
         self.currentSessionFilePath = [self.sentryPath stringByAppendingPathComponent:@"session.current"];
 
-        self.eventsAndEnvelopesPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
-        if (![fileManager fileExistsAtPath:self.eventsAndEnvelopesPath]) {
-            [self.class createDirectoryAtPath:self.eventsAndEnvelopesPath withError:error];
-        }
+        self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
+        [self createDirectoryIfNotExists:self.eventsPath didFailWithError:error];
+        
+        self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
+        [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
+        
 
         self.currentFileCounter = 0;
         self.maxEvents = defaultMaxEvents;
+        self.maxEnvelopes = defaultMaxEnvelopes;
     }
     return self;
 }
 
 - (void)deleteAllFolders {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:self.eventsAndEnvelopesPath error:nil];
+    [fileManager removeItemAtPath:self.eventsPath error:nil];
+    [fileManager removeItemAtPath:self.envelopesPath error:nil];
     [fileManager removeItemAtPath:self.sentryPath error:nil];
 }
 
@@ -60,8 +66,16 @@ NSInteger const defaultMaxEvents = 10;
                                       [NSUUID UUID].UUIDString];
 }
 
+- (NSArray<SentryFileContents *> *)getAllEvents {
+    return [self allFilesContentInFolder:self.eventsPath];
+}
+
+- (NSArray<SentryFileContents *> *)getAllEnvelopes {
+    return [self allFilesContentInFolder:self.envelopesPath];
+}
+
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes {
-    return [self allFilesContentInFolder:self.eventsAndEnvelopesPath];
+    return [[self getAllEvents] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
 }
 
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path {
@@ -80,8 +94,12 @@ NSInteger const defaultMaxEvents = 10;
 }
 
 - (void)deleteAllStoredEventsAndEnvelopes {
-    for (NSString *path in [self allFilesInFolder:self.eventsAndEnvelopesPath]) {
-        [self removeFileAtPath:[self.eventsAndEnvelopesPath stringByAppendingPathComponent:path]];
+    for (NSString *path in [self allFilesInFolder:self.eventsPath]) {
+        [self removeFileAtPath:[self.eventsPath stringByAppendingPathComponent:path]];
+    }
+    
+    for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
+        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
     }
 }
 
@@ -117,19 +135,19 @@ NSInteger const defaultMaxEvents = 10;
     @synchronized (self) {
         NSString *result;
         if (nil != event.json) {
-            result = [self storeData:event.json toPath:self.eventsAndEnvelopesPath];
+            result = [self storeData:event.json toPath:self.eventsPath];
         } else {
-            result = [self storeDictionary:[event serialize] toPath:self.eventsAndEnvelopesPath];
+            result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
         }
-        [self handleFileManagerLimit:self.eventsAndEnvelopesPath maxCount:maxCount];
+        [self handleFileManagerLimit:self.eventsPath maxCount:maxCount];
         return result;
     }
 }
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope {
     @synchronized (self) {
-        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope options:0 error:nil] toPath:self.eventsAndEnvelopesPath];
-        [self handleFileManagerLimit:self.eventsAndEnvelopesPath maxCount:self.maxEvents];
+        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope options:0 error:nil] toPath:self.envelopesPath];
+        [self handleFileManagerLimit:self.envelopesPath maxCount:self.maxEnvelopes];
         return result;
     }
 }
@@ -203,6 +221,12 @@ NSInteger const defaultMaxEvents = 10;
                   withIntermediateDirectories:YES
                                    attributes:nil
                                         error:error];
+}
+
+#pragma mark private methods
+
+- (void)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
+    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
 }
 
 @end
