@@ -27,11 +27,6 @@ class SentryClientTest: XCTestCase {
         super.tearDown()
     }
     
-    
-    func testInitCallsSendAllStoredEvents() {
-        XCTAssertEqual(1, transport.sendAllStoredEventsInvocations)
-    }
-    
     func testCaptureMessage() {
         let message = "message"
         client.capture(message: message, scope: nil)

@@ -20,9 +20,9 @@ SENTRY_NO_INIT
 
 /**
  * This is triggered after the first upload attempt of an event. Checks if event
- * should stay on disk to be uploaded when `sendAllStoredEvents` is triggerd.
+ * should stay on disk to be uploaded when `sendCachedEventsAndEnvelopes` is triggerd.
  *
- * Within `sendAllStoredEvents` this function isn't triggerd.
+ * Within `sendCachedEventsAndEnvelopes` this function isn't triggerd.
  *
  * @return BOOL YES = store and try again later, NO = delete
  */

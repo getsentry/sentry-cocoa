@@ -15,6 +15,7 @@
 #import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryFileContents.h"
 
 @interface SentryHttpTransport ()
 
@@ -37,8 +38,9 @@ sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
       self.requestManager = sentryRequestManager;
       self.fileManager = sentryFileManager;
       self.rateLimits = sentryRateLimits;
-
+      
       [self setupQueueing];
+      [self sendCachedEventsAndEnvelopes];
   }
   return self;
 }
@@ -96,38 +98,6 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self sendRequest:request storedPath:storedEnvelopePath envelope:envelope  completionHandler:completionHandler];
 }
 
-// TODO: This has to move somewhere else, we are missing the whole beforeSend flow
-- (void)sendAllStoredEvents {
-    if (![self.requestManager isReady]) {
-        return;
-    }
-    
-    dispatch_group_t dispatchGroup = dispatch_group_create();
-    for (NSDictionary<NSString *, id> *eventDictionary in [self.fileManager getAllStoredEvents]) {
-        dispatch_group_enter(dispatchGroup);
-        
-        if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
-            [self.fileManager removeFileAtPath:eventDictionary[@"path"]];
-        } else {
-            SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                                      andData:eventDictionary[@"data"]
-                                                                             didFailWithError:nil];
-            
-            
-            [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-                // TODO: How does beforeSend work here
-                // We want to delete the event here no matter what (if we had an internet connection)
-                // since it has been tried already.
-                if (response != nil) {
-                    [self.fileManager removeFileAtPath:eventDictionary[@"path"]];
-                }
-
-                dispatch_group_leave(dispatchGroup);
-            }];
-        }
-    }
-}
-
 #pragma mark private methods
 
 - (void)setupQueueing {
@@ -157,7 +127,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
             // thus we can remove the event from disk
             [_self.fileManager removeFileAtPath:storedPath];
             if (nil == error) {
-                [_self sendAllStoredEvents];
+                [_self sendCachedEventsAndEnvelopes];
             }
         }
         if (completionHandler) {
@@ -192,6 +162,39 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return NO;
     }
     return YES;
+}
+
+// TODO: This has to move somewhere else, we are missing the whole beforeSend flow
+- (void)sendCachedEventsAndEnvelopes {
+    if (![self.requestManager isReady]) {
+        return;
+    }
+    
+    dispatch_group_t dispatchGroup = dispatch_group_create();
+    for (SentryFileContents *fileContents in [self.fileManager getAllStoredEventsAndEnvelopes]) {
+        dispatch_group_enter(dispatchGroup);
+        
+        // TODO: Check RateLimit for EnvelopeItemType
+        if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
+            [self.fileManager removeFileAtPath:fileContents.path];
+        } else {
+            SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+                                                                                      andData:fileContents.contents
+                                                                             didFailWithError:nil];
+            
+            
+            [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+                // TODO: How does beforeSend work here
+                // We want to delete the event here no matter what (if we had an internet connection)
+                // since it has been tried already.
+                if (response != nil) {
+                    [self.fileManager removeFileAtPath:fileContents.path];
+                }
+
+                dispatch_group_leave(dispatchGroup);
+            }];
+        }
+    }
 }
 
 @end
