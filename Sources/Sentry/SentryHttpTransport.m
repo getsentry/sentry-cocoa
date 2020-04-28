@@ -15,6 +15,7 @@
 #import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryFileContents.h"
 
 @interface SentryHttpTransport ()
 
@@ -170,15 +171,15 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     }
     
     dispatch_group_t dispatchGroup = dispatch_group_create();
-    for (NSDictionary<NSString *, id> *eventAndEnvelopeDictionary in [self.fileManager getAllStoredEventsAndEnvelopes]) {
+    for (SentryFileContents *fileContents in [self.fileManager getAllStoredEventsAndEnvelopes]) {
         dispatch_group_enter(dispatchGroup);
         
         // TODO: Check RateLimit for EnvelopeItemType
         if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
-            [self.fileManager removeFileAtPath:eventAndEnvelopeDictionary[@"path"]];
+            [self.fileManager removeFileAtPath:fileContents.path];
         } else {
             SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                                      andData:eventAndEnvelopeDictionary[@"data"]
+                                                                                      andData:fileContents.contents
                                                                              didFailWithError:nil];
             
             
@@ -187,7 +188,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
                 // We want to delete the event here no matter what (if we had an internet connection)
                 // since it has been tried already.
                 if (response != nil) {
-                    [self.fileManager removeFileAtPath:eventAndEnvelopeDictionary[@"path"]];
+                    [self.fileManager removeFileAtPath:fileContents.path];
                 }
 
                 dispatch_group_leave(dispatchGroup);

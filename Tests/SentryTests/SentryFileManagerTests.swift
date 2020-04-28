@@ -29,8 +29,7 @@ class SentryFileManagerTests: XCTestCase {
         let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertTrue(events.count == 1)
         
-        let actualData = events[0]["data"] as! Data
-        let actualDict = try JSONSerialization.jsonObject(with: actualData) as! Dictionary<String, Any>
+        let actualDict = try JSONSerialization.jsonObject(with: events[0].contents! as Data) as! Dictionary<String, Any>
         
         let eventDict = event.serialize()
         XCTAssertEqual(eventDict.count, actualDict.count)
@@ -48,7 +47,7 @@ class SentryFileManagerTests: XCTestCase {
         sut.store(event)
         let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertTrue(events.count == 1)
-        XCTAssertEqual(events[0]["data"] as! Data, jsonData)
+        XCTAssertEqual(events[0].contents, jsonData as NSData)
     }
     
     func testCreateDirDoesnotThrow() throws {

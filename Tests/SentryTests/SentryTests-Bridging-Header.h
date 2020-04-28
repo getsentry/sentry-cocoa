@@ -14,3 +14,4 @@
 #import "SentryDefaultRateLimits.h"
 #import "SentryHttpDateParser.h"
 #import "SentryRetryAfterHeaderParser.h"
+#import "SentryFileContents.h"
