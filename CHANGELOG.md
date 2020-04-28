@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Store SentryEnvelopes in extra path #468
 - feat: Add auto session starting for macOS #463
 
 ## 5.0.0-beta.6
