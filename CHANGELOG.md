@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Store SentryEnvelopes in extra path #468
 - feat: Adds setUser to SentrySDK and SentryHub #467
 - feat: Add auto session starting for macOS #463
 
