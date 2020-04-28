@@ -21,13 +21,27 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
     }
     
+    func testInitDoesNotOverrideDirectories() throws {
+        sut.store(Event())
+        sut.store(TestConstants.envelope)
+        sut.storeCurrentSession(SentrySession())
+        
+        _ = try SentryFileManager.init(dsn: TestConstants.dsn)
+        let fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
+        
+        XCTAssertEqual(1, fileManager.getAllEvents().count)
+        XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
+        XCTAssertNotNil(fileManager.readCurrentSession())
+    }
+    
     func testEventStoring() throws {
         let event = Event(level: SentryLevel.info)
         event.message = "message"
         sut.store(event)
         
-        let events = sut.getAllStoredEventsAndEnvelopes()
+        let events = sut.getAllEvents()
         XCTAssertTrue(events.count == 1)
+        XCTAssertEqual(0, sut.getAllEnvelopes().count)
         
         let actualDict = try JSONSerialization.jsonObject(with: events[0].contents! as Data) as! Dictionary<String, Any>
         
@@ -50,6 +64,19 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(events[0].contents, jsonData as NSData)
     }
     
+    func testStoreEnvelope() throws {
+        let envelope = TestConstants.envelope
+        sut.store(envelope)
+        
+        let expectedData = try SentrySerialization.data(with: envelope)
+        
+        let envelopes = sut.getAllEnvelopes()
+        XCTAssertEqual(1, envelopes.count)
+        
+        let actualData = envelopes[0].contents! as Data
+        XCTAssertEqual(expectedData, actualData)
+    }
+    
     func testCreateDirDoesnotThrow() throws {
         try SentryFileManager.createDirectory(atPath: "a")
     }
@@ -69,22 +96,39 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(files.count == 0)
     }
     
-    func testEventStoringHardLimit() {
-        let event = Event(level: SentryLevel.info)
-        for _ in 0...20 {
-            sut.store(event)
+    func testDefaultMaxEvents() {
+        for _ in 0...10 {
+            sut.store(Event(level: SentryLevel.info))
         }
-        let events = sut.getAllStoredEventsAndEnvelopes()
+        let events = sut.getAllEvents()
         XCTAssertEqual(events.count, 10)
     }
     
-    func testEventStoringHardLimitSet() {
+    func testMaxEventsSet() {
         sut.maxEvents = 15
-        let event = Event(level: SentryLevel.info)
-        for _ in 0...20 {
-            sut.store(event)
+        sut.maxEnvelopes = 14
+        for _ in 0...15 {
+            sut.store(Event(level: SentryLevel.info))
         }
-        let events = sut.getAllStoredEventsAndEnvelopes()
+        let events = sut.getAllEvents()
+        XCTAssertEqual(events.count, 15)
+    }
+    
+    func testDefaultMaxEnvelopes() {
+        for _ in 0...100 {
+            sut.store(TestConstants.envelope)
+        }
+        let events = sut.getAllEnvelopes()
+        XCTAssertEqual(events.count, 100)
+    }
+    
+    func testMaxEnvelopesSet() {
+        sut.maxEnvelopes = 15
+        sut.maxEvents = 14
+        for _ in 0...15 {
+            sut.store(TestConstants.envelope)
+        }
+        let events = sut.getAllEnvelopes()
         XCTAssertEqual(events.count, 15)
     }
     
@@ -102,23 +146,37 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(actualSession)
     }
     
-    func testGetAllStoredEvents() {
+    func testGetAllStoredEventsAndEnvelopes() {
         sut.store(TestConstants.envelope)
         sut.store(TestConstants.envelope)
+        sut.store(Event())
         
-        let result = sut.getAllStoredEventsAndEnvelopes()
-        
-        XCTAssertEqual(2, result.count)
+        XCTAssertEqual(3, sut.getAllStoredEventsAndEnvelopes().count)
+        XCTAssertEqual(2, sut.getAllEnvelopes().count)
+        XCTAssertEqual(1, sut.getAllEvents().count)
     }
     
-    func testStoreEnvelope() throws {
-        let envelope = TestConstants.envelope
-        let envelopePath = sut.store(envelope)
+    func testDeleteAllFolders() {
+        sut.store(TestConstants.envelope)
+        sut.store(Event())
+        sut.storeCurrentSession(SentrySession())
         
-        let expectedData = try SentrySerialization.data(with: envelope)
+        sut.deleteAllFolders()
         
-        let actualData = FileManager.default.contents(atPath: envelopePath)
+        XCTAssertEqual(0, sut.getAllStoredEventsAndEnvelopes().count)
+        XCTAssertEqual(0, sut.getAllEnvelopes().count)
+        XCTAssertEqual(0, sut.getAllEvents().count)
+        XCTAssertNil(sut.readCurrentSession())
+    }
+    
+    func testDeleteAllStoredEventsAndEnvelopes() {
+        sut.store(TestConstants.envelope)
+        sut.store(Event())
         
-        XCTAssertEqual(expectedData, actualData)
+        sut.deleteAllStoredEventsAndEnvelopes()
+        
+        XCTAssertEqual(0, sut.getAllStoredEventsAndEnvelopes().count)
+        XCTAssertEqual(0, sut.getAllEnvelopes().count)
+        XCTAssertEqual(0, sut.getAllEvents().count)
     }
 }

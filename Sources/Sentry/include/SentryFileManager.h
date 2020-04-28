@@ -26,6 +26,8 @@ SENTRY_NO_INIT
 
 - (void)deleteAllFolders;
 
+- (NSArray<SentryFileContents *> *)getAllEvents;
+- (NSArray<SentryFileContents *> *)getAllEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes;
 
 - (BOOL)removeFileAtPath:(NSString *)path;
@@ -35,6 +37,7 @@ SENTRY_NO_INIT
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
 @property(nonatomic, assign) NSUInteger maxEvents;
+@property(nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end
 
