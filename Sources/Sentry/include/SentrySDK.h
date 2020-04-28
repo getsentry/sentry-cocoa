@@ -110,7 +110,7 @@ SENTRY_NO_INIT
 /**
  * Set global user -> thus will be sent with every event
  */
-- (void)setUser:(SentryUser * _Nullable)user;
++ (void)setUser:(SentryUser * _Nullable)user;
 
 @end
 
