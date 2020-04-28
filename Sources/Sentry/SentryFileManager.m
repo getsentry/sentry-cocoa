@@ -226,9 +226,7 @@ NSInteger const defaultMaxEnvelopes = 100;
 #pragma mark private methods
 
 - (void)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [self.class createDirectoryAtPath:path withError:error];
-    }
+    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
 }
 
 @end

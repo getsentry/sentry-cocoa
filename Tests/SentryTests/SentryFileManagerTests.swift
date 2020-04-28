@@ -21,6 +21,19 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
     }
     
+    func testInitDoesNotOverrideDirectories() throws {
+        sut.store(Event())
+        sut.store(TestConstants.envelope)
+        sut.storeCurrentSession(SentrySession())
+        
+        _ = try SentryFileManager.init(dsn: TestConstants.dsn)
+        let fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
+        
+        XCTAssertEqual(1, fileManager.getAllEvents().count)
+        XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
+        XCTAssertNotNil(fileManager.readCurrentSession())
+    }
+    
     func testEventStoring() throws {
         let event = Event(level: SentryLevel.info)
         event.message = "message"
