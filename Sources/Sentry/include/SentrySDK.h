@@ -107,6 +107,11 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, class) SentryLogLevel logLevel;
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+- (void)setUser:(SentryUser * _Nullable)user;
+
 @end
 
 NS_ASSUME_NONNULL_END

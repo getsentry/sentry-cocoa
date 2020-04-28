@@ -78,6 +78,11 @@ SENTRY_NO_INIT
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+- (void)setUser:(SentryUser * _Nullable)user;
+
 @end
 
 NS_ASSUME_NONNULL_END
