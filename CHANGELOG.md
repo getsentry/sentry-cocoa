@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Use RateLimitCategoryError for events #470
 - feat: Store SentryEnvelopes in extra path #468
 - feat: Add auto session starting for macOS #463
 
