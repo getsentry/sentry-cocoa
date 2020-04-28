@@ -25,7 +25,7 @@
         }
 
         // If no user define release, use default.
-        if (nil  == self.releaseName) {
+        if (nil == self.releaseName) {
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
             if (nil != infoDict) {
                 self.releaseName = [NSString stringWithFormat:@"%@@%@+%@",
