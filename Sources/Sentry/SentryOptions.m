@@ -24,7 +24,7 @@
             return nil;
         }
 
-        // If no user define release, use default.
+        // If no user-defined release, use default.
         if (nil == self.releaseName) {
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
             if (nil != infoDict) {
