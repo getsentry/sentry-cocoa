@@ -4,6 +4,7 @@
 #import "SentryEvent.h"
 #import "SentryDsn.h"
 #import "SentrySerialization.h"
+#import "SentryFileContents.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,19 +60,19 @@ NSInteger const defaultMaxEvents = 10;
                                       [NSUUID UUID].UUIDString];
 }
 
-- (NSArray<NSDictionary<NSString *, id> *> *)getAllStoredEventsAndEnvelopes {
+- (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes {
     return [self allFilesContentInFolder:self.eventsAndEnvelopesPath];
 }
 
-- (NSArray<NSDictionary<NSString *, id> *> *)allFilesContentInFolder:(NSString *)path {
+- (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path {
     @synchronized (self) {
-        NSMutableArray *contents = [NSMutableArray new];
+        NSMutableArray<SentryFileContents *> *contents = [NSMutableArray new];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *filePath in [self allFilesInFolder:path]) {
             NSString *finalPath = [path stringByAppendingPathComponent:filePath];
             NSData *content = [fileManager contentsAtPath:finalPath];
             if (nil != content) {
-                [contents addObject:@{@"path": finalPath, @"data": content}];
+                [contents addObject:[[SentryFileContents alloc] initWithPath:finalPath andContents:content]];
             }
         }
         return contents;
