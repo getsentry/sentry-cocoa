@@ -11,12 +11,12 @@ NS_SWIFT_NAME(RateLimits)
 @protocol SentryRateLimits <NSObject>
 
 /**
-Check if a type has reached a rate limit.
- @param type the type e.g. event, session, etc
+Check if a data category has reached a rate limit.
+ @param category the type e.g. event, error, session, transaction, etc.
  
  @return BOOL YES if limit is reached, NO otherwise.
  */
-- (BOOL)isRateLimitActive:(NSString *)type;
+- (BOOL)isRateLimitActive:(NSString *)category;
 
 /**
 Should be called for each HTTP response of the Sentry
