@@ -143,6 +143,13 @@ static SentryHub *currentHub;
     return logLevel;
 }
 
+/**
+* Set global user -> thus will be sent with every event
+*/
++ (void)setUser:(SentryUser * _Nullable)user {
+    [SentrySDK.currentHub setUser:user];
+}
+
 #ifndef __clang_analyzer__
 // Code not to be analyzed
 + (void)crash {

@@ -114,4 +114,22 @@
     XCTAssertEqual([scopeBreadcrumbs count], count);
 }
 
+- (void)testAddUserToTheScope {
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{@"dsn": @"https://username@sentry.io/1"} didFailWithError: nil];
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
+    
+    SentryUser *user = [[SentryUser alloc] init];
+    [user setUserId:@"123"];
+    [hub setUser:user];
+    
+    SentryScope *scope = [hub getScope];
+    
+    NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
+    NSDictionary<NSString *, id> *scopeUser = [scopeSerialized objectForKey:@"user"];
+    NSString *scopeUserId = [scopeUser objectForKey:@"id"];
+    
+    XCTAssertEqualObjects(scopeUserId, @"123");
+}
+
 @end

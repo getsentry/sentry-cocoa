@@ -16,6 +16,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #import "SentrySerialization.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryCrash.h"
 #import "SentrySDK.h"
 #import "SentryHub.h"
@@ -53,4 +54,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryRateLimitCategory.h"
+#import "SentryRateLimitCategoryMapper.h"
 #import "SentryHttpDateParser.h"
