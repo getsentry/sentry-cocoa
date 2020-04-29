@@ -35,7 +35,7 @@
     SentryClient *client = [self getClient];
     SentryOptions *options = [client options];
     if (nil == options || nil == options.releaseName) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."] andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."] andLevel:kSentryLogLevelError];
         return;
     }
     @synchronized (_sessionLock) {
