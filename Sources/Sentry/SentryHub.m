@@ -212,4 +212,14 @@
     return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
+- (void)setUser:(SentryUser * _Nullable)user {
+    SentryScope *scope = [self getScope];
+    if (nil != scope) {
+        [scope setUser:user];
+    }
+}
+
 @end
