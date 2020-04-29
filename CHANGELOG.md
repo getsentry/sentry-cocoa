@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.0.0-beta.7
+
 - feat: RateLimit for non cached Envelopes #476
 - fix: Use RateLimitCategoryError for events #470
 - feat: Store SentryEnvelopes in extra path #468
