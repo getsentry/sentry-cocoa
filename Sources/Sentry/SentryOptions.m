@@ -23,6 +23,17 @@
         if (nil != error && nil != *error) {
             return nil;
         }
+
+        // If no user-defined release, use default.
+        if (nil == self.releaseName) {
+            NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+            if (nil != infoDict) {
+                self.releaseName = [NSString stringWithFormat:@"%@@%@+%@",
+                                    infoDict[@"CFBundleIdentifier"],
+                                    infoDict[@"CFBundleShortVersionString"],
+                                    infoDict[@"CFBundleVersion"]];
+            }
+        }
     }
     return self;
 }

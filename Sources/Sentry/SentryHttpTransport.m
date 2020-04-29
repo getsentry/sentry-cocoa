@@ -12,10 +12,11 @@
 #import "SentryCrash.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
-#import "SentryEnvelope.h"
 #import "SentrySerialization.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryFileContents.h"
+#import "SentryEnvelopeItemType.h"
+#import "SentryRateLimitCategoryMapper.h"
 
 @interface SentryHttpTransport ()
 
@@ -48,7 +49,8 @@ sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
 // TODO: needs refactoring
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
+    NSString *category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:event.type];
+    if (![self isReadyToSend:category]) {
         return;
     }
     
@@ -152,13 +154,13 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
  *
  * @return BOOL NO if options.enabled = false or rate limit exceeded
  */
-- (BOOL)isReadyToSend:(NSString *_Nonnull)type {
+- (BOOL)isReadyToSend:(NSString *_Nonnull)category {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
     }
 
-    if ([self.rateLimits isRateLimitActive:type]) {
+    if ([self.rateLimits isRateLimitActive:category]) {
         return NO;
     }
     return YES;
@@ -174,8 +176,12 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     for (SentryFileContents *fileContents in [self.fileManager getAllStoredEventsAndEnvelopes]) {
         dispatch_group_enter(dispatchGroup);
         
+        
         // TODO: Check RateLimit for EnvelopeItemType
-        if (![self isReadyToSend:SentryEnvelopeItemTypeEvent]) {
+        
+        // TODO: Get EventType from event and not use SentryEnvelopeItemTypeEvent
+        NSString *category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
+        if (![self isReadyToSend:category]) {
             [self.fileManager removeFileAtPath:fileContents.path];
         } else {
             SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn

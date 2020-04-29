@@ -56,7 +56,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
 - (_Nullable instancetype)initStoreRequestWithDsn:(SentryDsn *)dsn
                                           andData:(NSData *)data
                                  didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
+    NSURL *apiURL = [dsn getStoreEndpoint];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
         NSString *authHeader = newAuthHeader(dsn.url);
@@ -75,7 +75,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
                                              andData:(NSData *)data
                                  didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSURL *apiURL = [self.class getStoreUrlFromDsn:dsn];
+    NSURL *apiURL = [dsn getEnvelopeEndpoint];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
         NSString *authHeader = newAuthHeader(dsn.url);
@@ -94,28 +94,6 @@ NSTimeInterval const SentryRequestTimeout = 15;
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope request with data: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]] andLevel:kSentryLogLevelVerbose];
     }
     return self;
-}
-
-+ (NSURL *)getStoreUrlFromDsn:(SentryDsn *)dsn {
-    NSURL *url = dsn.url;
-    NSString *projectId = url.lastPathComponent;
-    NSMutableArray *paths = [url.pathComponents mutableCopy];
-    // [0] = /
-    // [1] = projectId
-    // If there are more than two, that means someone wants to have an additional path
-    // ref: https://github.com/getsentry/sentry-cocoa/issues/236
-    NSString *path = @"";
-    if ([paths count] > 2) {
-        [paths removeObjectAtIndex:0]; // We remove the leading /
-        [paths removeLastObject]; // We remove projectId since we add it later
-        path = [NSString stringWithFormat:@"/%@", [paths componentsJoinedByString:@"/"]]; // We put together the path
-    }
-    NSURLComponents *components = [NSURLComponents new];
-    components.scheme = url.scheme;
-    components.host = url.host;
-    components.port = url.port;
-    components.path = [NSString stringWithFormat:@"%@/api/%@/store/", path, projectId];
-    return components.URL;
 }
 
 static NSString *newHeaderPart(NSString *key, id value) {

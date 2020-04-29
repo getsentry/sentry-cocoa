@@ -81,7 +81,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenNoInternetConnection()
         sendEvent()
         
-        givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
+        givenRateLimitResponse(forCategory: "someCat")
         sendEnvelope()
         
         XCTAssertEqual(3, requestManager.requests.count)
@@ -120,7 +120,7 @@ class SentryHttpTransportTests: XCTestCase {
         // Rate limit changes between sending the event succesfully
         // and calling sending all events. This can happen when for
         // example when multiple requests run in parallel.
-        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
@@ -152,7 +152,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         assertEventsStored(eventCount: 2)
         
-        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
         sendEvent()
         assertEventsStored(eventCount: 0)
     }
@@ -166,7 +166,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testSendEventWithRateLimitResponse() {
-        let response = givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
         
         sendEvent()
         
@@ -182,7 +182,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testSendEnvelopeWithRateLimitResponse() {
-        let response = givenRateLimitResponse(forType: SentryEnvelopeItemTypeSession)
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
         
         sendEnvelope()
         
@@ -190,7 +190,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testRateLimitForEvent() {
-        givenRateLimitResponse(forType: SentryEnvelopeItemTypeEvent)
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
 
         sendEvent()
         
@@ -240,8 +240,8 @@ class SentryHttpTransportTests: XCTestCase {
         return response
     }
     
-    @discardableResult private func givenRateLimitResponse(forType type: String) -> HTTPURLResponse {
-        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(type):key")
+    @discardableResult private func givenRateLimitResponse(forCategory category: String) -> HTTPURLResponse {
+        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(category):key")
         requestManager.returnResponse(response: response)
         return response
     }
@@ -261,7 +261,7 @@ class SentryHttpTransportTests: XCTestCase {
             if (i == 0) {
                 return HTTPURLResponse.init()
             } else {
-                return TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeEvent):key")
+                return TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryRateLimitCategoryError):key")
             }
         }
     }

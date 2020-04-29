@@ -15,3 +15,6 @@
 #import "SentryHttpDateParser.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryFileContents.h"
+#import "SentryEnvelopeItemType.h"
+#import "SentryRateLimitCategoryMapper.h"
+#import "SentryRateLimitCategory.h"

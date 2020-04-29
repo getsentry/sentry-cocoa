@@ -32,12 +32,20 @@
 - (void)startSession {
     SentrySession *lastSession = nil;
     SentryScope *scope = [self getScope];
+    SentryClient *client = [self getClient];
+    SentryOptions *options = [client options];
+    if (nil == options || nil == options.releaseName) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."] andLevel:kSentryLogLevelError];
+        return;
+    }
     @synchronized (_sessionLock) {
         if (nil != _session) {
             lastSession = _session;
         }
         _session = [[SentrySession alloc] init];
+        _session.releaseName = options.releaseName;
         [scope applyToSession:_session];
+
         [self storeCurrentSession:_session];
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];

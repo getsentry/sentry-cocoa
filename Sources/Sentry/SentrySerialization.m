@@ -2,6 +2,7 @@
 #import "SentryDefines.h"
 #import "SentryLog.h"
 #import "SentryError.h"
+#import "SentryEnvelopeItemType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
