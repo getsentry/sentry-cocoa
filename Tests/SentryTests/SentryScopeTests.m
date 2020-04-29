@@ -78,7 +78,17 @@
 }
 
 - (void)testSetUser {
-    #warning TODO implement
+    SentryScope *scope = [[SentryScope alloc] init];
+    SentryUser *user = [[SentryUser alloc] init];
+    
+    [user setUserId:@"123"];
+    [scope setUser:user];
+    
+    NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
+    NSDictionary<NSString *, id> *scopeUser = [scopeSerialized objectForKey:@"user"];
+    NSString *scopeUserId = [scopeUser objectForKey:@"id"];
+    
+    XCTAssertEqualObjects(scopeUserId, @"123");
 }
 
 - (void)testSerialize {
