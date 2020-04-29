@@ -17,6 +17,7 @@
 #import "SentryFileContents.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryRateLimitCategoryMapper.h"
+#import "SentryEnvelopeRateLimit.h"
 
 @interface SentryHttpTransport ()
 
@@ -24,6 +25,7 @@
 @property(nonatomic, strong) id <SentryRequestManager> requestManager;
 @property(nonatomic, weak) SentryOptions *options;
 @property(nonatomic, strong) id <SentryRateLimits> rateLimits;
+@property(nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 
 @end
 
@@ -33,12 +35,14 @@
     sentryFileManager:(SentryFileManager *)sentryFileManager
  sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager
 sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
+sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 {
   if (self = [super init]) {
       self.options = options;
       self.requestManager = sentryRequestManager;
       self.fileManager = sentryFileManager;
       self.rateLimits = sentryRateLimits;
+      self.envelopeRateLimit = envelopeRateLimit;
       
       [self setupQueueing];
       [self sendCachedEventsAndEnvelopes];
@@ -76,8 +80,16 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    // TODO: Apply type based rate limiting
-    if (![self isReadyToSend:@""]) {
+    
+    if (![self.options.enabled boolValue]) {
+        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
+        return;
+    }
+    
+    envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
+    
+    if (envelope.items.count == 0) {
+        [SentryLog logWithMessage:@"RateLimit is active for all envelope items." andLevel:kSentryLogLevelDebug];
         return;
     }
     

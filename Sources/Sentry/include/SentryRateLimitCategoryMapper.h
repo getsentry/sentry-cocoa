@@ -9,6 +9,8 @@ NS_SWIFT_NAME(RateLimitCategoryMapper)
  */
 + (NSString *_Nonnull)mapEventTypeToCategory:(NSString *)eventType;
 
++ (NSString *_Nonnull)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
+
 @end
 
 NS_ASSUME_NONNULL_END

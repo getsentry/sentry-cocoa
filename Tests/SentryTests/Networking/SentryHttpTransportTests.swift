@@ -27,7 +27,8 @@ class SentryHttpTransportTests: XCTestCase {
                 options: options,
                 sentryFileManager: fileManager,
                 sentryRequestManager: requestManager,
-                sentryRateLimits: rateLimits
+                sentryRateLimits: rateLimits,
+                sentryEnvelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits)
             )
         } catch {
             XCTFail("SentryHttpTransport could not be created")
@@ -48,7 +49,8 @@ class SentryHttpTransportTests: XCTestCase {
             options: options,
             sentryFileManager: fileManager,
             sentryRequestManager: requestManager,
-            sentryRateLimits: rateLimits
+            sentryRateLimits: rateLimits,
+            sentryEnvelopeRateLimit: EnvelopeRateLimit()
         )
         
         assertEventsStored(eventCount: 0)
@@ -232,6 +234,26 @@ class SentryHttpTransportTests: XCTestCase {
         sendEnvelope(callsCompletionHandler: false)
         
         assertRequestsSent(requestCount: 0)
+    }
+    
+    func testActiveRateLimitForAllEnvelopeItems() {
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
+        
+        sendEvent()
+        sut.send(envelope: SentryEnvelope(event: Event()), completion: nil)
+        
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testActiveRateLimitForSomeEnvelopeItems() {
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
+        
+        sendEvent()
+        
+        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession())])
+        sut.send(envelope: envelope, completion: nil)
+        
+        assertRequestsSent(requestCount: 2)
     }
     
     private func givenRetryAfterResponse() -> HTTPURLResponse {

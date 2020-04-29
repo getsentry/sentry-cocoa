@@ -10,6 +10,7 @@
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryHttpDateParser.h"
 #import "SentryRateLimitParser.h"
+#import "SentryEnvelopeRateLimit.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,9 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
         SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
         id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser andRateLimitParser:rateLimitParser];
         
+        SentryEnvelopeRateLimit * envelopeRateLimit = [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
+        
         return [[SentryHttpTransport alloc] initWithOptions:options
                                           sentryFileManager:sentryFileManager sentryRequestManager: requestManager
-                                           sentryRateLimits: rateLimits];
+                                           sentryRateLimits: rateLimits
+                                    sentryEnvelopeRateLimit: envelopeRateLimit];
     }
 }
 

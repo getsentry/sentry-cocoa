@@ -18,3 +18,4 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimitCategory.h"
+#import "SentryEnvelopeRateLimit.h"
