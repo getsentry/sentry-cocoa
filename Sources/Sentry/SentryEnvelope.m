@@ -1,6 +1,7 @@
 #import "SentryEvent.h"
 #import "SentrySession.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    options:0
             // TODO: handle error
                                                      error:nil];
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"event" length:json.length] data:json];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent length:json.length] data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session {
@@ -53,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    options:0
             // TODO: handle error
                                                      error:nil];
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:@"session" length:json.length] data:json];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession length:json.length] data:json];
 }
 @end
 

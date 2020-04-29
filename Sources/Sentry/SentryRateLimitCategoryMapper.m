@@ -15,4 +15,14 @@
     return SentryRateLimitCategoryError;
 }
 
++ (NSString *_Nonnull)mapEnvelopeItemTypeToCategory:(NSString *)itemType {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
+        return SentryRateLimitCategoryError;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeSession]) {
+        return SentryRateLimitCategorySession;
+    }
+    return itemType;
+}
+
 @end
