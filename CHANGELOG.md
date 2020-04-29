@@ -9,6 +9,7 @@
 - feat: Add auto session starting for macOS #463
 - fix: Take release name from options #462
 - feat: Use new envelope endpoint #475
+- feat: App lifecycle events as breadcrumbs #474
 
 ## 5.0.0-beta.6
 
