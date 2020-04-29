@@ -7,6 +7,7 @@
 - feat: Adds setUser to SentrySDK and SentryHub #467
 - feat: Add auto session starting for macOS #463
 - fix: Take release name from options #462
+- feat: Use new envelope endpoint #475
 
 ## 5.0.0-beta.6
 

@@ -75,7 +75,7 @@ NSTimeInterval const SentryRequestTimeout = 15;
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
                                              andData:(NSData *)data
                                  didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSURL *apiURL = [dsn getStoreEndpoint];
+    NSURL *apiURL = [dsn getEnvelopeEndpoint];
     self = [super initWithURL:apiURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:SentryRequestTimeout];
     if (self) {
         NSString *authHeader = newAuthHeader(dsn.url);
