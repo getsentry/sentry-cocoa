@@ -41,11 +41,6 @@ NS_SWIFT_NAME(Scope)
 - (void)setExtraValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
- * Set release in the scope
- */
-- (void)setRelease:(NSString *_Nullable)releaseName;
-
-/**
  * Set dist in the scope
  */
 - (void)setDist:(NSString *_Nullable)dist;
