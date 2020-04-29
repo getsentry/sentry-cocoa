@@ -10,6 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)getHash;
 
+- (NSURL *)getStoreEndpoint;
+
 @end
 
 NS_ASSUME_NONNULL_END
