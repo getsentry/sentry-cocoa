@@ -29,22 +29,22 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (BOOL)isRateLimitActive:(NSString *)type {
+- (BOOL)isRateLimitActive:(NSString *)category {
     @synchronized (self) {
-        return [self isCustomHeaderRateLimitActive:type] ||
+        return [self isCustomHeaderRateLimitActive:category] ||
         [self isRetryAfterHeaderLimitActive];
     }
 }
 
-- (BOOL)isCustomHeaderRateLimitActive:(NSString *)type {
-    NSDate *rateLimitDate = self.rateLimits[type];
+- (BOOL)isCustomHeaderRateLimitActive:(NSString *)category {
+    NSDate *rateLimitDate = self.rateLimits[category];
     BOOL isActive = [self isInFuture: rateLimitDate];
     
     NSDate *allTypesRateLimitDate = self.rateLimits[@""];
     BOOL isAllTypesActive = [self isInFuture: allTypesRateLimitDate];
     
     if (isActive) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limit reached for type %@ until: %@", type, rateLimitDate] andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limit reached for type %@ until: %@", category, rateLimitDate] andLevel:kSentryLogLevelDebug];
         return YES;
     } else if (isAllTypesActive) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"X-Sentry-Rate-Limit reached for all types until: %@",  allTypesRateLimitDate] andLevel:kSentryLogLevelDebug];
