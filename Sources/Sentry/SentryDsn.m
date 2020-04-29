@@ -9,12 +9,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation SentryDsn
+@implementation SentryDsn {
+    NSURL *_storeEndpoint;
+    NSURL *_envelopeEndpoint;
+}
 
 - (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
-        self.url = [self convertDsnString:dsnString didFailWithError:error];
+        _url = [self convertDsnString:dsnString didFailWithError:error];
         if (nil != error && nil != *error) {
             return nil;
         }
@@ -34,11 +37,25 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSURL *)getStoreEndpoint {
-    return [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
+    if (nil == _storeEndpoint) {
+        @synchronized (self) {
+            if (nil == _storeEndpoint) {
+                _storeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
+            }
+        }
+    }
+    return _storeEndpoint;
 }
 
 - (NSURL *)getEnvelopeEndpoint {
-    return [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
+    if (nil == _envelopeEndpoint) {
+        @synchronized (self) {
+            if (nil == _envelopeEndpoint) {
+                _envelopeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
+            }
+        }
+    }
+    return _envelopeEndpoint;
 }
 
 - (NSURL *)getBaseEndpoint {
