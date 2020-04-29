@@ -85,12 +85,12 @@
     NSError *error = nil;
     SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@getsentry.net/1" didFailWithError:&error];
     
-    XCTAssertEqualObjects([[SentryNSURLRequest getStoreUrlFromDsn:dsn] absoluteString], @"https://getsentry.net/api/1/store/");
+    XCTAssertEqualObjects([[dsn getStoreEndpoint] absoluteString], @"https://getsentry.net/api/1/store/");
     XCTAssertNil(error);
     
     SentryDsn *dsn2 = [[SentryDsn alloc] initWithString:@"https://username:password@sentry.io/foo/bar/baz/1" didFailWithError:&error];
     
-    XCTAssertEqualObjects([[SentryNSURLRequest getStoreUrlFromDsn:dsn2] absoluteString], @"https://sentry.io/foo/bar/baz/api/1/store/");
+    XCTAssertEqualObjects([[dsn2 getStoreEndpoint] absoluteString], @"https://sentry.io/foo/bar/baz/api/1/store/");
     XCTAssertNil(error);
 }
 
