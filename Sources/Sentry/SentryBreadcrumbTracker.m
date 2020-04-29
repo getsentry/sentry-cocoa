@@ -26,11 +26,12 @@
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
-                                                    [self addBreadcrumbWithType: @"system"
-                                                                   withCategory: @"device"
-                                                                      withLevel: kSentryLevelWarning
-                                                                    withDataKey: @"action"
-                                                                  withDataValue: @"UIApplicationDidReceiveMemoryWarningNotification"];
+                                                    if (nil != [SentrySDK.currentHub getClient]) {
+                                                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning category:@"device.memory"];
+                                                        crumb.type = @"system";
+                                                        crumb.message = @"Low memory";
+                                                        [SentrySDK addBreadcrumb:crumb];
+                                                    }
                                                 }];
     
     [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidEnterBackgroundNotification
@@ -123,7 +124,6 @@
                         crumb.type = @"navigation";
                         NSString *viewControllerName = [SentryBreadcrumbTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                         crumb.data = @{@"screen": viewControllerName};
-                        crumb.level = kSentryLevelInfo;
 
                         [SentrySDK.currentHub configureScope:^(SentryScope * _Nonnull scope) {
                             [scope addBreadcrumb:crumb];
