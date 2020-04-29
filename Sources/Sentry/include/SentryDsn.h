@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)getHash;
 
 - (NSURL *)getStoreEndpoint;
+- (NSURL *)getEnvelopeEndpoint;
 
 @end
 
