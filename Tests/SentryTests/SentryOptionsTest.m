@@ -59,9 +59,10 @@
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSString *expectedRelease = [NSString stringWithFormat:@"%@@%@+%@",
-                                                           infoDict[@"CFBundleIdentifier"],
-                                                           infoDict[@"CFBundleShortVersionString"],
-                                                           infoDict[@"CFBundleVersion"]];
+                                 infoDict[@"CFBundleIdentifier"],
+                                 infoDict[@"CFBundleShortVersionString"],
+                                 infoDict[@"CFBundleVersion"]];
+
     XCTAssertEqualObjects(options.releaseName, expectedRelease);
 }
     
