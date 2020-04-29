@@ -34,6 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSURL *)getStoreEndpoint {
+    return [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
+}
+
+- (NSURL *)getEnvelopeEndpoint {
+    return [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
+}
+
+- (NSURL *)getBaseEndpoint {
     NSURL *url = self.url;
     NSString *projectId = url.lastPathComponent;
     NSMutableArray *paths = [url.pathComponents mutableCopy];
@@ -51,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
     components.scheme = url.scheme;
     components.host = url.host;
     components.port = url.port;
-    components.path = [NSString stringWithFormat:@"%@/api/%@/store/", path, projectId];
+    components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
     return components.URL;
 }
 
