@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: RateLimit for non cached Envelopes #476
 - fix: Use RateLimitCategoryError for events #470
 - feat: Store SentryEnvelopes in extra path #468
 - feat: Adds setUser to SentrySDK and SentryHub #467
