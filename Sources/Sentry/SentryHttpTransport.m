@@ -246,9 +246,9 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // TODO: How does beforeSend work here
         
-        // If the response is not nil we had an internet connection and we can
-        // delete the cached event or envelope no an error happened or not.
-        if (response != nil) {
+        // If the response is not nil we had an internet connection.
+        // We don't worry about errors here.
+        if (nil != response) {
             [self.fileManager removeFileAtPath:filePath];
         }
     }];
