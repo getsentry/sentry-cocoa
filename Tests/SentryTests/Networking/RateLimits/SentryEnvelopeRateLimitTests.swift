@@ -28,7 +28,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         for item in actual.items {
             XCTAssertEqual(SentryEnvelopeItemTypeSession, item.header.type)
         }
-        XCTAssertEqual(envelope.header.eventId, actual.header.eventId)
+        XCTAssertEqual(envelope.header, actual.header)
     }
     
     func testLimitForSessionActive() {
@@ -41,7 +41,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         for item in actual.items {
             XCTAssertEqual(SentryEnvelopeItemTypeEvent, item.header.type)
         }
-        XCTAssertEqual(envelope.header.eventId, actual.header.eventId)
+        XCTAssertEqual(envelope.header, actual.header)
     }
     
     func testLimitForCustomType() {
