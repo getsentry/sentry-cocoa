@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add support for mac catalyst #479
 - fix: RateLimitCategories #482
 - fix: RetryAfter treated like all categories #481
 - feat: RateLimiting for cached events and envelopes #480
