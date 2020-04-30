@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: RetryAfter treated like all categories #481
+- feat: RateLimiting for cached events and envelopes #480
 - fix: EnvelopeRateLimit init envelope with header #478
 
 ## 5.0.0-beta.7
