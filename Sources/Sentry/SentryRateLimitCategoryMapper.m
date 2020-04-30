@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
     if ([itemType isEqualToString:SentryEnvelopeItemTypeTransaction]) {
         category = SentryRateLimitCategoryTransaction;
     }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
+        category = SentryRateLimitCategoryAttachment;
+    }
     return category;
 }
 

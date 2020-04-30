@@ -14,6 +14,7 @@ class SentryRateLimitCategoryMapperTests: XCTestCase {
         XCTAssertEqual(categoryError, mapEnvelopeItemType(itemType: "event"))
         XCTAssertEqual("session", mapEnvelopeItemType(itemType: "session"))
         XCTAssertEqual("transaction", mapEnvelopeItemType(itemType: "transaction"))
+        XCTAssertEqual("attachment", mapEnvelopeItemType(itemType: "attachment"))
         XCTAssertEqual("default", mapEnvelopeItemType(itemType: "unkown item type"))
     }
     
