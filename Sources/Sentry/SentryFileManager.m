@@ -43,7 +43,6 @@ NSInteger const defaultMaxEnvelopes = 100;
         
         self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
         [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
-        
 
         self.currentFileCounter = 0;
         self.maxEvents = defaultMaxEvents;
@@ -225,8 +224,8 @@ NSInteger const defaultMaxEnvelopes = 100;
 
 #pragma mark private methods
 
-- (void)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
-    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
+- (BOOL)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
+    return [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
 }
 
 @end

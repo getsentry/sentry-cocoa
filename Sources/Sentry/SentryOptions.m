@@ -19,8 +19,11 @@
                       didFailWithError:(NSError *_Nullable *_Nullable)error {
     self = [super init];
     if (self) {
-        [self validateOptions:options didFailWithError:error];
-        if (nil != error && nil != *error) {
+        BOOL success = [self validateOptions:options didFailWithError:error];
+        if (!success) {
+            if (nil != error && nil != *error) {
+                [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error] andLevel:kSentryLogLevelError];
+            }
             return nil;
         }
 
@@ -41,7 +44,7 @@
 /**
  populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options
+- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error {
     
     if (nil != [options objectForKey:@"debug"]) {
@@ -68,12 +71,13 @@
     if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
         self.enabled = @NO;
         [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
-        return;
+        return false;
     }
     
     self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
     if (nil != error && nil != *error) {
         self.enabled = @NO;
+        return false;
     }
     
     if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {
@@ -138,6 +142,8 @@
     if([[options objectForKey:@"transport"] conformsToProtocol:@protocol(SentryTransport)]) {
         self.transport = [options objectForKey:@"transport"];
     }
+
+    return true;
 }
 
 @end
