@@ -45,7 +45,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     }
     
     func testLimitForCustomType() {
-        rateLimits.typeLimits = ["customType"]
+        rateLimits.typeLimits = ["default"]
         var envelopeItems = [SentryEnvelopeItem]()
         envelopeItems.append(SentryEnvelopeItem(event: Event()))
         
