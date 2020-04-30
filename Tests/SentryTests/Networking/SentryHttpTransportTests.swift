@@ -42,7 +42,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testInitSendsCachedEventsAndEnvelopes() {
         givenNoInternetConnection()
         sendEvent()
-        assertEventsStored(eventCount: 1)
+        assertEventsAndEnvelopesStored(eventCount: 1)
         
         givenOkResponse()
         _ = SentryHttpTransport(
@@ -53,7 +53,7 @@ class SentryHttpTransportTests: XCTestCase {
             sentryEnvelopeRateLimit: EnvelopeRateLimit()
         )
         
-        assertEventsStored(eventCount: 0)
+        assertEventsAndEnvelopesStored(eventCount: 0)
         assertRequestsSent(requestCount: 2)
     }
     
@@ -61,6 +61,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         assertRequestsSent(requestCount: 1)
+        assertEventsStored(eventCount: 0)
     }
     
     func testSendEventOptionsDisabled() {
@@ -69,6 +70,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent(callsCompletionHandler: false)
         
         assertRequestsSent(requestCount: 0)
+        assertEventsStored(eventCount: 0)
     }
     
     func testSendEventWhenSessionRateLimitActive() {
@@ -77,9 +79,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         assertRequestsSent(requestCount: 1)
+        assertEventsStored(eventCount: 0)
     }
     
-    func testSendAllEvents() {
+    func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
         
@@ -87,10 +90,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEnvelope()
         
         XCTAssertEqual(3, requestManager.requests.count)
-        XCTAssertEqual(0, fileManager.getAllStoredEventsAndEnvelopes().count)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
-    func testSendAllEventsSendsEnvelopes() {
+    func testSendAllCachedEnvelopes() {
         givenNoInternetConnection()
         let envelope = SentryEnvelope(session: SentrySession())
         sendEnvelope(envelope: envelope)
@@ -100,10 +103,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(5, requestManager.requests.count)
-        XCTAssertEqual(0, fileManager.getAllStoredEventsAndEnvelopes().count)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
-    func testSendAllEventsButNotReady() {
+    func testSendCachedButNotReady() {
         givenNoInternetConnection()
         sendEnvelope()
         
@@ -112,10 +115,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        XCTAssertEqual(1, fileManager.getAllStoredEventsAndEnvelopes().count)
+        assertEventsAndEnvelopesStored(eventCount: 1)
     }
     
-    func testSendAllEventsButRateLimitIsActive() {
+    func testSendCachedEventsButRateLimitIsActive() {
         givenNoInternetConnection()
         sendEvent()
         
@@ -126,7 +129,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        assertEventsStored(eventCount: 0)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
     func testRateLimitGetsActiveWhileSendAllEvents() {
@@ -145,18 +148,18 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(5, requestManager.requests.count)
-        assertEventsStored(eventCount: 0)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
     func testSendAllEventsAllEventsDeletedWhenNotReady() {
         givenNoInternetConnection()
         sendEvent()
         sendEvent()
-        assertEventsStored(eventCount: 2)
+        assertEventsAndEnvelopesStored(eventCount: 2)
         
         givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
         sendEvent()
-        assertEventsStored(eventCount: 0)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
     func testSendEventWithRetryAfterResponse() {
@@ -238,22 +241,75 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testActiveRateLimitForAllEnvelopeItems() {
         givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
-        
         sendEvent()
-        sut.send(envelope: SentryEnvelope(event: Event()), completion: nil)
+        
+        sendEnvelope(callsCompletionHandler: false)
         
         assertRequestsSent(requestCount: 1)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testActiveRateLimitForSomeEnvelopeItems() {
         givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
+        sendEvent()
+        
+        sendEnvelopeWithSession()
+        
+        assertRequestsSent(requestCount: 2)
+        assertEnvelopesStored(envelopeCount: 0)
+    }
+    
+    func testActiveRateLImitForAllCachedEnvelopeItems() {
+        givenNoInternetConnection()
+        sendEnvelope()
+        
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
+        sendEvent()
+        
+        assertRequestsSent(requestCount: 2)
+        assertEventsAndEnvelopesStored(eventCount: 0)
+    }
+    
+    func testActiveRateLImitForSomeCachedEnvelopeItems() {
+        givenNoInternetConnection()
+        sendEnvelope()
+        sendEnvelopeWithSession()
+        
+        givenRateLimitResponse(forCategory: SentryRateLimitCategoryError)
+        sendEvent()
+        
+        assertRequestsSent(requestCount: 4)
+        assertEventsAndEnvelopesStored(eventCount: 0)
+    }
+    
+    func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
+        let path = fileManager.store(TestConstants.envelope)
+        let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
+        try faultyEnvelope.write(to: URL.init(fileURLWithPath: path))
         
         sendEvent()
         
-        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession())])
-        sut.send(envelope: envelope, completion: nil)
+        assertRequestsSent(requestCount: 1)
+        assertEnvelopesStored(envelopeCount: 0)
+    }
+    
+    /**
+     In a previous version of the SentryFileManager events and envelopes
+     were stored in the same folder. Therefore it can happen that getAllEventsAndMaybeEnvelopes
+     returns envelopes. This test handles this edge case.
+     */
+    func testEnvelopesStoredInEvents() throws {
+        // Write Envelope to events path
+        let eventPath = fileManager.store(Event())
+        let envelopePath = fileManager.store(TestConstants.envelope)
+        let envelopeAsData = FileManager.default.contents(atPath: envelopePath)
+        fileManager.deleteAllStoredEventsAndEnvelopes()
+        try envelopeAsData?.write(to: URL.init(fileURLWithPath: eventPath))
+     
+        sendEvent()
         
         assertRequestsSent(requestCount: 2)
+        assertEventsAndEnvelopesStored(eventCount: 0)
     }
     
     private func givenRetryAfterResponse() -> HTTPURLResponse {
@@ -306,6 +362,11 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(callsCompletionHandler, completionHandlerWasCalled)
     }
     
+    private func sendEnvelopeWithSession() {
+        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession())])
+        sut.send(envelope: envelope, completion: nil)
+    }
+    
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, requestManager.requests.count)
         XCTAssertTrue(rateLimits.isRateLimitActive(SentryEnvelopeItemTypeSession))
@@ -313,10 +374,17 @@ class SentryHttpTransportTests: XCTestCase {
     
     private func assertRequestsSent(requestCount: Int) {
         XCTAssertEqual(requestCount, requestManager.requests.count)
-        assertEventsStored(eventCount: 0)
+    }
+    
+    private func assertEventsAndEnvelopesStored(eventCount: Int) {
+        XCTAssertEqual(eventCount, fileManager.getAllStoredEventsAndEnvelopes().count)
     }
     
     private func assertEventsStored(eventCount: Int) {
-        XCTAssertEqual(eventCount, fileManager.getAllStoredEventsAndEnvelopes().count)
+        XCTAssertEqual(eventCount, fileManager.getAllEventsAndMaybeEnvelopes().count)
+    }
+    
+    private func assertEnvelopesStored(envelopeCount: Int) {
+        XCTAssertEqual(envelopeCount, fileManager.getAllEnvelopes().count)
     }
 }

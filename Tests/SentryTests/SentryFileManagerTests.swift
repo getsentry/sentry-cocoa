@@ -29,7 +29,7 @@ class SentryFileManagerTests: XCTestCase {
         _ = try SentryFileManager.init(dsn: TestConstants.dsn)
         let fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
         
-        XCTAssertEqual(1, fileManager.getAllEvents().count)
+        XCTAssertEqual(1, fileManager.getAllEventsAndMaybeEnvelopes().count)
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
     }
@@ -39,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
         event.message = "message"
         sut.store(event)
         
-        let events = sut.getAllEvents()
+        let events = sut.getAllEventsAndMaybeEnvelopes()
         XCTAssertTrue(events.count == 1)
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
         
@@ -100,7 +100,7 @@ class SentryFileManagerTests: XCTestCase {
         for _ in 0...10 {
             sut.store(Event(level: SentryLevel.info))
         }
-        let events = sut.getAllEvents()
+        let events = sut.getAllEventsAndMaybeEnvelopes()
         XCTAssertEqual(events.count, 10)
     }
     
@@ -110,7 +110,7 @@ class SentryFileManagerTests: XCTestCase {
         for _ in 0...15 {
             sut.store(Event(level: SentryLevel.info))
         }
-        let events = sut.getAllEvents()
+        let events = sut.getAllEventsAndMaybeEnvelopes()
         XCTAssertEqual(events.count, 15)
     }
     
@@ -153,7 +153,7 @@ class SentryFileManagerTests: XCTestCase {
         
         XCTAssertEqual(3, sut.getAllStoredEventsAndEnvelopes().count)
         XCTAssertEqual(2, sut.getAllEnvelopes().count)
-        XCTAssertEqual(1, sut.getAllEvents().count)
+        XCTAssertEqual(1, sut.getAllEventsAndMaybeEnvelopes().count)
     }
     
     func testDeleteAllFolders() {
@@ -165,7 +165,7 @@ class SentryFileManagerTests: XCTestCase {
         
         XCTAssertEqual(0, sut.getAllStoredEventsAndEnvelopes().count)
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
-        XCTAssertEqual(0, sut.getAllEvents().count)
+        XCTAssertEqual(0, sut.getAllEventsAndMaybeEnvelopes().count)
         XCTAssertNil(sut.readCurrentSession())
     }
     
@@ -177,6 +177,6 @@ class SentryFileManagerTests: XCTestCase {
         
         XCTAssertEqual(0, sut.getAllStoredEventsAndEnvelopes().count)
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
-        XCTAssertEqual(0, sut.getAllEvents().count)
+        XCTAssertEqual(0, sut.getAllEventsAndMaybeEnvelopes().count)
     }
 }
