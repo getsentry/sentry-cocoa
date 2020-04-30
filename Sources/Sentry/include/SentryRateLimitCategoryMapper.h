@@ -7,9 +7,9 @@ NS_SWIFT_NAME(RateLimitCategoryMapper)
 
 /** Maps an event type to the category for rate limiting.
  */
-+ (NSString *_Nonnull)mapEventTypeToCategory:(NSString *)eventType;
++ (NSString *)mapEventTypeToCategory:(NSString *)eventType;
 
-+ (NSString *_Nonnull)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
++ (NSString *)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
 
 @end
 

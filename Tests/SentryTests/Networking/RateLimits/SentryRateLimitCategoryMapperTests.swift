@@ -4,35 +4,24 @@ import XCTest
 class SentryRateLimitCategoryMapperTests: XCTestCase {
     
     private let categoryError = "error"
-
-    func testAnyEventType() {
-        let actual = RateLimitCategoryMapper.mapEventType(toCategory: "any eventtype")
-        
-        XCTAssertEqual(categoryError, actual)
-    }
     
     func testEventItemType() {
-        let actual = RateLimitCategoryMapper.mapEventType(toCategory: "event")
-        
-        XCTAssertEqual(categoryError, actual)
+        XCTAssertEqual(categoryError, mapEventType(eventType: "event"))
+        XCTAssertEqual(categoryError, mapEventType(eventType: "any eventtype"))
     }
     
-
-    func testEnvelopeItemTypeEvent() {
-        let actual = RateLimitCategoryMapper.mapEnvelopeItemType(toCategory: "event")
-        
-        XCTAssertEqual(categoryError, actual)
+    func testEnvelopeItemType() {
+        XCTAssertEqual(categoryError, mapEnvelopeItemType(itemType: "event"))
+        XCTAssertEqual("session", mapEnvelopeItemType(itemType: "session"))
+        XCTAssertEqual("transaction", mapEnvelopeItemType(itemType: "transaction"))
+        XCTAssertEqual("default", mapEnvelopeItemType(itemType: "unkown item type"))
     }
     
-    func testEnvelopeItemTypeSession() {
-        let actual = RateLimitCategoryMapper.mapEnvelopeItemType(toCategory: "session")
-        
-        XCTAssertEqual("session", actual)
+    private func mapEnvelopeItemType(itemType: String) -> String {
+        return RateLimitCategoryMapper.mapEnvelopeItemType(toCategory: itemType)
     }
     
-    func testAnyEnvelopeItemType() {
-        let actual = RateLimitCategoryMapper.mapEnvelopeItemType(toCategory: "any envelope item type")
-        
-        XCTAssertEqual("any envelope item type", actual)
+    private func mapEventType(eventType: String) -> String {
+        return RateLimitCategoryMapper.mapEventType(toCategory: eventType)
     }
 }
