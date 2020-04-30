@@ -15,7 +15,6 @@ SENTRY_NO_INIT
 @property(nonatomic, readonly, strong) SentrySession *session;
 
 - (void)startSession;
-- (void)endSession;
 - (void)endSessionWithTimestamp:(NSDate*)timestamp;
 - (void)closeCachedSession;
 
