@@ -66,7 +66,7 @@ NSInteger const defaultMaxEnvelopes = 100;
                                       [NSUUID UUID].UUIDString];
 }
 
-- (NSArray<SentryFileContents *> *)getAllEvents {
+- (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes {
     return [self allFilesContentInFolder:self.eventsPath];
 }
 
@@ -75,7 +75,7 @@ NSInteger const defaultMaxEnvelopes = 100;
 }
 
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes {
-    return [[self getAllEvents] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
+    return [[self getAllEventsAndMaybeEnvelopes] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
 }
 
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path {

@@ -26,7 +26,13 @@ SENTRY_NO_INIT
 
 - (void)deleteAllFolders;
 
-- (NSArray<SentryFileContents *> *)getAllEvents;
+/**
+ In a previous version of SentryFileManager envelopes were stored in the same path as events.
+ Now events and envelopes are stored in two different paths. We decided that there is no need
+ for a migration strategy, because in worst case only a few envelopes get lost and this is not
+ worth the effort. Since there is no migration strategy this method could also return envelopes.
+ */
+- (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes;
 
