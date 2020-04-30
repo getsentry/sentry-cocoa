@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: RateLimiting for cached events and envelopes #480
+
 ## 5.0.0-beta.7
 
 - feat: RateLimit for non cached Envelopes #476

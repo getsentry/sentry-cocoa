@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryEnvelope *)removeRateLimitedItems:(SentryEnvelope *)envelope {
+    if(nil == envelope) {
+        return envelope;
+    }
+    
     SentryEnvelope *result = envelope;
     
     NSArray<SentryEnvelopeItem *> *itemsToDrop = [self getEnvelopeItemsToDrop:envelope.items];
