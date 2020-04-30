@@ -12,7 +12,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope;
 
 // Since there's no scope stack, single hub instance, experimenting with holding session here.
-@property(nonatomic, readonly, strong) SentrySession *session;
+@property(nonatomic, readonly, strong) SentrySession *_Nullable session;
 
 - (void)startSession;
 - (void)endSessionWithTimestamp:(NSDate*)timestamp;
