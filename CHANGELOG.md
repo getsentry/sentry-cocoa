@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: EnvelopeRateLimit init envelope with header #478
+
 ## 5.0.0-beta.7
 
 - feat: RateLimit for non cached Envelopes #476
