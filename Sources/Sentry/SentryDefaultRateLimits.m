@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSDate *categoryDate = self.rateLimits[category];
     NSDate *allCategoriesDate = self.rateLimits[@""];
     
-    BOOL isActiveForCategory = [self isInFuture: categoryDate];
-    BOOL isActiveForCategories = [self isInFuture: allCategoriesDate];
+    BOOL isActiveForCategory = [self isInFuture:categoryDate];
+    BOOL isActiveForCategories = [self isInFuture:allCategoriesDate];
     
     if (isActiveForCategory) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate-Limit reached for type %@ until: %@", category, categoryDate] andLevel:kSentryLogLevelDebug];
