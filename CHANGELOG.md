@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add support for mac catalyst #479
+
 ## 5.0.0-beta.7
 
 - feat: RateLimit for non cached Envelopes #476
