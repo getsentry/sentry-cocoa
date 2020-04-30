@@ -6,6 +6,9 @@
 #import "SentryRetryAfterHeaderParser.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+static NSString * const SentryDefaultRateLimitsAllCategories = @"";
+
 @interface SentryDefaultRateLimits ()
 
 /* Key is the type and value is valid until date */
@@ -30,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isRateLimitActive:(NSString *)category {
     NSDate *categoryDate = self.rateLimits[category];
-    NSDate *allCategoriesDate = self.rateLimits[@""];
+    NSDate *allCategoriesDate = self.rateLimits[SentryDefaultRateLimitsAllCategories];
     
     BOOL isActiveForCategory = [self isInFuture:categoryDate];
     BOOL isActiveForCategories = [self isInFuture:allCategoriesDate];
@@ -69,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
         
         @synchronized (self) {
-            self.rateLimits[@""] = retryAfterHeaderDate;
+            self.rateLimits[SentryDefaultRateLimitsAllCategories] = retryAfterHeaderDate;
         }
     }
 }
