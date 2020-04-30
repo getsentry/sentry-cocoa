@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (itemsToDrop.count > 0) {
         NSArray<SentryEnvelopeItem *> *itemsToSend = [self getItemsToSend:envelope.items withItemsToDrop:itemsToDrop];
         
-        result = [[SentryEnvelope alloc] initWithId:envelope.header.eventId items:itemsToSend];
+        result = [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
     }
     
     return result;

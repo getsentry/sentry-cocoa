@@ -3,6 +3,7 @@
 ## unreleased
 
 - feat: Add support for mac catalyst #479
+- fix: EnvelopeRateLimit init envelope with header #478
 
 ## 5.0.0-beta.7
 
