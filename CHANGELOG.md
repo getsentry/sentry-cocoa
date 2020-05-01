@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 5.0.0-rc.1
 
 - feat: Add support for mac catalyst #479
 - fix: RateLimitCategories #482
