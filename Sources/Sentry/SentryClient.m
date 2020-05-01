@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self callEventProcessors:event];
 }
 
-- (SentryEvent *)callEventProcessors:(SentryEvent *)event {
+- (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event {
     SentryEvent *newEvent = event;
 
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {

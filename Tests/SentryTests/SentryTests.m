@@ -192,7 +192,6 @@
 //}
 
 - (void)testLevelNames {
-    NSInteger highest = kSentryLevelFatal;
     XCTAssertEqualObjects(@"none", SentryLevelNames[kSentryLevelNone]);
     XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentryLevelDebug]);
     XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);

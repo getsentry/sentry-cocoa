@@ -21,6 +21,7 @@
     if (self) {
         [self validateOptions:options didFailWithError:error];
         if (nil != error && nil != *error) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error] andLevel:kSentryLogLevelError];
             return nil;
         }
 
