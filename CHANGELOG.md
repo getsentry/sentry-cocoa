@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.0
+
+- GA of major version 5
+
 ## 5.0.0-rc.1
 
 - feat: Add support for mac catalyst #479
