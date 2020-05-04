@@ -37,9 +37,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Initializer
 
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options {
+- (instancetype)initWithOptions:(SentryOptions *)options {
     if (self = [super init]) {
         self.options = options;
+    }
+    return self;
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options withTransport:(id<SentryTransport>) transport {
+    if (self = [super init]) {
+        self.options = options;
+        self.transport = transport;
     }
     return self;
 }

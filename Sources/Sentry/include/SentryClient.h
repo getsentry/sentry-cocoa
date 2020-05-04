@@ -15,7 +15,7 @@
 #import "SentrySession.h"
 
 @class SentryEvent, SentryThread, SentryEnvelope;
-@class SentryFileManager;
+@class SentryFileManager, SentryTransport;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +31,16 @@ SENTRY_NO_INIT
  * @param options Options dictionary
  * @return SentryClient
  */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
+- (instancetype)initWithOptions:(SentryOptions *)options;
+
+/**
+ Initializes a SentryClient. Pass in an dictionary of options and a transport.
+
+ @param options Options dictionary
+ @param transport Sends events to the Sentry backend.
+ @return SentryClient
+*/
+- (instancetype)initWithOptions:(SentryOptions *)options withTransport:(id<SentryTransport>) transport;
 
 /**
  * Captures an SentryEvent

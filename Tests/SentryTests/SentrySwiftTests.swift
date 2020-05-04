@@ -56,7 +56,7 @@ class SentrySwiftTests: XCTestCase {
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.setExtras(["a": "b"])
-        client!.capture(event: event2, scope: scope)
+        client.capture(event: event2, scope: scope)
         //send(event: event2, scope: scope)
     }
     
@@ -74,7 +74,7 @@ class SentrySwiftTests: XCTestCase {
         let event2 = Event(level: .debug)
         let scope = Sentry.Scope()
         scope.setExtras(["a": "b"])
-        client!.capture(event: event2, scope: scope)
+        client.capture(event: event2, scope: scope)
         // TODO(fetzig) this thest used to have a callback
         // 1) check if we should keep/drop the callback
         // 2) update test accordingly
