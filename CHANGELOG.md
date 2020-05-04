@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Remove SentryTransport from SentryOptions #489
+
 ## 5.0.0-rc.1
 
 - feat: Add support for mac catalyst #479
