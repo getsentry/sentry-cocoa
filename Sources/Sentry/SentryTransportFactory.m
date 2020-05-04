@@ -22,26 +22,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<SentryTransport>_Nonnull) initTransport:(SentryOptions *) options
                             sentryFileManager:(SentryFileManager *) sentryFileManager {
-    if (nil != options.transport) {
-        return options.transport;
-    }
-    else {
-        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-        id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
-        
-        SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
-        SentryRetryAfterHeaderParser * retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
-        SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
-        id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser andRateLimitParser:rateLimitParser];
-        
-        SentryEnvelopeRateLimit * envelopeRateLimit = [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
-        
-        return [[SentryHttpTransport alloc] initWithOptions:options
-                                          sentryFileManager:sentryFileManager sentryRequestManager: requestManager
-                                           sentryRateLimits: rateLimits
-                                    sentryEnvelopeRateLimit: envelopeRateLimit];
-    }
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+    id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
+
+    SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
+    SentryRetryAfterHeaderParser * retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
+    SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
+    id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser andRateLimitParser:rateLimitParser];
+
+    SentryEnvelopeRateLimit * envelopeRateLimit = [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
+
+    return [[SentryHttpTransport alloc] initWithOptions:options
+                                      sentryFileManager:sentryFileManager sentryRequestManager: requestManager
+                                       sentryRateLimits: rateLimits
+                                sentryEnvelopeRateLimit: envelopeRateLimit];
 }
 
 @end

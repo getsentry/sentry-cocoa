@@ -96,11 +96,6 @@ SENTRY_NO_INIT
  */
 @property(nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
 
-/**
- * Set a custom implementation of SentryTransport.
- */
-@property(nonatomic, strong) id<SentryTransport> _Nullable transport;
-
 @end
 
 NS_ASSUME_NONNULL_END
