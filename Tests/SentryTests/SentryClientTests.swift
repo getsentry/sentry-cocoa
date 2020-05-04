@@ -27,7 +27,7 @@ class SentryClientTest: XCTestCase {
         super.tearDown()
     }
 
-    // Skippes until we expose a way to replace the transport
+    // Skips until we expose a way to replace the transport
     func skipped_testCaptureMessage() {
         let message = "message"
         client.capture(message: message, scope: nil)
