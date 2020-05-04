@@ -135,10 +135,6 @@
     } else {
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }
-    
-    if([[options objectForKey:@"transport"] conformsToProtocol:@protocol(SentryTransport)]) {
-        self.transport = [options objectForKey:@"transport"];
-    }
 }
 
 @end
