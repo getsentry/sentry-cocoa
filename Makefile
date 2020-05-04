@@ -8,7 +8,11 @@ test:
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
-	carthage build --no-skip-current --cache-builds
+	carthage build --no-skip-current --platform ios
+	carthage build --no-skip-current --platform tvos
+	carthage build --no-skip-current --platform watchos
+	# export XCODE_XCCONFIG_FILE=CarthageMac.xcconfig
+	# carthage build --no-skip-current --platform mac
 	carthage archive Sentry --output Sentry.framework.zip
 
 # call this like `make bump-version TO=5.0.0-rc.0`
