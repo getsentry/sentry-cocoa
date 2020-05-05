@@ -29,14 +29,14 @@ if (nil != error) {
 
 
 ```swift
- _ = SentrySDK(options: [
+SentrySDK.start(options: [
     "dsn": "___PUBLIC_DSN___",
     "debug": true
 ])
 ```
 
 ```objective-c
-[SentrySDK initWithOptions:@{
+[SentrySDK startWithOptions:@{
     @"dsn": @"___PUBLIC_DSN___",
     @"debug": @(YES)
 }];
