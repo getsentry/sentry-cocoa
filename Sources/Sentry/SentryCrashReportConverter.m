@@ -118,6 +118,7 @@ static inline NSString *hexAddress(NSNumber *value) {
             crumb.message = [storedCrumb objectForKey:@"message"];
             crumb.type = [storedCrumb objectForKey:@"type"];
             crumb.timestamp = [NSDate sentry_fromIso8601String:[storedCrumb objectForKey:@"timestamp"]];
+            crumb.data = [storedCrumb objectForKey:@"data"];
             [breadcrumbs addObject:crumb];
         }
     }

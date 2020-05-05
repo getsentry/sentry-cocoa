@@ -27,8 +27,9 @@
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
                                                     if (nil != [SentrySDK.currentHub getClient]) {
-                                                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning category:@"device.memory"];
+                                                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning category:@"device.event"];
                                                         crumb.type = @"system";
+                                                        crumb.data = @{@"action": @"LOW_MEMORY"};
                                                         crumb.message = @"Low memory";
                                                         [SentrySDK addBreadcrumb:crumb];
                                                     }
