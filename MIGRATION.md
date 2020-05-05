@@ -106,4 +106,34 @@ SentrySDK.capture(message: "Test Message") { (scope) in
 }];
 ```
 
+### setUser
+
+`4.x.x`
+
+```swift
+let u = User(userId: "1")
+u.email = "tony@example.com"
+Client.shared?.user = user
+```
+
+```objective-c
+SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+user.email = @"tony@example.com";
+SentryClient.sharedClient.user = user;
+```
+
+`5.x.x`
+
+```swift
+let u = Sentry.User(userId: "1")
+u.email = "tony@example.com"
+SentrySDK.setUser(u)
+```
+
+```objective-c
+SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+user.email = @"tony@example.com";
+[SentrySDK setUser:user];
+```
+
 For more features, usage examples and configuration options, please visit: https://docs.sentry.io/platforms/cocoa/
