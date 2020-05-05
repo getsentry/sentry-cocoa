@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+- fix: Flakey concurrent test for RateLimits #493
+
 ## 5.0.0
 
 - GA of major version 5

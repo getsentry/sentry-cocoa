@@ -128,37 +128,4 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertFalse(sut.isRateLimitActive(""))
         XCTAssertFalse(sut.isRateLimitActive("SomeCategory"))
     }
-    
-    func testMultipleConcurrentUpdates() {
-        let queue1 = DispatchQueue(label: "SentryDefaultRateLimitsTests1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        let queue2 = DispatchQueue(label: "SentryDefaultRateLimitsTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        
-        let group = DispatchGroup()
-        for i in Array(0...1000) {
-            startWorkItemTest(i: i, queue: queue1, group: group)
-        }
-        for i in Array(1001...2000) {
-            startWorkItemTest(i: i, queue: queue2, group: group)
-        }
-        
-        queue1.activate()
-        queue2.activate()
-        group.wait()
-        
-        // Make sure that all 2000 are saved and none are overwritten by
-        // race conditions.
-        for i in Array(0...2000) {
-            XCTAssertTrue(self.sut.isRateLimitActive(String(i)))
-        }
-    }
-    
-    func startWorkItemTest(i: Int, queue: DispatchQueue, group: DispatchGroup) {
-        group.enter()
-        queue.async {
-            let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(i):key")
-            self.sut.update(response)
-            XCTAssertTrue(self.sut.isRateLimitActive(String(i)))
-            group.leave()
-        }
-    }
 }
