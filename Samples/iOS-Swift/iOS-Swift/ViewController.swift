@@ -22,6 +22,10 @@ class ViewController: UIViewController {
             u.email = "tony@example.com"
             scope.setUser(u)
         }
+        // Also works
+        let u = Sentry.User(userId: "1")
+        u.email = "tony@example.com"
+        SentrySDK.setUser(u)
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {

@@ -291,10 +291,10 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (>= 2)
-  cocoapods
+  cocoapods (>= 1.8.4)
   danger
   danger-swiftlint
-  fastlane (>= 2.98.0)
+  fastlane (>= 2.137.0)
   slather
 
 BUNDLED WITH

@@ -70,6 +70,18 @@ class SentryDefaultRateLimitsTests: XCTestCase {
 
         XCTAssertFalse(sut.isRateLimitActive("anyCategory"))
     }
+    
+    func testRetryHeaderIsLikeAllCategories() {
+        sut.update(TestResponseFactory.createRateLimitResponse(headerValue: "2::key"))
+        sut.update(TestResponseFactory.createRetryAfterResponse(headerValue: "1"))
+        
+        XCTAssertTrue(sut.isRateLimitActive("any"))
+        
+        // RateLimit expired
+        let date = currentDateProvider.date()
+        currentDateProvider.setDate(date: date.addingTimeInterval(1))
+        XCTAssertFalse(sut.isRateLimitActive("any"))
+    }
 
     func testRetryAfterHeaderDeltaSeconds() {
         testRetryHeaderWith1Second(value: "1")

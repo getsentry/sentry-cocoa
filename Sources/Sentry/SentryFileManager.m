@@ -43,7 +43,6 @@ NSInteger const defaultMaxEnvelopes = 100;
         
         self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
         [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
-        
 
         self.currentFileCounter = 0;
         self.maxEvents = defaultMaxEvents;
@@ -66,7 +65,7 @@ NSInteger const defaultMaxEnvelopes = 100;
                                       [NSUUID UUID].UUIDString];
 }
 
-- (NSArray<SentryFileContents *> *)getAllEvents {
+- (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes {
     return [self allFilesContentInFolder:self.eventsPath];
 }
 
@@ -75,7 +74,7 @@ NSInteger const defaultMaxEnvelopes = 100;
 }
 
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes {
-    return [[self getAllEvents] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
+    return [[self getAllEventsAndMaybeEnvelopes] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
 }
 
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path {
@@ -225,8 +224,8 @@ NSInteger const defaultMaxEnvelopes = 100;
 
 #pragma mark private methods
 
-- (void)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
-    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
+- (BOOL)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error {
+    return [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:error];
 }
 
 @end

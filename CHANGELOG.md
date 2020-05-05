@@ -1,7 +1,15 @@
 # Changelog
 
-## unreleased
+## 5.0.0
 
+- GA of major version 5
+
+## 5.0.0-rc.1
+
+- feat: Add support for mac catalyst #479
+- fix: RateLimitCategories #482
+- fix: RetryAfter treated like all categories #481
+- feat: RateLimiting for cached events and envelopes #480
 - fix: EnvelopeRateLimit init envelope with header #478
 
 ## 5.0.0-beta.7

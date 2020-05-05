@@ -95,9 +95,8 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    NSURLRequest *request = [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.dsn
-                                                                               andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&requestError]
-                                                                     didFailWithError:&requestError];
+    NSURLRequest *request = [self createEnvelopeRequest:envelope didFailWithError:requestError];
+    
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
         if (completionHandler) {
@@ -128,6 +127,14 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         // In all other cases we don't want to retry sending it and just discard the event
         return NO;
     };
+}
+
+- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                        didFailWithError:(NSError *_Nullable)error {
+    return [[SentryNSURLRequest alloc]
+            initEnvelopeRequestWithDsn:self.options.dsn
+            andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&error]
+            didFailWithError:&error];
 }
 
 - (void)sendRequest:(NSURLRequest *)request
@@ -184,35 +191,67 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
         return;
     }
     
-    dispatch_group_t dispatchGroup = dispatch_group_create();
-    for (SentryFileContents *fileContents in [self.fileManager getAllStoredEventsAndEnvelopes]) {
-        dispatch_group_enter(dispatchGroup);
-        
-        
-        // TODO: Check RateLimit for EnvelopeItemType
-        
-        // TODO: Get EventType from event and not use SentryEnvelopeItemTypeEvent
+    [self sendAllCachedEvents];
+    [self sendAllCachedEnvelopes];
+}
+
+- (void)sendAllCachedEvents {
+    for (SentryFileContents *fileContents in [self.fileManager getAllEventsAndMaybeEnvelopes]) {
+        // The fileContents don't give insights on the event type. We would have
+        // to deserialize the contents, which is unnecessary at the moment, because
+        // we classify every event with the same category. We still call
+        // SentryRateLimitCategoryMapper to keep the code stable if the category
+        // for event changes.
         NSString *category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
         if (![self isReadyToSend:category]) {
             [self.fileManager removeFileAtPath:fileContents.path];
         } else {
-            SentryNSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                                      andData:fileContents.contents
-                                                                             didFailWithError:nil];
-            
-            
-            [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-                // TODO: How does beforeSend work here
-                // We want to delete the event here no matter what (if we had an internet connection)
-                // since it has been tried already.
-                if (response != nil) {
-                    [self.fileManager removeFileAtPath:fileContents.path];
-                }
-
-                dispatch_group_leave(dispatchGroup);
-            }];
+            NSURLRequest *request = [[SentryNSURLRequest alloc]
+            initStoreRequestWithDsn:self.options.dsn
+            andData:fileContents.contents
+            didFailWithError:nil];
+            [self sendCached:request withFilePath:fileContents.path];
         }
     }
+}
+
+- (void)sendAllCachedEnvelopes {
+    for (SentryFileContents *fileContents in [self.fileManager getAllEnvelopes]) {
+        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:fileContents.contents];
+        if (nil == envelope) {
+            [self.fileManager removeFileAtPath:fileContents.path];
+            continue;
+        }
+        
+        SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
+        if (rateLimitedEnvelope.items.count == 0) {
+            [self.fileManager removeFileAtPath:fileContents.path];
+            continue;
+        }
+        
+        NSError *requestError = nil;
+        NSURLRequest *request = [self createEnvelopeRequest:envelope didFailWithError:requestError];
+        
+        if (nil != requestError) {
+            [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
+            [self.fileManager removeFileAtPath:fileContents.path];
+            continue;
+        } else {
+            [self sendCached:request withFilePath:fileContents.path];
+        }
+    }
+}
+
+- (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath {
+    [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        // TODO: How does beforeSend work here
+        
+        // If the response is not nil we had an internet connection.
+        // We don't worry about errors here.
+        if (nil != response) {
+            [self.fileManager removeFileAtPath:filePath];
+        }
+    }];
 }
 
 @end

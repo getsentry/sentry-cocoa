@@ -21,6 +21,7 @@
     if (self) {
         [self validateOptions:options didFailWithError:error];
         if (nil != error && nil != *error) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error] andLevel:kSentryLogLevelError];
             return nil;
         }
 
@@ -133,10 +134,6 @@
         self.sessionTrackingIntervalMillis = [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
     } else {
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
-    }
-    
-    if([[options objectForKey:@"transport"] conformsToProtocol:@protocol(SentryTransport)]) {
-        self.transport = [options objectForKey:@"transport"];
     }
 }
 
