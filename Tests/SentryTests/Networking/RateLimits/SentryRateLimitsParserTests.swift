@@ -71,10 +71,12 @@ class SentryRateLimitsParserTests: XCTestCase {
             SentryRateLimitCategory.session.rawValue as NSNumber : date,
             SentryRateLimitCategory.transaction.rawValue as NSNumber : date,
             SentryRateLimitCategory.attachment.rawValue as NSNumber : date,
-            SentryRateLimitCategory.unknown.rawValue as NSNumber : date
+            SentryRateLimitCategory.unknown.rawValue as NSNumber : date,
+            SentryRateLimitCategory.all.rawValue as NSNumber : date
         ]
         
-        let actual = sut.parse("1:default;error;session;transaction;attachment;foobar:organization ")
+        
+        let actual = sut.parse("1:default;error;session;transaction;attachment;foobar:organization,1::key")
         
         XCTAssertEqual(expected, actual)
     }
