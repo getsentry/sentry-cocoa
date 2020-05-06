@@ -63,6 +63,19 @@ class SentryRateLimitsParserTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
     
+    func testOneUnknownAndOneKnownCategory() {
+        let expected = [SentryRateLimitCategory.error.asNSNumber : CurrentDate.date().addingTimeInterval(2)]
+        
+        let actual = sut.parse("2:foobar;error:organization")
+        
+        XCTAssertEqual(expected, actual)
+    }
+    
+    func testOnlyUnknownCategories() {
+        XCTAssertEqual([:], sut.parse("2:foobar:organization"))
+        XCTAssertEqual([:], sut.parse("2:foobar;foo;bar:organization"))
+    }
+    
     func testAllKnownCategories() {
         let date = CurrentDate.date().addingTimeInterval(1)
         let expected = [
@@ -71,12 +84,10 @@ class SentryRateLimitsParserTests: XCTestCase {
             SentryRateLimitCategory.session.asNSNumber : date,
             SentryRateLimitCategory.transaction.asNSNumber : date,
             SentryRateLimitCategory.attachment.asNSNumber : date,
-            SentryRateLimitCategory.unknown.asNSNumber : date,
             SentryRateLimitCategory.all.asNSNumber : date
         ]
         
-        
-        let actual = sut.parse("1:default;error;session;transaction;attachment;foobar:organization,1::key")
+        let actual = sut.parse("1:default;foobar;error;session;transaction;attachment:organization,1::key")
         
         XCTAssertEqual(expected, actual)
     }

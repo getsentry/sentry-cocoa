@@ -12,21 +12,18 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryRateLimitParser
 
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header {
-    
-    NSMutableDictionary<NSNumber *, NSDate *> *rateLimits = [[NSMutableDictionary alloc] init];
-    
     if ([header length] == 0)  {
-        return rateLimits;
+        return @{};
     }
+    
+    NSMutableDictionary<NSNumber *, NSDate *> *rateLimits = [NSMutableDictionary new];
     
     // The header might contain whitespaces and they must be ignored.
     NSString *headerNoWhitespaces = [self removeAllWhitespaces:header];
     
-    NSArray<NSString *> *quotaLimits = [headerNoWhitespaces componentsSeparatedByString:@","];
-    
     // Each quotaLimit exists of retryAfter:categories:scope. The scope is ignored here
     // as it can be ignored by SDKs.
-    for (NSString* quota in quotaLimits) {
+    for (NSString* quota in [headerNoWhitespaces componentsSeparatedByString:@","]) {
         NSArray<NSString *> *parameters = [quota componentsSeparatedByString:@":"];
         
         NSNumber *retryAfterInSeconds = [self getRetryAfterInSeconds:parameters[0]];
@@ -34,17 +31,29 @@ NS_ASSUME_NONNULL_BEGIN
             continue;
         }
         
-        // The categories are a semicolon separated list. If this parameter is empty it stands
-        // for all categories. componentsSeparatedByString returns one category even if this
-        // parameter is empty.
-        NSArray<NSString *> *categories =  [parameters[1] componentsSeparatedByString:@";"];
-        for (NSString *categoryAsString in categories) {
-            SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
-            rateLimits[[NSNumber numberWithInt:category]] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
+        for (NSNumber *category in [self parseCategories:parameters[1]]) {
+            rateLimits[category] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
         }
     }
     
     return rateLimits;
+}
+
+- (NSArray<NSNumber *>*)parseCategories:(NSString *)categoriesAsString {
+    // The categories are a semicolon separated list. If this parameter is empty it stands
+    // for all categories. componentsSeparatedByString returns one category even if this
+    // parameter is empty.
+    NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
+    for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
+        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+        
+        // Unknown categories must be ignored
+        if (category != kSentryRateLimitCategoryUnknown) {
+            [categories addObject:[NSNumber numberWithInt:category]];
+        }
+    }
+    
+    return categories;
 }
 
 - (NSString *)removeAllWhitespaces:(NSString *)string {

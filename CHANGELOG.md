@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Ignore unknown rate limit categories #497
+
 ## 5.0.1
 
 - fix: Flakey concurrent test for RateLimits #493
