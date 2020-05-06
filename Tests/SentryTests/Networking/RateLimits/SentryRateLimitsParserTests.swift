@@ -13,7 +13,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     func testOneQuotaOneCategory() {
         let expected = [
-            SentryRateLimitCategory.transaction.rawValue as NSNumber: CurrentDate.date().addingTimeInterval(50)
+            SentryRateLimitCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("50:transaction:key")
@@ -24,8 +24,8 @@ class SentryRateLimitsParserTests: XCTestCase {
     func testOneQuotaTwoCategories() {
         let retryAfter = CurrentDate.date().addingTimeInterval(50)
         let expected = [
-            SentryRateLimitCategory.transaction.rawValue as NSNumber: retryAfter,
-            SentryRateLimitCategory.error.rawValue as NSNumber: retryAfter
+            SentryRateLimitCategory.transaction.asNSNumber: retryAfter,
+            SentryRateLimitCategory.error.asNSNumber: retryAfter
         ]
         
         let actual = sut.parse("50:transaction;error:key")
@@ -36,10 +36,10 @@ class SentryRateLimitsParserTests: XCTestCase {
     func testTwoQuotasMultipleCategories() {
         let retryAfter2700 = CurrentDate.date().addingTimeInterval(2700)
         let expected = [
-            SentryRateLimitCategory.transaction.rawValue as NSNumber: CurrentDate.date().addingTimeInterval(50),
-            SentryRateLimitCategory.error.rawValue as NSNumber: retryAfter2700,
-            SentryRateLimitCategory.default.rawValue as NSNumber: retryAfter2700,
-            SentryRateLimitCategory.attachment.rawValue as NSNumber: retryAfter2700,
+            SentryRateLimitCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50),
+            SentryRateLimitCategory.error.asNSNumber: retryAfter2700,
+            SentryRateLimitCategory.default.asNSNumber: retryAfter2700,
+            SentryRateLimitCategory.attachment.asNSNumber: retryAfter2700,
         ]
         
         let actual = sut.parse("50:transaction:key, 2700:error;default;attachment:organization")
@@ -48,7 +48,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testInvalidRetryAfter() {
-        let expected = [SentryRateLimitCategory.default.rawValue as NSNumber : CurrentDate.date().addingTimeInterval(1)]
+        let expected = [SentryRateLimitCategory.default.asNSNumber : CurrentDate.date().addingTimeInterval(1)]
         
         let actual = sut.parse("A1:transaction:key, 1:default:organization, -20:B:org, 0:event:key")
         
@@ -56,7 +56,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     }
     
     func testAllCategories() {
-        let expected = [SentryRateLimitCategory.all.rawValue as NSNumber : CurrentDate.date().addingTimeInterval(1000)]
+        let expected = [SentryRateLimitCategory.all.asNSNumber : CurrentDate.date().addingTimeInterval(1000)]
         
         let actual = sut.parse("1000::organization ")
         
@@ -66,13 +66,13 @@ class SentryRateLimitsParserTests: XCTestCase {
     func testAllKnownCategories() {
         let date = CurrentDate.date().addingTimeInterval(1)
         let expected = [
-            SentryRateLimitCategory.default.rawValue as NSNumber : date,
-            SentryRateLimitCategory.error.rawValue as NSNumber : date,
-            SentryRateLimitCategory.session.rawValue as NSNumber : date,
-            SentryRateLimitCategory.transaction.rawValue as NSNumber : date,
-            SentryRateLimitCategory.attachment.rawValue as NSNumber : date,
-            SentryRateLimitCategory.unknown.rawValue as NSNumber : date,
-            SentryRateLimitCategory.all.rawValue as NSNumber : date
+            SentryRateLimitCategory.default.asNSNumber : date,
+            SentryRateLimitCategory.error.asNSNumber : date,
+            SentryRateLimitCategory.session.asNSNumber : date,
+            SentryRateLimitCategory.transaction.asNSNumber : date,
+            SentryRateLimitCategory.attachment.asNSNumber : date,
+            SentryRateLimitCategory.unknown.asNSNumber : date,
+            SentryRateLimitCategory.all.asNSNumber : date
         ]
         
         
@@ -83,9 +83,9 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     func testWhitespacesSpacesAreRemoved() {
         let retryAfter10 = CurrentDate.date().addingTimeInterval(10)
-        let expected = [SentryRateLimitCategory.all.rawValue as NSNumber : CurrentDate.date().addingTimeInterval(67),
-                        SentryRateLimitCategory.transaction.rawValue as NSNumber : retryAfter10,
-                        SentryRateLimitCategory.error.rawValue as NSNumber: retryAfter10
+        let expected = [SentryRateLimitCategory.all.asNSNumber : CurrentDate.date().addingTimeInterval(67),
+                        SentryRateLimitCategory.transaction.asNSNumber : retryAfter10,
+                        SentryRateLimitCategory.error.asNSNumber: retryAfter10
         ]
         
         let actual = sut.parse(" 67: :organization ,  10 :transa cti on; error: key")
@@ -106,7 +106,7 @@ class SentryRateLimitsParserTests: XCTestCase {
     
     func testValidHeaderAndGarbage() {
         let expected = [
-            SentryRateLimitCategory.transaction.rawValue as NSNumber : CurrentDate.date().addingTimeInterval(50)
+            SentryRateLimitCategory.transaction.asNSNumber : CurrentDate.date().addingTimeInterval(50)
         ]
         
         let actual = sut.parse("A9813Hell,50:transaction:key,123Garbage")
