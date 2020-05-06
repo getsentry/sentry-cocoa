@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryRateLimitCategory)mapStringToCategory:(NSString *)category {
-    SentryRateLimitCategory result = kSentryRateLimitCategoryUnkown;
+    SentryRateLimitCategory result = kSentryRateLimitCategoryUnknown;
     if ([category isEqualToString:@""]) {
         result = kSentryRateLimitCategoryAll;
     }

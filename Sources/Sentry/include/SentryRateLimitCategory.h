@@ -7,5 +7,5 @@ typedef NS_ENUM(NSUInteger, SentryRateLimitCategory) {
     kSentryRateLimitCategorySession,
     kSentryRateLimitCategoryTransaction,
     kSentryRateLimitCategoryAttachment,
-    kSentryRateLimitCategoryUnkown
+    kSentryRateLimitCategoryUnknown
 };
