@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+- fix: missing breadcrumbs data on hardcrash #492
+
 ## 5.0.0
 
 - GA of major version 5
