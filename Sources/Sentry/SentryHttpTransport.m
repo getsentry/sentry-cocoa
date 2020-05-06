@@ -53,7 +53,7 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 // TODO: needs refactoring
 - (void)    sendEvent:(SentryEvent *)event
 withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
-    NSString *category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:event.type];
+    SentryRateLimitCategory category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:event.type];
     if (![self isReadyToSend:category]) {
         return;
     }
@@ -173,7 +173,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
  *
  * @return BOOL NO if options.enabled = false or rate limit exceeded
  */
-- (BOOL)isReadyToSend:(NSString *_Nonnull)category {
+- (BOOL)isReadyToSend:(SentryRateLimitCategory)category {
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
@@ -202,7 +202,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
         // we classify every event with the same category. We still call
         // SentryRateLimitCategoryMapper to keep the code stable if the category
         // for event changes.
-        NSString *category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
+        SentryRateLimitCategory category = [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
         if (![self isReadyToSend:category]) {
             [self.fileManager removeFileAtPath:fileContents.path];
         } else {

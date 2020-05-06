@@ -241,10 +241,9 @@
 		7B3398632459C14000BD9C96 /* SentryEnvelopeRateLimit.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B3398622459C14000BD9C96 /* SentryEnvelopeRateLimit.h */; };
 		7B3398652459C15200BD9C96 /* SentryEnvelopeRateLimit.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B3398642459C15200BD9C96 /* SentryEnvelopeRateLimit.m */; };
 		7B3398672459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3398662459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift */; };
-		7B339869245ACCA500BD9C96 /* SentryEnvelopeRateLimitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B339868245ACCA500BD9C96 /* SentryEnvelopeRateLimitTests.m */; };
 		7B56D73124616CCD00B842DA /* SentryConcurrentRateLimitsDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B56D73024616CCD00B842DA /* SentryConcurrentRateLimitsDictionary.h */; };
 		7B56D73324616D9500B842DA /* SentryConcurrentRateLimitsDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B56D73224616D9500B842DA /* SentryConcurrentRateLimitsDictionary.m */; };
-		7B56D73524616E5600B842DA /* SentryConcurrentRateLimitsDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionary.swift */; };
+		7B56D73524616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift */; };
 		7BAF3DB5243C743E008A5414 /* SentryClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF3DB4243C743E008A5414 /* SentryClientTests.swift */; };
 		7BAF3DB9243C9777008A5414 /* SentryTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BAF3DB8243C9777008A5414 /* SentryTransport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7BAF3DC8243DB90E008A5414 /* TestTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF3DC7243DB90E008A5414 /* TestTransport.swift */; };
@@ -265,7 +264,6 @@
 		7BBD18A2244EE2FD00427C76 /* TestResponseFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBD18A1244EE2FD00427C76 /* TestResponseFactory.swift */; };
 		7BBD18B22451804C00427C76 /* SentryRetryAfterHeaderParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBD189F244ED1A200427C76 /* SentryRetryAfterHeaderParserTests.swift */; };
 		7BBD18B32451805500427C76 /* SentryRateLimitsParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3C77E2446116400A38442 /* SentryRateLimitsParserTests.swift */; };
-		7BBD18B42451806700427C76 /* SentryRateLimitsParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3C780244701A000A38442 /* SentryRateLimitsParserTests.m */; };
 		7BBD18B62451807600427C76 /* SentryDefaultRateLimitsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBD18942449D3E200427C76 /* SentryDefaultRateLimitsTests.swift */; };
 		7BBD18B7245180FF00427C76 /* SentryDsnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 639FCF921EBC746F00778193 /* SentryDsnTests.m */; };
 		7BBD18BB24530D2600427C76 /* SentryFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBD18BA24530D2600427C76 /* SentryFileManagerTests.swift */; };
@@ -562,10 +560,9 @@
 		7B3398622459C14000BD9C96 /* SentryEnvelopeRateLimit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeRateLimit.h; path = include/SentryEnvelopeRateLimit.h; sourceTree = "<group>"; };
 		7B3398642459C15200BD9C96 /* SentryEnvelopeRateLimit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeRateLimit.m; sourceTree = "<group>"; };
 		7B3398662459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeRateLimitTests.swift; sourceTree = "<group>"; };
-		7B339868245ACCA500BD9C96 /* SentryEnvelopeRateLimitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeRateLimitTests.m; sourceTree = "<group>"; };
 		7B56D73024616CCD00B842DA /* SentryConcurrentRateLimitsDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryConcurrentRateLimitsDictionary.h; path = include/SentryConcurrentRateLimitsDictionary.h; sourceTree = "<group>"; };
 		7B56D73224616D9500B842DA /* SentryConcurrentRateLimitsDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryConcurrentRateLimitsDictionary.m; sourceTree = "<group>"; };
-		7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryConcurrentRateLimitsDictionary.swift; sourceTree = "<group>"; };
+		7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryConcurrentRateLimitsDictionaryTests.swift; sourceTree = "<group>"; };
 		7BAF3DB4243C743E008A5414 /* SentryClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryClientTests.swift; sourceTree = "<group>"; };
 		7BAF3DB8243C9777008A5414 /* SentryTransport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTransport.h; path = include/SentryTransport.h; sourceTree = "<group>"; };
 		7BAF3DC7243DB90E008A5414 /* TestTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTransport.swift; sourceTree = "<group>"; };
@@ -605,7 +602,6 @@
 		7BE3C77A2446111500A38442 /* SentryRateLimitParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryRateLimitParser.h; path = include/SentryRateLimitParser.h; sourceTree = "<group>"; };
 		7BE3C77C2446112C00A38442 /* SentryRateLimitParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryRateLimitParser.m; sourceTree = "<group>"; };
 		7BE3C77E2446116400A38442 /* SentryRateLimitsParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRateLimitsParserTests.swift; sourceTree = "<group>"; };
-		7BE3C780244701A000A38442 /* SentryRateLimitsParserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryRateLimitsParserTests.m; sourceTree = "<group>"; };
 		7BE3C78424472E5700A38442 /* SentryHttpTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryHttpTransportTests.swift; sourceTree = "<group>"; };
 		7BE3C78624472E9800A38442 /* TestRequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRequestManager.swift; sourceTree = "<group>"; };
 		7D0637022382B34300B30749 /* SentryScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryScope.h; path = include/SentryScope.h; sourceTree = "<group>"; };
@@ -1237,12 +1233,10 @@
 			children = (
 				7BE3C77E2446116400A38442 /* SentryRateLimitsParserTests.swift */,
 				7BBD189F244ED1A200427C76 /* SentryRetryAfterHeaderParserTests.swift */,
-				7BE3C780244701A000A38442 /* SentryRateLimitsParserTests.m */,
 				7BBD18942449D3E200427C76 /* SentryDefaultRateLimitsTests.swift */,
 				7BC8523A2458849E005A70F0 /* SentryRateLimitCategoryMapperTests.swift */,
 				7B3398662459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift */,
-				7B339868245ACCA500BD9C96 /* SentryEnvelopeRateLimitTests.m */,
-				7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionary.swift */,
+				7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift */,
 			);
 			path = RateLimits;
 			sourceTree = "<group>";
@@ -1661,7 +1655,7 @@
 				63FE720520DA66EC00CDBAE8 /* FileBasedTestCase.m in Sources */,
 				63EED6C32237989300E02400 /* SentryOptionsTest.m in Sources */,
 				7BBD18B22451804C00427C76 /* SentryRetryAfterHeaderParserTests.swift in Sources */,
-				7B56D73524616E5600B842DA /* SentryConcurrentRateLimitsDictionary.swift in Sources */,
+				7B56D73524616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift in Sources */,
 				630436131EC0A17100C4D3FA /* SentryLogTests.m in Sources */,
 				63FE721620DA66EC00CDBAE8 /* SentryCrashReportFixer_Tests.m in Sources */,
 				7BE3C7772445E50A00A38442 /* TestCurrentDateProvider.swift in Sources */,
@@ -1680,7 +1674,6 @@
 				630C01941EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m in Sources */,
 				63FE721720DA66EC00CDBAE8 /* SentryCrashThread_Tests.m in Sources */,
 				15360CF52433C59B00112302 /* SentryInstallationTests.m in Sources */,
-				7B339869245ACCA500BD9C96 /* SentryEnvelopeRateLimitTests.m in Sources */,
 				7BBD18B7245180FF00427C76 /* SentryDsnTests.m in Sources */,
 				63FE721A20DA66EC00CDBAE8 /* SentryCrashSysCtl_Tests.m in Sources */,
 				636085101ED2C1CB00E8599E /* SentryBreadcrumbTests.m in Sources */,
@@ -1701,7 +1694,6 @@
 				7BBD18B62451807600427C76 /* SentryDefaultRateLimitsTests.swift in Sources */,
 				63FE720620DA66EC00CDBAE8 /* SentryCrashMonitor_AppState_Tests.m in Sources */,
 				63FE720F20DA66EC00CDBAE8 /* SentryCrashLogger_Tests.m in Sources */,
-				7BBD18B42451806700427C76 /* SentryRateLimitsParserTests.m in Sources */,
 				63FE721320DA66EC00CDBAE8 /* SentryCrashMonitor_Signal_Tests.m in Sources */,
 				7BBD18B32451805500427C76 /* SentryRateLimitsParserTests.swift in Sources */,
 				63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */,

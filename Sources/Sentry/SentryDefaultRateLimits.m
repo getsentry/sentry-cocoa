@@ -5,10 +5,9 @@
 #import "SentryRateLimitParser.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import "SentryRateLimitCategoryMapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-static NSString * const SentryDefaultRateLimitsAllCategories = @"";
 
 @interface SentryDefaultRateLimits ()
 
@@ -32,18 +31,14 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
     return self;
 }
 
-- (BOOL)isRateLimitActive:(NSString *)category {
+- (BOOL)isRateLimitActive:(SentryRateLimitCategory)category {
     NSDate *categoryDate = [self.rateLimits getRateLimitForCategory:category];
-    NSDate *allCategoriesDate = [self.rateLimits getRateLimitForCategory:SentryDefaultRateLimitsAllCategories];
+    NSDate *allCategoriesDate = [self.rateLimits getRateLimitForCategory:kSentryRateLimitCategoryAll];
     
     BOOL isActiveForCategory = [self isInFuture:categoryDate];
     BOOL isActiveForCategories = [self isInFuture:allCategoriesDate];
     
-    if (isActiveForCategory) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate-Limit reached for type %@ until: %@", category, categoryDate] andLevel:kSentryLogLevelDebug];
-        return YES;
-    } else if (isActiveForCategories) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Rate-Limit reached for all types until: %@",  allCategoriesDate] andLevel:kSentryLogLevelDebug];
+    if (isActiveForCategory || isActiveForCategories) {
         return YES;
     }
     else {
@@ -59,7 +54,7 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
 - (void)update:(NSHTTPURLResponse *)response {
     NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
     if (nil != rateLimitsHeader) {
-        NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
+        NSDictionary<NSNumber *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
         
         [self.rateLimits addRateLimits:limits];
     } else if (response.statusCode == 429) {
@@ -70,7 +65,7 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
             retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
         }
         
-        [self.rateLimits addRateLimits:@{SentryDefaultRateLimitsAllCategories: retryAfterHeaderDate}];
+        [self.rateLimits addRateLimits:@{[NSNumber numberWithInt:kSentryRateLimitCategoryAll] : retryAfterHeaderDate}];
     }
 }
 

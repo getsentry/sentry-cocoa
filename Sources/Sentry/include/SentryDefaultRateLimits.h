@@ -18,10 +18,6 @@ NS_SWIFT_NAME(DefaultRateLimits)
 - (instancetype) initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
                  andRateLimitParser:(SentryRateLimitParser *)rateLimitParser;
 
-- (BOOL)isRateLimitActive:(NSString *_Nonnull)type;
-
-- (void)update:(NSHTTPURLResponse *)response;
-
 @end
 
 NS_ASSUME_NONNULL_END

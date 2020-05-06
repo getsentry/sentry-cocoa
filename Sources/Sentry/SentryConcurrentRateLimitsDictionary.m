@@ -4,7 +4,7 @@
 @interface SentryConcurrentRateLimitsDictionary()
 
 /* Key is the type and value is valid until date */
-@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
+@property(nonatomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *rateLimits;
 
 @end
 
@@ -17,15 +17,15 @@
     return self;
 }
 
-- (void)addRateLimits:(NSDictionary<NSString *, NSDate *> *)rateLimits {
+- (void)addRateLimits:(NSDictionary<NSNumber *, NSDate *> *)rateLimits {
     @synchronized (self.rateLimits) {
         [self.rateLimits addEntriesFromDictionary:rateLimits];
     }
 }
 
-- (NSDate *)getRateLimitForCategory:(NSString *)category {
+- (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category {
     @synchronized (self.rateLimits) {
-        return self.rateLimits[category];
+        return self.rateLimits[[NSNumber numberWithInt:category]];
     }
 }
 

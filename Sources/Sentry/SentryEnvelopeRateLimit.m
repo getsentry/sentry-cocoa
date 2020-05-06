@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [NSMutableArray new];
     
     for (SentryEnvelopeItem *item in items) {
-        NSString *rateLimitCategory = [SentryRateLimitCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+        SentryRateLimitCategory *rateLimitCategory = [SentryRateLimitCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
         }

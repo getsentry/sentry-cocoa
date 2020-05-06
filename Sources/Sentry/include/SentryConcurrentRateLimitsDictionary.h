@@ -1,20 +1,21 @@
 #import <Foundation/Foundation.h>
+#import "SentryRateLimitCategory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
-    A thread safe wrapper around a dictionary to store rate limits.
+/** A thread safe wrapper around a dictionary to store rate limits.
  */
 @interface SentryConcurrentRateLimitsDictionary : NSObject
 
 /**
  Adds the passed rate limits. If a rate limit already exists it is overwritten.
- @param rateLimits key is the type and value is valid until date
+ @param rateLimits The key is the SentryRateLimitCategory. We use NSNumber because we can't use an enum.
+    The value is valid until date
  */
-- (void)addRateLimits:(NSDictionary<NSString *, NSDate *> *)rateLimits;
+- (void)addRateLimits:(NSDictionary<NSNumber *, NSDate *> *)rateLimits;
 
 /** Returns the date until the rate limit is active. */
-- (NSDate *)getRateLimitForCategory:(NSString *)category;
+- (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category;
 
 @end
 
