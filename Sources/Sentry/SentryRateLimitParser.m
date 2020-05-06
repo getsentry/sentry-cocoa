@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "SentryRateLimitParser.h"
 #import "SentryCurrentDate.h"
+#import "SentryRateLimitCategoryMapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,9 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryRateLimitParser
 
-- (NSDictionary<NSString *, NSDate *> *_Nonnull)parse:(NSString *)header {
+- (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header {
     
-    NSMutableDictionary<NSString *, NSDate *> *rateLimits = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSNumber *, NSDate *> *rateLimits = [[NSMutableDictionary alloc] init];
     
     if ([header length] == 0)  {
         return rateLimits;
@@ -37,8 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
         // for all categories. componentsSeparatedByString returns one category even if this
         // parameter is empty.
         NSArray<NSString *> *categories =  [parameters[1] componentsSeparatedByString:@";"];
-        for (NSString *category in categories) {
-            rateLimits[category] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
+        for (NSString *categoryAsString in categories) {
+            SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+            rateLimits[[NSNumber numberWithInt:category]] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
         }
     }
     
@@ -54,6 +56,29 @@ NS_ASSUME_NONNULL_BEGIN
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
     return [numberFormatter numberFromString:string];
+}
+
+- (SentryRateLimitCategory)mapStringToCategory:(NSString *)category {
+    SentryRateLimitCategory result = kSentryRateLimitCategoryUnkown;
+    if ([category isEqualToString:@""]) {
+        result = kSentryRateLimitCategoryAll;
+    }
+    if ([category isEqualToString:@"default"]) {
+        result = kSentryRateLimitCategoryDefault;
+    }
+    if ([category isEqualToString:@"error"]) {
+        result = kSentryRateLimitCategoryError;
+    }
+    if ([category isEqualToString:@"session"]) {
+        result = kSentryRateLimitCategorySession;
+    }
+    if ([category isEqualToString:@"transaction"]) {
+        result = kSentryRateLimitCategoryTransaction;
+    }
+    if ([category isEqualToString:@"attachment"]) {
+        result = kSentryRateLimitCategoryAttachment;
+    }
+    return result;
 }
 
 @end

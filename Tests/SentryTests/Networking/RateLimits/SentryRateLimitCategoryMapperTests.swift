@@ -3,26 +3,25 @@ import XCTest
 
 class SentryRateLimitCategoryMapperTests: XCTestCase {
     
-    private let categoryError = "error"
     
     func testEventItemType() {
-        XCTAssertEqual(categoryError, mapEventType(eventType: "event"))
-        XCTAssertEqual(categoryError, mapEventType(eventType: "any eventtype"))
+        XCTAssertEqual(SentryRateLimitCategory.error, mapEventType(eventType: "event"))
+        XCTAssertEqual(SentryRateLimitCategory.error, mapEventType(eventType: "any eventtype"))
     }
     
     func testEnvelopeItemType() {
-        XCTAssertEqual(categoryError, mapEnvelopeItemType(itemType: "event"))
-        XCTAssertEqual("session", mapEnvelopeItemType(itemType: "session"))
-        XCTAssertEqual("transaction", mapEnvelopeItemType(itemType: "transaction"))
-        XCTAssertEqual("attachment", mapEnvelopeItemType(itemType: "attachment"))
-        XCTAssertEqual("default", mapEnvelopeItemType(itemType: "unkown item type"))
+        XCTAssertEqual(SentryRateLimitCategory.error, mapEnvelopeItemType(itemType: "event"))
+        XCTAssertEqual(SentryRateLimitCategory.session, mapEnvelopeItemType(itemType: "session"))
+            XCTAssertEqual(SentryRateLimitCategory.transaction, mapEnvelopeItemType(itemType: "transaction"))
+            XCTAssertEqual(SentryRateLimitCategory.attachment, mapEnvelopeItemType(itemType: "attachment"))
+            XCTAssertEqual(SentryRateLimitCategory.default, mapEnvelopeItemType(itemType: "unkown item type"))
     }
     
-    private func mapEnvelopeItemType(itemType: String) -> String {
+    private func mapEnvelopeItemType(itemType: String) -> SentryRateLimitCategory {
         return RateLimitCategoryMapper.mapEnvelopeItemType(toCategory: itemType)
     }
     
-    private func mapEventType(eventType: String) -> String {
+    private func mapEventType(eventType: String) -> SentryRateLimitCategory {
         return RateLimitCategoryMapper.mapEventType(toCategory: eventType)
     }
 }

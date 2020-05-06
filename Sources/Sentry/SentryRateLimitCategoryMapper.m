@@ -11,25 +11,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryRateLimitCategoryMapper
 
-+ (NSString *)mapEventTypeToCategory:(NSString *)eventType {
++ (SentryRateLimitCategory)mapEventTypeToCategory:(NSString *)eventType {
     // Currently we classify every event type as error.
     // This is going to change in the future.
-    return SentryRateLimitCategoryError;
+    return kSentryRateLimitCategoryError;
 }
 
-+ (NSString *)mapEnvelopeItemTypeToCategory:(NSString *)itemType {
-    NSString *category = SentryRateLimitCategoryDefault;
++ (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType {
+    SentryRateLimitCategory category = kSentryRateLimitCategoryDefault;
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
-        category = SentryRateLimitCategoryError;
+        category = kSentryRateLimitCategoryError;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeSession]) {
-        category = SentryRateLimitCategorySession;
+        category = kSentryRateLimitCategorySession;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeTransaction]) {
-        category = SentryRateLimitCategoryTransaction;
+        category = kSentryRateLimitCategoryTransaction;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
-        category = SentryRateLimitCategoryAttachment;
+        category = kSentryRateLimitCategoryAttachment;
     }
     return category;
 }
