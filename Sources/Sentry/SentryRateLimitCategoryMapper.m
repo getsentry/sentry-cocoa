@@ -34,6 +34,34 @@ NS_ASSUME_NONNULL_BEGIN
     return category;
 }
 
++ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value {
+    SentryRateLimitCategory category = kSentryRateLimitCategoryUnknown;
+
+    if (value == kSentryRateLimitCategoryAll) {
+        category = kSentryRateLimitCategoryAll;
+    }
+    if (value == kSentryRateLimitCategoryDefault) {
+        category = kSentryRateLimitCategoryDefault;
+    }
+    if (value == kSentryRateLimitCategoryError) {
+        category = kSentryRateLimitCategoryError;
+    }
+    if (value == kSentryRateLimitCategorySession) {
+        category = kSentryRateLimitCategorySession;
+    }
+    if (value == kSentryRateLimitCategoryTransaction) {
+        category = kSentryRateLimitCategoryTransaction;
+    }
+    if (value == kSentryRateLimitCategoryAttachment) {
+        category = kSentryRateLimitCategoryAttachment;
+    }
+    if (value == kSentryRateLimitCategoryUnknown) {
+        category = kSentryRateLimitCategoryUnknown;
+    }
+
+    return category;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

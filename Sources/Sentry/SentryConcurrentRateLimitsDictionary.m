@@ -17,15 +17,15 @@
     return self;
 }
 
-- (void)addRateLimits:(NSDictionary<NSNumber *, NSDate *> *)rateLimits {
+- (void)addRateLimit:(SentryRateLimitCategory)category validUntil:(NSDate *)date {
     @synchronized (self.rateLimits) {
-        [self.rateLimits addEntriesFromDictionary:rateLimits];
+        self.rateLimits[@(category)] = date;
     }
 }
 
 - (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category {
     @synchronized (self.rateLimits) {
-        return self.rateLimits[[NSNumber numberWithInt:category]];
+        return self.rateLimits[@(category)];
     }
 }
 

@@ -12,6 +12,8 @@ NS_SWIFT_NAME(RateLimitCategoryMapper)
 
 + (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
 
++ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value;
+
 
 @end
 
