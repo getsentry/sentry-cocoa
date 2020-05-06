@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Flakey concurrent test for RateLimits #493
 - fix: missing breadcrumbs data on hardcrash #492
 
 ## 5.0.0

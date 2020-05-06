@@ -4,6 +4,7 @@
 #import "SentryLog.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRetryAfterHeaderParser.h"
+#import "SentryConcurrentRateLimitsDictionary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +13,7 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
 @interface SentryDefaultRateLimits ()
 
 /* Key is the type and value is valid until date */
-@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *rateLimits;
+@property(nonatomic, strong) SentryConcurrentRateLimitsDictionary *rateLimits;
 
 @property(nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
 @property(nonatomic, strong) SentryRateLimitParser *rateLimitParser;
@@ -22,9 +23,9 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
 @implementation SentryDefaultRateLimits
 
 - (instancetype) initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
-                 andRateLimitParser:(SentryRateLimitParser *)rateLimitParser{
+                 andRateLimitParser:(SentryRateLimitParser *)rateLimitParser {
     if (self = [super init]) {
-        self.rateLimits = [[NSMutableDictionary alloc] init];
+        self.rateLimits = [[SentryConcurrentRateLimitsDictionary alloc] init];
         self.retryAfterHeaderParser = retryAfterHeaderParser;
         self.rateLimitParser = rateLimitParser;
     }
@@ -32,8 +33,8 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
 }
 
 - (BOOL)isRateLimitActive:(NSString *)category {
-    NSDate *categoryDate = self.rateLimits[category];
-    NSDate *allCategoriesDate = self.rateLimits[SentryDefaultRateLimitsAllCategories];
+    NSDate *categoryDate = [self.rateLimits getRateLimitForCategory:category];
+    NSDate *allCategoriesDate = [self.rateLimits getRateLimitForCategory:SentryDefaultRateLimitsAllCategories];
     
     BOOL isActiveForCategory = [self isInFuture:categoryDate];
     BOOL isActiveForCategories = [self isInFuture:allCategoriesDate];
@@ -60,9 +61,7 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
     if (nil != rateLimitsHeader) {
         NSDictionary<NSString *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
         
-        @synchronized (self) {
-            [self.rateLimits addEntriesFromDictionary:limits];
-        }
+        [self.rateLimits addRateLimits:limits];
     } else if (response.statusCode == 429) {
         NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
         
@@ -71,9 +70,7 @@ static NSString * const SentryDefaultRateLimitsAllCategories = @"";
             retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
         }
         
-        @synchronized (self) {
-            self.rateLimits[SentryDefaultRateLimitsAllCategories] = retryAfterHeaderDate;
-        }
+        [self.rateLimits addRateLimits:@{SentryDefaultRateLimitsAllCategories: retryAfterHeaderDate}];
     }
 }
 

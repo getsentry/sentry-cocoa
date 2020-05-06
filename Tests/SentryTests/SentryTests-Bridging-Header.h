@@ -19,3 +19,4 @@
 #import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryEnvelopeRateLimit.h"
+#import "SentryConcurrentRateLimitsDictionary.h"
