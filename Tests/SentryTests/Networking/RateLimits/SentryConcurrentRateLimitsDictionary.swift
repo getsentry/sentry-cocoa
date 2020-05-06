@@ -49,8 +49,8 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
                 let b = 100 + i as NSNumber
                 
                 self.sut.addRateLimits([a : date, b : date])
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCat(rawValue: a)))
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCat(rawValue: b)))
+                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: a)))
+                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: b)))
                 group.leave()
             }
             
@@ -61,7 +61,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
                 let d = 300 + i as NSNumber
                 
                 self.sut.addRateLimits([c : date])
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCat(rawValue: c)))
+                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: c)))
                 self.sut.addRateLimits([d : date])
                 group.leave()
             }
@@ -79,14 +79,14 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
             let c = 200 + i as NSNumber
             let d = 300 + i as NSNumber
             
-            XCTAssertEqual(date, sut.getRateLimit(for: getCat(rawValue: a)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCat(rawValue: b)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCat(rawValue: c)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCat(rawValue: d)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: a)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: b)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: c)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: d)))
         }
     }
     
-    private func getCat(rawValue:NSNumber) -> SentryRateLimitCategory {
+    private func getCategory(rawValue:NSNumber) -> SentryRateLimitCategory {
         return SentryRateLimitCategory.init(rawValue: UInt(truncating: rawValue))!
     }
 }
