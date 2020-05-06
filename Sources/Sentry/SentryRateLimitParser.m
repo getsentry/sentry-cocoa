@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
             continue;
         }
         
-        for (NSNumber *category in [self getCategories:parameters[1]]) {
+        for (NSNumber *category in [self parseCategories:parameters[1]]) {
             rateLimits[category] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
         }
     }
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     return rateLimits;
 }
 
-- (NSArray<NSNumber *>*)getCategories:(NSString *)categoriesAsString {
+- (NSArray<NSNumber *>*)parseCategories:(NSString *)categoriesAsString {
     // The categories are a semicolon separated list. If this parameter is empty it stands
     // for all categories. componentsSeparatedByString returns one category even if this
     // parameter is empty.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
         SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
         
-        // Unkown categories must be ignored
+        // Unknown categories must be ignored
         if (category != kSentryRateLimitCategoryUnknown) {
             [categories addObject:[NSNumber numberWithInt:category]];
         }
