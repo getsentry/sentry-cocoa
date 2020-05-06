@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <Sentry/Sentry.h>
 #import "SentryCrashReportConverter.h"
+#import "NSDate+SentryExtras.h"
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
@@ -197,6 +198,20 @@
     [self compareDict:serializedUser withDict:[event.user serialize]];
     XCTAssertEqual(event.tags.count, (unsigned long)2);
     XCTAssertEqual(event.extra.count, (unsigned long)3);
+}
+
+- (void)testBreadCrumb {
+    [self isValidReport:@"Resources/breadcrumb"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/breadcrumb"];
+    SentryCrashReportConverter *reportConverter = [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
+    XCTAssertEqual(event.breadcrumbs.firstObject.level, kSentryLevelInfo);
+    XCTAssertEqualObjects([event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
+    
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
+    XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 
 #pragma mark private helper
