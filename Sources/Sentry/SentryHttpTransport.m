@@ -34,20 +34,20 @@
 - (id)initWithOptions:(SentryOptions *)options
     sentryFileManager:(SentryFileManager *)sentryFileManager
  sentryRequestManager:(id<SentryRequestManager>) sentryRequestManager
-sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
+     sentryRateLimits:(id<SentryRateLimits>) sentryRateLimits
 sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 {
-  if (self = [super init]) {
-      self.options = options;
-      self.requestManager = sentryRequestManager;
-      self.fileManager = sentryFileManager;
-      self.rateLimits = sentryRateLimits;
-      self.envelopeRateLimit = envelopeRateLimit;
-      
-      [self setupQueueing];
-      [self sendCachedEventsAndEnvelopes];
-  }
-  return self;
+    if (self = [super init]) {
+        self.options = options;
+        self.requestManager = sentryRequestManager;
+        self.fileManager = sentryFileManager;
+        self.rateLimits = sentryRateLimits;
+        self.envelopeRateLimit = envelopeRateLimit;
+        
+        [self setupQueueing];
+        [self sendCachedEventsAndEnvelopes];
+    }
+    return self;
 }
 
 // TODO: needs refactoring
@@ -60,9 +60,11 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    NSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                                             andEvent:event
-                                                                     didFailWithError:&requestError];
+    NSURLRequest *request = [[SentryNSURLRequest alloc]
+                             initStoreRequestWithDsn:self.options.dsn
+                             andEvent:event
+                             didFailWithError:&requestError];
+    
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
         if (completionHandler) {
@@ -70,16 +72,15 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         }
         return;
     }
-
+    
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
-
     [self sendRequest:request storedPath:storedEventPath envelope:nil  completionHandler:completionHandler];
 }
 
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
-   withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
+withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
     
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
@@ -104,10 +105,10 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
         }
         return;
     }
-
+    
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEnvelopePath = [self.fileManager storeEnvelope:envelope];
-
+    
     [self sendRequest:request storedPath:storedEnvelopePath envelope:envelope  completionHandler:completionHandler];
 }
 
@@ -130,7 +131,7 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                        didFailWithError:(NSError *_Nullable)error {
+                       didFailWithError:(NSError *_Nullable)error {
     return [[SentryNSURLRequest alloc]
             initEnvelopeRequestWithDsn:self.options.dsn
             andData:[SentrySerialization dataWithEnvelope:envelope options:0 error:&error]
@@ -138,9 +139,10 @@ withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler {
 }
 
 - (void)sendRequest:(NSURLRequest *)request
-storedPath:(NSString *)storedPath
-envelope:(SentryEnvelope *)envelope
-completionHandler:(_Nullable SentryRequestFinished)completionHandler {
+         storedPath:(NSString *)storedPath
+           envelope:(SentryEnvelope *)envelope
+  completionHandler:(_Nullable SentryRequestFinished)completionHandler {
+    
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         if (self.shouldQueueEvent == nil || self.shouldQueueEvent(response, error) == NO) {
@@ -178,7 +180,7 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)" andLevel:kSentryLogLevelDebug];
         return NO;
     }
-
+    
     if ([self.rateLimits isRateLimitActive:category]) {
         return NO;
     }
@@ -207,9 +209,10 @@ completionHandler:(_Nullable SentryRequestFinished)completionHandler {
             [self.fileManager removeFileAtPath:fileContents.path];
         } else {
             NSURLRequest *request = [[SentryNSURLRequest alloc]
-            initStoreRequestWithDsn:self.options.dsn
-            andData:fileContents.contents
-            didFailWithError:nil];
+                                     initStoreRequestWithDsn:self.options.dsn
+                                     andData:fileContents.contents
+                                     didFailWithError:nil];
+            
             [self sendCached:request withFilePath:fileContents.path];
         }
     }
