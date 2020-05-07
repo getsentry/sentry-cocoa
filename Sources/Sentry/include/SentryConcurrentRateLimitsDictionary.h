@@ -8,11 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryConcurrentRateLimitsDictionary : NSObject
 
 /**
- Adds the passed rate limits. If a rate limit already exists it is overwritten.
- @param rateLimits The key is the SentryRateLimitCategory. We use NSNumber because we can't use an enum.
-    The value is valid until date
+ Adds the passed rate limit for the given category. If a rate limit already exists it is overwritten.
  */
-- (void)addRateLimits:(NSDictionary<NSNumber *, NSDate *> *)rateLimits;
+- (void)addRateLimit:(SentryRateLimitCategory)category validUntil:(NSDate *)date;
 
 /** Returns the date until the rate limit is active. */
 - (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category;

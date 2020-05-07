@@ -10,16 +10,11 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         sut = SentryConcurrentRateLimitsDictionary()
     }
     
-    func testOneRateLimit() {
-        let date = self.currentDateProvider.date()
-        self.sut.addRateLimits([SentryRateLimitCategory.default.asNSNumber : date])
-        XCTAssertEqual(date, self.sut.getRateLimit(for: SentryRateLimitCategory.default))
-    }
-    
     func testTwoRateLimit() {
         let dateA = self.currentDateProvider.date()
         let dateB = dateA.addingTimeInterval(TimeInterval(1))
-        self.sut.addRateLimits([SentryRateLimitCategory.default.asNSNumber : dateA, SentryRateLimitCategory.error.asNSNumber : dateB])
+        sut.addRateLimit(SentryRateLimitCategory.default, validUntil: dateA)
+        sut.addRateLimit(SentryRateLimitCategory.error, validUntil: dateB)
         XCTAssertEqual(dateA, self.sut.getRateLimit(for: SentryRateLimitCategory.default))
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryRateLimitCategory.error))
     }
@@ -27,9 +22,11 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
     func testOverridingRateLimit() {
         let dateA = self.currentDateProvider.date()
         let dateB = dateA.addingTimeInterval(TimeInterval(1))
-        self.sut.addRateLimits([SentryRateLimitCategory.attachment.asNSNumber : dateA])
+        
+        sut.addRateLimit(SentryRateLimitCategory.attachment, validUntil: dateA)
         XCTAssertEqual(dateA, self.sut.getRateLimit(for: SentryRateLimitCategory.attachment))
-        self.sut.addRateLimits([SentryRateLimitCategory.attachment.asNSNumber : dateB])
+
+        sut.addRateLimit(SentryRateLimitCategory.attachment, validUntil: dateB)
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryRateLimitCategory.attachment))
     }
 
@@ -47,8 +44,9 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
             queue1.async {
                 let a = i as NSNumber
                 let b = 100 + i as NSNumber
-                
-                self.sut.addRateLimits([a : date, b : date])
+       
+                self.sut.addRateLimit(self.getCategory(rawValue: a), validUntil: date)
+                self.sut.addRateLimit(self.getCategory(rawValue: b), validUntil: date)
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: a)))
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: b)))
                 group.leave()
@@ -59,10 +57,11 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
                                 
                 let c = 200 + i as NSNumber
                 let d = 300 + i as NSNumber
+
+                self.sut.addRateLimit(self.getCategory(rawValue: c), validUntil: date)
                 
-                self.sut.addRateLimits([c : date])
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: c)))
-                self.sut.addRateLimits([d : date])
+                self.sut.addRateLimit(self.getCategory(rawValue: d), validUntil: date)
                 group.leave()
             }
         }
@@ -88,11 +87,5 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
     
     private func getCategory(rawValue:NSNumber) -> SentryRateLimitCategory {
         return SentryRateLimitCategory.init(rawValue: UInt(truncating: rawValue))!
-    }
-}
-
-extension SentryRateLimitCategory {
-    var asNSNumber: NSNumber {
-        return self.rawValue as NSNumber
     }
 }

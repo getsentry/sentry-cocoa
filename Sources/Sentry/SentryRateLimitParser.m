@@ -2,6 +2,7 @@
 #import "SentryRateLimitParser.h"
 #import "SentryCurrentDate.h"
 #import "SentryRateLimitCategoryMapper.h"
+#import "SentryDateUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,56 +13,39 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryRateLimitParser
 
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header {
-    if ([header length] == 0)  {
+    if ([header length] == 0) {
         return @{};
     }
-    
+
     NSMutableDictionary<NSNumber *, NSDate *> *rateLimits = [NSMutableDictionary new];
-    
+
     // The header might contain whitespaces and they must be ignored.
     NSString *headerNoWhitespaces = [self removeAllWhitespaces:header];
-    
+
     // Each quotaLimit exists of retryAfter:categories:scope. The scope is ignored here
     // as it can be ignored by SDKs.
-    for (NSString* quota in [headerNoWhitespaces componentsSeparatedByString:@","]) {
+    for (NSString *quota in [headerNoWhitespaces componentsSeparatedByString:@","]) {
         NSArray<NSString *> *parameters = [quota componentsSeparatedByString:@":"];
-        
-        NSNumber *retryAfterInSeconds = [self getRetryAfterInSeconds:parameters[0]];
-        if (nil == retryAfterInSeconds || [retryAfterInSeconds intValue] <= 0) {
+
+        NSNumber *rateLimitInSeconds = [self parseRateLimitSeconds:parameters[0]];
+        if (nil == rateLimitInSeconds || [rateLimitInSeconds intValue] <= 0) {
             continue;
         }
-        
+
         for (NSNumber *category in [self parseCategories:parameters[1]]) {
-            rateLimits[category] = [SentryCurrentDate.date dateByAddingTimeInterval:[retryAfterInSeconds doubleValue]];
+            rateLimits[category] = [self getLongerRateLimit:rateLimits[category] andRateLimitInSeconds:rateLimitInSeconds];
         }
     }
-    
+
     return rateLimits;
 }
 
-- (NSArray<NSNumber *>*)parseCategories:(NSString *)categoriesAsString {
-    // The categories are a semicolon separated list. If this parameter is empty it stands
-    // for all categories. componentsSeparatedByString returns one category even if this
-    // parameter is empty.
-    NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
-    for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
-        
-        // Unknown categories must be ignored
-        if (category != kSentryRateLimitCategoryUnknown) {
-            [categories addObject:[NSNumber numberWithInt:category]];
-        }
-    }
-    
-    return categories;
-}
-
 - (NSString *)removeAllWhitespaces:(NSString *)string {
-    NSArray *words = [string componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSArray *words = [string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     return [words componentsJoinedByString:@""];
 }
 
-- (NSNumber *)getRetryAfterInSeconds:(NSString *)string {
+- (NSNumber *)parseRateLimitSeconds:(NSString *)string {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     numberFormatter.numberStyle = NSNumberFormatterNoStyle;
     return [numberFormatter numberFromString:string];
@@ -88,6 +72,28 @@ NS_ASSUME_NONNULL_BEGIN
         result = kSentryRateLimitCategoryAttachment;
     }
     return result;
+}
+
+- (NSArray<NSNumber *> *)parseCategories:(NSString *)categoriesAsString {
+    // The categories are a semicolon separated list. If this parameter is empty it stands
+    // for all categories. componentsSeparatedByString returns one category even if this
+    // parameter is empty.
+    NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
+    for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
+        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+
+        // Unknown categories must be ignored
+        if (category != kSentryRateLimitCategoryUnknown) {
+            [categories addObject:@(category)];
+        }
+    }
+
+    return categories;
+}
+
+- (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds {
+    NSDate *newDate = [SentryCurrentDate.date dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
+    return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
 }
 
 @end

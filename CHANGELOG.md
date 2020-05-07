@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Keep maximum rate limit #498
 - fix: Ignore unknown rate limit categories #497
 
 ## 5.0.1

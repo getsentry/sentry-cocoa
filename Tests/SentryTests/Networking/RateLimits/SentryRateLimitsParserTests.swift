@@ -47,6 +47,16 @@ class SentryRateLimitsParserTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
     
+    func testKeepMaximumRateLimit() {
+        let expected = [
+            SentryRateLimitCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+        ]
+        
+        let actual = sut.parse("3:transaction:key,50:transaction:key,5:transaction:key")
+        
+        XCTAssertEqual(expected, actual)
+    }
+    
     func testInvalidRetryAfter() {
         let expected = [SentryRateLimitCategory.default.asNSNumber : CurrentDate.date().addingTimeInterval(1)]
         
@@ -123,5 +133,11 @@ class SentryRateLimitsParserTests: XCTestCase {
         let actual = sut.parse("A9813Hell,50:transaction:key,123Garbage")
         
         XCTAssertEqual(expected, actual)
+    }
+}
+
+extension SentryRateLimitCategory {
+    var asNSNumber: NSNumber {
+        return self.rawValue as NSNumber
     }
 }

@@ -6,14 +6,13 @@
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryRateLimitCategoryMapper.h"
+#import "SentryDateUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDefaultRateLimits ()
 
-/* Key is the type and value is valid until date */
 @property(nonatomic, strong) SentryConcurrentRateLimitsDictionary *rateLimits;
-
 @property(nonatomic, strong) SentryRetryAfterHeaderParser *retryAfterHeaderParser;
 @property(nonatomic, strong) SentryRateLimitParser *rateLimitParser;
 
@@ -21,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDefaultRateLimits
 
-- (instancetype) initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
-                 andRateLimitParser:(SentryRateLimitParser *)rateLimitParser {
+- (instancetype)initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+                            andRateLimitParser:(SentryRateLimitParser *)rateLimitParser {
     if (self = [super init]) {
         self.rateLimits = [[SentryConcurrentRateLimitsDictionary alloc] init];
         self.retryAfterHeaderParser = retryAfterHeaderParser;
@@ -34,39 +33,43 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isRateLimitActive:(SentryRateLimitCategory)category {
     NSDate *categoryDate = [self.rateLimits getRateLimitForCategory:category];
     NSDate *allCategoriesDate = [self.rateLimits getRateLimitForCategory:kSentryRateLimitCategoryAll];
-    
-    BOOL isActiveForCategory = [self isInFuture:categoryDate];
-    BOOL isActiveForCategories = [self isInFuture:allCategoriesDate];
-    
+
+    BOOL isActiveForCategory = [SentryDateUtil isInFuture:categoryDate];
+    BOOL isActiveForCategories = [SentryDateUtil isInFuture:allCategoriesDate];
+
     if (isActiveForCategory || isActiveForCategories) {
         return YES;
-    }
-    else {
+    } else {
         return NO;
     }
-}
-
-- (BOOL)isInFuture:(NSDate *)date {
-    NSComparisonResult result = [[SentryCurrentDate date] compare:date];
-    return result == NSOrderedAscending;
 }
 
 - (void)update:(NSHTTPURLResponse *)response {
     NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
     if (nil != rateLimitsHeader) {
-        NSDictionary<NSNumber *, NSDate *> * limits = [self.rateLimitParser parse:rateLimitsHeader];
-        
-        [self.rateLimits addRateLimits:limits];
+        NSDictionary<NSNumber *, NSDate *> *limits = [self.rateLimitParser parse:rateLimitsHeader];
+
+        for (NSNumber *categoryAsNumber in limits.allKeys) {
+            SentryRateLimitCategory category = [SentryRateLimitCategoryMapper mapIntegerToCategory:(NSUInteger) [categoryAsNumber integerValue]];
+
+            [self updateRateLimit:category withDate:limits[categoryAsNumber]];
+        }
     } else if (response.statusCode == 429) {
-        NSDate* retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
-        
+        NSDate *retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+
         if (nil == retryAfterHeaderDate) {
             // parsing failed use default value
             retryAfterHeaderDate = [[SentryCurrentDate date] dateByAddingTimeInterval:60];
         }
-        
-        [self.rateLimits addRateLimits:@{[NSNumber numberWithInt:kSentryRateLimitCategoryAll] : retryAfterHeaderDate}];
+
+        [self updateRateLimit:kSentryRateLimitCategoryAll withDate:retryAfterHeaderDate];
     }
+}
+
+- (void)updateRateLimit:(SentryRateLimitCategory)category withDate:(NSDate *)newDate {
+    NSDate *existingDate = [self.rateLimits getRateLimitForCategory:category];
+    NSDate *longerRateLimitDate = [SentryDateUtil getMaximumDate:existingDate andOther:newDate];
+    [self.rateLimits addRateLimit:category validUntil:longerRateLimitDate];
 }
 
 @end
