@@ -27,15 +27,15 @@
 }
 
 - (void)start {
-__block id blockSelf = self;
+    __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
-NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
-NSNotificationName backgroundNotificationName = UIApplicationWillResignActiveNotification;
-NSNotificationName willTerminateNotification = UIApplicationWillTerminateNotification;
+    NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
+    NSNotificationName backgroundNotificationName = UIApplicationWillResignActiveNotification;
+    NSNotificationName willTerminateNotification = UIApplicationWillTerminateNotification;
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
-NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
-NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotification;
+    NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
+    NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
+    NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotification;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not track sessions automatically." andLevel:kSentryLogLevelDebug];
 #endif
@@ -44,24 +44,27 @@ NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotific
     SentryHub *hub = [SentrySDK currentHub];
     [hub closeCachedSession];
     [hub startSession];
-    [NSNotificationCenter.defaultCenter addObserverForName:foregroundNotificationName
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [blockSelf didBecomeActive];
-                                                }];
-    [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [blockSelf willResignActive];
-                                                }];
-    [NSNotificationCenter.defaultCenter addObserverForName:willTerminateNotification
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [blockSelf willTerminate];
-                                                }];
+    [NSNotificationCenter.defaultCenter
+     addObserverForName:foregroundNotificationName
+     object:nil
+     queue:nil
+     usingBlock:^(NSNotification *notification) {
+        [blockSelf didBecomeActive];
+    }];
+    [NSNotificationCenter.defaultCenter
+     addObserverForName:backgroundNotificationName
+     object:nil
+     queue:nil
+     usingBlock:^(NSNotification *notification) {
+        [blockSelf willResignActive];
+    }];
+    [NSNotificationCenter.defaultCenter
+     addObserverForName:willTerminateNotification
+     object:nil
+     queue:nil
+     usingBlock:^(NSNotification *notification) {
+        [blockSelf willTerminate];
+    }];
 #endif
 }
 
