@@ -904,6 +904,7 @@
 		63AA75931EB8AEDB00D153DE /* SentryTests */ = {
 			isa = PBXGroup;
 			children = (
+				7BD7299B24654CD500EA3610 /* Helper */,
 				7BBD18AF24517E5D00427C76 /* Networking */,
 				63717D612267465900C37CAE /* Categories */,
 				63FE71D220DA66C500CDBAE8 /* SentryCrash */,
@@ -911,26 +912,19 @@
 				639889D21EDF06C100EA7442 /* SentryTests-Bridging-Header.h */,
 				63AA75951EB8AEDB00D153DE /* SentryTests.m */,
 				639FCF941EBC749B00778193 /* SentryRequestTests.m */,
-				630436121EC0A17100C4D3FA /* SentryLogTests.m */,
 				630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */,
 				630C01931EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m */,
 				63B819131EC352A7002FDF4C /* SentryInterfacesTests.m */,
 				6360850F1ED2C1CB00E8599E /* SentryBreadcrumbTests.m */,
-				7BBD18BA24530D2600427C76 /* SentryFileManagerTests.swift */,
 				639889D31EDF06C100EA7442 /* SentrySwiftTests.swift */,
-				631501BA1EE6F30B00512C5B /* SentrySwizzleTests.m */,
 				63EED6C22237989300E02400 /* SentryOptionsTest.m */,
 				632331F52404FFA8008D91D6 /* SentryScopeTests.m */,
 				155E00962408647900CB59B9 /* SentryHubTests.m */,
 				15E0A8E2240C435900F044E3 /* SentryEnvelopeTests.m */,
-				15E0A8EF240F638200F044E3 /* SentrySerializationTests.m */,
 				15360CF22433C59500112302 /* SentryInstallationTests.m */,
 				7BAF3DB4243C743E008A5414 /* SentryClientTests.swift */,
 				7BAF3DD6243DD4A1008A5414 /* TestConstants.swift */,
-				7BE3C7742445C82300A38442 /* SentryCurrentDateTests.swift */,
-				7BE3C7762445E50A00A38442 /* TestCurrentDateProvider.swift */,
 				15D0AC872459EE4D006541C2 /* SentryNSURLRequestTests.swift */,
-				7BD729992463EA4A00EA3610 /* SentryDateUtilTests.swift */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -1248,6 +1242,20 @@
 				7B56D73424616E5600B842DA /* SentryConcurrentRateLimitsDictionaryTests.swift */,
 			);
 			path = RateLimits;
+			sourceTree = "<group>";
+		};
+		7BD7299B24654CD500EA3610 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				15E0A8EF240F638200F044E3 /* SentrySerializationTests.m */,
+				630436121EC0A17100C4D3FA /* SentryLogTests.m */,
+				7BBD18BA24530D2600427C76 /* SentryFileManagerTests.swift */,
+				631501BA1EE6F30B00512C5B /* SentrySwizzleTests.m */,
+				7BE3C7742445C82300A38442 /* SentryCurrentDateTests.swift */,
+				7BE3C7762445E50A00A38442 /* TestCurrentDateProvider.swift */,
+				7BD729992463EA4A00EA3610 /* SentryDateUtilTests.swift */,
+			);
+			path = Helper;
 			sourceTree = "<group>";
 		};
 		7D826E3C2390840E00EED93D /* Utils */ = {
