@@ -4,6 +4,7 @@
 
 - fix: Keep maximum rate limit #498
 - fix: Ignore unknown rate limit categories #497
+- fix: On app exit, close session as healthy #500
 
 ## 5.0.1
 
