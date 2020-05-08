@@ -13,7 +13,6 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
 ![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)
-[![Twitter](https://img.shields.io/badge/twitter-@getsentry-blue.svg?style=flat)](http://twitter.com/getsentry)
 
 This SDK is written in Objective-C but also provides a nice Swift interface.
 
@@ -44,6 +43,12 @@ SentrySDK.start(options: [
 }];
 ```
 
-- [Documentation](https://docs.sentry.io/platforms/cocoa/)
-
 <sup>(1)</sup>limited symbolication support
+
+# Resources
+
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/cocoa/)
+* [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
+* [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
+* [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](http://stackoverflow.com/questions/tagged/sentry)
+* [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
