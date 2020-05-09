@@ -49,7 +49,7 @@
 - (void)testSerializeExtraFieldsEndedSessionWithNilStatus {
     SentrySession *expected = [[SentrySession alloc] init];
     NSDate *timestamp = [NSDate date];
-    [expected endSession];
+    [expected endSessionExitedSessionWithTimestamp:timestamp];
     expected.environment = @"prod";
     expected.releaseName = @"io.sentry@5.0.0-test";
     NSDictionary<NSString *, id>  *json = [expected serialize];
@@ -72,7 +72,7 @@
 - (void)testSerializeErrorIncremented {
     SentrySession *expected = [[SentrySession alloc] init];
     [expected incrementErrors];
-    [expected endSession];
+    [expected endSessionExitedSessionWithTimestamp:[NSDate date]];
     NSDictionary<NSString *, id>  *json = [expected serialize];
     SentrySession *actual = [[SentrySession alloc] initWithJSONObject:json];
 
@@ -96,32 +96,31 @@
     XCTAssertEqual(1, expected.sequence);
     [expected incrementErrors];
     XCTAssertEqual(1, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusAbnormal, expected.status);
+    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(2, expected.sequence);
-    [expected endSession];
+    [expected endSessionAbnormalWithTimestamp:[NSDate date]];
     XCTAssertEqual(1, expected.errors);
     XCTAssertEqual(kSentrySessionStatusAbnormal, expected.status);
     XCTAssertEqual(3, expected.sequence);
 }
 
-- (void)testAbnormalExited {
+- (void)testCrashedSession {
     SentrySession *expected = [[SentrySession alloc] init];
-    XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
-    [expected endSession];
-    XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusExited, expected.status);
+    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
+    [expected endSessionCrashedWithTimestamp:[NSDate date]];
+    XCTAssertEqual(kSentrySessionStatusCrashed, expected.status);
     XCTAssertEqual(2, expected.sequence);
 }
 
-- (void)testExplicitStatus {
+- (void)testExitedSession {
     SentrySession *expected = [[SentrySession alloc] init];
+    XCTAssertEqual(0, expected.errors);
     XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
-    [expected crashedSession];
+    [expected endSessionExitedSessionWithTimestamp:[NSDate date]];
     XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusCrashed, expected.status);
+    XCTAssertEqual(kSentrySessionStatusExited, expected.status);
     XCTAssertEqual(2, expected.sequence);
 }
 
