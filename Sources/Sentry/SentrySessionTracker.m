@@ -84,8 +84,8 @@
 }
 
 - (void)willTerminate {
-    NSDate *from = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
-    [[SentrySDK currentHub] endSessionWithTimestamp:from];
+    NSDate *sessionEndTimestamp = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
+    [[SentrySDK currentHub] endSessionWithTimestamp:sessionEndTimestamp];
 }
 
 @end
