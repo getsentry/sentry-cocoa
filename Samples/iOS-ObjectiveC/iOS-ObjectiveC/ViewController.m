@@ -20,7 +20,7 @@
     // Do any additional setup after loading the view.
     [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
         [scope setEnvironment:@"debug"];
-        [scope setTagValue:@"objc" forKey:@"langauge"];
+        [scope setTagValue:@"objc" forKey:@"language"];
         [scope setExtraValue:[NSString stringWithFormat:@"%@", self] forKey:@"currentViewController"];
         SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
         user.email = @"tony@example.com";
@@ -40,7 +40,7 @@
 
 - (IBAction)captureMessage:(id)sender {
     NSString *eventId = [SentrySDK captureMessage:@"Yeah captured a message"];
-    // Returns eventId in case of successfull processed event
+    // Returns eventId in case of successful processed event
     // otherwise nil
     NSLog(@"%@", eventId);
 }
@@ -58,10 +58,10 @@
 }
 
 - (IBAction)captureException:(id)sender {
-    NSException *exception = [[NSException alloc] initWithName:@"My Custom exeption" reason:@"User clicked the button" userInfo:nil];
+    NSException *exception = [[NSException alloc] initWithName:@"My Custom exception" reason:@"User clicked the button" userInfo:nil];
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setLevel:kSentryLevelFatal];
-    // By explicity just passing the scope, only the data in this scope object will be added to the event
+    // By explicitly just passing the scope, only the data in this scope object will be added to the event
     // The global scope (calls to configureScope) will be ignored
     // Only do this if you know what you are doing, you loose a lot of useful info
     // If you just want to mutate what's in the scope use the callback, see: captureError
