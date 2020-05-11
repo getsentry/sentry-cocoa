@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- feat: Convert values in dictioanry to string when sanitize #509
+- feat: Add sentry_sanitize for NSArray #509
 
 ## 5.0.2
 
