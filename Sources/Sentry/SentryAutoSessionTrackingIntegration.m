@@ -4,6 +4,7 @@
 #import "SentryHub.h"
 #import "SentrySDK.h"
 #import "SentryLog.h"
+#import "SentryDefaultCurrentDateProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)installWithOptions:(nonnull SentryOptions *)options {
     if ([options.enableAutoSessionTracking isEqual:@YES]) {
-        SentrySessionTracker *tracker = [[SentrySessionTracker alloc] initWithOptions:options];
+        id<SentryCurrentDateProvider> currentDateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
+        SentrySessionTracker *tracker = [[SentrySessionTracker alloc] initWithOptions:options currentDateProvider:currentDateProvider];
         [tracker start];
         self.tracker = tracker;
     }

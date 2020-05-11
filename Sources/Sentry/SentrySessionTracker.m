@@ -3,6 +3,7 @@
 #import "SentrySessionTracker.h"
 #import "SentryOptions.h"
 #import "SentryLog.h"
+#import "SentryCurrentDateProvider.h"
 
 #if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>
@@ -13,15 +14,18 @@
 @interface SentrySessionTracker ()
 
 @property(nonatomic, strong) SentryOptions *options;
+@property(nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property(atomic, strong) NSDate *lastInForeground;
 
 @end
 
 @implementation SentrySessionTracker
 
-- (instancetype)initWithOptions:(SentryOptions *)options {
+- (instancetype)initWithOptions:(SentryOptions *)options
+         currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider {
     if (self = [super init]) {
         self.options = options;
+        self.currentDateProvider = currentDateProvider;
     }
     return self;
 }
@@ -69,8 +73,8 @@
 }
 
 - (void)didBecomeActive {
-    NSDate *sessionEnded = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
-    NSTimeInterval secondsInBackground = [[NSDate date] timeIntervalSinceDate:sessionEnded];
+    NSDate *sessionEnded = nil == self.lastInForeground ? [self.currentDateProvider date] : self.lastInForeground;
+    NSTimeInterval secondsInBackground = [[self.currentDateProvider date] timeIntervalSinceDate:sessionEnded];
     if (secondsInBackground * 1000 > (double)(self.options.sessionTrackingIntervalMillis)) {
         SentryHub *hub = [SentrySDK currentHub];
         [hub endSessionWithTimestamp:sessionEnded];
@@ -80,11 +84,11 @@
 }
 
 - (void)willResignActive {
-    self.lastInForeground = [NSDate date];
+    self.lastInForeground = [self.currentDateProvider date];
 }
 
 - (void)willTerminate {
-    NSDate *sessionEnded = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
+    NSDate *sessionEnded = nil == self.lastInForeground ? [self.currentDateProvider date] : self.lastInForeground;
     [[SentrySDK currentHub] endSessionWithTimestamp:sessionEnded];
 }
 
