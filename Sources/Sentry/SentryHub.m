@@ -83,7 +83,7 @@
     SentryFileManager *fileManager = [[self getClient] fileManager];
     SentrySession *session = [fileManager readCurrentSession];
     if (nil != session) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"A cached session was found."] andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLogLevelDebug];
         SentryClient *client = [self getClient];
         if (nil != session && nil != client) { // Make sure there's a client bound.
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
