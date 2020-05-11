@@ -69,11 +69,11 @@
 }
 
 - (void)didBecomeActive {
-    NSDate *from = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
-    NSTimeInterval secondsInBackground = [[NSDate date] timeIntervalSinceDate:from];
+    NSDate *sessionEnded = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
+    NSTimeInterval secondsInBackground = [[NSDate date] timeIntervalSinceDate:sessionEnded];
     if (secondsInBackground * 1000 > (double)(self.options.sessionTrackingIntervalMillis)) {
         SentryHub *hub = [SentrySDK currentHub];
-        [hub endSessionWithTimestamp:from];
+        [hub endSessionWithTimestamp:sessionEnded];
         [hub startSession];
     }
     self.lastInForeground = nil;
@@ -84,8 +84,8 @@
 }
 
 - (void)willTerminate {
-    NSDate *from = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
-    [[SentrySDK currentHub] endSessionWithTimestamp:from];
+    NSDate *sessionEnded = nil == self.lastInForeground ? [NSDate date] : self.lastInForeground;
+    [[SentrySDK currentHub] endSessionWithTimestamp:sessionEnded];
 }
 
 @end
