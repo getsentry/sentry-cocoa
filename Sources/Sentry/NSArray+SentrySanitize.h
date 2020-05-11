@@ -2,9 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSDictionary (SentrySanitize)
+@interface NSArray (SentrySanitize)
 
-- (NSDictionary *)sentry_sanitize;
+- (NSArray *)sentry_sanitize;
 
 @end
 
