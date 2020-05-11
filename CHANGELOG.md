@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add sentry_sanitize for NSArray #509
+
 ## 5.0.2
 
 - fix: Keep maximum rate limit #498
