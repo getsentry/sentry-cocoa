@@ -1,30 +1,35 @@
-#import <Foundation/Foundation.h>
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import <Foundation/Foundation.h>
 
-@interface SentryConcurrentRateLimitsDictionary()
+@interface
+SentryConcurrentRateLimitsDictionary ()
 
 /* Key is the type and value is valid until date */
-@property(nonatomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *rateLimits;
+@property (nonatomic, strong)
+    NSMutableDictionary<NSNumber *, NSDate *> *rateLimits;
 
 @end
 
 @implementation SentryConcurrentRateLimitsDictionary
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         self.rateLimits = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
 
-- (void)addRateLimit:(SentryRateLimitCategory)category validUntil:(NSDate *)date {
-    @synchronized (self.rateLimits) {
+- (void)addRateLimit:(SentryRateLimitCategory)category validUntil:(NSDate *)date
+{
+    @synchronized(self.rateLimits) {
         self.rateLimits[@(category)] = date;
     }
 }
 
-- (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category {
-    @synchronized (self.rateLimits) {
+- (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category
+{
+    @synchronized(self.rateLimits) {
         return self.rateLimits[@(category)];
     }
 }

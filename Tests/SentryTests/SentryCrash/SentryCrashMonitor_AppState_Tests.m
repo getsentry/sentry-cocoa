@@ -24,27 +24,27 @@
 // THE SOFTWARE.
 //
 
-
 #import "FileBasedTestCase.h"
 #import "XCTestCase+SentryCrash.h"
 
 #import "SentryCrashMonitor_AppState.h"
 
-
-@interface SentryCrashMonitor_AppState_Tests : FileBasedTestCase @end
-
+@interface SentryCrashMonitor_AppState_Tests : FileBasedTestCase
+@end
 
 @implementation SentryCrashMonitor_AppState_Tests
 
-- (void) initializeCrashState
+- (void)initializeCrashState
 {
-    NSString* stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
-    sentrycrashstate_initialize([stateFile cStringUsingEncoding:NSUTF8StringEncoding]);
+    NSString *stateFile =
+        [self.tempPath stringByAppendingPathComponent:@"state.json"];
+    sentrycrashstate_initialize(
+        [stateFile cStringUsingEncoding:NSUTF8StringEncoding]);
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeApplicationState);
 }
 
-- (void) testInitRelaunch
+- (void)testInitRelaunch
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -83,7 +83,7 @@
     XCTAssertFalse(context.crashedLastLaunch, @"");
 }
 
-- (void) testInitCrash
+- (void)testInitCrash
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -94,26 +94,35 @@
     sentrycrashstate_notifyAppCrash();
     SentryCrash_AppState checkpointC = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpointC.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpointC.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpointC.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpointC.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpointC.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertTrue(checkpointC.crashedThisLaunch, @"");
     XCTAssertFalse(checkpointC.crashedLastLaunch, @"");
@@ -137,7 +146,7 @@
     XCTAssertTrue(context.crashedLastLaunch, @"");
 }
 
-- (void) testActRelaunch
+- (void)testActRelaunch
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -149,27 +158,36 @@
 
     SentryCrash_AppState checkpoint1 = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpoint1.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpoint1.applicationIsActive !=
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpoint1.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.applicationIsActive != checkpoint0.applicationIsActive,
+        @"");
     XCTAssertTrue(checkpoint1.applicationIsActive, @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch, @"");
     XCTAssertFalse(checkpoint1.crashedLastLaunch, @"");
@@ -194,7 +212,7 @@
     XCTAssertFalse(context.crashedLastLaunch, @"");
 }
 
-- (void) testActCrash
+- (void)testActCrash
 {
     [self initializeCrashState];
     usleep(1);
@@ -205,26 +223,35 @@
     sentrycrashstate_notifyAppCrash();
     SentryCrash_AppState checkpointC = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpointC.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpointC.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpointC.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpointC.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash >
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash
+            > checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLaunch >
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLaunch
+            > checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpointC.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertTrue(checkpointC.crashedThisLaunch, @"");
     XCTAssertFalse(checkpointC.crashedLastLaunch, @"");
@@ -248,7 +275,7 @@
     XCTAssertTrue(context.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactRelaunch
+- (void)testActDeactRelaunch
 {
     [self initializeCrashState];
     usleep(1);
@@ -259,27 +286,36 @@
     sentrycrashstate_notifyAppActive(false);
     SentryCrash_AppState checkpoint1 = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpoint1.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpoint1.applicationIsActive !=
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpoint1.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.applicationIsActive != checkpoint0.applicationIsActive,
+        @"");
     XCTAssertFalse(checkpoint1.applicationIsActive, @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash >
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash
+            > checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch >
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch
+            > checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch, @"");
     XCTAssertFalse(checkpoint1.crashedLastLaunch, @"");
@@ -305,7 +341,7 @@
     XCTAssertFalse(checkpointR.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactCrash
+- (void)testActDeactCrash
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -319,26 +355,35 @@
     sentrycrashstate_notifyAppCrash();
     SentryCrash_AppState checkpointC = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpointC.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpointC.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpointC.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpointC.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpointC.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertTrue(checkpointC.crashedThisLaunch, @"");
     XCTAssertFalse(checkpointC.crashedLastLaunch, @"");
@@ -362,7 +407,7 @@
     XCTAssertTrue(context.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactBGRelaunch
+- (void)testActDeactBGRelaunch
 {
     [self initializeCrashState];
     usleep(1);
@@ -375,27 +420,36 @@
     sentrycrashstate_notifyAppInForeground(false);
     SentryCrash_AppState checkpoint1 = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpoint1.applicationIsInForeground !=
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpoint1.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpoint1.applicationIsInForeground
+            != checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
     XCTAssertFalse(checkpoint1.applicationIsInForeground, @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch, @"");
     XCTAssertFalse(checkpoint1.crashedLastLaunch, @"");
@@ -420,7 +474,7 @@
     XCTAssertFalse(checkpointR.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactBGTerminate
+- (void)testActDeactBGTerminate
 {
     [self initializeCrashState];
     usleep(1);
@@ -440,8 +494,9 @@
     XCTAssertTrue(checkpointR.applicationIsInForeground, @"");
     XCTAssertFalse(checkpointR.applicationIsActive, @"");
 
-    XCTAssertTrue(checkpointR.backgroundDurationSinceLastCrash >
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
+    XCTAssertTrue(checkpointR.backgroundDurationSinceLastCrash
+            > checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
     XCTAssertEqual(checkpointR.launchesSinceLastCrash, 2, @"");
     XCTAssertEqual(checkpointR.sessionsSinceLastCrash, 2, @"");
 
@@ -453,7 +508,7 @@
     XCTAssertFalse(checkpointR.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactBGCrash
+- (void)testActDeactBGCrash
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -469,26 +524,35 @@
     sentrycrashstate_notifyAppCrash();
     SentryCrash_AppState checkpointC = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpointC.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpointC.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpointC.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpointC.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash >
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash
+            > checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch >
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch
+            > checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpointC.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertTrue(checkpointC.crashedThisLaunch, @"");
     XCTAssertFalse(checkpointC.crashedLastLaunch, @"");
@@ -512,7 +576,7 @@
     XCTAssertTrue(context.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactBGFGRelaunch
+- (void)testActDeactBGFGRelaunch
 {
     [self initializeCrashState];
     usleep(1);
@@ -528,27 +592,36 @@
     sentrycrashstate_notifyAppInForeground(true);
     SentryCrash_AppState checkpoint1 = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpoint1.applicationIsInForeground !=
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpoint1.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpoint1.applicationIsInForeground
+            != checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
     XCTAssertTrue(checkpoint1.applicationIsInForeground, @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash >
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash + 1, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLastCrash
+            > checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpoint1.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash + 1,
+        @"");
 
-    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch >
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpoint1.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch + 1, @"");
+    XCTAssertTrue(checkpoint1.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpoint1.backgroundDurationSinceLaunch
+            > checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpoint1.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch + 1,
+        @"");
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch, @"");
     XCTAssertFalse(checkpoint1.crashedLastLaunch, @"");
@@ -574,7 +647,7 @@
     XCTAssertFalse(checkpointR.crashedLastLaunch, @"");
 }
 
-- (void) testActDeactBGFGCrash
+- (void)testActDeactBGFGCrash
 {
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -592,26 +665,35 @@
     sentrycrashstate_notifyAppCrash();
     SentryCrash_AppState checkpointC = *sentrycrashstate_currentState();
 
-    XCTAssertTrue(checkpointC.applicationIsInForeground ==
-                 checkpoint0.applicationIsInForeground, @"");
-    XCTAssertTrue(checkpointC.applicationIsActive ==
-                 checkpoint0.applicationIsActive, @"");
+    XCTAssertTrue(checkpointC.applicationIsInForeground
+            == checkpoint0.applicationIsInForeground,
+        @"");
+    XCTAssertTrue(
+        checkpointC.applicationIsActive == checkpoint0.applicationIsActive,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash ==
-                 checkpoint0.activeDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash ==
-                 checkpoint0.backgroundDurationSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.launchesSinceLastCrash ==
-                 checkpoint0.launchesSinceLastCrash, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLastCrash ==
-                 checkpoint0.sessionsSinceLastCrash, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLastCrash
+            == checkpoint0.activeDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLastCrash
+            == checkpoint0.backgroundDurationSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.launchesSinceLastCrash
+            == checkpoint0.launchesSinceLastCrash,
+        @"");
+    XCTAssertTrue(checkpointC.sessionsSinceLastCrash
+            == checkpoint0.sessionsSinceLastCrash,
+        @"");
 
-    XCTAssertTrue(checkpointC.activeDurationSinceLaunch ==
-                 checkpoint0.activeDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch ==
-                 checkpoint0.backgroundDurationSinceLaunch, @"");
-    XCTAssertTrue(checkpointC.sessionsSinceLaunch ==
-                 checkpoint0.sessionsSinceLaunch, @"");
+    XCTAssertTrue(checkpointC.activeDurationSinceLaunch
+            == checkpoint0.activeDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(checkpointC.backgroundDurationSinceLaunch
+            == checkpoint0.backgroundDurationSinceLaunch,
+        @"");
+    XCTAssertTrue(
+        checkpointC.sessionsSinceLaunch == checkpoint0.sessionsSinceLaunch,
+        @"");
 
     XCTAssertTrue(checkpointC.crashedThisLaunch, @"");
     XCTAssertFalse(checkpointC.crashedLastLaunch, @"");

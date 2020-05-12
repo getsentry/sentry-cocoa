@@ -1,12 +1,13 @@
 #import "SentrySession.h"
-#import "SentryInstallation.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryInstallation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySession
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
         _started = [NSDate date];
@@ -19,10 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
-    // Note this doesn't use the main init method since it should only init fields that exist in the JSON.
+- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject
+{
+    // Note this doesn't use the main init method since it should only init
+    // fields that exist in the JSON.
     if (self = [super init]) {
-        _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
+        _sessionId =
+            [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
         _distinctId = [jsonObject valueForKey:@"did"];
         NSString *startedString = [jsonObject valueForKey:@"started"];
         if (nil != startedString) {
@@ -61,85 +65,95 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)endSessionExitedSessionWithTimestamp:(NSDate*)timestamp {
-    @synchronized (self) {
+- (void)endSessionExitedSessionWithTimestamp:(NSDate *)timestamp
+{
+    @synchronized(self) {
         [self changed];
         _status = kSentrySessionStatusExited;
         [self endSessionWithTimestamp:timestamp];
     }
 }
 
-- (void)endSessionCrashedWithTimestamp:(NSDate*)timestamp {
-    @synchronized (self) {
+- (void)endSessionCrashedWithTimestamp:(NSDate *)timestamp
+{
+    @synchronized(self) {
         [self changed];
         _status = kSentrySessionStatusCrashed;
         [self endSessionWithTimestamp:timestamp];
     }
 }
 
-- (void)endSessionAbnormalWithTimestamp:(NSDate*)timestamp {
-    @synchronized (self) {
+- (void)endSessionAbnormalWithTimestamp:(NSDate *)timestamp
+{
+    @synchronized(self) {
         [self changed];
         _status = kSentrySessionStatusAbnormal;
         [self endSessionWithTimestamp:timestamp];
     }
 }
 
-- (void)endSessionWithTimestamp:(NSDate*)timestamp {
-    @synchronized (self) {
+- (void)endSessionWithTimestamp:(NSDate *)timestamp
+{
+    @synchronized(self) {
         [self calculateDuration];
         _timestamp = timestamp;
-        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+        NSTimeInterval secondsBetween =
+            [_timestamp timeIntervalSinceDate:_started];
         _duration = [NSNumber numberWithLongLong:secondsBetween];
     }
 }
 
-- (void)changed {
+- (void)changed
+{
     _init = nil;
     _sequence++;
 }
 
-- (void)calculateDuration {
+- (void)calculateDuration
+{
     NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
     _duration = [NSNumber numberWithLongLong:secondsBetween];
 }
 
-- (void)incrementErrors {
-    @synchronized (self) {
+- (void)incrementErrors
+{
+    @synchronized(self) {
         [self changed];
         _errors++;
     }
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
-    @synchronized (self) {
+- (NSDictionary<NSString *, id> *)serialize
+{
+    @synchronized(self) {
         NSMutableDictionary *serializedData = @{
-                @"sid": _sessionId.UUIDString,
-                @"errors": [NSNumber numberWithLong:_errors],
-                @"started": [_started sentry_toIso8601String],
-        }.mutableCopy;
+            @"sid" : _sessionId.UUIDString,
+            @"errors" : [NSNumber numberWithLong:_errors],
+            @"started" : [_started sentry_toIso8601String],
+        }
+                                                  .mutableCopy;
 
         if (nil != _init) {
             [serializedData setValue:_init forKey:@"init"];
         }
 
-        NSString* statusString = nil;
+        NSString *statusString = nil;
         switch (_status) {
-            case kSentrySessionStatusOk:
-                statusString = @"ok";
-                break;
-            case kSentrySessionStatusExited:
-                statusString = @"exited";
-                break;
-            case kSentrySessionStatusCrashed:
-                statusString = @"crashed";
-                break;
-            case kSentrySessionStatusAbnormal:
-                statusString = @"abnormal";
-                break;
-            default:
-                // TODO: Log warning
-                break;
+        case kSentrySessionStatusOk:
+            statusString = @"ok";
+            break;
+        case kSentrySessionStatusExited:
+            statusString = @"exited";
+            break;
+        case kSentrySessionStatusCrashed:
+            statusString = @"crashed";
+            break;
+        case kSentrySessionStatusAbnormal:
+            statusString = @"abnormal";
+            break;
+        default:
+            // TODO: Log warning
+            break;
         }
 
         if (nil != statusString) {
@@ -147,17 +161,22 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         NSDate *timestamp = nil != _timestamp ? _timestamp : [NSDate date];
-        [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
+        [serializedData setValue:[timestamp sentry_toIso8601String]
+                          forKey:@"timestamp"];
 
         if (nil != _duration) {
             [serializedData setValue:_duration forKey:@"duration"];
         } else if (nil == _init) {
-            NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-            [serializedData setValue:[NSNumber numberWithLongLong:secondsBetween] forKey:@"duration"];
+            NSTimeInterval secondsBetween =
+                [_timestamp timeIntervalSinceDate:_started];
+            [serializedData
+                setValue:[NSNumber numberWithLongLong:secondsBetween]
+                  forKey:@"duration"];
         }
 
         // TODO: seq to be just unix time in mills?
-        [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
+        [serializedData setValue:[NSNumber numberWithLong:_sequence]
+                          forKey:@"seq"];
 
         // TODO: Add the following under `attrs`. Except 'did'
         if (nil != _releaseName || nil != _environment) {

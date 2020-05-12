@@ -5,8 +5,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-* This automatically adds breadcrumbs for different user actions.
-*/
+ * This automatically adds breadcrumbs for different user actions.
+ */
 @interface SentryAutoBreadcrumbTrackingIntegration : NSObject
 
 @end

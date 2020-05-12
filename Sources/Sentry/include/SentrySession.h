@@ -20,19 +20,19 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 
 - (void)incrementErrors;
 
-@property(nonatomic, readonly, strong) NSUUID *sessionId;
-@property(nonatomic, readonly, strong) NSDate *started;
-@property(nonatomic, readonly) enum SentrySessionStatus status;
-@property(nonatomic, readonly) NSInteger errors;
-@property(nonatomic, readonly) NSInteger sequence;
-@property(nonatomic, strong) NSString *distinctId;
+@property (nonatomic, readonly, strong) NSUUID *sessionId;
+@property (nonatomic, readonly, strong) NSDate *started;
+@property (nonatomic, readonly) enum SentrySessionStatus status;
+@property (nonatomic, readonly) NSInteger errors;
+@property (nonatomic, readonly) NSInteger sequence;
+@property (nonatomic, strong) NSString *distinctId;
 
-@property(nonatomic, copy) NSNumber *_Nullable init;
-@property(nonatomic, strong) NSDate *_Nullable timestamp;
-@property(nonatomic, strong) NSNumber *_Nullable duration;
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-@property(nonatomic, copy) NSString *_Nullable environment;
-@property(nonatomic, copy) SentryUser *_Nullable user;
+@property (nonatomic, copy) NSNumber *_Nullable init;
+@property (nonatomic, strong) NSDate *_Nullable timestamp;
+@property (nonatomic, strong) NSNumber *_Nullable duration;
+@property (nonatomic, copy) NSString *_Nullable releaseName;
+@property (nonatomic, copy) NSString *_Nullable environment;
+@property (nonatomic, copy) SentryUser *_Nullable user;
 
 - (NSDictionary<NSString *, id> *)serialize;
 

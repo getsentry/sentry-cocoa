@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashCPU.h"
@@ -33,14 +32,14 @@
 
 #import <mach/mach.h>
 
-
-@interface SentryCrashCPU_Tests : XCTestCase @end
+@interface SentryCrashCPU_Tests : XCTestCase
+@end
 
 @implementation SentryCrashCPU_Tests
 
-- (void) testCPUState
+- (void)testCPUState
 {
-    TestThread* thread = [[TestThread alloc] init];
+    TestThread *thread = [[TestThread alloc] init];
     [thread start];
     [NSThread sleepForTimeInterval:0.1];
     kern_return_t kr;
@@ -52,14 +51,13 @@
     sentrycrashcpu_getState(machineContext);
 
     int numRegisters = sentrycrashcpu_numRegisters();
-    for(int i = 0; i < numRegisters; i++)
-    {
-        const char* name = sentrycrashcpu_registerName(i);
+    for (int i = 0; i < numRegisters; i++) {
+        const char *name = sentrycrashcpu_registerName(i);
         XCTAssertTrue(name != NULL, @"Register %d was NULL", i);
         sentrycrashcpu_registerValue(machineContext, i);
     }
 
-    const char* name = sentrycrashcpu_registerName(1000000);
+    const char *name = sentrycrashcpu_registerName(1000000);
     XCTAssertTrue(name == NULL, @"");
     uint64_t value = sentrycrashcpu_registerValue(machineContext, 1000000);
     XCTAssertTrue(value == 0, @"");
@@ -73,8 +71,7 @@
     XCTAssertTrue(address != 0, @"");
 
     numRegisters = sentrycrashcpu_numExceptionRegisters();
-    for(int i = 0; i < numRegisters; i++)
-    {
+    for (int i = 0; i < numRegisters; i++) {
         name = sentrycrashcpu_exceptionRegisterName(i);
         XCTAssertTrue(name != NULL, @"Register %d was NULL", i);
         sentrycrashcpu_exceptionRegisterValue(machineContext, i);
@@ -91,7 +88,7 @@
     [thread cancel];
 }
 
-- (void) testStackGrowDirection
+- (void)testStackGrowDirection
 {
     sentrycrashcpu_stackGrowDirection();
 }

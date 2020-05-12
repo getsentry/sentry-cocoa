@@ -24,21 +24,19 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_NSException.h"
 
-
-@interface SentryCrashMonitor_NSException_Tests : XCTestCase @end
-
+@interface SentryCrashMonitor_NSException_Tests : XCTestCase
+@end
 
 @implementation SentryCrashMonitor_NSException_Tests
 
-- (void) testInstallAndRemove
+- (void)testInstallAndRemove
 {
-    SentryCrashMonitorAPI* api = sentrycrashcm_nsexception_getAPI();
+    SentryCrashMonitorAPI *api = sentrycrashcm_nsexception_getAPI();
     api->setEnabled(true);
     XCTAssertTrue(api->isEnabled());
     [NSThread sleepForTimeInterval:0.1];
@@ -46,9 +44,9 @@
     XCTAssertFalse(api->isEnabled());
 }
 
-- (void) testDoubleInstallAndRemove
+- (void)testDoubleInstallAndRemove
 {
-    SentryCrashMonitorAPI* api = sentrycrashcm_nsexception_getAPI();
+    SentryCrashMonitorAPI *api = sentrycrashcm_nsexception_getAPI();
 
     api->setEnabled(true);
     XCTAssertTrue(api->isEnabled());

@@ -1,7 +1,7 @@
-#import <Foundation/Foundation.h>
-#import <XCTest/XCTest.h>
-#import <Sentry/Sentry.h>
 #import "SentryInstallation.h"
+#import <Foundation/Foundation.h>
+#import <Sentry/Sentry.h>
+#import <XCTest/XCTest.h>
 
 @interface SentryInstallationTests : XCTestCase
 
@@ -9,8 +9,8 @@
 
 @implementation SentryInstallationTests
 
-- (void)testSentryInstallation {
-  
+- (void)testSentryInstallation
+{
 }
 
 @end

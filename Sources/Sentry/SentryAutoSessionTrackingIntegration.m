@@ -1,25 +1,30 @@
 #import "SentryAutoSessionTrackingIntegration.h"
-#import "SentrySessionTracker.h"
-#import "SentryOptions.h"
-#import "SentryHub.h"
-#import "SentrySDK.h"
-#import "SentryLog.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryHub.h"
+#import "SentryLog.h"
+#import "SentryOptions.h"
+#import "SentrySDK.h"
+#import "SentrySessionTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryAutoSessionTrackingIntegration()
+@interface
+SentryAutoSessionTrackingIntegration ()
 
-@property(nonatomic, strong) SentrySessionTracker *tracker;
+@property (nonatomic, strong) SentrySessionTracker *tracker;
 
 @end
 
 @implementation SentryAutoSessionTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options {
+- (void)installWithOptions:(nonnull SentryOptions *)options
+{
     if ([options.enableAutoSessionTracking isEqual:@YES]) {
-        id<SentryCurrentDateProvider> currentDateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
-        SentrySessionTracker *tracker = [[SentrySessionTracker alloc] initWithOptions:options currentDateProvider:currentDateProvider];
+        id<SentryCurrentDateProvider> currentDateProvider =
+            [[SentryDefaultCurrentDateProvider alloc] init];
+        SentrySessionTracker *tracker =
+            [[SentrySessionTracker alloc] initWithOptions:options
+                                      currentDateProvider:currentDateProvider];
         [tracker start];
         self.tracker = tracker;
     }

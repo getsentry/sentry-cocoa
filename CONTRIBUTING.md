@@ -9,7 +9,6 @@
 
 We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests on [`GitHub`](https://github.com/getsentry/sentry-javascript). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
 
-
 ## Setting up an Environment
 
 You need to install bundler and all dependencies locally to run tests:
@@ -29,6 +28,10 @@ Test can either be ran inside from Xcode or using `fastlane`:
 bundle exec fastlane test
 ```
 
+## Code Formatting
+
+We use [ClangFormat](http://clang.llvm.org/docs/ClangFormat.html) for formatting Objective-C and C. The configuration can be found in [`.clang-format`](./.clang-format).
+
 ## Environment
 
 Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
@@ -38,4 +41,4 @@ Please use `Sentry.xcworkspace` as the entry point when opening the project in X
 When contributing to the codebase, please make note of the following:
 
 - Non-trivial PRs will not be accepted without tests (see above).
-- Please do not bump version numbers yourself. 
+- Please do not bump version numbers yourself.

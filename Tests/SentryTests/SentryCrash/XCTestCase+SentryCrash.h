@@ -24,17 +24,15 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
-
 
 @interface XCTestCase (XCTestCase_SentryCrash)
 
-- (NSString*) createTempPath;
+- (NSString *)createTempPath;
 
-- (void) removePath:(NSString*) path;
+- (void)removePath:(NSString *)path;
 
-- (void) createTempReportsAtPath:(NSString*) reportsPath
-                          prefix:(NSString*) reportPrefix;
+- (void)createTempReportsAtPath:(NSString *)reportsPath
+                         prefix:(NSString *)reportPrefix;
 
 @end

@@ -24,95 +24,97 @@
 // THE SOFTWARE.
 //
 
-
-#import <XCTest/XCTest.h>
 #import "XCTestCase+SentryCrash.h"
+#import <XCTest/XCTest.h>
 
 #import "SentryCrashLogger.h"
 
-
 @interface SentryCrashLogger_Tests : XCTestCase
 
-@property(nonatomic, readwrite, retain) NSString* tempDir;
+@property (nonatomic, readwrite, retain) NSString *tempDir;
 
 @end
-
 
 @implementation SentryCrashLogger_Tests
 
 @synthesize tempDir = _tempDir;
 
-- (void) setUp
+- (void)setUp
 {
     [super setUp];
     self.tempDir = [self createTempPath];
 }
 
-- (void) tearDown
+- (void)tearDown
 {
     [self removePath:self.tempDir];
 }
 
-- (void) testLogError
+- (void)testLogError
 {
     SentryCrashLOG_ERROR(@"TEST");
 }
 
-- (void) testLogErrorNull
+- (void)testLogErrorNull
 {
-    NSString* str = nil;
+    NSString *str = nil;
     SentryCrashLOG_ERROR(str);
 }
 
-- (void) testLogAlways
+- (void)testLogAlways
 {
     SentryCrashLOG_ALWAYS(@"TEST");
 }
 
-- (void) testLogAlwaysNull
+- (void)testLogAlwaysNull
 {
-    NSString* str = nil;
+    NSString *str = nil;
     SentryCrashLOG_ALWAYS(str);
 }
 
-- (void) testLogBasicError
+- (void)testLogBasicError
 {
     SentryCrashLOGBASIC_ERROR(@"TEST");
 }
 
-- (void) testLogBasicErrorNull
+- (void)testLogBasicErrorNull
 {
-    NSString* str = nil;
+    NSString *str = nil;
     SentryCrashLOGBASIC_ERROR(str);
 }
 
-- (void) testLogBasicAlways
+- (void)testLogBasicAlways
 {
     SentryCrashLOGBASIC_ALWAYS(@"TEST");
 }
 
-- (void) testLogBasicAlwaysNull
+- (void)testLogBasicAlwaysNull
 {
-    NSString* str = nil;
+    NSString *str = nil;
     SentryCrashLOGBASIC_ALWAYS(str);
 }
 
-- (void) testSetLogFilename
+- (void)testSetLogFilename
 {
-    NSString* expected = @"TEST";
-    NSString* logFileName = [self.tempDir stringByAppendingPathComponent:@"log.txt"];
+    NSString *expected = @"TEST";
+    NSString *logFileName =
+        [self.tempDir stringByAppendingPathComponent:@"log.txt"];
     sentrycrashlog_setLogFilename([logFileName UTF8String], true);
     SentryCrashLOGBASIC_ALWAYS(expected);
     sentrycrashlog_setLogFilename(nil, true);
 
-    NSError* error = nil;
-    NSString* result = [NSString stringWithContentsOfFile:logFileName encoding:NSUTF8StringEncoding error:&error];
+    NSError *error = nil;
+    NSString *result = [NSString stringWithContentsOfFile:logFileName
+                                                 encoding:NSUTF8StringEncoding
+                                                    error:&error];
     XCTAssertNil(error, @"");
     result = [[result componentsSeparatedByString:@"\x0a"] objectAtIndex:0];
     XCTAssertEqualObjects(result, expected, @"");
 
     SentryCrashLOGBASIC_ALWAYS(@"blah blah");
-    result = [NSString stringWithContentsOfFile:logFileName encoding:NSUTF8StringEncoding error:&error];
+    result = [NSString stringWithContentsOfFile:logFileName
+                                       encoding:NSUTF8StringEncoding
+                                          error:&error];
     result = [[result componentsSeparatedByString:@"\x0a"] objectAtIndex:0];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(result, expected, @"");

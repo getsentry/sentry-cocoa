@@ -24,23 +24,23 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitorContext.h"
 
-@interface SentryCrashMonitor_Tests : XCTestCase @end
+@interface SentryCrashMonitor_Tests : XCTestCase
+@end
 
 @implementation SentryCrashMonitor_Tests
 
-- (void) testInstallUninstall
+- (void)testInstallUninstall
 {
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeAll);
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
 }
 
-- (void) testSuspendResumeThreads
+- (void)testSuspendResumeThreads
 {
     sentrycrashmc_suspendEnvironment();
     sentrycrashmc_suspendEnvironment();

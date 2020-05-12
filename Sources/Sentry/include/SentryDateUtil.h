@@ -7,7 +7,8 @@ NS_SWIFT_NAME(DateUtil)
 
 + (BOOL)isInFuture:(NSDate *_Nullable)date;
 
-+ (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first andOther:(NSDate *_Nullable)second;
++ (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first
+                           andOther:(NSDate *_Nullable)second;
 
 @end
 

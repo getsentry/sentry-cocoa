@@ -1,10 +1,11 @@
 #import "NSArray+SentrySanitize.h"
-#import "NSDictionary+SentrySanitize.h"
 #import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 
 @implementation NSArray (SentrySanitize)
 
-- (NSArray *)sentry_sanitize {
+- (NSArray *)sentry_sanitize
+{
     NSMutableArray *array = [NSMutableArray array];
     for (id rawValue in self) {
 

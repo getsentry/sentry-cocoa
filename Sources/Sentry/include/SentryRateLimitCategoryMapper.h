@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
 #import "SentryRateLimitCategory.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,8 +14,6 @@ NS_SWIFT_NAME(RateLimitCategoryMapper)
 
 + (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value;
 
-
 @end
 
 NS_ASSUME_NONNULL_END
-
