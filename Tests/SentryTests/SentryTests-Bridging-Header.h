@@ -21,3 +21,4 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryDateUtil.h"
+#import "SentrySessionTracker.h"
