@@ -24,21 +24,20 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashMemory.h"
 #import "TestThread.h"
 
-
-@interface SentryCrashMemory_Tests : XCTestCase @end
+@interface SentryCrashMemory_Tests : XCTestCase
+@end
 
 @implementation SentryCrashMemory_Tests
 
-- (void) testCopyMem
+- (void)testCopyMem
 {
     char buff[100];
-    char buff2[100] = {1,2,3,4,5};
+    char buff2[100] = { 1, 2, 3, 4, 5 };
 
     bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertTrue(result, @"");
@@ -46,28 +45,28 @@
     XCTAssertEqual(memCmpResult, 0, @"");
 }
 
-- (void) testCopyMemNull
+- (void)testCopyMemNull
 {
     char buff[100];
-    char* buff2 = NULL;
+    char *buff2 = NULL;
 
     bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertFalse(result, @"");
 }
 
-- (void) testCopyMemBad
+- (void)testCopyMemBad
 {
     char buff[100];
-    char* buff2 = (char*)-1;
+    char *buff2 = (char *)-1;
 
     bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertFalse(result, @"");
 }
 
-- (void) testCopyMaxPossibleMem
+- (void)testCopyMaxPossibleMem
 {
     char buff[1000];
-    char buff2[5] = {1,2,3,4,5};
+    char buff2[5] = { 1, 2, 3, 4, 5 };
 
     int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied >= 5, @"");
@@ -75,19 +74,19 @@
     XCTAssertEqual(memCmpResult, 0, @"");
 }
 
-- (void) testCopyMaxPossibleMemNull
+- (void)testCopyMaxPossibleMemNull
 {
     char buff[1000];
-    char* buff2 = NULL;
+    char *buff2 = NULL;
 
     int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied == 0, @"");
 }
 
-- (void) testCopyMaxPossibleMemBad
+- (void)testCopyMaxPossibleMemBad
 {
     char buff[1000];
-    char* buff2 = (char*)-1;
+    char *buff2 = (char *)-1;
 
     int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied == 0, @"");

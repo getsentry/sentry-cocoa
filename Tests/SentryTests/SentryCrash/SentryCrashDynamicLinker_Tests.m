@@ -24,47 +24,47 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 #include <mach-o/dyld.h>
 
 #import "SentryCrashDynamicLinker.h"
 
-@interface SentryCrashDynamicLinker_Tests : XCTestCase @end
+@interface SentryCrashDynamicLinker_Tests : XCTestCase
+@end
 
 @implementation SentryCrashDynamicLinker_Tests
 
-- (void) testImageUUID
+- (void)testImageUUID
 {
     // Just abritrarily grab the name of the 4th image...
-    const char* name = _dyld_get_image_name(4);
-    const uint8_t* uuidBytes = sentrycrashdl_imageUUID(name, true);
+    const char *name = _dyld_get_image_name(4);
+    const uint8_t *uuidBytes = sentrycrashdl_imageUUID(name, true);
     XCTAssertTrue(uuidBytes != NULL, @"");
 }
 
-- (void) testImageUUIDInvalidName
+- (void)testImageUUIDInvalidName
 {
-    const uint8_t* uuidBytes = sentrycrashdl_imageUUID("sdfgserghwerghwrh", true);
+    const uint8_t *uuidBytes
+        = sentrycrashdl_imageUUID("sdfgserghwerghwrh", true);
     XCTAssertTrue(uuidBytes == NULL, @"");
 }
 
-- (void) testImageUUIDNULLName
+- (void)testImageUUIDNULLName
 {
-    const uint8_t* uuidBytes = sentrycrashdl_imageUUID(NULL, true);
+    const uint8_t *uuidBytes = sentrycrashdl_imageUUID(NULL, true);
     XCTAssertTrue(uuidBytes == NULL, @"");
 }
 
-- (void) testImageUUIDPartialMatch
+- (void)testImageUUIDPartialMatch
 {
-    const uint8_t* uuidBytes = sentrycrashdl_imageUUID("libSystem", false);
+    const uint8_t *uuidBytes = sentrycrashdl_imageUUID("libSystem", false);
     XCTAssertTrue(uuidBytes != NULL, @"");
 }
 
-- (void) testGetImageNameNULL
+- (void)testGetImageNameNULL
 {
     uint32_t imageIdx = sentrycrashdl_imageNamed(NULL, false);
     XCTAssertEqual(imageIdx, UINT32_MAX, @"");
 }
-
 
 @end

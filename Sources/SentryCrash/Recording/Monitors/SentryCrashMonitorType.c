@@ -22,19 +22,18 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashMonitorType.h"
 
 #include <stdlib.h>
 
-
-static const struct
-{
+static const struct {
     const SentryCrashMonitorType type;
-    const char* const name;
-} g_monitorTypes[] =
-{
-#define MONITORTYPE(NAME) {NAME, #NAME}
+    const char *const name;
+} g_monitorTypes[] = {
+#define MONITORTYPE(NAME)                                                      \
+    {                                                                          \
+        NAME, #NAME                                                            \
+    }
     MONITORTYPE(SentryCrashMonitorTypeMachException),
     MONITORTYPE(SentryCrashMonitorTypeSignal),
     MONITORTYPE(SentryCrashMonitorTypeCPPException),
@@ -45,15 +44,14 @@ static const struct
     MONITORTYPE(SentryCrashMonitorTypeApplicationState),
     MONITORTYPE(SentryCrashMonitorTypeZombie),
 };
-static const int g_monitorTypesCount = sizeof(g_monitorTypes) / sizeof(*g_monitorTypes);
+static const int g_monitorTypesCount
+    = sizeof(g_monitorTypes) / sizeof(*g_monitorTypes);
 
-
-const char* sentrycrashmonitortype_name(const SentryCrashMonitorType monitorType)
+const char *
+sentrycrashmonitortype_name(const SentryCrashMonitorType monitorType)
 {
-    for(int i = 0; i < g_monitorTypesCount; i++)
-    {
-        if(g_monitorTypes[i].type == monitorType)
-        {
+    for (int i = 0; i < g_monitorTypesCount; i++) {
+        if (g_monitorTypes[i].type == monitorType) {
             return g_monitorTypes[i].name;
         }
     }

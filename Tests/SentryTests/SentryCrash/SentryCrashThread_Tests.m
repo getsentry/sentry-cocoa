@@ -24,14 +24,13 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashThread.h"
 #import "TestThread.h"
 
-
-@interface SentryCrashThread_Tests : XCTestCase @end
+@interface SentryCrashThread_Tests : XCTestCase
+@end
 
 @implementation SentryCrashThread_Tests
 
@@ -62,7 +61,8 @@
 //    {
 //        mach_port_deallocate(thisTask, threads[i]);
 //    }
-//    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
+//    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) *
+//    numThreads);
 //
 //    XCTAssertTrue(success, @"");
 //}

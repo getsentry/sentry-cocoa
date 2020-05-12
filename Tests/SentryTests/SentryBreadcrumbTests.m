@@ -6,11 +6,11 @@
 //  Copyright © 2017 Sentry. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
-#import <Sentry/Sentry.h>
-#import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
+#import "SentryFileManager.h"
+#import <Sentry/Sentry.h>
+#import <XCTest/XCTest.h>
 
 @interface SentryBreadcrumbTests : XCTestCase
 
@@ -20,24 +20,33 @@
 
 @implementation SentryBreadcrumbTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
     NSError *error = nil;
-    self.fileManager = [[SentryFileManager alloc] initWithDsn:[[SentryDsn alloc] initWithString:@"https://username:password@app.getsentry.com/12345" didFailWithError:nil] didFailWithError:&error];
+    self.fileManager = [[SentryFileManager alloc]
+             initWithDsn:
+                 [[SentryDsn alloc]
+                       initWithString:
+                           @"https://username:password@app.getsentry.com/12345"
+                     didFailWithError:nil]
+        didFailWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     [super tearDown];
-    //SentryClient.logLevel = kSentryLogLevelError;
+    // SentryClient.logLevel = kSentryLogLevelError;
     [self.fileManager deleteAllStoredEventsAndEnvelopes];
     [self.fileManager deleteAllFolders];
 }
 
 //- (void)testAddBreadcumb {
 //    NSError *error = nil;
-//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-//    SentryScope *scope = [SentryScope new];
+//    SentryClient *client = [[SentryClient alloc]
+//    initWithDsn:@"https://username:password@app.getsentry.com/12345"
+//    didFailWithError:&error]; SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
 //    [scope.breadcrumbs clear];
 //    [scope.breadcrumbs addBreadcrumb:[self getBreadcrumb]];
@@ -46,8 +55,9 @@
 
 //- (void)testBreadcumbLimit {
 //    NSError *error = nil;
-//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-//    SentryScope *scope = [SentryScope new];
+//    SentryClient *client = [[SentryClient alloc]
+//    initWithDsn:@"https://username:password@app.getsentry.com/12345"
+//    didFailWithError:&error]; SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
 //    [scope.breadcrumbs clear];
 //    for (NSInteger i = 0; i <= 100; i++) {
@@ -96,20 +106,23 @@
 
 //- (void)testSerialize {
 //    NSError *error = nil;
-////    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
+////    SentryClient *client = [[SentryClient alloc]
+/// initWithDsn:@"https://username:password@app.getsentry.com/12345"
+/// didFailWithError:&error];
 //    SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
-//    NSDate *date = [NSDate date];
-//    crumb.timestamp = date;
-//    crumb.data = @{@"data": date, @"dict": @{@"date": date}};
-//    [scope.breadcrumbs addBreadcrumb:crumb];
-//    NSDictionary *serialized = @{@"breadcrumbs": @[@{
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
+//    initWithLevel:kSentryLevelDebug category:@"http"]; NSDate *date = [NSDate
+//    date]; crumb.timestamp = date; crumb.data = @{@"data": date, @"dict":
+//    @{@"date": date}}; [scope.breadcrumbs addBreadcrumb:crumb]; NSDictionary
+//    *serialized = @{@"breadcrumbs": @[@{
 //                                 @"category": @"http",
 //                                 @"data": @{
-//                                         @"data": [date sentry_toIso8601String],
+//                                         @"data": [date
+//                                         sentry_toIso8601String],
 //                                         @"dict": @{
-//                                                 @"date": [date sentry_toIso8601String]
+//                                                 @"date": [date
+//                                                 sentry_toIso8601String]
 //                                                 }
 //                                         },
 //                                 @"level": @"debug",
@@ -121,39 +134,44 @@
 
 //- (void)testSerializeSorted {
 //    NSError *error = nil;
-//    SentryClient *client = [[SentryClient alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345" didFailWithError:&error];
-//    SentryScope *scope = [SentryScope new];
+//    SentryClient *client = [[SentryClient alloc]
+//    initWithDsn:@"https://username:password@app.getsentry.com/12345"
+//    didFailWithError:&error]; SentryScope *scope = [SentryScope new];
 //    XCTAssertNil(error);
-//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
-//    NSDate *date = [NSDate dateWithTimeIntervalSince1970:10];
-//    crumb.timestamp = date;
+//    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
+//    initWithLevel:kSentryLevelDebug category:@"http"]; NSDate *date = [NSDate
+//    dateWithTimeIntervalSince1970:10]; crumb.timestamp = date;
 //    [scope.breadcrumbs addBreadcrumb:crumb];
 //
-//    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
-//    NSDate *date2 = [NSDate dateWithTimeIntervalSince1970:899990];
-//    crumb2.timestamp = date2;
+//    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc]
+//    initWithLevel:kSentryLevelDebug category:@"http"]; NSDate *date2 = [NSDate
+//    dateWithTimeIntervalSince1970:899990]; crumb2.timestamp = date2;
 //    [scope.breadcrumbs addBreadcrumb:crumb2];
 //
-//    SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
-//    NSDate *date3 = [NSDate dateWithTimeIntervalSince1970:5];
-//    crumb3.timestamp = date3;
+//    SentryBreadcrumb *crumb3 = [[SentryBreadcrumb alloc]
+//    initWithLevel:kSentryLevelDebug category:@"http"]; NSDate *date3 = [NSDate
+//    dateWithTimeIntervalSince1970:5]; crumb3.timestamp = date3;
 //    [scope.breadcrumbs addBreadcrumb:crumb3];
 //
-//    SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
-//    NSDate *date4 = [NSDate dateWithTimeIntervalSince1970:11];
-//    crumb4.timestamp = date4;
+//    SentryBreadcrumb *crumb4 = [[SentryBreadcrumb alloc]
+//    initWithLevel:kSentryLevelDebug category:@"http"]; NSDate *date4 = [NSDate
+//    dateWithTimeIntervalSince1970:11]; crumb4.timestamp = date4;
 //    [scope.breadcrumbs addBreadcrumb:crumb4];
 //
 //    NSDictionary *serialized = [scope.breadcrumbs serialize];
 //    NSArray *dates = [serialized valueForKeyPath:@"breadcrumbs.timestamp"];
-//    XCTAssertTrue([[dates objectAtIndex:0] isEqualToString:[date sentry_toIso8601String]]);
-//    XCTAssertTrue([[dates objectAtIndex:1] isEqualToString:[date2 sentry_toIso8601String]]);
-//    XCTAssertTrue([[dates objectAtIndex:2] isEqualToString:[date3 sentry_toIso8601String]]);
-//    XCTAssertTrue([[dates objectAtIndex:3] isEqualToString:[date4 sentry_toIso8601String]]);
+//    XCTAssertTrue([[dates objectAtIndex:0] isEqualToString:[date
+//    sentry_toIso8601String]]); XCTAssertTrue([[dates objectAtIndex:1]
+//    isEqualToString:[date2 sentry_toIso8601String]]); XCTAssertTrue([[dates
+//    objectAtIndex:2] isEqualToString:[date3 sentry_toIso8601String]]);
+//    XCTAssertTrue([[dates objectAtIndex:3] isEqualToString:[date4
+//    sentry_toIso8601String]]);
 //}
 
-- (SentryBreadcrumb *)getBreadcrumb {
-    return [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http"];
+- (SentryBreadcrumb *)getBreadcrumb
+{
+    return [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
+                                          category:@"http"];
 }
 
 @end

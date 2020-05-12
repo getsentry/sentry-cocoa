@@ -24,21 +24,19 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_Deadlock.h"
 
-
-@interface SentryCrashMonitor_Deadlock_Tests : XCTestCase @end
-
+@interface SentryCrashMonitor_Deadlock_Tests : XCTestCase
+@end
 
 @implementation SentryCrashMonitor_Deadlock_Tests
 
-- (void) testInstallAndRemove
+- (void)testInstallAndRemove
 {
-    SentryCrashMonitorAPI* api = sentrycrashcm_deadlock_getAPI();
+    SentryCrashMonitorAPI *api = sentrycrashcm_deadlock_getAPI();
     sentrycrashcm_setDeadlockHandlerWatchdogInterval(10);
     api->setEnabled(true);
     XCTAssertTrue(api->isEnabled());
@@ -47,9 +45,9 @@
     XCTAssertFalse(api->isEnabled());
 }
 
-- (void) testDoubleInstallAndRemove
+- (void)testDoubleInstallAndRemove
 {
-    SentryCrashMonitorAPI* api = sentrycrashcm_deadlock_getAPI();
+    SentryCrashMonitorAPI *api = sentrycrashcm_deadlock_getAPI();
 
     api->setEnabled(true);
     XCTAssertTrue(api->isEnabled());

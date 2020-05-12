@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
                              options:(NSJSONWritingOptions)opt
                                error:(NSError *_Nullable *_Nullable)error;
 
-+ (SentrySession *_Nullable) sessionWithData:(NSData *)sessionData;
++ (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
 // TODO: use (NSOutputStream *)outputStream
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 error:(NSError *_Nullable *_Nullable)error;
 
 // TODO: (NSInputStream *)inputStream
-+ (SentryEnvelope *_Nullable) envelopeWithData:(NSData *)data;
++ (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;
 
 @end
 

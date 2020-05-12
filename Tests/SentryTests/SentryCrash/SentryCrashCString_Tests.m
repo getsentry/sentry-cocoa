@@ -24,52 +24,54 @@
 // THE SOFTWARE.
 //
 
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashCString.h"
 
-
-@interface SentryCrashCString_Tests : XCTestCase @end
-
+@interface SentryCrashCString_Tests : XCTestCase
+@end
 
 @implementation SentryCrashCString_Tests
 
-- (void) testNSString
+- (void)testNSString
 {
-    NSString* expected = @"Expected";
-    SentryCrashCString* actual = [SentryCrashCString stringWithString:expected];
-    BOOL matches = strcmp([expected cStringUsingEncoding:NSUTF8StringEncoding], actual.bytes) == 0;
+    NSString *expected = @"Expected";
+    SentryCrashCString *actual = [SentryCrashCString stringWithString:expected];
+    BOOL matches = strcmp([expected cStringUsingEncoding:NSUTF8StringEncoding],
+                       actual.bytes)
+        == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expected.length, @"");
 }
 
-- (void) testCString
+- (void)testCString
 {
-    const char* expected = "Expected";
+    const char *expected = "Expected";
     NSUInteger expectedLength = strlen(expected);
-    SentryCrashCString* actual = [SentryCrashCString stringWithCString:expected];
+    SentryCrashCString *actual =
+        [SentryCrashCString stringWithCString:expected];
     BOOL matches = strcmp(expected, actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expectedLength, @"");
 }
 
-- (void) testNSData
+- (void)testNSData
 {
-    const char* expected = "Expected";
+    const char *expected = "Expected";
     NSUInteger expectedLength = strlen(expected);
-    NSData* source = [NSData dataWithBytes:expected length:expectedLength];
-    SentryCrashCString* actual = [SentryCrashCString stringWithData:source];
+    NSData *source = [NSData dataWithBytes:expected length:expectedLength];
+    SentryCrashCString *actual = [SentryCrashCString stringWithData:source];
     BOOL matches = strcmp(expected, actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expectedLength, @"");
 }
 
-- (void) testData
+- (void)testData
 {
-    const char* expected = "Expected";
+    const char *expected = "Expected";
     NSUInteger expectedLength = strlen(expected);
-    SentryCrashCString* actual = [SentryCrashCString stringWithData:expected length:expectedLength];
+    SentryCrashCString *actual =
+        [SentryCrashCString stringWithData:expected length:expectedLength];
     BOOL matches = strcmp(expected, actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expectedLength, @"");

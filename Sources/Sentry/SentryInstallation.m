@@ -6,31 +6,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryInstallation
 
-static NSString * volatile installationString;
+static NSString *volatile installationString;
 
-+ (NSString *)id {
++ (NSString *)id
+{
     if (nil != installationString) {
         return installationString;
     }
-    @synchronized (self) {
+    @synchronized(self) {
         if (nil != installationString) {
             return installationString;
         }
-        NSString *cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+        NSString *cachePath = NSSearchPathForDirectoriesInDomains(
+            NSCachesDirectory, NSUserDomainMask, YES)
+                                  .firstObject;
 
-        NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
+        NSString *installationFilePath =
+            [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
 
-        NSData* installationData = [NSData dataWithContentsOfFile:installationFilePath];
+        NSData *installationData =
+            [NSData dataWithContentsOfFile:installationFilePath];
 
         if (nil == installationData) {
             installationString = [NSUUID UUID].UUIDString;
-            NSData *installationData = [installationString dataUsingEncoding:NSUTF8StringEncoding];
+            NSData *installationData =
+                [installationString dataUsingEncoding:NSUTF8StringEncoding];
             NSFileManager *fileManager = [NSFileManager defaultManager];
             [fileManager createFileAtPath:installationFilePath
                                  contents:installationData
                                attributes:nil];
         } else {
-            installationString = [[NSString alloc] initWithData:installationData encoding:NSUTF8StringEncoding];
+            installationString =
+                [[NSString alloc] initWithData:installationData
+                                      encoding:NSUTF8StringEncoding];
         }
 
         return installationString;

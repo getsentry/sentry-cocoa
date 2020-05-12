@@ -24,13 +24,11 @@
 // THE SOFTWARE.
 //
 
-
 #import <Foundation/Foundation.h>
 #import <mach/mach_types.h>
 
+@interface TestThread : NSThread
 
-@interface TestThread: NSThread
-
-@property(nonatomic, readwrite, assign) thread_t thread;
+@property (nonatomic, readwrite, assign) thread_t thread;
 
 @end

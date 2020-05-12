@@ -1,23 +1,26 @@
-#import <Foundation/Foundation.h>
 #import "SentryRateLimitCategoryMapper.h"
-#import "SentryRateLimitCategory.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryRateLimitCategory.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryRateLimitCategoryMapper ()
+@interface
+SentryRateLimitCategoryMapper ()
 
 @end
 
 @implementation SentryRateLimitCategoryMapper
 
-+ (SentryRateLimitCategory)mapEventTypeToCategory:(NSString *)eventType {
++ (SentryRateLimitCategory)mapEventTypeToCategory:(NSString *)eventType
+{
     // Currently we classify every event type as error.
     // This is going to change in the future.
     return kSentryRateLimitCategoryError;
 }
 
-+ (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType {
++ (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType
+{
     SentryRateLimitCategory category = kSentryRateLimitCategoryDefault;
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
         category = kSentryRateLimitCategoryError;
@@ -34,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
     return category;
 }
 
-+ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value {
++ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value
+{
     SentryRateLimitCategory category = kSentryRateLimitCategoryUnknown;
 
     if (value == kSentryRateLimitCategoryAll) {
