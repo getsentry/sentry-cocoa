@@ -2,6 +2,15 @@ import XCTest
 @testable import Sentry
 
 class SentryCurrentDateTests: XCTestCase {
+    
+    func testSetNoCurrentDateProvider() {
+        let expected = Date.init()
+        
+        let actual =  CurrentDate.date()
+        
+        XCTAssertEqual(expected.timeIntervalSinceReferenceDate,
+                       actual.timeIntervalSinceReferenceDate, accuracy: 0.001)
+    }
 
     func testDefaultCurrentDateProvider()  {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider())
