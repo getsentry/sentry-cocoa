@@ -30,7 +30,27 @@ bundle exec fastlane test
 
 ## Code Formatting
 
-We use [ClangFormat](http://clang.llvm.org/docs/ClangFormat.html) for formatting Objective-C and C. The configuration can be found in [`.clang-format`](./.clang-format).
+We use [Clang Format](http://clang.llvm.org/docs/ClangFormat.html) for formatting Objective-C and C. The configuration can be found in [`.clang-format`](./.clang-format). To install Clang Format:
+
+```
+npm install -g clang-format
+# OR
+brew install clang-format
+# OR
+sudo apt-get install clang-format
+```
+
+To format all Objcective-C, C++ and C files:
+
+```
+make format
+```
+
+To check if their are any style violations in Objcective-C, C++ and C files:
+
+```
+make lint
+```
 
 ## Environment
 

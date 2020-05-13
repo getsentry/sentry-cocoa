@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ "$LANE" = "lint" ]; then
+if [ "$LANE" = "dangerLint" ]; then
     if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
         echo "We don't run linter for PRs, because Danger!"
         exit 0;
