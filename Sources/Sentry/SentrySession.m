@@ -178,7 +178,6 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:[NSNumber numberWithLong:_sequence]
                           forKey:@"seq"];
 
-        // TODO: Add the following under `attrs`. Except 'did'
         if (nil != _releaseName || nil != _environment) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];
             if (nil != _releaseName) {
