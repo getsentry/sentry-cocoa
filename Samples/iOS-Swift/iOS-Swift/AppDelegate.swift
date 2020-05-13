@@ -1,17 +1,8 @@
-//
-//  AppDelegate.swift
-//  Example
-//
-//  Created by Daniel Griesser on 27.02.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
-import UIKit
 import Sentry
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -20,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             "debug": true,
             "logLevel": "verbose",
             "enableAutoSessionTracking": true,
-            "sessionTrackingIntervalMillis": 5000 // 5 seconds session timeout for testing
+            "sessionTrackingIntervalMillis": 5_000 // 5 seconds session timeout for testing
         ])
         return true
     }
@@ -39,6 +30,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
-
 }
-

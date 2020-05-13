@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "VersionBump",
     products: [
-        .executable(name: "VersionBump", targets: ["VersionBump"]),
+        .executable(name: "VersionBump", targets: ["VersionBump"])
     ],
     dependencies: [
         .package(url: "https://github.com/kareman/SwiftShell.git", from: "4.1.2"),

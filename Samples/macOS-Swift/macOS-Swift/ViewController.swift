@@ -1,11 +1,3 @@
-//
-//  ViewController.swift
-//  MacExampleSwift
-//
-//  Created by Daniel Griesser on 03.04.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 import Cocoa
 import Sentry
 
@@ -32,4 +24,3 @@ class ViewController: NSViewController {
         SentrySDK.crash()
     }
 }
-

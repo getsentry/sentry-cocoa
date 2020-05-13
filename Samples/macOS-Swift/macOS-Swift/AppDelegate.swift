@@ -1,11 +1,3 @@
-//
-//  AppDelegate.swift
-//  MacExampleSwift
-//
-//  Created by Daniel Griesser on 03.04.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 import Cocoa
 import Sentry
 
@@ -19,7 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             "debug": true,
             "logLevel": "verbose",
             "enableAutoSessionTracking": true,
-            "sessionTrackingIntervalMillis": 5000 // 5 seconds session timeout for testing
+            "sessionTrackingIntervalMillis": 5_000 // 5 seconds session timeout for testing
         ])
     }
 
@@ -27,6 +19,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
 
-
 }
-
