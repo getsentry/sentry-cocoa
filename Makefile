@@ -1,9 +1,9 @@
 lint:
 	@echo "--> Running swiftlint"
 	./scripts/check-clang-format.py -r .
-	swiftlint
+	# swiftlint
 .PHONY: lint
-	
+
 format:
 	@find . -type f \
 		-name "*.h" \
