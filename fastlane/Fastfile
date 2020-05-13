@@ -28,7 +28,12 @@ lane :dangerLint do
 end
 
 lane :lint do
-    sh('cd ..; make lint')
+    sh('cd ..; ./scripts/check-clang-format.py -r Sources Tests')
+    swiftlint(
+        mode: :lint,
+        config_file: ".swiftlint.yml",
+        raise_if_swiftlint_error: true
+    )
 end
 
 lane :test do

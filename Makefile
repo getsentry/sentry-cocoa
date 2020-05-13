@@ -1,16 +1,18 @@
 lint:
-	@echo "--> Running swiftlint"
+	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint
 .PHONY: lint
 
+# Format all h,c,cpp and m files
 format:
 	@find . -type f \
 		-name "*.h" \
 		-o -name "*.c" \
-		-o -name "*.m" \
 		-o -name "*.cpp" \
+		-o -name "*.m" \
 		| xargs clang-format -i -style=file
+	swiftlint autocorrect
 .PHONY: format
 
 test:

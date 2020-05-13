@@ -38,7 +38,7 @@ SentryHttpTransport ()
            sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
     sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 {
-    if(self = [super init]) {
+    if (self = [super init]) {
         self.options = options;
         self.requestManager = sentryRequestManager;
         self.fileManager = sentryFileManager;

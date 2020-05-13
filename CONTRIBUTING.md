@@ -18,38 +18,37 @@ gem install bundler
 bundle install
 ```
 
-With that, the repo is fully set up and you are ready to run all commands.
 
-## Run Tests
-
-Test can either be ran inside from Xcode or using `fastlane`:
-
-```
-bundle exec fastlane test
-```
-
-## Code Formatting
-
-We use [Clang Format](http://clang.llvm.org/docs/ClangFormat.html) for formatting Objective-C and C. The configuration can be found in [`.clang-format`](./.clang-format). To install Clang Format:
+All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). To install Clang Format:
 
 ```
 npm install -g clang-format
 # OR
 brew install clang-format
 # OR
-sudo apt-get install clang-format
+apt-get install clang-format
 ```
 
-To format all Objcective-C, C++ and C files:
+[Install SwiftLint](https://github.com/realm/SwiftLint#installation) for linting and 
+formatting Swift code.
+
+With that, the repo is fully set up and you are ready to run all commands.
+
+## Run Tests
+
+Test can either be ran inside from Xcode or using [`fastlane`](https://docs.fastlane.tools/):
+
+```
+bundle exec fastlane test
+# OR
+make test 
+```
+
+## Code Formatting
+Only PRs with properly formatted code are acccepted. To format all code run:
 
 ```
 make format
-```
-
-To check if their are any style violations in Objcective-C, C++ and C files:
-
-```
-make lint
 ```
 
 ## Environment
