@@ -7,13 +7,13 @@ let package = Package(
         .macOS(.v10_10),
         .iOS(.v8),
         .tvOS(.v9),
-        .watchOS(.v2),
+        .watchOS(.v2)
     ],
     products: [
         .library(
             name: "Sentry",
             targets: ["Sentry"]
-        ),
+        )
     ],
     dependencies: [],
     targets: [
@@ -26,7 +26,7 @@ let package = Package(
                 "SentryCrash/Recording/Tools",
                 "SentryCrash/Reporting/Filters",
                 "SentryCrash/Reporting/Filters/Tools",
-                "SentryCrash/Reporting/Tools",
+                "SentryCrash/Reporting/Tools"
             ],
             path: "Sources/Sentry",
             cxxSettings: [
@@ -34,11 +34,11 @@ let package = Package(
                 .headerSearchPath("../SentryCrash/Recording"),
                 .headerSearchPath("../SentryCrash/Recording/Monitors"),
                 .headerSearchPath("../SentryCrash/Recording/Tools"),
-                .headerSearchPath("../SentryCrash/Reporting/Filters"),
+                .headerSearchPath("../SentryCrash/Reporting/Filters")
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
-                .linkedLibrary("c++"),
+                .linkedLibrary("c++")
             ]
         ),
 
@@ -51,7 +51,7 @@ let package = Package(
                 .headerSearchPath("../Recording/Monitors"),
                 .headerSearchPath("../Recording/Tools"),
                 .headerSearchPath("../Reporting/Filters"),
-                .headerSearchPath("../Reporting/Tools"),
+                .headerSearchPath("../Reporting/Tools")
             ]
         ),
 
@@ -60,13 +60,13 @@ let package = Package(
             path: "Sources/SentryCrash/Recording",
             exclude: [
                 "Monitors",
-                "Tools",
+                "Tools"
             ],
             publicHeadersPath: ".",
             cxxSettings: [
                 .headerSearchPath("Tools"),
                 .headerSearchPath("Monitors"),
-                .headerSearchPath("../Reporting/Filters"),
+                .headerSearchPath("../Reporting/Filters")
             ]
         ),
 
@@ -78,7 +78,7 @@ let package = Package(
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath(".."),
                 .headerSearchPath("../Tools"),
-                .headerSearchPath("../../Reporting/Filters"),
+                .headerSearchPath("../../Reporting/Filters")
             ]
         ),
 
@@ -87,7 +87,7 @@ let package = Package(
             path: "Sources/SentryCrash/Recording/Tools",
             publicHeadersPath: ".",
             cxxSettings: [
-                .headerSearchPath(".."),
+                .headerSearchPath("..")
             ]
         ),
 
@@ -95,12 +95,12 @@ let package = Package(
             name: "SentryCrash/Reporting/Filters",
             path: "Sources/SentryCrash/Reporting/Filters",
             exclude: [
-                "Tools",
+                "Tools"
             ],
             publicHeadersPath: ".",
             cxxSettings: [
                 .headerSearchPath("Tools"),
-                .headerSearchPath("../../Recording/Tools"),
+                .headerSearchPath("../../Recording/Tools")
             ]
         ),
 
@@ -119,13 +119,13 @@ let package = Package(
         .testTarget(
             name: "SentrySwiftTests",
             dependencies: [
-                "Sentry",
+                "Sentry"
             ],
             path: "Tests/SentryTests",
             sources: [
-                "SentrySwiftTests.swift",
+                "SentrySwiftTests.swift"
             ]
-        ),
+        )
 
         // TODO: make Objective-C tests work.
         // .testTarget(
