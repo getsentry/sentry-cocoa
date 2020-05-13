@@ -1,7 +1,7 @@
 lint:
 	@echo "--> Running swiftlint"
-	swiftlint
 	./scripts/check-clang-format.py -r .
+	swiftlint
 .PHONY: lint
 	
 format:
