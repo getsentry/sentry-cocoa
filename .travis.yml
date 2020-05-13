@@ -11,6 +11,7 @@ addons:
   homebrew:
     packages:
       - swiftlint
+      - clang-format
     update: true
 
 cache:
