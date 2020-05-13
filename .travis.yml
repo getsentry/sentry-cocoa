@@ -12,6 +12,7 @@ addons:
     packages:
       - swiftlint
       - clang-format
+      - python
     update: true
 
 cache:
