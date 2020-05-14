@@ -14,7 +14,9 @@ lane :localcoverage do
     )
 end
 
-lane :lint do
+# Danger is already taken by the fastlane danger action:
+# https://docs.fastlane.tools/actions/danger/
+lane :dangerLint do
     if ENV["DANGER_GITHUB_API_TOKEN"]
         danger(
             github_api_token: ENV["DANGER_GITHUB_API_TOKEN"],
@@ -23,7 +25,15 @@ lane :lint do
             verbose: true
         )
     end
-    sh('cd ..; swiftlint')
+end
+
+lane :lint do
+    sh('cd ..; ./scripts/check-clang-format.py -r Sources Tests')
+    swiftlint(
+        mode: :lint,
+        config_file: ".swiftlint.yml",
+        raise_if_swiftlint_error: true
+    )
 end
 
 lane :test do

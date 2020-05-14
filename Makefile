@@ -1,10 +1,24 @@
 lint:
-	@echo "--> Running swiftlint"
+	@echo "--> Running Swiftlint and Clang-Format"
+	./scripts/check-clang-format.py -r Sources Tests
 	swiftlint
+.PHONY: lint
+
+# Format all h,c,cpp and m files
+format:
+	@find . -type f \
+		-name "*.h" \
+		-o -name "*.c" \
+		-o -name "*.cpp" \
+		-o -name "*.m" \
+		| xargs clang-format -i -style=file
+	swiftlint autocorrect
+.PHONY: format
 
 test:
 	@echo "--> Running all tests"
-	fastlane test
+	bundle exec fastlane test
+.PHONY: test
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
@@ -12,15 +26,16 @@ build-carthage:
 	carthage archive Sentry --output Sentry.framework.zip
 
 # call this like `make bump-version TO=5.0.0-rc.0`
-bump-version: clean-version-bump	
-	@echo "--> Bumping version from ${TO}"	
-	./Utils/VersionBump/.build/debug/VersionBump ${TO}	
+bump-version: clean-version-bump
+	@echo "--> Bumping version from ${TO}"
+	./Utils/VersionBump/.build/debug/VersionBump ${TO}
 
-clean-version-bump:	
-	@echo "--> Clean VersionBump"	
+clean-version-bump:
+	@echo "--> Clean VersionBump"
 	cd Utils/VersionBump && rm -rf .build && swift build
 
 release: bump-version git-commit-add
+.PHONY: release
 
 pod-lint:
 	@echo "--> Build local pod"
