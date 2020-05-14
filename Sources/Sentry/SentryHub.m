@@ -122,10 +122,13 @@ SentryHub ()
                           andLevel:kSentryLogLevelDebug];
                 if (nil == timestamp) {
                     [SentryLog
-                            logWithMessage:[NSString
-                                    stringWithFormat:@"No timestamp to close session was provided. "
-                                                     "Using session's start time %@", session.started]
-                                  andLevel:kSentryLogLevelDebug];
+                        logWithMessage:[NSString
+                                           stringWithFormat:
+                                               @"No timestamp to close session "
+                                               @"was provided. "
+                                                "Using session's start time %@",
+                                           session.started]
+                              andLevel:kSentryLogLevelDebug];
                     timestamp = session.started;
                 }
                 [session endSessionExitedSessionWithTimestamp:timestamp];

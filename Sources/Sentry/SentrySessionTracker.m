@@ -58,7 +58,8 @@ SentrySessionTracker ()
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
     SentryHub *hub = [SentrySDK currentHub];
-    NSDate *_Nullable lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
+    NSDate *_Nullable lastInForeground =
+        [[[hub getClient] fileManager] readTimestampLastInForeground];
     [hub closeCachedSessionWithTimestamp:lastInForeground];
     [hub startSession];
     [NSNotificationCenter.defaultCenter
@@ -105,7 +106,8 @@ SentrySessionTracker ()
 {
     self.lastInForeground = [self.currentDateProvider date];
     SentryHub *hub = [SentrySDK currentHub];
-    [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
+    [[[hub getClient] fileManager]
+        storeTimestampLastInForeground:self.lastInForeground];
 }
 
 - (void)willTerminate

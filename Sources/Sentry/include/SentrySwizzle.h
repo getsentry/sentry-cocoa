@@ -370,17 +370,19 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 
 #define _SentrySwizzleClassMethod(classToSwizzle, selector,                    \
     SentrySWReturnType, SentrySWArguments, SentrySWReplacement)                \
-    [SentrySwizzle swizzleClassMethod:selector                                 \
-                              inClass:[classToSwizzle class]                   \
-                        newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {    \
-                            SentrySWReturnType (*originalImplementation_)(     \
-                                _SentrySWDel3Arg(__unsafe_unretained id, SEL,  \
-                                    SentrySWArguments));                       \
-                            SEL selector_ = selector;                          \
-                            return ^SentrySWReturnType(_SentrySWDel2Arg(       \
-                                __unsafe_unretained id self,                   \
-                                SentrySWArguments)) { SentrySWReplacement };   \
-                        }];
+    [SentrySwizzle                                                             \
+        swizzleClassMethod:selector                                            \
+                   inClass:[classToSwizzle class]                              \
+             newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {               \
+                 SentrySWReturnType (*originalImplementation_)(                \
+                     _SentrySWDel3Arg(                                         \
+                         __unsafe_unretained id, SEL, SentrySWArguments));     \
+                 SEL selector_ = selector;                                     \
+                 return ^SentrySWReturnType(_SentrySWDel2Arg(                  \
+                     __unsafe_unretained id self, SentrySWArguments)) {        \
+                     SentrySWReplacement                                       \
+                 };                                                            \
+             }];
 
 #define _SentrySWCallOriginal(arguments...)                                    \
     ((__typeof(                                                                \

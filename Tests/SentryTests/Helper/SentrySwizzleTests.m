@@ -189,27 +189,33 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 + (void)swizzleDeallocs
 {
     // 1) Swizzling a class that does not implement the method...
-    swizzleDealloc(
-        [SentrySwizzleTestClass_D class], ^{ SentryTestsLog(@"d-"); });
+    swizzleDealloc([SentrySwizzleTestClass_D class], ^{
+        SentryTestsLog(@"d-");
+    });
     // ...should not break swizzling of its superclass.
-    swizzleDealloc(
-        [SentrySwizzleTestClass_C class], ^{ SentryTestsLog(@"c-"); });
+    swizzleDealloc([SentrySwizzleTestClass_C class], ^{
+        SentryTestsLog(@"c-");
+    });
     // 2) Swizzling a class that does not implement the method
     // should not affect classes with the same superclass.
-    swizzleDealloc(
-        [SentrySwizzleTestClass_D2 class], ^{ SentryTestsLog(@"d2-"); });
+    swizzleDealloc([SentrySwizzleTestClass_D2 class], ^{
+        SentryTestsLog(@"d2-");
+    });
 
     // 3) We should be able to swizzle classes several times...
-    swizzleDealloc(
-        [SentrySwizzleTestClass_D class], ^{ SentryTestsLog(@"d'-"); });
+    swizzleDealloc([SentrySwizzleTestClass_D class], ^{
+        SentryTestsLog(@"d'-");
+    });
     // ...and nothing should be breaked up.
-    swizzleDealloc(
-        [SentrySwizzleTestClass_C class], ^{ SentryTestsLog(@"c'-"); });
+    swizzleDealloc([SentrySwizzleTestClass_C class], ^{
+        SentryTestsLog(@"c'-");
+    });
 
     // 4) Swizzling a class inherited from NSObject and does not
     // implementing the method.
-    swizzleDealloc(
-        [SentrySwizzleTestClass_A class], ^{ SentryTestsLog(@"a"); });
+    swizzleDealloc([SentrySwizzleTestClass_A class], ^{
+        SentryTestsLog(@"a");
+    });
 }
 
 - (void)testDeallocSwizzling
@@ -226,18 +232,23 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 + (void)swizzleCalc
 {
 
-    swizzleNumber(
-        [SentrySwizzleTestClass_C class], ^int(int num) { return num + 17; });
+    swizzleNumber([SentrySwizzleTestClass_C class], ^int(int num) {
+        return num + 17;
+    });
 
-    swizzleNumber(
-        [SentrySwizzleTestClass_D class], ^int(int num) { return num * 11; });
-    swizzleNumber(
-        [SentrySwizzleTestClass_C class], ^int(int num) { return num * 5; });
-    swizzleNumber(
-        [SentrySwizzleTestClass_D class], ^int(int num) { return num - 20; });
+    swizzleNumber([SentrySwizzleTestClass_D class], ^int(int num) {
+        return num * 11;
+    });
+    swizzleNumber([SentrySwizzleTestClass_C class], ^int(int num) {
+        return num * 5;
+    });
+    swizzleNumber([SentrySwizzleTestClass_D class], ^int(int num) {
+        return num - 20;
+    });
 
-    swizzleNumber(
-        [SentrySwizzleTestClass_A class], ^int(int num) { return num * -1; });
+    swizzleNumber([SentrySwizzleTestClass_A class], ^int(int num) {
+        return num * -1;
+    });
 }
 
 - (void)testCalcSwizzling
@@ -318,11 +329,17 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     for (int i = 3; i > 0; --i) {
         swizzleVoidMethod(
             [SentrySwizzleTestClass_A class],
-            @selector(methodForAlwaysSwizzling), ^{ SentryTestsLog(@"A"); },
+            @selector(methodForAlwaysSwizzling),
+            ^{
+                SentryTestsLog(@"A");
+            },
             SentrySwizzleModeAlways, NULL);
         swizzleVoidMethod(
             [SentrySwizzleTestClass_B class],
-            @selector(methodForAlwaysSwizzling), ^{ SentryTestsLog(@"B"); },
+            @selector(methodForAlwaysSwizzling),
+            ^{
+                SentryTestsLog(@"B");
+            },
             SentrySwizzleModeAlways, NULL);
     }
 
@@ -338,11 +355,17 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
         swizzleVoidMethod(
             [SentrySwizzleTestClass_A class],
             @selector(methodForSwizzlingOncePerClass),
-            ^{ SentryTestsLog(@"A"); }, SentrySwizzleModeOncePerClass, key);
+            ^{
+                SentryTestsLog(@"A");
+            },
+            SentrySwizzleModeOncePerClass, key);
         swizzleVoidMethod(
             [SentrySwizzleTestClass_B class],
             @selector(methodForSwizzlingOncePerClass),
-            ^{ SentryTestsLog(@"B"); }, SentrySwizzleModeOncePerClass, key);
+            ^{
+                SentryTestsLog(@"B");
+            },
+            SentrySwizzleModeOncePerClass, key);
     }
     SentrySwizzleTestClass_B *object = [SentrySwizzleTestClass_B new];
     [object methodForSwizzlingOncePerClass];
@@ -356,12 +379,16 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
         swizzleVoidMethod(
             [SentrySwizzleTestClass_A class],
             @selector(methodForSwizzlingOncePerClassOrSuperClasses),
-            ^{ SentryTestsLog(@"A"); },
+            ^{
+                SentryTestsLog(@"A");
+            },
             SentrySwizzleModeOncePerClassAndSuperclasses, key);
         swizzleVoidMethod(
             [SentrySwizzleTestClass_B class],
             @selector(methodForSwizzlingOncePerClassOrSuperClasses),
-            ^{ SentryTestsLog(@"B"); },
+            ^{
+                SentryTestsLog(@"B");
+            },
             SentrySwizzleModeOncePerClassAndSuperclasses, key);
     }
     SentrySwizzleTestClass_B *object = [SentrySwizzleTestClass_B new];

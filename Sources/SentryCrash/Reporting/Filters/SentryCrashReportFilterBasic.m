@@ -87,8 +87,8 @@ SentryCrashReportFilterCombine ()
                 entry = [SentryCrashReportFilterPipeline
                     filterWithFilters:entry, nil];
             }
-            if (![entry
-                    conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
+            if (!
+                [entry conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
                 SentryCrashLOG_ERROR(@"Not a filter: %@", entry);
                 // Cause next key entry to fail as well.
                 return;
@@ -149,7 +149,9 @@ SentryCrashReportFilterCombine ()
     __block __weak SentryCrashReportFilterCompletion weakFilterCompletion = nil;
     dispatch_block_t disposeOfCompletion = [^{
         // Release self-reference on the main thread.
-        dispatch_async(dispatch_get_main_queue(), ^{ filterCompletion = nil; });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            filterCompletion = nil;
+        });
     } copy];
     filterCompletion = [^(
         NSArray *filteredReports, BOOL completed, NSError *filterError) {
@@ -270,7 +272,9 @@ SentryCrashReportFilterPipeline ()
     __block __weak SentryCrashReportFilterCompletion weakFilterCompletion = nil;
     dispatch_block_t disposeOfCompletion = [^{
         // Release self-reference on the main thread.
-        dispatch_async(dispatch_get_main_queue(), ^{ filterCompletion = nil; });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            filterCompletion = nil;
+        });
     } copy];
     filterCompletion = [^(
         NSArray *filteredReports, BOOL completed, NSError *filterError) {

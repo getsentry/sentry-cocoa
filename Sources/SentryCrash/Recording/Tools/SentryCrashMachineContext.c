@@ -55,7 +55,8 @@ isStackOverflow(const SentryCrashMachineContext *const context)
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initWithMachineContext(
         &stackCursor, SentryCrashSC_STACK_OVERFLOW_THRESHOLD, context);
-    while (stackCursor.advanceCursor(&stackCursor)) { }
+    while (stackCursor.advanceCursor(&stackCursor)) {
+    }
     return stackCursor.state.hasGivenUp;
 }
 

@@ -19,7 +19,7 @@ class SentryFileManagerTests: XCTestCase {
         super.tearDown()
         sut.deleteAllStoredEventsAndEnvelopes()
         sut.deleteAllFolders()
-        sut.deleteTimestampLastInForeground();
+        sut.deleteTimestampLastInForeground()
     }
     
     func testInitDoesNotOverrideDirectories() throws {

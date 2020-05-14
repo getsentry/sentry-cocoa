@@ -7,7 +7,9 @@
 {
     static SentryGlobalEventProcessor *instance = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] initPrivate]; });
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initPrivate];
+    });
     return instance;
 }
 

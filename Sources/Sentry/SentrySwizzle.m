@@ -110,8 +110,9 @@ swizzledClassesDictionary()
 {
     static NSMutableDictionary *swizzledClasses;
     static dispatch_once_t onceToken;
-    dispatch_once(
-        &onceToken, ^{ swizzledClasses = [NSMutableDictionary new]; });
+    dispatch_once(&onceToken, ^{
+        swizzledClasses = [NSMutableDictionary new];
+    });
     return swizzledClasses;
 }
 

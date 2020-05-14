@@ -177,8 +177,9 @@
 
 - (void)testBeforeSend
 {
-    SentryEvent * (^callback)(SentryEvent *event)
-        = ^(SentryEvent *event) { return event; };
+    SentryEvent * (^callback)(SentryEvent *event) = ^(SentryEvent *event) {
+        return event;
+    };
     SentryOptions *options =
         [self getValidOptions:@{ @"beforeSend" : callback }];
 
@@ -195,7 +196,9 @@
 - (void)testBeforeBreadcrumb
 {
     SentryBreadcrumb * (^callback)(SentryBreadcrumb *event)
-        = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
+        = ^(SentryBreadcrumb *breadcrumb) {
+              return breadcrumb;
+          };
     SentryOptions *options =
         [self getValidOptions:@{ @"beforeBreadcrumb" : callback }];
 

@@ -120,8 +120,9 @@ getBasePath()
     static SentryCrash *sharedInstance = nil;
     static dispatch_once_t onceToken;
 
-    dispatch_once(
-        &onceToken, ^{ sharedInstance = [[SentryCrash alloc] init]; });
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[SentryCrash alloc] init];
+    });
     return sharedInstance;
 }
 
