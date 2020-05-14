@@ -1,12 +1,12 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentryCurrentDateTests: XCTestCase {
 
     func testSetNoCurrentDateProvider() {
-        let firstDate = Date.init()
+        let firstDate = Date()
         let secondDate = CurrentDate.date()
-        let thirdDate = Date.init()
+        let thirdDate = Date()
 
         XCTAssertGreaterThanOrEqual(secondDate, firstDate)
         XCTAssertGreaterThanOrEqual(thirdDate, secondDate)
@@ -14,9 +14,9 @@ class SentryCurrentDateTests: XCTestCase {
 
     func testDefaultCurrentDateProvider() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider())
-        let firstDate = Date.init()
+        let firstDate = Date()
         let secondDate = CurrentDate.date()
-        let thirdDate = Date.init()
+        let thirdDate = Date()
 
         XCTAssertGreaterThanOrEqual(secondDate, firstDate)
         XCTAssertGreaterThanOrEqual(thirdDate, secondDate)
@@ -24,7 +24,7 @@ class SentryCurrentDateTests: XCTestCase {
 
     func testTestCurrentDateProvider() {
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
-        let expected = Date.init(timeIntervalSinceReferenceDate: 0)
+        let expected = Date(timeIntervalSinceReferenceDate: 0)
 
         let actual = CurrentDate.date()
 

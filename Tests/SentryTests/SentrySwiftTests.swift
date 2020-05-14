@@ -1,16 +1,10 @@
-//
-//  SentrySwiftTests.swift
-//  Sentry
-//
-//  Created by Daniel Griesser on 31/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
 @testable import Sentry
 import XCTest
 
 // 0x7fc9a4920b40
 class SentrySwiftTests: XCTestCase {
+    
+    // swiftlint:disable force_unwrapping
     
     override func setUp() {
         super.setUp()
@@ -146,5 +140,7 @@ class SentrySwiftTests: XCTestCase {
 //            request.addValue("my-token", forHTTPHeaderField: "Authorization")
 //        }
     }
+    
+    // swiftlint:enable force_unwrapping
     
 }

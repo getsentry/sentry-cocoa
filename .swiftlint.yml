@@ -1,5 +1,4 @@
 excluded:
-  - Tests
   - Carthage
   - Pods
   - Utils/**/.build

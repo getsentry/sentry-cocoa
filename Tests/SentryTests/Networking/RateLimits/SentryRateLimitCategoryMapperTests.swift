@@ -1,8 +1,7 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentryRateLimitCategoryMapperTests: XCTestCase {
-
 
     func testEventItemType() {
         XCTAssertEqual(SentryRateLimitCategory.error, mapEventType(eventType: "event"))

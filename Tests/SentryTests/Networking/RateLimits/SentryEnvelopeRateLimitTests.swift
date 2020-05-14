@@ -2,7 +2,7 @@ import XCTest
 
 class SentryEnvelopeRateLimitTests: XCTestCase {
     
-    private var rateLimits : TestRateLimits!
+    private var rateLimits: TestRateLimits!
     private var sut: EnvelopeRateLimit!
     
     override func setUp() {
@@ -53,7 +53,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         envelopeItems.append(SentryEnvelopeItem(header: envelopeHeader, data: Data()))
         envelopeItems.append(SentryEnvelopeItem(header: envelopeHeader, data: Data()))
         
-        let envelope =  SentryEnvelope(id: "1", items: envelopeItems)
+        let envelope = SentryEnvelope(id: "1", items: envelopeItems)
         
         let actual = sut.removeRateLimitedItems(envelope)
         

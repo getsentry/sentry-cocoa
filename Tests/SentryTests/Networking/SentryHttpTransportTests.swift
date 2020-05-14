@@ -14,10 +14,10 @@ class SentryHttpTransportTests: XCTestCase {
         CurrentDate.setCurrentDateProvider(currentDateProvider)
         
         do {
-            fileManager = try SentryFileManager.init(dsn: TestConstants.dsn)
+            fileManager = try SentryFileManager(dsn: TestConstants.dsn)
             
             requestManager = TestRequestManager(session: URLSession())
-            requestManager.returnResponse(response: HTTPURLResponse.init())
+            requestManager.returnResponse(response: HTTPURLResponse())
             
             options = try Options(dict: ["dsn": TestConstants.dsnAsString])
             
@@ -57,7 +57,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 2)
     }
     
-    func testSendOneEvent()  {
+    func testSendOneEvent() {
         sendEvent()
         
         assertRequestsSent(requestCount: 1)
@@ -285,7 +285,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
         let path = fileManager.store(TestConstants.envelope)
         let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
-        try faultyEnvelope.write(to: URL.init(fileURLWithPath: path))
+        try faultyEnvelope.write(to: URL(fileURLWithPath: path))
         
         sendEvent()
         
@@ -304,7 +304,7 @@ class SentryHttpTransportTests: XCTestCase {
         let envelopePath = fileManager.store(TestConstants.envelope)
         let envelopeAsData = FileManager.default.contents(atPath: envelopePath)
         fileManager.deleteAllStoredEventsAndEnvelopes()
-        try envelopeAsData?.write(to: URL.init(fileURLWithPath: eventPath))
+        try envelopeAsData?.write(to: URL(fileURLWithPath: eventPath))
      
         sendEvent()
         
@@ -329,15 +329,15 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func givenOkResponse() {
-        requestManager.returnResponse(response: HTTPURLResponse.init())
+        requestManager.returnResponse(response: HTTPURLResponse())
     }
     
     func givenFirstRateLimitGetsActiveWithSecondResponse() {
         var i = -1
         requestManager.returnResponse { () -> HTTPURLResponse? in
             i += 1
-            if (i == 0) {
-                return HTTPURLResponse.init()
+            if i == 0 {
+                return HTTPURLResponse()
             } else {
                 return TestResponseFactory.createRateLimitResponse(headerValue: "1:error:key")
             }

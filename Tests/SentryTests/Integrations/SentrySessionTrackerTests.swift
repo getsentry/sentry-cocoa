@@ -1,12 +1,12 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentrySessionTrackerTests: XCTestCase {
 
     private var options: Options!
     private var currentDateProvider: TestCurrentDateProvider!
     private var hub: TestHub!
-    private let sessionTrackingIntervalMillis: UInt = 10000
+    private let sessionTrackingIntervalMillis: UInt = 10_000
     private var sut: SessionTracker!
 
     override func setUp() {

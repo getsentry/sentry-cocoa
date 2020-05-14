@@ -4,8 +4,7 @@ class TestHub: SentryHub {
 
     var startSessionInvocations: Int = 0
     var closeCachedSessionInvocations: Int = 0
-    var endSessionTimestamp: Date? = nil
-
+    var endSessionTimestamp: Date?
 
     override func startSession() {
         startSessionInvocations += 1

@@ -1,5 +1,5 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentryDefaultRateLimitsTests: XCTestCase {
     
@@ -9,6 +9,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     private var sut: RateLimits!
     
     override func setUp() {
+        super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         CurrentDate.setCurrentDateProvider(currentDateProvider)
     
@@ -38,15 +39,17 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     
     func testRateLimitAndRetryHeader() {
         let category = SentryRateLimitCategory.transaction
-        let response = HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
+        if let response = HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
             statusCode: 429,
             httpVersion: "1.1",
             headerFields: [
                 "Retry-After": "2",
                 "X-Sentry-Rate-Limits": "1:transaction:key"
-        ])!
-        sut.update(response)
+        ]) {
+            sut.update(response)
+        }
+
         XCTAssertTrue(sut.isRateLimitActive(category))
         // If X-Sentry-Rate-Limits is set Retry-After is ignored
         XCTAssertFalse(sut.isRateLimitActive(SentryRateLimitCategory.default))
@@ -59,14 +62,15 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     }
     
     func testRetryHeaderIn503() {
-        let response = HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
+        if let response = HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
             statusCode: 503,
             httpVersion: "1.1",
             headerFields: [
                 "Retry-After": "2"
-        ])!
-        sut.update(response)
+        ]) {
+            sut.update(response)
+        }
 
         XCTAssertFalse(sut.isRateLimitActive(SentryRateLimitCategory.default))
     }

@@ -1,18 +1,31 @@
+import XCTest
+
 struct TestResponseFactory {
-    
+    // The test fails if the responses could not be created
+    // swiftlint:disable force_unwrapping
     static func createRetryAfterResponse(headerValue: String) -> HTTPURLResponse {
-        return HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
-            statusCode: 429,
-            httpVersion: "1.1",
-            headerFields: ["Retry-After": headerValue])!
+        let response = HTTPURLResponse(
+                url: URL(fileURLWithPath: ""),
+                statusCode: 429,
+                httpVersion: "1.1",
+                headerFields: ["Retry-After": headerValue])
+        if nil == response {
+            XCTFail("Response could not be created")
+        }
+        return response!
     }
-    
+
     static func createRateLimitResponse(headerValue: String) -> HTTPURLResponse {
-        return HTTPURLResponse.init(
-            url: URL.init(fileURLWithPath: ""),
-            statusCode: 200,
-            httpVersion: "1.1",
-            headerFields: ["X-Sentry-Rate-Limits": headerValue])!
+        let response = HTTPURLResponse(
+                url: URL(fileURLWithPath: ""),
+                statusCode: 200,
+                httpVersion: "1.1",
+                headerFields: ["X-Sentry-Rate-Limits": headerValue])
+        if nil == response {
+            XCTFail("Response could not be created")
+        }
+        return response!
     }
+
+    // swiftlint:enable force_unwrapping
 }

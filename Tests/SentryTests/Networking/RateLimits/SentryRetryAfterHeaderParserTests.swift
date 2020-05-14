@@ -1,5 +1,5 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentryRetryAfterHeaderParserTests: XCTestCase {
 
@@ -7,19 +7,18 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
     private var sut: RetryAfterHeaderParser!
     
     private var defaultDate: Date {
-        get {
-            let date = currentDateProvider.date()
-            return date.addingTimeInterval(60)
-        }
+        let date = currentDateProvider.date()
+        return date.addingTimeInterval(60)
     }
     
     override func setUp() {
+        super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         CurrentDate.setCurrentDateProvider(currentDateProvider)
         sut = RetryAfterHeaderParser(httpDateParser: HttpDateParser())
     }
 
-    func testNil()  {
+    func testNil() {
         testWith(header: nil, expected: nil)
     }
     
