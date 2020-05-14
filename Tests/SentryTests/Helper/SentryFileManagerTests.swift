@@ -19,19 +19,22 @@ class SentryFileManagerTests: XCTestCase {
         super.tearDown()
         sut.deleteAllStoredEventsAndEnvelopes()
         sut.deleteAllFolders()
+        sut.deleteTimestampLastInForeground();
     }
     
     func testInitDoesNotOverrideDirectories() throws {
         sut.store(Event())
         sut.store(TestConstants.envelope)
         sut.storeCurrentSession(SentrySession())
-        
+        sut.storeTimestampLast(inForeground: Date())
+
         _ = try SentryFileManager(dsn: TestConstants.dsn)
         let fileManager = try SentryFileManager(dsn: TestConstants.dsn)
         
         XCTAssertEqual(1, fileManager.getAllEventsAndMaybeEnvelopes().count)
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
+        XCTAssertNotNil(fileManager.readTimestampLastInForeground())
     }
     
     func testEventStoring() throws {
@@ -90,7 +93,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(files.isEmpty)
     }
     
-    func testDeleteFileNotExsists() {
+    func testDeleteFileNotExists() {
         XCTAssertFalse(sut.removeFile(atPath: "x"))
     }
     
@@ -142,12 +145,27 @@ class SentryFileManagerTests: XCTestCase {
         let actualSession = sut.readCurrentSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
-    
+
     func testStoreDeleteCurrentSession() {
         sut.storeCurrentSession(SentrySession())
         sut.deleteCurrentSession()
         let actualSession = sut.readCurrentSession()
         XCTAssertNil(actualSession)
+    }
+
+    func testStoreAndReadTimestampLastInForeground() {
+        let expectedTimestamp = Date()
+        sut.storeTimestampLast(inForeground: expectedTimestamp)
+        let actualTimestamp = sut.readTimestampLastInForeground()
+        // Why won't compile?
+//        XCTAssertEqual(actualTimestamp, expectedTimestamp, accuracy: 0.001)
+    }
+
+    func testStoreDeleteTimestampLastInForeground() {
+        sut.storeTimestampLast(inForeground: Date())
+        sut.deleteTimestampLastInForeground()
+        let actualTimestamp = sut.readTimestampLastInForeground()
+        XCTAssertNil(actualTimestamp)
     }
     
     func testGetAllStoredEventsAndEnvelopes() {

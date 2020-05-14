@@ -93,7 +93,7 @@ SentryHub ()
     [[[self getClient] fileManager] deleteCurrentSession];
 }
 
-- (void)closeCachedSession
+- (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp
 {
     SentryFileManager *fileManager = [[self getClient] fileManager];
     SentrySession *session = [fileManager readCurrentSession];
@@ -104,7 +104,7 @@ SentryHub ()
         if (nil != session
             && nil != client) { // Make sure there's a client bound.
             if (SentryCrash.sharedInstance.crashedLastLaunch) {
-                NSDate *lastInForeground =
+                NSDate *timeSinceLastCrash =
                     [[NSDate date] dateByAddingTimeInterval:
                                        -SentryCrash.sharedInstance
                                             .activeDurationSinceLastCrash];
@@ -113,14 +113,22 @@ SentryHub ()
                                        stringWithFormat:@"Closing cached "
                                                         @"session as crashed."]
                           andLevel:kSentryLogLevelDebug];
-                [session endSessionCrashedWithTimestamp:lastInForeground];
+                [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
             } else {
                 [SentryLog
                     logWithMessage:[NSString
                                        stringWithFormat:@"Closing cached "
-                                                        @"session as abnormal."]
+                                                        @"session as exited."]
                           andLevel:kSentryLogLevelDebug];
-                [session endSessionAbnormalWithTimestamp:session.timestamp];
+                if (nil == timestamp) {
+                    [SentryLog
+                            logWithMessage:[NSString
+                                    stringWithFormat:@"No timestamp to close session was provided. "
+                                                     "Using session's start time %@", session.started]
+                                  andLevel:kSentryLogLevelDebug];
+                    timestamp = session.started;
+                }
+                [session endSessionExitedSessionWithTimestamp:timestamp];
             }
             [self deleteCurrentSession];
             [client captureSession:session];

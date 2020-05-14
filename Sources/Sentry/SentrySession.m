@@ -95,7 +95,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
 {
     @synchronized(self) {
-        [self calculateDuration];
         _timestamp = timestamp;
         NSTimeInterval secondsBetween =
             [_timestamp timeIntervalSinceDate:_started];
@@ -107,12 +106,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     _init = nil;
     _sequence++;
-}
-
-- (void)calculateDuration
-{
-    NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-    _duration = [NSNumber numberWithLongLong:secondsBetween];
 }
 
 - (void)incrementErrors

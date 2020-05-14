@@ -22,6 +22,10 @@ SENTRY_NO_INIT
 - (SentrySession *_Nullable)readCurrentSession;
 - (void)deleteCurrentSession;
 
+- (void)storeTimestampLastInForeground:(NSDate *)timestamp;
+- (NSDate *_Nullable)readTimestampLastInForeground;
+- (void)deleteTimestampLastInForeground;
+
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
 - (void)deleteAllStoredEventsAndEnvelopes;

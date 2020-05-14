@@ -58,7 +58,8 @@ SentrySessionTracker ()
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
     SentryHub *hub = [SentrySDK currentHub];
-    [hub closeCachedSession];
+    NSDate *_Nullable lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
+    [hub closeCachedSessionWithTimestamp:lastInForeground];
     [hub startSession];
     [NSNotificationCenter.defaultCenter
         addObserverForName:foregroundNotificationName
@@ -81,7 +82,6 @@ SentrySessionTracker ()
                 usingBlock:^(NSNotification *notification) {
                     [blockSelf willTerminate];
                 }];
-#endif
 }
 
 - (void)didBecomeActive
@@ -91,18 +91,21 @@ SentrySessionTracker ()
         : self.lastInForeground;
     NSTimeInterval secondsInBackground =
         [[self.currentDateProvider date] timeIntervalSinceDate:sessionEnded];
+    SentryHub *hub = [SentrySDK currentHub];
     if (secondsInBackground * 1000
         > (double)(self.options.sessionTrackingIntervalMillis)) {
-        SentryHub *hub = [SentrySDK currentHub];
         [hub endSessionWithTimestamp:sessionEnded];
         [hub startSession];
     }
+    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     self.lastInForeground = nil;
 }
 
 - (void)willResignActive
 {
     self.lastInForeground = [self.currentDateProvider date];
+    SentryHub *hub = [SentrySDK currentHub];
+    [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
 }
 
 - (void)willTerminate
@@ -110,7 +113,10 @@ SentrySessionTracker ()
     NSDate *sessionEnded = nil == self.lastInForeground
         ? [self.currentDateProvider date]
         : self.lastInForeground;
-    [[SentrySDK currentHub] endSessionWithTimestamp:sessionEnded];
+    SentryHub *hub = [SentrySDK currentHub];
+    [hub endSessionWithTimestamp:sessionEnded];
+    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
 }
+#endif
 
 @end
