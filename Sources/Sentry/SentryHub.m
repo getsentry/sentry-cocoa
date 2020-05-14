@@ -58,7 +58,7 @@ SentryHub ()
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSessionExitedSessionWithTimestamp:[NSDate date]];
+    [lastSession endSessionExitedWithTimestamp:[NSDate date]];
     [self captureSession:lastSession];
 }
 
@@ -79,7 +79,7 @@ SentryHub ()
         return;
     }
 
-    [currentSession endSessionExitedSessionWithTimestamp:timestamp];
+    [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 }
 
@@ -115,23 +115,25 @@ SentryHub ()
                           andLevel:kSentryLogLevelDebug];
                 [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
             } else {
-                [SentryLog
-                    logWithMessage:[NSString
-                                       stringWithFormat:@"Closing cached "
-                                                        @"session as exited."]
-                          andLevel:kSentryLogLevelDebug];
                 if (nil == timestamp) {
                     [SentryLog
                         logWithMessage:[NSString
                                            stringWithFormat:
                                                @"No timestamp to close session "
-                                               @"was provided. "
+                                               @"was provided. Closing as abnormal. "
                                                 "Using session's start time %@",
                                            session.started]
                               andLevel:kSentryLogLevelDebug];
                     timestamp = session.started;
+                    [session endSessionAbnormalWithTimestamp:timestamp];
+                } else {
+                    [SentryLog
+                            logWithMessage:[NSString
+                                    stringWithFormat:@"Closing cached "
+                                                     @"session as exited."]
+                                  andLevel:kSentryLogLevelDebug];
+                    [session endSessionExitedWithTimestamp:timestamp];
                 }
-                [session endSessionExitedSessionWithTimestamp:timestamp];
             }
             [self deleteCurrentSession];
             [client captureSession:session];

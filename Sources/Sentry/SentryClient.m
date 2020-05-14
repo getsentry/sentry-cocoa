@@ -36,8 +36,6 @@ SentryClient ()
 
 @implementation SentryClient
 
-#pragma mark Initializer
-
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
     if (self = [super init]) {
@@ -149,8 +147,6 @@ SentryClient ()
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-#pragma mark prepareEvent
-
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *_Nullable)scope
 {
@@ -169,12 +165,6 @@ SentryClient ()
     }
 
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    //    if (nil != infoDict && nil == event.releaseName) {
-    //        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@",
-    //        infoDict[@"CFBundleIdentifier"],
-    //        infoDict[@"CFBundleShortVersionString"],
-    //            infoDict[@"CFBundleVersion"]];
-    //    }
     if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }

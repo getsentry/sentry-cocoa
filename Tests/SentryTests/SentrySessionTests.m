@@ -54,7 +54,7 @@
 {
     SentrySession *expected = [[SentrySession alloc] init];
     NSDate *timestamp = [NSDate date];
-    [expected endSessionExitedSessionWithTimestamp:timestamp];
+    [expected endSessionExitedWithTimestamp:timestamp];
     expected.environment = @"prod";
     expected.releaseName = @"io.sentry@5.0.0-test";
     NSDictionary<NSString *, id> *json = [expected serialize];
@@ -83,7 +83,7 @@
 {
     SentrySession *expected = [[SentrySession alloc] init];
     [expected incrementErrors];
-    [expected endSessionExitedSessionWithTimestamp:[NSDate date]];
+    [expected endSessionExitedWithTimestamp:[NSDate date]];
     NSDictionary<NSString *, id> *json = [expected serialize];
     SentrySession *actual = [[SentrySession alloc] initWithJSONObject:json];
 
@@ -136,7 +136,7 @@
     XCTAssertEqual(0, expected.errors);
     XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
-    [expected endSessionExitedSessionWithTimestamp:[NSDate date]];
+    [expected endSessionExitedWithTimestamp:[NSDate date]];
     XCTAssertEqual(0, expected.errors);
     XCTAssertEqual(kSentrySessionStatusExited, expected.status);
     XCTAssertEqual(2, expected.sequence);

@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)endSessionExitedSessionWithTimestamp:(NSDate *)timestamp
+- (void)endSessionExitedWithTimestamp:(NSDate *)timestamp
 {
     @synchronized(self) {
         [self changed];
