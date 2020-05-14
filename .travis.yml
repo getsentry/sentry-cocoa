@@ -11,6 +11,8 @@ addons:
   homebrew:
     packages:
       - swiftlint
+      - clang-format
+      - python
     update: true
 
 cache:
@@ -27,6 +29,9 @@ jobs:
         script: .travis/run.sh
       - name: Lint
         env: LANE=lint XCWORKSPACE=Sentry.xcworkspace
+        script: .travis/run.sh
+      - name: DangerLint
+        env: LANE=dangerLint XCWORKSPACE=Sentry.xcworkspace
         script: .travis/run.sh
       - name: Deploy
         env: LANE=deploy XCWORKSPACE=Sentry.xcworkspace
