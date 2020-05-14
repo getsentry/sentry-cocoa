@@ -93,9 +93,7 @@ static NSTimeInterval g_watchdogInterval = 0;
 {
     __block id blockSelf = self;
     self.awaitingResponse = YES;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [blockSelf watchdogAnswer];
-    });
+    dispatch_async(dispatch_get_main_queue(), ^{ [blockSelf watchdogAnswer]; });
 }
 
 - (void)watchdogAnswer
@@ -168,9 +166,8 @@ initialize()
     static bool isInitialized = false;
     if (!isInitialized) {
         isInitialized = true;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            g_mainQueueThread = sentrycrashthread_self();
-        });
+        dispatch_async(dispatch_get_main_queue(),
+            ^{ g_mainQueueThread = sentrycrashthread_self(); });
     }
 }
 

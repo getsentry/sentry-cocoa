@@ -132,9 +132,8 @@
                  __unused BOOL completed, __unused NSError *error) {
                  filter = nil;
                  reports = nil;
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                     XCTAssertNil(weakRef, @"Object leaked");
-                 });
+                 dispatch_async(dispatch_get_main_queue(),
+                     ^{ XCTAssertNil(weakRef, @"Object leaked"); });
              }];
 }
 

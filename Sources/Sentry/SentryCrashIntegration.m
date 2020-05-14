@@ -32,9 +32,8 @@ SentryCrashIntegration ()
 {
     static NSDictionary *sharedInfo = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInfo = SentryCrash.sharedInstance.systemInfo;
-    });
+    dispatch_once(
+        &onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
     return sharedInfo;
 }
 

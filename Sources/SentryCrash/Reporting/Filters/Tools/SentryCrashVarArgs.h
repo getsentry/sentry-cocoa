@@ -69,9 +69,8 @@ typedef void (^SentryCrashVA_Block)(id entry);
  */
 #define sentrycrashva_list_to_nsarray(FIRST_ARG_NAME, ARRAY_NAME)              \
     NSMutableArray *ARRAY_NAME = [NSMutableArray array];                       \
-    sentrycrashva_iterate_list(FIRST_ARG_NAME, ^(id entry) {                   \
-        [ARRAY_NAME addObject:entry];                                          \
-    })
+    sentrycrashva_iterate_list(                                                \
+        FIRST_ARG_NAME, ^(id entry) { [ARRAY_NAME addObject:entry]; })
 
 /**
  * Convert a variable argument list into a dictionary, interpreting the vararg
