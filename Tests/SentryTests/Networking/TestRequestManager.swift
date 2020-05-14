@@ -4,7 +4,7 @@ public class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse : () -> HTTPURLResponse? = { return nil }
     public var isReady: Bool
-    public var requests : [URLRequest] = []
+    public var requests: [URLRequest] = []
     
     public required init(session: URLSession) {
         self.isReady = true
@@ -14,9 +14,9 @@ public class TestRequestManager: NSObject, RequestManager {
         
         requests.append(request)
         
-        if (nil != completionHandler) {
+        if let handler = completionHandler  {
             let response = nextResponse() ?? HTTPURLResponse(coder: NSCoder())
-            completionHandler!(response, nil)
+            handler(response, nil)
         }
     }
     

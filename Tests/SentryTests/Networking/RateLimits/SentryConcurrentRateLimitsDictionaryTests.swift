@@ -30,7 +30,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryRateLimitCategory.attachment))
     }
 
-    func testConcurrentReadWrite()  {
+    func testConcurrentReadWrite() {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", qos: .background, attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         
@@ -85,7 +85,12 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         }
     }
     
-    private func getCategory(rawValue:NSNumber) -> SentryRateLimitCategory {
-        return SentryRateLimitCategory.init(rawValue: UInt(truncating: rawValue))!
+    private func getCategory(rawValue: NSNumber) -> SentryRateLimitCategory {
+        func failedToCreateCategory() -> SentryRateLimitCategory {
+            XCTFail("Could not create category from \(rawValue)")
+            return SentryRateLimitCategory.default
+        }
+        
+        return SentryRateLimitCategory(rawValue: UInt(truncating: rawValue)) ?? failedToCreateCategory()
     }
 }

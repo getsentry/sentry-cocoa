@@ -12,19 +12,19 @@ class SentryDateUtilTests: XCTestCase {
     }
     
     func testIsInFutureWithFutureDte() {
-        XCTAssertTrue(DateUtil.is(inFuture:currentDateProvider.date().addingTimeInterval(1)))
+        XCTAssertTrue(DateUtil.is(inFuture: currentDateProvider.date().addingTimeInterval(1)))
     }
     
     func testIsInFutureWithPresentDate() {
-        XCTAssertFalse(DateUtil.is(inFuture:currentDateProvider.date()))
+        XCTAssertFalse(DateUtil.is(inFuture: currentDateProvider.date()))
     }
     
     func testIsInFutureWithPastDate() {
-           XCTAssertFalse(DateUtil.is(inFuture:currentDateProvider.date().addingTimeInterval(-1)))
+           XCTAssertFalse(DateUtil.is(inFuture: currentDateProvider.date().addingTimeInterval(-1)))
        }
     
     func testIsInFutureWithNil() {
-        XCTAssertFalse(DateUtil.is(inFuture:nil))
+        XCTAssertFalse(DateUtil.is(inFuture: nil))
     }
 
     func testGetMaximumFirstMaximum() {

@@ -7,7 +7,6 @@ class SentryClientTest: XCTestCase {
     private var client: Client!
     private var transport: TestTransport!
     
-    
     override func setUp() {
         super.setUp()
         
