@@ -97,53 +97,51 @@ SentryHub ()
 {
     SentryFileManager *fileManager = [[self getClient] fileManager];
     SentrySession *session = [fileManager readCurrentSession];
-    if (nil != session) {
-        [SentryLog logWithMessage:@"A cached session was found."
+    if (nil == session) {
+        [SentryLog logWithMessage:@"No cached session to close."
                          andLevel:kSentryLogLevelDebug];
-        SentryClient *client = [self getClient];
-        if (nil != session
-            && nil != client) { // Make sure there's a client bound.
-            if (SentryCrash.sharedInstance.crashedLastLaunch) {
-                NSDate *timeSinceLastCrash =
-                    [[NSDate date] dateByAddingTimeInterval:
-                                       -SentryCrash.sharedInstance
-                                            .activeDurationSinceLastCrash];
-                [SentryLog
-                    logWithMessage:[NSString
-                                       stringWithFormat:@"Closing cached "
-                                                        @"session as crashed."]
-                          andLevel:kSentryLogLevelDebug];
-                [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
-            } else {
-                if (nil == timestamp) {
-                    [SentryLog
-                        logWithMessage:[NSString
-                                           stringWithFormat:
-                                               @"No timestamp to close session "
-                                               @"was provided. Closing as abnormal. "
-                                                "Using session's start time %@",
-                                           session.started]
-                              andLevel:kSentryLogLevelDebug];
-                    timestamp = session.started;
-                    [session endSessionAbnormalWithTimestamp:timestamp];
-                } else {
-                    [SentryLog
-                            logWithMessage:[NSString
-                                    stringWithFormat:@"Closing cached "
-                                                     @"session as exited."]
-                                  andLevel:kSentryLogLevelDebug];
-                    [session endSessionExitedWithTimestamp:timestamp];
-                }
-            }
-            [self deleteCurrentSession];
-            [client captureSession:session];
-        }
-    } else {
-        [SentryLog
-            logWithMessage:[NSString
-                               stringWithFormat:@"No cached session to close."]
-                  andLevel:kSentryLogLevelDebug];
+        return;
     }
+    [SentryLog logWithMessage:@"A cached session was found."
+                     andLevel:kSentryLogLevelDebug];
+
+    // Make sure there's a client bound.
+    SentryClient *client = [self getClient];
+    if (nil == client) {
+        [SentryLog logWithMessage:@"No client bound."
+                         andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
+    if (SentryCrash.sharedInstance.crashedLastLaunch) {
+        NSDate *timeSinceLastCrash = [[NSDate date]
+            dateByAddingTimeInterval:-SentryCrash.sharedInstance
+                                          .activeDurationSinceLastCrash];
+
+        [SentryLog logWithMessage:@"Closing cached session as crashed."
+                         andLevel:kSentryLogLevelDebug];
+
+        [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
+    } else {
+        if (nil == timestamp) {
+            [SentryLog
+                logWithMessage:
+                    [NSString
+                        stringWithFormat:@"No timestamp to close session "
+                                         @"was provided. Closing as abnormal. "
+                                          "Using session's start time %@",
+                        session.started]
+                      andLevel:kSentryLogLevelDebug];
+            timestamp = session.started;
+            [session endSessionAbnormalWithTimestamp:timestamp];
+        } else {
+            [SentryLog logWithMessage:@"Closing cached session as exited."
+                             andLevel:kSentryLogLevelDebug];
+            [session endSessionExitedWithTimestamp:timestamp];
+        }
+    }
+    [self deleteCurrentSession];
+    [client captureSession:session];
 }
 
 - (void)captureSession:(SentrySession *)session
