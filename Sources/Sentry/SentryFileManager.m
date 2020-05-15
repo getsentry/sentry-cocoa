@@ -300,19 +300,20 @@ SentryFileManager ()
                                  self.lastInForegroundFilePath]
               andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *lastInForegroundData = nil;
     @synchronized(self.lastInForegroundFilePath) {
-        NSData *lastInForegroundData =
+        lastInForegroundData =
             [fileManager contentsAtPath:self.lastInForegroundFilePath];
-        if (nil == lastInForegroundData) {
-            [SentryLog logWithMessage:@"No lastInForeground found."
-                             andLevel:kSentryLogLevelDebug];
-            return nil;
-        }
-        NSString *timestampString =
-            [[NSString alloc] initWithData:lastInForegroundData
-                                  encoding:NSUTF8StringEncoding];
-        return [NSDate sentry_fromIso8601String:timestampString];
     }
+    if (nil == lastInForegroundData) {
+        [SentryLog logWithMessage:@"No lastInForeground found."
+                         andLevel:kSentryLogLevelDebug];
+        return nil;
+    }
+    NSString *timestampString =
+        [[NSString alloc] initWithData:lastInForegroundData
+                              encoding:NSUTF8StringEncoding];
+    return [NSDate sentry_fromIso8601String:timestampString];
 }
 
 - (NSString *)storeData:(NSData *)data toPath:(NSString *)path
