@@ -266,11 +266,9 @@ SentryFileManager ()
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
     NSString *timestampString = [timestamp sentry_toIso8601String];
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"Persisting lastInForeground: %@",
-                           timestampString]
-              andLevel:kSentryLogLevelDebug];
+    NSString *logMessage = [NSString
+        stringWithFormat:@"Persisting lastInForeground: %@", timestampString];
+    [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelDebug];
     @synchronized(self.lastInForegroundFilePath) {
         [[timestampString dataUsingEncoding:NSUTF8StringEncoding]
             writeToFile:self.lastInForegroundFilePath
