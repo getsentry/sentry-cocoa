@@ -87,6 +87,7 @@ SentrySessionTracker ()
                 usingBlock:^(NSNotification *notification) {
                     [blockSelf willTerminate];
                 }];
+#endif
 }
 
 - (void)didBecomeActive
@@ -123,6 +124,5 @@ SentrySessionTracker ()
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
 }
-#endif
 
 @end

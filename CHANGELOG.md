@@ -2,6 +2,10 @@
 
 ## unreleased
 
+## 5.0.4
+
+- fix: End file at the right place with #ifdef #521
+
 ## 5.0.3
 
 - fix: Exit session with timestamp #518
