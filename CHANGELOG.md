@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 5.0.3
+
+- fix: Exit session with timestamp #518
 - feat: Add sentry_sanitize for NSArray #509
 
 ## 5.0.2
