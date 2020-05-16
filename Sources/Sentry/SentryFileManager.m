@@ -1,4 +1,5 @@
 #import "SentryFileManager.h"
+#import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
@@ -18,6 +19,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *eventsPath;
 @property (nonatomic, copy) NSString *envelopesPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
+@property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 
 @end
@@ -45,6 +47,9 @@ SentryFileManager ()
 
         self.currentSessionFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"session.current"];
+
+        self.lastInForegroundFilePath = [self.sentryPath
+            stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
         self.eventsPath =
             [self.sentryPath stringByAppendingPathComponent:@"events"];
@@ -256,6 +261,57 @@ SentryFileManager ()
         }
         return currentSession;
     }
+}
+
+- (void)storeTimestampLastInForeground:(NSDate *)timestamp
+{
+    NSString *timestampString = [timestamp sentry_toIso8601String];
+    NSString *logMessage = [NSString
+        stringWithFormat:@"Persisting lastInForeground: %@", timestampString];
+    [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelDebug];
+    @synchronized(self.lastInForegroundFilePath) {
+        [[timestampString dataUsingEncoding:NSUTF8StringEncoding]
+            writeToFile:self.lastInForegroundFilePath
+                options:NSDataWritingAtomic
+                  error:nil];
+    }
+}
+
+- (void)deleteTimestampLastInForeground
+{
+    [SentryLog
+        logWithMessage:[NSString
+                           stringWithFormat:@"Deleting LastInForeground at: %@",
+                           self.lastInForegroundFilePath]
+              andLevel:kSentryLogLevelDebug];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    @synchronized(self.lastInForegroundFilePath) {
+        [fileManager removeItemAtPath:self.lastInForegroundFilePath error:nil];
+    }
+}
+
+- (NSDate *_Nullable)readTimestampLastInForeground
+{
+    [SentryLog
+        logWithMessage:[NSString stringWithFormat:@"Reading timestamp of last "
+                                                  @"in foreground at: %@",
+                                 self.lastInForegroundFilePath]
+              andLevel:kSentryLogLevelDebug];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *lastInForegroundData = nil;
+    @synchronized(self.lastInForegroundFilePath) {
+        lastInForegroundData =
+            [fileManager contentsAtPath:self.lastInForegroundFilePath];
+    }
+    if (nil == lastInForegroundData) {
+        [SentryLog logWithMessage:@"No lastInForeground found."
+                         andLevel:kSentryLogLevelDebug];
+        return nil;
+    }
+    NSString *timestampString =
+        [[NSString alloc] initWithData:lastInForegroundData
+                              encoding:NSUTF8StringEncoding];
+    return [NSDate sentry_fromIso8601String:timestampString];
 }
 
 - (NSString *)storeData:(NSData *)data toPath:(NSString *)path

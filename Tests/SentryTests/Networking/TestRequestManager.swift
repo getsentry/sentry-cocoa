@@ -14,7 +14,7 @@ public class TestRequestManager: NSObject, RequestManager {
         
         requests.append(request)
         
-        if let handler = completionHandler  {
+        if let handler = completionHandler {
             let response = nextResponse() ?? HTTPURLResponse(coder: NSCoder())
             handler(response, nil)
         }
