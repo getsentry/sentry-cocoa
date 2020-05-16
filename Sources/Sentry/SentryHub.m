@@ -117,21 +117,21 @@ SentryHub ()
             } else {
                 if (nil == timestamp) {
                     [SentryLog
-                        logWithMessage:[NSString
-                                           stringWithFormat:
-                                               @"No timestamp to close session "
-                                               @"was provided. Closing as abnormal. "
-                                                "Using session's start time %@",
-                                           session.started]
+                        logWithMessage:
+                            [NSString stringWithFormat:
+                                          @"No timestamp to close session "
+                                          @"was provided. Closing as abnormal. "
+                                           "Using session's start time %@",
+                                      session.started]
                               andLevel:kSentryLogLevelDebug];
                     timestamp = session.started;
                     [session endSessionAbnormalWithTimestamp:timestamp];
                 } else {
                     [SentryLog
-                            logWithMessage:[NSString
-                                    stringWithFormat:@"Closing cached "
-                                                     @"session as exited."]
-                                  andLevel:kSentryLogLevelDebug];
+                        logWithMessage:
+                            [NSString stringWithFormat:@"Closing cached "
+                                                       @"session as exited."]
+                              andLevel:kSentryLogLevelDebug];
                     [session endSessionExitedWithTimestamp:timestamp];
                 }
             }
