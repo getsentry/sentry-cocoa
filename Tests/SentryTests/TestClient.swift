@@ -14,17 +14,17 @@ class TestFileManager: SentryFileManager {
     var deleteTimestampLastInForegroundInvocations: Int = 0
 
     override func readTimestampLastInForeground() -> Date? {
-        readTimestampLastInForegroundInvocations += 1;
+        readTimestampLastInForegroundInvocations += 1
         return timestampLastInForeground
     }
 
     override func storeTimestampLast(inForeground: Date) {
-        storeTimestampLastInForegroundInvocations += 1;
-        timestampLastInForeground = inForeground;
+        storeTimestampLastInForegroundInvocations += 1
+        timestampLastInForeground = inForeground
     }
 
     override func deleteTimestampLastInForeground() {
-        deleteTimestampLastInForegroundInvocations += 1;
-        timestampLastInForeground = nil;
+        deleteTimestampLastInForegroundInvocations += 1
+        timestampLastInForeground = nil
     }
 }

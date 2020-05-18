@@ -154,7 +154,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testStoreAndReadTimestampLastInForeground() {
-        let expectedTimestamp = TestCurrentDateProvider().date();
+        let expectedTimestamp = TestCurrentDateProvider().date()
         sut.storeTimestampLast(inForeground: expectedTimestamp)
         let actualTimestamp = sut.readTimestampLastInForeground()
         XCTAssertEqual(actualTimestamp, expectedTimestamp)

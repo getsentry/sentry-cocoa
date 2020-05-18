@@ -22,7 +22,7 @@ class SentrySessionTrackerTests: XCTestCase {
                                "sessionTrackingIntervalMillis": sessionTrackingIntervalMillis] as [String: Any]
             let options = try Options(dict: optionsDict)
 
-            client = TestClient(options: options);
+            client = TestClient(options: options)
             fileManager = try! TestFileManager(dsn: SentryDsn())
             client.sentryFileManager = fileManager
             hub = TestHub(client: client, andScope: nil)
