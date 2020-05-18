@@ -88,7 +88,22 @@
 
 - (void)testSetTagValueForKey
 {
-#warning TODO implement
+    NSDictionary<NSString *, NSString *> *excpected =
+        @{ @"A" : @"1", @"B" : @"2", @"C" : @"" };
+
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setTagValue:@"1" forKey:@"A"];
+    [scope setTagValue:@"overwriteme" forKey:@"B"];
+    [scope setTagValue:@"2" forKey:@"B"];
+    [scope setTagValue:@"" forKey:@"C"];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    [scope setTagValue:nil forKey:@"D"];
+#pragma clang diagnostic pop
+
+    NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"tags"];
+    XCTAssertTrue([excpected isEqualToDictionary:actual]);
 }
 
 - (void)testSetUser

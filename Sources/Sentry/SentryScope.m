@@ -177,15 +177,15 @@ SentryScope ()
     [self notifyListeners];
 }
 
-- (void)setTagValue:(id)value forKey:(NSString *)key
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
     @synchronized(self) {
-        [self.tagDictionary setValue:value forKey:key];
+        self.tagDictionary[key] = value;
     }
     [self notifyListeners];
 }
 
-- (void)setTags:(NSMutableDictionary<NSString *, NSString *> *_Nullable)tags
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags
 {
     if (tags == nil) {
         return;
