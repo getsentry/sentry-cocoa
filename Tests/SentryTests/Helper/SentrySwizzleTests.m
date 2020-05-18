@@ -1,11 +1,3 @@
-//
-//  SentrySwizzleTests.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 06/06/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
 #import "SentrySwizzle.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
