@@ -2,6 +2,8 @@
 
 ## unreleased
 
+fix: Change SentryScope setTagValue to NSString #524
+
 ## 5.0.4
 
 - fix: End file at the right place with #ifdef #521
