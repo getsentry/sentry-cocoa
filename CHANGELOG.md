@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- ref: Session values are unsigned #527
+
 ## 5.0.4
 
 - fix: End file at the right place with #ifdef #521
