@@ -2,7 +2,8 @@
 
 ## unreleased
 
-fix: Change SentryScope setTagValue to NSString #524
+- fix: Change SentryScope setTagValue to NSString #524
+- ref: Session values are unsigned #527
 
 ## 5.0.4
 
