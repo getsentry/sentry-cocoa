@@ -1,11 +1,3 @@
-//
-//  SentryCrashReportFixer_Tests.m
-//  SentryCrash-iOS
-//
-//  Created by Karl on 2016-11-07.
-//  Copyright © 2016 Karl Stenerud. All rights reserved.
-//
-
 #import "SentryCrashReportFixer.h"
 #import <XCTest/XCTest.h>
 

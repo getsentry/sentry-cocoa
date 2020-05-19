@@ -1,11 +1,3 @@
-//
-//  SentryNSDataCompressionTests.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 08/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
 #import "NSData+SentryCompression.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>

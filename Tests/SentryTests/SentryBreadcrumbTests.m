@@ -1,11 +1,3 @@
-//
-//  SentryBreadcrumbTests.m
-//  Sentry
-//
-//  Created by Daniel Griesser on 22/05/2017.
-//  Copyright © 2017 Sentry. All rights reserved.
-//
-
 #import "NSDate+SentryExtras.h"
 #import "SentryDsn.h"
 #import "SentryFileManager.h"

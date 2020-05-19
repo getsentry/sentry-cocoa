@@ -1,11 +1,3 @@
-//
-//  SentryNSUIntegerValueTest.m
-//  SentryTests
-//
-//  Created by Crazy凡 on 2019/4/17.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
 #import "NSString+SentryNSUIntegerValue.h"
 #import <XCTest/XCTest.h>
 
