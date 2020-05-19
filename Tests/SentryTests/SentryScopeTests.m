@@ -1,11 +1,3 @@
-//
-//  SentryScopeTests.m
-//  SentryTests
-//
-//  Created by Daniel Griesser on 25.02.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 #import "SentryBreadcrumb.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"

@@ -1,11 +1,3 @@
-//
-//  SentryOptionsTest.m
-//  SentryTests
-//
-//  Created by Daniel Griesser on 12.03.19.
-//  Copyright © 2019 Sentry. All rights reserved.
-//
-
 #import "SentryOptions.h"
 #import "SentryError.h"
 #import "SentrySDK.h"

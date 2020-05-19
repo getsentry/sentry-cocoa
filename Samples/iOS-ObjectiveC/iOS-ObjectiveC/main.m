@@ -1,11 +1,3 @@
-//
-//  main.m
-//  iOS-ObjectiveC
-//
-//  Created by Daniel Griesser on 06.04.20.
-//  Copyright © 2020 Sentry. All rights reserved.
-//
-
 #import "AppDelegate.h"
 #import <UIKit/UIKit.h>
 
