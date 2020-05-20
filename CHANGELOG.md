@@ -3,6 +3,7 @@
 ## unreleased
 
 - feat: Add remove methods for SentryScope #529
+- fix: Failing MacOS build #530
 - ref: Session values are unsigned #527
 
 ## 5.0.4
