@@ -164,7 +164,9 @@ SentryClient ()
     // Use the values from SentryOptions as a fallback,
     // in case not yet set directly in the event nor in the scope:
     NSString *releaseName = self.options.releaseName;
-    if (nil != releaseName) {
+    if (nil == event.releaseName && nil != releaseName) {
+        // If no release was already set (i.e: crashed on an older version) use
+        // current release name
         event.releaseName = releaseName;
     }
 
