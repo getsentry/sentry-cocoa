@@ -18,10 +18,8 @@
 
 - (void)testVersion
 {
-    NSDictionary *info =
-        [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
-    NSString *version =
-        [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
     XCTAssert([version isEqualToString:SentryMeta.versionString]);
 }
 
@@ -29,10 +27,9 @@
 {
     NSError *error = nil;
     // SentryClient.logLevel = kSentryLogLevelNone;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
-        @"dsn" : @"https://username:password@app.getsentry.com/12345"
-    }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc]
+            initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
+        didFailWithError:&error];
 
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);
@@ -44,9 +41,7 @@
 
 - (void)testSDKDefaultHub
 {
-    [SentrySDK initWithOptions:@{
-        @"dsn" : @"https://username:password@app.getsentry.com/12345"
-    }];
+    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
     //[SentrySDK.currentHub reset];
@@ -130,18 +125,15 @@
 
 - (void)testSDKBreadCrumbAdd
 {
-    [SentrySDK initWithOptions:@{
-        @"dsn" : @"https://username:password@app.getsentry.com/12345"
-    }];
+    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
     // TODO(fetzig)
     //[[SentrySDK.currentHub getClient].breadcrumbs clear];
 
     // XCTAssertEqual([SentryHub.defaultHub getClient].breadcrumbs.count,
     // (unsigned long)0);
 
-    SentryBreadcrumb *crumb =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                       category:@"testCategory"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"testCategory"];
     crumb.type = @"testType";
     crumb.message = @"testMessage";
     crumb.data = @{ @"testDataKey" : @"testDataVaue" };
@@ -158,9 +150,7 @@
 
 - (void)testSDKCaptureEvent
 {
-    [SentrySDK initWithOptions:@{
-        @"dsn" : @"https://username:password@app.getsentry.com/12345"
-    }];
+    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
@@ -175,16 +165,12 @@
 
 - (void)testSDKCaptureError
 {
-    [SentrySDK initWithOptions:@{
-        @"dsn" : @"https://username:password@app.getsentry.com/12345"
-    }];
+    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
     NSError *error =
         [NSError errorWithDomain:@"testworld"
                             code:200
-                        userInfo:@{
-                            NSLocalizedDescriptionKey : @"test ran out of money"
-                        }];
+                        userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
     [SentrySDK captureError:error];
 
     // TODO(fetzig)
@@ -250,8 +236,7 @@
     NSDate *date = [NSDate date];
     XCTAssertEqual(
         (NSInteger)[
-            [NSDate sentry_fromIso8601String:
-                        [date sentry_toIso8601String]] timeIntervalSince1970],
+            [NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
         (NSInteger)[date timeIntervalSince1970]);
 }
 
@@ -259,12 +244,10 @@
 {
     XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController",
         [SentryBreadcrumbTracker
-            sanitizeViewControllerName:
-                @"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
+            sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
     XCTAssertEqualObjects(@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0",
         [SentryBreadcrumbTracker
-            sanitizeViewControllerName:
-                @"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
+            sanitizeViewControllerName:@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
     XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController.miau",
         [SentryBreadcrumbTracker
             sanitizeViewControllerName:

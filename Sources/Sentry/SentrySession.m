@@ -25,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Note this doesn't use the main init method since it should only init
     // fields that exist in the JSON.
     if (self = [super init]) {
-        _sessionId =
-            [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
+        _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
         _distinctId = [jsonObject valueForKey:@"did"];
         NSString *startedString = [jsonObject valueForKey:@"started"];
         if (nil != startedString) {
@@ -96,8 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     @synchronized(self) {
         _timestamp = timestamp;
-        NSTimeInterval secondsBetween =
-            [_timestamp timeIntervalSinceDate:_started];
+        NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
         _duration = [NSNumber numberWithLongLong:secondsBetween];
     }
 }
@@ -154,22 +152,18 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         NSDate *timestamp = nil != _timestamp ? _timestamp : [NSDate date];
-        [serializedData setValue:[timestamp sentry_toIso8601String]
-                          forKey:@"timestamp"];
+        [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
         if (nil != _duration) {
             [serializedData setValue:_duration forKey:@"duration"];
         } else if (nil == _init) {
-            NSTimeInterval secondsBetween =
-                [_timestamp timeIntervalSinceDate:_started];
-            [serializedData
-                setValue:[NSNumber numberWithLongLong:secondsBetween]
-                  forKey:@"duration"];
+            NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
+            [serializedData setValue:[NSNumber numberWithLongLong:secondsBetween]
+                              forKey:@"duration"];
         }
 
         // TODO: seq to be just unix time in mills?
-        [serializedData setValue:[NSNumber numberWithLong:_sequence]
-                          forKey:@"seq"];
+        [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
 
         if (nil != _releaseName || nil != _environment) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];

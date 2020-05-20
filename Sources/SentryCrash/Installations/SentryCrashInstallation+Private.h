@@ -27,28 +27,28 @@
 #import "SentryCrashInstallation.h"
 
 /** Implement a property to be used as a "key". */
-#define IMPLEMENT_REPORT_KEY_PROPERTY(NAME, NAMEUPPER)                         \
-    @synthesize NAME##Key = _##NAME##Key;                                      \
-    -(void)set##NAMEUPPER##Key : (NSString *)value                             \
-    {                                                                          \
-        _##NAME##Key;                                                          \
-        _##NAME##Key = value;                                                  \
-        [self reportFieldForProperty:@ #NAME setKey:value];                    \
+#define IMPLEMENT_REPORT_KEY_PROPERTY(NAME, NAMEUPPER)                                             \
+    @synthesize NAME##Key = _##NAME##Key;                                                          \
+    -(void)set##NAMEUPPER##Key : (NSString *)value                                                 \
+    {                                                                                              \
+        _##NAME##Key;                                                                              \
+        _##NAME##Key = value;                                                                      \
+        [self reportFieldForProperty:@ #NAME setKey:value];                                        \
     }
 
 /** Implement a property to be used as a "value". */
-#define IMPLEMENT_REPORT_VALUE_PROPERTY(NAME, NAMEUPPER, TYPE)                 \
-    @synthesize NAME = _##NAME;                                                \
-    -(void)set##NAMEUPPER : (TYPE)value                                        \
-    {                                                                          \
-        _##NAME;                                                               \
-        _##NAME = value;                                                       \
-        [self reportFieldForProperty:@ #NAME setValue:value];                  \
+#define IMPLEMENT_REPORT_VALUE_PROPERTY(NAME, NAMEUPPER, TYPE)                                     \
+    @synthesize NAME = _##NAME;                                                                    \
+    -(void)set##NAMEUPPER : (TYPE)value                                                            \
+    {                                                                                              \
+        _##NAME;                                                                                   \
+        _##NAME = value;                                                                           \
+        [self reportFieldForProperty:@ #NAME setValue:value];                                      \
     }
 
 /** Implement a standard report property (with key and value properties) */
-#define IMPLEMENT_REPORT_PROPERTY(NAME, NAMEUPPER, TYPE)                       \
-    IMPLEMENT_REPORT_VALUE_PROPERTY(NAME, NAMEUPPER, TYPE)                     \
+#define IMPLEMENT_REPORT_PROPERTY(NAME, NAMEUPPER, TYPE)                                           \
+    IMPLEMENT_REPORT_VALUE_PROPERTY(NAME, NAMEUPPER, TYPE)                                         \
     IMPLEMENT_REPORT_KEY_PROPERTY(NAME, NAMEUPPER)
 
 @interface

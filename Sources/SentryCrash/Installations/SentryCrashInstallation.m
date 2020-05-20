@@ -126,14 +126,12 @@ crashCallback(const SentryCrashReportWriter *writer)
     }
 
     NSError *error = nil;
-    NSData *jsonData =
-        [SentryCrashJSONCodec encode:value
-                             options:SentryCrashJSONEncodeOptionPretty
-                             | SentryCrashJSONEncodeOptionSorted
-                               error:&error];
+    NSData *jsonData = [SentryCrashJSONCodec
+         encode:value
+        options:SentryCrashJSONEncodeOptionPretty | SentryCrashJSONEncodeOptionSorted
+          error:&error];
     if (jsonData == nil) {
-        SentryCrashLOG_ERROR(@"Could not set value %@ for property %@: %@",
-            value, self.key, error);
+        SentryCrashLOG_ERROR(@"Could not set value %@ for property %@: %@", value, self.key, error);
     } else {
         _value = value;
         self.valueBacking = [SentryCrashCString stringWithData:jsonData];
@@ -151,8 +149,7 @@ SentryCrashInstallation ()
 @property (nonatomic, readwrite, retain) NSMutableData *crashHandlerDataBacking;
 @property (nonatomic, readwrite, retain) NSMutableDictionary *fields;
 @property (nonatomic, readwrite, retain) NSArray *requiredProperties;
-@property (nonatomic, readwrite, retain)
-    SentryCrashReportFilterPipeline *prependedFilters;
+@property (nonatomic, readwrite, retain) SentryCrashReportFilterPipeline *prependedFilters;
 
 @end
 
@@ -176,13 +173,12 @@ SentryCrashInstallation ()
 - (id)initWithRequiredProperties:(NSArray *)requiredProperties
 {
     if ((self = [super init])) {
-        self.crashHandlerDataBacking = [NSMutableData
-            dataWithLength:sizeof(*self.crashHandlerData)
-            + sizeof(*self.crashHandlerData->reportFields) * kMaxProperties];
+        self.crashHandlerDataBacking =
+            [NSMutableData dataWithLength:sizeof(*self.crashHandlerData)
+                           + sizeof(*self.crashHandlerData->reportFields) * kMaxProperties];
         self.fields = [NSMutableDictionary dictionary];
         self.requiredProperties = requiredProperties;
-        self.prependedFilters =
-            [SentryCrashReportFilterPipeline filterWithFilters:nil];
+        self.prependedFilters = [SentryCrashReportFilterPipeline filterWithFilters:nil];
     }
     return self;
 }
@@ -218,15 +214,13 @@ SentryCrashInstallation ()
 
 - (void)reportFieldForProperty:(NSString *)propertyName setKey:(id)key
 {
-    SentryCrashInstReportField *field =
-        [self reportFieldForProperty:propertyName];
+    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
     field.key = key;
 }
 
 - (void)reportFieldForProperty:(NSString *)propertyName setValue:(id)value
 {
-    SentryCrashInstReportField *field =
-        [self reportFieldForProperty:propertyName];
+    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
     field.value = value;
 }
 
@@ -251,11 +245,9 @@ SentryCrashInstallation ()
         }
     }
     if ([errors length] > 0) {
-        return [NSError
-            errorWithDomain:[[self class] description]
-                       code:0
-                description:@"Installation properties failed validation: %@",
-                errors];
+        return [NSError errorWithDomain:[[self class] description]
+                                   code:0
+                            description:@"Installation properties failed validation: %@", errors];
     }
     return nil;
 }
@@ -265,10 +257,8 @@ SentryCrashInstallation ()
     if ([keyPath length] == 0) {
         return keyPath;
     }
-    BOOL isAbsoluteKeyPath =
-        [keyPath length] > 0 && [keyPath characterAtIndex:0] == '/';
-    return isAbsoluteKeyPath ? keyPath
-                             : [@"user/" stringByAppendingString:keyPath];
+    BOOL isAbsoluteKeyPath = [keyPath length] > 0 && [keyPath characterAtIndex:0] == '/';
+    return isAbsoluteKeyPath ? keyPath : [@"user/" stringByAppendingString:keyPath];
 }
 
 - (NSArray *)makeKeyPaths:(NSArray *)keyPaths
@@ -276,8 +266,7 @@ SentryCrashInstallation ()
     if ([keyPaths count] == 0) {
         return keyPaths;
     }
-    NSMutableArray *result =
-        [NSMutableArray arrayWithCapacity:[keyPaths count]];
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[keyPaths count]];
     for (NSString *keyPath in keyPaths) {
         [result addObject:[self makeKeyPath:keyPath]];
     }
@@ -308,8 +297,7 @@ SentryCrashInstallation ()
     }
 }
 
-- (void)sendAllReportsWithCompletion:
-    (SentryCrashReportFilterCompletion)onCompletion
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     NSError *error = [self validateProperties];
     if (error != nil) {
@@ -329,8 +317,7 @@ SentryCrashInstallation ()
         return;
     }
 
-    sink = [SentryCrashReportFilterPipeline
-        filterWithFilters:self.prependedFilters, sink, nil];
+    sink = [SentryCrashReportFilterPipeline filterWithFilters:self.prependedFilters, sink, nil];
 
     SentryCrash *handler = [SentryCrash sharedInstance];
     handler.sink = sink;

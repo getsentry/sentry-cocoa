@@ -18,8 +18,8 @@
 #    define SENTRY_HAS_UIKIT 0
 #endif
 
-#define SENTRY_NO_INIT                                                         \
-    -(instancetype)init NS_UNAVAILABLE;                                        \
+#define SENTRY_NO_INIT                                                                             \
+    -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
 @class SentryEvent, SentryNSURLRequest, SentryBreadcrumb, SentryEnvelope;
@@ -46,8 +46,7 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  * Block can be used to mutate event before its send.
  * To avoid sending the event altogether, return nil instead.
  */
-typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(
-    SentryEvent *_Nonnull event);
+typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 
 /**
  * Block can be used to determine if an event should be queued and stored

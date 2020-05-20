@@ -12,8 +12,7 @@ NS_SWIFT_NAME(CurrentDate)
 
 + (NSDate *_Nonnull)date;
 
-+ (void)setCurrentDateProvider:
-    (id<SentryCurrentDateProvider>)currentDateProvider;
++ (void)setCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 @end
 

@@ -73,8 +73,7 @@ typedef enum {
  *
  * Default: SentryCrashCDeleteAlways
  */
-@property (nonatomic, readwrite, assign)
-    SentryCrashCDeleteBehavior deleteBehaviorAfterSendAll;
+@property (nonatomic, readwrite, assign) SentryCrashCDeleteBehavior deleteBehaviorAfterSendAll;
 
 /** The monitors that will or have been installed.
  * Note: This value may change once SentryCrash is installed if some monitors
@@ -168,13 +167,11 @@ typedef enum {
 
 /** Which languages to demangle when getting stack traces (default
  * SentryCrashDemangleLanguageAll) */
-@property (nonatomic, readwrite, assign)
-    SentryCrashDemangleLanguage demangleLanguages;
+@property (nonatomic, readwrite, assign) SentryCrashDemangleLanguage demangleLanguages;
 
 /** Exposes the uncaughtExceptionHandler if set from SentryCrash. Is nil if
  * debugger is running. **/
-@property (nonatomic, assign)
-    NSUncaughtExceptionHandler *uncaughtExceptionHandler;
+@property (nonatomic, assign) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
 
 /** Exposes the currentSnapshotUserReportedExceptionHandler if set from
  * SentryCrash. Is nil if debugger is running. **/
@@ -184,12 +181,10 @@ typedef enum {
 #pragma mark - Information -
 
 /** Total active time elapsed since the last crash. */
-@property (nonatomic, readonly, assign)
-    NSTimeInterval activeDurationSinceLastCrash;
+@property (nonatomic, readonly, assign) NSTimeInterval activeDurationSinceLastCrash;
 
 /** Total time backgrounded elapsed since the last crash. */
-@property (nonatomic, readonly, assign)
-    NSTimeInterval backgroundDurationSinceLastCrash;
+@property (nonatomic, readonly, assign) NSTimeInterval backgroundDurationSinceLastCrash;
 
 /** Number of app launches since the last crash. */
 @property (nonatomic, readonly, assign) int launchesSinceLastCrash;
@@ -198,12 +193,10 @@ typedef enum {
 @property (nonatomic, readonly, assign) int sessionsSinceLastCrash;
 
 /** Total active time elapsed since launch. */
-@property (nonatomic, readonly, assign)
-    NSTimeInterval activeDurationSinceLaunch;
+@property (nonatomic, readonly, assign) NSTimeInterval activeDurationSinceLaunch;
 
 /** Total time backgrounded elapsed since launch. */
-@property (nonatomic, readonly, assign)
-    NSTimeInterval backgroundDurationSinceLaunch;
+@property (nonatomic, readonly, assign) NSTimeInterval backgroundDurationSinceLaunch;
 
 /** Number of sessions (launch, resume from suspend) since app launch. */
 @property (nonatomic, readonly, assign) int sessionsSinceLaunch;
@@ -241,8 +234,7 @@ typedef enum {
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void)sendAllReportsWithCompletion:
-    (SentryCrashReportFilterCompletion)onCompletion;
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 
 /** Get all unsent report IDs.
  *

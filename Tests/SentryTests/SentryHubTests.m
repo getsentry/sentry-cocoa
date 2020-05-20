@@ -10,17 +10,14 @@
 
 - (void)testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb
 {
-    SentryOptions *options = [[SentryOptions alloc]
-            initWithDict:@{ @"dsn" : @"https://username@sentry.io/1" }
-        didFailWithError:nil];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://username@sentry.io/1" }
+                           didFailWithError:nil];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    SentryHub *hub =
-        [[SentryHub alloc] initWithClient:client
-                                 andScope:[[SentryScope alloc] init]];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
     // TODO: Add a better API
-    SentryBreadcrumb *crumb =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
-                                       category:@"default"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
+                                                             category:@"default"];
     [hub addBreadcrumb:crumb];
     SentryScope *scope = [hub getScope];
     id scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
@@ -47,9 +44,8 @@
     SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:nil];
     [hub bindClient:client];
 
-    SentryBreadcrumb *crumb =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
-                                       category:@"default"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
+                                                             category:@"default"];
     [hub addBreadcrumb:crumb];
     SentryScope *scope = [hub getScope];
     id scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
@@ -61,9 +57,8 @@
     SentryHub *hub = [self createHubWithMaxBreadcrumbs:@10];
 
     for (int i = 0; i <= 10; i++) {
-        SentryBreadcrumb *crumb =
-            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
-                                           category:@"default"];
+        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
+                                                                 category:@"default"];
         [hub addBreadcrumb:crumb];
     }
 
@@ -89,9 +84,7 @@
     }
                                                 didFailWithError:&error];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    SentryHub *hub =
-        [[SentryHub alloc] initWithClient:client
-                                 andScope:[[SentryScope alloc] init]];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
     [hub bindClient:client];
 
     for (int i = 0; i <= 100; i++) {
@@ -130,15 +123,13 @@
 - (void)addBreadcrumbThroughConfigureScope:(SentryHub *)hub
 {
     [hub configureScope:^(SentryScope *_Nonnull scope) {
-        SentryBreadcrumb *crumb =
-            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
-                                           category:@"default"];
+        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
+                                                                 category:@"default"];
         [scope addBreadcrumb:crumb];
     }];
 }
 
-- (void)assertWithScopeBreadcrumbsCount:(NSUInteger)count
-                                withHub:(SentryHub *)hub
+- (void)assertWithScopeBreadcrumbsCount:(NSUInteger)count withHub:(SentryHub *)hub
 {
     SentryScope *scope = [hub getScope];
     NSArray *scopeBreadcrumbs = [[scope serialize] objectForKey:@"breadcrumbs"];
@@ -148,13 +139,11 @@
 
 - (void)testAddUserToTheScope
 {
-    SentryOptions *options = [[SentryOptions alloc]
-            initWithDict:@{ @"dsn" : @"https://username@sentry.io/1" }
-        didFailWithError:nil];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://username@sentry.io/1" }
+                           didFailWithError:nil];
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    SentryHub *hub =
-        [[SentryHub alloc] initWithClient:client
-                                 andScope:[[SentryScope alloc] init]];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:[[SentryScope alloc] init]];
 
     SentryUser *user = [[SentryUser alloc] init];
     [user setUserId:@"123"];
@@ -163,8 +152,7 @@
     SentryScope *scope = [hub getScope];
 
     NSDictionary<NSString *, id> *scopeSerialized = [scope serialize];
-    NSDictionary<NSString *, id> *scopeUser =
-        [scopeSerialized objectForKey:@"user"];
+    NSDictionary<NSString *, id> *scopeUser = [scopeSerialized objectForKey:@"user"];
     NSString *scopeUserId = [scopeUser objectForKey:@"id"];
 
     XCTAssertEqualObjects(scopeUserId, @"123");

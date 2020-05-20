@@ -92,8 +92,7 @@ const char *sentrycrashjson_stringForError(const int error);
  * @return SentryCrashJSON_OK if the data was handled.
  *         otherwise SentryCrashJSON_ERROR_CANNOT_ADD_DATA.
  */
-typedef int (*SentryCrashJSONAddDataFunc)(
-    const char *data, int length, void *userData);
+typedef int (*SentryCrashJSONAddDataFunc)(const char *data, int length, void *userData);
 
 typedef struct {
     /** Function to call to add more encoded JSON data. */
@@ -125,8 +124,8 @@ typedef struct {
  *
  * @param userData User-specified data which gets passed to addJSONData.
  */
-void sentrycrashjson_beginEncode(SentryCrashJSONEncodeContext *context,
-    bool prettyPrint, SentryCrashJSONAddDataFunc addJSONData, void *userData);
+void sentrycrashjson_beginEncode(SentryCrashJSONEncodeContext *context, bool prettyPrint,
+    SentryCrashJSONAddDataFunc addJSONData, void *userData);
 
 /** End the encoding process, ending any remaining open containers.
  *
@@ -181,8 +180,7 @@ int sentrycrashjson_addFloatingPointElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addNullElement(
-    SentryCrashJSONEncodeContext *context, const char *name);
+int sentrycrashjson_addNullElement(SentryCrashJSONEncodeContext *context, const char *name);
 
 /** Add a string element.
  *
@@ -196,8 +194,8 @@ int sentrycrashjson_addNullElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addStringElement(SentryCrashJSONEncodeContext *context,
-    const char *name, const char *value, int length);
+int sentrycrashjson_addStringElement(
+    SentryCrashJSONEncodeContext *context, const char *name, const char *value, int length);
 
 /** Start an incrementally-built string element.
  *
@@ -209,8 +207,7 @@ int sentrycrashjson_addStringElement(SentryCrashJSONEncodeContext *context,
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_beginStringElement(
-    SentryCrashJSONEncodeContext *context, const char *name);
+int sentrycrashjson_beginStringElement(SentryCrashJSONEncodeContext *context, const char *name);
 
 /** Add a string fragment to an incrementally-built string element.
  *
@@ -245,8 +242,8 @@ int sentrycrashjson_endStringElement(SentryCrashJSONEncodeContext *context);
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addDataElement(SentryCrashJSONEncodeContext *const context,
-    const char *name, const char *value, int length);
+int sentrycrashjson_addDataElement(
+    SentryCrashJSONEncodeContext *const context, const char *name, const char *value, int length);
 
 /** Start an incrementally-built data element. The element will be converted
  * to string-coded hex.
@@ -273,8 +270,7 @@ int sentrycrashjson_beginDataElement(
  * @return SentryCrashJSON_OK if the process was successful.
  */
 int sentrycrashjson_appendDataElement(
-    SentryCrashJSONEncodeContext *const context, const char *const value,
-    int length);
+    SentryCrashJSONEncodeContext *const context, const char *const value, int length);
 
 /** End an incrementally-built data element.
  *
@@ -298,10 +294,9 @@ int sentrycrashjson_endDataElement(SentryCrashJSONEncodeContext *const context);
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addJSONElement(
-    SentryCrashJSONEncodeContext *const encodeContext,
-    const char *restrict const name, const char *restrict const jsonData,
-    const int jsonDataLength, const bool closeLastContainer);
+int sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext,
+    const char *restrict const name, const char *restrict const jsonData, const int jsonDataLength,
+    const bool closeLastContainer);
 
 /** Begin a new object container.
  *
@@ -311,8 +306,7 @@ int sentrycrashjson_addJSONElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_beginObject(
-    SentryCrashJSONEncodeContext *context, const char *name);
+int sentrycrashjson_beginObject(SentryCrashJSONEncodeContext *context, const char *name);
 
 /** Begin a new array container.
  *
@@ -322,8 +316,7 @@ int sentrycrashjson_beginObject(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_beginArray(
-    SentryCrashJSONEncodeContext *context, const char *name);
+int sentrycrashjson_beginArray(SentryCrashJSONEncodeContext *context, const char *name);
 
 /** Begin a generic JSON element, adding any necessary JSON preamble text,
  *  including commas and names.
@@ -348,8 +341,8 @@ int sentrycrashjson_beginElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addRawJSONData(SentryCrashJSONEncodeContext *const context,
-    const char *const data, const int length);
+int sentrycrashjson_addRawJSONData(
+    SentryCrashJSONEncodeContext *const context, const char *const data, const int length);
 
 /** End the current container and return to the next higher level.
  *
@@ -406,8 +399,7 @@ typedef struct SentryCrashJSONDecodeCallbacks {
      *
      * @return SentryCrashJSON_OK if decoding should continue.
      */
-    int (*onFloatingPointElement)(
-        const char *name, double value, void *userData);
+    int (*onFloatingPointElement)(const char *name, double value, void *userData);
 
     /** Called when an integer element is decoded.
      *
@@ -510,9 +502,8 @@ typedef struct SentryCrashJSONDecodeCallbacks {
  *
  * @return SentryCrashJSON_OK if succesful. An error code otherwise.
  */
-int sentrycrashjson_decode(const char *data, int length, char *stringBuffer,
-    int stringBufferLength, SentryCrashJSONDecodeCallbacks *callbacks,
-    void *userData, int *errorOffset);
+int sentrycrashjson_decode(const char *data, int length, char *stringBuffer, int stringBufferLength,
+    SentryCrashJSONDecodeCallbacks *callbacks, void *userData, int *errorOffset);
 
 #ifdef __cplusplus
 }

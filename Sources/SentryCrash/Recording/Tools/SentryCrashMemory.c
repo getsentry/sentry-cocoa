@@ -33,13 +33,11 @@
 #include <mach/mach.h>
 
 static inline int
-copySafely(const void *restrict const src, void *restrict const dst,
-    const int byteCount)
+copySafely(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     vm_size_t bytesCopied = 0;
-    kern_return_t result
-        = vm_read_overwrite(mach_task_self(), (vm_address_t)src,
-            (vm_size_t)byteCount, (vm_address_t)dst, &bytesCopied);
+    kern_return_t result = vm_read_overwrite(
+        mach_task_self(), (vm_address_t)src, (vm_size_t)byteCount, (vm_address_t)dst, &bytesCopied);
     if (result != KERN_SUCCESS) {
         return 0;
     }
@@ -47,8 +45,7 @@ copySafely(const void *restrict const src, void *restrict const dst,
 }
 
 static inline int
-copyMaxPossible(const void *restrict const src, void *restrict const dst,
-    const int byteCount)
+copyMaxPossible(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     const uint8_t *pSrc = src;
     const uint8_t *pSrcMax = (uint8_t *)src + byteCount;
@@ -94,10 +91,8 @@ isMemoryReadable(const void *const memory, const int byteCount)
     int bytesRemaining = byteCount;
 
     while (bytesRemaining > 0) {
-        int bytesToCopy
-            = bytesRemaining > testBufferSize ? testBufferSize : bytesRemaining;
-        if (copySafely(memory, g_memoryTestBuffer, bytesToCopy)
-            != bytesToCopy) {
+        int bytesToCopy = bytesRemaining > testBufferSize ? testBufferSize : bytesRemaining;
+        if (copySafely(memory, g_memoryTestBuffer, bytesToCopy) != bytesToCopy) {
             break;
         }
         bytesRemaining -= bytesToCopy;
@@ -106,8 +101,7 @@ isMemoryReadable(const void *const memory, const int byteCount)
 }
 
 int
-sentrycrashmem_maxReadableBytes(
-    const void *const memory, const int tryByteCount)
+sentrycrashmem_maxReadableBytes(const void *const memory, const int tryByteCount)
 {
     const int testBufferSize = sizeof(g_memoryTestBuffer);
     const uint8_t *currentPosition = memory;
@@ -120,8 +114,7 @@ sentrycrashmem_maxReadableBytes(
         currentPosition += testBufferSize;
         bytesRemaining -= testBufferSize;
     }
-    bytesRemaining
-        -= copyMaxPossible(currentPosition, g_memoryTestBuffer, testBufferSize);
+    bytesRemaining -= copyMaxPossible(currentPosition, g_memoryTestBuffer, testBufferSize);
     return tryByteCount - bytesRemaining;
 }
 
@@ -132,15 +125,15 @@ sentrycrashmem_isMemoryReadable(const void *const memory, const int byteCount)
 }
 
 int
-sentrycrashmem_copyMaxPossible(const void *restrict const src,
-    void *restrict const dst, const int byteCount)
+sentrycrashmem_copyMaxPossible(
+    const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copyMaxPossible(src, dst, byteCount);
 }
 
 bool
-sentrycrashmem_copySafely(const void *restrict const src,
-    void *restrict const dst, const int byteCount)
+sentrycrashmem_copySafely(
+    const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copySafely(src, dst, byteCount);
 }

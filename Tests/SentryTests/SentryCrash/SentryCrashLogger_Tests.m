@@ -97,8 +97,7 @@
 - (void)testSetLogFilename
 {
     NSString *expected = @"TEST";
-    NSString *logFileName =
-        [self.tempDir stringByAppendingPathComponent:@"log.txt"];
+    NSString *logFileName = [self.tempDir stringByAppendingPathComponent:@"log.txt"];
     sentrycrashlog_setLogFilename([logFileName UTF8String], true);
     SentryCrashLOGBASIC_ALWAYS(expected);
     sentrycrashlog_setLogFilename(nil, true);

@@ -59,8 +59,7 @@ SentryCrash ()
 static NSString *
 getBundleName()
 {
-    NSString *bundleName =
-        [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
+    NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
     if (bundleName == nil) {
         bundleName = @"Unknown";
     }
@@ -70,8 +69,8 @@ getBundleName()
 static NSString *
 getBasePath()
 {
-    NSArray *directories = NSSearchPathForDirectoriesInDomains(
-        NSCachesDirectory, NSUserDomainMask, YES);
+    NSArray *directories
+        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     if ([directories count] == 0) {
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
@@ -81,8 +80,7 @@ getBasePath()
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
     }
-    NSString *pathEnd =
-        [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
+    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
     return [cachePath stringByAppendingPathComponent:pathEnd];
 }
 
@@ -120,8 +118,7 @@ getBasePath()
     static SentryCrash *sharedInstance = nil;
     static dispatch_once_t onceToken;
 
-    dispatch_once(
-        &onceToken, ^{ sharedInstance = [[SentryCrash alloc] init]; });
+    dispatch_once(&onceToken, ^{ sharedInstance = [[SentryCrash alloc] init]; });
     return sharedInstance;
 }
 
@@ -164,14 +161,12 @@ getBasePath()
         NSError *error = nil;
         NSData *userInfoJSON = nil;
         if (userInfo != nil) {
-            userInfoJSON = [self
-                nullTerminated:[SentryCrashJSONCodec
-                                    encode:userInfo
-                                   options:SentryCrashJSONEncodeOptionSorted
-                                     error:&error]];
+            userInfoJSON =
+                [self nullTerminated:[SentryCrashJSONCodec encode:userInfo
+                                                          options:SentryCrashJSONEncodeOptionSorted
+                                                            error:&error]];
             if (error != NULL) {
-                SentryCrashLOG_ERROR(
-                    @"Could not serialize user info: %@", error);
+                SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
                 return;
             }
         }
@@ -217,8 +212,7 @@ getBasePath()
     if (count == 0) {
         sentrycrash_setDoNotIntrospectClasses(nil, 0);
     } else {
-        NSMutableData *data =
-            [NSMutableData dataWithLength:count * sizeof(const char *)];
+        NSMutableData *data = [NSMutableData dataWithLength:count * sizeof(const char *)];
         const char **classes = data.mutableBytes;
         for (unsigned i = 0; i < count; i++) {
             classes[i] = [[doNotIntrospectClasses objectAtIndex:i]
@@ -240,8 +234,8 @@ getBasePath()
     sentrycrashcm_system_getAPI()->addContextualInfoToEvent(&fakeEvent);
     NSMutableDictionary *dict = [NSMutableDictionary new];
 
-#define COPY_STRING(A)                                                         \
-    if (fakeEvent.System.A)                                                    \
+#define COPY_STRING(A)                                                                             \
+    if (fakeEvent.System.A)                                                                        \
     dict[@ #A] = [NSString stringWithUTF8String:fakeEvent.System.A]
 #define COPY_PRIMITIVE(A) dict[@ #A] = @(fakeEvent.System.A)
     COPY_STRING(systemName);
@@ -281,8 +275,7 @@ getBasePath()
 
 - (BOOL)install
 {
-    _monitoring = sentrycrash_install(
-        self.bundleName.UTF8String, self.basePath.UTF8String);
+    _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
     if (self.monitoring == 0) {
         return false;
     }
@@ -333,29 +326,23 @@ getBasePath()
     return true;
 }
 
-- (void)sendAllReportsWithCompletion:
-    (SentryCrashReportFilterCompletion)onCompletion
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     NSArray *reports = [self allReports];
 
     SentryCrashLOG_INFO(@"Sending %d crash reports", [reports count]);
 
     [self sendReports:reports
-         onCompletion:^(
-             NSArray *filteredReports, BOOL completed, NSError *error) {
-             SentryCrashLOG_DEBUG(
-                 @"Process finished with completion: %d", completed);
+         onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
+             SentryCrashLOG_DEBUG(@"Process finished with completion: %d", completed);
              if (error != nil) {
                  SentryCrashLOG_ERROR(@"Failed to send reports: %@", error);
              }
-             if ((self.deleteBehaviorAfterSendAll == SentryCrashCDeleteOnSucess
-                     && completed)
-                 || self.deleteBehaviorAfterSendAll
-                     == SentryCrashCDeleteAlways) {
+             if ((self.deleteBehaviorAfterSendAll == SentryCrashCDeleteOnSucess && completed)
+                 || self.deleteBehaviorAfterSendAll == SentryCrashCDeleteAlways) {
                  sentrycrash_deleteAllReports();
              }
-             sentrycrash_callCompletion(
-                 onCompletion, filteredReports, completed, error);
+             sentrycrash_callCompletion(onCompletion, filteredReports, completed, error);
          }];
 }
 
@@ -379,37 +366,30 @@ getBasePath()
 {
     const char *cName = [name cStringUsingEncoding:NSUTF8StringEncoding];
     const char *cReason = [reason cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cLanguage =
-        [language cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cLineOfCode =
-        [lineOfCode cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cLanguage = [language cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cLineOfCode = [lineOfCode cStringUsingEncoding:NSUTF8StringEncoding];
     NSError *error = nil;
-    NSData *jsonData = [SentryCrashJSONCodec encode:stackTrace
-                                            options:0
-                                              error:&error];
+    NSData *jsonData = [SentryCrashJSONCodec encode:stackTrace options:0 error:&error];
     if (jsonData == nil || error != nil) {
         SentryCrashLOG_ERROR(@"Error encoding stack trace to JSON: %@", error);
         // Don't return, since we can still record other useful information.
     }
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData
-                                                 encoding:NSUTF8StringEncoding];
-    const char *cStackTrace =
-        [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    const char *cStackTrace = [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
 
-    sentrycrash_reportUserException(cName, cReason, cLanguage, cLineOfCode,
-        cStackTrace, logAllThreads, terminateProgram);
+    sentrycrash_reportUserException(
+        cName, cReason, cLanguage, cLineOfCode, cStackTrace, logAllThreads, terminateProgram);
 }
 
 // ============================================================================
 #pragma mark - Advanced API -
 // ============================================================================
 
-#define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                            \
+#define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                \
     -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
 
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLastCrash)
-SYNTHESIZE_CRASH_STATE_PROPERTY(
-    NSTimeInterval, backgroundDurationSinceLastCrash)
+SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, backgroundDurationSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(int, launchesSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(int, sessionsSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLaunch)
@@ -422,8 +402,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return sentrycrash_getReportCount();
 }
 
-- (void)sendReports:(NSArray *)reports
-       onCompletion:(SentryCrashReportFilterCompletion)onCompletion
+- (void)sendReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     if ([reports count] == 0) {
         sentrycrash_callCompletion(onCompletion, reports, YES, nil);
@@ -439,10 +418,8 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     }
 
     [self.sink filterReports:reports
-                onCompletion:^(
-                    NSArray *filteredReports, BOOL completed, NSError *error) {
-                    sentrycrash_callCompletion(
-                        onCompletion, filteredReports, completed, error);
+                onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
+                    sentrycrash_callCompletion(onCompletion, filteredReports, completed, error);
                 }];
 }
 
@@ -450,9 +427,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 {
     char *report = sentrycrash_readReport(reportID);
     if (report != NULL) {
-        return [NSData dataWithBytesNoCopy:report
-                                    length:strlen(report)
-                              freeWhenDone:YES];
+        return [NSData dataWithBytesNoCopy:report length:strlen(report) freeWhenDone:YES];
     }
     return nil;
 }
@@ -464,8 +439,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         crashReport[@SentryCrashField_Diagnosis] =
             [[SentryCrashDoctor doctor] diagnoseCrash:report];
     }
-    crashReport
-        = report[@SentryCrashField_RecrashReport][@SentryCrashField_Crash];
+    crashReport = report[@SentryCrashField_RecrashReport][@SentryCrashField_Crash];
     if (crashReport != nil) {
         crashReport[@SentryCrashField_Diagnosis] =
             [[SentryCrashDoctor doctor] diagnoseCrash:report];
@@ -477,8 +451,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     int reportCount = sentrycrash_getReportCount();
     int64_t reportIDsC[reportCount];
     reportCount = sentrycrash_getReportIDs(reportIDsC, reportCount);
-    NSMutableArray *reportIDs =
-        [NSMutableArray arrayWithCapacity:(NSUInteger)reportCount];
+    NSMutableArray *reportIDs = [NSMutableArray arrayWithCapacity:(NSUInteger)reportCount];
     for (int i = 0; i < reportCount; i++) {
         [reportIDs addObject:@(reportIDsC[i])];
     }
@@ -498,16 +471,15 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     }
 
     NSError *error = nil;
-    NSMutableDictionary *crashReport = [SentryCrashJSONCodec
-         decode:jsonData
-        options:SentryCrashJSONDecodeOptionIgnoreNullInArray
-        | SentryCrashJSONDecodeOptionIgnoreNullInObject
-        | SentryCrashJSONDecodeOptionKeepPartialObject
-          error:&error];
+    NSMutableDictionary *crashReport =
+        [SentryCrashJSONCodec decode:jsonData
+                             options:SentryCrashJSONDecodeOptionIgnoreNullInArray
+                             | SentryCrashJSONDecodeOptionIgnoreNullInObject
+                             | SentryCrashJSONDecodeOptionKeepPartialObject
+                               error:&error];
     if (error != nil) {
-        SentryCrashLOG_ERROR(@"Encountered error loading crash report %" PRIx64
-                              ": %@",
-            reportID, error);
+        SentryCrashLOG_ERROR(
+            @"Encountered error loading crash report %" PRIx64 ": %@", reportID, error);
     }
     if (crashReport == nil) {
         SentryCrashLOG_ERROR(@"Could not load crash report");

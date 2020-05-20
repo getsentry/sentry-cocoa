@@ -76,9 +76,7 @@ typedef enum {
  *
  * @return The encoded UTF-8 JSON data or nil if an error occurred.
  */
-+ (NSData *)encode:(id)object
-           options:(SentryCrashJSONEncodeOption)options
-             error:(NSError **)error;
++ (NSData *)encode:(id)object options:(SentryCrashJSONEncodeOption)options error:(NSError **)error;
 
 /** Decode JSON data to an object.
  *

@@ -9,9 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSData (SentryCompression)
 
-- (NSData *_Nullable)
-    sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
-                                 error:(NSError *_Nullable *_Nullable)error
+- (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
+                                                  error:(NSError *_Nullable *_Nullable)error
 {
     uInt length = (uInt)[self length];
     if (length == 0) {
@@ -30,18 +29,16 @@ NS_ASSUME_NONNULL_BEGIN
 
     int err;
 
-    err = deflateInit2(&stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS),
-        9, Z_DEFAULT_STRATEGY);
+    err = deflateInit2(
+        &stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
     if (err != Z_OK) {
         if (error) {
-            *error = NSErrorFromSentryError(
-                kSentryErrorCompressionError, @"deflateInit2 error");
+            *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");
         }
         return nil;
     }
 
-    NSMutableData *compressedData =
-        [NSMutableData dataWithLength:(NSUInteger)(length * 1.02 + 50)];
+    NSMutableData *compressedData = [NSMutableData dataWithLength:(NSUInteger)(length * 1.02 + 50)];
     Bytef *compressedBytes = [compressedData mutableBytes];
     NSUInteger compressedLength = [compressedData length];
 

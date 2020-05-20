@@ -53,21 +53,15 @@ stringFromDate(NSDate *date)
     components.hour = hour;
     components.minute = minute;
     components.second = second;
-    NSCalendar *calendar = [[NSCalendar alloc]
-        initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    [calendar setTimeZone:(NSTimeZone * _Nonnull)
-                              [NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+    NSCalendar *calendar =
+        [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    [calendar setTimeZone:(NSTimeZone * _Nonnull)[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
     return [calendar dateFromComponents:components];
 }
 
 - (void)testStringFromDate
 {
-    NSDate *date = [self gmtDateWithYear:2000
-                                   month:1
-                                     day:2
-                                    hour:3
-                                  minute:4
-                                  second:5];
+    NSDate *date = [self gmtDateWithYear:2000 month:1 day:2 hour:3 minute:4 second:5];
     NSString *expected = @"2000-01-02T03:04:05Z";
     NSString *actual = stringFromDate(date);
 

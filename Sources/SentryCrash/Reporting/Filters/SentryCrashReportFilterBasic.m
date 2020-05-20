@@ -71,8 +71,7 @@ SentryCrashReportFilterCombine ()
     return self;
 }
 
-+ (SentryCrashVA_Block)argBlockWithFilters:(NSMutableArray *)filters
-                                   andKeys:(NSMutableArray *)keys
++ (SentryCrashVA_Block)argBlockWithFilters:(NSMutableArray *)filters andKeys:(NSMutableArray *)keys
 {
     __block BOOL isKey = FALSE;
     SentryCrashVA_Block block = ^(id entry) {
@@ -84,11 +83,9 @@ SentryCrashReportFilterCombine ()
             }
         } else {
             if ([entry isKindOfClass:[NSArray class]]) {
-                entry = [SentryCrashReportFilterPipeline
-                    filterWithFilters:entry, nil];
+                entry = [SentryCrashReportFilterPipeline filterWithFilters:entry, nil];
             }
-            if (![entry
-                    conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
+            if (![entry conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
                 SentryCrashLOG_ERROR(@"Not a filter: %@", entry);
                 // Cause next key entry to fail as well.
                 return;
@@ -101,13 +98,11 @@ SentryCrashReportFilterCombine ()
     return [block copy];
 }
 
-+ (SentryCrashReportFilterCombine *)filterWithFiltersAndKeys:(id)firstFilter,
-                                                             ...
++ (SentryCrashReportFilterCombine *)filterWithFiltersAndKeys:(id)firstFilter, ...
 {
     NSMutableArray *filters = [NSMutableArray array];
     NSMutableArray *keys = [NSMutableArray array];
-    sentrycrashva_iterate_list(
-        firstFilter, [self argBlockWithFilters:filters andKeys:keys]);
+    sentrycrashva_iterate_list(firstFilter, [self argBlockWithFilters:filters andKeys:keys]);
     return [[self alloc] initWithFilters:filters keys:keys];
 }
 
@@ -134,11 +129,10 @@ SentryCrashReportFilterCombine ()
 
     if (filterCount != [keys count]) {
         sentrycrash_callCompletion(onCompletion, reports, NO,
-            [NSError
-                errorWithDomain:[[self class] description]
-                           code:0
-                    description:@"Key/filter mismatch (%d keys, %d filters",
-                    [keys count], filterCount]);
+            [NSError errorWithDomain:[[self class] description]
+                                code:0
+                         description:@"Key/filter mismatch (%d keys, %d filters", [keys count],
+                         filterCount]);
         return;
     }
 
@@ -151,12 +145,10 @@ SentryCrashReportFilterCombine ()
         // Release self-reference on the main thread.
         dispatch_async(dispatch_get_main_queue(), ^{ filterCompletion = nil; });
     } copy];
-    filterCompletion = [^(
-        NSArray *filteredReports, BOOL completed, NSError *filterError) {
+    filterCompletion = [^(NSArray *filteredReports, BOOL completed, NSError *filterError) {
         if (!completed || filteredReports == nil) {
             if (!completed) {
-                sentrycrash_callCompletion(
-                    onCompletion, filteredReports, completed, filterError);
+                sentrycrash_callCompletion(onCompletion, filteredReports, completed, filterError);
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError errorWithDomain:[[self class] description]
@@ -170,21 +162,17 @@ SentryCrashReportFilterCombine ()
         // Normal run until all filters exhausted.
         [reportSets addObject:filteredReports];
         if (++iFilter < filterCount) {
-            id<SentryCrashReportFilter> filter =
-                [filters objectAtIndex:iFilter];
+            id<SentryCrashReportFilter> filter = [filters objectAtIndex:iFilter];
             [filter filterReports:reports onCompletion:weakFilterCompletion];
             return;
         }
 
         // All filters complete, or a filter failed.
         // Build final "filteredReports" array.
-        NSUInteger reportCount =
-            [(NSArray *)[reportSets objectAtIndex:0] count];
-        NSMutableArray *combinedReports =
-            [NSMutableArray arrayWithCapacity:reportCount];
+        NSUInteger reportCount = [(NSArray *)[reportSets objectAtIndex:0] count];
+        NSMutableArray *combinedReports = [NSMutableArray arrayWithCapacity:reportCount];
         for (NSUInteger iReport = 0; iReport < reportCount; iReport++) {
-            NSMutableDictionary *dict =
-                [NSMutableDictionary dictionaryWithCapacity:filterCount];
+            NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:filterCount];
             for (NSUInteger iSet = 0; iSet < filterCount; iSet++) {
                 NSArray *reportSet = [reportSets objectAtIndex:iSet];
                 if (reportSet.count > iReport) {
@@ -195,8 +183,7 @@ SentryCrashReportFilterCombine ()
             [combinedReports addObject:dict];
         }
 
-        sentrycrash_callCompletion(
-            onCompletion, combinedReports, completed, filterError);
+        sentrycrash_callCompletion(onCompletion, combinedReports, completed, filterError);
         disposeOfCompletion();
     } copy];
     weakFilterCompletion = filterCompletion;
@@ -249,8 +236,7 @@ SentryCrashReportFilterPipeline ()
 
 - (void)addFilter:(id<SentryCrashReportFilter>)filter
 {
-    NSMutableArray *mutableFilters
-        = (NSMutableArray *)self.filters; // Shh! Don't tell anyone!
+    NSMutableArray *mutableFilters = (NSMutableArray *)self.filters; // Shh! Don't tell anyone!
     [mutableFilters insertObject:filter atIndex:0];
 }
 
@@ -272,12 +258,10 @@ SentryCrashReportFilterPipeline ()
         // Release self-reference on the main thread.
         dispatch_async(dispatch_get_main_queue(), ^{ filterCompletion = nil; });
     } copy];
-    filterCompletion = [^(
-        NSArray *filteredReports, BOOL completed, NSError *filterError) {
+    filterCompletion = [^(NSArray *filteredReports, BOOL completed, NSError *filterError) {
         if (!completed || filteredReports == nil) {
             if (!completed) {
-                sentrycrash_callCompletion(
-                    onCompletion, filteredReports, completed, filterError);
+                sentrycrash_callCompletion(onCompletion, filteredReports, completed, filterError);
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError errorWithDomain:[[self class] description]
@@ -291,16 +275,13 @@ SentryCrashReportFilterPipeline ()
         // Normal run until all filters exhausted or one
         // filter fails to complete.
         if (++iFilter < filterCount) {
-            id<SentryCrashReportFilter> filter =
-                [filters objectAtIndex:iFilter];
-            [filter filterReports:filteredReports
-                     onCompletion:weakFilterCompletion];
+            id<SentryCrashReportFilter> filter = [filters objectAtIndex:iFilter];
+            [filter filterReports:filteredReports onCompletion:weakFilterCompletion];
             return;
         }
 
         // All filters complete, or a filter failed.
-        sentrycrash_callCompletion(
-            onCompletion, filteredReports, completed, filterError);
+        sentrycrash_callCompletion(onCompletion, filteredReports, completed, filterError);
         disposeOfCompletion();
     } copy];
     weakFilterCompletion = filterCompletion;
@@ -325,8 +306,7 @@ SentryCrashReportFilterObjectForKey ()
 @synthesize key = _key;
 @synthesize allowNotFound = _allowNotFound;
 
-+ (SentryCrashReportFilterObjectForKey *)filterWithKey:(id)key
-                                         allowNotFound:(BOOL)allowNotFound
++ (SentryCrashReportFilterObjectForKey *)filterWithKey:(id)key allowNotFound:(BOOL)allowNotFound
 {
     return [[self alloc] initWithKey:key allowNotFound:allowNotFound];
 }
@@ -343,8 +323,7 @@ SentryCrashReportFilterObjectForKey ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *filteredReports =
-        [NSMutableArray arrayWithCapacity:[reports count]];
+    NSMutableArray *filteredReports = [NSMutableArray arrayWithCapacity:[reports count]];
     for (NSDictionary *report in reports) {
         id object = nil;
         if ([self.key isKindOfClass:[NSString class]]) {
@@ -383,8 +362,7 @@ SentryCrashReportFilterConcatenate ()
 @synthesize separatorFmt = _separatorFmt;
 @synthesize keys = _keys;
 
-+ (SentryCrashReportFilterConcatenate *)filterWithSeparatorFmt:
-                                            (NSString *)separatorFmt
++ (SentryCrashReportFilterConcatenate *)filterWithSeparatorFmt:(NSString *)separatorFmt
                                                           keys:(id)firstKey, ...
 {
     sentrycrashva_list_to_nsarray(firstKey, keys);
@@ -418,8 +396,7 @@ SentryCrashReportFilterConcatenate ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *filteredReports =
-        [NSMutableArray arrayWithCapacity:[reports count]];
+    NSMutableArray *filteredReports = [NSMutableArray arrayWithCapacity:[reports count]];
     for (NSDictionary *report in reports) {
         BOOL firstEntry = YES;
         NSMutableString *concatenated = [NSMutableString string];
@@ -482,8 +459,7 @@ SentryCrashReportFilterSubset ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *filteredReports =
-        [NSMutableArray arrayWithCapacity:[reports count]];
+    NSMutableArray *filteredReports = [NSMutableArray arrayWithCapacity:[reports count]];
     for (NSDictionary *report in reports) {
         NSMutableDictionary *subset = [NSMutableDictionary dictionary];
         for (NSString *keyPath in self.keyPaths) {
@@ -492,8 +468,7 @@ SentryCrashReportFilterSubset ()
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError errorWithDomain:[[self class] description]
                                         code:0
-                                 description:@"Report did not have key path %@",
-                                 keyPath]);
+                                 description:@"Report did not have key path %@", keyPath]);
                 return;
             }
             [subset setObject:object forKey:[keyPath lastPathComponent]];
@@ -515,12 +490,9 @@ SentryCrashReportFilterSubset ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *filteredReports =
-        [NSMutableArray arrayWithCapacity:[reports count]];
+    NSMutableArray *filteredReports = [NSMutableArray arrayWithCapacity:[reports count]];
     for (NSData *report in reports) {
-        NSString *converted =
-            [[NSString alloc] initWithData:report
-                                  encoding:NSUTF8StringEncoding];
+        NSString *converted = [[NSString alloc] initWithData:report encoding:NSUTF8StringEncoding];
         [filteredReports addObject:converted];
     }
 
@@ -539,8 +511,7 @@ SentryCrashReportFilterSubset ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *filteredReports =
-        [NSMutableArray arrayWithCapacity:[reports count]];
+    NSMutableArray *filteredReports = [NSMutableArray arrayWithCapacity:[reports count]];
     for (NSString *report in reports) {
         NSData *converted = [report dataUsingEncoding:NSUTF8StringEncoding];
         if (converted == nil) {

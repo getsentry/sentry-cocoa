@@ -64,8 +64,7 @@ hashIndex(const void *object)
 }
 
 static bool
-copyStringIvar(
-    const void *self, const char *ivarName, char *buffer, int bufferLength)
+copyStringIvar(const void *self, const char *ivarName, char *buffer, int bufferLength)
 {
     Class class = object_getClass((id)self);
     SentryCrashObjCIvar ivar = { 0 };
@@ -76,35 +75,20 @@ copyStringIvar(
         {
             likely_if(sentrycrashobjc_isValidObject(pointer))
             {
-                likely_if(sentrycrashobjc_copyStringContents(
-                              pointer, buffer, bufferLength)
-                    > 0)
+                likely_if(sentrycrashobjc_copyStringContents(pointer, buffer, bufferLength) > 0)
                 {
                     return true;
                 }
                 else
                 {
-                    SentryCrashLOG_DEBUG(
-                        "sentrycrashobjc_copyStringContents %s failed",
-                        ivarName);
+                    SentryCrashLOG_DEBUG("sentrycrashobjc_copyStringContents %s failed", ivarName);
                 }
             }
-            else
-            {
-                SentryCrashLOG_DEBUG(
-                    "sentrycrashobjc_isValidObject %s failed", ivarName);
-            }
+            else { SentryCrashLOG_DEBUG("sentrycrashobjc_isValidObject %s failed", ivarName); }
         }
-        else
-        {
-            SentryCrashLOG_DEBUG(
-                "sentrycrashobjc_ivarValue %s failed", ivarName);
-        }
+        else { SentryCrashLOG_DEBUG("sentrycrashobjc_ivarValue %s failed", ivarName); }
     }
-    else
-    {
-        SentryCrashLOG_DEBUG("sentrycrashobjc_ivarNamed %s failed", ivarName);
-    }
+    else { SentryCrashLOG_DEBUG("sentrycrashobjc_ivarNamed %s failed", ivarName); }
     return false;
 }
 
@@ -112,8 +96,8 @@ static void
 storeException(const void *exception)
 {
     g_lastDeallocedException.address = exception;
-    copyStringIvar(exception, "name", g_lastDeallocedException.name,
-        sizeof(g_lastDeallocedException.name));
+    copyStringIvar(
+        exception, "name", g_lastDeallocedException.name, sizeof(g_lastDeallocedException.name));
     copyStringIvar(exception, "reason", g_lastDeallocedException.reason,
         sizeof(g_lastDeallocedException.reason));
 }
@@ -129,29 +113,26 @@ handleDealloc(const void *self)
         Class class = object_getClass((id)self);
         zombie->className = class_getName(class);
         for (; class != nil; class = class_getSuperclass(class)) {
-            unlikely_if(class == g_lastDeallocedException.class)
-            {
-                storeException(self);
-            }
+            unlikely_if(class == g_lastDeallocedException.class) { storeException(self); }
         }
     }
 }
 
-#define CREATE_ZOMBIE_HANDLER_INSTALLER(CLASS)                                 \
-    static IMP g_originalDealloc_##CLASS;                                      \
-    static void handleDealloc_##CLASS(id self, SEL _cmd)                       \
-    {                                                                          \
-        handleDealloc(self);                                                   \
-        typedef void (*fn)(id, SEL);                                           \
-        fn f = (fn)g_originalDealloc_##CLASS;                                  \
-        f(self, _cmd);                                                         \
-    }                                                                          \
-    static void installDealloc_##CLASS()                                       \
-    {                                                                          \
-        Method method = class_getInstanceMethod(                               \
-            objc_getClass(#CLASS), sel_registerName("dealloc"));               \
-        g_originalDealloc_##CLASS = method_getImplementation(method);          \
-        method_setImplementation(method, (IMP)handleDealloc_##CLASS);          \
+#define CREATE_ZOMBIE_HANDLER_INSTALLER(CLASS)                                                     \
+    static IMP g_originalDealloc_##CLASS;                                                          \
+    static void handleDealloc_##CLASS(id self, SEL _cmd)                                           \
+    {                                                                                              \
+        handleDealloc(self);                                                                       \
+        typedef void (*fn)(id, SEL);                                                               \
+        fn f = (fn)g_originalDealloc_##CLASS;                                                      \
+        f(self, _cmd);                                                                             \
+    }                                                                                              \
+    static void installDealloc_##CLASS()                                                           \
+    {                                                                                              \
+        Method method                                                                              \
+            = class_getInstanceMethod(objc_getClass(#CLASS), sel_registerName("dealloc"));         \
+        g_originalDealloc_##CLASS = method_getImplementation(method);                              \
+        method_setImplementation(method, (IMP)handleDealloc_##CLASS);                              \
     }
 // TODO: Uninstall doesn't work.
 // static void uninstallDealloc_ ## CLASS() \
@@ -241,8 +222,7 @@ static void
 addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 {
     if (g_isEnabled) {
-        eventContext->ZombieException.address
-            = (uintptr_t)g_lastDeallocedException.address;
+        eventContext->ZombieException.address = (uintptr_t)g_lastDeallocedException.address;
         eventContext->ZombieException.name = g_lastDeallocedException.name;
         eventContext->ZombieException.reason = g_lastDeallocedException.reason;
     }

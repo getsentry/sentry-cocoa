@@ -146,36 +146,25 @@ static const int g_continuationByteCount[0x40] = {
 };
 
 bool
-sentrycrashstring_isNullTerminatedUTF8String(
-    const void *memory, int minLength, int maxLength)
+sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, int maxLength)
 {
     const unsigned char *ptr = memory;
     const unsigned char *const end = ptr + maxLength;
 
     for (; ptr < end; ptr++) {
         unsigned char ch = *ptr;
-        unlikely_if(ch == 0)
-        {
-            return (ptr - (const unsigned char *)memory) >= minLength;
-        }
+        unlikely_if(ch == 0) { return (ptr - (const unsigned char *)memory) >= minLength; }
         unlikely_if(ch & 0x80)
         {
             unlikely_if((ch & 0xc0) != 0xc0) { return false; }
             int continuationBytes = g_continuationByteCount[ch & 0x3f];
-            unlikely_if(
-                continuationBytes == 0 || ptr + continuationBytes >= end)
-            {
-                return false;
-            }
+            unlikely_if(continuationBytes == 0 || ptr + continuationBytes >= end) { return false; }
             for (int i = 0; i < continuationBytes; i++) {
                 ptr++;
                 unlikely_if((*ptr & 0xc0) != 0x80) { return false; }
             }
         }
-        else unlikely_if(ch < 0x20 && !g_printableControlChars[ch])
-        {
-            return false;
-        }
+        else unlikely_if(ch < 0x20 && !g_printableControlChars[ch]) { return false; }
     }
     return false;
 }
@@ -446,8 +435,7 @@ static const unsigned int g_hexConversion[] = {
 };
 
 bool
-sentrycrashstring_extractHexValue(
-    const char *string, int stringLength, uint64_t *const result)
+sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t *const result)
 {
     if (stringLength > 0) {
         const unsigned char *current = (const unsigned char *)string;
@@ -457,8 +445,7 @@ sentrycrashstring_extractHexValue(
             current = (const unsigned char *)strnstr(
                 (const char *)current, "0x", (unsigned)(end - current));
 #else
-            current
-                = (const unsigned char *)strstr((const char *)current, "0x");
+            current = (const unsigned char *)strstr((const char *)current, "0x");
             unlikely_if(current >= end) { return false; }
 #endif
             unlikely_if(!current) { return false; }

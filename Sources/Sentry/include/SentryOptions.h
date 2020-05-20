@@ -73,8 +73,7 @@ SENTRY_NO_INIT
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
-@property (nonatomic, copy)
-    SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
+@property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
 /**
  * Array of integrations to install.

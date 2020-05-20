@@ -46,8 +46,7 @@ NS_SWIFT_NAME(Breadcrumb)
  * @param category String
  * @return SentryBreadcrumb
  */
-- (instancetype)initWithLevel:(enum SentryLevel)level
-                     category:(NSString *)category;
+- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category;
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 

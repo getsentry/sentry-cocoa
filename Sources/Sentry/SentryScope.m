@@ -18,27 +18,23 @@ SentryScope ()
 /**
  * Set global tags -> these will be sent with every event
  */
-@property (nonatomic, strong)
-    NSMutableDictionary<NSString *, NSString *> *_Nullable tagDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *_Nullable tagDictionary;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-@property (nonatomic, strong)
-    NSMutableDictionary<NSString *, id> *_Nullable extraDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *_Nullable extraDictionary;
 
 /**
  * used to add values in event context.
  */
 @property (nonatomic, strong)
-    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *>
-        *_Nullable contextDictionary;
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable contextDictionary;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
  */
-@property (nonatomic, strong)
-    NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
+@property (nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 /**
  * This distribution of the application.
@@ -113,9 +109,8 @@ SentryScope ()
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
-    [SentryLog
-        logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
+                     andLevel:kSentryLogLevelDebug];
     @synchronized(self) {
         [self.breadcrumbArray addObject:crumb];
         if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
@@ -149,8 +144,7 @@ SentryScope ()
     [self notifyListeners];
 }
 
-- (void)setContextValue:(NSDictionary<NSString *, id> *)value
-                 forKey:(NSString *)key
+- (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key
 {
     @synchronized(self) {
         [self.contextDictionary setValue:value forKey:key];
@@ -276,8 +270,7 @@ SentryScope ()
 - (NSDictionary<NSString *, id> *)serialize
 {
     @synchronized(self) {
-        NSMutableDictionary *serializedData =
-            [[self serializeBreadcrumbs] mutableCopy];
+        NSMutableDictionary *serializedData = [[self serializeBreadcrumbs] mutableCopy];
         [serializedData setValue:self.tagDictionary forKey:@"tags"];
         [serializedData setValue:self.extraDictionary forKey:@"extra"];
         [serializedData setValue:self.contextDictionary forKey:@"context"];
@@ -286,8 +279,7 @@ SentryScope ()
         [serializedData setValue:self.environmentString forKey:@"environment"];
         [serializedData setValue:self.fingerprintArray forKey:@"fingerprint"];
         if (self.levelEnum != kSentryLevelNone) {
-            [serializedData setValue:SentryLevelNames[self.levelEnum]
-                              forKey:@"level"];
+            [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
         }
         return serializedData;
     }
@@ -366,9 +358,8 @@ SentryScope ()
         if (nil != self.breadcrumbArray) {
             if (nil == event.breadcrumbs) {
                 event.breadcrumbs = [self.breadcrumbArray
-                    subarrayWithRange:NSMakeRange(0,
-                                          MIN(maxBreadcrumbs,
-                                              [self.breadcrumbArray count]))];
+                    subarrayWithRange:NSMakeRange(
+                                          0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
             }
         }
 

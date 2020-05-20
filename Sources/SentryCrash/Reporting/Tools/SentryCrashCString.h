@@ -48,8 +48,7 @@
 + (SentryCrashCString *)stringWithData:(NSData *)data;
 
 /** Constructor for non-terminated string (assumes UTF-8 encoding). */
-+ (SentryCrashCString *)stringWithData:(const char *)data
-                                length:(NSUInteger)length;
++ (SentryCrashCString *)stringWithData:(const char *)data length:(NSUInteger)length;
 
 - (id)initWithString:(NSString *)string;
 - (id)initWithCString:(const char *)string;

@@ -59,8 +59,7 @@ static volatile bool g_installed = 0;
 static bool g_shouldAddConsoleLogToReport = false;
 static bool g_shouldPrintPreviousLog = false;
 static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
-static SentryCrashMonitorType g_monitoring
-    = SentryCrashMonitorTypeProductionSafeMinimal;
+static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 
 // ============================================================================
@@ -97,19 +96,15 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         SentryCrashLOG_DEBUG("Updating application state to note crash.");
         sentrycrashstate_notifyAppCrash();
     }
-    monitorContext->consoleLogPath
-        = g_shouldAddConsoleLogToReport ? g_consoleLogPath : NULL;
+    monitorContext->consoleLogPath = g_shouldAddConsoleLogToReport ? g_consoleLogPath : NULL;
 
     if (monitorContext->crashedDuringCrashHandling) {
-        sentrycrashreport_writeRecrashReport(
-            monitorContext, g_lastCrashReportFilePath);
+        sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
     } else {
         char crashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
-        strncpy(g_lastCrashReportFilePath, crashReportFilePath,
-            sizeof(g_lastCrashReportFilePath));
-        sentrycrashreport_writeStandardReport(
-            monitorContext, crashReportFilePath);
+        strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
+        sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
     }
 }
 
@@ -138,8 +133,7 @@ sentrycrash_install(const char *appName, const char *const installPath)
     snprintf(path, sizeof(path), "%s/Data/CrashState.json", installPath);
     sentrycrashstate_initialize(path);
 
-    snprintf(g_consoleLogPath, sizeof(g_consoleLogPath),
-        "%s/Data/ConsoleLog.txt", installPath);
+    snprintf(g_consoleLogPath, sizeof(g_consoleLogPath), "%s/Data/ConsoleLog.txt", installPath);
     if (g_shouldPrintPreviousLog) {
         printPreviousLog(g_consoleLogPath);
     }
@@ -188,15 +182,13 @@ sentrycrash_setIntrospectMemory(bool introspectMemory)
 }
 
 void
-sentrycrash_setDoNotIntrospectClasses(
-    const char **doNotIntrospectClasses, int length)
+sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length)
 {
     sentrycrashreport_setDoNotIntrospectClasses(doNotIntrospectClasses, length);
 }
 
 void
-sentrycrash_setCrashNotifyCallback(
-    const SentryCrashReportWriteCallback onCrashNotify)
+sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
 {
     sentrycrashreport_setUserSectionWriteCallback(onCrashNotify);
 }
@@ -220,12 +212,11 @@ sentrycrash_setMaxReportCount(int maxReportCount)
 }
 
 void
-sentrycrash_reportUserException(const char *name, const char *reason,
-    const char *language, const char *lineOfCode, const char *stackTrace,
-    bool logAllThreads, bool terminateProgram)
+sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
-    sentrycrashcm_reportUserException(name, reason, language, lineOfCode,
-        stackTrace, logAllThreads, terminateProgram);
+    sentrycrashcm_reportUserException(
+        name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
     if (g_shouldAddConsoleLogToReport) {
         sentrycrashlog_clearLogFile();
     }

@@ -61,8 +61,7 @@ void sentrycrashreport_setIntrospectMemory(bool shouldIntrospectMemory);
  * @param doNotIntrospectClasses Array of class names.
  * @param length Length of the array.
  */
-void sentrycrashreport_setDoNotIntrospectClasses(
-    const char **doNotIntrospectClasses, int length);
+void sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length);
 
 /** Set the function to call when writing the user section of the report.
  *  This allows the user to add more fields to the user section at the time of
@@ -85,8 +84,7 @@ void sentrycrashreport_setUserSectionWriteCallback(
  * @param path The file to write to.
  */
 void sentrycrashreport_writeStandardReport(
-    const struct SentryCrash_MonitorContext *const monitorContext,
-    const char *path);
+    const struct SentryCrash_MonitorContext *const monitorContext, const char *path);
 
 /** Write a minimal crash report to a file.
  *
@@ -96,8 +94,7 @@ void sentrycrashreport_writeStandardReport(
  * @param path The file to write to.
  */
 void sentrycrashreport_writeRecrashReport(
-    const struct SentryCrash_MonitorContext *const monitorContext,
-    const char *path);
+    const struct SentryCrash_MonitorContext *const monitorContext, const char *path);
 
 #ifdef __cplusplus
 }

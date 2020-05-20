@@ -51,8 +51,8 @@
 {
     const char *filename = path.lastPathComponent.UTF8String;
     char scanFormat[100];
-    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json",
-        self.appName.UTF8String);
+    snprintf(
+        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", self.appName.UTF8String);
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
@@ -67,10 +67,8 @@
 
 - (void)prepareReportStoreWithPathEnd:(NSString *)pathEnd
 {
-    self.reportStorePath =
-        [self.tempPath stringByAppendingPathComponent:pathEnd];
-    sentrycrashcrs_initialize(
-        self.appName.UTF8String, self.reportStorePath.UTF8String);
+    self.reportStorePath = [self.tempPath stringByAppendingPathComponent:pathEnd];
+    sentrycrashcrs_initialize(self.appName.UTF8String, self.reportStorePath.UTF8String);
 }
 
 - (NSArray *)getReportIDs
@@ -90,10 +88,8 @@
     NSData *crashData = [contents dataUsingEncoding:NSUTF8StringEncoding];
     char crashReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
     sentrycrashcrs_getNextCrashReportPath(crashReportPath);
-    [crashData writeToFile:[NSString stringWithUTF8String:crashReportPath]
-                atomically:YES];
-    return [self
-        getReportIDFromPath:[NSString stringWithUTF8String:crashReportPath]];
+    [crashData writeToFile:[NSString stringWithUTF8String:crashReportPath] atomically:YES];
+    return [self getReportIDFromPath:[NSString stringWithUTF8String:crashReportPath]];
 }
 
 - (int64_t)writeUserReportWithStringContents:(NSString *)contents
@@ -102,8 +98,7 @@
     return sentrycrashcrs_addUserReport(data.bytes, (int)data.length);
 }
 
-- (void)loadReportID:(int64_t)reportID
-        reportString:(NSString *__autoreleasing *)reportString
+- (void)loadReportID:(int64_t)reportID reportString:(NSString *__autoreleasing *)reportString
 {
     char *reportBytes = sentrycrashcrs_readReport(reportID);
 
@@ -111,8 +106,7 @@
         reportString = nil;
     } else {
         *reportString = [[NSString alloc]
-            initWithData:[NSData dataWithBytesNoCopy:reportBytes
-                                              length:strlen(reportBytes)]
+            initWithData:[NSData dataWithBytesNoCopy:reportBytes length:strlen(reportBytes)]
                 encoding:NSUTF8StringEncoding];
     }
 }
@@ -136,8 +130,7 @@
 - (void)testReportStorePathExists
 {
     [self prepareReportStoreWithPathEnd:@"somereports/blah/2/x"];
-    XCTAssertTrue(
-        [[NSFileManager defaultManager] fileExistsAtPath:self.reportStorePath]);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:self.reportStorePath]);
 }
 
 - (void)testCrashReportCount1
@@ -168,20 +161,11 @@
 {
     [self prepareReportStoreWithPathEnd:@"testStoresLoadsMultipleReports"];
     NSMutableArray *reportIDs = [NSMutableArray new];
-    NSArray *reportContents =
-        @[ @"report1", @"report2", @"report3", @"report4" ];
-    [reportIDs
-        addObject:@([self
-                      writeCrashReportWithStringContents:reportContents[0]])];
-    [reportIDs
-        addObject:@([self
-                      writeUserReportWithStringContents:reportContents[1]])];
-    [reportIDs
-        addObject:@([self
-                      writeUserReportWithStringContents:reportContents[2]])];
-    [reportIDs
-        addObject:@([self
-                      writeCrashReportWithStringContents:reportContents[3]])];
+    NSArray *reportContents = @[ @"report1", @"report2", @"report3", @"report4" ];
+    [reportIDs addObject:@([self writeCrashReportWithStringContents:reportContents[0]])];
+    [reportIDs addObject:@([self writeUserReportWithStringContents:reportContents[1]])];
+    [reportIDs addObject:@([self writeUserReportWithStringContents:reportContents[2]])];
+    [reportIDs addObject:@([self writeCrashReportWithStringContents:reportContents[3]])];
     [self expectHasReportCount:4];
     [self expectReports:reportIDs areStrings:reportContents];
 }

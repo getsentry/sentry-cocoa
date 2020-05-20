@@ -13,10 +13,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 @interface SentryClient (Private)
 
-- (_Nullable instancetype)
-     initWithOptions:(NSDictionary<NSString *, id> *)options
-      requestManager:(id<SentryRequestManager>)requestManager
-    didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options
+                           requestManager:(id<SentryRequestManager>)requestManager
+                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 
@@ -30,9 +29,8 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 @implementation SentryMockNSURLSessionDataTask
 
-- (instancetype)initWithCompletionHandler:
-    (void (^)(NSData *_Nullable, NSURLResponse *_Nullable,
-        NSError *_Nullable))completionHandler
+- (instancetype)initWithCompletionHandler:(void (^)(NSData *_Nullable, NSURLResponse *_Nullable,
+                                              NSError *_Nullable))completionHandler
 {
     self = [super init];
     if (self) {
@@ -44,20 +42,17 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 - (void)resume
 {
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)),
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
             if (!self.isCancelled) {
-                NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
-                     initWithURL:[[NSURL alloc] initWithString:dsn]
-                      statusCode:requestShouldReturnCode
-                     HTTPVersion:nil
-                    headerFields:nil];
+                NSHTTPURLResponse *response =
+                    [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] initWithString:dsn]
+                                                statusCode:requestShouldReturnCode
+                                               HTTPVersion:nil
+                                              headerFields:nil];
                 if (requestShouldReturnCode != 200) {
                     self.completionHandler(nil, response,
-                        [NSError errorWithDomain:@""
-                                            code:requestShouldReturnCode
-                                        userInfo:nil]);
+                        [NSError errorWithDomain:@"" code:requestShouldReturnCode userInfo:nil]);
                 } else {
                     self.completionHandler(nil, response, nil);
                 }
@@ -68,8 +63,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 - (void)cancel
 {
     self.isCancelled = YES;
-    self.completionHandler(
-        nil, nil, [NSError errorWithDomain:@"" code:1 userInfo:nil]);
+    self.completionHandler(nil, nil, [NSError errorWithDomain:@"" code:1 userInfo:nil]);
 }
 
 @end
@@ -82,13 +76,11 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-- (NSURLSessionDataTask *)
-    dataTaskWithRequest:(NSURLRequest *)request
-      completionHandler:(void (^)(NSData *_Nullable, NSURLResponse *_Nullable,
-                            NSError *_Nullable))completionHandler
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
+                            completionHandler:(void (^)(NSData *_Nullable, NSURLResponse *_Nullable,
+                                                  NSError *_Nullable))completionHandler
 {
-    return [[SentryMockNSURLSessionDataTask alloc]
-        initWithCompletionHandler:completionHandler];
+    return [[SentryMockNSURLSessionDataTask alloc] initWithCompletionHandler:completionHandler];
 }
 #pragma GCC diagnostic pop
 
@@ -126,13 +118,11 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 }
 
 - (void)addRequest:(NSURLRequest *)request
-    completionHandler:
-        (_Nullable SentryRequestOperationFinished)completionHandler
+    completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler
 {
     if (request.allHTTPHeaderFields[@"X-TEST"]) {
         if (completionHandler) {
-            completionHandler(
-                nil, [NSError errorWithDomain:@"" code:9898 userInfo:nil]);
+            completionHandler(nil, [NSError errorWithDomain:@"" code:9898 userInfo:nil]);
             return;
         }
     }
@@ -140,14 +130,10 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     self.lastOperation = [[SentryRequestOperation alloc]
           initWithSession:self.session
                   request:request
-        completionHandler:^(
-            NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            [SentryLog
-                logWithMessage:[NSString
-                                   stringWithFormat:@"Queued requests: %lu",
-                                   (unsigned long)(self.queue.operationCount
-                                       - 1)]
-                      andLevel:kSentryLogLevelDebug];
+        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %lu",
+                                                (unsigned long)(self.queue.operationCount - 1)]
+                             andLevel:kSentryLogLevelDebug];
             if ([response statusCode] != 200) {
                 self.requestsWithErrors++;
             } else {
@@ -189,8 +175,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 {
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
-             initWithDsn:[[SentryDsn alloc] initWithString:dsn
-                                          didFailWithError:nil]
+             initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil]
         didFailWithError:&error];
     [fileManager deleteAllStoredEventsAndEnvelopes];
     [fileManager deleteAllFolders];
@@ -212,32 +197,27 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 {
     [super setUp];
     [self clearAllFiles];
-    self.requestManager = [[SentryMockRequestManager alloc]
-        initWithSession:[SentryMockNSURLSession new]];
+    self.requestManager =
+        [[SentryMockRequestManager alloc] initWithSession:[SentryMockNSURLSession new]];
     self.client = [[SentryClient alloc] initWithOptions:@{ @"dsn" : dsn }
                                          requestManager:self.requestManager
                                        didFailWithError:nil];
     self.event = [[SentryEvent alloc] initWithLevel:kSentryLevelDebug];
 }
 
-- (XCTestExpectation *)waitUntilLocalFileQueueIsFlushed:
-    (SentryFileManager *)fileManager
+- (XCTestExpectation *)waitUntilLocalFileQueueIsFlushed:(SentryFileManager *)fileManager
 {
-    XCTestExpectation *expectation =
-        [self expectationWithDescription:@"wait for file queue"];
-    dispatch_async(
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            for (NSInteger i = 0; i <= 100; i++) {
-                NSLog(@"@@ %lu",
-                    (unsigned long)[fileManager getAllStoredEventsAndEnvelopes]
-                        .count);
-                if ([fileManager getAllStoredEventsAndEnvelopes].count == 0) {
-                    [expectation fulfill];
-                    return;
-                }
-                sleep(1);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for file queue"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        for (NSInteger i = 0; i <= 100; i++) {
+            NSLog(@"@@ %lu", (unsigned long)[fileManager getAllStoredEventsAndEnvelopes].count);
+            if ([fileManager getAllStoredEventsAndEnvelopes].count == 0) {
+                [expectation fulfill];
+                return;
             }
-        });
+            sleep(1);
+        }
+    });
     return expectation;
 }
 

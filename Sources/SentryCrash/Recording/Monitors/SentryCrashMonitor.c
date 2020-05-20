@@ -107,8 +107,7 @@ static bool g_handlingFatalException = false;
 static bool g_crashedDuringExceptionHandling = false;
 static bool g_requiresAsyncSafety = false;
 
-static void (*g_onExceptionEvent)(
-    struct SentryCrash_MonitorContext *monitorContext);
+static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
 
 // ============================================================================
 #pragma mark - API -
@@ -143,8 +142,7 @@ isMonitorEnabled(Monitor *monitor)
 }
 
 static inline void
-addContextualInfoToEvent(
-    Monitor *monitor, struct SentryCrash_MonitorContext *eventContext)
+addContextualInfoToEvent(Monitor *monitor, struct SentryCrash_MonitorContext *eventContext)
 {
     SentryCrashMonitorAPI *api = getAPI(monitor);
     if (api != NULL && api->addContextualInfoToEvent != NULL) {
@@ -153,8 +151,7 @@ addContextualInfoToEvent(
 }
 
 void
-sentrycrashcm_setEventCallback(
-    void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext))
+sentrycrashcm_setEventCallback(void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext))
 {
     g_onExceptionEvent = onEvent;
 }
@@ -162,8 +159,7 @@ sentrycrashcm_setEventCallback(
 void
 sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
 {
-    if (sentrycrashdebug_isBeingTraced()
-        && (monitorTypes & SentryCrashMonitorTypeDebuggerUnsafe)) {
+    if (sentrycrashdebug_isBeingTraced() && (monitorTypes & SentryCrashMonitorTypeDebuggerUnsafe)) {
         static bool hasWarned = false;
         if (!hasWarned) {
             hasWarned = true;
@@ -179,15 +175,13 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
         }
         monitorTypes &= SentryCrashMonitorTypeDebuggerSafe;
     }
-    if (g_requiresAsyncSafety
-        && (monitorTypes & SentryCrashMonitorTypeAsyncUnsafe)) {
-        SentryCrashLOG_DEBUG(
-            "Async-safe environment detected. Masking out unsafe monitors.");
+    if (g_requiresAsyncSafety && (monitorTypes & SentryCrashMonitorTypeAsyncUnsafe)) {
+        SentryCrashLOG_DEBUG("Async-safe environment detected. Masking out unsafe monitors.");
         monitorTypes &= SentryCrashMonitorTypeAsyncSafe;
     }
 
-    SentryCrashLOG_DEBUG("Changing active monitors from 0x%x tp 0x%x.",
-        g_activeMonitors, monitorTypes);
+    SentryCrashLOG_DEBUG(
+        "Changing active monitors from 0x%x tp 0x%x.", g_activeMonitors, monitorTypes);
 
     SentryCrashMonitorType activeMonitors = SentryCrashMonitorTypeNone;
     for (int i = 0; i < g_monitorsCount; i++) {
@@ -224,8 +218,7 @@ sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
     }
     g_handlingFatalException = true;
     if (g_crashedDuringExceptionHandling) {
-        SentryCrashLOG_INFO(
-            "Detected crash in the crash reporter. Uninstalling SentryCrash.");
+        SentryCrashLOG_INFO("Detected crash in the crash reporter. Uninstalling SentryCrash.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
     return g_crashedDuringExceptionHandling;
@@ -251,8 +244,7 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
         g_handlingFatalException = false;
     } else {
         if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
-            SentryCrashLOG_DEBUG(
-                "Exception is fatal. Restoring original handlers.");
+            SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
             sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
         }
     }

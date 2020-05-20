@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        self.eventId = [[[NSUUID UUID].UUIDString
-            stringByReplacingOccurrencesOfString:@"-"
-                                      withString:@""] lowercaseString];
+        self.eventId =
+            [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-"
+                                                                 withString:@""] lowercaseString];
         self.level = level;
         self.platform = @"cocoa";
     }
@@ -83,8 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
         [debugImages addObject:[debugImage serialize]];
     }
     if (debugImages.count > 0) {
-        [serializedData setValue:@{ @"images" : debugImages }
-                          forKey:@"debug_meta"];
+        [serializedData setValue:@{ @"images" : debugImages } forKey:@"debug_meta"];
     }
 }
 
@@ -95,8 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
         [exceptions addObject:[exception serialize]];
     }
     if (exceptions.count > 0) {
-        [serializedData setValue:@{ @"values" : exceptions }
-                          forKey:@"exception"];
+        [serializedData setValue:@{ @"values" : exceptions } forKey:@"exception"];
     }
 }
 
@@ -119,11 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     NSMutableDictionary *sdk =
-        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }
-            .mutableCopy;
+        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
     if (self.extra[@"__sentry_sdk_integrations"]) {
-        [sdk setValue:self.extra[@"__sentry_sdk_integrations"]
-               forKey:@"integrations"];
+        [sdk setValue:self.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
     }
     serializedData[@"sdk"] = sdk;
 }
@@ -138,8 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.transaction) {
         [serializedData setValue:self.transaction forKey:@"transaction"];
     } else if (self.extra[@"__sentry_transaction"]) {
-        [serializedData setValue:self.extra[@"__sentry_transaction"]
-                          forKey:@"transaction"];
+        [serializedData setValue:self.extra[@"__sentry_transaction"] forKey:@"transaction"];
     }
 
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
@@ -159,9 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.type forKey:@"type"];
     if (nil != self.type && [self.type isEqualToString:@"transaction"]) {
         if (nil != self.startTimestamp) {
-            [serializedData
-                setValue:[self.startTimestamp sentry_toIso8601String]
-                  forKey:@"start_timestamp"];
+            [serializedData setValue:[self.startTimestamp sentry_toIso8601String]
+                              forKey:@"start_timestamp"];
         } else {
             // start timestamp should never be empty
             [serializedData setValue:[self.timestamp sentry_toIso8601String]

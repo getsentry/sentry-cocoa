@@ -66,8 +66,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
     }
 
     if (context->instructionAddress == 0) {
-        context->instructionAddress
-            = sentrycrashcpu_instructionAddress(context->machineContext);
+        context->instructionAddress = sentrycrashcpu_instructionAddress(context->machineContext);
         if (context->instructionAddress == 0) {
             return false;
         }
@@ -77,8 +76,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
 
     if (context->linkRegister == 0 && !context->isPastFramePointer) {
         // Link register, if available, is the second address in the trace.
-        context->linkRegister
-            = sentrycrashcpu_linkRegister(context->machineContext);
+        context->linkRegister = sentrycrashcpu_linkRegister(context->machineContext);
         if (context->linkRegister != 0) {
             nextAddress = context->linkRegister;
             goto successfulExit;
@@ -90,25 +88,22 @@ advanceCursor(SentryCrashStackCursor *cursor)
             return false;
         }
         context->currentFrame.previous
-            = (struct FrameEntry *)sentrycrashcpu_framePointer(
-                context->machineContext);
+            = (struct FrameEntry *)sentrycrashcpu_framePointer(context->machineContext);
         context->isPastFramePointer = true;
     }
 
-    if (!sentrycrashmem_copySafely(context->currentFrame.previous,
-            &context->currentFrame, sizeof(context->currentFrame))) {
+    if (!sentrycrashmem_copySafely(context->currentFrame.previous, &context->currentFrame,
+            sizeof(context->currentFrame))) {
         return false;
     }
-    if (context->currentFrame.previous == 0
-        || context->currentFrame.return_address == 0) {
+    if (context->currentFrame.previous == 0 || context->currentFrame.return_address == 0) {
         return false;
     }
 
     nextAddress = context->currentFrame.return_address;
 
 successfulExit:
-    cursor->stackEntry.address
-        = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+    cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
     cursor->state.currentDepth++;
     return true;
 }
@@ -126,8 +121,8 @@ resetCursor(SentryCrashStackCursor *cursor)
 }
 
 void
-sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor,
-    int maxStackDepth, const struct SentryCrashMachineContext *machineContext)
+sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStackDepth,
+    const struct SentryCrashMachineContext *machineContext)
 {
     sentrycrashsc_initCursor(cursor, resetCursor, advanceCursor);
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;

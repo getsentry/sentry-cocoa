@@ -13,8 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
         defaultLevel = SentrySDK.logLevel;
     }
     if (level <= defaultLevel && level != kSentryLogLevelNone) {
-        NSLog(
-            @"Sentry - %@:: %@", [self.class logLevelToString:level], message);
+        NSLog(@"Sentry - %@:: %@", [self.class logLevelToString:level], message);
     }
 }
 

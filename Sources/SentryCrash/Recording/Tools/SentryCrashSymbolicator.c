@@ -46,16 +46,14 @@
  * the stack. This is not a problem except for a few cases where the return
  * address is inside a different symbol than the call address.
  */
-#define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A)                                \
-    (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
+#define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
 bool
 sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
 {
     Dl_info symbolsBuffer;
     if (sentrycrashdl_dladdr(
-            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address),
-            &symbolsBuffer)) {
+            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
         cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
         cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
         cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;

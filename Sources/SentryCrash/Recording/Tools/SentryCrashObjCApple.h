@@ -26,17 +26,17 @@ extern "C" {
 #include <CoreFoundation/CoreFoundation.h>
 #include <objc/objc.h>
 
-#define MAKE_LIST_T(TYPE)                                                      \
-    typedef struct TYPE##_list_t {                                             \
-        uint32_t entsizeAndFlags;                                              \
-        uint32_t count;                                                        \
-        TYPE##_t first;                                                        \
-    } TYPE##_list_t;                                                           \
+#define MAKE_LIST_T(TYPE)                                                                          \
+    typedef struct TYPE##_list_t {                                                                 \
+        uint32_t entsizeAndFlags;                                                                  \
+        uint32_t count;                                                                            \
+        TYPE##_t first;                                                                            \
+    } TYPE##_list_t;                                                                               \
     typedef TYPE##_list_t TYPE##_array_t
 
-#define OBJC_OBJECT(NAME)                                                      \
-    NAME                                                                       \
-    {                                                                          \
+#define OBJC_OBJECT(NAME)                                                                          \
+    NAME                                                                                           \
+    {                                                                                              \
         Class isa OBJC_ISA_AVAILABILITY;
 
 // ======================================================================
@@ -283,8 +283,7 @@ typedef struct __CFRuntimeBase {
  * not designed. */
 /* In the following, N1 and N2 specify an inclusive range N2..N1 with N1 >= N2
  */
-#define __CFBitfieldMask(N1, N2)                                               \
-    ((((UInt32)~0UL) << (31UL - (N1) + (N2))) >> (31UL - N1))
+#define __CFBitfieldMask(N1, N2) ((((UInt32)~0UL) << (31UL - (N1) + (N2))) >> (31UL - N1))
 #define __CFBitfieldGetValue(V, N1, N2) (((V)&__CFBitfieldMask(N1, N2)) >> (N2))
 
 // ======================================================================
@@ -321,14 +320,12 @@ struct __CFString {
             void *buffer; // Note that the buffer is in the same place for all
                           // non-inline variants of CFString
             CFIndex length;
-            CFAllocatorRef
-                contentsDeallocator; // Optional; just the dealloc func is used
+            CFAllocatorRef contentsDeallocator; // Optional; just the dealloc func is used
         } notInlineImmutable1; // This is the usual not-inline immutable
                                // CFString
         struct __notInlineImmutable2 {
             void *buffer;
-            CFAllocatorRef
-                contentsDeallocator; // Optional; just the dealloc func is used
+            CFAllocatorRef contentsDeallocator; // Optional; just the dealloc func is used
         } notInlineImmutable2; // This is the not-inline immutable CFString when
                                // length is stored with the contents (first
                                // byte)
@@ -375,11 +372,9 @@ enum {
     __kCFHasInlineContents = 0x000,
     __kCFNotInlineContentsNoFree = 0x040, // Don't free
     __kCFNotInlineContentsDefaultFree = 0x020, // Use allocator's free function
-    __kCFNotInlineContentsCustomFree
-    = 0x060, // Use a specially provided free function
+    __kCFNotInlineContentsCustomFree = 0x060, // Use a specially provided free function
     __kCFHasContentsAllocatorMask = 0x060,
-    __kCFHasContentsAllocator
-    = 0x060, // (For mutable strings) use a specially provided allocator
+    __kCFHasContentsAllocator = 0x060, // (For mutable strings) use a specially provided allocator
     __kCFHasContentsDeallocatorMask = 0x060,
     __kCFHasContentsDeallocator = 0x060,
     __kCFIsMutableMask = 0x01,
@@ -408,14 +403,12 @@ enum {
 CF_INLINE Boolean
 __CFStrIsMutable(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsMutableMask)
-        == __kCFIsMutable;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsMutableMask) == __kCFIsMutable;
 }
 CF_INLINE Boolean
 __CFStrIsInline(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFContentsMask)
-        == __kCFHasInlineContents;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFContentsMask) == __kCFHasInlineContents;
 }
 CF_INLINE Boolean
 __CFStrFreeContentsWhenDone(CFStringRef str)
@@ -432,32 +425,27 @@ __CFStrHasContentsDeallocator(CFStringRef str)
 CF_INLINE Boolean
 __CFStrIsUnicode(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsUnicodeMask)
-        == __kCFIsUnicode;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsUnicodeMask) == __kCFIsUnicode;
 }
 CF_INLINE Boolean
 __CFStrIsEightBit(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsUnicodeMask)
-        != __kCFIsUnicode;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFIsUnicodeMask) != __kCFIsUnicode;
 }
 CF_INLINE Boolean
 __CFStrHasNullByte(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasNullByteMask)
-        == __kCFHasNullByte;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasNullByteMask) == __kCFHasNullByte;
 }
 CF_INLINE Boolean
 __CFStrHasLengthByte(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasLengthByteMask)
-        == __kCFHasLengthByte;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasLengthByteMask) == __kCFHasLengthByte;
 }
 CF_INLINE Boolean
 __CFStrHasExplicitLength(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS]
-               & (__kCFIsMutableMask | __kCFHasLengthByteMask))
+    return (str->base._cfinfo[CF_INFO_BITS] & (__kCFIsMutableMask | __kCFHasLengthByteMask))
         != __kCFHasLengthByte;
 } // Has explicit length if (1) mutable or (2) not mutable and no length byte
 CF_INLINE Boolean
@@ -490,8 +478,7 @@ __CFStrContents(CFStringRef str)
 struct __CFURL {
     CFRuntimeBase _cfBase;
     UInt32 _flags;
-    CFStringEncoding
-        _encoding; // The encoding to use when asked to remove percent escapes
+    CFStringEncoding _encoding; // The encoding to use when asked to remove percent escapes
     CFStringRef _string; // Never NULL
     CFURLRef _base;
     struct _CFURLAdditionalData *_extra;
@@ -559,8 +546,7 @@ enum { /* Bits 2-3 */
 CF_INLINE CFIndex
 __CFArrayGetType(CFArrayRef array)
 {
-    return __CFBitfieldGetValue(
-        ((const CFRuntimeBase *)array)->_cfinfo[CF_INFO_BITS], 1, 0);
+    return __CFBitfieldGetValue(((const CFRuntimeBase *)array)->_cfinfo[CF_INFO_BITS], 1, 0);
 }
 
 CF_INLINE CFIndex
@@ -568,8 +554,7 @@ __CFArrayGetSizeOfType(CFIndex t)
 {
     CFIndex size = 0;
     size += sizeof(struct __CFArray);
-    if (__CFBitfieldGetValue((unsigned long)t, 3, 2)
-        == __kCFArrayHasCustomCallBacks) {
+    if (__CFBitfieldGetValue((unsigned long)t, 3, 2) == __kCFArrayHasCustomCallBacks) {
         size += sizeof(CFArrayCallBacks);
     }
     return size;
@@ -583,12 +568,10 @@ __CFArrayGetBucketsPtr(CFArrayRef array)
     switch (__CFArrayGetType(array)) {
     case __kCFArrayImmutable:
         return (struct __CFArrayBucket *)((uint8_t *)array
-            + __CFArrayGetSizeOfType(
-                ((CFRuntimeBase *)array)->_cfinfo[CF_INFO_BITS]));
+            + __CFArrayGetSizeOfType(((CFRuntimeBase *)array)->_cfinfo[CF_INFO_BITS]));
     case __kCFArrayDeque: {
         struct __CFArrayDeque *deque = (struct __CFArrayDeque *)array->_store;
-        return (struct __CFArrayBucket *)((uint8_t *)deque
-            + sizeof(struct __CFArrayDeque)
+        return (struct __CFArrayBucket *)((uint8_t *)deque + sizeof(struct __CFArrayDeque)
             + deque->_leftIdx * sizeof(struct __CFArrayBucket));
     }
     }
@@ -607,8 +590,7 @@ typedef struct __CFBasicHashCallbacks CFBasicHashCallbacks;
 struct __CFBasicHashCallbacks {
     uintptr_t (*retainValue)(CFAllocatorRef alloc,
         uintptr_t stack_value); // Return 2nd arg or new value
-    uintptr_t (*retainKey)(
-        CFAllocatorRef alloc, uintptr_t stack_key); // Return 2nd arg or new key
+    uintptr_t (*retainKey)(CFAllocatorRef alloc, uintptr_t stack_key); // Return 2nd arg or new key
     void (*releaseValue)(CFAllocatorRef alloc, uintptr_t stack_value);
     void (*releaseKey)(CFAllocatorRef alloc, uintptr_t stack_key);
     Boolean (*equateValues)(uintptr_t coll_value1,
@@ -619,8 +601,7 @@ struct __CFBasicHashCallbacks {
         uintptr_t stack_key2); // 1st arg is in-collection key, 2nd arg is probe
                                // parameter
     CFHashCode (*hashKey)(uintptr_t stack_key);
-    uintptr_t (*getIndirectKey)(
-        uintptr_t coll_value); // Return key; 1st arg is in-collection value
+    uintptr_t (*getIndirectKey)(uintptr_t coll_value); // Return key; 1st arg is in-collection value
     CFStringRef (*copyValueDescription)(uintptr_t stack_value);
     CFStringRef (*copyKeyDescription)(uintptr_t stack_key);
 };

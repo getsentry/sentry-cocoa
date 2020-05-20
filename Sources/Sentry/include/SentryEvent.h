@@ -5,8 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser,
-    SentryDebugMeta, SentryContext, SentryBreadcrumb;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
+    SentryBreadcrumb;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -81,8 +81,7 @@ NS_SWIFT_NAME(Event)
 /**
  * Arbitrary key:value (string:string ) data that will be shown with the event
  */
-@property (nonatomic, strong)
-    NSDictionary<NSString *, NSString *> *_Nullable tags;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
 /**
  * Arbitrary additional information that will be sent with the event
@@ -106,8 +105,7 @@ NS_SWIFT_NAME(Event)
 /**
  * Modules of the event
  */
-@property (nonatomic, strong)
-    NSDictionary<NSString *, NSString *> *_Nullable modules;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;
 
 /**
  * Set the fingerprint of an event to determine the grouping
@@ -151,8 +149,7 @@ NS_SWIFT_NAME(Event)
  * This contains all breadcrumbs available at the time when the event
  * occurred/will be sent
  */
-@property (nonatomic, strong)
-    NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
+@property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
  * JSON baggage, that will only be filled if initWithJSON is called.

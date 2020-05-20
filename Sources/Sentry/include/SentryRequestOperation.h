@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSession:(NSURLSession *)session
                         request:(NSURLRequest *)request
-              completionHandler:
-                  (_Nullable SentryRequestOperationFinished)completionHandler;
+              completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler;
 
 @end
 

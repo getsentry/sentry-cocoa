@@ -20,8 +20,7 @@ SentryDateUtil ()
     return result == NSOrderedAscending;
 }
 
-+ (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first
-                           andOther:(NSDate *_Nullable)second
++ (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first andOther:(NSDate *_Nullable)second
 {
     if (nil == first && nil == second)
         return nil;

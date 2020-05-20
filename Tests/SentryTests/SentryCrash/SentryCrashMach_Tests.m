@@ -38,9 +38,8 @@
 - (void)testExceptionName
 {
     NSString *expected = @"EXC_ARITHMETIC";
-    NSString *actual = [NSString
-        stringWithCString:sentrycrashmach_exceptionName(EXC_ARITHMETIC)
-                 encoding:NSUTF8StringEncoding];
+    NSString *actual = [NSString stringWithCString:sentrycrashmach_exceptionName(EXC_ARITHMETIC)
+                                          encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 
@@ -53,9 +52,9 @@
 - (void)testKernReturnCodeName
 {
     NSString *expected = @"KERN_FAILURE";
-    NSString *actual = [NSString
-        stringWithCString:sentrycrashmach_kernelReturnCodeName(KERN_FAILURE)
-                 encoding:NSUTF8StringEncoding];
+    NSString *actual =
+        [NSString stringWithCString:sentrycrashmach_kernelReturnCodeName(KERN_FAILURE)
+                           encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 
@@ -73,24 +72,14 @@
 {
     [self assertMachException:EXC_ARITHMETIC code:0 matchesSignal:SIGFPE];
     [self assertMachException:EXC_BAD_ACCESS code:0 matchesSignal:SIGBUS];
-    [self assertMachException:EXC_BAD_ACCESS
-                         code:KERN_INVALID_ADDRESS
-                matchesSignal:SIGSEGV];
+    [self assertMachException:EXC_BAD_ACCESS code:KERN_INVALID_ADDRESS matchesSignal:SIGSEGV];
     [self assertMachException:EXC_BAD_INSTRUCTION code:0 matchesSignal:SIGILL];
     [self assertMachException:EXC_BREAKPOINT code:0 matchesSignal:SIGTRAP];
     [self assertMachException:EXC_EMULATION code:0 matchesSignal:SIGEMT];
-    [self assertMachException:EXC_SOFTWARE
-                         code:EXC_UNIX_BAD_SYSCALL
-                matchesSignal:SIGSYS];
-    [self assertMachException:EXC_SOFTWARE
-                         code:EXC_UNIX_BAD_PIPE
-                matchesSignal:SIGPIPE];
-    [self assertMachException:EXC_SOFTWARE
-                         code:EXC_UNIX_ABORT
-                matchesSignal:SIGABRT];
-    [self assertMachException:EXC_SOFTWARE
-                         code:EXC_SOFT_SIGNAL
-                matchesSignal:SIGKILL];
+    [self assertMachException:EXC_SOFTWARE code:EXC_UNIX_BAD_SYSCALL matchesSignal:SIGSYS];
+    [self assertMachException:EXC_SOFTWARE code:EXC_UNIX_BAD_PIPE matchesSignal:SIGPIPE];
+    [self assertMachException:EXC_SOFTWARE code:EXC_UNIX_ABORT matchesSignal:SIGABRT];
+    [self assertMachException:EXC_SOFTWARE code:EXC_SOFT_SIGNAL matchesSignal:SIGKILL];
     [self assertMachException:EXC_SOFTWARE code:100000000 matchesSignal:0];
     [self assertMachException:1000000000 code:0 matchesSignal:0];
 }
@@ -110,9 +99,7 @@
     [self assertSignal:1000000000 matchesMachException:0];
 }
 
-- (void)assertMachException:(int)exception
-                       code:(int)code
-              matchesSignal:(int)signal
+- (void)assertMachException:(int)exception code:(int)code matchesSignal:(int)signal
 {
     int result = sentrycrashmach_signalForMachException(exception, code);
     XCTAssertEqual(result, signal, @"");

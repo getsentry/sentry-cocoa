@@ -159,22 +159,21 @@ extern "C" {
 
 #        import <CoreFoundation/CoreFoundation.h>
 
-void i_sentrycrashlog_logObjC(const char *level, const char *file, int line,
-    const char *function, CFStringRef fmt, ...);
+void i_sentrycrashlog_logObjC(
+    const char *level, const char *file, int line, const char *function, CFStringRef fmt, ...);
 
 void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...);
 
-#        define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)   \
-            i_sentrycrashlog_logObjC(LEVEL, FILE, LINE, FUNCTION,              \
-                (__bridge CFStringRef)FMT, ##__VA_ARGS__)
-#        define i_SentryCrashLOG_BASIC(FMT, ...)                               \
-            i_sentrycrashlog_logObjCBasic(                                     \
-                (__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#        define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                       \
+            i_sentrycrashlog_logObjC(                                                              \
+                LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#        define i_SentryCrashLOG_BASIC(FMT, ...)                                                   \
+            i_sentrycrashlog_logObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
 
 #    else // __OBJC__
 
-void i_sentrycrashlog_logC(const char *level, const char *file, int line,
-    const char *function, const char *fmt, ...);
+void i_sentrycrashlog_logC(
+    const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
 void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 
@@ -231,9 +230,8 @@ void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 #        define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_None
 #    endif
 
-#    define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                             \
-        i_SentryCrashLOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__,  \
-            FMT, ##__VA_ARGS__)
+#    define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                 \
+        i_SentryCrashLOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
 
 // ============================================================================
 #    pragma mark - API -
@@ -261,19 +259,16 @@ bool sentrycrashlog_clearLogFile(void);
  *
  * @return TRUE if the logger would print at the specified level.
  */
-#    define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                              \
-        (SentryCrashLogger_Level >= LEVEL                                      \
-            || SentryCrashLogger_LocalLevel >= LEVEL)
+#    define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                                                  \
+        (SentryCrashLogger_Level >= LEVEL || SentryCrashLogger_LocalLevel >= LEVEL)
 
 /** Log a message regardless of the log settings.
  * Normal version prints out full context. Basic version prints directly.
  *
  * @param FMT The format specifier, followed by its arguments.
  */
-#    define SentryCrashLOG_ALWAYS(FMT, ...)                                    \
-        a_SentryCrashLOG_FULL("FORCE", FMT, ##__VA_ARGS__)
-#    define SentryCrashLOGBASIC_ALWAYS(FMT, ...)                               \
-        i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#    define SentryCrashLOG_ALWAYS(FMT, ...) a_SentryCrashLOG_FULL("FORCE", FMT, ##__VA_ARGS__)
+#    define SentryCrashLOGBASIC_ALWAYS(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 
 /** Log an error.
  * Normal version prints out full context. Basic version prints directly.
@@ -281,10 +276,8 @@ bool sentrycrashlog_clearLogFile(void);
  * @param FMT The format specifier, followed by its arguments.
  */
 #    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Error)
-#        define SentryCrashLOG_ERROR(FMT, ...)                                 \
-            a_SentryCrashLOG_FULL("ERROR", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_ERROR(FMT, ...)                            \
-            i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#        define SentryCrashLOG_ERROR(FMT, ...) a_SentryCrashLOG_FULL("ERROR", FMT, ##__VA_ARGS__)
+#        define SentryCrashLOGBASIC_ERROR(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 #    else
 #        define SentryCrashLOG_ERROR(FMT, ...)
 #        define SentryCrashLOGBASIC_ERROR(FMT, ...)
@@ -296,10 +289,8 @@ bool sentrycrashlog_clearLogFile(void);
  * @param FMT The format specifier, followed by its arguments.
  */
 #    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Warn)
-#        define SentryCrashLOG_WARN(FMT, ...)                                  \
-            a_SentryCrashLOG_FULL("WARN ", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_WARN(FMT, ...)                             \
-            i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#        define SentryCrashLOG_WARN(FMT, ...) a_SentryCrashLOG_FULL("WARN ", FMT, ##__VA_ARGS__)
+#        define SentryCrashLOGBASIC_WARN(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 #    else
 #        define SentryCrashLOG_WARN(FMT, ...)
 #        define SentryCrashLOGBASIC_WARN(FMT, ...)
@@ -311,10 +302,8 @@ bool sentrycrashlog_clearLogFile(void);
  * @param FMT The format specifier, followed by its arguments.
  */
 #    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Info)
-#        define SentryCrashLOG_INFO(FMT, ...)                                  \
-            a_SentryCrashLOG_FULL("INFO ", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_INFO(FMT, ...)                             \
-            i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#        define SentryCrashLOG_INFO(FMT, ...) a_SentryCrashLOG_FULL("INFO ", FMT, ##__VA_ARGS__)
+#        define SentryCrashLOGBASIC_INFO(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 #    else
 #        define SentryCrashLOG_INFO(FMT, ...)
 #        define SentryCrashLOGBASIC_INFO(FMT, ...)
@@ -326,10 +315,8 @@ bool sentrycrashlog_clearLogFile(void);
  * @param FMT The format specifier, followed by its arguments.
  */
 #    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Debug)
-#        define SentryCrashLOG_DEBUG(FMT, ...)                                 \
-            a_SentryCrashLOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_DEBUG(FMT, ...)                            \
-            i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#        define SentryCrashLOG_DEBUG(FMT, ...) a_SentryCrashLOG_FULL("DEBUG", FMT, ##__VA_ARGS__)
+#        define SentryCrashLOGBASIC_DEBUG(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 #    else
 #        define SentryCrashLOG_DEBUG(FMT, ...)
 #        define SentryCrashLOGBASIC_DEBUG(FMT, ...)
@@ -341,10 +328,8 @@ bool sentrycrashlog_clearLogFile(void);
  * @param FMT The format specifier, followed by its arguments.
  */
 #    if SentryCrashLOG_PRINTS_AT_LEVEL(SentryCrashLogger_Level_Trace)
-#        define SentryCrashLOG_TRACE(FMT, ...)                                 \
-            a_SentryCrashLOG_FULL("TRACE", FMT, ##__VA_ARGS__)
-#        define SentryCrashLOGBASIC_TRACE(FMT, ...)                            \
-            i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
+#        define SentryCrashLOG_TRACE(FMT, ...) a_SentryCrashLOG_FULL("TRACE", FMT, ##__VA_ARGS__)
+#        define SentryCrashLOGBASIC_TRACE(FMT, ...) i_SentryCrashLOG_BASIC(FMT, ##__VA_ARGS__)
 #    else
 #        define SentryCrashLOG_TRACE(FMT, ...)
 #        define SentryCrashLOGBASIC_TRACE(FMT, ...)

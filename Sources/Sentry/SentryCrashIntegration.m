@@ -32,8 +32,7 @@ SentryCrashIntegration ()
 {
     static NSDictionary *sharedInfo = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(
-        &onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
+    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
     return sharedInfo;
 }
 
@@ -60,8 +59,7 @@ SentryCrashIntegration ()
     // case of a crash
     NSString *integrationName = NSStringFromClass(SentryCrashIntegration.class);
     if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
-        [SentrySDK.currentHub configureScope:^(
-            SentryScope *_Nonnull outerScope) {
+        [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
             // OS
             NSMutableDictionary *osData = [NSMutableDictionary new];
 
@@ -76,8 +74,7 @@ SentryCrashIntegration ()
 #endif
 
 #if SENTRY_HAS_UIDEVICE
-            [osData setValue:[UIDevice currentDevice].systemVersion
-                      forKey:@"version"];
+            [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
             NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
             NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int) version.majorVersion, (int) version.minorVersion, (int) version.patchVersion];
@@ -86,8 +83,7 @@ SentryCrashIntegration ()
 
             NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
             [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
-            [osData setValue:systemInfo[@"kernelVersion"]
-                      forKey:@"kernel_version"];
+            [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
             [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
 
             [outerScope setContextValue:osData forKey:@"os"];
@@ -101,21 +97,17 @@ SentryCrashIntegration ()
 #endif
 
             NSString *family = [[systemInfo[@"systemName"]
-                componentsSeparatedByCharactersInSet:
-                    [NSCharacterSet whitespaceCharacterSet]] firstObject];
+                componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                firstObject];
 
             [deviceData setValue:family forKey:@"family"];
             [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
             [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
             [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-            [deviceData setValue:systemInfo[@"freeMemory"]
-                          forKey:@"free_memory"];
-            [deviceData setValue:systemInfo[@"usableMemory"]
-                          forKey:@"usable_memory"];
-            [deviceData setValue:systemInfo[@"memorySize"]
-                          forKey:@"memory_size"];
-            [deviceData setValue:systemInfo[@"storageSize"]
-                          forKey:@"storage_size"];
+            [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+            [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
+            [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
+            [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
             [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
             [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 
@@ -126,17 +118,13 @@ SentryCrashIntegration ()
             NSMutableDictionary *appData = [NSMutableDictionary new];
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 
-            [appData setValue:infoDict[@"CFBundleIdentifier"]
-                       forKey:@"app_identifier"];
+            [appData setValue:infoDict[@"CFBundleIdentifier"] forKey:@"app_identifier"];
             [appData setValue:infoDict[@"CFBundleName"] forKey:@"app_name"];
             [appData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
-            [appData setValue:infoDict[@"CFBundleShortVersionString"]
-                       forKey:@"app_version"];
+            [appData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
 
-            [appData setValue:systemInfo[@"appStartTime"]
-                       forKey:@"app_start_time"];
-            [appData setValue:systemInfo[@"deviceAppHash"]
-                       forKey:@"device_app_hash"];
+            [appData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
+            [appData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
             [appData setValue:systemInfo[@"appID"] forKey:@"app_id"];
             [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 

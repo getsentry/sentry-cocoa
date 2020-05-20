@@ -124,8 +124,7 @@ uint64_t sentrycrashsysctl_uint64ForName(const char *name);
  * @return The number of bytes written (or that would have been written if
  *         value is NULL).
  */
-int sentrycrashsysctl_string(
-    int major_cmd, int minor_cmd, char *value, int maxSize);
+int sentrycrashsysctl_string(int major_cmd, int minor_cmd, char *value, int maxSize);
 
 /** Get a string value via sysctl by name.
  *

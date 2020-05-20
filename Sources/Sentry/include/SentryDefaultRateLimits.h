@@ -17,8 +17,7 @@ NS_SWIFT_NAME(DefaultRateLimits)
 
 - (instancetype)initWithRetryAfterHeaderParser:
                     (SentryRetryAfterHeaderParser *)retryAfterHeaderParser
-                            andRateLimitParser:
-                                (SentryRateLimitParser *)rateLimitParser;
+                            andRateLimitParser:(SentryRateLimitParser *)rateLimitParser;
 
 @end
 

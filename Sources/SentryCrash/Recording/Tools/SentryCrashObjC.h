@@ -176,8 +176,7 @@ const char *sentrycrashobjc_objectClassName(const void *objectPtr);
  *
  * @return true if the class has the specified name.
  */
-bool sentrycrashobjc_isClassNamed(
-    const void *const classPtr, const char *const className);
+bool sentrycrashobjc_isClassNamed(const void *const classPtr, const char *const className);
 
 /** Check if a class is of the specified type or a subclass thereof.
  * Note: This function is considerably slower than
@@ -210,8 +209,7 @@ int sentrycrashobjc_ivarCount(const void *classPtr);
  *
  * @return The number of ivars copied.
  */
-int sentrycrashobjc_ivarList(
-    const void *classPtr, SentryCrashObjCIvar *dstIvars, int ivarsCount);
+int sentrycrashobjc_ivarList(const void *classPtr, SentryCrashObjCIvar *dstIvars, int ivarsCount);
 
 /** Get ivar information by name/
  *
@@ -264,8 +262,7 @@ uintptr_t sentrycrashobjc_taggedPointerPayload(const void *taggedObjectPtr);
  *
  * @return the number of bytes copied (not including null terminator).
  */
-int sentrycrashobjc_getDescription(
-    void *object, char *buffer, int bufferLength);
+int sentrycrashobjc_getDescription(void *object, char *buffer, int bufferLength);
 
 /** Get the class type of an object.
  * There are a number of common class types that SentryCrashObjC understamds,
@@ -326,8 +323,7 @@ double sentrycrashobjc_dateContents(const void *datePtr);
  *
  * @return the number of bytes copied (not including null terminator).
  */
-int sentrycrashobjc_copyURLContents(
-    const void *nsurl, char *dst, int maxLength);
+int sentrycrashobjc_copyURLContents(const void *nsurl, char *dst, int maxLength);
 
 /** Get the length of a string in characters.
  *
@@ -350,8 +346,7 @@ int sentrycrashobjc_stringLength(const void *const stringPtr);
  *
  * @return the number of bytes copied (not including null terminator).
  */
-int sentrycrashobjc_copyStringContents(
-    const void *string, char *dst, int maxLength);
+int sentrycrashobjc_copyStringContents(const void *string, char *dst, int maxLength);
 
 /** Get an NSArray's count.
  *
@@ -371,8 +366,7 @@ int sentrycrashobjc_arrayCount(const void *arrayPtr);
  *
  * @return The number of items copied.
  */
-int sentrycrashobjc_arrayContents(
-    const void *arrayPtr, uintptr_t *contents, int count);
+int sentrycrashobjc_arrayContents(const void *arrayPtr, uintptr_t *contents, int count);
 
 //======================================================================
 #pragma mark - Broken/Unimplemented Stuff -
@@ -390,8 +384,7 @@ int sentrycrashobjc_arrayContents(
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashobjc_dictionaryFirstEntry(
-    const void *dict, uintptr_t *key, uintptr_t *value);
+bool sentrycrashobjc_dictionaryFirstEntry(const void *dict, uintptr_t *key, uintptr_t *value);
 
 /** UNIMPLEMENTED
  */

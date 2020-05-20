@@ -203,8 +203,7 @@ sentrycrashfu_writeBytesToFD(const int fd, const char *const bytes, int length)
     while (length > 0) {
         int bytesWritten = (int)write(fd, pos, (unsigned)length);
         if (bytesWritten == -1) {
-            SentryCrashLOG_ERROR(
-                "Could not write to fd %d: %s", fd, strerror(errno));
+            SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
             return false;
         }
         length -= bytesWritten;
@@ -220,8 +219,7 @@ sentrycrashfu_readBytesFromFD(const int fd, char *const bytes, int length)
     while (length > 0) {
         int bytesRead = (int)read(fd, pos, (unsigned)length);
         if (bytesRead == -1) {
-            SentryCrashLOG_ERROR(
-                "Could not write to fd %d: %s", fd, strerror(errno));
+            SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
             return false;
         }
         length -= bytesRead;
@@ -231,8 +229,7 @@ sentrycrashfu_readBytesFromFD(const int fd, char *const bytes, int length)
 }
 
 bool
-sentrycrashfu_readEntireFile(
-    const char *const path, char **data, int *length, int maxLength)
+sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, int maxLength)
 {
     bool isSuccessful = false;
     int bytesRead = 0;
@@ -256,8 +253,8 @@ sentrycrashfu_readEntireFile(
         bytesToRead = (int)st.st_size;
     } else if (bytesToRead > 0) {
         if (lseek(fd, -bytesToRead, SEEK_END) < 0) {
-            SentryCrashLOG_ERROR("Could not seek to %d from end of %s: %s",
-                -bytesToRead, path, strerror(errno));
+            SentryCrashLOG_ERROR(
+                "Could not seek to %d from end of %s: %s", -bytesToRead, path, strerror(errno));
             goto done;
         }
     }
@@ -302,8 +299,7 @@ sentrycrashfu_writeStringToFD(const int fd, const char *const string)
         while (bytesToWrite > 0) {
             int bytesWritten = (int)write(fd, pos, (unsigned)bytesToWrite);
             if (bytesWritten == -1) {
-                SentryCrashLOG_ERROR(
-                    "Could not write to fd %d: %s", fd, strerror(errno));
+                SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
                 return false;
             }
             bytesToWrite -= bytesWritten;
@@ -328,8 +324,7 @@ sentrycrashfu_writeFmtToFD(const int fd, const char *const fmt, ...)
 }
 
 bool
-sentrycrashfu_writeFmtArgsToFD(
-    const int fd, const char *const fmt, va_list args)
+sentrycrashfu_writeFmtArgsToFD(const int fd, const char *const fmt, va_list args)
 {
     if (*fmt != 0) {
         char buffer[SentryCrashFU_WriteFmtBufferSize];
@@ -340,8 +335,7 @@ sentrycrashfu_writeFmtArgsToFD(
 }
 
 int
-sentrycrashfu_readLineFromFD(
-    const int fd, char *const buffer, const int maxLength)
+sentrycrashfu_readLineFromFD(const int fd, char *const buffer, const int maxLength)
 {
     char *end = buffer + maxLength - 1;
     *end = 0;
@@ -349,8 +343,7 @@ sentrycrashfu_readLineFromFD(
     for (ch = buffer; ch < end; ch++) {
         int bytesRead = (int)read(fd, ch, 1);
         if (bytesRead < 0) {
-            SentryCrashLOG_ERROR(
-                "Could not read from fd %d: %s", fd, strerror(errno));
+            SentryCrashLOG_ERROR("Could not read from fd %d: %s", fd, strerror(errno));
             return -1;
         } else if (bytesRead == 0 || *ch == '\n') {
             break;
@@ -369,16 +362,15 @@ sentrycrashfu_makePath(const char *absolutePath)
         if (*ptr == '/') {
             *ptr = '\0';
             if (mkdir(pathCopy, S_IRWXU) < 0 && errno != EEXIST) {
-                SentryCrashLOG_ERROR("Could not create directory %s: %s",
-                    pathCopy, strerror(errno));
+                SentryCrashLOG_ERROR(
+                    "Could not create directory %s: %s", pathCopy, strerror(errno));
                 goto done;
             }
             *ptr = '/';
         }
     }
     if (mkdir(pathCopy, S_IRWXU) < 0 && errno != EEXIST) {
-        SentryCrashLOG_ERROR(
-            "Could not create directory %s: %s", pathCopy, strerror(errno));
+        SentryCrashLOG_ERROR("Could not create directory %s: %s", pathCopy, strerror(errno));
         goto done;
     }
     isSuccessful = true;
@@ -393,8 +385,7 @@ sentrycrashfu_removeFile(const char *path, bool mustExist)
 {
     if (remove(path) < 0) {
         if (mustExist || errno != ENOENT) {
-            SentryCrashLOG_ERROR(
-                "Could not delete %s: %s", path, strerror(errno));
+            SentryCrashLOG_ERROR("Could not delete %s: %s", path, strerror(errno));
         }
         return false;
     }
@@ -412,16 +403,15 @@ sentrycrashfu_deleteContentsOfPath(const char *path)
 }
 
 bool
-sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer,
-    const char *const path, char *writeBuffer, int writeBufferLength)
+sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *const path,
+    char *writeBuffer, int writeBufferLength)
 {
     writer->buffer = writeBuffer;
     writer->bufferLength = writeBufferLength;
     writer->position = 0;
     writer->fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644);
     if (writer->fd < 0) {
-        SentryCrashLOG_ERROR(
-            "Could not open crash report file %s: %s", path, strerror(errno));
+        SentryCrashLOG_ERROR("Could not open crash report file %s: %s", path, strerror(errno));
         return false;
     }
     return true;
@@ -438,8 +428,8 @@ sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter *writer)
 }
 
 bool
-sentrycrashfu_writeBufferedWriter(SentryCrashBufferedWriter *writer,
-    const char *restrict const data, const int length)
+sentrycrashfu_writeBufferedWriter(
+    SentryCrashBufferedWriter *writer, const char *restrict const data, const int length)
 {
     if (length > writer->bufferLength - writer->position) {
         sentrycrashfu_flushBufferedWriter(writer);
@@ -456,8 +446,7 @@ bool
 sentrycrashfu_flushBufferedWriter(SentryCrashBufferedWriter *writer)
 {
     if (writer->fd > 0 && writer->position > 0) {
-        if (!sentrycrashfu_writeBytesToFD(
-                writer->fd, writer->buffer, writer->position)) {
+        if (!sentrycrashfu_writeBytesToFD(writer->fd, writer->buffer, writer->position)) {
             return false;
         }
         writer->position = 0;
@@ -475,8 +464,7 @@ static bool
 fillReadBuffer(SentryCrashBufferedReader *reader)
 {
     if (reader->dataStartPos > 0) {
-        memmove(reader->buffer, reader->buffer + reader->dataStartPos,
-            reader->dataStartPos);
+        memmove(reader->buffer, reader->buffer + reader->dataStartPos, reader->dataStartPos);
         reader->dataEndPos -= reader->dataStartPos;
         reader->dataStartPos = 0;
         reader->buffer[reader->dataEndPos] = '\0';
@@ -485,8 +473,7 @@ fillReadBuffer(SentryCrashBufferedReader *reader)
     if (bytesToRead <= 0) {
         return true;
     }
-    int bytesRead = (int)read(
-        reader->fd, reader->buffer + reader->dataEndPos, (size_t)bytesToRead);
+    int bytesRead = (int)read(reader->fd, reader->buffer + reader->dataEndPos, (size_t)bytesToRead);
     if (bytesRead < 0) {
         SentryCrashLOG_ERROR("Could not read: %s", strerror(errno));
         return false;
@@ -498,8 +485,7 @@ fillReadBuffer(SentryCrashBufferedReader *reader)
 }
 
 int
-sentrycrashfu_readBufferedReader(
-    SentryCrashBufferedReader *reader, char *dstBuffer, int byteCount)
+sentrycrashfu_readBufferedReader(SentryCrashBufferedReader *reader, char *dstBuffer, int byteCount)
 {
     int bytesRemaining = byteCount;
     int bytesConsumed = 0;
@@ -515,8 +501,7 @@ sentrycrashfu_readBufferedReader(
                 break;
             }
         }
-        int bytesToCopy
-            = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
+        int bytesToCopy = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
         char *pSrc = reader->buffer + reader->dataStartPos;
         memcpy(pDst, pSrc, bytesToCopy);
         pDst += bytesToCopy;
@@ -537,8 +522,7 @@ sentrycrashfu_readBufferedReaderUntilChar(
     char *pDst = dstBuffer;
     while (bytesRemaining > 0) {
         int bytesInReader = reader->dataEndPos - reader->dataStartPos;
-        int bytesToCopy
-            = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
+        int bytesToCopy = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
         char *pSrc = reader->buffer + reader->dataStartPos;
         char *pChar = strchr(pSrc, ch);
         bool isFound = pChar != NULL;
@@ -570,8 +554,8 @@ sentrycrashfu_readBufferedReaderUntilChar(
 }
 
 bool
-sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader,
-    const char *const path, char *readBuffer, int readBufferLength)
+sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *const path,
+    char *readBuffer, int readBufferLength)
 {
     readBuffer[0] = '\0';
     readBuffer[readBufferLength - 1] = '\0';
@@ -581,8 +565,7 @@ sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader,
     reader->dataEndPos = 0;
     reader->fd = open(path, O_RDONLY);
     if (reader->fd < 0) {
-        SentryCrashLOG_ERROR(
-            "Could not open file %s: %s", path, strerror(errno));
+        SentryCrashLOG_ERROR("Could not open file %s: %s", path, strerror(errno));
         return false;
     }
     fillReadBuffer(reader);

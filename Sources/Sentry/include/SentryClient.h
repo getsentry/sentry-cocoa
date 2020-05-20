@@ -61,11 +61,9 @@ SENTRY_NO_INIT
                             withScope:(SentryScope *_Nullable)scope
     NS_SWIFT_NAME(capture(message:scope:));
 
-- (void)captureSession:(SentrySession *)session
-    NS_SWIFT_NAME(capture(session:));
+- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
-- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope
-    NS_SWIFT_NAME(capture(envelope:));
+- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 - (SentryFileManager *)fileManager;
 

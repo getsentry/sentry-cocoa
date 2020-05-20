@@ -11,8 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
 
@@ -29,8 +28,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setTagValue:(id)value
-             forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+- (void)setTagValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
 /**
  * Remove the tag for the specified key.
@@ -45,8 +43,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtraValue:(id)value
-               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setExtraValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Remove the extra for the specified key.

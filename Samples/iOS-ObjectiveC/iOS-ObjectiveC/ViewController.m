@@ -44,12 +44,10 @@ ViewController ()
 
 - (IBAction)captureError:(id)sender
 {
-    NSError *error = [[NSError alloc]
-        initWithDomain:@""
-                  code:0
-              userInfo:@{
-                  NSLocalizedDescriptionKey : @"Object does not exist"
-              }];
+    NSError *error =
+        [[NSError alloc] initWithDomain:@""
+                                   code:0
+                               userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
     [SentrySDK captureError:error
              withScopeBlock:^(SentryScope *_Nonnull scope) {
                  // Changes in here will only be captured for this event
@@ -62,10 +60,9 @@ ViewController ()
 
 - (IBAction)captureException:(id)sender
 {
-    NSException *exception =
-        [[NSException alloc] initWithName:@"My Custom exception"
-                                   reason:@"User clicked the button"
-                                 userInfo:nil];
+    NSException *exception = [[NSException alloc] initWithName:@"My Custom exception"
+                                                        reason:@"User clicked the button"
+                                                      userInfo:nil];
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setLevel:kSentryLevelFatal];
     // By explicitly just passing the scope, only the data in this scope object

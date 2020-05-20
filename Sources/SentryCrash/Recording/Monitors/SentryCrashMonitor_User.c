@@ -39,9 +39,8 @@
 static volatile bool g_isEnabled = false;
 
 void
-sentrycrashcm_reportUserException(const char *name, const char *reason,
-    const char *language, const char *lineOfCode, const char *stackTrace,
-    bool logAllThreads, bool terminateProgram)
+sentrycrashcm_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
     if (!g_isEnabled) {
         SentryCrashLOG_WARN("User-reported exception monitor is not installed. "
@@ -57,8 +56,7 @@ sentrycrashcm_reportUserException(const char *name, const char *reason,
         char eventID[37];
         sentrycrashid_generate(eventID);
         SentryCrashMC_NEW_CONTEXT(machineContext);
-        sentrycrashmc_getContextForThread(
-            sentrycrashthread_self(), machineContext, true);
+        sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
         SentryCrashStackCursor stackCursor;
         sentrycrashsc_initSelfThread(&stackCursor, 0);
 
@@ -102,7 +100,6 @@ isEnabled()
 SentryCrashMonitorAPI *
 sentrycrashcm_user_getAPI()
 {
-    static SentryCrashMonitorAPI api
-        = { .setEnabled = setEnabled, .isEnabled = isEnabled };
+    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }

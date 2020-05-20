@@ -10,12 +10,7 @@
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashReportFields.h"
 
-typedef enum {
-    CPUFamilyUnknown,
-    CPUFamilyArm,
-    CPUFamilyX86,
-    CPUFamilyX86_64
-} CPUFamily;
+typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } CPUFamily;
 
 @interface SentryCrashDoctorParam : NSObject
 
@@ -69,17 +64,15 @@ typedef enum {
     if (![selectorParam.type isEqualToString:@SentryCrashMemType_String]) {
         return nil;
     }
-    NSArray *splitSelector =
-        [selectorParam.value componentsSeparatedByString:@":"];
+    NSArray *splitSelector = [selectorParam.value componentsSeparatedByString:@":"];
     int paramCount = (int)splitSelector.count - 1;
 
-    NSMutableString *string = [NSMutableString
-        stringWithFormat:@"-[%@ %@", receiver, [splitSelector objectAtIndex:0]];
+    NSMutableString *string =
+        [NSMutableString stringWithFormat:@"-[%@ %@", receiver, [splitSelector objectAtIndex:0]];
     for (int paramNum = 0; paramNum < paramCount; paramNum++) {
         [string appendString:@":"];
         if (paramNum < 2) {
-            SentryCrashDoctorParam *param =
-                [self.params objectAtIndex:(NSUInteger)paramNum + 2];
+            SentryCrashDoctorParam *param = [self.params objectAtIndex:(NSUInteger)paramNum + 2];
             if (param.value != nil) {
                 if ([param.type isEqualToString:@SentryCrashMemType_String]) {
                     [string appendFormat:@"\"%@\"", param.value];
@@ -119,8 +112,7 @@ typedef enum {
     NSMutableString *str = [NSMutableString string];
     [str appendFormat:@"Function: %@\n", self.name];
     for (int i = 0; i < paramCount; i++) {
-        SentryCrashDoctorParam *param =
-            [self.params objectAtIndex:(NSUInteger)i];
+        SentryCrashDoctorParam *param = [self.params objectAtIndex:(NSUInteger)i];
         [str appendFormat:@"Param %d:  ", i + 1];
         if (param.className != nil) {
             [str appendFormat:@"%@ (%@) ", param.className,
@@ -180,13 +172,10 @@ typedef enum {
     if ([cpuArch rangeOfString:@"arm"].location == 0) {
         return CPUFamilyArm;
     }
-    if ([cpuArch rangeOfString:@"i"].location == 0 &&
-        [cpuArch rangeOfString:@"86"].location == 2) {
+    if ([cpuArch rangeOfString:@"i"].location == 0 && [cpuArch rangeOfString:@"86"].location == 2) {
         return CPUFamilyX86;
     }
-    if ([cpuArch rangeOfString:@"x86_64" options:NSCaseInsensitiveSearch]
-            .location
-        != NSNotFound) {
+    if ([cpuArch rangeOfString:@"x86_64" options:NSCaseInsensitiveSearch].location != NSNotFound) {
         return CPUFamilyX86_64;
     }
     return CPUFamilyUnknown;
@@ -246,14 +235,12 @@ typedef enum {
 - (NSDictionary *)crashedThreadReport:(NSDictionary *)report
 {
     NSDictionary *crashReport = [self crashReport:report];
-    NSDictionary *crashedThread =
-        [crashReport objectForKey:@SentryCrashField_CrashedThread];
+    NSDictionary *crashedThread = [crashReport objectForKey:@SentryCrashField_CrashedThread];
     if (crashedThread != nil) {
         return crashedThread;
     }
 
-    for (NSDictionary *thread in
-        [crashReport objectForKey:@SentryCrashField_Threads]) {
+    for (NSDictionary *thread in [crashReport objectForKey:@SentryCrashField_Threads]) {
         if ([[thread objectForKey:@SentryCrashField_Crashed] boolValue]) {
             return thread;
         }
@@ -263,15 +250,13 @@ typedef enum {
 
 - (NSArray *)backtraceFromThreadReport:(NSDictionary *)threadReport
 {
-    NSDictionary *backtrace =
-        [threadReport objectForKey:@SentryCrashField_Backtrace];
+    NSDictionary *backtrace = [threadReport objectForKey:@SentryCrashField_Backtrace];
     return [backtrace objectForKey:@SentryCrashField_Contents];
 }
 
 - (NSDictionary *)basicRegistersFromThreadReport:(NSDictionary *)threadReport
 {
-    NSDictionary *registers =
-        [threadReport objectForKey:@SentryCrashField_Registers];
+    NSDictionary *registers = [threadReport objectForKey:@SentryCrashField_Registers];
     NSDictionary *basic = [registers objectForKey:@SentryCrashField_Basic];
     return basic;
 }
@@ -282,8 +267,7 @@ typedef enum {
     NSDictionary *crashedThread = [self crashedThreadReport:report];
     NSArray *backtrace = [self backtraceFromThreadReport:crashedThread];
     for (NSDictionary *entry in backtrace) {
-        NSString *objectName =
-            [entry objectForKey:@SentryCrashField_ObjectName];
+        NSString *objectName = [entry objectForKey:@SentryCrashField_ObjectName];
         if ([objectName isEqualToString:executableName]) {
             return entry;
         }
@@ -305,8 +289,7 @@ typedef enum {
 {
     NSDictionary *machError = [errorReport objectForKey:@SentryCrashField_Mach];
     if (machError != nil) {
-        NSString *exceptionName =
-            [machError objectForKey:@SentryCrashField_ExceptionName];
+        NSString *exceptionName = [machError objectForKey:@SentryCrashField_ExceptionName];
         return [exceptionName isEqualToString:@"EXC_BAD_ACCESS"];
     }
     NSDictionary *signal = [errorReport objectForKey:@SentryCrashField_Signal];
@@ -318,8 +301,7 @@ typedef enum {
 {
     NSDictionary *machError = [errorReport objectForKey:@SentryCrashField_Mach];
     if (machError != nil) {
-        NSString *exceptionName =
-            [machError objectForKey:@SentryCrashField_ExceptionName];
+        NSString *exceptionName = [machError objectForKey:@SentryCrashField_ExceptionName];
         return [exceptionName isEqualToString:@"EXC_ARITHMETIC"];
     }
     NSDictionary *signal = [errorReport objectForKey:@SentryCrashField_Signal];
@@ -330,19 +312,16 @@ typedef enum {
 - (BOOL)isMemoryCorruption:(NSDictionary *)report
 {
     NSDictionary *crashedThread = [self crashedThreadReport:report];
-    NSArray *notableAddresses =
-        [crashedThread objectForKey:@SentryCrashField_NotableAddresses];
+    NSArray *notableAddresses = [crashedThread objectForKey:@SentryCrashField_NotableAddresses];
     for (NSDictionary *address in [notableAddresses objectEnumerator]) {
         NSString *type = [address objectForKey:@SentryCrashField_Type];
         if ([type isEqualToString:@"string"]) {
             NSString *value = [address objectForKey:@SentryCrashField_Value];
-            if ([value rangeOfString:@"autorelease pool page"].location
-                    != NSNotFound
-                && [value rangeOfString:@"corrupted"].location != NSNotFound) {
+            if ([value rangeOfString:@"autorelease pool page"].location != NSNotFound &&
+                [value rangeOfString:@"corrupted"].location != NSNotFound) {
                 return YES;
             }
-            if ([value rangeOfString:@"incorrect checksum for freed object"]
-                    .location
+            if ([value rangeOfString:@"incorrect checksum for freed object"].location
                 != NSNotFound) {
                 return YES;
             }
@@ -351,10 +330,8 @@ typedef enum {
 
     NSArray *backtrace = [self backtraceFromThreadReport:crashedThread];
     for (NSDictionary *entry in backtrace) {
-        NSString *objectName =
-            [entry objectForKey:@SentryCrashField_ObjectName];
-        NSString *symbolName =
-            [entry objectForKey:@SentryCrashField_SymbolName];
+        NSString *objectName = [entry objectForKey:@SentryCrashField_ObjectName];
+        NSString *symbolName = [entry objectForKey:@SentryCrashField_SymbolName];
         if ([symbolName isEqualToString:@"objc_autoreleasePoolPush"]) {
             return YES;
         }
@@ -375,8 +352,7 @@ typedef enum {
 
 - (SentryCrashDoctorFunctionCall *)lastFunctionCall:(NSDictionary *)report
 {
-    SentryCrashDoctorFunctionCall *function =
-        [[SentryCrashDoctorFunctionCall alloc] init];
+    SentryCrashDoctorFunctionCall *function = [[SentryCrashDoctorFunctionCall alloc] init];
     NSDictionary *lastStackEntry = [self lastStackEntry:report];
     function.name = [lastStackEntry objectForKey:@SentryCrashField_SymbolName];
 
@@ -384,35 +360,28 @@ typedef enum {
     NSDictionary *notableAddresses =
         [crashedThread objectForKey:@SentryCrashField_NotableAddresses];
     CPUFamily family = [self cpuFamily:report];
-    NSDictionary *registers =
-        [self basicRegistersFromThreadReport:crashedThread];
-    NSArray *regNames = [NSArray
-        arrayWithObjects:[self registerNameForFamily:family paramIndex:0],
-        [self registerNameForFamily:family paramIndex:1],
-        [self registerNameForFamily:family paramIndex:2],
-        [self registerNameForFamily:family paramIndex:3], nil];
+    NSDictionary *registers = [self basicRegistersFromThreadReport:crashedThread];
+    NSArray *regNames = [NSArray arrayWithObjects:[self registerNameForFamily:family paramIndex:0],
+                                 [self registerNameForFamily:family paramIndex:1],
+                                 [self registerNameForFamily:family paramIndex:2],
+                                 [self registerNameForFamily:family paramIndex:3], nil];
     NSMutableArray *params = [NSMutableArray arrayWithCapacity:4];
     for (NSString *regName in regNames) {
         SentryCrashDoctorParam *param = [[SentryCrashDoctorParam alloc] init];
-        param.address = (uintptr_t)[
-            [registers objectForKey:regName] unsignedLongLongValue];
+        param.address = (uintptr_t)[[registers objectForKey:regName] unsignedLongLongValue];
         NSDictionary *notableAddress = [notableAddresses objectForKey:regName];
         if (notableAddress == nil) {
-            param.value =
-                [NSString stringWithFormat:@"%p", (void *)param.address];
+            param.value = [NSString stringWithFormat:@"%p", (void *)param.address];
         } else {
             param.type = [notableAddress objectForKey:@SentryCrashField_Type];
-            NSString *className =
-                [notableAddress objectForKey:@SentryCrashField_Class];
-            NSString *previousClass = [notableAddress
-                objectForKey:@SentryCrashField_LastDeallocObject];
-            NSString *value =
-                [notableAddress objectForKey:@SentryCrashField_Value];
+            NSString *className = [notableAddress objectForKey:@SentryCrashField_Class];
+            NSString *previousClass =
+                [notableAddress objectForKey:@SentryCrashField_LastDeallocObject];
+            NSString *value = [notableAddress objectForKey:@SentryCrashField_Value];
 
             if ([param.type isEqualToString:@SentryCrashMemType_String]) {
                 param.value = value;
-            } else if ([param.type
-                           isEqualToString:@SentryCrashMemType_Object]) {
+            } else if ([param.type isEqualToString:@SentryCrashMemType_Object]) {
                 param.className = className;
                 param.isInstance = YES;
             } else if ([param.type isEqualToString:@SentryCrashMemType_Class]) {
@@ -431,13 +400,11 @@ typedef enum {
 
 - (NSString *)zombieCall:(SentryCrashDoctorFunctionCall *)functionCall
 {
-    if ([functionCall.name isEqualToString:@"objc_msgSend"]
-        && functionCall.params.count > 0 &&
+    if ([functionCall.name isEqualToString:@"objc_msgSend"] && functionCall.params.count > 0 &&
         [[functionCall.params objectAtIndex:0] previousClassName] != nil) {
         return [functionCall descriptionWithParamCount:4];
-    } else if ([functionCall.name isEqualToString:@"objc_retain"]
-        && functionCall.params.count > 0 &&
-        [[functionCall.params objectAtIndex:0] previousClassName] != nil) {
+    } else if ([functionCall.name isEqualToString:@"objc_retain"] && functionCall.params.count > 0
+        && [[functionCall.params objectAtIndex:0] previousClassName] != nil) {
         return [functionCall descriptionWithParamCount:1];
     }
     return nil;
@@ -445,8 +412,7 @@ typedef enum {
 
 - (BOOL)isStackOverflow:(NSDictionary *)crashedThreadReport
 {
-    NSDictionary *stack =
-        [crashedThreadReport objectForKey:@SentryCrashField_Stack];
+    NSDictionary *stack = [crashedThreadReport objectForKey:@SentryCrashField_Stack];
     return [[stack objectForKey:@SentryCrashField_Overflow] boolValue];
 }
 
@@ -460,32 +426,27 @@ typedef enum {
 - (NSString *)diagnoseCrash:(NSDictionary *)report
 {
     @try {
-        NSString *lastFunctionName = [[self lastInAppStackEntry:report]
-            objectForKey:@SentryCrashField_SymbolName];
+        NSString *lastFunctionName =
+            [[self lastInAppStackEntry:report] objectForKey:@SentryCrashField_SymbolName];
         NSDictionary *crashedThreadReport = [self crashedThreadReport:report];
         NSDictionary *errorReport = [self errorReport:report];
 
         if ([self isDeadlock:report]) {
-            return [NSString stringWithFormat:@"Main thread deadlocked in %@",
-                             lastFunctionName];
+            return [NSString stringWithFormat:@"Main thread deadlocked in %@", lastFunctionName];
         }
 
         if ([self isStackOverflow:crashedThreadReport]) {
-            return [NSString
-                stringWithFormat:@"Stack overflow in %@", lastFunctionName];
+            return [NSString stringWithFormat:@"Stack overflow in %@", lastFunctionName];
         }
 
         NSString *crashType = [errorReport objectForKey:@SentryCrashField_Type];
         if ([crashType isEqualToString:@SentryCrashExcType_NSException]) {
-            NSDictionary *exception =
-                [errorReport objectForKey:@SentryCrashField_NSException];
+            NSDictionary *exception = [errorReport objectForKey:@SentryCrashField_NSException];
             NSString *name = [exception objectForKey:@SentryCrashField_Name];
             NSString *reason = [exception objectForKey:@SentryCrashField_Reason]
                 ? [exception objectForKey:@SentryCrashField_Reason]
                 : [errorReport objectForKey:@SentryCrashField_Reason];
-            return [NSString
-                stringWithFormat:@"Application threw exception %@: %@", name,
-                reason];
+            return [NSString stringWithFormat:@"Application threw exception %@: %@", name, reason];
         }
 
         if ([self isMemoryCorruption:report]) {
@@ -496,40 +457,33 @@ typedef enum {
             return @"Math error (usually caused from division by 0).";
         }
 
-        SentryCrashDoctorFunctionCall *functionCall =
-            [self lastFunctionCall:report];
+        SentryCrashDoctorFunctionCall *functionCall = [self lastFunctionCall:report];
         NSString *zombieCall = [self zombieCall:functionCall];
         if (zombieCall != nil) {
-            return [NSString
-                stringWithFormat:@"Possible zombie in call: %@", zombieCall];
+            return [NSString stringWithFormat:@"Possible zombie in call: %@", zombieCall];
         }
 
         if ([self isInvalidAddress:errorReport]) {
-            uintptr_t address = (uintptr_t)[[errorReport
-                objectForKey:@SentryCrashField_Address] unsignedLongLongValue];
+            uintptr_t address = (uintptr_t)[
+                [errorReport objectForKey:@SentryCrashField_Address] unsignedLongLongValue];
             if (address == 0) {
                 return @"Attempted to dereference null pointer.";
             }
-            return
-                [NSString stringWithFormat:
-                              @"Attempted to dereference garbage pointer %p.",
-                          (void *)address];
+            return [NSString
+                stringWithFormat:@"Attempted to dereference garbage pointer %p.", (void *)address];
         }
 
         return nil;
     } @catch (NSException *e) {
         NSArray *symbols = [e callStackSymbols];
         if (symbols) {
-            return
-                [NSString stringWithFormat:
-                              @"No diagnosis due to exception %@:\n%@\nPlease "
-                              @"file a bug report to the SentryCrash project.",
-                          e, symbols];
+            return [NSString stringWithFormat:@"No diagnosis due to exception %@:\n%@\nPlease "
+                                              @"file a bug report to the SentryCrash project.",
+                             e, symbols];
         }
-        return [NSString
-            stringWithFormat:@"No diagnosis due to exception %@\nPlease file a "
-                             @"bug report to the SentryCrash project.",
-            e];
+        return [NSString stringWithFormat:@"No diagnosis due to exception %@\nPlease file a "
+                                          @"bug report to the SentryCrash project.",
+                         e];
     }
 }
 

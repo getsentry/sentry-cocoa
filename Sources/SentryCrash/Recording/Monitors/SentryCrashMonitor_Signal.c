@@ -89,8 +89,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         SentryCrashLOG_DEBUG("Filling out context.");
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForSignal(userContext, machineContext);
-        sentrycrashsc_initWithMachineContext(
-            &g_stackCursor, 100, machineContext);
+        sentrycrashsc_initWithMachineContext(&g_stackCursor, 100, machineContext);
 
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
@@ -131,8 +130,7 @@ installSignalHandler()
 
         if (g_signalStack.ss_sp == NULL) {
             SentryCrashLOG_ERROR(
-                "Failed to allocate signal stack area of size %ul",
-                g_signalStack.ss_size);
+                "Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
             goto failed;
         }
     }
@@ -148,10 +146,9 @@ installSignalHandler()
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     if (g_previousSignalHandlers == NULL) {
-        SentryCrashLOG_DEBUG(
-            "Allocating memory to store previous signal handlers.");
-        g_previousSignalHandlers = malloc(
-            sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
+        SentryCrashLOG_DEBUG("Allocating memory to store previous signal handlers.");
+        g_previousSignalHandlers
+            = malloc(sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
     }
 
     struct sigaction action = { { 0 } };
@@ -163,19 +160,15 @@ installSignalHandler()
     action.sa_sigaction = &handleSignal;
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        SentryCrashLOG_DEBUG(
-            "Assigning handler for signal %d", fatalSignals[i]);
-        if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i])
-            != 0) {
+        SentryCrashLOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
+        if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0) {
             char sigNameBuff[30];
             const char *sigName = sentrycrashsignal_signalName(fatalSignals[i]);
             if (sigName == NULL) {
-                snprintf(
-                    sigNameBuff, sizeof(sigNameBuff), "%d", fatalSignals[i]);
+                snprintf(sigNameBuff, sizeof(sigNameBuff), "%d", fatalSignals[i]);
                 sigName = sigNameBuff;
             }
-            SentryCrashLOG_ERROR(
-                "sigaction (%s): %s", sigName, strerror(errno));
+            SentryCrashLOG_ERROR("sigaction (%s): %s", sigName, strerror(errno));
             // Try to reverse the damage
             for (i--; i >= 0; i--) {
                 sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
@@ -200,8 +193,7 @@ uninstallSignalHandler(void)
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        SentryCrashLOG_DEBUG(
-            "Restoring original handler for signal %d", fatalSignals[i]);
+        SentryCrashLOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
@@ -237,8 +229,7 @@ static void
 addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 {
     if (!(eventContext->crashType
-            & (SentryCrashMonitorTypeSignal
-                | SentryCrashMonitorTypeMachException))) {
+            & (SentryCrashMonitorTypeSignal | SentryCrashMonitorTypeMachException))) {
         eventContext->signal.signum = SIGABRT;
     }
 }

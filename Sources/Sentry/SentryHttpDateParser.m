@@ -23,8 +23,7 @@ SentryHttpDateParser ()
 {
     if (self = [super init]) {
         self.dateFormatter = [[NSDateFormatter alloc] init];
-        [self.dateFormatter
-            setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
+        [self.dateFormatter setDateFormat:@"EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"];
         // Http dates are always expressed in GMT, never in local time.
         [self.dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
     }

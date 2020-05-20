@@ -44,8 +44,7 @@
 
 - (void)testImageUUIDInvalidName
 {
-    const uint8_t *uuidBytes
-        = sentrycrashdl_imageUUID("sdfgserghwerghwrh", true);
+    const uint8_t *uuidBytes = sentrycrashdl_imageUUID("sdfgserghwerghwrh", true);
     XCTAssertTrue(uuidBytes == NULL, @"");
 }
 

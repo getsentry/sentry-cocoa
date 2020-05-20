@@ -31,15 +31,12 @@ SentrySwizzleInfo ()
 @implementation SentrySwizzle
 
 static void
-swizzle(Class classToSwizzle, SEL selector,
-    SentrySwizzleImpFactoryBlock factoryBlock)
+swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factoryBlock)
 {
     Method method = class_getInstanceMethod(classToSwizzle, selector);
 
-    NSCAssert(NULL != method,
-        @"Selector %@ not found in %@ methods of class %@.",
-        NSStringFromSelector(selector),
-        class_isMetaClass(classToSwizzle) ? @"class" : @"instance",
+    NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
+        NSStringFromSelector(selector), class_isMetaClass(classToSwizzle) ? @"class" : @"instance",
         classToSwizzle);
 
     static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
@@ -65,8 +62,7 @@ swizzle(Class classToSwizzle, SEL selector,
             // If the class does not implement the method
             // we need to find an implementation in one of the superclasses.
             Class superclass = class_getSuperclass(classToSwizzle);
-            imp = method_getImplementation(
-                class_getInstanceMethod(superclass, selector));
+            imp = method_getImplementation(class_getInstanceMethod(superclass, selector));
         }
 
         return imp;
@@ -99,8 +95,7 @@ swizzle(Class classToSwizzle, SEL selector,
 
     pthread_mutex_lock(&gLock);
 
-    originalIMP
-        = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
+    originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 
     pthread_mutex_unlock(&gLock);
 }
@@ -110,8 +105,7 @@ swizzledClassesDictionary()
 {
     static NSMutableDictionary *swizzledClasses;
     static dispatch_once_t onceToken;
-    dispatch_once(
-        &onceToken, ^{ swizzledClasses = [NSMutableDictionary new]; });
+    dispatch_once(&onceToken, ^{ swizzledClasses = [NSMutableDictionary new]; });
     return swizzledClasses;
 }
 

@@ -132,8 +132,7 @@
 - (void)testSysCtlString
 {
     char buff[100] = { 0 };
-    bool success
-        = sentrycrashsysctl_string(CTL_KERN, KERN_OSTYPE, buff, sizeof(buff));
+    bool success = sentrycrashsysctl_string(CTL_KERN, KERN_OSTYPE, buff, sizeof(buff));
     XCTAssertTrue(success, @"");
     XCTAssertTrue(buff[0] != 0, @"");
 }
@@ -141,8 +140,7 @@
 - (void)testSysCtlStringInvalid
 {
     char buff[100] = { 0 };
-    bool success
-        = sentrycrashsysctl_string(CTL_KERN, 1000000, buff, sizeof(buff));
+    bool success = sentrycrashsysctl_string(CTL_KERN, 1000000, buff, sizeof(buff));
     XCTAssertFalse(success, @"");
     XCTAssertTrue(buff[0] == 0, @"");
 }
@@ -150,8 +148,7 @@
 - (void)testSysCtlStringForName
 {
     char buff[100] = { 0 };
-    bool success
-        = sentrycrashsysctl_stringForName("kern.ostype", buff, sizeof(buff));
+    bool success = sentrycrashsysctl_stringForName("kern.ostype", buff, sizeof(buff));
     XCTAssertTrue(success, @"");
     XCTAssertTrue(buff[0] != 0, @"");
 }
@@ -159,8 +156,7 @@
 - (void)testSysCtlStringForNameInvalid
 {
     char buff[100] = { 0 };
-    bool success = sentrycrashsysctl_stringForName(
-        "kernblah.ostype", buff, sizeof(buff));
+    bool success = sentrycrashsysctl_stringForName("kernblah.ostype", buff, sizeof(buff));
     XCTAssertFalse(success, @"");
     XCTAssertTrue(buff[0] == 0, @"");
 }
@@ -185,8 +181,7 @@
 
 - (void)testSysCtlDateForNameInvalid
 {
-    struct timeval value
-        = sentrycrashsysctl_timevalForName("kernblah.boottime");
+    struct timeval value = sentrycrashsysctl_timevalForName("kernblah.boottime");
     XCTAssertTrue(value.tv_sec == 0, @"");
 }
 
@@ -226,8 +221,7 @@
 - (void)testGetMacAddressInvalid
 {
     unsigned char macAddress[6] = { 0 };
-    bool success
-        = sentrycrashsysctl_getMacAddress("blah blah", (char *)macAddress);
+    bool success = sentrycrashsysctl_getMacAddress("blah blah", (char *)macAddress);
     XCTAssertFalse(success, @"");
 }
 

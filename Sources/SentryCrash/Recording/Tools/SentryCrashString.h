@@ -42,8 +42,7 @@ extern "C" {
  *
  * @param maxLength The maximum length to be considered a valid string.
  */
-bool sentrycrashstring_isNullTerminatedUTF8String(
-    const void *memory, int minLength, int maxLength);
+bool sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, int maxLength);
 
 /** Extract a hex value in the form "0x123456789abcdef" from a string.
  *
@@ -55,8 +54,7 @@ bool sentrycrashstring_isNullTerminatedUTF8String(
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashstring_extractHexValue(
-    const char *string, int stringLength, uint64_t *result);
+bool sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t *result);
 
 #ifdef __cplusplus
 }
