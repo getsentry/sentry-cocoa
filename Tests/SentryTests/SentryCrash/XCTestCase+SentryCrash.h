@@ -32,7 +32,6 @@
 
 - (void)removePath:(NSString *)path;
 
-- (void)createTempReportsAtPath:(NSString *)reportsPath
-                         prefix:(NSString *)reportPrefix;
+- (void)createTempReportsAtPath:(NSString *)reportsPath prefix:(NSString *)reportPrefix;
 
 @end

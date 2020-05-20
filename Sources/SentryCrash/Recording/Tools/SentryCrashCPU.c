@@ -59,10 +59,8 @@ sentrycrashcpu_i_fillState(const thread_t thread, const thread_state_t state,
 }
 #else
 bool
-sentrycrashcpu_i_fillState(__unused const thread_t thread,
-    __unused const thread_state_t state,
-    __unused const thread_state_flavor_t flavor,
-    __unused const mach_msg_type_number_t stateCount)
+sentrycrashcpu_i_fillState(__unused const thread_t thread, __unused const thread_state_t state,
+    __unused const thread_state_flavor_t flavor, __unused const mach_msg_type_number_t stateCount)
 {
     return false;
 }

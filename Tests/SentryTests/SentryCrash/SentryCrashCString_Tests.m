@@ -37,9 +37,7 @@
 {
     NSString *expected = @"Expected";
     SentryCrashCString *actual = [SentryCrashCString stringWithString:expected];
-    BOOL matches = strcmp([expected cStringUsingEncoding:NSUTF8StringEncoding],
-                       actual.bytes)
-        == 0;
+    BOOL matches = strcmp([expected cStringUsingEncoding:NSUTF8StringEncoding], actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expected.length, @"");
 }
@@ -48,8 +46,7 @@
 {
     const char *expected = "Expected";
     NSUInteger expectedLength = strlen(expected);
-    SentryCrashCString *actual =
-        [SentryCrashCString stringWithCString:expected];
+    SentryCrashCString *actual = [SentryCrashCString stringWithCString:expected];
     BOOL matches = strcmp(expected, actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expectedLength, @"");
@@ -70,8 +67,7 @@
 {
     const char *expected = "Expected";
     NSUInteger expectedLength = strlen(expected);
-    SentryCrashCString *actual =
-        [SentryCrashCString stringWithData:expected length:expectedLength];
+    SentryCrashCString *actual = [SentryCrashCString stringWithData:expected length:expectedLength];
     BOOL matches = strcmp(expected, actual.bytes) == 0;
     XCTAssertTrue(matches, @"");
     XCTAssertEqual(actual.length, expectedLength, @"");

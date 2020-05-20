@@ -39,8 +39,7 @@ extern "C" {
  *
  * @param skipEntries The number of stack entries to skip.
  */
-void sentrycrashsc_initSelfThread(
-    SentryCrashStackCursor *cursor, int skipEntries);
+void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries);
 
 #ifdef __cplusplus
 }

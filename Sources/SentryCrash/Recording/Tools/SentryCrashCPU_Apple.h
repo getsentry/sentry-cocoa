@@ -45,8 +45,8 @@ extern "C" {
  *
  * @return true if state fetching was successful.
  */
-bool sentrycrashcpu_i_fillState(thread_t thread, thread_state_t state,
-    thread_state_flavor_t flavor, mach_msg_type_number_t stateCount);
+bool sentrycrashcpu_i_fillState(thread_t thread, thread_state_t state, thread_state_flavor_t flavor,
+    mach_msg_type_number_t stateCount);
 
 #ifdef __cplusplus
 }

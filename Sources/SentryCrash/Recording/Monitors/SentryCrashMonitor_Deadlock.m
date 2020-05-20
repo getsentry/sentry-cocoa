@@ -74,10 +74,9 @@ static NSTimeInterval g_watchdogInterval = 0;
 {
     if ((self = [super init])) {
         // target (self) is retained until selector (runMonitor) exits.
-        self.monitorThread =
-            [[NSThread alloc] initWithTarget:self
-                                    selector:@selector(runMonitor)
-                                      object:nil];
+        self.monitorThread = [[NSThread alloc] initWithTarget:self
+                                                     selector:@selector(runMonitor)
+                                                       object:nil];
         self.monitorThread.name = @"SentryCrash Deadlock Detection Thread";
         [self.monitorThread start];
     }
@@ -166,8 +165,8 @@ initialize()
     static bool isInitialized = false;
     if (!isInitialized) {
         isInitialized = true;
-        dispatch_async(dispatch_get_main_queue(),
-            ^{ g_mainQueueThread = sentrycrashthread_self(); });
+        dispatch_async(
+            dispatch_get_main_queue(), ^{ g_mainQueueThread = sentrycrashthread_self(); });
     }
 }
 
@@ -197,8 +196,7 @@ isEnabled()
 SentryCrashMonitorAPI *
 sentrycrashcm_deadlock_getAPI()
 {
-    static SentryCrashMonitorAPI api
-        = { .setEnabled = setEnabled, .isEnabled = isEnabled };
+    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }
 

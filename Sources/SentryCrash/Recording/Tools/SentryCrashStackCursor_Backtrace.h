@@ -49,8 +49,8 @@ typedef struct {
  *
  * @param skipEntries The number of stack entries to skip.
  */
-void sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor,
-    const uintptr_t *backtrace, int backtraceLength, int skipEntries);
+void sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t *backtrace,
+    int backtraceLength, int skipEntries);
 
 #ifdef __cplusplus
 }

@@ -85,8 +85,7 @@ bool sentrycrashfu_readBytesFromFD(const int fd, char *bytes, int length);
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashfu_readEntireFile(
-    const char *path, char **data, int *length, int maxLength);
+bool sentrycrashfu_readEntireFile(const char *path, char **data, int *length, int maxLength);
 
 /** Write a string to a file.
  *
@@ -118,8 +117,7 @@ bool sentrycrashfu_writeFmtToFD(const int fd, const char *fmt, ...);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_writeFmtArgsToFD(
-    const int fd, const char *fmt, va_list args);
+bool sentrycrashfu_writeFmtArgsToFD(const int fd, const char *fmt, va_list args);
 
 /** Read a single line from a file.
  *
@@ -180,8 +178,8 @@ typedef struct {
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer,
-    const char *const path, char *writeBuffer, int writeBufferLength);
+bool sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *const path,
+    char *writeBuffer, int writeBufferLength);
 
 /** Close a buffered writer.
  *
@@ -199,8 +197,8 @@ void sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter *writer);
  *
  * @return True if the data was successfully written.
  */
-bool sentrycrashfu_writeBufferedWriter(SentryCrashBufferedWriter *writer,
-    const char *restrict const data, const int length);
+bool sentrycrashfu_writeBufferedWriter(
+    SentryCrashBufferedWriter *writer, const char *restrict const data, const int length);
 
 /** Flush a buffered writer, writing all uncommitted data to disk.
  *
@@ -232,8 +230,8 @@ typedef struct {
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader,
-    const char *const path, char *readBuffer, int readBufferLength);
+bool sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *const path,
+    char *readBuffer, int readBufferLength);
 
 /** Close a buffered reader.
  *

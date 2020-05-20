@@ -63,14 +63,12 @@ SentryHttpTransport ()
 
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    NSURLRequest *request =
-        [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
-                                                   andEvent:event
-                                           didFailWithError:&requestError];
+    NSURLRequest *request = [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+                                                                       andEvent:event
+                                                               didFailWithError:&requestError];
 
     if (nil != requestError) {
-        [SentryLog logWithMessage:requestError.localizedDescription
-                         andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
         if (completionHandler) {
             completionHandler(requestError);
         }
@@ -91,8 +89,7 @@ SentryHttpTransport ()
 {
 
     if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:
-                       @"SentryClient is disabled. (options.enabled = false)"
+        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
                          andLevel:kSentryLogLevelDebug];
         return;
     }
@@ -107,12 +104,10 @@ SentryHttpTransport ()
 
     NSError *requestError = nil;
     // TODO: We do multiple serializations here, we can improve this
-    NSURLRequest *request = [self createEnvelopeRequest:envelope
-                                       didFailWithError:requestError];
+    NSURLRequest *request = [self createEnvelopeRequest:envelope didFailWithError:requestError];
 
     if (nil != requestError) {
-        [SentryLog logWithMessage:requestError.localizedDescription
-                         andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
         if (completionHandler) {
             completionHandler(requestError);
         }
@@ -132,8 +127,7 @@ SentryHttpTransport ()
 
 - (void)setupQueueing
 {
-    self.shouldQueueEvent = ^BOOL(
-        NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    self.shouldQueueEvent = ^BOOL(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         // Taken from Apple Docs:
         // If a response from the server is received, regardless of whether the
         // request completes successfully or fails, the response parameter
@@ -154,10 +148,9 @@ SentryHttpTransport ()
 {
     return [[SentryNSURLRequest alloc]
         initEnvelopeRequestWithDsn:self.options.dsn
-                           andData:[SentrySerialization
-                                       dataWithEnvelope:envelope
-                                                options:0
-                                                  error:&error]
+                           andData:[SentrySerialization dataWithEnvelope:envelope
+                                                                 options:0
+                                                                   error:&error]
                   didFailWithError:&error];
 }
 
@@ -169,10 +162,8 @@ SentryHttpTransport ()
 
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request
-        withCompletionHandler:^(
-            NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            if (self.shouldQueueEvent == nil
-                || self.shouldQueueEvent(response, error) == NO) {
+        withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            if (self.shouldQueueEvent == nil || self.shouldQueueEvent(response, error) == NO) {
                 // don't need to queue this -> it most likely got sent
                 // thus we can remove the event from disk
                 [_self.fileManager removeFileAtPath:storedPath];
@@ -187,18 +178,17 @@ SentryHttpTransport ()
 }
 
 - (void)sendRequest:(NSURLRequest *)request
-    withCompletionHandler:
-        (_Nullable SentryRequestOperationFinished)completionHandler
+    withCompletionHandler:(_Nullable SentryRequestOperationFinished)completionHandler
 {
     __block SentryHttpTransport *_self = self;
-    [self.requestManager addRequest:request
-                  completionHandler:^(NSHTTPURLResponse *_Nullable response,
-                      NSError *_Nullable error) {
-                      [_self.rateLimits update:response];
-                      if (completionHandler) {
-                          completionHandler(response, error);
-                      }
-                  }];
+    [self.requestManager
+               addRequest:request
+        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            [_self.rateLimits update:response];
+            if (completionHandler) {
+                completionHandler(response, error);
+            }
+        }];
 }
 
 /**
@@ -209,8 +199,7 @@ SentryHttpTransport ()
 - (BOOL)isReadyToSend:(SentryRateLimitCategory)category
 {
     if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:
-                       @"SentryClient is disabled. (options.enabled = false)"
+        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
                          andLevel:kSentryLogLevelDebug];
         return NO;
     }
@@ -235,22 +224,21 @@ SentryHttpTransport ()
 
 - (void)sendAllCachedEvents
 {
-    for (SentryFileContents *fileContents in
-        [self.fileManager getAllEventsAndMaybeEnvelopes]) {
+    for (SentryFileContents *fileContents in [self.fileManager getAllEventsAndMaybeEnvelopes]) {
         // The fileContents don't give insights on the event type. We would have
         // to deserialize the contents, which is unnecessary at the moment,
         // because we classify every event with the same category. We still call
         // SentryRateLimitCategoryMapper to keep the code stable if the category
         // for event changes.
-        SentryRateLimitCategory category = [SentryRateLimitCategoryMapper
-            mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
+        SentryRateLimitCategory category =
+            [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
         if (![self isReadyToSend:category]) {
             [self.fileManager removeFileAtPath:fileContents.path];
         } else {
-            NSURLRequest *request = [[SentryNSURLRequest alloc]
-                initStoreRequestWithDsn:self.options.dsn
-                                andData:fileContents.contents
-                       didFailWithError:nil];
+            NSURLRequest *request =
+                [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.dsn
+                                                            andData:fileContents.contents
+                                                   didFailWithError:nil];
 
             [self sendCached:request withFilePath:fileContents.path];
         }
@@ -259,10 +247,8 @@ SentryHttpTransport ()
 
 - (void)sendAllCachedEnvelopes
 {
-    for (SentryFileContents *fileContents in
-        [self.fileManager getAllEnvelopes]) {
-        SentryEnvelope *envelope =
-            [SentrySerialization envelopeWithData:fileContents.contents];
+    for (SentryFileContents *fileContents in [self.fileManager getAllEnvelopes]) {
+        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:fileContents.contents];
         if (nil == envelope) {
             [self.fileManager removeFileAtPath:fileContents.path];
             continue;
@@ -276,8 +262,7 @@ SentryHttpTransport ()
         }
 
         NSError *requestError = nil;
-        NSURLRequest *request = [self createEnvelopeRequest:envelope
-                                           didFailWithError:requestError];
+        NSURLRequest *request = [self createEnvelopeRequest:envelope didFailWithError:requestError];
 
         if (nil != requestError) {
             [SentryLog logWithMessage:requestError.localizedDescription
@@ -293,8 +278,7 @@ SentryHttpTransport ()
 - (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath
 {
     [self sendRequest:request
-        withCompletionHandler:^(
-            NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        withCompletionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             // TODO: How does beforeSend work here
 
             // If the response is not nil we had an internet connection.

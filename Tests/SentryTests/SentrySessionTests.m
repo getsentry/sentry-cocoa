@@ -34,8 +34,7 @@
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
-    XCTAssertEqualWithAccuracy(
-        [expected.started timeIntervalSinceReferenceDate],
+    XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
     XCTAssertEqual(expected.status, actual.status);
     XCTAssertEqual(expected.distinctId, actual.distinctId);
@@ -64,13 +63,11 @@
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
-    XCTAssertEqualWithAccuracy(
-        [expected.started timeIntervalSinceReferenceDate],
+    XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
     XCTAssertEqualWithAccuracy([timestamp timeIntervalSinceReferenceDate],
         [expected.timestamp timeIntervalSinceReferenceDate], 1);
-    XCTAssertEqualWithAccuracy(
-        [expected.timestamp timeIntervalSinceReferenceDate],
+    XCTAssertEqualWithAccuracy([expected.timestamp timeIntervalSinceReferenceDate],
         [actual.timestamp timeIntervalSinceReferenceDate], 1);
     XCTAssertEqual(expected.status, actual.status);
     XCTAssertEqual(expected.distinctId, actual.distinctId);
@@ -91,11 +88,9 @@
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
-    XCTAssertEqualWithAccuracy(
-        [expected.started timeIntervalSinceReferenceDate],
+    XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
-    XCTAssertEqualWithAccuracy(
-        [expected.timestamp timeIntervalSinceReferenceDate],
+    XCTAssertEqualWithAccuracy([expected.timestamp timeIntervalSinceReferenceDate],
         [actual.timestamp timeIntervalSinceReferenceDate], 1);
     XCTAssertEqual(expected.status, actual.status);
     XCTAssertEqual(expected.distinctId, actual.distinctId);

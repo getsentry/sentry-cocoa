@@ -36,10 +36,9 @@
 
 #define SentryCrashCRASH_HOST_IOS (SentryCrashCRASH_HOST_APPLE && TARGET_OS_IOS)
 #define SentryCrashCRASH_HOST_TV (SentryCrashCRASH_HOST_APPLE && TARGET_OS_TV)
-#define SentryCrashCRASH_HOST_WATCH                                            \
-    (SentryCrashCRASH_HOST_APPLE && TARGET_OS_WATCH)
-#define SentryCrashCRASH_HOST_MAC                                              \
-    (SentryCrashCRASH_HOST_APPLE && TARGET_OS_MAC                              \
+#define SentryCrashCRASH_HOST_WATCH (SentryCrashCRASH_HOST_APPLE && TARGET_OS_WATCH)
+#define SentryCrashCRASH_HOST_MAC                                                                  \
+    (SentryCrashCRASH_HOST_APPLE && TARGET_OS_MAC                                                  \
         && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH))
 
 #if SentryCrashCRASH_HOST_APPLE
@@ -68,8 +67,7 @@
 #    define SentryCrashCRASH_HAS_STRNSTR 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV                      \
-    || SentryCrashCRASH_HOST_WATCH
+#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH
 #    define SentryCrashCRASH_HAS_UIKIT 1
 #else
 #    define SentryCrashCRASH_HAS_UIKIT 0
@@ -99,8 +97,7 @@
 #    define SentryCrashCRASH_HAS_UIDEVICE 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC                     \
-    || SentryCrashCRASH_HOST_TV
+#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_ALERTVIEW 1
 #else
 #    define SentryCrashCRASH_HAS_ALERTVIEW 0
@@ -131,29 +128,26 @@
 #endif
 
 // WatchOS signal is broken as of 3.1
-#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_IOS                 \
-    || SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_TV
+#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC        \
+    || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_SIGNAL 1
 #else
 #    define SentryCrashCRASH_HAS_SIGNAL 0
 #endif
 
-#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_MAC                 \
-    || SentryCrashCRASH_HOST_IOS
+#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_IOS
 #    define SentryCrashCRASH_HAS_SIGNAL_STACK 1
 #else
 #    define SentryCrashCRASH_HAS_SIGNAL_STACK 0
 #endif
 
-#if SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_IOS                     \
-    || SentryCrashCRASH_HOST_TV
+#if SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_THREADS_API 1
 #else
 #    define SentryCrashCRASH_HAS_THREADS_API 0
 #endif
 
-#if SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_IOS                     \
-    || SentryCrashCRASH_HOST_TV
+#if SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_REACHABILITY 1
 #else
 #    define SentryCrashCRASH_HAS_REACHABILITY 0

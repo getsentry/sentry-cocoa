@@ -12,8 +12,8 @@
 
 - (void)setListeners:(NSMutableArray<SentryScopeListener> *)listeners
 {
-    objc_setAssociatedObject(self, @selector(listeners), listeners,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(
+        self, @selector(listeners), listeners, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)addScopeListener:(SentryScopeListener)listener;

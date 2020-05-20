@@ -93,8 +93,7 @@ typedef struct SentryCrashStackCursor {
  * nothing and return false).
  */
 void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-    void (*resetCursor)(SentryCrashStackCursor *),
-    bool (*advanceCursor)(SentryCrashStackCursor *));
+    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *));
 
 /** Reset a cursor.
  *  INTERNAL METHOD. Do not call!

@@ -35,9 +35,8 @@
 #define REPORT_BADPOINTER @"CrashReport-SentryCrashTest-BadPointer.json"
 #define REPORT_NSEXCEPTION @"CrashReport-SentryCrashTest-NSException.json"
 
-#define APPLE_BADPOINTER_UNSYMBOLICATED                                        \
-    @"AppleReport-SentryCrashTest-BadPointer-Unsymbolicated.txt"
-#define APPLE_NSEXCEPTION_UNSYMBOLICATED                                       \
+#define APPLE_BADPOINTER_UNSYMBOLICATED @"AppleReport-SentryCrashTest-BadPointer-Unsymbolicated.txt"
+#define APPLE_NSEXCEPTION_UNSYMBOLICATED                                                           \
     @"AppleReport-SentryCrashTest-NSException-Unsymbolicated.txt"
 
 @interface SentryCrashReportConverter_Tests : FileBasedTestCase

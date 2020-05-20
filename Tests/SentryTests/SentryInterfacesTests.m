@@ -43,8 +43,7 @@
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
     XCTAssertNotNil(frame.symbolAddress);
-    NSDictionary *serialized =
-        @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" };
+    NSDictionary *serialized = @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" };
     XCTAssertEqualObjects([frame serialize], serialized);
 
     SentryFrame *frame2 = [[SentryFrame alloc] init];
@@ -89,10 +88,7 @@
         @"level" : @"info",
         @"environment" : @"bla",
         @"platform" : @"cocoa",
-        @"sdk" : @ {
-            @"name" : @"sentry.cocoa",
-            @"version" : SentryMeta.versionString
-        },
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event serialize], serialized);
@@ -103,10 +99,7 @@
         @"event_id" : event2.eventId,
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ {
-            @"name" : @"sentry.cocoa",
-            @"version" : SentryMeta.versionString
-        },
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event2 serialize], serialized2);
@@ -133,22 +126,14 @@
 
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event4.timestamp = date;
-    event4.extra = @{
-        @"key" : @ {
-            @1 : @"1",
-            @2 : [NSDate dateWithTimeIntervalSince1970:1582803326]
-        }
-    };
+    event4.extra =
+        @{ @"key" : @ { @1 : @"1", @2 : [NSDate dateWithTimeIntervalSince1970:1582803326] } };
     NSDictionary *serialized4 = @{
         @"event_id" : event4.eventId,
-        @"extra" :
-            @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26Z" } },
+        @"extra" : @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26Z" } },
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ {
-            @"name" : @"sentry.cocoa",
-            @"version" : SentryMeta.versionString
-        },
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);
@@ -224,8 +209,8 @@
                 @"2" : @2,
                 @"3" : @ { @"a" : @0 },
                 @"4" : @[
-                    @"1", @2, @{ @"a" : @0 }, @[ @"a" ],
-                    @"2020-02-27T11:35:26Z", @"https://sentry.io"
+                    @"1", @2, @{ @"a" : @0 }, @[ @"a" ], @"2020-02-27T11:35:26Z",
+                    @"https://sentry.io"
                 ],
                 @"5" : @"2020-02-27T11:35:26Z",
                 @"6" : @"https://sentry.io"
@@ -233,10 +218,7 @@
         },
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ {
-            @"name" : @"sentry.cocoa",
-            @"version" : SentryMeta.versionString
-        },
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);
@@ -244,20 +226,17 @@
 
 - (void)testSetDistToNil
 {
-    SentryEvent *eventEmptyDist =
-        [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
+    SentryEvent *eventEmptyDist = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     eventEmptyDist.releaseName = @"abc";
     XCTAssertNil([[eventEmptyDist serialize] objectForKey:@"dist"]);
-    XCTAssertEqualObjects(
-        [[eventEmptyDist serialize] objectForKey:@"release"], @"abc");
+    XCTAssertEqualObjects([[eventEmptyDist serialize] objectForKey:@"release"], @"abc");
 }
 
 - (void)testEventDataStoring
 {
-    NSData *jsonData =
-        [NSJSONSerialization dataWithJSONObject:@{ @"id" : @"1234" }
-                                        options:0
-                                          error:nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{ @"id" : @"1234" }
+                                                       options:0
+                                                         error:nil];
     SentryEvent *event = [[SentryEvent alloc] initWithJSON:jsonData];
     XCTAssertNil([[event serialize] objectForKey:@"json"]);
 }
@@ -266,15 +245,13 @@
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
-    SentryStacktrace *stacktrace =
-        [[SentryStacktrace alloc] initWithFrames:@[ frame ]
-                                       registers:@{ @"a" : @"1" }];
+    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:@[ frame ]
+                                                                  registers:@{ @"a" : @"1" }];
     XCTAssertNotNil(stacktrace.frames);
     XCTAssertNotNil(stacktrace.registers);
     [stacktrace fixDuplicateFrames];
     NSDictionary *serialized = @{
-        @"frames" :
-            @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
+        @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
         @"registers" : @ { @"a" : @"1" }
     };
     XCTAssertEqualObjects([stacktrace serialize], serialized);
@@ -294,17 +271,15 @@
     thread2.name = @"name";
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
-    thread2.stacktrace =
-        [[SentryStacktrace alloc] initWithFrames:@[ frame ]
-                                       registers:@{ @"a" : @"1" }];
+    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[ frame ]
+                                                        registers:@{ @"a" : @"1" }];
     NSDictionary *serialized2 = @{
         @"id" : @(2),
         @"crashed" : @(YES),
         @"current" : @(NO),
         @"name" : @"name",
         @"stacktrace" : @ {
-            @"frames" :
-                @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
+            @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
             @"registers" : @ { @"a" : @"1" }
         }
     };
@@ -364,8 +339,7 @@
 
 - (void)testException
 {
-    SentryException *exception =
-        [[SentryException alloc] initWithValue:@"value" type:@"type"];
+    SentryException *exception = [[SentryException alloc] initWithValue:@"value" type:@"type"];
     XCTAssertNotNil(exception.value);
     XCTAssertNotNil(exception.type);
     NSDictionary *serialized = @{
@@ -374,8 +348,7 @@
     };
     XCTAssertEqualObjects([exception serialize], serialized);
 
-    SentryException *exception2 =
-        [[SentryException alloc] initWithValue:@"value" type:@"type"];
+    SentryException *exception2 = [[SentryException alloc] initWithValue:@"value" type:@"type"];
     XCTAssertNotNil(exception2.value);
     XCTAssertNotNil(exception2.type);
 
@@ -386,9 +359,8 @@
     thread2.name = @"name";
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
-    thread2.stacktrace =
-        [[SentryStacktrace alloc] initWithFrames:@[ frame ]
-                                       registers:@{ @"a" : @"1" }];
+    thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[ frame ]
+                                                        registers:@{ @"a" : @"1" }];
 
     exception2.thread = thread2;
     exception2.mechanism = [[SentryMechanism alloc] initWithType:@"test"];
@@ -398,8 +370,7 @@
         @"type" : @"type",
         @"thread_id" : @(2),
         @"stacktrace" : @ {
-            @"frames" :
-                @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
+            @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
             @"registers" : @ { @"a" : @"1" }
         },
         @"module" : @"module",
@@ -417,9 +388,8 @@
 
 - (void)testBreadcrumb
 {
-    SentryBreadcrumb *crumb =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                       category:@"http"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"http"];
     XCTAssertTrue(crumb.level >= 0);
     XCTAssertNotNil(crumb.category);
     NSDate *date = [NSDate date];
@@ -431,9 +401,8 @@
     };
     XCTAssertEqualObjects([crumb serialize], serialized);
 
-    SentryBreadcrumb *crumb2 =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                       category:@"http"];
+    SentryBreadcrumb *crumb2 = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                              category:@"http"];
     XCTAssertTrue(crumb2.level >= 0);
     XCTAssertNotNil(crumb2.category);
     crumb2.data = @{ @"bla" : @"1" };

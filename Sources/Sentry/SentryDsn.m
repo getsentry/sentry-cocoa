@@ -30,12 +30,10 @@ SentryDsn ()
 
 - (NSString *)getHash
 {
-    NSData *data =
-        [[self.url absoluteString] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [[self.url absoluteString] dataUsingEncoding:NSUTF8StringEncoding];
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
-    NSMutableString *output =
-        [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
     for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
         [output appendFormat:@"%02x", digest[i]];
     }
@@ -47,8 +45,7 @@ SentryDsn ()
     if (nil == _storeEndpoint) {
         @synchronized(self) {
             if (nil == _storeEndpoint) {
-                _storeEndpoint = [[self getBaseEndpoint]
-                    URLByAppendingPathComponent:@"store/"];
+                _storeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
             }
         }
     }
@@ -60,8 +57,8 @@ SentryDsn ()
     if (nil == _envelopeEndpoint) {
         @synchronized(self) {
             if (nil == _envelopeEndpoint) {
-                _envelopeEndpoint = [[self getBaseEndpoint]
-                    URLByAppendingPathComponent:@"envelope/"];
+                _envelopeEndpoint =
+                    [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
             }
         }
     }
@@ -81,16 +78,14 @@ SentryDsn ()
     if ([paths count] > 2) {
         [paths removeObjectAtIndex:0]; // We remove the leading /
         [paths removeLastObject]; // We remove projectId since we add it later
-        path = [NSString
-            stringWithFormat:@"/%@",
-            [paths componentsJoinedByString:@"/"]]; // We put together the path
+        path = [NSString stringWithFormat:@"/%@",
+                         [paths componentsJoinedByString:@"/"]]; // We put together the path
     }
     NSURLComponents *components = [NSURLComponents new];
     components.scheme = url.scheme;
     components.host = url.host;
     components.port = url.port;
-    components.path =
-        [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
+    components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
     return components.URL;
 }
 
@@ -98,8 +93,7 @@ SentryDsn ()
                     didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSString *trimmedDsnString = [dsnString
-        stringByTrimmingCharactersInSet:[NSCharacterSet
-                                            whitespaceAndNewlineCharacterSet]];
+        stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:trimmedDsnString];
     NSString *errorMessage = nil;
@@ -125,8 +119,7 @@ SentryDsn ()
     }
     if (nil == url) {
         if (nil != error) {
-            *error = NSErrorFromSentryError(
-                kSentryErrorInvalidDsnError, errorMessage);
+            *error = NSErrorFromSentryError(kSentryErrorInvalidDsnError, errorMessage);
         }
         return nil;
     }

@@ -73,8 +73,8 @@ static SentryCrashStackCursor g_stackCursor;
 typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
 
 extern "C" {
-void __cxa_throw(void *thrown_exception, std::type_info *tinfo,
-    void (*dest)(void *)) __attribute__((weak));
+void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
+    __attribute__((weak));
 
 void
 __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
@@ -120,11 +120,10 @@ CPPExceptionTerminate(void)
         } catch (std::exception &exc) {
             strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
         }
-#define CATCH_VALUE(TYPE, PRINTFTYPE)                                          \
-    catch (TYPE value)                                                         \
-    {                                                                          \
-        snprintf(                                                              \
-            descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value); \
+#define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
+    catch (TYPE value)                                                                             \
+    {                                                                                              \
+        snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
     }
         CATCH_VALUE(char, d)
         CATCH_VALUE(short, d)
@@ -146,8 +145,7 @@ CPPExceptionTerminate(void)
         // TODO: Should this be done here? Maybe better in the exception
         // handler?
         SentryCrashMC_NEW_CONTEXT(machineContext);
-        sentrycrashmc_getContextForThread(
-            sentrycrashthread_self(), machineContext, true);
+        sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
 
         SentryCrashLOG_DEBUG("Filling out context.");
         crashContext->crashType = SentryCrashMonitorTypeCPPException;
@@ -193,8 +191,7 @@ setEnabled(bool isEnabled)
             initialize();
 
             sentrycrashid_generate(g_eventID);
-            g_originalTerminateHandler
-                = std::set_terminate(CPPExceptionTerminate);
+            g_originalTerminateHandler = std::set_terminate(CPPExceptionTerminate);
         } else {
             std::set_terminate(g_originalTerminateHandler);
         }
@@ -211,7 +208,6 @@ isEnabled()
 extern "C" SentryCrashMonitorAPI *
 sentrycrashcm_cppexception_getAPI()
 {
-    static SentryCrashMonitorAPI api
-        = { .setEnabled = setEnabled, .isEnabled = isEnabled };
+    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }

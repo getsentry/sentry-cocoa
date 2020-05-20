@@ -36,8 +36,7 @@ SentryCrashJSONCodec ()
 #pragma mark Properties
 
 /** Callbacks from the C library */
-@property (nonatomic, readwrite, assign)
-    SentryCrashJSONDecodeCallbacks *callbacks;
+@property (nonatomic, readwrite, assign) SentryCrashJSONDecodeCallbacks *callbacks;
 
 /** Stack of arrays/objects as the decoded content is built */
 @property (nonatomic, readwrite, retain) NSMutableArray *containerStack;
@@ -76,9 +75,8 @@ SentryCrashJSONCodec ()
  *
  * @return A new codec.
  */
-+ (SentryCrashJSONCodec *)
-    codecWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
-             decodeOptions:(SentryCrashJSONDecodeOption)decodeOptions;
++ (SentryCrashJSONCodec *)codecWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
+                                   decodeOptions:(SentryCrashJSONDecodeOption)decodeOptions;
 
 /** Initializer.
  *
@@ -113,12 +111,10 @@ SentryCrashJSONCodec ()
 
 #pragma mark Constructors/Destructor
 
-+ (SentryCrashJSONCodec *)
-    codecWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
-             decodeOptions:(SentryCrashJSONDecodeOption)decodeOptions
++ (SentryCrashJSONCodec *)codecWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
+                                   decodeOptions:(SentryCrashJSONDecodeOption)decodeOptions
 {
-    return [[self alloc] initWithEncodeOptions:encodeOptions
-                                 decodeOptions:decodeOptions];
+    return [[self alloc] initWithEncodeOptions:encodeOptions decodeOptions:decodeOptions];
 }
 
 - (id)initWithEncodeOptions:(SentryCrashJSONEncodeOption)encodeOptions
@@ -136,15 +132,12 @@ SentryCrashJSONCodec ()
         self.callbacks->onIntegerElement = onIntegerElement;
         self.callbacks->onNullElement = onNullElement;
         self.callbacks->onStringElement = onStringElement;
-        self.prettyPrint
-            = (encodeOptions & SentryCrashJSONEncodeOptionPretty) != 0;
+        self.prettyPrint = (encodeOptions & SentryCrashJSONEncodeOptionPretty) != 0;
         self.sorted = (encodeOptions & SentryCrashJSONEncodeOptionSorted) != 0;
         self.ignoreNullsInArrays
-            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInArray)
-            != 0;
+            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInArray) != 0;
         self.ignoreNullsInObjects
-            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInObject)
-            != 0;
+            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInObject) != 0;
     }
     return self;
 }
@@ -174,14 +167,12 @@ onElement(SentryCrashJSONCodec *codec, NSString *name, id element)
         codec.error = [NSError
             errorWithDomain:@"SentryCrashJSONCodecObjC"
                        code:0
-                description:@"Type %@ not allowed as top level container",
-                [element class]];
+                description:@"Type %@ not allowed as top level container", [element class]];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
 
     if ([codec->_currentContainer isKindOfClass:[NSMutableDictionary class]]) {
-        [(NSMutableDictionary *)codec->_currentContainer setValue:element
-                                                           forKey:name];
+        [(NSMutableDictionary *)codec->_currentContainer setValue:element forKey:name];
     } else {
         [(NSMutableArray *)codec->_currentContainer addObject:element];
     }
@@ -205,8 +196,7 @@ onBeginContainer(SentryCrashJSONCodec *codec, NSString *name, id container)
 }
 
 static int
-onBooleanElement(
-    const char *const cName, const bool value, void *const userData)
+onBooleanElement(const char *const cName, const bool value, void *const userData)
 {
     NSString *name = stringFromCString(cName);
     id element = [NSNumber numberWithBool:value];
@@ -215,8 +205,7 @@ onBooleanElement(
 }
 
 static int
-onFloatingPointElement(
-    const char *const cName, const double value, void *const userData)
+onFloatingPointElement(const char *const cName, const double value, void *const userData)
 {
     NSString *name = stringFromCString(cName);
     id element = [NSNumber numberWithDouble:value];
@@ -225,8 +214,7 @@ onFloatingPointElement(
 }
 
 static int
-onIntegerElement(
-    const char *const cName, const int64_t value, void *const userData)
+onIntegerElement(const char *const cName, const int64_t value, void *const userData)
 {
     NSString *name = stringFromCString(cName);
     id element = [NSNumber numberWithLongLong:value];
@@ -240,8 +228,7 @@ onNullElement(const char *const cName, void *const userData)
     NSString *name = stringFromCString(cName);
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
 
-    if ((codec->_ignoreNullsInArrays &&
-            [codec->_currentContainer isKindOfClass:[NSArray class]])
+    if ((codec->_ignoreNullsInArrays && [codec->_currentContainer isKindOfClass:[NSArray class]])
         || (codec->_ignoreNullsInObjects &&
             [codec->_currentContainer isKindOfClass:[NSDictionary class]])) {
         return SentryCrashJSON_OK;
@@ -251,12 +238,10 @@ onNullElement(const char *const cName, void *const userData)
 }
 
 static int
-onStringElement(
-    const char *const cName, const char *const value, void *const userData)
+onStringElement(const char *const cName, const char *const value, void *const userData)
 {
     NSString *name = stringFromCString(cName);
-    id element = [NSString stringWithCString:value
-                                    encoding:NSUTF8StringEncoding];
+    id element = [NSString stringWithCString:value encoding:NSUTF8StringEncoding];
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
     return onElement(codec, name, element);
 }
@@ -285,18 +270,16 @@ onEndContainer(void *const userData)
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
 
     if ([codec->_containerStack count] == 0) {
-        codec.error = [NSError
-            errorWithDomain:@"SentryCrashJSONCodecObjC"
-                       code:0
-                description:
-                    @"Already at the top level; no container left to end"];
+        codec.error =
+            [NSError errorWithDomain:@"SentryCrashJSONCodecObjC"
+                                code:0
+                         description:@"Already at the top level; no container left to end"];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
     [codec->_containerStack removeLastObject];
     NSUInteger count = [codec->_containerStack count];
     if (count > 0) {
-        codec->_currentContainer =
-            [codec->_containerStack objectAtIndex:count - 1];
+        codec->_currentContainer = [codec->_containerStack objectAtIndex:count - 1];
     } else {
         codec->_currentContainer = nil;
     }
@@ -318,20 +301,18 @@ addJSONData(const char *const bytes, const int length, void *const userData)
 }
 
 static int
-encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
-    SentryCrashJSONEncodeContext *context)
+encodeObject(
+    SentryCrashJSONCodec *codec, id object, NSString *name, SentryCrashJSONEncodeContext *context)
 {
     int result;
     const char *cName = [name UTF8String];
     if ([object isKindOfClass:[NSString class]]) {
         NSData *data = [object dataUsingEncoding:NSUTF8StringEncoding];
-        result = sentrycrashjson_addStringElement(
-            context, cName, data.bytes, (int)data.length);
+        result = sentrycrashjson_addStringElement(context, cName, data.bytes, (int)data.length);
         if (result == SentryCrashJSON_ERROR_INVALID_CHARACTER) {
-            codec.error =
-                [NSError errorWithDomain:@"SentryCrashJSONCodecObjC"
-                                    code:0
-                             description:@"Invalid character in %@", object];
+            codec.error = [NSError errorWithDomain:@"SentryCrashJSONCodecObjC"
+                                              code:0
+                                       description:@"Invalid character in %@", object];
         }
         return result;
     }
@@ -343,25 +324,20 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
         case kCFNumberFloatType:
         case kCFNumberCGFloatType:
         case kCFNumberDoubleType:
-            return sentrycrashjson_addFloatingPointElement(
-                context, cName, [object doubleValue]);
+            return sentrycrashjson_addFloatingPointElement(context, cName, [object doubleValue]);
         case kCFNumberCharType:
-            return sentrycrashjson_addBooleanElement(
-                context, cName, [object boolValue]);
+            return sentrycrashjson_addBooleanElement(context, cName, [object boolValue]);
         default:
-            return sentrycrashjson_addIntegerElement(
-                context, cName, [object longLongValue]);
+            return sentrycrashjson_addIntegerElement(context, cName, [object longLongValue]);
         }
     }
 
     if ([object isKindOfClass:[NSArray class]]) {
-        if ((result = sentrycrashjson_beginArray(context, cName))
-            != SentryCrashJSON_OK) {
+        if ((result = sentrycrashjson_beginArray(context, cName)) != SentryCrashJSON_OK) {
             return result;
         }
         for (id subObject in object) {
-            if ((result = encodeObject(codec, subObject, NULL, context))
-                != SentryCrashJSON_OK) {
+            if ((result = encodeObject(codec, subObject, NULL, context)) != SentryCrashJSON_OK) {
                 return result;
             }
         }
@@ -369,8 +345,7 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
     }
 
     if ([object isKindOfClass:[NSDictionary class]]) {
-        if ((result = sentrycrashjson_beginObject(context, cName))
-            != SentryCrashJSON_OK) {
+        if ((result = sentrycrashjson_beginObject(context, cName)) != SentryCrashJSON_OK) {
             return result;
         }
         NSArray *keys = [(NSDictionary *)object allKeys];
@@ -378,8 +353,7 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
             keys = [keys sortedArrayUsingSelector:@selector(compare:)];
         }
         for (id key in keys) {
-            if ((result = encodeObject(
-                     codec, [object valueForKey:key], key, context))
+            if ((result = encodeObject(codec, [object valueForKey:key], key, context))
                 != SentryCrashJSON_OK) {
                 return result;
             }
@@ -396,20 +370,17 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
         time_t timestamp = (time_t)((NSDate *)object).timeIntervalSince1970;
         sentrycrashdate_utcStringFromTimestamp(timestamp, string);
         NSData *data = [NSData dataWithBytes:string length:strnlen(string, 20)];
-        return sentrycrashjson_addStringElement(
-            context, cName, data.bytes, (int)data.length);
+        return sentrycrashjson_addStringElement(context, cName, data.bytes, (int)data.length);
     }
 
     if ([object isKindOfClass:[NSData class]]) {
         NSData *data = (NSData *)object;
-        return sentrycrashjson_addDataElement(
-            context, cName, data.bytes, (int)data.length);
+        return sentrycrashjson_addDataElement(context, cName, data.bytes, (int)data.length);
     }
 
-    codec.error = [NSError
-        errorWithDomain:@"SentryCrashJSONCodecObjC"
-                   code:0
-            description:@"Could not determine type of %@", [object class]];
+    codec.error = [NSError errorWithDomain:@"SentryCrashJSONCodecObjC"
+                                      code:0
+                               description:@"Could not determine type of %@", [object class]];
     return SentryCrashJSON_ERROR_INVALID_DATA;
 }
 
@@ -421,12 +392,10 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
 {
     NSMutableData *data = [NSMutableData data];
     SentryCrashJSONEncodeContext JSONContext;
-    sentrycrashjson_beginEncode(&JSONContext,
-        encodeOptions & SentryCrashJSONEncodeOptionPretty, addJSONData,
-        (__bridge void *)data);
-    SentryCrashJSONCodec *codec =
-        [self codecWithEncodeOptions:encodeOptions
-                       decodeOptions:SentryCrashJSONDecodeOptionNone];
+    sentrycrashjson_beginEncode(&JSONContext, encodeOptions & SentryCrashJSONEncodeOptionPretty,
+        addJSONData, (__bridge void *)data);
+    SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:encodeOptions
+                                                 decodeOptions:SentryCrashJSONDecodeOptionNone];
 
     int result = encodeObject(codec, object, NULL, &JSONContext);
     if (error != nil) {
@@ -439,19 +408,17 @@ encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name,
      options:(SentryCrashJSONDecodeOption)decodeOptions
        error:(NSError *__autoreleasing *)error
 {
-    SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:0
-                                                 decodeOptions:decodeOptions];
+    SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:0 decodeOptions:decodeOptions];
     NSMutableData *stringData = [NSMutableData dataWithLength:10001];
     int errorOffset;
-    int result = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length,
-        stringData.mutableBytes, (int)stringData.length, codec.callbacks,
-        (__bridge void *)codec, &errorOffset);
+    int result
+        = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length, stringData.mutableBytes,
+            (int)stringData.length, codec.callbacks, (__bridge void *)codec, &errorOffset);
     if (result != SentryCrashJSON_OK && codec.error == nil) {
-        codec.error =
-            [NSError errorWithDomain:@"SentryCrashJSONCodecObjC"
-                                code:0
-                         description:@"%s (offset %d)",
-                         sentrycrashjson_stringForError(result), errorOffset];
+        codec.error = [NSError
+            errorWithDomain:@"SentryCrashJSONCodecObjC"
+                       code:0
+                description:@"%s (offset %d)", sentrycrashjson_stringForError(result), errorOffset];
     }
     if (error != nil) {
         *error = codec.error;

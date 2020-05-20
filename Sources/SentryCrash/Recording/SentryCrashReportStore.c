@@ -67,16 +67,15 @@ getNextUniqueID()
 static void
 getCrashReportPathByID(int64_t id, char *pathBuffer)
 {
-    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH,
-        "%s/%s-report-%016llx.json", g_reportsPath, g_appName, id);
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx.json", g_reportsPath,
+        g_appName, id);
 }
 
 static int64_t
 getReportIDFromFilename(const char *filename)
 {
     char scanFormat[100];
-    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json",
-        g_appName);
+    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
@@ -223,19 +222,16 @@ sentrycrashcrs_addUserReport(const char *report, int reportLength)
 
     int fd = open(crashReportPath, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
-        SentryCrashLOG_ERROR(
-            "Could not open file %s: %s", crashReportPath, strerror(errno));
+        SentryCrashLOG_ERROR("Could not open file %s: %s", crashReportPath, strerror(errno));
         goto done;
     }
 
     int bytesWritten = (int)write(fd, report, (unsigned)reportLength);
     if (bytesWritten < 0) {
-        SentryCrashLOG_ERROR(
-            "Could not write to file %s: %s", crashReportPath, strerror(errno));
+        SentryCrashLOG_ERROR("Could not write to file %s: %s", crashReportPath, strerror(errno));
         goto done;
     } else if (bytesWritten < reportLength) {
-        SentryCrashLOG_ERROR(
-            "Expected to write %d bytes to file %s, but only wrote %d",
+        SentryCrashLOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
             crashReportPath, reportLength, bytesWritten);
     }
 

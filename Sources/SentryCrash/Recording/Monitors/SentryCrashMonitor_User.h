@@ -56,9 +56,8 @@ extern "C" {
  * @param terminateProgram If true, do not return from this function call.
  * Terminate the program instead.
  */
-void sentrycrashcm_reportUserException(const char *name, const char *reason,
-    const char *language, const char *lineOfCode, const char *stackTrace,
-    bool logAllThreads, bool terminateProgram);
+void sentrycrashcm_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram);
 
 /** Access the Monitor API.
  */

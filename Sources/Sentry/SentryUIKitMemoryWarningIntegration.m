@@ -29,24 +29,20 @@ SentryUIKitMemoryWarningIntegration ()
 #if SENTRY_HAS_UIKIT
     NSString __block *integrationName
         = NSStringFromClass(SentryUIKitMemoryWarningIntegration.class);
-    SentryEvent *event =
-        [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
     event.message = @"Memory Warning";
     [NSNotificationCenter.defaultCenter
         addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                    if (nil !=
-                        [SentrySDK.currentHub getIntegration:integrationName]) {
+                    if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
                         [SentrySDK captureEvent:event];
                     }
                 }];
 #else
-    [SentryLog
-        logWithMessage:
-            @"NO UIKit -> SentryUIKitMemoryWarningIntegration does nothing."
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"NO UIKit -> SentryUIKitMemoryWarningIntegration does nothing."
+                     andLevel:kSentryLogLevelDebug];
 #endif
 }
 

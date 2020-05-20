@@ -14,13 +14,11 @@
     SentryEvent *event = [[SentryEvent alloc] init];
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId
-                                                       singleItem:item];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId singleItem:item];
     // Sanity check
     XCTAssertEqual(event.eventId, envelope.header.eventId);
     XCTAssertEqual(1, envelope.items.count);
-    XCTAssertEqualObjects(
-        @"event", [envelope.items objectAtIndex:0].header.type);
+    XCTAssertEqualObjects(@"event", [envelope.items objectAtIndex:0].header.type);
 
     // Act
     NSData *serializedEnvelope = [SentrySerialization dataWithEnvelope:envelope
@@ -30,11 +28,9 @@
         [SentrySerialization envelopeWithData:serializedEnvelope];
 
     // Assert
-    XCTAssertEqualObjects(
-        envelope.header.eventId, deserializedEnvelope.header.eventId);
+    XCTAssertEqualObjects(envelope.header.eventId, deserializedEnvelope.header.eventId);
     XCTAssertEqual(1, (int)envelope.items.count);
-    XCTAssertEqualObjects(
-        @"event", [envelope.items objectAtIndex:0].header.type);
+    XCTAssertEqualObjects(@"event", [envelope.items objectAtIndex:0].header.type);
     XCTAssertEqual([envelope.items objectAtIndex:0].header.length,
         [deserializedEnvelope.items objectAtIndex:0].header.length);
     XCTAssertTrue([[envelope.items objectAtIndex:0].data
@@ -54,16 +50,13 @@
 
         NSData *itemData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
         SentryEnvelopeItemHeader *itemHeader =
-            [[SentryEnvelopeItemHeader alloc] initWithType:bodyChar
-                                                    length:itemData.length];
-        SentryEnvelopeItem *item =
-            [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
-                                                  data:itemData];
+            [[SentryEnvelopeItemHeader alloc] initWithType:bodyChar length:itemData.length];
+        SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
+                                                                         data:itemData];
         [items addObject:item];
     }
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:nil
-                                                            items:items];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:nil items:items];
     // Sanity check
     XCTAssertNil(envelope.header.eventId);
     XCTAssertEqual(itemsCount, (int)envelope.items.count);
@@ -81,8 +74,7 @@
     for (int j = 0; j < itemsCount; ++j) {
         NSString *type = [NSString stringWithFormat:@"%d", j];
 
-        XCTAssertEqualObjects(
-            type, [envelope.items objectAtIndex:j].header.type);
+        XCTAssertEqualObjects(type, [envelope.items objectAtIndex:j].header.type);
         XCTAssertEqual([envelope.items objectAtIndex:j].header.length,
             [deserializedEnvelope.items objectAtIndex:j].header.length);
         XCTAssertTrue([[envelope.items objectAtIndex:j].data
@@ -95,18 +87,14 @@
     // Arrange
     NSData *itemData = [[NSData alloc] initWithBytes:nil length:0];
     SentryEnvelopeItemHeader *itemHeader =
-        [[SentryEnvelopeItemHeader alloc] initWithType:@"attachment"
-                                                length:itemData.length];
+        [[SentryEnvelopeItemHeader alloc] initWithType:@"attachment" length:itemData.length];
 
-    SentryEnvelopeItem *item =
-        [[SentryEnvelopeItem alloc] initWithHeader:itemHeader data:itemData];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:nil
-                                                       singleItem:item];
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader data:itemData];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:nil singleItem:item];
 
     // Sanity check
     XCTAssertEqual(1, envelope.items.count);
-    XCTAssertEqualObjects(
-        @"attachment", [envelope.items objectAtIndex:0].header.type);
+    XCTAssertEqualObjects(@"attachment", [envelope.items objectAtIndex:0].header.type);
     XCTAssertEqual(0, (int)([envelope.items objectAtIndex:0].header.length));
 
     // Act
@@ -118,25 +106,21 @@
 
     // Assert
     XCTAssertEqual(1, deserializedEnvelope.items.count);
-    XCTAssertEqualObjects(@"attachment",
-        [deserializedEnvelope.items objectAtIndex:0].header.type);
-    XCTAssertEqual(
-        0, (int)([deserializedEnvelope.items objectAtIndex:0].header.length));
-    XCTAssertEqual(
-        0, (int)([deserializedEnvelope.items objectAtIndex:0].data.length));
+    XCTAssertEqualObjects(@"attachment", [deserializedEnvelope.items objectAtIndex:0].header.type);
+    XCTAssertEqual(0, (int)([deserializedEnvelope.items objectAtIndex:0].header.length));
+    XCTAssertEqual(0, (int)([deserializedEnvelope.items objectAtIndex:0].data.length));
 }
 
 - (void)testSentryEnvelopeSerializerZeroByteItemReturnsEnvelope
 {
-    NSData *itemData = [@"{}\n{\"length\":0,\"type\":\"attachment\"}\n"
-        dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *itemData =
+        [@"{}\n{\"length\":0,\"type\":\"attachment\"}\n" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertNotNil([SentrySerialization envelopeWithData:itemData]);
 }
 
 - (void)testSentryEnvelopeSerializerItemWithoutTypeReturnsNil
 {
-    NSData *itemData =
-        [@"{}\n{\"length\":0}" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *itemData = [@"{}\n{\"length\":0}" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertNil([SentrySerialization envelopeWithData:itemData]);
 }
 

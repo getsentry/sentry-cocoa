@@ -84,8 +84,7 @@ onBooleanElement(const char *const name, const bool value, void *const userData)
 }
 
 static int
-onFloatingPointElement(
-    const char *const name, const double value, void *const userData)
+onFloatingPointElement(const char *const name, const double value, void *const userData)
 {
     SentryCrash_AppState *state = userData;
 
@@ -100,8 +99,7 @@ onFloatingPointElement(
 }
 
 static int
-onIntegerElement(
-    const char *const name, const int64_t value, void *const userData)
+onIntegerElement(const char *const name, const int64_t value, void *const userData)
 {
     SentryCrash_AppState *state = userData;
 
@@ -127,8 +125,8 @@ onNullElement(__unused const char *const name, __unused void *const userData)
 }
 
 static int
-onStringElement(__unused const char *const name,
-    __unused const char *const value, __unused void *const userData)
+onStringElement(__unused const char *const name, __unused const char *const value,
+    __unused void *const userData)
 {
     return SentryCrashJSON_OK;
 }
@@ -223,12 +221,12 @@ loadState(const char *const path)
     int errorOffset = 0;
 
     char stringBuffer[1000];
-    const int result = sentrycrashjson_decode(data, (int)length, stringBuffer,
-        sizeof(stringBuffer), &callbacks, &g_state, &errorOffset);
+    const int result = sentrycrashjson_decode(
+        data, (int)length, stringBuffer, sizeof(stringBuffer), &callbacks, &g_state, &errorOffset);
     free(data);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR("%s, offset %d: %s", path, errorOffset,
-            sentrycrashjson_stringForError(result));
+        SentryCrashLOG_ERROR(
+            "%s, offset %d: %s", path, errorOffset, sentrycrashjson_stringForError(result));
         return false;
     }
     return true;
@@ -245,8 +243,7 @@ saveState(const char *const path)
 {
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
-        SentryCrashLOG_ERROR(
-            "Could not open file %s for writing: %s", path, strerror(errno));
+        SentryCrashLOG_ERROR("Could not open file %s for writing: %s", path, strerror(errno));
         return false;
     }
 
@@ -254,12 +251,11 @@ saveState(const char *const path)
     sentrycrashjson_beginEncode(&JSONContext, true, addJSONData, &fd);
 
     int result;
-    if ((result = sentrycrashjson_beginObject(&JSONContext, NULL))
-        != SentryCrashJSON_OK) {
+    if ((result = sentrycrashjson_beginObject(&JSONContext, NULL)) != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addIntegerElement(
-             &JSONContext, kKeyFormatVersion, kFormatVersion))
+    if ((result
+            = sentrycrashjson_addIntegerElement(&JSONContext, kKeyFormatVersion, kFormatVersion))
         != SentryCrashJSON_OK) {
         goto done;
     }
@@ -269,25 +265,23 @@ saveState(const char *const path)
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
-             kKeyActiveDurationSinceLastCrash,
-             g_state.activeDurationSinceLastCrash))
+    if ((result = sentrycrashjson_addFloatingPointElement(
+             &JSONContext, kKeyActiveDurationSinceLastCrash, g_state.activeDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
     if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
-             kKeyBackgroundDurationSinceLastCrash,
-             g_state.backgroundDurationSinceLastCrash))
+             kKeyBackgroundDurationSinceLastCrash, g_state.backgroundDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addIntegerElement(&JSONContext,
-             kKeyLaunchesSinceLastCrash, g_state.launchesSinceLastCrash))
+    if ((result = sentrycrashjson_addIntegerElement(
+             &JSONContext, kKeyLaunchesSinceLastCrash, g_state.launchesSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addIntegerElement(&JSONContext,
-             kKeySessionsSinceLastCrash, g_state.sessionsSinceLastCrash))
+    if ((result = sentrycrashjson_addIntegerElement(
+             &JSONContext, kKeySessionsSinceLastCrash, g_state.sessionsSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
@@ -296,8 +290,7 @@ saveState(const char *const path)
 done:
     close(fd);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR(
-            "%s: %s", path, sentrycrashjson_stringForError(result));
+        SentryCrashLOG_ERROR("%s: %s", path, sentrycrashjson_stringForError(result));
         return false;
     }
     return true;
@@ -433,28 +426,20 @@ static void
 addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 {
     if (g_isEnabled) {
-        eventContext->AppState.activeDurationSinceLastCrash
-            = g_state.activeDurationSinceLastCrash;
-        eventContext->AppState.activeDurationSinceLaunch
-            = g_state.activeDurationSinceLaunch;
-        eventContext->AppState.applicationIsActive
-            = g_state.applicationIsActive;
-        eventContext->AppState.applicationIsInForeground
-            = g_state.applicationIsInForeground;
-        eventContext->AppState.appStateTransitionTime
-            = g_state.appStateTransitionTime;
+        eventContext->AppState.activeDurationSinceLastCrash = g_state.activeDurationSinceLastCrash;
+        eventContext->AppState.activeDurationSinceLaunch = g_state.activeDurationSinceLaunch;
+        eventContext->AppState.applicationIsActive = g_state.applicationIsActive;
+        eventContext->AppState.applicationIsInForeground = g_state.applicationIsInForeground;
+        eventContext->AppState.appStateTransitionTime = g_state.appStateTransitionTime;
         eventContext->AppState.backgroundDurationSinceLastCrash
             = g_state.backgroundDurationSinceLastCrash;
         eventContext->AppState.backgroundDurationSinceLaunch
             = g_state.backgroundDurationSinceLaunch;
         eventContext->AppState.crashedLastLaunch = g_state.crashedLastLaunch;
         eventContext->AppState.crashedThisLaunch = g_state.crashedThisLaunch;
-        eventContext->AppState.launchesSinceLastCrash
-            = g_state.launchesSinceLastCrash;
-        eventContext->AppState.sessionsSinceLastCrash
-            = g_state.sessionsSinceLastCrash;
-        eventContext->AppState.sessionsSinceLaunch
-            = g_state.sessionsSinceLaunch;
+        eventContext->AppState.launchesSinceLastCrash = g_state.launchesSinceLastCrash;
+        eventContext->AppState.sessionsSinceLastCrash = g_state.sessionsSinceLastCrash;
+        eventContext->AppState.sessionsSinceLaunch = g_state.sessionsSinceLaunch;
     }
 }
 

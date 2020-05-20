@@ -10,8 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         isoFormatter = [[NSDateFormatter alloc] init];
-        [isoFormatter
-            setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
+        [isoFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
         [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
     });

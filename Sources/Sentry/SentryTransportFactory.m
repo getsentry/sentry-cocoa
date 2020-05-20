@@ -22,25 +22,21 @@ SentryTransportFactory ()
 @implementation SentryTransportFactory
 
 + (id<SentryTransport> _Nonnull)initTransport:(SentryOptions *)options
-                            sentryFileManager:
-                                (SentryFileManager *)sentryFileManager
+                            sentryFileManager:(SentryFileManager *)sentryFileManager
 {
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    NSURLSession *session =
-        [NSURLSession sessionWithConfiguration:configuration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
     id<SentryRequestManager> requestManager =
         [[SentryQueueableRequestManager alloc] initWithSession:session];
 
     SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
     SentryRetryAfterHeaderParser *retryAfterHeaderParser =
-        [[SentryRetryAfterHeaderParser alloc]
-            initWithHttpDateParser:httpDateParser];
-    SentryRateLimitParser *rateLimitParser =
-        [[SentryRateLimitParser alloc] init];
-    id<SentryRateLimits> rateLimits = [[SentryDefaultRateLimits alloc]
-        initWithRetryAfterHeaderParser:retryAfterHeaderParser
-                    andRateLimitParser:rateLimitParser];
+        [[SentryRetryAfterHeaderParser alloc] initWithHttpDateParser:httpDateParser];
+    SentryRateLimitParser *rateLimitParser = [[SentryRateLimitParser alloc] init];
+    id<SentryRateLimits> rateLimits =
+        [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
+                                                     andRateLimitParser:rateLimitParser];
 
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];

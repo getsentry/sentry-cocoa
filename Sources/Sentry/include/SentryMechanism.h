@@ -43,8 +43,7 @@ SENTRY_NO_INIT
  * Information from the operating system or runtime on the exception
  * mechanism
  */
-@property (nonatomic, strong)
-    NSDictionary<NSString *, NSString *> *_Nullable meta;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable meta;
 
 /**
  * Initialize an SentryMechanism with a type

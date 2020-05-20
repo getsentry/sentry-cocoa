@@ -38,12 +38,10 @@
     NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
     va_end(args);
 
-    return [NSError
-        errorWithDomain:domain
-                   code:code
-               userInfo:[NSDictionary
-                            dictionaryWithObject:desc
-                                          forKey:NSLocalizedDescriptionKey]];
+    return [NSError errorWithDomain:domain
+                               code:code
+                           userInfo:[NSDictionary dictionaryWithObject:desc
+                                                                forKey:NSLocalizedDescriptionKey]];
 }
 
 + (BOOL)fillError:(NSError *__autoreleasing *)error
@@ -58,13 +56,11 @@
         NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
         va_end(args);
 
-        *error = [NSError
-            errorWithDomain:domain
-                       code:code
-                   userInfo:
-                       [NSDictionary
-                           dictionaryWithObject:desc
-                                         forKey:NSLocalizedDescriptionKey]];
+        *error =
+            [NSError errorWithDomain:domain
+                                code:code
+                            userInfo:[NSDictionary dictionaryWithObject:desc
+                                                                 forKey:NSLocalizedDescriptionKey]];
     }
     return NO;
 }

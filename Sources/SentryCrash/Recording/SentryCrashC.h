@@ -46,8 +46,7 @@ extern "C" {
  *
  * @return The crash types that are being handled.
  */
-SentryCrashMonitorType sentrycrash_install(
-    const char *appName, const char *const installPath);
+SentryCrashMonitorType sentrycrash_install(const char *appName, const char *const installPath);
 
 /** Set the crash types that will be handled.
  * Some crash types may not be enabled depending on circumstances (e.g. running
@@ -60,8 +59,7 @@ SentryCrashMonitorType sentrycrash_install(
  *         successfully installed. Otherwise it represents which monitors it
  *         will attempt to activate when SentryCrash installs.
  */
-SentryCrashMonitorType sentrycrash_setMonitoring(
-    SentryCrashMonitorType monitors);
+SentryCrashMonitorType sentrycrash_setMonitoring(SentryCrashMonitorType monitors);
 
 /** Set the user-supplied data in JSON format.
  *
@@ -102,8 +100,7 @@ void sentrycrash_setIntrospectMemory(bool introspectMemory);
  *
  * Default: NULL
  */
-void sentrycrash_setDoNotIntrospectClasses(
-    const char **doNotIntrospectClasses, int length);
+void sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length);
 
 /** Set the callback to invoke upon a crash.
  *
@@ -116,8 +113,7 @@ void sentrycrash_setDoNotIntrospectClasses(
  *
  * Default: NULL
  */
-void sentrycrash_setCrashNotifyCallback(
-    const SentryCrashReportWriteCallback onCrashNotify);
+void sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify);
 
 /** Set if SentryCrashLOG console messages should be appended to the report.
  *
@@ -162,9 +158,8 @@ void sentrycrash_setMaxReportCount(int maxReportCount);
  * @param terminateProgram If true, do not return from this function call.
  * Terminate the program instead.
  */
-void sentrycrash_reportUserException(const char *name, const char *reason,
-    const char *language, const char *lineOfCode, const char *stackTrace,
-    bool logAllThreads, bool terminateProgram);
+void sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram);
 
 #pragma mark-- Notifications --
 
