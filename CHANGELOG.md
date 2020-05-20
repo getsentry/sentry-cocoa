@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add remove methods for SentryScope #529
 - ref: Session values are unsigned #527
 
 ## 5.0.4
