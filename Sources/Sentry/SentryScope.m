@@ -158,10 +158,26 @@ SentryScope ()
     [self notifyListeners];
 }
 
+- (void)removeContextForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.contextDictionary removeObjectForKey:key];
+    }
+    [self notifyListeners];
+}
+
 - (void)setExtraValue:(id)value forKey:(NSString *)key
 {
     @synchronized(self) {
         [self.extraDictionary setValue:value forKey:key];
+    }
+    [self notifyListeners];
+}
+
+- (void)removeExtraForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.extraDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
 }
@@ -181,6 +197,14 @@ SentryScope ()
 {
     @synchronized(self) {
         [self.tagDictionary setValue:value forKey:key];
+    }
+    [self notifyListeners];
+}
+
+- (void)removeTagForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.tagDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
 }

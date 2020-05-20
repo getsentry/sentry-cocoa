@@ -36,6 +36,22 @@
         [[scope serialize] objectForKey:@"extra"], @{ @"c" : @"d" });
 }
 
+- (void)testRemoveExtra
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setExtraValue:@1 forKey:@"A"];
+    [scope setExtraValue:@2 forKey:@"B"];
+
+    __block BOOL wasListenerCalled = false;
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope removeExtraForKey:@"A"];
+
+    NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"extra"];
+    XCTAssertTrue([@{ @"B" : @2 } isEqualToDictionary:actual]);
+    XCTAssertTrue(wasListenerCalled);
+}
+
 - (void)testBreadcrumbOlderReplacedByNewer
 {
     NSUInteger expectedMaxBreadcrumb = 1;
@@ -80,7 +96,38 @@
 
 - (void)testSetTagValueForKey
 {
-#warning TODO implement
+    NSDictionary<NSString *, NSString *> *excpected =
+        @{ @"A" : @"1", @"B" : @"2", @"C" : @"" };
+
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setTagValue:@"1" forKey:@"A"];
+    [scope setTagValue:@"overwriteme" forKey:@"B"];
+    [scope setTagValue:@"2" forKey:@"B"];
+    [scope setTagValue:@"" forKey:@"C"];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    [scope setTagValue:nil forKey:@"D"];
+#pragma clang diagnostic pop
+
+    NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"tags"];
+    XCTAssertTrue([excpected isEqualToDictionary:actual]);
+}
+
+- (void)testRemoveTag
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setTagValue:@"1" forKey:@"A"];
+    [scope setTagValue:@"2" forKey:@"B"];
+
+    __block BOOL wasListenerCalled = false;
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope removeTagForKey:@"A"];
+
+    NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"tags"];
+    XCTAssertTrue([@{ @"B" : @"2" } isEqualToDictionary:actual]);
+    XCTAssertTrue(wasListenerCalled);
 }
 
 - (void)testSetUser
@@ -116,7 +163,31 @@
 
 - (void)testSetContextValueForKey
 {
-#warning TODO implement
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setContextValue:@{ @"AA" : @1 } forKey:@"A"];
+    [scope setContextValue:@{ @"BB" : @"2" } forKey:@"B"];
+
+    NSDictionary *actual = scope.serialize[@"context"];
+    NSDictionary *expected =
+        @{ @"A" : @ { @"AA" : @1 }, @"B" : @ { @"BB" : @"2" } };
+    XCTAssertTrue([expected isEqualToDictionary:actual]);
+}
+
+- (void)testRemoveContextForKey
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setContextValue:@{ @"AA" : @1 } forKey:@"A"];
+    [scope setContextValue:@{ @"BB" : @"2" } forKey:@"B"];
+
+    __block BOOL wasListenerCalled = false;
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope removeContextForKey:@"B"];
+
+    NSDictionary *actual = scope.serialize[@"context"];
+    NSDictionary *expected = @{ @"A" : @ { @"AA" : @1 } };
+    XCTAssertTrue([expected isEqualToDictionary:actual]);
+    XCTAssertTrue(wasListenerCalled);
 }
 
 - (void)testCallingEventProcessors
