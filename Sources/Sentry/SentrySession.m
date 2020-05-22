@@ -1,7 +1,7 @@
 #import "SentrySession.h"
 #import "NSDate+SentryExtras.h"
-#import "SentryInstallation.h"
 #import "SentryCurrentDate.h"
+#import "SentryInstallation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -159,8 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:_duration forKey:@"duration"];
         } else if (nil == _init) {
             NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-            [serializedData setValue:[NSNumber numberWithDouble:secondsBetween]
-                              forKey:@"duration"];
+            [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
 
         // TODO: seq to be just unix time in mills?
