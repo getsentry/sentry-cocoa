@@ -29,6 +29,7 @@ class SentrySessionTestsSwift: XCTestCase {
         
         currentDateProvider.setDate(date: date.addingTimeInterval(3))
         let sessionSerialized = session.serialize()
-        XCTAssertEqual(2, sessionSerialized["duration"] as! Double)
+        let duration = sessionSerialized["duration"] as? Double ?? -1
+        XCTAssertEqual(2, duration)
     }
 }
