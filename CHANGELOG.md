@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Remove MemoryWarningIntegration #537
+- fix: Avoid Implicit conversion in SentrySession #540
 - fix: Change SentryScope setTagValue to NSString #524
 
 ## 5.0.5
