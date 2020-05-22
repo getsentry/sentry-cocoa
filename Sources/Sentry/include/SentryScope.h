@@ -21,19 +21,21 @@ NS_SWIFT_NAME(Scope)
 - (void)setUser:(SentryUser *_Nullable)user;
 
 /**
- * Set global tags -> these will be sent with every event
+ * Set a global tag. Tags are searchable key/value string pairs attached to
+ * every event.
  */
-- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags;
-
-/**
- * Set global extra -> these will be sent with every event
- */
-- (void)setTagValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
 /**
  * Remove the tag for the specified key.
  */
 - (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
+
+/**
+ * Set global tags. Tags are searchable key/value string pairs attached to every
+ * event.
+ */
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags;
 
 /**
  * Set global extra -> these will be sent with every event
