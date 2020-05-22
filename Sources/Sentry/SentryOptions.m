@@ -9,8 +9,8 @@
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryUIKitMemoryWarningIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration"
+        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration"
     ];
 }
 
