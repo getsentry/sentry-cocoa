@@ -1,5 +1,6 @@
 #import "SentrySession.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -10,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
-        _started = [NSDate date];
+        _started = [SentryCurrentDate date];
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
@@ -96,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(self) {
         _timestamp = timestamp;
         NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-        _duration = [NSNumber numberWithLongLong:secondsBetween];
+        _duration = [NSNumber numberWithDouble:secondsBetween];
     }
 }
 
@@ -151,15 +152,14 @@ NS_ASSUME_NONNULL_BEGIN
             [serializedData setValue:statusString forKey:@"status"];
         }
 
-        NSDate *timestamp = nil != _timestamp ? _timestamp : [NSDate date];
+        NSDate *timestamp = nil != _timestamp ? _timestamp : [SentryCurrentDate date];
         [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
         if (nil != _duration) {
             [serializedData setValue:_duration forKey:@"duration"];
         } else if (nil == _init) {
             NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
-            [serializedData setValue:[NSNumber numberWithLongLong:secondsBetween]
-                              forKey:@"duration"];
+            [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
 
         // TODO: seq to be just unix time in mills?
