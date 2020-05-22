@@ -10,8 +10,9 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 };
 
 @interface SentrySession : NSObject
+SENTRY_NO_INIT
 
-- (instancetype)init;
+- (instancetype)initWithReleaseName:(NSString *)releaseName;
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
 - (void)endSessionExitedWithTimestamp:(NSDate *)timestamp;
@@ -25,12 +26,15 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @property (nonatomic, readonly) enum SentrySessionStatus status;
 @property (nonatomic, readonly) NSUInteger errors;
 @property (nonatomic, readonly) NSUInteger sequence;
-@property (nonatomic, strong) NSString *distinctId;
+@property (nonatomic, readonly, strong) NSString *distinctId;
+/**
+  We can't use init because it overlaps with NSObject.init
+ */
+@property (nonatomic, readonly, copy) NSNumber *_Nullable flagInit;
+@property (nonatomic, readonly, strong) NSDate *_Nullable timestamp;
+@property (nonatomic, readonly, strong) NSNumber *_Nullable duration;
 
-@property (nonatomic, copy) NSNumber *_Nullable init;
-@property (nonatomic, strong) NSDate *_Nullable timestamp;
-@property (nonatomic, strong) NSNumber *_Nullable duration;
-@property (nonatomic, copy) NSString *_Nullable releaseName;
+@property (nonatomic, readonly, copy) NSString *_Nullable releaseName;
 @property (nonatomic, copy) NSString *_Nullable environment;
 @property (nonatomic, copy) SentryUser *_Nullable user;
 

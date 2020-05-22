@@ -7,7 +7,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySession
 
-- (instancetype)init
+@synthesize flagInit = _init;
+
+- (instancetype)initWithReleaseName:(NSString *)releaseName
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
@@ -17,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
         _errors = 0;
         _init = @YES;
         _distinctId = [SentryInstallation id];
+        _releaseName = releaseName;
     }
     return self;
 }

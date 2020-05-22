@@ -48,8 +48,7 @@ SentryHub ()
         if (nil != _session) {
             lastSession = _session;
         }
-        _session = [[SentrySession alloc] init];
-        _session.releaseName = options.releaseName;
+        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
         [scope applyToSession:_session];
 
         [self storeCurrentSession:_session];

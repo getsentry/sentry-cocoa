@@ -25,7 +25,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDoesNotOverrideDirectories() throws {
         sut.store(Event())
         sut.store(TestConstants.envelope)
-        sut.storeCurrentSession(SentrySession())
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
         _ = try SentryFileManager(dsn: TestConstants.dsn)
@@ -140,14 +140,14 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testStoreAndReadCurrentSession() {
-        let expectedSession = SentrySession()
+        let expectedSession = SentrySession(releaseName: "1.0.0")
         sut.storeCurrentSession(expectedSession)
         let actualSession = sut.readCurrentSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
 
     func testStoreDeleteCurrentSession() {
-        sut.storeCurrentSession(SentrySession())
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.deleteCurrentSession()
         let actualSession = sut.readCurrentSession()
         XCTAssertNil(actualSession)
@@ -180,7 +180,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteAllFolders() {
         sut.store(TestConstants.envelope)
         sut.store(Event())
-        sut.storeCurrentSession(SentrySession())
+        sut.storeCurrentSession(SentrySession(releaseName: "1.0.1"))
         
         sut.deleteAllFolders()
         

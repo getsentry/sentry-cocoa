@@ -10,7 +10,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testEndSession() {
-        let session = SentrySession()
+        let session = SentrySession(releaseName: "0.1.0")
         let date = currentDateProvider.date().addingTimeInterval(1)
         session.endExited(withTimestamp: date)
         
@@ -20,14 +20,15 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testInitAndDurationNilWhenSerialize() {
-        let session = SentrySession()
-        session.setInit(nil)
+        let session1 = SentrySession(releaseName: "1.4.0")
+        var json = session1.serialize()
+        json.removeValue(forKey: "init")
+        json.removeValue(forKey: "duration")
         
-        let date = currentDateProvider.date()
-        session.endExited(withTimestamp: date.addingTimeInterval(2))
-        session.duration = nil
+        let date = currentDateProvider.date().addingTimeInterval(2)
+        json["timestamp"] = (date as NSDate).sentry_toIso8601String()
+        let session = SentrySession(jsonObject: json)
         
-        currentDateProvider.setDate(date: date.addingTimeInterval(3))
         let sessionSerialized = session.serialize()
         let duration = sessionSerialized["duration"] as? Double ?? -1
         XCTAssertEqual(2, duration)

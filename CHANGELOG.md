@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Make properties of Session readonly #541
 - fix: Remove MemoryWarningIntegration #537
 - fix: Avoid Implicit conversion in SentrySession #540
 - fix: Change SentryScope setTagValue to NSString #524
