@@ -39,9 +39,8 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:expected, @"key3", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                           @"key3", nil],
                 @"key2", nil],
         @"key1", nil];
 
@@ -56,9 +55,8 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:expected, @"key3", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                           @"key3", nil],
                 @"key2", nil],
         @"key1", nil];
 
@@ -72,9 +70,8 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:expected, @"key3", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                           @"key3", nil],
                 @"key2", nil],
         @"key1", nil];
 
@@ -88,9 +85,8 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:expected, @"3", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary
+                                                 dictionaryWithObjectsAndKeys:expected, @"3", nil],
                 @"2", nil],
         @"1", nil];
 
@@ -105,9 +101,8 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:expected, @"3", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary
+                                                 dictionaryWithObjectsAndKeys:expected, @"3", nil],
                 @"2", nil],
         @"1", nil];
 
@@ -118,16 +113,13 @@
 - (void)testDeepSearchArray
 {
     id expected = @"Object";
-    id container = [NSArray
-        arrayWithObjects:[NSArray
-                             arrayWithObjects:@"blah",
-                             [NSArray arrayWithObjects:@"blah2", expected, nil],
-                             nil],
-        nil];
+    id container =
+        [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
+                                           [NSArray arrayWithObjects:@"blah2", expected, nil], nil],
+                 nil];
 
-    id deepKey =
-        [NSArray arrayWithObjects:[NSNumber numberWithInt:0],
-                 [NSNumber numberWithInt:1], [NSNumber numberWithInt:1], nil];
+    id deepKey = [NSArray arrayWithObjects:[NSNumber numberWithInt:0], [NSNumber numberWithInt:1],
+                          [NSNumber numberWithInt:1], nil];
     id actual = [container objectForDeepKey:deepKey];
     XCTAssertEqualObjects(expected, actual, @"");
 }
@@ -135,12 +127,10 @@
 - (void)testDeepSearchArrayString
 {
     id expected = @"Object";
-    id container = [NSArray
-        arrayWithObjects:[NSArray
-                             arrayWithObjects:@"blah",
-                             [NSArray arrayWithObjects:@"blah2", expected, nil],
-                             nil],
-        nil];
+    id container =
+        [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
+                                           [NSArray arrayWithObjects:@"blah2", expected, nil], nil],
+                 nil];
 
     id deepKey = [NSArray arrayWithObjects:@"0", @"1", @"1", nil];
     id actual = [container objectForDeepKey:deepKey];
@@ -149,11 +139,10 @@
 
 - (void)testDeepSearchArrayString2
 {
-    id container = [NSArray
-        arrayWithObjects:[NSArray arrayWithObjects:@"blah",
-                                  [NSArray arrayWithObjects:@"blah2", nil],
-                                  nil],
-        nil];
+    id container =
+        [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
+                                           [NSArray arrayWithObjects:@"blah2", nil], nil],
+                 nil];
 
     id deepKey = [NSArray arrayWithObjects:@"0", @"1", @"key", nil];
     id actual = [container objectForDeepKey:deepKey];
@@ -163,12 +152,10 @@
 - (void)testDeepSearchArrayEmptyString
 {
     id expected = @"Object";
-    id container = [NSArray
-        arrayWithObjects:[NSArray
-                             arrayWithObjects:@"blah",
-                             [NSArray arrayWithObjects:expected, @"blah2", nil],
-                             nil],
-        nil];
+    id container =
+        [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
+                                           [NSArray arrayWithObjects:expected, @"blah2", nil], nil],
+                 nil];
 
     id deepKey = [NSArray arrayWithObjects:@"0", @"1", @"", nil];
     id actual = [container objectForDeepKey:deepKey];
@@ -178,12 +165,10 @@
 - (void)testDeepSearchArrayPath
 {
     id expected = @"Object";
-    id container = [NSArray
-        arrayWithObjects:[NSArray
-                             arrayWithObjects:@"blah",
-                             [NSArray arrayWithObjects:@"blah2", expected, nil],
-                             nil],
-        nil];
+    id container =
+        [NSArray arrayWithObjects:[NSArray arrayWithObjects:@"blah",
+                                           [NSArray arrayWithObjects:@"blah2", expected, nil], nil],
+                 nil];
 
     id actual = [container objectForKeyPath:@"0/1/1"];
     XCTAssertEqualObjects(expected, actual, @"");
@@ -193,15 +178,13 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:
-            [NSArray arrayWithObjects:@"blah",
-                     [NSDictionary
-                         dictionaryWithObjectsAndKeys:expected, @"key3", nil],
-                     nil],
+        dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"blah",
+                                              [NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                            @"key3", nil],
+                                              nil],
         @"key1", nil];
 
-    id deepKey = [NSArray
-        arrayWithObjects:@"key1", [NSNumber numberWithInt:1], @"key3", nil];
+    id deepKey = [NSArray arrayWithObjects:@"key1", [NSNumber numberWithInt:1], @"key3", nil];
     id actual = [container objectForDeepKey:deepKey];
     XCTAssertEqualObjects(expected, actual, @"");
 }
@@ -210,11 +193,10 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:
-            [NSArray arrayWithObjects:@"blah",
-                     [NSDictionary
-                         dictionaryWithObjectsAndKeys:expected, @"key3", nil],
-                     nil],
+        dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"blah",
+                                              [NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                            @"key3", nil],
+                                              nil],
         @"key1", nil];
 
     id actual = [container objectForKeyPath:@"key1/1/key3"];
@@ -241,15 +223,14 @@
 {
     id expected = @"Object";
     id container = [NSDictionary
-        dictionaryWithObjectsAndKeys:
-            [NSArray arrayWithObjects:@"blah",
-                     [NSDictionary
-                         dictionaryWithObjectsAndKeys:expected, @"key3", nil],
-                     nil],
+        dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"blah",
+                                              [NSDictionary dictionaryWithObjectsAndKeys:expected,
+                                                            @"key3", nil],
+                                              nil],
         @"key1", nil];
 
-    id deepKey = [NSArray arrayWithObjects:@"key1", [NSNumber numberWithInt:1],
-                          @"key3", @"key4", nil];
+    id deepKey =
+        [NSArray arrayWithObjects:@"key1", [NSNumber numberWithInt:1], @"key3", @"key4", nil];
     id actual = [container objectForDeepKey:deepKey];
     XCTAssertNil(actual, @"");
 }
@@ -259,11 +240,11 @@
     id expected = @"Object";
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"someKey", nil],
-                          @"key2", nil],
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSMutableDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"someKey", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id deepKey = [NSArray arrayWithObjects:@"key1", @"key2", @"key3", nil];
@@ -275,8 +256,8 @@
 - (void)testSetObjectForDeepKeyDictSimple
 {
     id expected = @"Object";
-    id container = [NSMutableDictionary
-        dictionaryWithObjectsAndKeys:@"someObject", @"someKey", nil];
+    id container =
+        [NSMutableDictionary dictionaryWithObjectsAndKeys:@"someObject", @"someKey", nil];
 
     id deepKey = [NSArray arrayWithObjects:@"key1", nil];
     [container setObject:expected forDeepKey:deepKey];
@@ -289,11 +270,11 @@
     id expected = @"Object";
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"someKey", nil],
-                          @"key2", nil],
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSMutableDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"someKey", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id deepKey = [NSArray array];
@@ -305,9 +286,8 @@
     id expected = @"Object";
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSMutableArray
-                                     arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSMutableArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -322,9 +302,8 @@
     id expected = @"Object";
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSMutableArray
-                                     arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSMutableArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -348,8 +327,8 @@
     id expected = @"Object";
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSArray arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -363,14 +342,13 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"someKey", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"someKey", nil],
                 @"key2", nil],
         @"key1", nil];
 
-    id deepKey =
-        [NSArray arrayWithObjects:@"key1", @"key2", [NSDate date], nil];
+    id deepKey = [NSArray arrayWithObjects:@"key1", @"key2", [NSDate date], nil];
     XCTAssertThrows([container setObject:expected forDeepKey:deepKey], @"");
 }
 
@@ -379,11 +357,11 @@
     id expected = @"Object";
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"someKey", nil],
-                          @"key2", nil],
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSMutableDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"someKey", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id deepKey = @"key1/key2/key3";
@@ -396,11 +374,11 @@
 {
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"key3", nil],
-                          @"key2", nil],
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSMutableDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"key3", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id deepKey = [NSArray arrayWithObjects:@"key1", @"key2", @"key3", nil];
@@ -413,11 +391,11 @@
 {
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"key3", nil],
-                          @"key2", nil],
+            [NSDictionary
+                dictionaryWithObjectsAndKeys:[NSMutableDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"key3", nil],
+                @"key2", nil],
         @"key1", nil];
 
     id deepKey = @"key1/key2/key3";
@@ -430,9 +408,8 @@
 {
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSMutableArray
-                                     arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSMutableArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -445,9 +422,8 @@
 {
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSMutableArray
-                                     arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSMutableArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -468,8 +444,8 @@
 {
     id container = [NSArray
         arrayWithObjects:[NSDictionary
-                             dictionaryWithObjectsAndKeys:
-                                 [NSArray arrayWithObjects:@"someObject", nil],
+                             dictionaryWithObjectsAndKeys:[NSArray
+                                                              arrayWithObjects:@"someObject", nil],
                              @"key2", nil],
         nil];
 
@@ -482,14 +458,13 @@
     id container = [NSDictionary
         dictionaryWithObjectsAndKeys:
             [NSDictionary
-                dictionaryWithObjectsAndKeys:
-                    [NSDictionary dictionaryWithObjectsAndKeys:@"someObject",
-                                  @"someKey", nil],
+                dictionaryWithObjectsAndKeys:[NSDictionary
+                                                 dictionaryWithObjectsAndKeys:@"someObject",
+                                                 @"someKey", nil],
                 @"key2", nil],
         @"key1", nil];
 
-    id deepKey =
-        [NSArray arrayWithObjects:@"key1", @"key2", [NSDate date], nil];
+    id deepKey = [NSArray arrayWithObjects:@"key1", @"key2", [NSDate date], nil];
     XCTAssertThrows([container removeObjectForDeepKey:deepKey], @"");
 }
 

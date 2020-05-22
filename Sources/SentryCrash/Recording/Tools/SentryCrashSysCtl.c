@@ -35,18 +35,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CHECK_SYSCTL_NAME(TYPE, CALL)                                          \
-    if (0 != (CALL)) {                                                         \
-        SentryCrashLOG_ERROR("Could not get %s value for %s: %s", #CALL, name, \
-            strerror(errno));                                                  \
-        return 0;                                                              \
+#define CHECK_SYSCTL_NAME(TYPE, CALL)                                                              \
+    if (0 != (CALL)) {                                                                             \
+        SentryCrashLOG_ERROR("Could not get %s value for %s: %s", #CALL, name, strerror(errno));   \
+        return 0;                                                                                  \
     }
 
-#define CHECK_SYSCTL_CMD(TYPE, CALL)                                           \
-    if (0 != (CALL)) {                                                         \
-        SentryCrashLOG_ERROR("Could not get %s value for %d,%d: %s", #CALL,    \
-            major_cmd, minor_cmd, strerror(errno));                            \
-        return 0;                                                              \
+#define CHECK_SYSCTL_CMD(TYPE, CALL)                                                               \
+    if (0 != (CALL)) {                                                                             \
+        SentryCrashLOG_ERROR(                                                                      \
+            "Could not get %s value for %d,%d: %s", #CALL, major_cmd, minor_cmd, strerror(errno)); \
+        return 0;                                                                                  \
     }
 
 int32_t
@@ -56,8 +55,7 @@ sentrycrashsysctl_int32(const int major_cmd, const int minor_cmd)
     int32_t value = 0;
     size_t size = sizeof(value);
 
-    CHECK_SYSCTL_CMD(
-        int32, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
+    CHECK_SYSCTL_CMD(int32, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
 
     return value;
 }
@@ -80,8 +78,7 @@ sentrycrashsysctl_uint32(const int major_cmd, const int minor_cmd)
     uint32_t value = 0;
     size_t size = sizeof(value);
 
-    CHECK_SYSCTL_CMD(uint32,
-        sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
+    CHECK_SYSCTL_CMD(uint32, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
 
     return value;
 }
@@ -104,8 +101,7 @@ sentrycrashsysctl_int64(const int major_cmd, const int minor_cmd)
     int64_t value = 0;
     size_t size = sizeof(value);
 
-    CHECK_SYSCTL_CMD(
-        int64, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
+    CHECK_SYSCTL_CMD(int64, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
 
     return value;
 }
@@ -128,8 +124,7 @@ sentrycrashsysctl_uint64(const int major_cmd, const int minor_cmd)
     uint64_t value = 0;
     size_t size = sizeof(value);
 
-    CHECK_SYSCTL_CMD(uint64,
-        sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
+    CHECK_SYSCTL_CMD(uint64, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0));
 
     return value;
 }
@@ -146,21 +141,19 @@ sentrycrashsysctl_uint64ForName(const char *const name)
 }
 
 int
-sentrycrashsysctl_string(const int major_cmd, const int minor_cmd,
-    char *const value, const int maxSize)
+sentrycrashsysctl_string(
+    const int major_cmd, const int minor_cmd, char *const value, const int maxSize)
 {
     int cmd[2] = { major_cmd, minor_cmd };
     size_t size = value == NULL ? 0 : (size_t)maxSize;
 
-    CHECK_SYSCTL_CMD(
-        string, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), value, &size, NULL, 0));
+    CHECK_SYSCTL_CMD(string, sysctl(cmd, sizeof(cmd) / sizeof(*cmd), value, &size, NULL, 0));
 
     return (int)size;
 }
 
 int
-sentrycrashsysctl_stringForName(
-    const char *const name, char *const value, const int maxSize)
+sentrycrashsysctl_stringForName(const char *const name, char *const value, const int maxSize)
 {
     size_t size = value == NULL ? 0 : (size_t)maxSize;
 
@@ -177,8 +170,8 @@ sentrycrashsysctl_timeval(const int major_cmd, const int minor_cmd)
     size_t size = sizeof(value);
 
     if (0 != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0)) {
-        SentryCrashLOG_ERROR("Could not get timeval value for %d,%d: %s",
-            major_cmd, minor_cmd, strerror(errno));
+        SentryCrashLOG_ERROR(
+            "Could not get timeval value for %d,%d: %s", major_cmd, minor_cmd, strerror(errno));
     }
 
     return value;
@@ -191,48 +184,40 @@ sentrycrashsysctl_timevalForName(const char *const name)
     size_t size = sizeof(value);
 
     if (0 != sysctlbyname(name, &value, &size, NULL, 0)) {
-        SentryCrashLOG_ERROR(
-            "Could not get timeval value for %s: %s", name, strerror(errno));
+        SentryCrashLOG_ERROR("Could not get timeval value for %s: %s", name, strerror(errno));
     }
 
     return value;
 }
 
 bool
-sentrycrashsysctl_getProcessInfo(
-    const int pid, struct kinfo_proc *const procInfo)
+sentrycrashsysctl_getProcessInfo(const int pid, struct kinfo_proc *const procInfo)
 {
     int cmd[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
     size_t size = sizeof(*procInfo);
 
-    if (0
-        != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), procInfo, &size, NULL, 0)) {
-        SentryCrashLOG_ERROR(
-            "Could not get the name for process %d: %s", pid, strerror(errno));
+    if (0 != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), procInfo, &size, NULL, 0)) {
+        SentryCrashLOG_ERROR("Could not get the name for process %d: %s", pid, strerror(errno));
         return false;
     }
     return true;
 }
 
 bool
-sentrycrashsysctl_getMacAddress(
-    const char *const name, char *const macAddressBuffer)
+sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBuffer)
 {
     // Based off
     // http://iphonedevelopertips.com/device/determine-mac-address.html
 
-    int mib[6] = { CTL_NET, AF_ROUTE, 0, AF_LINK, NET_RT_IFLIST,
-        (int)if_nametoindex(name) };
+    int mib[6] = { CTL_NET, AF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, (int)if_nametoindex(name) };
     if (mib[5] == 0) {
-        SentryCrashLOG_ERROR(
-            "Could not get interface index for %s: %s", name, strerror(errno));
+        SentryCrashLOG_ERROR("Could not get interface index for %s: %s", name, strerror(errno));
         return false;
     }
 
     size_t length;
     if (sysctl(mib, 6, NULL, &length, NULL, 0) != 0) {
-        SentryCrashLOG_ERROR(
-            "Could not get interface data for %s: %s", name, strerror(errno));
+        SentryCrashLOG_ERROR("Could not get interface data for %s: %s", name, strerror(errno));
         return false;
     }
 
@@ -243,8 +228,7 @@ sentrycrashsysctl_getMacAddress(
     }
 
     if (sysctl(mib, 6, ifBuffer, &length, NULL, 0) != 0) {
-        SentryCrashLOG_ERROR(
-            "Could not get interface data for %s: %s", name, strerror(errno));
+        SentryCrashLOG_ERROR("Could not get interface data for %s: %s", name, strerror(errno));
         free(ifBuffer);
         return false;
     }

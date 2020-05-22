@@ -32,10 +32,9 @@
 static bool
 g_advanceCursor(__unused SentryCrashStackCursor *cursor)
 {
-    SentryCrashLOG_WARN(
-        "No stack cursor has been set. For C++, this means that hooking "
-        "__cxa_throw() failed for some reason. Embedded frameworks can cause "
-        "this: https://github.com/getsentry/SentryCrash/issues/205");
+    SentryCrashLOG_WARN("No stack cursor has been set. For C++, this means that hooking "
+                        "__cxa_throw() failed for some reason. Embedded frameworks can cause "
+                        "this: https://github.com/getsentry/SentryCrash/issues/205");
     return false;
 }
 
@@ -53,13 +52,10 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
 
 void
 sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-    void (*resetCursor)(SentryCrashStackCursor *),
-    bool (*advanceCursor)(SentryCrashStackCursor *))
+    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *))
 {
     cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
-    cursor->advanceCursor
-        = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
-    cursor->resetCursor
-        = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
+    cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
+    cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);
 }

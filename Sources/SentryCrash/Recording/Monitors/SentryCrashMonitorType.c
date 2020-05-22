@@ -30,9 +30,9 @@ static const struct {
     const SentryCrashMonitorType type;
     const char *const name;
 } g_monitorTypes[] = {
-#define MONITORTYPE(NAME)                                                      \
-    {                                                                          \
-        NAME, #NAME                                                            \
+#define MONITORTYPE(NAME)                                                                          \
+    {                                                                                              \
+        NAME, #NAME                                                                                \
     }
     MONITORTYPE(SentryCrashMonitorTypeMachException),
     MONITORTYPE(SentryCrashMonitorTypeSignal),
@@ -44,8 +44,7 @@ static const struct {
     MONITORTYPE(SentryCrashMonitorTypeApplicationState),
     MONITORTYPE(SentryCrashMonitorTypeZombie),
 };
-static const int g_monitorTypesCount
-    = sizeof(g_monitorTypes) / sizeof(*g_monitorTypes);
+static const int g_monitorTypesCount = sizeof(g_monitorTypes) / sizeof(*g_monitorTypes);
 
 const char *
 sentrycrashmonitortype_name(const SentryCrashMonitorType monitorType)

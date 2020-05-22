@@ -46,8 +46,7 @@ sentrycrashthread_self()
 }
 
 bool
-sentrycrashthread_getThreadName(
-    const SentryCrashThread thread, char *const buffer, int bufLength)
+sentrycrashthread_getThreadName(const SentryCrashThread thread, char *const buffer, int bufLength)
 {
     // WARNING: This implementation is no longer async-safe!
 

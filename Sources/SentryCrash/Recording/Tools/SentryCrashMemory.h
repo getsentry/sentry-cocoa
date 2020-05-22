@@ -43,8 +43,7 @@ extern "C" {
  *
  * @return True if the memory can be safely read.
  */
-bool sentrycrashmem_isMemoryReadable(
-    const void *const memory, const int byteCount);
+bool sentrycrashmem_isMemoryReadable(const void *const memory, const int byteCount);
 
 /** Test how much memory is readable from the specified pointer.
  *
@@ -53,8 +52,7 @@ bool sentrycrashmem_isMemoryReadable(
  *
  * @return The number of bytes that are readable from that address.
  */
-int sentrycrashmem_maxReadableBytes(
-    const void *const memory, const int tryByteCount);
+int sentrycrashmem_maxReadableBytes(const void *const memory, const int tryByteCount);
 
 /** Copy memory safely. If the memory is not accessible, returns false
  * rather than crashing.

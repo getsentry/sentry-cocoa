@@ -75,8 +75,7 @@ handleException(NSException *exception, BOOL currentSnapshotUserReported)
         char eventID[37];
         sentrycrashid_generate(eventID);
         SentryCrashMC_NEW_CONTEXT(machineContext);
-        sentrycrashmc_getContextForThread(
-            sentrycrashthread_self(), machineContext, true);
+        sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
         SentryCrashStackCursor cursor;
         sentrycrashsc_initWithBacktrace(&cursor, callstack, (int)numFrames, 0);
 
@@ -131,15 +130,12 @@ setEnabled(bool isEnabled)
         g_isEnabled = isEnabled;
         if (isEnabled) {
             SentryCrashLOG_DEBUG(@"Backing up original handler.");
-            g_previousUncaughtExceptionHandler
-                = NSGetUncaughtExceptionHandler();
+            g_previousUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
 
             SentryCrashLOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
-            SentryCrash.sharedInstance.uncaughtExceptionHandler
-                = &handleUncaughtException;
-            SentryCrash.sharedInstance
-                .currentSnapshotUserReportedExceptionHandler
+            SentryCrash.sharedInstance.uncaughtExceptionHandler = &handleUncaughtException;
+            SentryCrash.sharedInstance.currentSnapshotUserReportedExceptionHandler
                 = &handleCurrentSnapshotUserReportedException;
         } else {
             SentryCrashLOG_DEBUG(@"Restoring original handler.");
@@ -157,7 +153,6 @@ isEnabled()
 SentryCrashMonitorAPI *
 sentrycrashcm_nsexception_getAPI()
 {
-    static SentryCrashMonitorAPI api
-        = { .setEnabled = setEnabled, .isEnabled = isEnabled };
+    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }

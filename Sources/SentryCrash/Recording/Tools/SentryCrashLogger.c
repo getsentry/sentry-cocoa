@@ -134,8 +134,7 @@ flushLog(void)
 static inline void
 setLogFD(int fd)
 {
-    if (g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO
-        && g_fd != STDIN_FILENO) {
+    if (g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO) {
         close(g_fd);
     }
     g_fd = fd;
@@ -153,8 +152,7 @@ sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
         fd = open(filename, openMask, 0644);
         unlikely_if(fd < 0)
         {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename,
-                strerror(errno));
+            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
             return false;
         }
         if (filename != g_logFilename) {
@@ -173,8 +171,7 @@ static FILE *g_file = NULL;
 static inline void
 setLogFD(FILE *file)
 {
-    if (g_file != NULL && g_file != stdout && g_file != stderr
-        && g_file != stdin) {
+    if (g_file != NULL && g_file != stdout && g_file != stderr && g_file != stdin) {
         fclose(g_file);
     }
     g_file = file;
@@ -216,8 +213,7 @@ sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
         file = fopen(filename, overwrite ? "wb" : "ab");
         unlikely_if(file == NULL)
         {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename,
-                strerror(errno));
+            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
             return false;
         }
     }
@@ -257,11 +253,10 @@ i_sentrycrashlog_logCBasic(const char *const fmt, ...)
 }
 
 void
-i_sentrycrashlog_logC(const char *const level, const char *const file,
-    const int line, const char *const function, const char *const fmt, ...)
+i_sentrycrashlog_logC(const char *const level, const char *const file, const int line,
+    const char *const function, const char *const fmt, ...)
 {
-    writeFmtToLog(
-        "%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
+    writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
     va_list args;
     va_start(args, fmt);
     writeFmtArgsToLog(fmt, args);
@@ -287,19 +282,16 @@ i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    CFStringRef entry
-        = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
+    CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
     va_end(args);
 
     int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
     char *stringBuffer = malloc((unsigned)bufferLength);
     if (stringBuffer != NULL
-        && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength,
-            kCFStringEncodingUTF8)) {
+        && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8)) {
         writeToLog(stringBuffer);
     } else {
-        writeToLog(
-            "Could not convert log string to UTF-8. No logging performed.");
+        writeToLog("Could not convert log string to UTF-8. No logging performed.");
     }
     writeToLog("\n");
 
@@ -310,26 +302,21 @@ i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 }
 
 void
-i_sentrycrashlog_logObjC(const char *const level, const char *const file,
-    const int line, const char *const function, CFStringRef fmt, ...)
+i_sentrycrashlog_logObjC(const char *const level, const char *const file, const int line,
+    const char *const function, CFStringRef fmt, ...)
 {
     CFStringRef logFmt = NULL;
     if (fmt == NULL) {
-        logFmt = CFStringCreateWithCString(
-            NULL, "%s: %s (%u): %s: (null)", kCFStringEncodingUTF8);
-        i_sentrycrashlog_logObjCBasic(
-            logFmt, level, lastPathEntry(file), line, function);
+        logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: (null)", kCFStringEncodingUTF8);
+        i_sentrycrashlog_logObjCBasic(logFmt, level, lastPathEntry(file), line, function);
     } else {
         va_list args;
         va_start(args, fmt);
-        CFStringRef entry
-            = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
+        CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
         va_end(args);
 
-        logFmt = CFStringCreateWithCString(
-            NULL, "%s: %s (%u): %s: %@", kCFStringEncodingUTF8);
-        i_sentrycrashlog_logObjCBasic(
-            logFmt, level, lastPathEntry(file), line, function, entry);
+        logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: %@", kCFStringEncodingUTF8);
+        i_sentrycrashlog_logObjCBasic(logFmt, level, lastPathEntry(file), line, function, entry);
 
         CFRelease(entry);
     }

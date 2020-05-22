@@ -57,8 +57,7 @@
 
 - (NSString *)generateFileWithString:(NSString *)string
 {
-    return [self
-        generateFileWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+    return [self generateFileWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 @end

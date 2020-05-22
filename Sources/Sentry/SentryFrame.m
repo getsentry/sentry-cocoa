@@ -25,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.columnNumber forKey:@"colno"];
     [serializedData setValue:self.package forKey:@"package"];
     [serializedData setValue:self.imageAddress forKey:@"image_addr"];
-    [serializedData setValue:self.instructionAddress
-                      forKey:@"instruction_addr"];
+    [serializedData setValue:self.instructionAddress forKey:@"instruction_addr"];
     [serializedData setValue:self.platform forKey:@"platform"];
     [serializedData setValue:self.inApp forKey:@"in_app"];
 

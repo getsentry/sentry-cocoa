@@ -45,8 +45,7 @@ typedef ucontext_t SignalUserContext;
 #endif
 
 static SentryCrashThread g_reservedThreads[10];
-static int g_reservedThreadsMaxIndex
-    = sizeof(g_reservedThreads) / sizeof(g_reservedThreads[0]) - 1;
+static int g_reservedThreadsMaxIndex = sizeof(g_reservedThreads) / sizeof(g_reservedThreads[0]) - 1;
 static int g_reservedThreadsCount = 0;
 
 static inline bool
@@ -68,18 +67,16 @@ getThreadList(SentryCrashMachineContext *context)
     thread_act_array_t threads;
     mach_msg_type_number_t actualThreadCount;
 
-    if ((kr = task_threads(thisTask, &threads, &actualThreadCount))
-        != KERN_SUCCESS) {
+    if ((kr = task_threads(thisTask, &threads, &actualThreadCount)) != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("task_threads: %s", mach_error_string(kr));
         return false;
     }
     SentryCrashLOG_TRACE("Got %d threads", context->threadCount);
     int threadCount = (int)actualThreadCount;
-    int maxThreadCount
-        = sizeof(context->allThreads) / sizeof(context->allThreads[0]);
+    int maxThreadCount = sizeof(context->allThreads) / sizeof(context->allThreads[0]);
     if (threadCount > maxThreadCount) {
-        SentryCrashLOG_ERROR("Thread count %d is higher than maximum of %d",
-            threadCount, maxThreadCount);
+        SentryCrashLOG_ERROR(
+            "Thread count %d is higher than maximum of %d", threadCount, maxThreadCount);
         threadCount = maxThreadCount;
     }
     for (int i = 0; i < threadCount; i++) {
@@ -90,8 +87,7 @@ getThreadList(SentryCrashMachineContext *context)
     for (mach_msg_type_number_t i = 0; i < actualThreadCount; i++) {
         mach_port_deallocate(thisTask, context->allThreads[i]);
     }
-    vm_deallocate(
-        thisTask, (vm_address_t)threads, sizeof(thread_t) * actualThreadCount);
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * actualThreadCount);
 
     return true;
 }
@@ -103,18 +99,17 @@ sentrycrashmc_contextSize()
 }
 
 SentryCrashThread
-sentrycrashmc_getThreadFromContext(
-    const SentryCrashMachineContext *const context)
+sentrycrashmc_getThreadFromContext(const SentryCrashMachineContext *const context)
 {
     return context->thisThread;
 }
 
 bool
-sentrycrashmc_getContextForThread(SentryCrashThread thread,
-    SentryCrashMachineContext *destinationContext, bool isCrashedContext)
+sentrycrashmc_getContextForThread(
+    SentryCrashThread thread, SentryCrashMachineContext *destinationContext, bool isCrashedContext)
 {
-    SentryCrashLOG_DEBUG("Fill thread 0x%x context into %p. is crashed = %d",
-        thread, destinationContext, isCrashedContext);
+    SentryCrashLOG_DEBUG("Fill thread 0x%x context into %p. is crashed = %d", thread,
+        destinationContext, isCrashedContext);
     memset(destinationContext, 0, sizeof(*destinationContext));
     destinationContext->thisThread = (thread_t)thread;
     destinationContext->isCurrentThread = thread == sentrycrashthread_self();
@@ -124,8 +119,7 @@ sentrycrashmc_getContextForThread(SentryCrashThread thread,
         sentrycrashcpu_getState(destinationContext);
     }
     if (sentrycrashmc_isCrashedContext(destinationContext)) {
-        destinationContext->isStackOverflow
-            = isStackOverflow(destinationContext);
+        destinationContext->isStackOverflow = isStackOverflow(destinationContext);
         getThreadList(destinationContext);
     }
     SentryCrashLOG_TRACE("Context retrieved.");
@@ -137,10 +131,8 @@ sentrycrashmc_getContextForSignal(
     void *signalUserContext, SentryCrashMachineContext *destinationContext)
 {
     SentryCrashLOG_DEBUG(
-        "Get context from signal user context and put into %p.",
-        destinationContext);
-    _STRUCT_MCONTEXT *sourceContext
-        = ((SignalUserContext *)signalUserContext)->UC_MCONTEXT;
+        "Get context from signal user context and put into %p.", destinationContext);
+    _STRUCT_MCONTEXT *sourceContext = ((SignalUserContext *)signalUserContext)->UC_MCONTEXT;
     memcpy(&destinationContext->machineContext, sourceContext,
         sizeof(destinationContext->machineContext));
     destinationContext->thisThread = (thread_t)sentrycrashthread_self();
@@ -157,8 +149,8 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
 {
     int nextIndex = g_reservedThreadsCount;
     if (nextIndex > g_reservedThreadsMaxIndex) {
-        SentryCrashLOG_ERROR("Too many reserved threads (%d). Max is %d",
-            nextIndex, g_reservedThreadsMaxIndex);
+        SentryCrashLOG_ERROR(
+            "Too many reserved threads (%d). Max is %d", nextIndex, g_reservedThreadsMaxIndex);
         return;
     }
     g_reservedThreads[g_reservedThreadsCount++] = thread;
@@ -196,12 +188,10 @@ sentrycrashmc_suspendEnvironment()
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         thread_t thread = threads[i];
         if (thread != thisThread
-            && !isThreadInList(
-                thread, g_reservedThreads, g_reservedThreadsCount)) {
+            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
             if ((kr = thread_suspend(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
-                SentryCrashLOG_ERROR(
-                    "thread_suspend (%08x): %s", thread, mach_error_string(kr));
+                SentryCrashLOG_ERROR("thread_suspend (%08x): %s", thread, mach_error_string(kr));
             }
         }
     }
@@ -209,8 +199,7 @@ sentrycrashmc_suspendEnvironment()
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         mach_port_deallocate(thisTask, threads[i]);
     }
-    vm_deallocate(
-        thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
 
     SentryCrashLOG_DEBUG("Suspend complete.");
 #endif
@@ -235,12 +224,10 @@ sentrycrashmc_resumeEnvironment()
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         thread_t thread = threads[i];
         if (thread != thisThread
-            && !isThreadInList(
-                thread, g_reservedThreads, g_reservedThreadsCount)) {
+            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
             if ((kr = thread_resume(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
-                SentryCrashLOG_ERROR(
-                    "thread_resume (%08x): %s", thread, mach_error_string(kr));
+                SentryCrashLOG_ERROR("thread_resume (%08x): %s", thread, mach_error_string(kr));
             }
         }
     }
@@ -248,8 +235,7 @@ sentrycrashmc_resumeEnvironment()
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         mach_port_deallocate(thisTask, threads[i]);
     }
-    vm_deallocate(
-        thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
 
     SentryCrashLOG_DEBUG("Resume complete.");
 #endif
@@ -262,8 +248,7 @@ sentrycrashmc_getThreadCount(const SentryCrashMachineContext *const context)
 }
 
 SentryCrashThread
-sentrycrashmc_getThreadAtIndex(
-    const SentryCrashMachineContext *const context, int index)
+sentrycrashmc_getThreadAtIndex(const SentryCrashMachineContext *const context, int index)
 {
     return context->allThreads[index];
 }
@@ -307,9 +292,7 @@ sentrycrashmc_canHaveCPUState(const SentryCrashMachineContext *const context)
 }
 
 bool
-sentrycrashmc_hasValidExceptionRegisters(
-    const SentryCrashMachineContext *const context)
+sentrycrashmc_hasValidExceptionRegisters(const SentryCrashMachineContext *const context)
 {
-    return sentrycrashmc_canHaveCPUState(context)
-        && sentrycrashmc_isCrashedContext(context);
+    return sentrycrashmc_canHaveCPUState(context) && sentrycrashmc_isCrashedContext(context);
 }

@@ -5,8 +5,7 @@
 SentryConcurrentRateLimitsDictionary ()
 
 /* Key is the type and value is valid until date */
-@property (nonatomic, strong)
-    NSMutableDictionary<NSNumber *, NSDate *> *rateLimits;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *rateLimits;
 
 @end
 

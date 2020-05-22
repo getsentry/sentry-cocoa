@@ -1,7 +1,6 @@
 #import "SentryEvent.h"
 
-typedef SentryEvent *__nullable (^SentryEventProcessor)(
-    SentryEvent *_Nonnull event);
+typedef SentryEvent *__nullable (^SentryEventProcessor)(SentryEvent *_Nonnull event);
 
 NS_ASSUME_NONNULL_BEGIN
 

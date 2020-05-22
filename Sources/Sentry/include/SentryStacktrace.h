@@ -28,8 +28,7 @@ SENTRY_NO_INIT
  * @return SentryStacktrace
  */
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
-                     registers:
-                         (NSDictionary<NSString *, NSString *> *)registers;
+                     registers:(NSDictionary<NSString *, NSString *> *)registers;
 
 /**
  * This will be called internally, is used to remove duplicated frames for

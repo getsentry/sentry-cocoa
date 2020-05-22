@@ -47,8 +47,7 @@ objectForDeepKey(id container, NSArray *deepKey)
         } else {
             if ([container respondsToSelector:@selector(objectAtIndex:)] &&
                 [key respondsToSelector:@selector(intValue)]) {
-                if ([key isKindOfClass:[NSString class]]
-                    && !isNumericString(key)) {
+                if ([key isKindOfClass:[NSString class]] && !isNumericString(key)) {
                     return nil;
                 }
                 NSUInteger index = (NSUInteger)[key intValue];
@@ -70,8 +69,7 @@ objectForKeyPath(id container, NSString *keyPath)
     while ([keyPath length] > 0 && [keyPath characterAtIndex:0] == '/') {
         keyPath = [keyPath substringFromIndex:1];
     }
-    return objectForDeepKey(
-        container, [keyPath componentsSeparatedByString:@"/"]);
+    return objectForDeepKey(container, [keyPath componentsSeparatedByString:@"/"]);
 }
 
 static id
@@ -82,13 +80,11 @@ parentOfDeepKey(id container, NSArray *deepKey)
         return container;
     }
 
-    NSArray *parentKey =
-        [deepKey subarrayWithRange:NSMakeRange(0, deepKeyCount - 1)];
+    NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, deepKeyCount - 1)];
     id parent = objectForDeepKey(container, parentKey);
     if (parent == nil) {
-        NSString *reason = [NSString
-            stringWithFormat:@"Parent %@ does not resolve to a valid object",
-            parentKey];
+        NSString *reason =
+            [NSString stringWithFormat:@"Parent %@ does not resolve to a valid object", parentKey];
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:reason
                                      userInfo:nil];
@@ -100,27 +96,22 @@ static void
 setObjectForDeepKey(id container, id object, NSArray *deepKey)
 {
     if ([deepKey count] == 0) {
-        @throw [NSException
-            exceptionWithName:NSInvalidArgumentException
-                       reason:[NSString
-                                  stringWithFormat:@"deepKey %@ must contain "
-                                                   @"at least one key",
-                                  deepKey]
-                     userInfo:nil];
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:[NSString stringWithFormat:@"deepKey %@ must contain "
+                                                                         @"at least one key",
+                                                        deepKey]
+                                     userInfo:nil];
     }
     NSString *excFormat = nil;
     id lastKey = [deepKey objectAtIndex:[deepKey count] - 1];
     id parentContainer = parentOfDeepKey(container, deepKey);
     if ([parentContainer respondsToSelector:@selector(setObject:forKey:)]) {
-        [(NSMutableDictionary *)parentContainer setObject:object
-                                                   forKey:lastKey];
+        [(NSMutableDictionary *)parentContainer setObject:object forKey:lastKey];
         return;
     } else if ([lastKey respondsToSelector:@selector(intValue)]) {
-        if ([parentContainer respondsToSelector:@selector
-                             (replaceObjectAtIndex:withObject:)]) {
+        if ([parentContainer respondsToSelector:@selector(replaceObjectAtIndex:withObject:)]) {
             NSUInteger index = (NSUInteger)[lastKey intValue];
-            [(NSMutableArray *)parentContainer replaceObjectAtIndex:index
-                                                         withObject:object];
+            [(NSMutableArray *)parentContainer replaceObjectAtIndex:index withObject:object];
             return;
         } else {
             excFormat = @"Parent %@ of type %@ does not respond to "
@@ -128,14 +119,11 @@ setObjectForDeepKey(id container, id object, NSArray *deepKey)
                         @"\"replaceObjectAtIndex:withObject:\"";
         }
     } else {
-        excFormat
-            = @"Parent %@ of type %@ does not respond to \"setObject:forKey:\"";
+        excFormat = @"Parent %@ of type %@ does not respond to \"setObject:forKey:\"";
     }
 
-    NSArray *parentKey =
-        [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
-    NSString *reason = [NSString
-        stringWithFormat:excFormat, parentKey, [parentContainer class]];
+    NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
+    NSString *reason = [NSString stringWithFormat:excFormat, parentKey, [parentContainer class]];
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:reason
                                  userInfo:nil];
@@ -144,8 +132,7 @@ setObjectForDeepKey(id container, id object, NSArray *deepKey)
 static void
 setObjectForKeyPath(id container, id object, NSString *keyPath)
 {
-    setObjectForDeepKey(
-        container, object, [keyPath componentsSeparatedByString:@"/"]);
+    setObjectForDeepKey(container, object, [keyPath componentsSeparatedByString:@"/"]);
 }
 
 static void
@@ -158,8 +145,7 @@ removeObjectForDeepKey(id container, NSArray *deepKey)
         [(NSMutableDictionary *)parentContainer removeObjectForKey:lastKey];
         return;
     } else if ([lastKey respondsToSelector:@selector(intValue)]) {
-        if ([parentContainer
-                respondsToSelector:@selector(removeObjectAtIndex:)]) {
+        if ([parentContainer respondsToSelector:@selector(removeObjectAtIndex:)]) {
             NSUInteger index = (NSUInteger)[lastKey intValue];
             [(NSMutableArray *)parentContainer removeObjectAtIndex:index];
             return;
@@ -172,10 +158,8 @@ removeObjectForDeepKey(id container, NSArray *deepKey)
                     @"\"removeObjectForKey:\"";
     }
 
-    NSArray *parentKey =
-        [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
-    NSString *reason = [NSString
-        stringWithFormat:excFormat, parentKey, [parentContainer class]];
+    NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
+    NSString *reason = [NSString stringWithFormat:excFormat, parentKey, [parentContainer class]];
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:reason
                                  userInfo:nil];
@@ -184,8 +168,7 @@ removeObjectForDeepKey(id container, NSArray *deepKey)
 static void
 removeObjectForKeyPath(id container, NSString *keyPath)
 {
-    removeObjectForDeepKey(
-        container, [keyPath componentsSeparatedByString:@"/"]);
+    removeObjectForDeepKey(container, [keyPath componentsSeparatedByString:@"/"]);
 }
 
 #pragma mark - NSDictionary Category

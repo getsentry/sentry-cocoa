@@ -11,8 +11,7 @@
 {
     [[NSUserDefaults standardUserDefaults]
         registerDefaults:@{ @"NSApplicationCrashOnExceptions" : @YES }];
-    if (nil != SentryCrash.sharedInstance.uncaughtExceptionHandler
-        && nil != exception) {
+    if (nil != SentryCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
         SentryCrash.sharedInstance.uncaughtExceptionHandler(exception);
     }
     [super reportException:exception];

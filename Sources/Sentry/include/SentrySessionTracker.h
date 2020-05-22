@@ -9,7 +9,6 @@ NS_SWIFT_NAME(SessionTracker)
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-            currentDateProvider:
-                (id<SentryCurrentDateProvider>)currentDateProvider;
+            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 - (void)start;
 @end

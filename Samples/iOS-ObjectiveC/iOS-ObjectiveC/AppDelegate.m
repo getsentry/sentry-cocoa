@@ -13,14 +13,12 @@ AppDelegate ()
 {
     // Override point for customization after application launch.
     [SentrySDK startWithOptions:@{
-        @"dsn" :
-            @"https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/"
-            @"4394",
+        @"dsn" : @"https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/"
+                 @"4394",
         @"debug" : @(YES),
         @"logLevel" : @"verbose",
         @"enableAutoSessionTracking" : @(YES),
-        @"sessionTrackingIntervalMillis" :
-            @5000 // 5 seconds session timeout for testing
+        @"sessionTrackingIntervalMillis" : @5000 // 5 seconds session timeout for testing
     }];
     return YES;
 }
@@ -28,15 +26,13 @@ AppDelegate ()
 #pragma mark - UISceneSession lifecycle
 
 - (UISceneConfiguration *)application:(UIApplication *)application
-    configurationForConnectingSceneSession:
-        (UISceneSession *)connectingSceneSession
+    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
                                    options:(UISceneConnectionOptions *)options
 {
     // Called when a new scene session is being created.
     // Use this method to select a configuration to create the new scene with.
-    return
-        [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
-                                       sessionRole:connectingSceneSession.role];
+    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
+                                          sessionRole:connectingSceneSession.role];
 }
 
 - (void)application:(UIApplication *)application

@@ -39,8 +39,8 @@ extern "C" {
  *
  * @param machineContext The machine context whose stack to walk.
  */
-void sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor,
-    int maxStackDepth, const struct SentryCrashMachineContext *machineContext);
+void sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStackDepth,
+    const struct SentryCrashMachineContext *machineContext);
 
 #ifdef __cplusplus
 }

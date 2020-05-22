@@ -40,8 +40,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
         // Bug: The system sometimes gives a backtrace with an extra 0x00000001
         // at the end.
         if (nextAddress > 1) {
-            cursor->stackEntry.address
-                = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+            cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
             cursor->state.currentDepth++;
             return true;
         }
@@ -50,8 +49,8 @@ advanceCursor(SentryCrashStackCursor *cursor)
 }
 
 void
-sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor,
-    const uintptr_t *backtrace, int backtraceLength, int skipEntries)
+sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t *backtrace,
+    int backtraceLength, int skipEntries)
 {
     sentrycrashsc_initCursor(cursor, sentrycrashsc_resetCursor, advanceCursor);
     SentryCrashStackCursor_Backtrace_Context *context

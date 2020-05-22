@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 // id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(NSString *_Nullable)eventId
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithId:(NSString *_Nullable)eventId NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
@@ -24,8 +23,7 @@ SENTRY_NO_INIT
 @interface SentryEnvelopeItemHeader : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithType:(NSString *)type
-                      length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
 
 /**
  * The type of the envelope item.
@@ -59,15 +57,12 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id
-                singleItem:(SentryEnvelopeItem *)item;
+- (instancetype)initWithId:(NSString *_Nullable)id singleItem:(SentryEnvelopeItem *)item;
 
-- (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
-                    singleItem:(SentryEnvelopeItem *)item;
+- (instancetype)initWithHeader:(SentryEnvelopeHeader *)header singleItem:(SentryEnvelopeItem *)item;
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id
-                     items:(NSArray<SentryEnvelopeItem *> *)items;
+- (instancetype)initWithId:(NSString *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items;
 
 /**
  * Initializes a SentryEnvelope with a single session.
@@ -86,8 +81,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
-                         items:(NSArray<SentryEnvelopeItem *> *)items
-    NS_DESIGNATED_INITIALIZER;
+                         items:(NSArray<SentryEnvelopeItem *> *)items NS_DESIGNATED_INITIALIZER;
 
 // Convenience init for a single event
 - (instancetype)initWithEvent:(SentryEvent *)event;

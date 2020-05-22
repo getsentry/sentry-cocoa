@@ -31,14 +31,10 @@
 - (NSString *)createTempPath
 {
     NSString *path = [NSTemporaryDirectory()
-        stringByAppendingString:[[NSProcessInfo processInfo]
-                                    globallyUniqueString]];
+        stringByAppendingString:[[NSProcessInfo processInfo] globallyUniqueString]];
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:path]) {
-        [fm createDirectoryAtPath:path
-            withIntermediateDirectories:YES
-                             attributes:nil
-                                  error:nil];
+        [fm createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
     }
     return path;
 }
@@ -48,8 +44,7 @@
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
-- (void)createTempReportsAtPath:(NSString *)reportsPath
-                         prefix:(NSString *)reportPrefix
+- (void)createTempReportsAtPath:(NSString *)reportsPath prefix:(NSString *)reportPrefix
 {
     NSError *error = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -60,17 +55,14 @@
                               error:&error];
     XCTAssertNil(error, @"");
 
-    NSString *bundlePath =
-        [[NSBundle bundleForClass:[self class]] resourcePath];
+    NSString *bundlePath = [[NSBundle bundleForClass:[self class]] resourcePath];
     NSArray *files = [fm contentsOfDirectoryAtPath:bundlePath error:&error];
     XCTAssertNil(error, @"");
 
     for (NSString *filename in files) {
         if ([filename rangeOfString:reportPrefix].location != NSNotFound) {
-            [fm copyItemAtPath:[bundlePath
-                                   stringByAppendingPathComponent:filename]
-                        toPath:[reportsPath
-                                   stringByAppendingPathComponent:filename]
+            [fm copyItemAtPath:[bundlePath stringByAppendingPathComponent:filename]
+                        toPath:[reportsPath stringByAppendingPathComponent:filename]
                          error:&error];
             XCTAssertNil(error, @"");
         }
@@ -80,8 +72,7 @@
 - (void)deleteTempReports:(NSString *)tempReportsPath
 {
     NSError *error = nil;
-    [[NSFileManager defaultManager] removeItemAtPath:tempReportsPath
-                                               error:&error];
+    [[NSFileManager defaultManager] removeItemAtPath:tempReportsPath error:&error];
 }
 
 @end

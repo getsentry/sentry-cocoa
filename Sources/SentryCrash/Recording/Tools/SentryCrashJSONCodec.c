@@ -66,8 +66,8 @@
 #define unlikely_if(x) if (__builtin_expect(x, 0))
 
 /** Used for writing hex string values. */
-static char g_hexNybbles[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    'A', 'B', 'C', 'D', 'E', 'F' };
+static char g_hexNybbles[]
+    = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 const char *
 sentrycrashjson_stringForError(const int error)
@@ -103,8 +103,7 @@ sentrycrashjson_stringForError(const int error)
  *
  * @return SentryCrashJSON_OK if the data was handled successfully.
  */
-#define addJSONData(CONTEXT, DATA, LENGTH)                                     \
-    (CONTEXT)->addJSONData(DATA, LENGTH, (CONTEXT)->userData)
+#define addJSONData(CONTEXT, DATA, LENGTH) (CONTEXT)->addJSONData(DATA, LENGTH, (CONTEXT)->userData)
 
 /** Escape a string portion for use with JSON and send to data handler.
  *
@@ -117,8 +116,8 @@ sentrycrashjson_stringForError(const int error)
  * @return SentryCrashJSON_OK if the data was handled successfully.
  */
 static int
-appendEscapedString(SentryCrashJSONEncodeContext *const context,
-    const char *restrict const string, int length)
+appendEscapedString(
+    SentryCrashJSONEncodeContext *const context, const char *restrict const string, int length)
 {
     char workBuffer[SentryCrashJSONCODEC_WorkBufferSize];
     const char *const srcEnd = string + length;
@@ -127,9 +126,7 @@ appendEscapedString(SentryCrashJSONEncodeContext *const context,
     char *restrict dst = workBuffer;
 
     // Simple case (no escape or special characters)
-    for (; src < srcEnd && *src != '\\' && *src != '\"'
-         && (unsigned char)*src >= ' ';
-         src++) {
+    for (; src < srcEnd && *src != '\\' && *src != '\"' && (unsigned char)*src >= ' '; src++) {
         *dst++ = *src;
     }
 
@@ -164,8 +161,7 @@ appendEscapedString(SentryCrashJSONEncodeContext *const context,
         default:
             unlikely_if((unsigned char)*src < ' ')
             {
-                SentryCrashLOG_DEBUG(
-                    "Invalid character 0x%02x in string: %s", *src, string);
+                SentryCrashLOG_DEBUG("Invalid character 0x%02x in string: %s", *src, string);
                 return SentryCrashJSON_ERROR_INVALID_CHARACTER;
             }
             *dst++ = *src;
@@ -187,8 +183,8 @@ appendEscapedString(SentryCrashJSONEncodeContext *const context,
  * @return SentryCrashJSON_OK if the data was handled successfully.
  */
 static int
-addEscapedString(SentryCrashJSONEncodeContext *const context,
-    const char *restrict const string, int length)
+addEscapedString(
+    SentryCrashJSONEncodeContext *const context, const char *restrict const string, int length)
 {
     int result = SentryCrashJSON_OK;
 
@@ -218,14 +214,11 @@ addEscapedString(SentryCrashJSONEncodeContext *const context,
  * @return SentryCrashJSON_OK if the data was handled successfully.
  */
 static int
-addQuotedEscapedString(SentryCrashJSONEncodeContext *const context,
-    const char *restrict const string, int length)
+addQuotedEscapedString(
+    SentryCrashJSONEncodeContext *const context, const char *restrict const string, int length)
 {
     int result;
-    unlikely_if((result = addJSONData(context, "\"", 1)) != SentryCrashJSON_OK)
-    {
-        return result;
-    }
+    unlikely_if((result = addJSONData(context, "\"", 1)) != SentryCrashJSON_OK) { return result; }
     result = addEscapedString(context, string, length);
 
     // Always close string, even if we failed to write its content
@@ -235,20 +228,15 @@ addQuotedEscapedString(SentryCrashJSONEncodeContext *const context,
 }
 
 int
-sentrycrashjson_beginElement(
-    SentryCrashJSONEncodeContext *const context, const char *const name)
+sentrycrashjson_beginElement(SentryCrashJSONEncodeContext *const context, const char *const name)
 {
     int result = SentryCrashJSON_OK;
 
     // Decide if a comma is warranted.
-    unlikely_if(context->containerFirstEntry)
-    {
-        context->containerFirstEntry = false;
-    }
+    unlikely_if(context->containerFirstEntry) { context->containerFirstEntry = false; }
     else
     {
-        unlikely_if(
-            (result = addJSONData(context, ",", 1)) != SentryCrashJSON_OK)
+        unlikely_if((result = addJSONData(context, ",", 1)) != SentryCrashJSON_OK)
         {
             return result;
         }
@@ -257,14 +245,12 @@ sentrycrashjson_beginElement(
     // Pretty printing
     unlikely_if(context->prettyPrint && context->containerLevel > 0)
     {
-        unlikely_if(
-            (result = addJSONData(context, "\n", 1)) != SentryCrashJSON_OK)
+        unlikely_if((result = addJSONData(context, "\n", 1)) != SentryCrashJSON_OK)
         {
             return result;
         }
         for (int i = 0; i < context->containerLevel; i++) {
-            unlikely_if((result = addJSONData(context, "    ", 4))
-                != SentryCrashJSON_OK)
+            unlikely_if((result = addJSONData(context, "    ", 4)) != SentryCrashJSON_OK)
             {
                 return result;
             }
@@ -278,24 +264,21 @@ sentrycrashjson_beginElement(
             SentryCrashLOG_DEBUG("Name was null inside an object");
             return SentryCrashJSON_ERROR_INVALID_DATA;
         }
-        unlikely_if(
-            (result = addQuotedEscapedString(context, name, (int)strlen(name)))
+        unlikely_if((result = addQuotedEscapedString(context, name, (int)strlen(name)))
             != SentryCrashJSON_OK)
         {
             return result;
         }
         unlikely_if(context->prettyPrint)
         {
-            unlikely_if(
-                (result = addJSONData(context, ": ", 2)) != SentryCrashJSON_OK)
+            unlikely_if((result = addJSONData(context, ": ", 2)) != SentryCrashJSON_OK)
             {
                 return result;
             }
         }
         else
         {
-            unlikely_if(
-                (result = addJSONData(context, ":", 1)) != SentryCrashJSON_OK)
+            unlikely_if((result = addJSONData(context, ":", 1)) != SentryCrashJSON_OK)
             {
                 return result;
             }
@@ -305,15 +288,15 @@ sentrycrashjson_beginElement(
 }
 
 int
-sentrycrashjson_addRawJSONData(SentryCrashJSONEncodeContext *const context,
-    const char *const data, const int length)
+sentrycrashjson_addRawJSONData(
+    SentryCrashJSONEncodeContext *const context, const char *const data, const int length)
 {
     return addJSONData(context, data, length);
 }
 
 int
-sentrycrashjson_addBooleanElement(SentryCrashJSONEncodeContext *const context,
-    const char *const name, const bool value)
+sentrycrashjson_addBooleanElement(
+    SentryCrashJSONEncodeContext *const context, const char *const name, const bool value)
 {
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
@@ -326,8 +309,7 @@ sentrycrashjson_addBooleanElement(SentryCrashJSONEncodeContext *const context,
 
 int
 sentrycrashjson_addFloatingPointElement(
-    SentryCrashJSONEncodeContext *const context, const char *const name,
-    double value)
+    SentryCrashJSONEncodeContext *const context, const char *const name, double value)
 {
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
@@ -337,8 +319,8 @@ sentrycrashjson_addFloatingPointElement(
 }
 
 int
-sentrycrashjson_addIntegerElement(SentryCrashJSONEncodeContext *const context,
-    const char *const name, int64_t value)
+sentrycrashjson_addIntegerElement(
+    SentryCrashJSONEncodeContext *const context, const char *const name, int64_t value)
 {
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
@@ -348,8 +330,7 @@ sentrycrashjson_addIntegerElement(SentryCrashJSONEncodeContext *const context,
 }
 
 int
-sentrycrashjson_addNullElement(
-    SentryCrashJSONEncodeContext *const context, const char *const name)
+sentrycrashjson_addNullElement(SentryCrashJSONEncodeContext *const context, const char *const name)
 {
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
@@ -360,10 +341,7 @@ int
 sentrycrashjson_addStringElement(SentryCrashJSONEncodeContext *const context,
     const char *const name, const char *const value, int length)
 {
-    unlikely_if(value == NULL)
-    {
-        return sentrycrashjson_addNullElement(context, name);
-    }
+    unlikely_if(value == NULL) { return sentrycrashjson_addNullElement(context, name); }
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
     if (length == SentryCrashJSON_SIZE_AUTOMATIC) {
@@ -382,8 +360,8 @@ sentrycrashjson_beginStringElement(
 }
 
 int
-sentrycrashjson_appendStringElement(SentryCrashJSONEncodeContext *const context,
-    const char *const value, int length)
+sentrycrashjson_appendStringElement(
+    SentryCrashJSONEncodeContext *const context, const char *const value, int length)
 {
     return addEscapedString(context, value, length);
 }
@@ -395,8 +373,8 @@ sentrycrashjson_endStringElement(SentryCrashJSONEncodeContext *const context)
 }
 
 int
-sentrycrashjson_addDataElement(SentryCrashJSONEncodeContext *const context,
-    const char *name, const char *value, int length)
+sentrycrashjson_addDataElement(
+    SentryCrashJSONEncodeContext *const context, const char *name, const char *value, int length)
 {
     int result = SentryCrashJSON_OK;
     result = sentrycrashjson_beginDataElement(context, name);
@@ -417,8 +395,8 @@ sentrycrashjson_beginDataElement(
 }
 
 int
-sentrycrashjson_appendDataElement(SentryCrashJSONEncodeContext *const context,
-    const char *const value, int length)
+sentrycrashjson_appendDataElement(
+    SentryCrashJSONEncodeContext *const context, const char *const value, int length)
 {
     unsigned char *currentByte = (unsigned char *)value;
     unsigned char *end = currentByte + length;
@@ -443,8 +421,7 @@ sentrycrashjson_endDataElement(SentryCrashJSONEncodeContext *const context)
 }
 
 int
-sentrycrashjson_beginArray(
-    SentryCrashJSONEncodeContext *const context, const char *const name)
+sentrycrashjson_beginArray(SentryCrashJSONEncodeContext *const context, const char *const name)
 {
     likely_if(context->containerLevel >= 0)
     {
@@ -460,8 +437,7 @@ sentrycrashjson_beginArray(
 }
 
 int
-sentrycrashjson_beginObject(
-    SentryCrashJSONEncodeContext *const context, const char *const name)
+sentrycrashjson_beginObject(SentryCrashJSONEncodeContext *const context, const char *const name)
 {
     likely_if(context->containerLevel >= 0)
     {
@@ -488,14 +464,12 @@ sentrycrashjson_endContainer(SentryCrashJSONEncodeContext *const context)
     unlikely_if(context->prettyPrint && !context->containerFirstEntry)
     {
         int result;
-        unlikely_if(
-            (result = addJSONData(context, "\n", 1)) != SentryCrashJSON_OK)
+        unlikely_if((result = addJSONData(context, "\n", 1)) != SentryCrashJSON_OK)
         {
             return result;
         }
         for (int i = 0; i < context->containerLevel; i++) {
-            unlikely_if((result = addJSONData(context, "    ", 4))
-                != SentryCrashJSON_OK)
+            unlikely_if((result = addJSONData(context, "    ", 4)) != SentryCrashJSON_OK)
             {
                 return result;
             }
@@ -506,9 +480,8 @@ sentrycrashjson_endContainer(SentryCrashJSONEncodeContext *const context)
 }
 
 void
-sentrycrashjson_beginEncode(SentryCrashJSONEncodeContext *const context,
-    bool prettyPrint, SentryCrashJSONAddDataFunc addJSONDataFunc,
-    void *const userData)
+sentrycrashjson_beginEncode(SentryCrashJSONEncodeContext *const context, bool prettyPrint,
+    SentryCrashJSONAddDataFunc addJSONDataFunc, void *const userData)
 {
     memset(context, 0, sizeof(*context));
     context->addJSONData = addJSONDataFunc;
@@ -522,8 +495,7 @@ sentrycrashjson_endEncode(SentryCrashJSONEncodeContext *const context)
 {
     int result = SentryCrashJSON_OK;
     while (context->containerLevel > 0) {
-        unlikely_if((result = sentrycrashjson_endContainer(context))
-            != SentryCrashJSON_OK)
+        unlikely_if((result = sentrycrashjson_endContainer(context)) != SentryCrashJSON_OK)
         {
             return result;
         }
@@ -840,8 +812,8 @@ static int writeUTF8(unsigned int character, char **dst);
  *
  * @return SentryCrashJSON_OK if successful.
  */
-static int decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer,
-    int dstBufferLength);
+static int decodeString(
+    SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBufferLength);
 
 /** Decode a JSON element.
  *
@@ -851,17 +823,15 @@ static int decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer,
  *
  * @return SentryCrashJSON_OK if successful.
  */
-static int decodeElement(
-    const char *const name, SentryCrashJSONDecodeContext *context);
+static int decodeElement(const char *const name, SentryCrashJSONDecodeContext *context);
 
 /** Skip past any whitespace.
  *
  * @param CONTEXT The decoding context.
  */
-#define SKIP_WHITESPACE(CONTEXT)                                               \
-    while (CONTEXT->bufferPtr < CONTEXT->bufferEnd                             \
-        && isspace(*CONTEXT->bufferPtr)) {                                     \
-        CONTEXT->bufferPtr++;                                                  \
+#define SKIP_WHITESPACE(CONTEXT)                                                                   \
+    while (CONTEXT->bufferPtr < CONTEXT->bufferEnd && isspace(*CONTEXT->bufferPtr)) {              \
+        CONTEXT->bufferPtr++;                                                                      \
     }
 
 /** Check if a character is valid for representing part of a floating point
@@ -934,8 +904,7 @@ writeUTF8(unsigned int character, char **dst)
 }
 
 static int
-decodeString(
-    SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBufferLength)
+decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBufferLength)
 {
     *dstBuffer = '\0';
     unlikely_if(*context->bufferPtr != '\"')
@@ -1015,21 +984,19 @@ decodeString(
                     SentryCrashLOG_DEBUG("Premature end of data");
                     return SentryCrashJSON_ERROR_INCOMPLETE;
                 }
-                unsigned int accum = g_hexConversion[src[1]] << 12
-                    | g_hexConversion[src[2]] << 8
+                unsigned int accum = g_hexConversion[src[1]] << 12 | g_hexConversion[src[2]] << 8
                     | g_hexConversion[src[3]] << 4 | g_hexConversion[src[4]];
                 unlikely_if(accum > 0xffff)
                 {
-                    SentryCrashLOG_DEBUG("Invalid unicode sequence: %c%c%c%c",
-                        src[1], src[2], src[3], src[4]);
+                    SentryCrashLOG_DEBUG(
+                        "Invalid unicode sequence: %c%c%c%c", src[1], src[2], src[3], src[4]);
                     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                 }
 
                 // UTF-16 Trail surrogate on its own.
                 unlikely_if(accum >= 0xdc00 && accum <= 0xdfff)
                 {
-                    SentryCrashLOG_DEBUG(
-                        "Unexpected trail surrogate: 0x%04x", accum);
+                    SentryCrashLOG_DEBUG("Unexpected trail surrogate: 0x%04x", accum);
                     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                 }
 
@@ -1044,20 +1011,16 @@ decodeString(
                     }
                     unlikely_if(src[5] != '\\' || src[6] != 'u')
                     {
-                        SentryCrashLOG_DEBUG(
-                            "Expected \"\\u\" but got: \"%c%c\"", src[5],
-                            src[6]);
+                        SentryCrashLOG_DEBUG("Expected \"\\u\" but got: \"%c%c\"", src[5], src[6]);
                         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                     }
                     src += 6;
                     unsigned int accum2 = g_hexConversion[src[1]] << 12
-                        | g_hexConversion[src[2]] << 8
-                        | g_hexConversion[src[3]] << 4
+                        | g_hexConversion[src[2]] << 8 | g_hexConversion[src[3]] << 4
                         | g_hexConversion[src[4]];
                     unlikely_if(accum2 < 0xdc00 || accum2 > 0xdfff)
                     {
-                        SentryCrashLOG_DEBUG(
-                            "Invalid trail surrogate: 0x%04x", accum2);
+                        SentryCrashLOG_DEBUG("Invalid trail surrogate: 0x%04x", accum2);
                         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                     }
                     // And combine 20 bit result.
@@ -1127,15 +1090,13 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
                 context->bufferPtr++;
                 return context->callbacks->onEndContainer(context->userData);
             }
-            result = decodeString(
-                context, context->nameBuffer, context->nameBufferLength);
+            result = decodeString(context, context->nameBuffer, context->nameBufferLength);
             unlikely_if(result != SentryCrashJSON_OK) return result;
             SKIP_WHITESPACE(context);
             unlikely_if(context->bufferPtr >= context->bufferEnd) { break; }
             unlikely_if(*context->bufferPtr != ':')
             {
-                SentryCrashLOG_DEBUG(
-                    "Expected ':' but got '%c'", *context->bufferPtr);
+                SentryCrashLOG_DEBUG("Expected ':' but got '%c'", *context->bufferPtr);
                 return SentryCrashJSON_ERROR_INVALID_CHARACTER;
             }
             context->bufferPtr++;
@@ -1150,11 +1111,10 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         return SentryCrashJSON_ERROR_INCOMPLETE;
     }
     case '\"': {
-        result = decodeString(
-            context, context->stringBuffer, context->stringBufferLength);
+        result = decodeString(context, context->stringBuffer, context->stringBufferLength);
         unlikely_if(result != SentryCrashJSON_OK) return result;
-        result = context->callbacks->onStringElement(
-            name, context->stringBuffer, context->userData);
+        result
+            = context->callbacks->onStringElement(name, context->stringBuffer, context->userData);
         return result;
     }
     case 'f': {
@@ -1163,18 +1123,15 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             SentryCrashLOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
-        unlikely_if(!(context->bufferPtr[1] == 'a'
-            && context->bufferPtr[2] == 'l' && context->bufferPtr[3] == 's'
-            && context->bufferPtr[4] == 'e'))
+        unlikely_if(!(context->bufferPtr[1] == 'a' && context->bufferPtr[2] == 'l'
+            && context->bufferPtr[3] == 's' && context->bufferPtr[4] == 'e'))
         {
-            SentryCrashLOG_DEBUG("Expected \"false\" but got \"f%c%c%c%c\"",
-                context->bufferPtr[1], context->bufferPtr[2],
-                context->bufferPtr[3], context->bufferPtr[4]);
+            SentryCrashLOG_DEBUG("Expected \"false\" but got \"f%c%c%c%c\"", context->bufferPtr[1],
+                context->bufferPtr[2], context->bufferPtr[3], context->bufferPtr[4]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 5;
-        return context->callbacks->onBooleanElement(
-            name, false, context->userData);
+        return context->callbacks->onBooleanElement(name, false, context->userData);
     }
     case 't': {
         unlikely_if(context->bufferEnd - context->bufferPtr < 4)
@@ -1182,17 +1139,15 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             SentryCrashLOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
-        unlikely_if(!(context->bufferPtr[1] == 'r'
-            && context->bufferPtr[2] == 'u' && context->bufferPtr[3] == 'e'))
+        unlikely_if(!(context->bufferPtr[1] == 'r' && context->bufferPtr[2] == 'u'
+            && context->bufferPtr[3] == 'e'))
         {
-            SentryCrashLOG_DEBUG("Expected \"true\" but got \"t%c%c%c\"",
-                context->bufferPtr[1], context->bufferPtr[2],
-                context->bufferPtr[3]);
+            SentryCrashLOG_DEBUG("Expected \"true\" but got \"t%c%c%c\"", context->bufferPtr[1],
+                context->bufferPtr[2], context->bufferPtr[3]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 4;
-        return context->callbacks->onBooleanElement(
-            name, true, context->userData);
+        return context->callbacks->onBooleanElement(name, true, context->userData);
     }
     case 'n': {
         unlikely_if(context->bufferEnd - context->bufferPtr < 4)
@@ -1200,12 +1155,11 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             SentryCrashLOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
-        unlikely_if(!(context->bufferPtr[1] == 'u'
-            && context->bufferPtr[2] == 'l' && context->bufferPtr[3] == 'l'))
+        unlikely_if(!(context->bufferPtr[1] == 'u' && context->bufferPtr[2] == 'l'
+            && context->bufferPtr[3] == 'l'))
         {
-            SentryCrashLOG_DEBUG("Expected \"null\" but got \"n%c%c%c\"",
-                context->bufferPtr[1], context->bufferPtr[2],
-                context->bufferPtr[3]);
+            SentryCrashLOG_DEBUG("Expected \"null\" but got \"n%c%c%c\"", context->bufferPtr[1],
+                context->bufferPtr[2], context->bufferPtr[3]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 4;
@@ -1234,8 +1188,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         int64_t accum = 0;
         const char *const start = context->bufferPtr;
 
-        for (; context->bufferPtr < context->bufferEnd
-             && isdigit(*context->bufferPtr);
+        for (; context->bufferPtr < context->bufferEnd && isdigit(*context->bufferPtr);
              context->bufferPtr++) {
             accum = accum * 10 + (*context->bufferPtr - '0');
             unlikely_if(accum < 0)
@@ -1253,12 +1206,10 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
 
         if (!isFPChar(*context->bufferPtr) && accum >= 0) {
             accum *= sign;
-            return context->callbacks->onIntegerElement(
-                name, accum, context->userData);
+            return context->callbacks->onIntegerElement(name, accum, context->userData);
         }
 
-        while (context->bufferPtr < context->bufferEnd
-            && isFPChar(*context->bufferPtr)) {
+        while (context->bufferPtr < context->bufferEnd && isFPChar(*context->bufferPtr)) {
             context->bufferPtr++;
         }
 
@@ -1283,8 +1234,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         sscanf(context->stringBuffer, "%lg", &value);
 
         value *= sign;
-        return context->callbacks->onFloatingPointElement(
-            name, value, context->userData);
+        return context->callbacks->onFloatingPointElement(name, value, context->userData);
     }
     }
     SentryCrashLOG_DEBUG("Invalid character '%c'", *context->bufferPtr);
@@ -1293,8 +1243,8 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
 
 int
 sentrycrashjson_decode(const char *const data, int length, char *stringBuffer,
-    int stringBufferLength, SentryCrashJSONDecodeCallbacks *const callbacks,
-    void *const userData, int *const errorOffset)
+    int stringBufferLength, SentryCrashJSONDecodeCallbacks *const callbacks, void *const userData,
+    int *const errorOffset)
 {
     char *nameBuffer = stringBuffer;
     int nameBufferLength = stringBufferLength / 4;
@@ -1312,10 +1262,7 @@ sentrycrashjson_decode(const char *const data, int length, char *stringBuffer,
     const char *ptr = data;
 
     int result = decodeElement(NULL, &context);
-    likely_if(result == SentryCrashJSON_OK)
-    {
-        result = callbacks->onEndData(userData);
-    }
+    likely_if(result == SentryCrashJSON_OK) { result = callbacks->onEndData(userData); }
 
     unlikely_if(result != SentryCrashJSON_OK && errorOffset != NULL)
     {
@@ -1358,13 +1305,12 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
             int fillLength = bufferLength - remainingLength;
             memcpy(start, ptr, remainingLength);
             context->decodeContext->bufferPtr = start;
-            int bytesRead = (int)read(
-                context->fd, start + remainingLength, (unsigned)fillLength);
+            int bytesRead = (int)read(context->fd, start + remainingLength, (unsigned)fillLength);
             unlikely_if(bytesRead < fillLength)
             {
                 if (bytesRead < 0) {
-                    SentryCrashLOG_ERROR("Error reading file %s: %s",
-                        context->sourceFilename, strerror(errno));
+                    SentryCrashLOG_ERROR(
+                        "Error reading file %s: %s", context->sourceFilename, strerror(errno));
                 }
                 context->isEOF = true;
             }
@@ -1373,12 +1319,10 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
 }
 
 static int
-addJSONFromFile_onBooleanElement(
-    const char *const name, const bool value, void *const userData)
+addJSONFromFile_onBooleanElement(const char *const name, const bool value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
-    int result = sentrycrashjson_addBooleanElement(
-        context->encodeContext, name, value);
+    int result = sentrycrashjson_addBooleanElement(context->encodeContext, name, value);
     context->updateDecoderCallback(context);
     return result;
 }
@@ -1388,19 +1332,16 @@ addJSONFromFile_onFloatingPointElement(
     const char *const name, const double value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
-    int result = sentrycrashjson_addFloatingPointElement(
-        context->encodeContext, name, value);
+    int result = sentrycrashjson_addFloatingPointElement(context->encodeContext, name, value);
     context->updateDecoderCallback(context);
     return result;
 }
 
 static int
-addJSONFromFile_onIntegerElement(
-    const char *const name, const int64_t value, void *const userData)
+addJSONFromFile_onIntegerElement(const char *const name, const int64_t value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
-    int result = sentrycrashjson_addIntegerElement(
-        context->encodeContext, name, value);
+    int result = sentrycrashjson_addIntegerElement(context->encodeContext, name, value);
     context->updateDecoderCallback(context);
     return result;
 }
@@ -1419,8 +1360,8 @@ addJSONFromFile_onStringElement(
     const char *const name, const char *const value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
-    int result = sentrycrashjson_addStringElement(
-        context->encodeContext, name, value, (int)strlen(value));
+    int result
+        = sentrycrashjson_addStringElement(context->encodeContext, name, value, (int)strlen(value));
     context->updateDecoderCallback(context);
     return result;
 }
@@ -1448,8 +1389,7 @@ addJSONFromFile_onEndContainer(void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
     int result = SentryCrashJSON_OK;
-    if (context->closeLastContainer
-        || context->encodeContext->containerLevel > 2) {
+    if (context->closeLastContainer || context->encodeContext->containerLevel > 2) {
         result = sentrycrashjson_endContainer(context->encodeContext);
     }
     context->updateDecoderCallback(context);
@@ -1463,8 +1403,7 @@ addJSONFromFile_onEndData(__unused void *const userData)
 }
 
 int
-sentrycrashjson_addJSONFromFile(
-    SentryCrashJSONEncodeContext *const encodeContext,
+sentrycrashjson_addJSONFromFile(SentryCrashJSONEncodeContext *const encodeContext,
     const char *restrict const name, const char *restrict const filename,
     const bool closeLastContainer)
 {
@@ -1513,8 +1452,7 @@ sentrycrashjson_addJSONFromFile(
 
     int result = decodeElement(name, &decodeContext);
     close(fd);
-    while (
-        closeLastContainer && encodeContext->containerLevel > containerLevel) {
+    while (closeLastContainer && encodeContext->containerLevel > containerLevel) {
         sentrycrashjson_endContainer(encodeContext);
     }
 
@@ -1522,10 +1460,9 @@ sentrycrashjson_addJSONFromFile(
 }
 
 int
-sentrycrashjson_addJSONElement(
-    SentryCrashJSONEncodeContext *const encodeContext,
-    const char *restrict const name, const char *restrict const jsonData,
-    const int jsonDataLength, const bool closeLastContainer)
+sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext,
+    const char *restrict const name, const char *restrict const jsonData, const int jsonDataLength,
+    const bool closeLastContainer)
 {
     SentryCrashJSONDecodeCallbacks callbacks = {
         .onBeginArray = addJSONFromFile_onBeginArray,
@@ -1565,8 +1502,7 @@ sentrycrashjson_addJSONElement(
     int containerLevel = encodeContext->containerLevel;
 
     int result = decodeElement(name, &decodeContext);
-    while (
-        closeLastContainer && encodeContext->containerLevel > containerLevel) {
+    while (closeLastContainer && encodeContext->containerLevel > containerLevel) {
         sentrycrashjson_endContainer(encodeContext);
     }
 

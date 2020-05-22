@@ -59,8 +59,7 @@
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void)sendAllReportsWithCompletion:
-    (SentryCrashReportFilterCompletion)onCompletion;
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 
 /** Add a filter that gets executed before all normal filters.
  * Prepended filters will be executed in the order in which they were added.

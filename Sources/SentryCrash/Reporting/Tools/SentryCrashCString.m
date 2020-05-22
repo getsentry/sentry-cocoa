@@ -46,16 +46,14 @@
     return [[self alloc] initWithData:data];
 }
 
-+ (SentryCrashCString *)stringWithData:(const char *)data
-                                length:(NSUInteger)length
++ (SentryCrashCString *)stringWithData:(const char *)data length:(NSUInteger)length
 {
     return [[self alloc] initWithData:data length:length];
 }
 
 - (id)initWithString:(NSString *)string
 {
-    return [self
-        initWithCString:[string cStringUsingEncoding:NSUTF8StringEncoding]];
+    return [self initWithCString:[string cStringUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (id)initWithCString:(const char *)string

@@ -30,9 +30,9 @@
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
                     if (nil != [SentrySDK.currentHub getClient]) {
-                        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
-                            initWithLevel:kSentryLevelWarning
-                                 category:@"device.event"];
+                        SentryBreadcrumb *crumb =
+                            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+                                                           category:@"device.event"];
                         crumb.type = @"system";
                         crumb.data = @ { @"action" : @"LOW_MEMORY" };
                         crumb.message = @"Low memory";
@@ -52,34 +52,31 @@
                                   withDataValue:@"background"];
                 }];
 
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:UIApplicationDidBecomeActiveNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) {
-                    [self addBreadcrumbWithType:@"navigation"
-                                   withCategory:@"app.lifecycle"
-                                      withLevel:kSentryLevelInfo
-                                    withDataKey:@"state"
-                                  withDataValue:@"foreground"];
-                }];
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [self addBreadcrumbWithType:@"navigation"
+                                                                   withCategory:@"app.lifecycle"
+                                                                      withLevel:kSentryLevelInfo
+                                                                    withDataKey:@"state"
+                                                                  withDataValue:@"foreground"];
+                                                }];
 #else
-    [SentryLog
-        logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                       @"trackApplicationUIKitNotifications] does nothing."
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
+                              @"trackApplicationUIKitNotifications] does nothing."
+                     andLevel:kSentryLogLevelDebug];
 #endif
 }
 
 - (void)addBreadcrumbWithType:(NSString *)type
                  withCategory:(NSString *)category
-                    withLevel:(SentryLevel *)level
+                    withLevel:(SentryLevel)level
                   withDataKey:(NSString *)key
                 withDataValue:(NSString *)value
 {
     if (nil != [SentrySDK.currentHub getClient]) {
-        SentryBreadcrumb *crumb =
-            [[SentryBreadcrumb alloc] initWithLevel:level category:category];
+        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:level category:category];
         crumb.type = type;
         crumb.data = @{ key : value };
         [SentrySDK addBreadcrumb:crumb];
@@ -88,9 +85,8 @@
 
 - (void)addEnabledCrumb
 {
-    SentryBreadcrumb *crumb =
-        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                       category:@"started"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"started"];
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
     [SentrySDK addBreadcrumb:crumb];
@@ -103,27 +99,19 @@
     //    - (BOOL)sendAction:(SEL)action to:(nullable id)target from:(nullable
     //    id)sender forEvent:(nullable UIEvent *)event;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    SentrySwizzleInstanceMethod(UIApplication.class, selector,
-        SentrySWReturnType(BOOL),
-        SentrySWArguments(SEL action, id target, id sender, UIEvent * event),
-        SentrySWReplacement({
+    SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
+        SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
                 NSDictionary *data = [NSDictionary new];
                 for (UITouch *touch in event.allTouches) {
-                    if (touch.phase == UITouchPhaseCancelled
-                        || touch.phase == UITouchPhaseEnded) {
-                        data = @ {
-                            @"view" :
-                                [NSString stringWithFormat:@"%@", touch.view]
-                        };
+                    if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
                     }
                 }
-                SentryBreadcrumb *crumb =
-                    [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                   category:@"touch"];
+                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                         category:@"touch"];
                 crumb.type = @"user";
-                crumb.message =
-                    [NSString stringWithFormat:@"%s", sel_getName(action)];
+                crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
                 crumb.data = data;
                 [SentrySDK addBreadcrumb:crumb];
             }
@@ -142,25 +130,20 @@
 #if SENTRY_HAS_UIKIT
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector,
-        SentrySWReturnType(void), SentrySWArguments(BOOL animated),
-        SentrySWReplacement({
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
+        SentrySWArguments(BOOL animated), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
-                SentryBreadcrumb *crumb =
-                    [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                   category:@"ui.lifecycle"];
+                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                         category:@"ui.lifecycle"];
                 crumb.type = @"navigation";
                 NSString *viewControllerName = [SentryBreadcrumbTracker
-                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@",
-                                                         self]];
+                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                 crumb.data = @ { @"screen" : viewControllerName };
 
-                [SentrySDK.currentHub
-                    configureScope:^(SentryScope *_Nonnull scope) {
-                        [scope addBreadcrumb:crumb];
-                        [scope setExtraValue:viewControllerName
-                                      forKey:@"__sentry_transaction"];
-                    }];
+                [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+                    [scope addBreadcrumb:crumb];
+                    [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
+                }];
             }
             SentrySWCallOriginal(animated);
         }),
@@ -178,9 +161,7 @@
     static NSRegularExpression *regex = nil;
     dispatch_once(&onceTokenRegex, ^{
         NSString *pattern = @"[<.](\\w+)";
-        regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                          options:0
-                                                            error:nil];
+        regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
     });
     return regex;
 }
@@ -188,14 +169,12 @@
 + (NSString *)sanitizeViewControllerName:(NSString *)controller
 {
     NSRange searchedRange = NSMakeRange(0, [controller length]);
-    NSArray *matches =
-        [[self.class viewControllerRegex] matchesInString:controller
-                                                  options:0
-                                                    range:searchedRange];
+    NSArray *matches = [[self.class viewControllerRegex] matchesInString:controller
+                                                                 options:0
+                                                                   range:searchedRange];
     NSMutableArray *strings = [NSMutableArray array];
     for (NSTextCheckingResult *match in matches) {
-        [strings
-            addObject:[controller substringWithRange:[match rangeAtIndex:1]]];
+        [strings addObject:[controller substringWithRange:[match rangeAtIndex:1]]];
     }
     if ([strings count] > 0) {
         return [strings componentsJoinedByString:@"."];

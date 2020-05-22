@@ -10,8 +10,7 @@
 {
     return @[
         @"SentryCrashIntegration", @"SentryUIKitMemoryWarningIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration"
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration"
     ];
 }
 
@@ -23,9 +22,7 @@
         [self validateOptions:options didFailWithError:error];
         if (nil != error && nil != *error) {
             [SentryLog
-                logWithMessage:[NSString
-                                   stringWithFormat:@"Failed to initialize: %@",
-                                   *error]
+                logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
                       andLevel:kSentryLogLevelError];
             return nil;
         }
@@ -34,11 +31,9 @@
         if (nil == self.releaseName) {
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
             if (nil != infoDict) {
-                self.releaseName =
-                    [NSString stringWithFormat:@"%@@%@+%@",
-                              infoDict[@"CFBundleIdentifier"],
-                              infoDict[@"CFBundleShortVersionString"],
-                              infoDict[@"CFBundleVersion"]];
+                self.releaseName = [NSString
+                    stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
+                    infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
             }
         }
     }
@@ -54,8 +49,7 @@
 {
 
     if (nil != [options objectForKey:@"debug"]) {
-        self.debug = [NSNumber
-            numberWithBool:[[options objectForKey:@"debug"] boolValue]];
+        self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
     } else {
         self.debug = @NO;
     }
@@ -94,8 +88,7 @@
         self.releaseName = [options objectForKey:@"release"];
     }
 
-    if ([[options objectForKey:@"environment"]
-            isKindOfClass:[NSString class]]) {
+    if ([[options objectForKey:@"environment"] isKindOfClass:[NSString class]]) {
         self.environment = [options objectForKey:@"environment"];
     }
 
@@ -104,15 +97,13 @@
     }
 
     if (nil != [options objectForKey:@"enabled"]) {
-        self.enabled = [NSNumber
-            numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
+        self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
     } else {
         self.enabled = @YES;
     }
 
     if (nil != [options objectForKey:@"maxBreadcrumbs"]) {
-        self.maxBreadcrumbs =
-            [[options objectForKey:@"maxBreadcrumbs"] unsignedIntValue];
+        self.maxBreadcrumbs = [[options objectForKey:@"maxBreadcrumbs"] unsignedIntValue];
     } else {
         // fallback value
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
@@ -134,8 +125,7 @@
     }
 
     NSNumber *sampleRate = [options objectForKey:@"sampleRate"];
-    if (nil == sampleRate || [sampleRate floatValue] < 0 ||
-        [sampleRate floatValue] > 1.0) {
+    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1.0) {
         self.sampleRate = @1;
     } else {
         self.sampleRate = sampleRate;
@@ -143,15 +133,14 @@
 
     if (nil != [options objectForKey:@"enableAutoSessionTracking"]) {
         self.enableAutoSessionTracking = [NSNumber
-            numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"]
-                               boolValue]];
+            numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"] boolValue]];
     } else {
         self.enableAutoSessionTracking = @NO; // TODO: Opt-out?
     }
 
     if (nil != [options objectForKey:@"sessionTrackingIntervalMillis"]) {
-        self.sessionTrackingIntervalMillis = [[options
-            objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
+        self.sessionTrackingIntervalMillis =
+            [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
     } else {
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }

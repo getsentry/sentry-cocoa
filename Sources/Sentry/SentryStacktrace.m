@@ -26,17 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     SentryFrame *lastFrame = self.frames.lastObject;
-    SentryFrame *beforeLastFrame =
-        [self.frames objectAtIndex:self.frames.count - 2];
+    SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
 
-    if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress]
-        && [self.registers[@"lr"]
-            isEqualToString:beforeLastFrame.instructionAddress]) {
+    if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
+        [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;
-        [SentryLog logWithMessage:
-                       @"Found duplicate frame, removing one with link register"
+        [SentryLog logWithMessage:@"Found duplicate frame, removing one with link register"
                          andLevel:kSentryLogLevelDebug];
     }
 }

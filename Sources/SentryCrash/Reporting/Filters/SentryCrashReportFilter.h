@@ -62,8 +62,8 @@ typedef void (^SentryCrashReportFilterCompletion)(
  * @param error The parameter to send as "error".
  */
 static inline void
-sentrycrash_callCompletion(SentryCrashReportFilterCompletion onCompletion,
-    NSArray *filteredReports, BOOL completed, NSError *error)
+sentrycrash_callCompletion(SentryCrashReportFilterCompletion onCompletion, NSArray *filteredReports,
+    BOOL completed, NSError *error)
 {
     if (onCompletion) {
         onCompletion(filteredReports, completed, error);

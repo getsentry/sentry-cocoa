@@ -69,8 +69,7 @@ void sentrycrashcm_setEventCallback(
 typedef struct {
     void (*setEnabled)(bool isEnabled);
     bool (*isEnabled)(void);
-    void (*addContextualInfoToEvent)(
-        struct SentryCrash_MonitorContext *eventContext);
+    void (*addContextualInfoToEvent)(struct SentryCrash_MonitorContext *eventContext);
 } SentryCrashMonitorAPI;
 
 /** Notify that a fatal exception has been captured.

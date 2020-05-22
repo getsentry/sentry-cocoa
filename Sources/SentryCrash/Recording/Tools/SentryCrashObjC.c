@@ -35,8 +35,8 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > 70000
 #    include <objc/NSObjCRuntime.h>
 #else
-#    if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE)                  \
-        || TARGET_OS_WIN32 || NS_BUILD_32_LIKE_64
+#    if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE) || TARGET_OS_WIN32                   \
+        || NS_BUILD_32_LIKE_64
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
 #    else
@@ -97,79 +97,70 @@ static bool taggedDateIsValid(const void *object);
 static bool taggedNumberIsValid(const void *object);
 static bool taggedStringIsValid(const void *object);
 
-static int objectDescription(
-    const void *object, char *buffer, int bufferLength);
-static int taggedObjectDescription(
-    const void *object, char *buffer, int bufferLength);
-static int stringDescription(
-    const void *object, char *buffer, int bufferLength);
+static int objectDescription(const void *object, char *buffer, int bufferLength);
+static int taggedObjectDescription(const void *object, char *buffer, int bufferLength);
+static int stringDescription(const void *object, char *buffer, int bufferLength);
 static int urlDescription(const void *object, char *buffer, int bufferLength);
 static int arrayDescription(const void *object, char *buffer, int bufferLength);
 static int dateDescription(const void *object, char *buffer, int bufferLength);
-static int numberDescription(
-    const void *object, char *buffer, int bufferLength);
-static int taggedDateDescription(
-    const void *object, char *buffer, int bufferLength);
-static int taggedNumberDescription(
-    const void *object, char *buffer, int bufferLength);
-static int taggedStringDescription(
-    const void *object, char *buffer, int bufferLength);
+static int numberDescription(const void *object, char *buffer, int bufferLength);
+static int taggedDateDescription(const void *object, char *buffer, int bufferLength);
+static int taggedNumberDescription(const void *object, char *buffer, int bufferLength);
+static int taggedStringDescription(const void *object, char *buffer, int bufferLength);
 
 static ClassData g_classData[] = {
-    { "__NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true,
-        stringIsValid, stringDescription },
-    { "NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true,
-        stringIsValid, stringDescription },
-    { "__NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone,
-        true, stringIsValid, stringDescription },
-    { "NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone,
-        true, stringIsValid, stringDescription },
-    { "__NSArray0", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable,
-        false, arrayIsValid, arrayDescription },
-    { "__NSArrayI", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable,
-        false, arrayIsValid, arrayDescription },
-    { "__NSArrayM", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayMutable,
-        true, arrayIsValid, arrayDescription },
-    { "__NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false,
+    { "__NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
+        stringDescription },
+    { "NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
+        stringDescription },
+    { "__NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
+        stringDescription },
+    { "NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
+        stringDescription },
+    { "__NSArray0", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false,
         arrayIsValid, arrayDescription },
-    { "NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false,
+    { "__NSArrayI", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false,
         arrayIsValid, arrayDescription },
-    { "__NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false,
-        dateIsValid, dateDescription },
-    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false,
-        dateIsValid, dateDescription },
-    { "__NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false,
-        numberIsValid, numberDescription },
-    { "NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false,
-        numberIsValid, numberDescription },
-    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false,
-        numberIsValid, numberDescription },
-    { "NSURL", SentryCrashObjCClassTypeURL, ClassSubtypeNone, false, urlIsValid,
-        urlDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
-        objectIsValid, objectDescription },
+    { "__NSArrayM", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayMutable, true, arrayIsValid,
+        arrayDescription },
+    { "__NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid,
+        arrayDescription },
+    { "NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid,
+        arrayDescription },
+    { "__NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid,
+        dateDescription },
+    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid,
+        dateDescription },
+    { "__NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
+        numberDescription },
+    { "NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
+        numberDescription },
+    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
+        numberDescription },
+    { "NSURL", SentryCrashObjCClassTypeURL, ClassSubtypeNone, false, urlIsValid, urlDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, objectIsValid,
+        objectDescription },
 };
 
 static ClassData g_taggedClassData[] = {
-    { "NSAtom", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
+    { "NSAtom", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
+        taggedObjectDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
+        taggedObjectDescription },
+    { "NSString", SentryCrashObjCClassTypeString, ClassSubtypeNone, false, taggedStringIsValid,
+        taggedStringDescription },
+    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, taggedNumberIsValid,
+        taggedNumberDescription },
+    { "NSIndexPath", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
+        taggedObjectDescription },
+    { "NSManagedObjectID", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
         taggedObjectIsValid, taggedObjectDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
-        taggedObjectIsValid, taggedObjectDescription },
-    { "NSString", SentryCrashObjCClassTypeString, ClassSubtypeNone, false,
-        taggedStringIsValid, taggedStringDescription },
-    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false,
-        taggedNumberIsValid, taggedNumberDescription },
-    { "NSIndexPath", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
-        taggedObjectIsValid, taggedObjectDescription },
-    { "NSManagedObjectID", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone,
-        false, taggedObjectIsValid, taggedObjectDescription },
-    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false,
-        taggedDateIsValid, taggedDateDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
-        taggedObjectIsValid, taggedObjectDescription },
+    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, taggedDateIsValid,
+        taggedDateDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
+        taggedObjectDescription },
 };
-static int g_taggedClassDataCount
-    = sizeof(g_taggedClassData) / sizeof(*g_taggedClassData);
+static int g_taggedClassDataCount = sizeof(g_taggedClassData) / sizeof(*g_taggedClassData);
 
 static const char *g_blockBaseClassName = "NSBlock";
 
@@ -242,8 +233,7 @@ decodeIsaPointer(const void *const isaPointer)
     uintptr_t isa = (uintptr_t)isaPointer;
     if (isa & ISA_TAG_MASK) {
 #    if defined(__arm64__)
-        if (floor(kCFCoreFoundationVersionNumber)
-            <= kCFCoreFoundationVersionNumber_iOS_8_x_Max) {
+        if (floor(kCFCoreFoundationVersionNumber) <= kCFCoreFoundationVersionNumber_iOS_8_x_Max) {
             return (const struct class_t *)(isa & ISA_MASK_OLD);
         }
         return (const struct class_t *)(isa & ISA_MASK);
@@ -350,8 +340,7 @@ extractTaggedNSNumber(const void *const object)
 {
     intptr_t signedPointer = (intptr_t)object;
 #if SUPPORT_TAGGED_POINTERS
-    intptr_t value
-        = (signedPointer << TAG_PAYLOAD_LSHIFT) >> TAG_PAYLOAD_RSHIFT;
+    intptr_t value = (signedPointer << TAG_PAYLOAD_LSHIFT) >> TAG_PAYLOAD_RSHIFT;
 #else
     intptr_t value = signedPointer & 0;
 #endif
@@ -371,12 +360,10 @@ static int
 extractTaggedNSString(const void *const object, char *buffer, int bufferLength)
 {
     int length = getTaggedNSStringLength(object);
-    int copyLength
-        = ((length + 1) > bufferLength) ? (bufferLength - 1) : length;
+    int copyLength = ((length + 1) > bufferLength) ? (bufferLength - 1) : length;
     uintptr_t payload = getTaggedPayload(object);
     uintptr_t value = payload >> 4;
-    static char *alphabet
-        = "eilotrm.apdnsIc ufkMShjTRxgC4013bDNvwyUL2O856P-B79AFKEWV_zGJ/HYX";
+    static char *alphabet = "eilotrm.apdnsIc ufkMShjTRxgC4013bDNvwyUL2O856P-B79AFKEWV_zGJ/HYX";
     if (length <= 7) {
         for (int i = 0; i < copyLength; i++) {
             // ASCII case, limit to bottom 7 bits just in case
@@ -486,8 +473,7 @@ stringPrintf(char *buffer, int bufferLength, const char *fmt, ...)
 // An ivar type can in theory be any combination of numbers, letters, and
 // symbols in the ASCII range (0x21-0x7e).
 #define INV 0 // Invalid.
-#define N_C                                                                    \
-    5 // Name character: Valid for anything except the first letter of a name.
+#define N_C 5 // Name character: Valid for anything except the first letter of a name.
 #define N_S 7 // Name start character: Valid for anything.
 #define T_C 4 // Type character: Valid for types only.
 
@@ -842,12 +828,10 @@ containsValidIvarData(const void *const classPtr)
             if (!sentrycrashmem_copySafely(ivarPtr, &ivar, sizeof(ivar))) {
                 return false;
             }
-            if (!sentrycrashmem_isMemoryReadable(
-                    ivarPtr, (int)ivars->entsizeAndFlags)) {
+            if (!sentrycrashmem_isMemoryReadable(ivarPtr, (int)ivars->entsizeAndFlags)) {
                 return false;
             }
-            if (!sentrycrashmem_isMemoryReadable(
-                    ivar.offset, sizeof(*ivar.offset))) {
+            if (!sentrycrashmem_isMemoryReadable(ivar.offset, sizeof(*ivar.offset))) {
                 return false;
             }
             if (!isValidName(ivar.name, kMaxNameLength)) {
@@ -963,8 +947,7 @@ sentrycrashobjc_objectClassName(const void *objectPtr)
 }
 
 bool
-sentrycrashobjc_isClassNamed(
-    const void *const classPtr, const char *const className)
+sentrycrashobjc_isClassNamed(const void *const classPtr, const char *const className)
 {
     const char *name = getClassName(classPtr);
     if (name == NULL || className == NULL) {
@@ -974,8 +957,7 @@ sentrycrashobjc_isClassNamed(
 }
 
 bool
-sentrycrashobjc_isKindOfClass(
-    const void *const classPtr, const char *const className)
+sentrycrashobjc_isKindOfClass(const void *const classPtr, const char *const className)
 {
     if (className == NULL) {
         return false;
@@ -1029,8 +1011,7 @@ sentrycrashobjc_ivarCount(const void *const classPtr)
 }
 
 int
-sentrycrashobjc_ivarList(
-    const void *const classPtr, SentryCrashObjCIvar *dstIvars, int ivarsCount)
+sentrycrashobjc_ivarList(const void *const classPtr, SentryCrashObjCIvar *dstIvars, int ivarsCount)
 {
     // TODO: Check this for a possible bad access.
     if (dstIvars == NULL) {
@@ -1060,8 +1041,7 @@ sentrycrashobjc_ivarList(
 }
 
 bool
-sentrycrashobjc_ivarNamed(
-    const void *const classPtr, const char *name, SentryCrashObjCIvar *dst)
+sentrycrashobjc_ivarNamed(const void *const classPtr, const char *name, SentryCrashObjCIvar *dst)
 {
     if (name == NULL) {
         return false;
@@ -1112,8 +1092,7 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
         return false;
     }
     uintptr_t ivarPtr = (uintptr_t)&ivars->first;
-    const struct ivar_t *ivar
-        = (void *)(ivarPtr + ivars->entsizeAndFlags * (unsigned)ivarIndex);
+    const struct ivar_t *ivar = (void *)(ivarPtr + ivars->entsizeAndFlags * (unsigned)ivarIndex);
 
     uintptr_t valuePtr = (uintptr_t)objectPtr + (uintptr_t)*ivar->offset;
     if (!sentrycrashmem_copySafely((void *)valuePtr, dst, (int)ivar->size)) {
@@ -1197,8 +1176,7 @@ objectDescription(const void *object, char *buffer, int bufferLength)
     const void *class = getIsaPointer(object);
     const char *name = getClassName(class);
     uintptr_t objPointer = (uintptr_t)object;
-    const char *fmt = sizeof(uintptr_t) == sizeof(uint32_t) ? "<%s: 0x%08x>"
-                                                            : "<%s: 0x%016x>";
+    const char *fmt = sizeof(uintptr_t) == sizeof(uint32_t) ? "<%s: 0x%08x>" : "<%s: 0x%016x>";
     return stringPrintf(buffer, bufferLength, fmt, name, objPointer);
 }
 
@@ -1208,8 +1186,7 @@ taggedObjectDescription(const void *object, char *buffer, int bufferLength)
     const ClassData *data = getClassDataFromTaggedPointer(object);
     const char *name = data->name;
     uintptr_t objPointer = (uintptr_t)object;
-    const char *fmt = sizeof(uintptr_t) == sizeof(uint32_t) ? "<%s: 0x%08x>"
-                                                            : "<%s: 0x%016x>";
+    const char *fmt = sizeof(uintptr_t) == sizeof(uint32_t) ? "<%s: 0x%08x>" : "<%s: 0x%016x>";
     return stringPrintf(buffer, bufferLength, fmt, name, objPointer);
 }
 
@@ -1220,8 +1197,7 @@ taggedObjectDescription(const void *object, char *buffer, int bufferLength)
 static inline const char *
 stringStart(const struct __CFString *str)
 {
-    return (const char *)__CFStrContents(str)
-        + (__CFStrHasLengthByte(str) ? 1 : 0);
+    return (const char *)__CFStrContents(str) + (__CFStrHasLengthByte(str) ? 1 : 0);
 }
 
 static bool
@@ -1236,30 +1212,29 @@ stringIsValid(const void *const stringPtr)
     }
 
     if (__CFStrIsInline(string)) {
-        if (!sentrycrashmem_copySafely(&string->variants.inline1, &temp,
-                sizeof(string->variants.inline1))) {
+        if (!sentrycrashmem_copySafely(
+                &string->variants.inline1, &temp, sizeof(string->variants.inline1))) {
             return false;
         }
         length = string->variants.inline1.length;
     } else if (__CFStrIsMutable(string)) {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineMutable,
-                &temp, sizeof(string->variants.notInlineMutable))) {
+        if (!sentrycrashmem_copySafely(&string->variants.notInlineMutable, &temp,
+                sizeof(string->variants.notInlineMutable))) {
             return false;
         }
         length = string->variants.notInlineMutable.length;
     } else if (!__CFStrHasLengthByte(string)) {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable1,
-                &temp, sizeof(string->variants.notInlineImmutable1))) {
+        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable1, &temp,
+                sizeof(string->variants.notInlineImmutable1))) {
             return false;
         }
         length = string->variants.notInlineImmutable1.length;
     } else {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable2,
-                &temp, sizeof(string->variants.notInlineImmutable2))) {
+        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable2, &temp,
+                sizeof(string->variants.notInlineImmutable2))) {
             return false;
         }
-        if (!sentrycrashmem_copySafely(
-                __CFStrContents(string), &oneByte, sizeof(oneByte))) {
+        if (!sentrycrashmem_copySafely(__CFStrContents(string), &oneByte, sizeof(oneByte))) {
             return false;
         }
         length = oneByte;
@@ -1268,8 +1243,7 @@ stringIsValid(const void *const stringPtr)
     if (length < 0) {
         return false;
     } else if (length > 0) {
-        if (!sentrycrashmem_copySafely(
-                stringStart(string), &oneByte, sizeof(oneByte))) {
+        if (!sentrycrashmem_copySafely(stringStart(string), &oneByte, sizeof(oneByte))) {
             return false;
         }
     }
@@ -1308,15 +1282,13 @@ copyAndConvertUTF16StringToUTF8(
 {
     const uint16_t *pSrc = src;
     uint8_t *pDst = dst;
-    const uint8_t *const pDstEnd
-        = pDst + maxByteCount - 1; // Leave room for null termination.
-    for (int charsRemaining = charCount; charsRemaining > 0 && pDst < pDstEnd;
-         charsRemaining--) {
+    const uint8_t *const pDstEnd = pDst + maxByteCount - 1; // Leave room for null termination.
+    for (int charsRemaining = charCount; charsRemaining > 0 && pDst < pDstEnd; charsRemaining--) {
         // Decode UTF-16
         uint32_t character = 0;
         uint16_t leadSurrogate = *pSrc++;
-        likely_if(leadSurrogate < kUTF16_LeadSurrogateStart
-            || leadSurrogate > kUTF16_TailSurrogateEnd)
+        likely_if(
+            leadSurrogate < kUTF16_LeadSurrogateStart || leadSurrogate > kUTF16_TailSurrogateEnd)
         {
             character = leadSurrogate;
         }
@@ -1388,8 +1360,7 @@ copyAndConvertUTF16StringToUTF8(
 }
 
 static int
-copy8BitString(
-    const void *const src, void *const dst, int charCount, int maxByteCount)
+copy8BitString(const void *const src, void *const dst, int charCount, int maxByteCount)
 {
     unlikely_if(maxByteCount == 0) { return 0; }
     unlikely_if(charCount == 0)
@@ -1410,8 +1381,7 @@ copy8BitString(
 }
 
 int
-sentrycrashobjc_copyStringContents(
-    const void *stringPtr, char *dst, int maxByteCount)
+sentrycrashobjc_copyStringContents(const void *stringPtr, char *dst, int maxByteCount)
 {
     if (isTaggedPointer(stringPtr) && isTaggedPointerNSString(stringPtr)) {
         return extractTaggedNSString(stringPtr, dst, maxByteCount);
@@ -1421,8 +1391,7 @@ sentrycrashobjc_copyStringContents(
 
     const char *src = stringStart(string);
     if (__CFStrIsUnicode(string)) {
-        return copyAndConvertUTF16StringToUTF8(
-            src, dst, charCount, maxByteCount);
+        return copyAndConvertUTF16StringToUTF8(src, dst, charCount, maxByteCount);
     }
 
     return copy8BitString(src, dst, charCount, maxByteCount);
@@ -1436,8 +1405,7 @@ stringDescription(const void *object, char *buffer, int bufferLength)
 
     pBuffer += objectDescription(object, pBuffer, (int)(pEnd - pBuffer));
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": \"");
-    pBuffer += sentrycrashobjc_copyStringContents(
-        object, pBuffer, (int)(pEnd - pBuffer));
+    pBuffer += sentrycrashobjc_copyStringContents(object, pBuffer, (int)(pEnd - pBuffer));
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), "\"");
 
     return (int)(pBuffer - buffer);
@@ -1450,8 +1418,7 @@ taggedStringIsValid(const void *const object)
 }
 
 static int
-taggedStringDescription(
-    const void *object, char *buffer, __unused int bufferLength)
+taggedStringDescription(const void *object, char *buffer, __unused int bufferLength)
 {
     return extractTaggedNSString(object, buffer, bufferLength);
 }
@@ -1471,8 +1438,7 @@ urlIsValid(const void *const urlPtr)
 }
 
 int
-sentrycrashobjc_copyURLContents(
-    const void *const urlPtr, char *dst, int maxLength)
+sentrycrashobjc_copyURLContents(const void *const urlPtr, char *dst, int maxLength)
 {
     const struct __CFURL *url = urlPtr;
     return sentrycrashobjc_copyStringContents(url->_string, dst, maxLength);
@@ -1486,8 +1452,7 @@ urlDescription(const void *object, char *buffer, int bufferLength)
 
     pBuffer += objectDescription(object, pBuffer, (int)(pEnd - pBuffer));
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": \"");
-    pBuffer += sentrycrashobjc_copyURLContents(
-        object, pBuffer, (int)(pEnd - pBuffer));
+    pBuffer += sentrycrashobjc_copyURLContents(object, pBuffer, (int)(pEnd - pBuffer));
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), "\"");
 
     return (int)(pBuffer - buffer);
@@ -1550,37 +1515,37 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
 #pragma mark - NSNumber -
 //======================================================================
 
-#define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                    \
-    case CFTYPE: {                                                             \
-        RETURN_TYPE result;                                                    \
-        memcpy(&result, DATA, sizeof(result));                                 \
-        return (CAST_TYPE)result;                                              \
+#define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                        \
+    case CFTYPE: {                                                                                 \
+        RETURN_TYPE result;                                                                        \
+        memcpy(&result, DATA, sizeof(result));                                                     \
+        return (CAST_TYPE)result;                                                                  \
     }
 
-#define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                       \
-    if (isValidTaggedPointer(object)) {                                        \
-        return extractTaggedNSNumber(object);                                  \
-    }                                                                          \
-    const struct __CFNumber *number = OBJECT;                                  \
-    CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                \
-    const void *data = &(number->_pad);                                        \
-    switch (cftype) {                                                          \
-        NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)           \
-        NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)         \
-        NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)         \
-        NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)         \
-        NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)        \
-        NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)        \
-        NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)              \
-        NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)            \
-        NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                \
-        NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)              \
-        NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)     \
-        NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)            \
-        NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)          \
-        NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)        \
-        NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)    \
-        NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)        \
+#define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                                           \
+    if (isValidTaggedPointer(object)) {                                                            \
+        return extractTaggedNSNumber(object);                                                      \
+    }                                                                                              \
+    const struct __CFNumber *number = OBJECT;                                                      \
+    CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                                    \
+    const void *data = &(number->_pad);                                                            \
+    switch (cftype) {                                                                              \
+        NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)                               \
+        NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)                             \
+        NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)                             \
+        NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)                             \
+        NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)                            \
+        NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)                            \
+        NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)                                  \
+        NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)                                \
+        NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                                    \
+        NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)                                  \
+        NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)                         \
+        NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)                                \
+        NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)                              \
+        NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)                            \
+        NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)                        \
+        NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)                            \
     }
 
 Float64
@@ -1623,8 +1588,7 @@ numberDescription(const void *object, char *buffer, int bufferLength)
         pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": %lf", value);
     } else {
         int64_t value = sentrycrashobjc_numberAsInteger(object);
-        pBuffer += stringPrintf(
-            pBuffer, (int)(pEnd - pBuffer), ": %" PRId64, value);
+        pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": %" PRId64, value);
     }
 
     return (int)(pBuffer - buffer);
@@ -1644,8 +1608,7 @@ taggedNumberDescription(const void *object, char *buffer, int bufferLength)
 
     int64_t value = extractTaggedNSNumber(object);
     pBuffer += taggedObjectDescription(object, pBuffer, (int)(pEnd - pBuffer));
-    pBuffer
-        += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": %" PRId64, value);
+    pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), ": %" PRId64, value);
 
     return (int)(pBuffer - buffer);
 }
@@ -1699,8 +1662,8 @@ nsarrayContents(const void *const arrayPtr, uintptr_t *contents, int count)
         return 0;
     }
 
-    if (!sentrycrashmem_copySafely(&array->basic.firstEntry, contents,
-            (int)sizeof(*contents) * count)) {
+    if (!sentrycrashmem_copySafely(
+            &array->basic.firstEntry, contents, (int)sizeof(*contents) * count)) {
         return 0;
     }
     return count;
@@ -1717,8 +1680,7 @@ cfarrayIsValid(const void *const arrayPtr)
     if (__CFArrayGetType(array) == __kCFArrayDeque) {
         if (array->_store != NULL) {
             struct __CFArrayDeque deque;
-            if (!sentrycrashmem_copySafely(
-                    array->_store, &deque, sizeof(deque))) {
+            if (!sentrycrashmem_copySafely(array->_store, &deque, sizeof(deque))) {
                 return false;
             }
         }
@@ -1751,8 +1713,7 @@ cfarrayContents(const void *const arrayPtr, uintptr_t *contents, int count)
     }
 
     const void *firstEntry = cfarrayData(array);
-    if (!sentrycrashmem_copySafely(
-            firstEntry, contents, (int)sizeof(*contents) * count)) {
+    if (!sentrycrashmem_copySafely(firstEntry, contents, (int)sizeof(*contents) * count)) {
         return 0;
     }
     return count;
@@ -1775,8 +1736,7 @@ sentrycrashobjc_arrayCount(const void *const arrayPtr)
 }
 
 int
-sentrycrashobjc_arrayContents(
-    const void *const arrayPtr, uintptr_t *contents, int count)
+sentrycrashobjc_arrayContents(const void *const arrayPtr, uintptr_t *contents, int count)
 {
     if (isCFArray(arrayPtr)) {
         return cfarrayContents(arrayPtr, contents, count);
@@ -1805,8 +1765,8 @@ arrayDescription(const void *object, char *buffer, int bufferLength)
     if (pBuffer < pEnd - 1 && sentrycrashobjc_arrayCount(object) > 0) {
         uintptr_t contents = 0;
         if (sentrycrashobjc_arrayContents(object, &contents, 1) == 1) {
-            pBuffer += sentrycrashobjc_getDescription(
-                (void *)contents, pBuffer, (int)(pEnd - pBuffer));
+            pBuffer
+                += sentrycrashobjc_getDescription((void *)contents, pBuffer, (int)(pEnd - pBuffer));
         }
     }
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), "]");
@@ -1819,8 +1779,7 @@ arrayDescription(const void *object, char *buffer, int bufferLength)
 //======================================================================
 
 bool
-sentrycrashobjc_dictionaryFirstEntry(
-    const void *dict, uintptr_t *key, uintptr_t *value)
+sentrycrashobjc_dictionaryFirstEntry(const void *dict, uintptr_t *key, uintptr_t *value)
 {
     // TODO: This is broken.
 

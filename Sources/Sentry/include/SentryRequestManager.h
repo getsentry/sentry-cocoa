@@ -10,8 +10,7 @@ NS_SWIFT_NAME(RequestManager)
 - (instancetype)initWithSession:(NSURLSession *)session;
 
 - (void)addRequest:(NSURLRequest *)request
-    completionHandler:
-        (_Nullable SentryRequestOperationFinished)completionHandler;
+    completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler;
 
 - (void)cancelAllOperations;
 

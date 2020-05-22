@@ -35,11 +35,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#define SWAP_POINTERS(A, B)                                                    \
-    {                                                                          \
-        void *temp = A;                                                        \
-        A = B;                                                                 \
-        B = temp;                                                              \
+#define SWAP_POINTERS(A, B)                                                                        \
+    {                                                                                              \
+        void *temp = A;                                                                            \
+        A = B;                                                                                     \
+        B = temp;                                                                                  \
     }
 
 static int g_pollingIntervalInSeconds;
@@ -76,16 +76,14 @@ updateThreadList()
         pthread_t pthread = pthread_from_mach_thread_np(thread);
         allMachThreads[i] = (SentryCrashThread)thread;
         allPThreads[i] = (SentryCrashThread)pthread;
-        if (pthread != 0
-            && pthread_getname_np(pthread, buffer, sizeof(buffer)) == 0
+        if (pthread != 0 && pthread_getname_np(pthread, buffer, sizeof(buffer)) == 0
             && buffer[0] != 0) {
             allThreadNames[i] = strdup(buffer);
         }
     }
 
-    g_allThreadsCount = g_allThreadsCount < (int)allThreadsCount
-        ? g_allThreadsCount
-        : (int)allThreadsCount;
+    g_allThreadsCount
+        = g_allThreadsCount < (int)allThreadsCount ? g_allThreadsCount : (int)allThreadsCount;
     SWAP_POINTERS(g_allMachThreads, allMachThreads);
     SWAP_POINTERS(g_allPThreads, allPThreads);
     SWAP_POINTERS(g_allThreadNames, allThreadNames);
@@ -120,8 +118,7 @@ updateThreadList()
     for (mach_msg_type_number_t i = 0; i < allThreadsCount; i++) {
         mach_port_deallocate(thisTask, threads[i]);
     }
-    vm_deallocate(
-        thisTask, (vm_address_t)threads, sizeof(thread_t) * allThreadsCount);
+    vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * allThreadsCount);
 }
 
 static void *
@@ -151,11 +148,10 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    int error = pthread_create(&g_cacheThread, &attr, &monitorCachedData,
-        "SentryCrash Cached Data Monitor");
+    int error = pthread_create(
+        &g_cacheThread, &attr, &monitorCachedData, "SentryCrash Cached Data Monitor");
     if (error != 0) {
-        SentryCrashLOG_ERROR(
-            "pthread_create_suspended_np: %s", strerror(error));
+        SentryCrashLOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
     }
     pthread_attr_destroy(&attr);
 }

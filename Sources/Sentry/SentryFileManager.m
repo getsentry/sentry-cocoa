@@ -26,20 +26,17 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
-                     didFailWithError:(NSError **)error
+- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error
 {
     self = [super init];
     if (self) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *cachePath = NSSearchPathForDirectoriesInDomains(
-            NSCachesDirectory, NSUserDomainMask, YES)
-                                  .firstObject;
+        NSString *cachePath
+            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+                  .firstObject;
 
-        self.sentryPath =
-            [cachePath stringByAppendingPathComponent:@"io.sentry"];
-        self.sentryPath =
-            [self.sentryPath stringByAppendingPathComponent:[dsn getHash]];
+        self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
+        self.sentryPath = [self.sentryPath stringByAppendingPathComponent:[dsn getHash]];
 
         if (![fileManager fileExistsAtPath:self.sentryPath]) {
             [self.class createDirectoryAtPath:self.sentryPath withError:error];
@@ -48,18 +45,14 @@ SentryFileManager ()
         self.currentSessionFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"session.current"];
 
-        self.lastInForegroundFilePath = [self.sentryPath
-            stringByAppendingPathComponent:@"lastInForeground.timestamp"];
+        self.lastInForegroundFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
-        self.eventsPath =
-            [self.sentryPath stringByAppendingPathComponent:@"events"];
-        [self createDirectoryIfNotExists:self.eventsPath
-                        didFailWithError:error];
+        self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
+        [self createDirectoryIfNotExists:self.eventsPath didFailWithError:error];
 
-        self.envelopesPath =
-            [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
-        [self createDirectoryIfNotExists:self.envelopesPath
-                        didFailWithError:error];
+        self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
+        [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
 
         self.currentFileCounter = 0;
         self.maxEvents = defaultMaxEvents;
@@ -78,10 +71,8 @@ SentryFileManager ()
 
 - (NSString *)uniqueAcendingJsonName
 {
-    return [NSString stringWithFormat:@"%f-%lu-%@.json",
-                     [[NSDate date] timeIntervalSince1970],
-                     (unsigned long)self.currentFileCounter++,
-                     [NSUUID UUID].UUIDString];
+    return [NSString stringWithFormat:@"%f-%lu-%@.json", [[NSDate date] timeIntervalSince1970],
+                     (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
 
 - (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes
@@ -96,8 +87,8 @@ SentryFileManager ()
 
 - (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes
 {
-    return [[self getAllEventsAndMaybeEnvelopes]
-        arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
+    return
+        [[self getAllEventsAndMaybeEnvelopes] arrayByAddingObjectsFromArray:[self getAllEnvelopes]];
 }
 
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path
@@ -106,13 +97,11 @@ SentryFileManager ()
         NSMutableArray<SentryFileContents *> *contents = [NSMutableArray new];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *filePath in [self allFilesInFolder:path]) {
-            NSString *finalPath =
-                [path stringByAppendingPathComponent:filePath];
+            NSString *finalPath = [path stringByAppendingPathComponent:filePath];
             NSData *content = [fileManager contentsAtPath:finalPath];
             if (nil != content) {
-                [contents addObject:[[SentryFileContents alloc]
-                                        initWithPath:finalPath
-                                         andContents:content]];
+                [contents addObject:[[SentryFileContents alloc] initWithPath:finalPath
+                                                                 andContents:content]];
             }
         }
         return contents;
@@ -122,13 +111,11 @@ SentryFileManager ()
 - (void)deleteAllStoredEventsAndEnvelopes
 {
     for (NSString *path in [self allFilesInFolder:self.eventsPath]) {
-        [self removeFileAtPath:[self.eventsPath
-                                   stringByAppendingPathComponent:path]];
+        [self removeFileAtPath:[self.eventsPath stringByAppendingPathComponent:path]];
     }
 
     for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
-        [self removeFileAtPath:[self.envelopesPath
-                                   stringByAppendingPathComponent:path]];
+        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
     }
 }
 
@@ -136,19 +123,15 @@ SentryFileManager ()
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
-    NSArray<NSString *> *storedFiles =
-        [fileManager contentsOfDirectoryAtPath:path error:&error];
+    NSArray<NSString *> *storedFiles = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (nil != error) {
         [SentryLog
-            logWithMessage:
-                [NSString
-                    stringWithFormat:@"Couldn't load files in folder %@: %@",
-                    path, error]
+            logWithMessage:[NSString stringWithFormat:@"Couldn't load files in folder %@: %@", path,
+                                     error]
                   andLevel:kSentryLogLevelError];
         return [NSArray new];
     }
-    return [storedFiles
-        sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
 - (BOOL)removeFileAtPath:(NSString *)path
@@ -158,11 +141,9 @@ SentryFileManager ()
     @synchronized(self) {
         [fileManager removeItemAtPath:path error:&error];
         if (nil != error) {
-            [SentryLog
-                logWithMessage:
-                    [NSString stringWithFormat:@"Couldn't delete file %@: %@",
-                              path, error]
-                      andLevel:kSentryLogLevelError];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't delete file %@: %@",
+                                                path, error]
+                             andLevel:kSentryLogLevelError];
             return NO;
         }
     }
@@ -181,8 +162,7 @@ SentryFileManager ()
         if (nil != event.json) {
             result = [self storeData:event.json toPath:self.eventsPath];
         } else {
-            result = [self storeDictionary:[event serialize]
-                                    toPath:self.eventsPath];
+            result = [self storeDictionary:[event serialize] toPath:self.eventsPath];
         }
         [self handleFileManagerLimit:self.eventsPath maxCount:maxCount];
         return result;
@@ -192,41 +172,31 @@ SentryFileManager ()
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
     @synchronized(self) {
-        NSString *result =
-            [self storeData:[SentrySerialization dataWithEnvelope:envelope
-                                                          options:0
-                                                            error:nil]
-                     toPath:self.envelopesPath];
-        [self handleFileManagerLimit:self.envelopesPath
-                            maxCount:self.maxEnvelopes];
+        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope
+                                                                         options:0
+                                                                           error:nil]
+                                    toPath:self.envelopesPath];
+        [self handleFileManagerLimit:self.envelopesPath maxCount:self.maxEnvelopes];
         return result;
     }
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
 {
-    NSData *sessionData = [SentrySerialization dataWithSession:session
-                                                       options:0
-                                                         error:nil];
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"Writing to current session: %@",
-                           self.currentSessionFilePath]
-              andLevel:kSentryLogLevelDebug];
+    NSData *sessionData = [SentrySerialization dataWithSession:session options:0 error:nil];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to current session: %@",
+                                        self.currentSessionFilePath]
+                     andLevel:kSentryLogLevelDebug];
     @synchronized(self.currentSessionFilePath) {
-        [sessionData writeToFile:self.currentSessionFilePath
-                         options:NSDataWritingAtomic
-                           error:nil];
+        [sessionData writeToFile:self.currentSessionFilePath options:NSDataWritingAtomic error:nil];
     }
 }
 
 - (void)deleteCurrentSession
 {
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"Deleting current session: %@",
-                           self.currentSessionFilePath]
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting current session: %@",
+                                        self.currentSessionFilePath]
+                     andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.currentSessionFilePath) {
         [fileManager removeItemAtPath:self.currentSessionFilePath error:nil];
@@ -235,28 +205,22 @@ SentryFileManager ()
 
 - (SentrySession *_Nullable)readCurrentSession
 {
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"Reading from current session: %@",
-                           self.currentSessionFilePath]
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Reading from current session: %@",
+                                        self.currentSessionFilePath]
+                     andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentSessionData = nil;
     @synchronized(self.currentSessionFilePath) {
-        currentSessionData =
-            [fileManager contentsAtPath:self.currentSessionFilePath];
+        currentSessionData = [fileManager contentsAtPath:self.currentSessionFilePath];
         if (nil == currentSessionData) {
             return nil;
         }
-        SentrySession *currentSession =
-            [SentrySerialization sessionWithData:currentSessionData];
+        SentrySession *currentSession = [SentrySerialization sessionWithData:currentSessionData];
         if (nil == currentSession) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:
-                                             @"Data stored in current session: "
-                                             @"'%@' was not parsed as session.",
-                                         self.currentSessionFilePath]
-                      andLevel:kSentryLogLevelError];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in current session: "
+                                                                 @"'%@' was not parsed as session.",
+                                                self.currentSessionFilePath]
+                             andLevel:kSentryLogLevelError];
             return nil;
         }
         return currentSession;
@@ -266,8 +230,8 @@ SentryFileManager ()
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
     NSString *timestampString = [timestamp sentry_toIso8601String];
-    NSString *logMessage = [NSString
-        stringWithFormat:@"Persisting lastInForeground: %@", timestampString];
+    NSString *logMessage =
+        [NSString stringWithFormat:@"Persisting lastInForeground: %@", timestampString];
     [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelDebug];
     @synchronized(self.lastInForegroundFilePath) {
         [[timestampString dataUsingEncoding:NSUTF8StringEncoding]
@@ -279,11 +243,9 @@ SentryFileManager ()
 
 - (void)deleteTimestampLastInForeground
 {
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"Deleting LastInForeground at: %@",
-                           self.lastInForegroundFilePath]
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting LastInForeground at: %@",
+                                        self.lastInForegroundFilePath]
+                     andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.lastInForegroundFilePath) {
         [fileManager removeItemAtPath:self.lastInForegroundFilePath error:nil];
@@ -292,37 +254,30 @@ SentryFileManager ()
 
 - (NSDate *_Nullable)readTimestampLastInForeground
 {
-    [SentryLog
-        logWithMessage:[NSString stringWithFormat:@"Reading timestamp of last "
-                                                  @"in foreground at: %@",
-                                 self.lastInForegroundFilePath]
-              andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Reading timestamp of last "
+                                                         @"in foreground at: %@",
+                                        self.lastInForegroundFilePath]
+                     andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *lastInForegroundData = nil;
     @synchronized(self.lastInForegroundFilePath) {
-        lastInForegroundData =
-            [fileManager contentsAtPath:self.lastInForegroundFilePath];
+        lastInForegroundData = [fileManager contentsAtPath:self.lastInForegroundFilePath];
     }
     if (nil == lastInForegroundData) {
-        [SentryLog logWithMessage:@"No lastInForeground found."
-                         andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"No lastInForeground found." andLevel:kSentryLogLevelDebug];
         return nil;
     }
-    NSString *timestampString =
-        [[NSString alloc] initWithData:lastInForegroundData
-                              encoding:NSUTF8StringEncoding];
+    NSString *timestampString = [[NSString alloc] initWithData:lastInForegroundData
+                                                      encoding:NSUTF8StringEncoding];
     return [NSDate sentry_fromIso8601String:timestampString];
 }
 
 - (NSString *)storeData:(NSData *)data toPath:(NSString *)path
 {
     @synchronized(self) {
-        NSString *finalPath =
-            [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Writing to file: %@",
-                                     finalPath]
-                  andLevel:kSentryLogLevelDebug];
+        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath]
+                         andLevel:kSentryLogLevelDebug];
         [data writeToFile:finalPath options:NSDataWritingAtomic error:nil];
         return finalPath;
     }
@@ -330,13 +285,10 @@ SentryFileManager ()
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
 {
-    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary
-                                                       options:0
-                                                         error:nil];
-    return nil != saveData
-        ? [self storeData:saveData toPath:path]
-        : path; // TODO: Should we return null instead? Whoever is using this
-                // return value is being tricked.
+    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary options:0 error:nil];
+    return nil != saveData ? [self storeData:saveData toPath:path]
+                           : path; // TODO: Should we return null instead? Whoever is using this
+                                   // return value is being tricked.
 }
 
 - (void)handleFileManagerLimit:(NSString *)path maxCount:(NSUInteger)maxCount
@@ -345,15 +297,11 @@ SentryFileManager ()
     NSInteger numbersOfFilesToRemove = ((NSInteger)files.count) - maxCount;
     if (numbersOfFilesToRemove > 0) {
         for (NSUInteger i = 0; i < numbersOfFilesToRemove; i++) {
-            [self removeFileAtPath:[path stringByAppendingPathComponent:
-                                             [files objectAtIndex:i]]];
+            [self removeFileAtPath:[path stringByAppendingPathComponent:[files objectAtIndex:i]]];
         }
-        [SentryLog
-            logWithMessage:
-                [NSString stringWithFormat:@"Removed %ld file(s) from <%@>",
-                          (long)numbersOfFilesToRemove,
-                          [path lastPathComponent]]
-                  andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from <%@>",
+                                            (long)numbersOfFilesToRemove, [path lastPathComponent]]
+                         andLevel:kSentryLogLevelDebug];
     }
 }
 
@@ -368,8 +316,7 @@ SentryFileManager ()
 
 #pragma mark private methods
 
-- (BOOL)createDirectoryIfNotExists:(NSString *)path
-                  didFailWithError:(NSError **)error
+- (BOOL)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error
 {
     return [[NSFileManager defaultManager] createDirectoryAtPath:path
                                      withIntermediateDirectories:YES

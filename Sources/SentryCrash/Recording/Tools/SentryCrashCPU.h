@@ -49,8 +49,7 @@ const char *sentrycrashcpu_currentArch(void);
  *
  * @return The context's frame pointer.
  */
-uintptr_t sentrycrashcpu_framePointer(
-    const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_framePointer(const struct SentryCrashMachineContext *const context);
 
 /** Get the current stack pointer for a machine context.
  *
@@ -58,8 +57,7 @@ uintptr_t sentrycrashcpu_framePointer(
  *
  * @return The context's stack pointer.
  */
-uintptr_t sentrycrashcpu_stackPointer(
-    const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_stackPointer(const struct SentryCrashMachineContext *const context);
 
 /** Get the address of the instruction about to be, or being executed by a
  * machine context.
@@ -68,8 +66,7 @@ uintptr_t sentrycrashcpu_stackPointer(
  *
  * @return The context's next instruction address.
  */
-uintptr_t sentrycrashcpu_instructionAddress(
-    const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_instructionAddress(const struct SentryCrashMachineContext *const context);
 
 /** Get the address stored in the link register (arm only). This may
  * contain the first return address of the stack.
@@ -78,8 +75,7 @@ uintptr_t sentrycrashcpu_instructionAddress(
  *
  * @return The link register value.
  */
-uintptr_t sentrycrashcpu_linkRegister(
-    const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_linkRegister(const struct SentryCrashMachineContext *const context);
 
 /** Get the address whose access caused the last fault.
  *
@@ -87,8 +83,7 @@ uintptr_t sentrycrashcpu_linkRegister(
  *
  * @return The faulting address.
  */
-uintptr_t sentrycrashcpu_faultAddress(
-    const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_faultAddress(const struct SentryCrashMachineContext *const context);
 
 /** Get the number of normal (not floating point or exception) registers the
  *  currently running CPU has.
@@ -147,8 +142,7 @@ int sentrycrashcpu_stackGrowDirection(void);
  *
  * @param destinationContext The context to fill.
  */
-void sentrycrashcpu_getState(
-    struct SentryCrashMachineContext *destinationContext);
+void sentrycrashcpu_getState(struct SentryCrashMachineContext *destinationContext);
 
 /** Strip PAC from an instruction pointer.
  *

@@ -27,8 +27,8 @@
 #include <mach/mach.h>
 #include <stdlib.h>
 
-#define RETURN_NAME_FOR_ENUM(A)                                                \
-    case A:                                                                    \
+#define RETURN_NAME_FOR_ENUM(A)                                                                    \
+    case A:                                                                                        \
         return #A
 
 const char *
@@ -142,8 +142,7 @@ sentrycrashmach_machExceptionForSignal(const int sigNum)
 }
 
 int
-sentrycrashmach_signalForMachException(
-    const int exception, const mach_exception_code_t code)
+sentrycrashmach_signalForMachException(const int exception, const mach_exception_code_t code)
 {
     switch (exception) {
     case EXC_ARITHMETIC:

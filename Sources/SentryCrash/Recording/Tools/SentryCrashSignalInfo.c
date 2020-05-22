@@ -41,9 +41,9 @@ typedef struct {
     const int numCodes;
 } SentryCrashSignalInfo;
 
-#define ENUM_NAME_MAPPING(A)                                                   \
-    {                                                                          \
-        A, #A                                                                  \
+#define ENUM_NAME_MAPPING(A)                                                                       \
+    {                                                                                              \
+        A, #A                                                                                      \
     }
 
 static const SentryCrashSignalCodeInfo g_sigIllCodes[] = {
@@ -97,13 +97,13 @@ static const SentryCrashSignalCodeInfo g_sigSegVCodes[] = {
     ENUM_NAME_MAPPING(SEGV_ACCERR),
 };
 
-#define SIGNAL_INFO(SIGNAL, CODES)                                             \
-    {                                                                          \
-        SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES)                 \
+#define SIGNAL_INFO(SIGNAL, CODES)                                                                 \
+    {                                                                                              \
+        SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES)                                     \
     }
-#define SIGNAL_INFO_NOCODES(SIGNAL)                                            \
-    {                                                                          \
-        SIGNAL, #SIGNAL, 0, 0                                                  \
+#define SIGNAL_INFO_NOCODES(SIGNAL)                                                                \
+    {                                                                                              \
+        SIGNAL, #SIGNAL, 0, 0                                                                      \
     }
 
 static const SentryCrashSignalInfo g_fatalSignalData[] = {
@@ -116,8 +116,7 @@ static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGSYS),
     SIGNAL_INFO(SIGTERM, g_sigTrapCodes),
 };
-static const int g_fatalSignalsCount
-    = sizeof(g_fatalSignalData) / sizeof(*g_fatalSignalData);
+static const int g_fatalSignalsCount = sizeof(g_fatalSignalData) / sizeof(*g_fatalSignalData);
 
 // Note: Dereferencing a NULL pointer causes SIGILL, ILL_ILLOPC on i386
 //       but causes SIGTRAP, 0 on arm.

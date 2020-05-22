@@ -11,8 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
 
@@ -25,8 +24,12 @@ NS_SWIFT_NAME(Scope)
  * Set a global tag. Tags are searchable key/value string pairs attached to
  * every event.
  */
-- (void)setTagValue:(NSString *)value
-             forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
+/**
+ * Remove the tag for the specified key.
+ */
+- (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
 /**
  * Set global tags. Tags are searchable key/value string pairs attached to every
@@ -42,8 +45,12 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtraValue:(id)value
-               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setExtraValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+
+/**
+ * Remove the extra for the specified key.
+ */
+- (void)removeExtraForKey:(NSString *)key NS_SWIFT_NAME(removeExtra(key:));
 
 /**
  * Set dist in the scope
@@ -89,11 +96,16 @@ NS_SWIFT_NAME(Scope)
 - (void)applyToSession:(SentrySession *)session;
 
 /**
- * Cets context values which will overwrite SentryEvent.context when event is
+ * Sets context values which will overwrite SentryEvent.context when event is
  * "enrichted" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value
                  forKey:(NSString *)key NS_SWIFT_NAME(setContext(value:key:));
+
+/**
+ * Remove the context for the specified key.
+ */
+- (void)removeContextForKey:(NSString *)key NS_SWIFT_NAME(removeContext(key:));
 
 /**
  * Clears the current Scope

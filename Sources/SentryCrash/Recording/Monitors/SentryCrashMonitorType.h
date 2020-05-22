@@ -68,55 +68,51 @@ typedef enum {
     SentryCrashMonitorTypeZombie = 0x100,
 } SentryCrashMonitorType;
 
-#define SentryCrashMonitorTypeAll                                              \
-    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal        \
-        | SentryCrashMonitorTypeCPPException                                   \
-        | SentryCrashMonitorTypeNSException                                    \
-        | SentryCrashMonitorTypeMainThreadDeadlock                             \
-        | SentryCrashMonitorTypeUserReported | SentryCrashMonitorTypeSystem    \
-        | SentryCrashMonitorTypeApplicationState                               \
+#define SentryCrashMonitorTypeAll                                                                  \
+    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
+        | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException                   \
+        | SentryCrashMonitorTypeMainThreadDeadlock | SentryCrashMonitorTypeUserReported            \
+        | SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState                    \
         | SentryCrashMonitorTypeZombie)
 
-#define SentryCrashMonitorTypeExperimental                                     \
-    (SentryCrashMonitorTypeMainThreadDeadlock)
+#define SentryCrashMonitorTypeExperimental (SentryCrashMonitorTypeMainThreadDeadlock)
 
-#define SentryCrashMonitorTypeDebuggerUnsafe                                   \
-    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal        \
-        | SentryCrashMonitorTypeCPPException                                   \
-        | SentryCrashMonitorTypeNSException)
+#define SentryCrashMonitorTypeDebuggerUnsafe                                                       \
+    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
+        | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException)
 
-#define SentryCrashMonitorTypeAsyncSafe                                        \
+#define SentryCrashMonitorTypeAsyncSafe                                                            \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal)
 
 #define SentryCrashMonitorTypeOptional (SentryCrashMonitorTypeZombie)
 
-#define SentryCrashMonitorTypeAsyncUnsafe                                      \
+#define SentryCrashMonitorTypeAsyncUnsafe                                                          \
     (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeAsyncSafe))
 
 /** Monitors that are safe to enable in a debugger. */
-#define SentryCrashMonitorTypeDebuggerSafe                                     \
+#define SentryCrashMonitorTypeDebuggerSafe                                                         \
     (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeDebuggerUnsafe))
 
 /** Monitors that are safe to use in a production environment.
  * All other monitors should be considered experimental.
  */
-#define SentryCrashMonitorTypeProductionSafe                                   \
+#define SentryCrashMonitorTypeProductionSafe                                                       \
     (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeExperimental))
 
 /** Production safe monitors, minus the optional ones. */
-#define SentryCrashMonitorTypeProductionSafeMinimal                            \
+#define SentryCrashMonitorTypeProductionSafeMinimal                                                \
     (SentryCrashMonitorTypeProductionSafe & (~SentryCrashMonitorTypeOptional))
 
 /** Monitors that are required for proper operation.
  * These add essential information to the reports, but do not trigger reporting.
  */
-#define SentryCrashMonitorTypeRequired                                         \
+#define SentryCrashMonitorTypeRequired                                                             \
     (SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
 
 /** Effectively disables automatica reporting. The only way to generate a report
  * in this mode is by manually calling sentrycrash_reportUserException().
  */
-#define SentryCrashMonitorTypeManual                                           \
+#define SentryCrashMonitorTypeManual                                                               \
     (SentryCrashMonitorTypeRequired | SentryCrashMonitorTypeUserReported)
 
 #define SentryCrashMonitorTypeNone 0

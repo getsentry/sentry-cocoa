@@ -12,8 +12,7 @@ NS_SWIFT_NAME(SentryFileManager)
 SENTRY_NO_INIT
 
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
-                     didFailWithError:(NSError **)error
-    NS_DESIGNATED_INITIALIZER;
+                     didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)storeEvent:(SentryEvent *)event;
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
@@ -47,8 +46,7 @@ SENTRY_NO_INIT
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
-- (NSString *)storeDictionary:(NSDictionary *)dictionary
-                       toPath:(NSString *)path;
+- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
 @property (nonatomic, assign) NSUInteger maxEvents;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;

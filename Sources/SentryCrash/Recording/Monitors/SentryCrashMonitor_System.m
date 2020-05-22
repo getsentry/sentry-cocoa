@@ -102,11 +102,8 @@ nsstringSysctl(NSString *name)
 
     NSMutableData *value = [NSMutableData dataWithLength:(unsigned)size];
 
-    if (sentrycrashsysctl_stringForName(
-            name.UTF8String, value.mutableBytes, size)
-        != 0) {
-        str = [NSString stringWithCString:value.mutableBytes
-                                 encoding:NSUTF8StringEncoding];
+    if (sentrycrashsysctl_stringForName(name.UTF8String, value.mutableBytes, size) != 0) {
+        str = [NSString stringWithCString:value.mutableBytes encoding:NSUTF8StringEncoding];
     }
 
     return str;
@@ -182,8 +179,7 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
     }
 
     mach_msg_type_number_t hostSize = sizeof(*vmStats) / sizeof(natural_t);
-    kr = host_statistics(
-        hostPort, HOST_VM_INFO, (host_info_t)vmStats, &hostSize);
+    kr = host_statistics(hostPort, HOST_VM_INFO, (host_info_t)vmStats, &hostSize);
     if (kr != KERN_SUCCESS) {
         SentryCrashLOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
         return false;
@@ -210,8 +206,8 @@ usableMemory(void)
     vm_size_t pageSize;
     if (VMStats(&vmStats, &pageSize)) {
         return ((uint64_t)pageSize)
-            * (vmStats.active_count + vmStats.inactive_count
-                + vmStats.wire_count + vmStats.free_count);
+            * (vmStats.active_count + vmStats.inactive_count + vmStats.wire_count
+                + vmStats.free_count);
     }
     return 0;
 }
@@ -225,10 +221,8 @@ usableMemory(void)
 static const char *
 uuidBytesToString(const uint8_t *uuidBytes)
 {
-    CFUUIDRef uuidRef
-        = CFUUIDCreateFromUUIDBytes(NULL, *((CFUUIDBytes *)uuidBytes));
-    NSString *str
-        = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, uuidRef);
+    CFUUIDRef uuidRef = CFUUIDCreateFromUUIDBytes(NULL, *((CFUUIDBytes *)uuidBytes));
+    NSString *str = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, uuidRef);
     CFRelease(uuidRef);
 
     return cString(str);
@@ -260,12 +254,10 @@ getAppUUID()
     NSString *exePath = getExecutablePath();
 
     if (exePath != nil) {
-        const uint8_t *uuidBytes
-            = sentrycrashdl_imageUUID(exePath.UTF8String, true);
+        const uint8_t *uuidBytes = sentrycrashdl_imageUUID(exePath.UTF8String, true);
         if (uuidBytes == NULL) {
             // OSX app image path is a lie.
-            uuidBytes = sentrycrashdl_imageUUID(
-                exePath.lastPathComponent.UTF8String, false);
+            uuidBytes = sentrycrashdl_imageUUID(exePath.lastPathComponent.UTF8String, false);
         }
         if (uuidBytes != NULL) {
             result = uuidBytesToString(uuidBytes);
@@ -312,9 +304,8 @@ getCPUArchForCPUType(cpu_type_t cpuType, cpu_subtype_t subType)
 static const char *
 getCurrentCPUArch()
 {
-    const char *result
-        = getCPUArchForCPUType(sentrycrashsysctl_int32ForName("hw.cputype"),
-            sentrycrashsysctl_int32ForName("hw.cpusubtype"));
+    const char *result = getCPUArchForCPUType(sentrycrashsysctl_int32ForName("hw.cputype"),
+        sentrycrashsysctl_int32ForName("hw.cpusubtype"));
 
     if (result == NULL) {
         result = sentrycrashcpu_currentArch();
@@ -373,8 +364,7 @@ getReceiptUrlPath()
 #    ifdef __IPHONE_11_0
     if (@available(iOS 7, *)) {
 #    else
-    if ([[UIDevice currentDevice].systemVersion compare:@"7"
-                                                options:NSNumericSearch]
+    if ([[UIDevice currentDevice].systemVersion compare:@"7" options:NSNumericSearch]
         != NSOrderedAscending) {
 #    endif
 #endif
@@ -397,11 +387,9 @@ getDeviceAndAppHash()
     NSMutableData *data = nil;
 
 #if SentryCrashCRASH_HAS_UIDEVICE
-    if ([[UIDevice currentDevice]
-            respondsToSelector:@selector(identifierForVendor)]) {
+    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor
-            getUUIDBytes:data.mutableBytes];
+        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
 #endif
     {
@@ -410,16 +398,16 @@ getDeviceAndAppHash()
     }
 
     // Append some device-specific data.
-    [data appendData:(NSData * _Nonnull)[nsstringSysctl(@"hw.machine")
-                         dataUsingEncoding:NSUTF8StringEncoding]];
-    [data appendData:(NSData * _Nonnull)[nsstringSysctl(@"hw.model")
-                         dataUsingEncoding:NSUTF8StringEncoding]];
+    [data appendData:(NSData * _Nonnull)
+                         [nsstringSysctl(@"hw.machine") dataUsingEncoding:NSUTF8StringEncoding]];
+    [data appendData:(NSData * _Nonnull)
+                         [nsstringSysctl(@"hw.model") dataUsingEncoding:NSUTF8StringEncoding]];
     const char *cpuArch = getCurrentCPUArch();
     [data appendBytes:cpuArch length:strlen(cpuArch)];
 
     // Append the bundle ID.
-    NSData *bundleID = [[[NSBundle mainBundle] bundleIdentifier]
-        dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *bundleID =
+        [[[NSBundle mainBundle] bundleIdentifier] dataUsingEncoding:NSUTF8StringEncoding];
     if (bundleID != nil) {
         [data appendData:bundleID];
     }
@@ -444,8 +432,7 @@ getDeviceAndAppHash()
 static bool
 isTestBuild()
 {
-    return [getReceiptUrlPath().lastPathComponent
-        isEqualToString:@"sandboxReceipt"];
+    return [getReceiptUrlPath().lastPathComponent isEqualToString:@"sandboxReceipt"];
 }
 
 /** Check if the app has an app store receipt.
@@ -460,10 +447,8 @@ hasAppStoreReceipt()
     if (receiptPath == nil) {
         return NO;
     }
-    bool isAppStoreReceipt =
-        [receiptPath.lastPathComponent isEqualToString:@"receipt"];
-    bool receiptExists =
-        [[NSFileManager defaultManager] fileExistsAtPath:receiptPath];
+    bool isAppStoreReceipt = [receiptPath.lastPathComponent isEqualToString:@"receipt"];
+    bool receiptExists = [[NSFileManager defaultManager] fileExistsAtPath:receiptPath];
 
     return isAppStoreReceipt && receiptExists;
 }
@@ -512,8 +497,7 @@ initialize()
 
 #if SentryCrashCRASH_HAS_UIDEVICE
         g_systemData.systemName = cString([UIDevice currentDevice].systemName);
-        g_systemData.systemVersion
-            = cString([UIDevice currentDevice].systemVersion);
+        g_systemData.systemVersion = cString([UIDevice currentDevice].systemVersion);
 #else
 #    if SentryCrashCRASH_HOST_MAC
         g_systemData.systemName = "macOS";
@@ -527,20 +511,17 @@ initialize()
         }
         NSString *systemVersion;
         if (version.patchVersion == 0) {
-            systemVersion =
-                [NSString stringWithFormat:@"%d.%d", (int)version.majorVersion,
-                          (int)version.minorVersion];
-        } else {
             systemVersion = [NSString
-                stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                (int)version.minorVersion, (int)version.patchVersion];
+                stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
+        } else {
+            systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
+                                      (int)version.minorVersion, (int)version.patchVersion];
         }
         g_systemData.systemVersion = cString(systemVersion);
 #endif
         if (isSimulatorBuild()) {
             g_systemData.machine
-                = cString([NSProcessInfo processInfo]
-                              .environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
+                = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
             g_systemData.model = "simulator";
         } else {
 #if SentryCrashCRASH_HOST_MAC
@@ -562,19 +543,15 @@ initialize()
         g_systemData.bundleID = cString(infoDict[@"CFBundleIdentifier"]);
         g_systemData.bundleName = cString(infoDict[@"CFBundleName"]);
         g_systemData.bundleVersion = cString(infoDict[@"CFBundleVersion"]);
-        g_systemData.bundleShortVersion
-            = cString(infoDict[@"CFBundleShortVersionString"]);
+        g_systemData.bundleShortVersion = cString(infoDict[@"CFBundleShortVersionString"]);
         g_systemData.appID = getAppUUID();
         g_systemData.cpuArchitecture = getCurrentCPUArch();
         g_systemData.cpuType = sentrycrashsysctl_int32ForName("hw.cputype");
-        g_systemData.cpuSubType
-            = sentrycrashsysctl_int32ForName("hw.cpusubtype");
+        g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
         g_systemData.binaryCPUType = header->cputype;
         g_systemData.binaryCPUSubType = header->cpusubtype;
-        g_systemData.timezone
-            = cString([NSTimeZone localTimeZone].abbreviation);
-        g_systemData.processName
-            = cString([NSProcessInfo processInfo].processName);
+        g_systemData.timezone = cString([NSTimeZone localTimeZone].abbreviation);
+        g_systemData.processName = cString([NSProcessInfo processInfo].processName);
         g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
         g_systemData.parentProcessID = getppid();
         g_systemData.deviceAppHash = getDeviceAndAppHash();

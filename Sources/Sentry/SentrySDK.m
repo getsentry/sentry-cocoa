@@ -76,69 +76,58 @@ static SentryHub *currentHub;
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient
-                                                      andScope:nil]];
-    [SentryLog
-        logWithMessage:[NSString
-                           stringWithFormat:@"SDK initialized! Version: %@",
-                           SentryMeta.versionString]
-              andLevel:kSentryLogLevelDebug];
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@",
+                                        SentryMeta.versionString]
+                     andLevel:kSentryLogLevelDebug];
     [SentrySDK installIntegrations];
 }
 
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event
 {
-    return [SentrySDK captureEvent:event
-                         withScope:[SentrySDK.currentHub getScope]];
+    return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event
                      withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
-    SentryScope *scope =
-        [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureEvent:event withScope:scope];
 }
 
-+ (NSString *_Nullable)captureEvent:(SentryEvent *)event
-                          withScope:(SentryScope *_Nullable)scope
++ (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
 + (NSString *_Nullable)captureError:(NSError *)error
 {
-    return [SentrySDK captureError:error
-                         withScope:[SentrySDK.currentHub getScope]];
+    return [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (NSString *_Nullable)captureError:(NSError *)error
                      withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
-    SentryScope *scope =
-        [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureError:error withScope:scope];
 }
 
-+ (NSString *_Nullable)captureError:(NSError *)error
-                          withScope:(SentryScope *_Nullable)scope
++ (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     return [SentrySDK.currentHub captureError:error withScope:scope];
 }
 
 + (NSString *_Nullable)captureException:(NSException *)exception
 {
-    return [SentrySDK captureException:exception
-                             withScope:[SentrySDK.currentHub getScope]];
+    return [SentrySDK captureException:exception withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (NSString *_Nullable)captureException:(NSException *)exception
                          withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
-    SentryScope *scope =
-        [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureException:exception withScope:scope];
 }
@@ -151,21 +140,18 @@ static SentryHub *currentHub;
 
 + (NSString *_Nullable)captureMessage:(NSString *)message
 {
-    return [SentrySDK captureMessage:message
-                           withScope:[SentrySDK.currentHub getScope]];
+    return [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (NSString *_Nullable)captureMessage:(NSString *)message
                        withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
-    SentryScope *scope =
-        [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureMessage:message withScope:scope];
 }
 
-+ (NSString *_Nullable)captureMessage:(NSString *)message
-                            withScope:(SentryScope *_Nullable)scope
++ (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
 }
@@ -218,35 +204,28 @@ static SentryHub *currentHub;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
-    for (NSString *integrationName in [SentrySDK.currentHub getClient]
-             .options.integrations) {
+    for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] "
+                                                              @"couldn't find \"%@\" -> skipping.",
+                                             integrationName];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
+            continue;
+        } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
             NSString *logMessage =
-                [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] "
-                                           @"couldn't find \"%@\" -> skipping.",
+                [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already "
+                                           @"installed \"%@\" -> skipping.",
                           integrationName];
             [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
             continue;
-        } else if ([SentrySDK.currentHub
-                       isIntegrationInstalled:integrationClass]) {
-            NSString *logMessage = [NSString
-                stringWithFormat:@"[SentryHub doInstallIntegrations] already "
-                                 @"installed \"%@\" -> skipping.",
-                integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
-            continue;
         }
-        id<SentryIntegrationProtocol> integrationInstance =
-            [[integrationClass alloc] init];
+        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         [integrationInstance installWithOptions:options];
         [SentryLog
-            logWithMessage:[NSString
-                               stringWithFormat:@"Integration installed: %@",
-                               integrationName]
+            logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName]
                   andLevel:kSentryLogLevelDebug];
-        [SentrySDK.currentHub.installedIntegrations
-            addObject:integrationInstance];
+        [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }
 

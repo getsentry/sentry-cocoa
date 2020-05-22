@@ -81,8 +81,7 @@ uint32_t sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch);
  * @return A pointer to the binary (16 byte) UUID of the image, or NULL if it
  *         wasn't found.
  */
-const uint8_t *sentrycrashdl_imageUUID(
-    const char *const imageName, bool exactMatch);
+const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch);
 
 /** async-safe version of dladdr.
  *
