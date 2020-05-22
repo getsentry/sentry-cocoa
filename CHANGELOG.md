@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Avoid Implicit conversion in SentrySession #540
+
 ## 5.0.5
 
 - feat: Add remove methods for SentryScope #529
