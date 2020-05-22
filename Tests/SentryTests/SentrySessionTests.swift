@@ -10,7 +10,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testEndSession() {
-        let session = SentrySession(releaseName: "")
+        let session = SentrySession(releaseName: "0.1.0")
         let date = currentDateProvider.date().addingTimeInterval(1)
         session.endExited(withTimestamp: date)
         
@@ -20,7 +20,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testInitAndDurationNilWhenSerialize() {
-        let session1 = SentrySession(releaseName: "")
+        let session1 = SentrySession(releaseName: "1.4.0")
         var json = session1.serialize()
         json.removeValue(forKey: "init")
         json.removeValue(forKey: "duration")

@@ -95,7 +95,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testSendAllCachedEnvelopes() {
         givenNoInternetConnection()
-        let envelope = SentryEnvelope(session: SentrySession(releaseName: ""))
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.9.0"))
         sendEnvelope(envelope: envelope)
         sendEnvelope()
         
@@ -363,7 +363,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func sendEnvelopeWithSession() {
-        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession(releaseName: ""))])
+        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession(releaseName: "2.0.1"))])
         sut.send(envelope: envelope, completion: nil)
     }
     
