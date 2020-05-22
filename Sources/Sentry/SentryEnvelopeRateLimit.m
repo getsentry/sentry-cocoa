@@ -48,7 +48,7 @@ SentryEnvelopeRateLimit ()
     NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [NSMutableArray new];
 
     for (SentryEnvelopeItem *item in items) {
-        SentryRateLimitCategory *rateLimitCategory =
+        SentryRateLimitCategory rateLimitCategory =
             [SentryRateLimitCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];

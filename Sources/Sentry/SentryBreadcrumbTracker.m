@@ -71,7 +71,7 @@
 
 - (void)addBreadcrumbWithType:(NSString *)type
                  withCategory:(NSString *)category
-                    withLevel:(SentryLevel *)level
+                    withLevel:(SentryLevel)level
                   withDataKey:(NSString *)key
                 withDataValue:(NSString *)value
 {
