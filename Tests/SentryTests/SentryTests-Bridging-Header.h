@@ -3,6 +3,7 @@
 //  expose to Swift.
 //
 
+#import "NSDate+SentryExtras.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCurrentDate.h"
 #import "SentryDateUtil.h"

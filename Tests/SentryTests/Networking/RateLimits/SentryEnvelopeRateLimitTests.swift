@@ -69,7 +69,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         }
         
         for _ in Array(0...2) {
-            let session = SentrySession()
+            let session = SentrySession(releaseName: "")
             envelopeItems.append(SentryEnvelopeItem(session: session))
         }
         
