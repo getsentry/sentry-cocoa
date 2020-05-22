@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.1.0
+
 - fix: Make properties of Session readonly #541
 - fix: Remove MemoryWarningIntegration #537
 - fix: Avoid Implicit conversion in SentrySession #540
