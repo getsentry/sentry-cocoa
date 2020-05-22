@@ -2,7 +2,7 @@
 
 @implementation SentryMeta
 
-NSString *const versionString = @"5.0.5";
+NSString *const versionString = @"5.1.0";
 NSString *const sdkName = @"sentry.cocoa";
 
 + (NSString *)versionString
