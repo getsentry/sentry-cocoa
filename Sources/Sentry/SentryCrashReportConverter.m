@@ -5,6 +5,7 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
+#import "SentryHexAddressFormatter.h"
 #import "SentryMechanism.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -24,12 +25,6 @@ SentryCrashReportConverter ()
 @end
 
 @implementation SentryCrashReportConverter
-
-static inline NSString *
-hexAddress(NSNumber *value)
-{
-    return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
-}
 
 - (instancetype)initWithReport:(NSDictionary *)report
 {
@@ -163,7 +158,8 @@ hexAddress(NSNumber *value)
     NSDictionary *thread = self.threads[threadIndex];
     NSMutableDictionary *registers = [NSMutableDictionary new];
     for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
-        [registers setValue:hexAddress(thread[@"registers"][@"basic"][key]) forKey:key];
+        [registers setValue:sentry_formatHexAddress(thread[@"registers"][@"basic"][key])
+                     forKey:key];
     }
     return registers;
 }
@@ -216,9 +212,9 @@ hexAddress(NSNumber *value)
     BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"] ||
         [binaryImage[@"name"] containsString:@".app"];
     SentryFrame *frame = [[SentryFrame alloc] init];
-    frame.symbolAddress = hexAddress(frameDictionary[@"symbol_addr"]);
-    frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
-    frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
+    frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
+    frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
+    frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
     frame.inApp = [NSNumber numberWithBool:isAppImage];
     if (frameDictionary[@"symbol_name"]) {
@@ -266,9 +262,9 @@ hexAddress(NSNumber *value)
         debugMeta.type = @"apple";
         // We default to 0 on the server if not sent
         if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
-            debugMeta.imageVmAddress = hexAddress(sourceImage[@"image_vmaddr"]);
+            debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
         }
-        debugMeta.imageAddress = hexAddress(sourceImage[@"image_addr"]);
+        debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
         debugMeta.imageSize = sourceImage[@"image_size"];
         debugMeta.name = sourceImage[@"name"];
         [result addObject:debugMeta];
@@ -413,8 +409,9 @@ hexAddress(NSNumber *value)
 
         if (nil != self.exceptionContext[@"address"] &&
             [self.exceptionContext[@"address"] integerValue] > 0) {
-            mechanism.data =
-                @{ @"relevant_address" : hexAddress(self.exceptionContext[@"address"]) };
+            mechanism.data = @{
+                @"relevant_address" : sentry_formatHexAddress(self.exceptionContext[@"address"])
+            };
         }
     }
     return mechanism;
