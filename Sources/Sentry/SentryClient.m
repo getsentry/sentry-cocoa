@@ -111,7 +111,6 @@ SentryClient ()
             event = self.options.beforeSend(event);
         }
         if (nil != event) {
-            event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
             [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
             return event.eventId;
         }
@@ -194,6 +193,8 @@ SentryClient ()
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
     }
+    
+    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
 
     return [self callEventProcessors:event];
 }
