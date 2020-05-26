@@ -57,3 +57,7 @@ MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 // SWIFT_VERSION is only recognized by Xcode 8 and higher.
 // Prior versions of Xcode support only one Swift version.
 // SWIFT_VERSION = 3.1
+
+// Although `YES` is the default for iOS targets, command-line output via `xcodebuild -showBuildSettings`
+// will not emit this value unless it is explicitly set.
+SUPPORTS_MACCATALYST = YES
