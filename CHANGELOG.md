@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Attach DebugMeta to Events #545
+
 ## 5.1.0
 
 - fix: Make properties of Session readonly #541
