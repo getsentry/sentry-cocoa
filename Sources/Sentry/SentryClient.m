@@ -193,7 +193,7 @@ SentryClient ()
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
     }
-    
+
     event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
 
     return [self callEventProcessors:event];
