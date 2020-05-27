@@ -30,8 +30,9 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         let actual = whenBuildDebugMetaWith(images: [image, image, image])
         
         XCTAssertEqual(3, actual.count)
-        XCTAssertEqual(actual[0].name, actual[1].name)
-        XCTAssertEqual(actual[1].name, actual[2].name)
+        for i in 0...(actual.count-1) {
+            XCTAssertEqual(imageName, actual[i].name)
+        }
         
         let debugMeta = actual[0]
         XCTAssertEqual(imageName, debugMeta.name)
