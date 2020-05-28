@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Samples/macOS-Swift/macOS-Swift.xcodeproj">
    </FileRef>
    <FileRef
