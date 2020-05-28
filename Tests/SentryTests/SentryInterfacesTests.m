@@ -88,7 +88,6 @@
         @"level" : @"info",
         @"environment" : @"bla",
         @"platform" : @"cocoa",
-        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event serialize], serialized);
@@ -99,7 +98,6 @@
         @"event_id" : event2.eventId,
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event2 serialize], serialized2);
@@ -133,7 +131,6 @@
         @"extra" : @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26Z" } },
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);
@@ -218,7 +215,6 @@
         },
         @"level" : @"info",
         @"platform" : @"cocoa",
-        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);

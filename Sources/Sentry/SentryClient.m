@@ -11,6 +11,7 @@
 #import "SentryHttpTransport.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK.h"
@@ -178,6 +179,15 @@ SentryClient ()
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
+    }
+
+    NSMutableDictionary *sdk =
+        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
+    if (nil != sdk && nil == event.sdk) {
+        if (event.extra[@"__sentry_sdk_integrations"]) {
+            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
+        }
+        event.sdk = sdk;
     }
 
     if (nil != scope) {
