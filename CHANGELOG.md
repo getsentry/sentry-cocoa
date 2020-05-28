@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Duplicate symbol for SentryMeta #549
+- feat: Set SUPPORTS_MACCATALYST to YES explicitly #547
 
 ## 5.1.0
 
