@@ -250,7 +250,7 @@ GEM
       CFPropertyList
       naturally
     slack-notifier (2.3.2)
-    slather (2.4.8)
+    slather (2.4.9)
       CFPropertyList (>= 2.2, < 4)
       activesupport (>= 4.0.2, < 5)
       clamp (~> 1.3)
