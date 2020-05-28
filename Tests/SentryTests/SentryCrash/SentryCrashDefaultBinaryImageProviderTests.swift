@@ -7,18 +7,20 @@ import XCTest
  */
 class SentryCrashDefaultBinaryImageProviderTests: XCTestCase {
     
-    private var sut: SentryCrashDefaultBinaryImageProvider!
-    
-    override func setUp() {
-        super.setUp()
-        sut = SentryCrashDefaultBinaryImageProvider()
+    private class Fixture {
+        func getSut() -> SentryCrashDefaultBinaryImageProvider {
+            SentryCrashDefaultBinaryImageProvider()
+        }
     }
     
+    private let fixture = Fixture()
+    
     func testImageCount() {
-        XCTAssertEqual(sentrycrashdl_imageCount(), Int32(sut.getImageCount()))
+        XCTAssertEqual(sentrycrashdl_imageCount(), Int32(fixture.getSut().getImageCount()))
     }
     
     func testGetImages() {
+        let sut = fixture.getSut()
         let imageCount = sut.getImageCount()
         for i in 0 ... imageCount {
             let actual = sut.getBinaryImage(i)

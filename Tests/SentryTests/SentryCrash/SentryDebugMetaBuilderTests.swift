@@ -7,15 +7,16 @@ import XCTest
  */
 class SentryDebugMetaBuilderTests: XCTestCase {
     
-    private var imageProvider: TestSentryCrashBinaryImageProvider!
-    private var sut: SentryDebugMetaBuilder!
-    
-    override func setUp() {
-        super.setUp()
-        
-        imageProvider = TestSentryCrashBinaryImageProvider()
-        sut = SentryDebugMetaBuilder(binaryImageProvider: imageProvider)
+    private class Fixture {
+        func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugMetaBuilder {
+            let imageProvider = TestSentryCrashBinaryImageProvider()
+            imageProvider.imageCount = images.count
+            imageProvider.binaryImage = images
+            return SentryDebugMetaBuilder(binaryImageProvider: imageProvider)
+        }
     }
+    
+    private let fixture = Fixture()
     
     func testThreeImages() {
         let imageName = "dyld_sim"
@@ -29,7 +30,8 @@ class SentryDebugMetaBuilderTests: XCTestCase {
             uuidAsCharArray: uuidAsCharArray
         )
         
-        let actual = whenBuildDebugMetaWith(images: [image, image, image])
+        let sut = fixture.getSut(images: [image, image, image])
+        let actual = sut.buildDebugMeta()
         
         XCTAssertEqual(3, actual.count)
         for i in 0...(actual.count - 1) {
@@ -48,7 +50,8 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     func testImageVmAddressIsZero() {
         let image = createSentryCrashBinaryImage(vmAddress: 0)
         
-        let actual = whenBuildDebugMetaWith(images: [image])
+        let sut = fixture.getSut(images: [image])
+        let actual = sut.buildDebugMeta()
         
         XCTAssertNil(actual[0].imageVmAddress)
     }
@@ -56,7 +59,8 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     func testImageSize() {
         func testWith(value: UInt64) {
             let image = createSentryCrashBinaryImage(size: value)
-            let actual = whenBuildDebugMetaWith(images: [image])
+            let sut = fixture.getSut(images: [image])
+            let actual = sut.buildDebugMeta()
             XCTAssertEqual(NSNumber(value: value), actual[0].imageSize)
         }
         
@@ -68,7 +72,8 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     func testImageAddress() {
         func testWith(value: UInt64, expected: String) {
             let image = createSentryCrashBinaryImage(address: value)
-            let actual = whenBuildDebugMetaWith(images: [image])
+            let sut = fixture.getSut(images: [image])
+            let actual = sut.buildDebugMeta()
             
             XCTAssertEqual(1, actual.count)
             
@@ -83,7 +88,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     }
     
     func testNoImages() {
-        let actual = sut.buildDebugMeta()
+        let actual = fixture.getSut().buildDebugMeta()
         
         XCTAssertEqual(0, actual.count)
     }
@@ -107,12 +112,6 @@ class SentryDebugMetaBuilderTests: XCTestCase {
             minorVersion: 0,
             revisionVersion: 0
         )
-    }
-    
-    private func whenBuildDebugMetaWith(images: [SentryCrashBinaryImage]) -> [DebugMeta] {
-        imageProvider.imageCount = images.count
-        imageProvider.binaryImage = images
-        return sut.buildDebugMeta()
     }
     
     private func stringToUIntCharArray(value: String) -> [CChar] {
