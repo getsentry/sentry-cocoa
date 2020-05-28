@@ -1,5 +1,6 @@
 #import "SentryDebugMetaBuilder.h"
 #import "SentryCrashDynamicLinker.h"
+#import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryLog.h"
@@ -59,49 +60,15 @@ SentryDebugMetaBuilder ()
     return debugMeta;
 }
 
-/**
- * Copied from SentryCrashReport.addUUIDElement, because we don't want to change SentryCrashReport.
- */
 + (NSString *_Nullable)convertUUID:(const unsigned char *const)value
 {
     if (nil == value) {
         return nil;
     }
 
-    const unichar hexNybbles[]
-        = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-    unichar uuidBuffer[37];
-    const unsigned char *src = value;
-    unichar *dst = uuidBuffer;
-    for (int i = 0; i < 4; i++) {
-        *dst++ = hexNybbles[(*src >> 4) & 15];
-        *dst++ = hexNybbles[(*src++) & 15];
-    }
-    *dst++ = '-';
-    for (int i = 0; i < 2; i++) {
-        *dst++ = hexNybbles[(*src >> 4) & 15];
-        *dst++ = hexNybbles[(*src++) & 15];
-    }
-    *dst++ = '-';
-    for (int i = 0; i < 2; i++) {
-        *dst++ = hexNybbles[(*src >> 4) & 15];
-        *dst++ = hexNybbles[(*src++) & 15];
-    }
-    *dst++ = '-';
-    for (int i = 0; i < 2; i++) {
-        *dst++ = hexNybbles[(*src >> 4) & 15];
-        *dst++ = hexNybbles[(*src++) & 15];
-    }
-    *dst++ = '-';
-    for (int i = 0; i < 6; i++) {
-        *dst++ = hexNybbles[(*src >> 4) & 15];
-        *dst++ = hexNybbles[(*src++) & 15];
-    }
-
-    // Only 36 because UUID has 32 hexadecimal digits and we use four
-    // delimiters -
-    return [[NSString alloc] initWithCharacters:uuidBuffer length:36];
+    char uuidBuffer[37];
+    sentrycrashdl_convertBinaryImageUUID(value, uuidBuffer);
+    return [[NSString alloc] initWithCString:uuidBuffer encoding:NSASCIIStringEncoding];
 }
 
 @end

@@ -20,23 +20,25 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     func testThreeImages() {
         let imageName = "dyld_sim"
         let imageNameAsCharArray = stringToUIntCharArray(value: imageName)
+        let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
         let image = createSentryCrashBinaryImage(
             address: 4_386_213_888,
             vmAddress: 140_734_563_811_328,
             size: 352_256,
-            name: imageNameAsCharArray
+            name: imageNameAsCharArray,
+            uuidAsCharArray: uuidAsCharArray
         )
         
         let actual = whenBuildDebugMetaWith(images: [image, image, image])
         
         XCTAssertEqual(3, actual.count)
-        for i in 0...(actual.count-1) {
+        for i in 0...(actual.count - 1) {
             XCTAssertEqual(imageName, actual[i].name)
         }
         
         let debugMeta = actual[0]
         XCTAssertEqual(imageName, debugMeta.name)
-        XCTAssertNil(debugMeta.uuid)
+        XCTAssertEqual("84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322", debugMeta.uuid)
         XCTAssertEqual("0x0000000105705000", debugMeta.imageAddress)
         XCTAssertEqual("0x00007fff51af0000", debugMeta.imageVmAddress)
         XCTAssertEqual("apple", debugMeta.type)
@@ -78,37 +80,6 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         testWith(value: 0, expected: "0x0000000000000000")
         testWith(value: 0, expected: "0x0000000000000000")
         testWith(value: 4_361_940_992, expected: "0x0000000103fdf000")
-    }
-    
-    /**
-     * The test parameters are copied from real values during debugging
-     * SentryCrashReportConverter.convertDebugMeta. We know that
-     * SentryCrashReportConverter is working properly.
-     */
-    func testUUID() {
-        func testWith(uuid: String, uuidAsCharArray: [UInt8]) {
-            XCTAssertEqual(16, uuidAsCharArray.count, "Length of uuidAsCharArray has to be 16")
-            let image = createSentryCrashBinaryImage(uuidAsCharArray: uuidAsCharArray)
-            
-            let actual = whenBuildDebugMetaWith(images: [image])
-            
-            XCTAssertEqual(uuid, actual[0].uuid)
-        }
-        
-        testWith(
-            uuid: "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322",
-            uuidAsCharArray: [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
-        )
-        
-        testWith(
-            uuid: "C6402B73-CE6B-3893-B8C4-FCA2DCBDFFF7",
-            uuidAsCharArray: [198, 64, 43, 115, 206, 107, 56, 147, 184, 196, 252, 162, 220, 189, 255, 247]
-        )
-        
-        testWith(
-            uuid: "4E852D8F-9427-382C-ACF0-6C38654710D0",
-            uuidAsCharArray: [78, 133, 45, 143, 148, 39, 56, 44, 172, 240, 108, 56, 101, 71, 16, 208]
-        )
     }
     
     func testNoImages() {
