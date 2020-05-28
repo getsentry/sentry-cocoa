@@ -18,6 +18,7 @@ AppDelegate ()
         @"debug" : @(YES),
         @"logLevel" : @"verbose",
         @"enableAutoSessionTracking" : @(YES),
+        @"attachStacktrace" : @(YES),
         @"sessionTrackingIntervalMillis" : @5000 // 5 seconds session timeout for testing
     }];
     return YES;

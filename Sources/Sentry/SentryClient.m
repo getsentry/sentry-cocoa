@@ -194,7 +194,9 @@ SentryClient ()
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
     }
 
-    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+    if (YES == [self.options.attachStacktrace boolValue]) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+    }
 
     return [self callEventProcessors:event];
 }

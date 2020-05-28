@@ -101,6 +101,12 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
 
+/**
+ * WIP! This feature is not finished yet. The plan is to attach the stack trace to all threads when
+ * logging events. When enabling this currently only the debug meta data is attached to events.
+ */
+@property (nonatomic, copy) NSNumber *attachStacktrace;
+
 @end
 
 NS_ASSUME_NONNULL_END
