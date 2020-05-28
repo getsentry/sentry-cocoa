@@ -144,12 +144,12 @@
     } else {
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }
-    
+
     if (nil != [options objectForKey:@"attachStacktrace"]) {
-        self.attachStacktrace = [NSNumber
-            numberWithBool:[[options objectForKey:@"attachStacktrace"] boolValue]];
+        self.attachStacktrace =
+            [NSNumber numberWithBool:[[options objectForKey:@"attachStacktrace"] boolValue]];
     } else {
-        self.attachStacktrace = @NO; 
+        self.attachStacktrace = @NO;
     }
 }
 
