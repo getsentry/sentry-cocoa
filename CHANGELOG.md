@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Duplicate symbol for SentryMeta #549
+
 ## 5.1.0
 
 - fix: Make properties of Session readonly #541
