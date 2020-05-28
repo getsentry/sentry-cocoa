@@ -3,6 +3,7 @@
 ## unreleased
 
 - feat: Attach DebugMeta to Events #545
+- fix: Duplicate symbol for SentryMeta #549
 
 ## 5.1.0
 
