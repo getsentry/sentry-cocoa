@@ -81,6 +81,7 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.timestamp = date;
     event.environment = @"bla";
+    event.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     event.extra = @{ @"__sentry_stacktrace" : @"f", @"date" : date };
     NSDictionary *serialized = @{
         @"event_id" : event.eventId,
@@ -88,16 +89,19 @@
         @"level" : @"info",
         @"environment" : @"bla",
         @"platform" : @"cocoa",
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event serialize], serialized);
 
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event2.timestamp = date;
+    event2.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     NSDictionary *serialized2 = @{
         @"event_id" : event2.eventId,
         @"level" : @"info",
         @"platform" : @"cocoa",
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event2 serialize], serialized2);
@@ -124,6 +128,7 @@
 
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event4.timestamp = date;
+    event4.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     event4.extra =
         @{ @"key" : @ { @1 : @"1", @2 : [NSDate dateWithTimeIntervalSince1970:1582803326] } };
     NSDictionary *serialized4 = @{
@@ -131,6 +136,7 @@
         @"extra" : @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26Z" } },
         @"level" : @"info",
         @"platform" : @"cocoa",
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);
@@ -198,6 +204,7 @@
             @6 : testURL
         }
     };
+    event4.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     NSDictionary *serialized4 = @{
         @"event_id" : event4.eventId,
         @"extra" : @ {
@@ -215,6 +222,7 @@
         },
         @"level" : @"info",
         @"platform" : @"cocoa",
+        @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
         @"timestamp" : [date sentry_toIso8601String]
     };
     XCTAssertEqualObjects([event4 serialize], serialized4);
