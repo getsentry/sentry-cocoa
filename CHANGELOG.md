@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.1.1
+
 - fix: Prefix categories methods with sentry #555
 - feat: Attach DebugMeta to Events #545
 - fix: Duplicate symbol for SentryMeta #549
