@@ -327,7 +327,7 @@ SentryCrashReportFilterObjectForKey ()
     for (NSDictionary *report in reports) {
         id object = nil;
         if ([self.key isKindOfClass:[NSString class]]) {
-            object = [report objectForKeyPath:self.key];
+            object = [report sentry_objectForKeyPath:self.key];
         } else {
             object = [report objectForKey:self.key];
         }
@@ -406,7 +406,7 @@ SentryCrashReportFilterConcatenate ()
             } else {
                 [concatenated appendFormat:self.separatorFmt, key];
             }
-            id object = [report objectForKeyPath:key];
+            id object = [report sentry_objectForKeyPath:key];
             [concatenated appendFormat:@"%@", object];
         }
         [filteredReports addObject:concatenated];
@@ -463,7 +463,7 @@ SentryCrashReportFilterSubset ()
     for (NSDictionary *report in reports) {
         NSMutableDictionary *subset = [NSMutableDictionary dictionary];
         for (NSString *keyPath in self.keyPaths) {
-            id object = [report objectForKeyPath:keyPath];
+            id object = [report sentry_objectForKeyPath:keyPath];
             if (object == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError errorWithDomain:[[self class] description]
