@@ -109,24 +109,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)addSdkInformation:(NSMutableDictionary *)serializedData
-{
-    // If sdk was set, we don't take the default
-    if (nil != self.sdk) {
-        serializedData[@"sdk"] = self.sdk;
-        return;
-    }
-    NSMutableDictionary *sdk =
-        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
-    if (self.extra[@"__sentry_sdk_integrations"]) {
-        [sdk setValue:self.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
-    }
-    serializedData[@"sdk"] = sdk;
-}
-
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData
 {
-    [self addSdkInformation:serializedData];
+    [serializedData setValue:self.sdk forKey:@"sdk"];
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
