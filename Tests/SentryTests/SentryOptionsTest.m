@@ -260,6 +260,24 @@
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
 }
 
+- (void)testAttachStackTraceDisabledPerDefault
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqual(@NO, options.attachStacktrace);
+}
+
+- (void)testAttachStackTraceEnabled
+{
+    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @YES }];
+    XCTAssertEqual(@YES, options.attachStacktrace);
+}
+
+- (void)testInvalidAttachStackTrace
+{
+    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
+    XCTAssertEqual(@NO, options.attachStacktrace);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

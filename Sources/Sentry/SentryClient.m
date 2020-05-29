@@ -1,7 +1,9 @@
 #import "SentryClient.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
+#import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryDebugMetaBuilder.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryError.h"
@@ -31,6 +33,7 @@ SentryClient ()
 
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
 
 @end
 
@@ -40,6 +43,13 @@ SentryClient ()
 {
     if (self = [super init]) {
         self.options = options;
+
+        // TODO: inject dependencies to make SentryClient testable
+        SentryCrashDefaultBinaryImageProvider *provider =
+            [[SentryCrashDefaultBinaryImageProvider alloc] init];
+
+        self.debugMetaBuilder =
+            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
     }
     return self;
 }
@@ -71,7 +81,7 @@ SentryClient ()
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO: Attach stacktrace?
+    // TODO: Capture Stacktrace
     event.message = message;
     return [self captureEvent:event withScope:scope];
 }
@@ -182,6 +192,10 @@ SentryClient ()
 
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+    }
+
+    if (YES == [self.options.attachStacktrace boolValue]) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
     }
 
     return [self callEventProcessors:event];

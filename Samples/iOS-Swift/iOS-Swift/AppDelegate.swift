@@ -11,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             "debug": true,
             "logLevel": "verbose",
             "enableAutoSessionTracking": true,
+            "attachStacktrace": true,
             "sessionTrackingIntervalMillis": 5_000 // 5 seconds session timeout for testing
         ])
         return true
