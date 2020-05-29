@@ -5,8 +5,12 @@
 
 #import "NSDate+SentryExtras.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import "SentryCrashBinaryImageProvider.h"
+#import "SentryCrashDefaultBinaryImageProvider.h"
+#import "SentryCrashUUIDConversion.h"
 #import "SentryCurrentDate.h"
 #import "SentryDateUtil.h"
+#import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryDsn.h"
