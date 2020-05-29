@@ -175,32 +175,32 @@ removeObjectForKeyPath(id container, NSString *keyPath)
 
 @implementation NSDictionary (DeepSearch)
 
-- (id)objectForDeepKey:(NSArray *)deepKey
+- (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {
     return objectForDeepKey(self, deepKey);
 }
 
-- (id)objectForKeyPath:(NSString *)keyPath
+- (id)sentry_objectForKeyPath:(NSString *)keyPath
 {
     return objectForKeyPath(self, keyPath);
 }
 
-- (void)setObject:(id)anObject forDeepKey:(NSArray *)deepKey
+- (void)sentry_setObject:(id)anObject forDeepKey:(NSArray *)deepKey
 {
     setObjectForDeepKey(self, anObject, deepKey);
 }
 
-- (void)setObject:(id)anObject forKeyPath:(NSString *)keyPath
+- (void)sentry_setObject:(id)anObject forKeyPath:(NSString *)keyPath
 {
     setObjectForKeyPath(self, anObject, keyPath);
 }
 
-- (void)removeObjectForDeepKey:(NSArray *)deepKey
+- (void)sentry_removeObjectForDeepKey:(NSArray *)deepKey
 {
     removeObjectForDeepKey(self, deepKey);
 }
 
-- (void)removeObjectForKeyPath:(NSString *)keyPath
+- (void)sentry_removeObjectForKeyPath:(NSString *)keyPath
 {
     removeObjectForKeyPath(self, keyPath);
 }
@@ -211,32 +211,32 @@ removeObjectForKeyPath(id container, NSString *keyPath)
 
 @implementation NSArray (DeepSearch)
 
-- (id)objectForDeepKey:(NSArray *)deepKey
+- (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {
     return objectForDeepKey(self, deepKey);
 }
 
-- (id)objectForKeyPath:(NSString *)keyPath
+- (id)sentry_objectForKeyPath:(NSString *)keyPath
 {
     return objectForKeyPath(self, keyPath);
 }
 
-- (void)setObject:(id)anObject forDeepKey:(NSArray *)deepKey
+- (void)sentry_setObject:(id)anObject forDeepKey:(NSArray *)deepKey
 {
     setObjectForDeepKey(self, anObject, deepKey);
 }
 
-- (void)setObject:(id)anObject forKeyPath:(NSString *)keyPath
+- (void)sentry_setObject:(id)anObject forKeyPath:(NSString *)keyPath
 {
     setObjectForKeyPath(self, anObject, keyPath);
 }
 
-- (void)removeObjectForDeepKey:(NSArray *)deepKey
+- (void)sentry_removeObjectForDeepKey:(NSArray *)deepKey
 {
     removeObjectForDeepKey(self, deepKey);
 }
 
-- (void)removeObjectForKeyPath:(NSString *)keyPath
+- (void)sentry_removeObjectForKeyPath:(NSString *)keyPath
 {
     removeObjectForKeyPath(self, keyPath);
 }
