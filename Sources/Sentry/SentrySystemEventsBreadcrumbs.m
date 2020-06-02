@@ -104,7 +104,16 @@
 //TODO: look at https://github.com/apache/cordova-plugin-screen-orientation/blob/master/src/ios/CDVOrientation.m
     // it uses [UIApplication sharedApplication].statusBarOrientation as well, should we use it? maybe device orientation and screen/app orientation
     
-    if (UIDeviceOrientationIsLandscape(currentDevice.orientation)){
+    UIDeviceOrientation currentOrientation = currentDevice.orientation;
+    
+    // Ignore changes in device orientation if unknown, face up, or face down.
+    if (!UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
+        [SentryLog logWithMessage:@"currentOrientation is unknown."
+                         andLevel:kSentryLogLevelDebug];
+        return;
+    }
+    
+    if (UIDeviceOrientationIsLandscape(currentOrientation)){
         crumb.data = @{ @"position": @"landscape"};
     }
     else {
