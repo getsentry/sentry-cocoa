@@ -1,6 +1,7 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -10,7 +11,6 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
-#import "SentryCrashStackEntryMapper.h"
 
 @interface
 SentryCrashReportConverter ()

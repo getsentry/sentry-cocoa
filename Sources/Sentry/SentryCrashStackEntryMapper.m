@@ -37,9 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
     return frame;
 }
 
-+ (BOOL)isInApp:(NSString *)imageName {
-    return [imageName containsString:@"/Bundle/Application/"] ||
-    [imageName containsString:@".app"];
++ (BOOL)isInApp:(NSString *)imageName
+{
+    return [imageName containsString:@"/Bundle/Application/"] || [imageName containsString:@".app"];
 }
 
 @end
