@@ -1,7 +1,10 @@
 #import "SentryClient.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
+#import "SentryCrashDefaultBinaryImageProvider.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryDebugMetaBuilder.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryError.h"
@@ -11,11 +14,15 @@
 #import "SentryHttpTransport.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySession.h"
+#import "SentryStacktraceBuilder.h"
+#import "SentryThread.h"
+#import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -31,6 +38,8 @@ SentryClient ()
 
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
 
@@ -40,6 +49,21 @@ SentryClient ()
 {
     if (self = [super init]) {
         self.options = options;
+
+        // TODO: inject dependencies to make SentryClient testable
+        SentryCrashDefaultBinaryImageProvider *provider =
+            [[SentryCrashDefaultBinaryImageProvider alloc] init];
+
+        self.debugMetaBuilder =
+            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+
+        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        id<SentryCrashMachineContextWrapper> machineContextWrapper =
+            [[SentryCrashDefaultMachineContextWrapper alloc] init];
+
+        self.threadInspector =
+            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                            andMachineContextWrapper:machineContextWrapper];
     }
     return self;
 }
@@ -71,7 +95,7 @@ SentryClient ()
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO: Attach stacktrace?
+    // TODO: Capture Stacktrace
     event.message = message;
     return [self captureEvent:event withScope:scope];
 }
@@ -180,8 +204,22 @@ SentryClient ()
         event.environment = environment;
     }
 
+    NSMutableDictionary *sdk =
+        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
+    if (nil != sdk && nil == event.sdk) {
+        if (event.extra[@"__sentry_sdk_integrations"]) {
+            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
+        }
+        event.sdk = sdk;
+    }
+
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+    }
+
+    if (YES == [self.options.attachStacktrace boolValue]) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+        event.threads = [self.threadInspector getCurrentThreads];
     }
 
     return [self callEventProcessors:event];

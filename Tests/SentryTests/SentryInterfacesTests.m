@@ -81,6 +81,7 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.timestamp = date;
     event.environment = @"bla";
+    event.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     event.extra = @{ @"__sentry_stacktrace" : @"f", @"date" : date };
     NSDictionary *serialized = @{
         @"event_id" : event.eventId,
@@ -95,6 +96,7 @@
 
     SentryEvent *event2 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event2.timestamp = date;
+    event2.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     NSDictionary *serialized2 = @{
         @"event_id" : event2.eventId,
         @"level" : @"info",
@@ -126,6 +128,7 @@
 
     SentryEvent *event4 = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event4.timestamp = date;
+    event4.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     event4.extra =
         @{ @"key" : @ { @1 : @"1", @2 : [NSDate dateWithTimeIntervalSince1970:1582803326] } };
     NSDictionary *serialized4 = @{
@@ -201,6 +204,7 @@
             @6 : testURL
         }
     };
+    event4.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     NSDictionary *serialized4 = @{
         @"event_id" : event4.eventId,
         @"extra" : @ {
