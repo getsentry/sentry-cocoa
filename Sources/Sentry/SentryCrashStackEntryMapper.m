@@ -30,12 +30,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                  encoding:NSUTF8StringEncoding];
         frame.package = imageName;
 
-        BOOL isAppImage = [imageName containsString:@"/Bundle/Application/"] ||
-            [imageName containsString:@".app"];
-        frame.inApp = @(isAppImage);
+        BOOL isInApp = [self isInApp:imageName];
+        frame.inApp = @(isInApp);
     }
 
     return frame;
+}
+
++ (BOOL)isInApp:(NSString *)imageName {
+    return [imageName containsString:@"/Bundle/Application/"] ||
+    [imageName containsString:@".app"];
 }
 
 @end

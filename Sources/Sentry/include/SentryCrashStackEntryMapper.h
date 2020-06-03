@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor;
 
+/** Determines with the imageName of a frame of a stacktrace wether it is related to the execution of the relevant code in this stack trace.
+ */
++ (BOOL)isInApp:(NSString *)imageName;
+
 @end
 
 NS_ASSUME_NONNULL_END
