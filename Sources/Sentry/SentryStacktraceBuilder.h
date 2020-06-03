@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryStacktraceBuilder : NSObject
 
-- (SentryStacktrace *)buildStacktraceForCurrentThread;
+- (SentryStacktrace *)buildStacktraceForCurrentThreadSkippingFrames:(NSInteger)framesToSkip
+    NS_SWIFT_NAME(buildStacktraceForCurrentThread(framesToSkip:));
 
 @end
 

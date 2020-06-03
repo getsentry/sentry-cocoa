@@ -219,7 +219,9 @@ SentryClient ()
 
     if (YES == [self.options.attachStacktrace boolValue]) {
         event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-        event.threads = [self.threadInspector getCurrentThreads];
+        // We don't want to add the stacktrace of attaching the stacktrace.
+        // Therefore we skip two frames.
+        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
     }
 
     return [self callEventProcessors:event];

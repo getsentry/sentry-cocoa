@@ -24,7 +24,7 @@ SentryThreadInspector ()
     return self;
 }
 
-- (NSArray<SentryThread *> *)getCurrentThreads
+- (NSArray<SentryThread *> *)getCurrentThreadsSkippingFrames:(NSInteger)framesToSkip
 {
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
 
@@ -45,7 +45,8 @@ SentryThreadInspector ()
 
         // For now we can only retrieve the stack trace of the current thread.
         if (isCurrent) {
-            sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
+            sentryThread.stacktrace =
+                [self.stacktraceBuilder buildStacktraceForCurrentThreadSkippingFrames:framesToSkip];
         }
 
         [threads addObject:sentryThread];

@@ -12,7 +12,7 @@ SENTRY_NO_INIT
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
-- (NSArray<SentryThread *> *)getCurrentThreads;
+- (NSArray<SentryThread *> *)getCurrentThreadsSkippingFrames:(NSInteger)framesToSkip;
 
 @end
 

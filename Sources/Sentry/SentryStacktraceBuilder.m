@@ -11,13 +11,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryStacktraceBuilder
 
-- (SentryStacktrace *)buildStacktraceForCurrentThread
+- (SentryStacktrace *)buildStacktraceForCurrentThreadSkippingFrames:(NSInteger)framesToSkip
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
 
     SentryCrashStackCursor stackCursor;
-    // Skip the first entry so we remove the current function from the stacktrace
-    sentrycrashsc_initSelfThread(&stackCursor, 1);
+    // Always skip the first entry so we remove the current function from the stacktrace
+    sentrycrashsc_initSelfThread(&stackCursor, framesToSkip + 1);
 
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
