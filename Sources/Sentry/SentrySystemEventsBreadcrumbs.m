@@ -97,7 +97,7 @@
         [currentDevice beginGeneratingDeviceOrientationNotifications];
     }
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
     
     // add first orientation breadcrumb on App. start
     [self addOrientationBreadcrumb:currentDevice];

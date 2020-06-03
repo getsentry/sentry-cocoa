@@ -23,6 +23,9 @@
 
 - (void)trackApplicationUIKitNotifications
 {
+// TODO: I probably need to use proper notifications names here based on conditions like session tracking does
+    // NSApplicationDidBecomeActiveNotification etc
+    
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
         addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
