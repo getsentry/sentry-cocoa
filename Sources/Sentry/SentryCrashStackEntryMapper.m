@@ -28,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (stackCursor.stackEntry.imageName != NULL) {
         NSString *imageName = [NSString stringWithCString:stackCursor.stackEntry.imageName
                                                  encoding:NSUTF8StringEncoding];
-
         frame.package = imageName;
 
         BOOL isAppImage = [imageName containsString:@"/Bundle/Application/"] ||

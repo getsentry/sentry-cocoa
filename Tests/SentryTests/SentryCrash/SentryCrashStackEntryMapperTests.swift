@@ -1,6 +1,8 @@
 @testable import Sentry
 import XCTest
 
+/** Some of the test parameters are copied during debbuging a working implementation.
+ */
 class SentryCrashStackEntryMapperTests: XCTestCase {
 
     func testSymbolAddress() {

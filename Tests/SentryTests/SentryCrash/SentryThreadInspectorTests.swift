@@ -32,6 +32,7 @@ class SentryThreadInspectorTests: XCTestCase {
     func testStacktraceHasFrames() {
         let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
         let stacktrace = actual[0].stacktrace
+        
         // The stacktrace has usually more than 40 frames. Feel free to change the number if the tests are failing
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }

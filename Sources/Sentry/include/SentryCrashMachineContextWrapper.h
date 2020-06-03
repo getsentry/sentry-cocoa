@@ -4,8 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- A wrapper around SentryCrashMachineContext for testability.
+/** A wrapper around SentryCrashMachineContext for testability.
  */
 @protocol SentryCrashMachineContextWrapper <NSObject>
 

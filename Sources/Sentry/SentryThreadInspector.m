@@ -43,7 +43,7 @@ SentryThreadInspector ()
         bool isCurrent = thread == sentrycrashthread_self();
         sentryThread.current = @(isCurrent);
 
-        // For now we can only attach the stack trace to the current thread
+        // For now we can only retrieve the stack trace of the current thread.
         if (isCurrent) {
             sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
         }

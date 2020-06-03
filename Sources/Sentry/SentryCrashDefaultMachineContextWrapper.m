@@ -15,11 +15,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryCrashDefaultMachineContextWrapper ()
-
-@end
-
 @implementation SentryCrashDefaultMachineContextWrapper
 
 - (void)fillContextForCurrentThread:(struct SentryCrashMachineContext *)context

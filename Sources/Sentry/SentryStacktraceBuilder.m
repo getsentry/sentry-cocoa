@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
 
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initSelfThread(&stackCursor, 0);
+    // Skip the first entry so we remove the current function from the stacktrace
+    sentrycrashsc_initSelfThread(&stackCursor, 1);
 
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
@@ -24,9 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
             [frames addObject:frame];
         }
     }
-
-    // Remove the current function from the stacktrace
-    [frames removeObjectAtIndex:0];
 
     // The frames must be ordered from caller to callee, or oldest to youngest
     NSArray<SentryFrame *> *framesReversed = [[frames reverseObjectEnumerator] allObjects];
