@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.1.2
+
 - feat: Attach stacktrace of current thread to events #561
 
 ## 5.1.1
