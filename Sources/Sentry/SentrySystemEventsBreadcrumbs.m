@@ -2,6 +2,7 @@
 #import "SentrySDK.h"
 #import "SentryLog.h"
 
+// it can't be TARGET_OS_IOS, otherwise it won't compile as the method signatures requires it
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
@@ -10,7 +11,7 @@
 
 - (void)start
 {
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
     if (currentDevice == nil) {
         [SentryLog logWithMessage:@"currentDevice is null, it won't be able to record battery breadcrumbs."
@@ -20,12 +21,14 @@
     
     [self initBatteryObserver:currentDevice];
     [self initOrientationObserver:currentDevice];
+    
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentrySystemEventsBreadcrumbs.start] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
 }
 
+#if TARGET_OS_IOS
 - (void)initBatteryObserver:(UIDevice*)currentDevice
 {
     if (currentDevice.batteryMonitoringEnabled == NO) {
@@ -38,19 +41,23 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
     
     // add device battery breadcrumb on App. start
-    [self addBatteryBreadcrumb:currentDevice];
+    //    [self addBatteryBreadcrumb:currentDevice];
     
     // for testing only
     //    [[NSNotificationCenter defaultCenter] postNotificationName:@"UIDeviceBatteryStateDidChangeNotification" object:currentDevice];
-    //    [[NSNotificationCenter defaultCenter] postNotificationName:@"UIDeviceOrientationDidChangeNotification" object:currentDevice];
+    //    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:currentDevice];
 }
+#endif
 
+#if TARGET_OS_IOS
 - (void)batteryStateChanged:(NSNotification*)notification
 {
     UIDevice *currentDevice = notification.object;
     [self addBatteryBreadcrumb:currentDevice];
 }
+#endif
 
+#if TARGET_OS_IOS
 - (void)addBatteryBreadcrumb:(UIDevice*)currentDevice
 {
     // Notifications for battery level change are sent no more frequently than once per minute
@@ -64,7 +71,9 @@
     crumb.data = batteryData;
     [SentrySDK addBreadcrumb:crumb];
 }
+#endif
 
+#if TARGET_OS_IOS
 - (NSDictionary*)getBatteryStatus:(UIDevice*)currentDevice
 {
     // borrowed and adapted from https://github.com/apache/cordova-plugin-battery-status/blob/master/src/ios/CDVBattery.m
@@ -75,7 +84,6 @@
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
-    
     NSMutableDictionary *batteryData = [NSMutableDictionary new];
     
     // W3C spec says level must be null if it is unknown
@@ -87,28 +95,34 @@
                          andLevel:kSentryLogLevelDebug];
     }
     [batteryData setValue:[NSNumber numberWithBool:isPlugged] forKey:@"plugged"];
-    
     return batteryData;
 }
+#endif
 
+#if TARGET_OS_IOS
 - (void)initOrientationObserver:(UIDevice*)currentDevice
 {
     if (currentDevice.isGeneratingDeviceOrientationNotifications == NO) {
         [currentDevice beginGeneratingDeviceOrientationNotifications];
     }
+    // for some reason I cant test this callback, its never triggered, but code looks good
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
     
     // add first orientation breadcrumb on App. start
-    [self addOrientationBreadcrumb:currentDevice];
+    //    [self addOrientationBreadcrumb:currentDevice];
 }
+#endif
 
+#if TARGET_OS_IOS
 - (void)orientationChanged:(NSNotification*)notification
 {
     UIDevice *currentDevice = notification.object;
     [self addOrientationBreadcrumb:currentDevice];
 }
+#endif
 
+#if TARGET_OS_IOS
 - (void)addOrientationBreadcrumb:(UIDevice*)currentDevice
 {
     SentryBreadcrumb *crumb =
@@ -136,5 +150,6 @@
     crumb.type = @"navigation";
     [SentrySDK addBreadcrumb:crumb];
 }
+#endif
 
 @end
