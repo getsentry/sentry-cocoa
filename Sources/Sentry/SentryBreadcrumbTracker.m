@@ -96,8 +96,6 @@
 {
 #if SENTRY_HAS_UIKIT
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
-    //    - (BOOL)sendAction:(SEL)action to:(nullable id)target from:(nullable
-    //    id)sender forEvent:(nullable UIEvent *)event;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
