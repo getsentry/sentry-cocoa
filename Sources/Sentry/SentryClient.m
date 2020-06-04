@@ -95,8 +95,10 @@ SentryClient ()
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO: Capture Stacktrace
     event.message = message;
+    if ([self.options.attachStacktrace boolValue]) {
+        [self attachStacktrace:event];
+    }
     return [self captureEvent:event withScope:scope];
 }
 
@@ -104,7 +106,7 @@ SentryClient ()
                               withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
+    [self attachStacktrace:event];
     event.message = exception.reason;
     return [self captureEvent:event withScope:scope];
 }
@@ -112,7 +114,7 @@ SentryClient ()
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
+    [self attachStacktrace:event];
     event.message = error.localizedDescription;
     return [self captureEvent:event withScope:scope];
 }
@@ -130,6 +132,14 @@ SentryClient ()
         }
     }
     return nil;
+}
+
+- (void)attachStacktrace:(SentryEvent *)event
+{
+    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+    // We don't want to add the stacktrace of attaching the stacktrace.
+    // Therefore we skip two frames.
+    event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -215,13 +225,6 @@ SentryClient ()
 
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-    }
-
-    if (YES == [self.options.attachStacktrace boolValue]) {
-        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-        // We don't want to add the stacktrace of attaching the stacktrace.
-        // Therefore we skip two frames.
-        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
     }
 
     return [self callEventProcessors:event];
