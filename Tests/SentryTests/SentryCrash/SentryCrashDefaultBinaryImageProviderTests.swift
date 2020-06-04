@@ -12,13 +12,13 @@ class SentryCrashDefaultBinaryImageProviderTests: XCTestCase {
             SentryCrashDefaultBinaryImageProvider()
         }
     }
-    
+
     private let fixture = Fixture()
-    
+
     func testImageCount() {
         XCTAssertEqual(sentrycrashdl_imageCount(), Int32(fixture.getSut().getImageCount()))
     }
-    
+
     func testGetImages() {
         let sut = fixture.getSut()
         let imageCount = sut.getImageCount()

@@ -1,6 +1,7 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -209,14 +210,13 @@ SentryCrashReportConverter ()
     uintptr_t instructionAddress
         = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
-    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"] ||
-        [binaryImage[@"name"] containsString:@".app"];
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
     frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    frame.inApp = [NSNumber numberWithBool:isAppImage];
+    BOOL isInApp = [SentryCrashStackEntryMapper isInApp:binaryImage[@"name"]];
+    frame.inApp = @(isInApp);
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];
     }

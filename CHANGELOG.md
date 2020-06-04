@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Attach stacktrace of current thread to events #561
+
 ## 5.1.1
 
 - fix: Prefix categories methods with sentry #555

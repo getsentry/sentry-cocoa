@@ -2,6 +2,7 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDsn.h"
@@ -19,6 +20,9 @@
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySession.h"
+#import "SentryStacktraceBuilder.h"
+#import "SentryThread.h"
+#import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -35,6 +39,7 @@ SentryClient ()
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
 
@@ -51,6 +56,14 @@ SentryClient ()
 
         self.debugMetaBuilder =
             [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+
+        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        id<SentryCrashMachineContextWrapper> machineContextWrapper =
+            [[SentryCrashDefaultMachineContextWrapper alloc] init];
+
+        self.threadInspector =
+            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                            andMachineContextWrapper:machineContextWrapper];
     }
     return self;
 }
@@ -82,8 +95,10 @@ SentryClient ()
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO: Capture Stacktrace
     event.message = message;
+    if ([self.options.attachStacktrace boolValue]) {
+        [self attachStacktrace:event];
+    }
     return [self captureEvent:event withScope:scope];
 }
 
@@ -91,7 +106,7 @@ SentryClient ()
                               withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
+    [self attachStacktrace:event];
     event.message = exception.reason;
     return [self captureEvent:event withScope:scope];
 }
@@ -99,7 +114,7 @@ SentryClient ()
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
+    [self attachStacktrace:event];
     event.message = error.localizedDescription;
     return [self captureEvent:event withScope:scope];
 }
@@ -117,6 +132,14 @@ SentryClient ()
         }
     }
     return nil;
+}
+
+- (void)attachStacktrace:(SentryEvent *)event
+{
+    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+    // We don't want to add the stacktrace of attaching the stacktrace.
+    // Therefore we skip two frames.
+    event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -202,10 +225,6 @@ SentryClient ()
 
     if (nil != scope) {
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-    }
-
-    if (YES == [self.options.attachStacktrace boolValue]) {
-        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
     }
 
     return [self callEventProcessors:event];

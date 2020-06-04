@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                    "debug": true,
                    "logLevel": "verbose",
                    "enableAutoSessionTracking": true,
+                   "attachStacktrace": true,
                    "sessionTrackingIntervalMillis": 5_000 
                ])
 
