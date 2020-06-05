@@ -13,19 +13,18 @@
 {
 #if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
-    if (currentDevice == nil) {
-        [SentryLog logWithMessage:@"currentDevice is null, it won't be able to record battery breadcrumbs."
+    if (currentDevice != nil) {
+        [self initBatteryObserver:currentDevice];
+        [self initOrientationObserver:currentDevice];
+    } else {
+        [SentryLog logWithMessage:@"currentDevice is null, it won't be able to record breadcrumbs for device battery and orientation."
                          andLevel:kSentryLogLevelDebug];
-        return;
     }
-    
-    [self initBatteryObserver:currentDevice];
-    [self initOrientationObserver:currentDevice];
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
     
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentrySystemEventsBreadcrumbs.start] does nothing."
+    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
 }
@@ -45,16 +44,15 @@
     [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
     
     // for testing only
-    // [[NSNotificationCenter defaultCenter] postNotificationName:@"UIDeviceBatteryStateDidChangeNotification" object:currentDevice];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)batteryStateChanged:(NSNotification*)notification
 {
     // Notifications for battery level change are sent no more frequently than once per minute
     NSDictionary *batteryData = [self getBatteryStatus:notification.object];
     [batteryData setValue:@"BATTERY_STATE_CHANGE" forKey:@"action"];
+    // change to batteryData[@"action"] = @@"BATTERY_STATE_CHANGE";
     
     SentryBreadcrumb *crumb =
     [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -63,10 +61,8 @@
     crumb.data = batteryData;
     [SentrySDK addBreadcrumb:crumb];
 }
-#endif
 
-#if TARGET_OS_IOS
-- (NSDictionary*)getBatteryStatus:(UIDevice*)currentDevice
+- (NSDictionary<NSString *, NSNumber *> *)getBatteryStatus:(UIDevice*)currentDevice
 {
     // borrowed and adapted from https://github.com/apache/cordova-plugin-battery-status/blob/master/src/ios/CDVBattery.m
     UIDeviceBatteryState currentState = [currentDevice batteryState];
@@ -76,37 +72,34 @@
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
-    NSMutableDictionary *batteryData = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, NSNumber *> *batteryData = [NSMutableDictionary new];
     
     // W3C spec says level must be null if it is unknown
     if ((currentState != UIDeviceBatteryStateUnknown) || (currentLevel != -1.0)) {
         float w3cLevel = (currentLevel * 100);
-        [batteryData setValue:[NSNumber numberWithFloat:w3cLevel] forKey:@"level"];
+        batteryData[@"level"] = @(w3cLevel);
     } else {
         [SentryLog logWithMessage:@"batteryLevel is unknown."
                          andLevel:kSentryLogLevelDebug];
     }
-    [batteryData setValue:[NSNumber numberWithBool:isPlugged] forKey:@"plugged"];
+    
+    batteryData[@"plugged"] = @(isPlugged);
     return batteryData;
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)initOrientationObserver:(UIDevice*)currentDevice
 {
     if (currentDevice.isGeneratingDeviceOrientationNotifications == NO) {
         [currentDevice beginGeneratingDeviceOrientationNotifications];
     }
-
+    
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
     
     // test
     // [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:currentDevice];
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)orientationChanged:(NSNotification*)notification
 {
     UIDevice *currentDevice = notification.object;
@@ -132,9 +125,7 @@
     crumb.type = @"navigation";
     [SentrySDK addBreadcrumb:crumb];
 }
-#endif
 
-#if TARGET_OS_IOS
 - (void)initKeyboardVisibilityObserver
 {
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
@@ -147,7 +138,6 @@
     // test
     // [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardDidHideNotification object:nil];
 }
-#endif
 
 - (void)systemEventTriggered:(NSNotification*)notification
 {
@@ -159,7 +149,6 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
-#if TARGET_OS_IOS
 - (void)initScreenshotObserver
 {
     // https://developer.apple.com/documentation/uikit/uiapplicationuserdidtakescreenshotnotification

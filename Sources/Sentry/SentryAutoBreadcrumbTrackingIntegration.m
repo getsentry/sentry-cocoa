@@ -23,7 +23,6 @@ SentryAutoBreadcrumbTrackingIntegration ()
 - (void)enableAutomaticBreadcrumbTracking
 {
     [[SentryBreadcrumbTracker alloc] start];
-    // TODO: should we add options to enable/disabled this?
     [[SentrySystemEventsBreadcrumbs alloc] start];
 }
 

@@ -33,12 +33,12 @@
     // Will resign Active notification is the nearest one to UIApplicationDidEnterBackgroundNotification
     NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
+    [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
      @"trackApplicationUIKitNotifications] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
     
-// not available for macOS
+    // not available for macOS
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
      addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
@@ -71,10 +71,11 @@
                       withDataValue:@"background"];
     }];
     
-    [NSNotificationCenter.defaultCenter addObserverForName:foregroundNotificationName
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
+    [NSNotificationCenter.defaultCenter
+     addObserverForName:foregroundNotificationName
+     object:nil
+     queue:nil
+     usingBlock:^(NSNotification *notification) {
         [self addBreadcrumbWithType:@"navigation"
                        withCategory:@"app.lifecycle"
                           withLevel:kSentryLevelInfo
