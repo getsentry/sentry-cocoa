@@ -38,7 +38,8 @@
                      andLevel:kSentryLogLevelDebug];
 #endif
     
-#if SENTRY_HAS_UIKIT // not available for macOS
+// not available for macOS
+#if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
      addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
      object:nil

@@ -21,6 +21,8 @@
     
     [self initBatteryObserver:currentDevice];
     [self initOrientationObserver:currentDevice];
+    [self initKeyboardVisibilityObserver];
+    [self initScreenshotObserver];
     
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentrySystemEventsBreadcrumbs.start] does nothing."
@@ -35,17 +37,15 @@
         currentDevice.batteryMonitoringEnabled = YES;
     }
     
-    // https://developer.apple.com/documentation/uikit/uidevicebatteryleveldidchangenotification
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
-    // https://developer.apple.com/documentation/uikit/uidevicebatterystatedidchangenotification
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     
-    // add device battery breadcrumb on App. start
-    //    [self addBatteryBreadcrumb:currentDevice];
+    // https://developer.apple.com/documentation/uikit/uidevicebatteryleveldidchangenotification
+    [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
+    // https://developer.apple.com/documentation/uikit/uidevicebatterystatedidchangenotification
+    [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
     
     // for testing only
-    //    [[NSNotificationCenter defaultCenter] postNotificationName:@"UIDeviceBatteryStateDidChangeNotification" object:currentDevice];
-    //    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:currentDevice];
+    // [[NSNotificationCenter defaultCenter] postNotificationName:@"UIDeviceBatteryStateDidChangeNotification" object:currentDevice];
 }
 #endif
 
@@ -53,13 +53,7 @@
 - (void)batteryStateChanged:(NSNotification*)notification
 {
     UIDevice *currentDevice = notification.object;
-    [self addBatteryBreadcrumb:currentDevice];
-}
-#endif
-
-#if TARGET_OS_IOS
-- (void)addBatteryBreadcrumb:(UIDevice*)currentDevice
-{
+    
     // Notifications for battery level change are sent no more frequently than once per minute
     NSDictionary* batteryData = [self getBatteryStatus:currentDevice];
     [batteryData setValue:@"BATTERY_STATE_CHANGE" forKey:@"action"];
@@ -109,8 +103,8 @@
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
     
-    // add first orientation breadcrumb on App. start
-    //    [self addOrientationBreadcrumb:currentDevice];
+    // test
+    // [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:currentDevice];
 }
 #endif
 
@@ -118,19 +112,9 @@
 - (void)orientationChanged:(NSNotification*)notification
 {
     UIDevice *currentDevice = notification.object;
-    [self addOrientationBreadcrumb:currentDevice];
-}
-#endif
-
-#if TARGET_OS_IOS
-- (void)addOrientationBreadcrumb:(UIDevice*)currentDevice
-{
     SentryBreadcrumb *crumb =
     [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                    category:@"device.orientation"];
-    
-    //TODO: look at https://github.com/apache/cordova-plugin-screen-orientation/blob/master/src/ios/CDVOrientation.m
-    // it uses [UIApplication sharedApplication].statusBarOrientation as well, should we use it? maybe device orientation and screen/app orientation
     
     UIDeviceOrientation currentOrientation = currentDevice.orientation;
     
@@ -149,6 +133,43 @@
     }
     crumb.type = @"navigation";
     [SentrySDK addBreadcrumb:crumb];
+}
+#endif
+
+#if TARGET_OS_IOS
+- (void)initKeyboardVisibilityObserver
+{
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    // https://developer.apple.com/documentation/uikit/uikeyboarddidshownotification
+    [defaultCenter addObserver:self selector:@selector(systemEventTriggered:) name:UIKeyboardDidShowNotification object:nil];
+    
+    // https://developer.apple.com/documentation/uikit/uikeyboarddidhidenotification
+    [defaultCenter addObserver:self selector:@selector(systemEventTriggered:) name:UIKeyboardDidHideNotification object:nil];
+    
+    // test
+    // [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardDidHideNotification object:nil];
+}
+#endif
+
+- (void)systemEventTriggered:(NSNotification*)notification
+{
+    SentryBreadcrumb *crumb =
+    [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+                                   category:@"device.event"];
+    crumb.type = @"system";
+    crumb.data = @ { @"action" : notification.name };
+    [SentrySDK addBreadcrumb:crumb];
+}
+
+#if TARGET_OS_IOS
+- (void)initScreenshotObserver
+{
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    // https://developer.apple.com/documentation/uikit/uiapplicationuserdidtakescreenshotnotification
+    [defaultCenter addObserver:self selector:@selector(systemEventTriggered:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+    
+    // test
+    // [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationUserDidTakeScreenshotNotification object:nil];
 }
 #endif
 
