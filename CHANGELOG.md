@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: UUID for SentryCrashReport is null #566
+
 ## 5.1.2
 
 - feat: Attach stacktrace of current thread to events #561
