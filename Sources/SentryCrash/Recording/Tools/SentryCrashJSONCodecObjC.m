@@ -409,7 +409,7 @@ encodeObject(
        error:(NSError *__autoreleasing *)error
 {
     SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:0 decodeOptions:decodeOptions];
-    NSMutableData *stringData = [NSMutableData dataWithLength:10001];
+    NSMutableData *stringData = [NSMutableData dataWithLength:SentryCrashMAX_STRINGBUFFERSIZE+1];
     int errorOffset;
     int result
         = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length, stringData.mutableBytes,
