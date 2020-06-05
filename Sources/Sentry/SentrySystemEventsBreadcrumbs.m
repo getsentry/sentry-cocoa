@@ -52,10 +52,8 @@
 #if TARGET_OS_IOS
 - (void)batteryStateChanged:(NSNotification*)notification
 {
-    UIDevice *currentDevice = notification.object;
-    
     // Notifications for battery level change are sent no more frequently than once per minute
-    NSDictionary* batteryData = [self getBatteryStatus:currentDevice];
+    NSDictionary *batteryData = [self getBatteryStatus:notification.object];
     [batteryData setValue:@"BATTERY_STATE_CHANGE" forKey:@"action"];
     
     SentryBreadcrumb *crumb =
@@ -164,9 +162,9 @@
 #if TARGET_OS_IOS
 - (void)initScreenshotObserver
 {
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     // https://developer.apple.com/documentation/uikit/uiapplicationuserdidtakescreenshotnotification
-    [defaultCenter addObserver:self selector:@selector(systemEventTriggered:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+    // it's only about the action, but not the SS itself
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(systemEventTriggered:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
     
     // test
     // [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationUserDidTakeScreenshotNotification object:nil];
