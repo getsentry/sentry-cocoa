@@ -97,7 +97,7 @@
     if (currentDevice.isGeneratingDeviceOrientationNotifications == NO) {
         [currentDevice beginGeneratingDeviceOrientationNotifications];
     }
-    // for some reason I cant test this callback, its never triggered, but code looks good
+
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
     
