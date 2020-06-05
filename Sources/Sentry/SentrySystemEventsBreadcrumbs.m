@@ -50,9 +50,8 @@
 - (void)batteryStateChanged:(NSNotification*)notification
 {
     // Notifications for battery level change are sent no more frequently than once per minute
-    NSDictionary *batteryData = [self getBatteryStatus:notification.object];
-    [batteryData setValue:@"BATTERY_STATE_CHANGE" forKey:@"action"];
-    // change to batteryData[@"action"] = @@"BATTERY_STATE_CHANGE";
+    NSMutableDictionary *batteryData = [self getBatteryStatus:notification.object];
+    batteryData[@"action"] = @"BATTERY_STATE_CHANGE";
     
     SentryBreadcrumb *crumb =
     [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -62,7 +61,7 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)getBatteryStatus:(UIDevice*)currentDevice
+- (NSMutableDictionary<NSString *, NSNumber *> *)getBatteryStatus:(UIDevice*)currentDevice
 {
     // borrowed and adapted from https://github.com/apache/cordova-plugin-battery-status/blob/master/src/ios/CDVBattery.m
     UIDeviceBatteryState currentState = [currentDevice batteryState];
