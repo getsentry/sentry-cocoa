@@ -217,11 +217,10 @@ addUUIDElement(const SentryCrashReportWriter *const writer, const char *const ke
         char uuidBuffer[uuidLength + 1]; // one for the null terminator
         const unsigned char *src = value;
         char *dst = uuidBuffer;
-        
+
         sentrycrashdl_convertBinaryImageUUID(src, dst);
 
-        sentrycrashjson_addStringElement(
-            getJsonContext(writer), key, uuidBuffer, uuidLength);
+        sentrycrashjson_addStringElement(getJsonContext(writer), key, uuidBuffer, uuidLength);
     }
 }
 
