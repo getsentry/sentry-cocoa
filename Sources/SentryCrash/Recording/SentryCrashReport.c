@@ -47,7 +47,6 @@
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
-#include "SentryCrashUUIDConversion.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -213,10 +212,33 @@ addUUIDElement(const SentryCrashReportWriter *const writer, const char *const ke
     if (value == NULL) {
         sentrycrashjson_addNullElement(getJsonContext(writer), key);
     } else {
-        const unsigned char *src = value;
         char uuidBuffer[37];
+        const unsigned char *src = value;
         char *dst = uuidBuffer;
-        sentrycrashdl_convertBinaryImageUUID(src, dst);
+        for (int i = 0; i < 4; i++) {
+            *dst++ = g_hexNybbles[(*src >> 4) & 15];
+            *dst++ = g_hexNybbles[(*src++) & 15];
+        }
+        *dst++ = '-';
+        for (int i = 0; i < 2; i++) {
+            *dst++ = g_hexNybbles[(*src >> 4) & 15];
+            *dst++ = g_hexNybbles[(*src++) & 15];
+        }
+        *dst++ = '-';
+        for (int i = 0; i < 2; i++) {
+            *dst++ = g_hexNybbles[(*src >> 4) & 15];
+            *dst++ = g_hexNybbles[(*src++) & 15];
+        }
+        *dst++ = '-';
+        for (int i = 0; i < 2; i++) {
+            *dst++ = g_hexNybbles[(*src >> 4) & 15];
+            *dst++ = g_hexNybbles[(*src++) & 15];
+        }
+        *dst++ = '-';
+        for (int i = 0; i < 6; i++) {
+            *dst++ = g_hexNybbles[(*src >> 4) & 15];
+            *dst++ = g_hexNybbles[(*src++) & 15];
+        }
 
         sentrycrashjson_addStringElement(
             getJsonContext(writer), key, uuidBuffer, (int)(dst - uuidBuffer));
