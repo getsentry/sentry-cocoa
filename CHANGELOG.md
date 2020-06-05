@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Remove weak ref file contents #571
+
 ## 5.1.3
 
 - fix: UUID for SentryCrashReport is null #566

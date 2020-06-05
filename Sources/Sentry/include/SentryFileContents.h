@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPath:(NSString *)path andContents:(NSData *)contents;
 
 @property (nonatomic, readonly, copy) NSString *path;
-@property (nonatomic, readonly, weak) NSData *contents;
+@property (nonatomic, readonly, strong) NSData *contents;
 
 @end
 
