@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Increase max report length #569
+
 ## 5.1.3
 
 - fix: UUID for SentryCrashReport is null #566

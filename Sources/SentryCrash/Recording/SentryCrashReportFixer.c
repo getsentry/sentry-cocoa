@@ -233,7 +233,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
         .onNullElement = onNullElement,
         .onStringElement = onStringElement,
     };
-    int stringBufferLength = 100000;
+    int stringBufferLength = SentryCrashMAX_ReportSize;
     char *stringBuffer = malloc((unsigned)stringBufferLength);
     if (stringBuffer == NULL) {
         SentryCrashLOG_ERROR("Failed to allocate string buffer of size %ul", stringBufferLength);
