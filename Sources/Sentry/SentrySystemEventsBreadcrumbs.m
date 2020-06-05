@@ -2,8 +2,8 @@
 #import "SentrySDK.h"
 #import "SentryLog.h"
 
-// it can't be TARGET_OS_IOS, otherwise it won't compile as the method signatures requires it
-#if SENTRY_HAS_UIKIT
+// all those notifications are not available for tvOS
+#if TARGET_OS_IOS
 #    import <UIKit/UIKit.h>
 #endif
 
