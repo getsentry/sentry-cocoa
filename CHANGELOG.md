@@ -2,6 +2,19 @@
 
 ## unreleased
 
+## 5.1.4
+
+- fix: Increase max report length #569
+- fix: Remove weak ref file contents #571
+
+## 5.1.3
+
+- fix: UUID for SentryCrashReport is null #566
+
+## 5.1.2
+
+- feat: Attach stacktrace of current thread to events #561
+
 ## 5.1.1
 
 - fix: Prefix categories methods with sentry #555

@@ -24,10 +24,9 @@ class SentryCrashUUIDConversionTests: XCTestCase {
     }
     
     func testWith(expected: String, uuidAsCharArray: [UInt8]) {
-        var dst: [Int8] = Array(repeating: 0, count: 36)
+        var dst: [Int8] = Array(repeating: 0, count: 37)
         sentrycrashdl_convertBinaryImageUUID(uuidAsCharArray, &dst)
         
-        let actual = String(cString: dst, encoding: .ascii) ?? ""
-        XCTAssertEqual(expected, actual )
+        XCTAssertEqual(expected.cString(using: .ascii), dst)
     }
 }

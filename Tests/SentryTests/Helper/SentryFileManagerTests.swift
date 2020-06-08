@@ -48,7 +48,7 @@ class SentryFileManagerTests: XCTestCase {
 
         // swiftlint:disable force_cast
         // swiftlint:disable force_unwrapping
-        let actualDict = try JSONSerialization.jsonObject(with: events[0].contents! as Data) as! [String: Any]
+        let actualDict = try JSONSerialization.jsonObject(with: events[0].contents) as! [String: Any]
         // swiftlint:enable force_unwrapping
         
         let eventDict = event.serialize()
@@ -68,7 +68,7 @@ class SentryFileManagerTests: XCTestCase {
         sut.store(event)
         let events = sut.getAllStoredEventsAndEnvelopes()
         XCTAssertTrue(events.count == 1)
-        XCTAssertEqual(events[0].contents, jsonData as NSData)
+        XCTAssertEqual(events[0].contents, (jsonData as NSData) as Data)
     }
     
     func testStoreEnvelope() throws {
@@ -80,7 +80,7 @@ class SentryFileManagerTests: XCTestCase {
         let envelopes = sut.getAllEnvelopes()
         XCTAssertEqual(1, envelopes.count)
         
-        let actualData = envelopes[0].contents ?? NSData()
+        let actualData = envelopes[0].contents
         XCTAssertEqual(expectedData, actualData as Data)
     }
     

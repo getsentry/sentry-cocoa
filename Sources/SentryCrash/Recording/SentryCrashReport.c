@@ -44,10 +44,10 @@
 #include "SentryCrashString.h"
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
+#include "SentryCrashUUIDConversion.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
-#include "SentryCrashUUIDConversion.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -213,13 +213,14 @@ addUUIDElement(const SentryCrashReportWriter *const writer, const char *const ke
     if (value == NULL) {
         sentrycrashjson_addNullElement(getJsonContext(writer), key);
     } else {
+        int uuidLength = 36;
+        char uuidBuffer[uuidLength + 1]; // one for the null terminator
         const unsigned char *src = value;
-        char uuidBuffer[37];
         char *dst = uuidBuffer;
+
         sentrycrashdl_convertBinaryImageUUID(src, dst);
 
-        sentrycrashjson_addStringElement(
-            getJsonContext(writer), key, uuidBuffer, (int)(dst - uuidBuffer));
+        sentrycrashjson_addStringElement(getJsonContext(writer), key, uuidBuffer, uuidLength);
     }
 }
 
