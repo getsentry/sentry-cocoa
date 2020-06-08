@@ -13,6 +13,15 @@
 {
 #if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
+    [self start:currentDevice];
+#else
+    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
+                     andLevel:kSentryLogLevelDebug];
+#endif
+}
+
+#if TARGET_OS_IOS
+- (void)start:(UIDevice*)currentDevice {
     if (currentDevice != nil) {
         [self initBatteryObserver:currentDevice];
         [self initOrientationObserver:currentDevice];
@@ -22,12 +31,8 @@
     }
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
-    
-#else
-    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
-                     andLevel:kSentryLogLevelDebug];
-#endif
 }
+#endif
 
 #if TARGET_OS_IOS
 - (void)initBatteryObserver:(UIDevice*)currentDevice
@@ -44,7 +49,7 @@
     [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
     
     // for testing only
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
+    //    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
 }
 
 - (void)batteryStateChanged:(NSNotification*)notification
@@ -141,7 +146,7 @@
 - (void)systemEventTriggered:(NSNotification*)notification
 {
     SentryBreadcrumb *crumb =
-    [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+    [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                    category:@"device.event"];
     crumb.type = @"system";
     crumb.data = @ { @"action" : notification.name };

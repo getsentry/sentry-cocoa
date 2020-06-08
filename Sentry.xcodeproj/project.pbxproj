@@ -321,6 +321,7 @@
 		7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC831092398283C0043DD9A /* SentryCrashIntegration.m */; };
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
+		A811D867248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */; };
 		A839D89824864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h in Headers */ = {isa = PBXBuildFile; fileRef = A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */; };
 		A839D89A24864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m in Sources */ = {isa = PBXBuildFile; fileRef = A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */; };
 /* End PBXBuildFile section */
@@ -686,6 +687,7 @@
 		7DC831092398283C0043DD9A /* SentryCrashIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashIntegration.m; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
+		A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySystemEventsBreadcrumbsTest.swift; sourceTree = "<group>"; };
 		A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentrySystemEventsBreadcrumbs.h; sourceTree = "<group>"; };
 		A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySystemEventsBreadcrumbs.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1250,6 +1252,7 @@
 			isa = PBXGroup;
 			children = (
 				7B944FAA24697EB100A10721 /* SentrySessionTrackerTests.swift */,
+				A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
@@ -1561,7 +1564,7 @@
 				TargetAttributes = {
 					63AA759A1EB8AEF500D153DE = {
 						CreatedOnToolsVersion = 8.3.2;
-						LastSwiftMigration = 1140;
+						LastSwiftMigration = 1150;
 						ProvisioningStyle = Manual;
 					};
 					63AA76641EB8CB2F00D153DE = {
@@ -1771,6 +1774,7 @@
 				63FE721B20DA66EC00CDBAE8 /* Container+DeepSearch_Tests.m in Sources */,
 				7B0002322477F0520035FEF1 /* SentrySessionTests.m in Sources */,
 				7BAF3DD7243DD4A1008A5414 /* TestConstants.swift in Sources */,
+				A811D867248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift in Sources */,
 				63FE722520DA66EC00CDBAE8 /* SentryCrashFileUtils_Tests.m in Sources */,
 				7BAF3DB5243C743E008A5414 /* SentryClientTests.swift in Sources */,
 				7BBD18A2244EE2FD00427C76 /* TestResponseFactory.swift in Sources */,
@@ -1941,6 +1945,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -1966,6 +1971,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
 			name = Debug;
@@ -1977,6 +1984,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -2002,6 +2010,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry;
 				PRODUCT_NAME = Sentry;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				USE_HEADERMAP = YES;
 			};
 			name = Release;

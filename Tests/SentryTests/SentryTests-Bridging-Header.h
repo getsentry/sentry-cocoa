@@ -28,3 +28,4 @@
 #import "SentrySessionTracker.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentrySystemEventsBreadcrumbs.h"
