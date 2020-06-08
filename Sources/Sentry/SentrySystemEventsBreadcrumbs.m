@@ -47,9 +47,6 @@
     [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
     // https://developer.apple.com/documentation/uikit/uidevicebatterystatedidchangenotification
     [defaultCenter addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:currentDevice];
-    
-    // for testing only
-    //    [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryLevelDidChangeNotification object:currentDevice];
 }
 
 - (void)batteryStateChanged:(NSNotification*)notification
@@ -99,9 +96,6 @@
     
     // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:currentDevice];
-    
-    // test
-    // [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:currentDevice];
 }
 
 - (void)orientationChanged:(NSNotification*)notification
@@ -138,9 +132,6 @@
     
     // https://developer.apple.com/documentation/uikit/uikeyboarddidhidenotification
     [defaultCenter addObserver:self selector:@selector(systemEventTriggered:) name:UIKeyboardDidHideNotification object:nil];
-    
-    // test
-    // [[NSNotificationCenter defaultCenter] postNotificationName:UIKeyboardDidHideNotification object:nil];
 }
 
 - (void)systemEventTriggered:(NSNotification*)notification
@@ -158,9 +149,6 @@
     // https://developer.apple.com/documentation/uikit/uiapplicationuserdidtakescreenshotnotification
     // it's only about the action, but not the SS itself
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(systemEventTriggered:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
-    
-    // test
-    // [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationUserDidTakeScreenshotNotification object:nil];
 }
 #endif
 
