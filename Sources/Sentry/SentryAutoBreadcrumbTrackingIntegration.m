@@ -1,9 +1,9 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
-#import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
+#import "SentrySystemEventsBreadcrumbs.h"
 
 @interface
 SentryAutoBreadcrumbTrackingIntegration ()

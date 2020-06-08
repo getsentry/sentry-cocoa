@@ -1,14 +1,14 @@
-import XCTest
 @testable import Sentry
+import XCTest
 
 class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     private class Fixture {
         func getSut(scope: Scope, currentDevice: UIDevice = UIDevice.current) -> SentrySystemEventsBreadcrumbs {
             do {
-                let options = try Options.init(dict: ["dsn" : "https://username@sentry.io/1"])
-                let client = Client.init(options: options)
-                let hub = SentryHub.init(client: client, andScope: scope)
+                let options = try Options(dict: ["dsn": "https://username@sentry.io/1"])
+                let client = Client(options: options)
+                let hub = SentryHub(client: client, andScope: scope)
                 SentrySDK.setCurrentHub(hub)
             } catch {
                 XCTFail("Failed to setup test")
@@ -25,7 +25,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testBatteryLevelBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var batteryLevel: Float {
                 return 1
             }
@@ -45,7 +45,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testBatteryUnknownLevelBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var batteryLevel: Float {
                 return -1
             }
@@ -65,7 +65,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testBatteryChargingStateBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var batteryLevel: Float {
                 return 1
             }
@@ -85,7 +85,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testBatteryNotChargingStateBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var batteryLevel: Float {
                 return 1
             }
@@ -104,7 +104,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     func assertBatteryBreadcrumb(scope: Scope, charging: Bool, level: Float) {
         let ser = scope.serialize()
-        if let breadcrumbs = ser["breadcrumbs"] as? Array<[String: Any]> {
+        if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
             if let crumb = breadcrumbs.first {
                 XCTAssertEqual("device.event", crumb["category"] as? String)
                 XCTAssertEqual("system", crumb["type"] as? String)
@@ -114,7 +114,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
                     XCTAssertEqual("BATTERY_STATE_CHANGE", data["action"] as? String)
                     XCTAssertEqual(charging, data["plugged"] as? Bool)
                     // -1 = unknown
-                    if (level == -1) {
+                    if level == -1 {
                         XCTAssertNil(data["level"])
                     } else {
                         XCTAssertEqual(level, data["level"] as? Float)
@@ -133,7 +133,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testPortraitOrientationBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var orientation: UIDeviceOrientation {
                 return UIDeviceOrientation.portrait
             }
@@ -146,11 +146,10 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         assertPositionOrientationBreadcrumb(position: "portrait", scope: scope)
     }
     
-    
     func testLandscapeOrientationBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var orientation: UIDeviceOrientation {
                 return UIDeviceOrientation.landscapeLeft
             }
@@ -166,7 +165,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     func testUnknownOrientationBreadcrumb() {
         let scope = Scope()
         
-        class MyUIDevice : UIDevice {
+        class MyUIDevice: UIDevice {
             override var orientation: UIDeviceOrientation {
                 return UIDeviceOrientation.unknown
             }
@@ -177,14 +176,14 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         
         NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         let ser = scope.serialize()
-        if let breadcrumbs = ser["breadcrumbs"] as? Array<[String: Any]> {
+        if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
             XCTFail("there are breadcrumbs")
         }
     }
     
     func assertPositionOrientationBreadcrumb(position: String, scope: Scope) {
         let ser = scope.serialize()
-        if let breadcrumbs = ser["breadcrumbs"] as? Array<[String: Any]> {
+        if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
             if let crumb = breadcrumbs.first {
                 XCTAssertEqual("device.orientation", crumb["category"] as? String)
                 XCTAssertEqual("navigation", crumb["type"] as? String)
@@ -229,7 +228,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     func assertBreadcrumbAction(scope: Scope, action: String) {
         let ser = scope.serialize()
-        if let breadcrumbs = ser["breadcrumbs"] as? Array<[String: Any]> {
+        if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
             if let crumb = breadcrumbs.first {
                 XCTAssertEqual("device.event", crumb["category"] as? String)
                 XCTAssertEqual("system", crumb["type"] as? String)

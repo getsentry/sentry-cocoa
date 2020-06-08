@@ -9,7 +9,7 @@
 - (void)start;
 
 #if TARGET_OS_IOS
-- (void)start:(UIDevice*)currentDevice;
+- (void)start:(UIDevice *)currentDevice;
 #endif
 
 @end

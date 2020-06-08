@@ -30,58 +30,57 @@
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
-    // Will resign Active notification is the nearest one to UIApplicationDidEnterBackgroundNotification
+    // Will resign Active notification is the nearest one to
+    // UIApplicationDidEnterBackgroundNotification
     NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else
     [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
-     @"trackApplicationUIKitNotifications] does nothing."
+                              @"trackApplicationUIKitNotifications] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
-    
+
     // not available for macOS
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
-     addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) {
-        if (nil != [SentrySDK.currentHub getClient]) {
-            SentryBreadcrumb *crumb =
-            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
-                                           category:@"device.event"];
-            crumb.type = @"system";
-            crumb.data = @ { @"action" : @"LOW_MEMORY" };
-            crumb.message = @"Low memory";
-            [SentrySDK addBreadcrumb:crumb];
-        }
-    }];
+        addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                    if (nil != [SentrySDK.currentHub getClient]) {
+                        SentryBreadcrumb *crumb =
+                            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+                                                           category:@"device.event"];
+                        crumb.type = @"system";
+                        crumb.data = @ { @"action" : @"LOW_MEMORY" };
+                        crumb.message = @"Low memory";
+                        [SentrySDK addBreadcrumb:crumb];
+                    }
+                }];
 #endif
-    
+
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    
-    [NSNotificationCenter.defaultCenter
-     addObserverForName:backgroundNotificationName
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) {
-        [self addBreadcrumbWithType:@"navigation"
-                       withCategory:@"app.lifecycle"
-                          withLevel:kSentryLevelInfo
-                        withDataKey:@"state"
-                      withDataValue:@"background"];
-    }];
-    
-    [NSNotificationCenter.defaultCenter
-     addObserverForName:foregroundNotificationName
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) {
-        [self addBreadcrumbWithType:@"navigation"
-                       withCategory:@"app.lifecycle"
-                          withLevel:kSentryLevelInfo
-                        withDataKey:@"state"
-                      withDataValue:@"foreground"];
-    }];
+
+    [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [self addBreadcrumbWithType:@"navigation"
+                                                                   withCategory:@"app.lifecycle"
+                                                                      withLevel:kSentryLevelInfo
+                                                                    withDataKey:@"state"
+                                                                  withDataValue:@"background"];
+                                                }];
+
+    [NSNotificationCenter.defaultCenter addObserverForName:foregroundNotificationName
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [self addBreadcrumbWithType:@"navigation"
+                                                                   withCategory:@"app.lifecycle"
+                                                                      withLevel:kSentryLevelInfo
+                                                                    withDataKey:@"state"
+                                                                  withDataValue:@"foreground"];
+                                                }];
 #endif
 }
 
@@ -114,27 +113,27 @@
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
-                                SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
-        if (nil != [SentrySDK.currentHub getClient]) {
-            NSDictionary *data = [NSDictionary new];
-            for (UITouch *touch in event.allTouches) {
-                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                    data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
+        SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
+            if (nil != [SentrySDK.currentHub getClient]) {
+                NSDictionary *data = [NSDictionary new];
+                for (UITouch *touch in event.allTouches) {
+                    if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
+                    }
                 }
+                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                         category:@"touch"];
+                crumb.type = @"user";
+                crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
+                crumb.data = data;
+                [SentrySDK addBreadcrumb:crumb];
             }
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                     category:@"touch"];
-            crumb.type = @"user";
-            crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
-            crumb.data = data;
-            [SentrySDK addBreadcrumb:crumb];
-        }
-        return SentrySWCallOriginal(action, target, sender, event);
-    }),
-                                SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+            return SentrySWCallOriginal(action, target, sender, event);
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-     @"swizzleSendAction] does nothing."
+                              @"swizzleSendAction] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
 }
@@ -145,26 +144,26 @@
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-                                SentrySWArguments(BOOL animated), SentrySWReplacement({
-        if (nil != [SentrySDK.currentHub getClient]) {
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                     category:@"ui.lifecycle"];
-            crumb.type = @"navigation";
-            NSString *viewControllerName = [SentryBreadcrumbTracker
-                                            sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
-            crumb.data = @ { @"screen" : viewControllerName };
-            
-            [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                [scope addBreadcrumb:crumb];
-                [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
-            }];
-        }
-        SentrySWCallOriginal(animated);
-    }),
-                                SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+        SentrySWArguments(BOOL animated), SentrySWReplacement({
+            if (nil != [SentrySDK.currentHub getClient]) {
+                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                         category:@"ui.lifecycle"];
+                crumb.type = @"navigation";
+                NSString *viewControllerName = [SentryBreadcrumbTracker
+                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
+                crumb.data = @ { @"screen" : viewControllerName };
+
+                [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+                    [scope addBreadcrumb:crumb];
+                    [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
+                }];
+            }
+            SentrySWCallOriginal(animated);
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-     @"swizzleViewDidAppear] does nothing."
+                              @"swizzleViewDidAppear] does nothing."
                      andLevel:kSentryLogLevelDebug];
 #endif
 }
