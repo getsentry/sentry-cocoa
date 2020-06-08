@@ -51,6 +51,13 @@ Only PRs with properly formatted code are acccepted. To format all code run:
 make format
 ```
 
+## Linting
+We use Swiftlint and Clang-Format. To run all the linters locally execute:
+
+```
+make lint
+```
+
 ## Environment
 
 Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
