@@ -2,6 +2,8 @@
 
 ## unreleased
 
+feat: Added automatic breadcrumbs for system events #559
+
 ## 5.1.4
 
 - fix: Increase max report length #569
