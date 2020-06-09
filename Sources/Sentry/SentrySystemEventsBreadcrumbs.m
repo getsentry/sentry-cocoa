@@ -21,6 +21,9 @@
 }
 
 #if TARGET_OS_IOS
+/**
+ * Only used for testing, call start() instead.
+ */
 - (void)start:(UIDevice *)currentDevice
 {
     if (currentDevice != nil) {
@@ -85,7 +88,7 @@
     NSMutableDictionary<NSString *, NSNumber *> *batteryData = [NSMutableDictionary new];
 
     // W3C spec says level must be null if it is unknown
-    if ((currentState != UIDeviceBatteryStateUnknown) || (currentLevel != -1.0)) {
+    if ((currentState != UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
         float w3cLevel = (currentLevel * 100);
         batteryData[@"level"] = @(w3cLevel);
     } else {
