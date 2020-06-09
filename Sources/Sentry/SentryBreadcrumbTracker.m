@@ -9,6 +9,8 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#    import <Cocoa/Cocoa.h>
 #endif
 
 @implementation SentryBreadcrumbTracker
@@ -23,6 +25,21 @@
 
 - (void)trackApplicationUIKitNotifications
 {
+#if SENTRY_HAS_UIKIT
+    NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
+    NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
+    // Will resign Active notification is the nearest one to
+    // UIApplicationDidEnterBackgroundNotification
+    NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
+#else
+    [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
+                              @"trackApplicationUIKitNotifications] does nothing."
+                     andLevel:kSentryLogLevelDebug];
+#endif
+
+    // not available for macOS
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter
         addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
@@ -39,20 +56,21 @@
                         [SentrySDK addBreadcrumb:crumb];
                     }
                 }];
+#endif
 
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:UIApplicationDidEnterBackgroundNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) {
-                    [self addBreadcrumbWithType:@"navigation"
-                                   withCategory:@"app.lifecycle"
-                                      withLevel:kSentryLevelInfo
-                                    withDataKey:@"state"
-                                  withDataValue:@"background"];
-                }];
+#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    [self addBreadcrumbWithType:@"navigation"
+                                                                   withCategory:@"app.lifecycle"
+                                                                      withLevel:kSentryLevelInfo
+                                                                    withDataKey:@"state"
+                                                                  withDataValue:@"background"];
+                                                }];
 
-    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidBecomeActiveNotification
+    [NSNotificationCenter.defaultCenter addObserverForName:foregroundNotificationName
                                                     object:nil
                                                      queue:nil
                                                 usingBlock:^(NSNotification *notification) {
@@ -62,10 +80,6 @@
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
                                                 }];
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"trackApplicationUIKitNotifications] does nothing."
-                     andLevel:kSentryLogLevelDebug];
 #endif
 }
 

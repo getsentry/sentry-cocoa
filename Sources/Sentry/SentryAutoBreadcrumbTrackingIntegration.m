@@ -3,6 +3,7 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
+#import "SentrySystemEventsBreadcrumbs.h"
 
 @interface
 SentryAutoBreadcrumbTrackingIntegration ()
@@ -22,6 +23,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
 - (void)enableAutomaticBreadcrumbTracking
 {
     [[SentryBreadcrumbTracker alloc] start];
+    [[SentrySystemEventsBreadcrumbs alloc] start];
 }
 
 @end

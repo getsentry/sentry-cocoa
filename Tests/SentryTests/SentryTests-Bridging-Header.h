@@ -30,6 +30,7 @@
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySessionTracker.h"
 #import "SentryStacktraceBuilder.h"
+#import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
