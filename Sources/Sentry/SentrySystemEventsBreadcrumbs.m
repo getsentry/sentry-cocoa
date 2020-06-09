@@ -45,12 +45,12 @@
 
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
-    // https://developer.apple.com/documentation/uikit/uidevicebatteryleveldidchangenotification
+    // Posted when the battery level changes.
     [defaultCenter addObserver:self
                       selector:@selector(batteryStateChanged:)
                           name:UIDeviceBatteryLevelDidChangeNotification
                         object:currentDevice];
-    // https://developer.apple.com/documentation/uikit/uidevicebatterystatedidchangenotification
+    // Posted when battery state changes.
     [defaultCenter addObserver:self
                       selector:@selector(batteryStateChanged:)
                           name:UIDeviceBatteryStateDidChangeNotification
@@ -102,7 +102,7 @@
         [currentDevice beginGeneratingDeviceOrientationNotifications];
     }
 
-    // https://developer.apple.com/documentation/uikit/uideviceorientationdidchangenotification
+    // Posted when the orientation of the device changes.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(orientationChanged:)
                                                  name:UIDeviceOrientationDidChangeNotification
@@ -135,13 +135,13 @@
 - (void)initKeyboardVisibilityObserver
 {
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    // https://developer.apple.com/documentation/uikit/uikeyboarddidshownotification
+    // Posted immediately after the display of the keyboard.
     [defaultCenter addObserver:self
                       selector:@selector(systemEventTriggered:)
                           name:UIKeyboardDidShowNotification
                         object:nil];
 
-    // https://developer.apple.com/documentation/uikit/uikeyboarddidhidenotification
+    // Posted immediately after the dismissal of the keyboard.
     [defaultCenter addObserver:self
                       selector:@selector(systemEventTriggered:)
                           name:UIKeyboardDidHideNotification
@@ -159,7 +159,6 @@
 
 - (void)initScreenshotObserver
 {
-    // https://developer.apple.com/documentation/uikit/uiapplicationuserdidtakescreenshotnotification
     // it's only about the action, but not the SS itself
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(systemEventTriggered:)
