@@ -3,7 +3,7 @@ import XCTest
 
 class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
-    internal class Fixture {
+    private class Fixture {
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventsBreadcrumbs {
             do {
                 let options = try Options(dict: ["dsn": "https://username@sentry.io/1"])
