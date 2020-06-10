@@ -463,6 +463,47 @@ toString(NSData *data)
     XCTAssertEqualObjects(result, original, @"");
 }
 
+- (void)testSerializeDeserializeDictionaryDifferentKeyTypes
+{
+
+    NSString *expectedJson = @"{\"One\":\"Value\",\"3.01\":true,\"2\":1000}";
+    NSDictionary *expected = @{ @"One" : @"Value", @"3.01" : @YES, @"2" : @1000 };
+    NSDictionary *original = @{ @"One" : @"Value", @3.01 : @YES, @2 : @1000 };
+
+    [self testSerializeDeserializeDictionaryWith:original
+                                     andExpected:expected
+                                 andExpectedJSON:expectedJson];
+}
+
+- (void)testSerializeDeserializeDictionaryIntKeys
+{
+    NSString *expectedJson = @"{\"1\":\"Value\",\"2\":1000,\"3\":true}";
+    NSDictionary *expected = @{ @"1" : @"Value", @"2" : @1000, @"3" : @YES };
+    NSDictionary *original = @{ @1 : @"Value", @3 : @YES, @2 : @1000 };
+
+    [self testSerializeDeserializeDictionaryWith:original
+                                     andExpected:expected
+                                 andExpectedJSON:expectedJson];
+}
+
+- (void)testSerializeDeserializeDictionaryWith:(NSDictionary *)original
+                                   andExpected:(NSDictionary *)expected
+                               andExpectedJSON:(NSString *)expectedJson
+{
+    NSError *error = (NSError *)self;
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, expectedJson);
+
+    NSDictionary *result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result, expected);
+}
+
 - (void)testSerializeDeserializeDictionaryWithDictionary
 {
     NSError *error = (NSError *)self;
