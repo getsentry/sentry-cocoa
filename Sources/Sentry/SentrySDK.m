@@ -83,6 +83,28 @@ static SentryHub *currentHub;
     [SentrySDK installIntegrations];
 }
 
++ (void)startWithDsn:(NSString *)dsn
+{
+    [self startWithDsn:dsn withConfigureOptionsBlock:^(SentryOptions *options) {}];
+}
+
++ (void)startWithDsn:(NSString *)dsn
+    withConfigureOptionsBlock:(void (^)(SentryOptions *options))configureOptions
+{
+    NSError *error = nil;
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : dsn }
+                                                didFailWithError:&error];
+    if (nil != error) {
+        [SentryLog logWithMessage:@"Error while initializing the SDK"
+                         andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error]
+                         andLevel:kSentryLogLevelError];
+    } else {
+        configureOptions(options);
+        [SentrySDK startWithOptionsObject:options];
+    }
+}
+
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event
 {
     return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
