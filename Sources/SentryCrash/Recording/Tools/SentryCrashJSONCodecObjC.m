@@ -351,10 +351,10 @@ encodeObject(
         }
         NSArray *keys = [dict allKeys];
 
-        bool allKeysOfSameType = true;
+        BOOL allKeysOfSameType = YES;
         for (int i = 1; i < [keys count]; i++) {
             if ([keys[i - 1] class] != [keys[i] class]) {
-                allKeysOfSameType = false;
+                allKeysOfSameType = NO;
             }
         }
 
