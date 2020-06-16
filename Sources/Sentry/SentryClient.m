@@ -160,6 +160,7 @@ SentryClient ()
     [self captureEnvelope:envelope];
 }
 
+// TODO: We remove this function It is not in the header and nobody uses it
 - (void)captureSessions:(NSArray<SentrySession *> *)sessions
 {
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSessions:sessions];
