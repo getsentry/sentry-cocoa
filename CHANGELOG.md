@@ -2,7 +2,8 @@
 
 ## unreleased
 
-feat: Added automatic breadcrumbs for system events #559
+- fix: SentryCrashJSON encodeObject crash #576
+- feat: Added automatic breadcrumbs for system events #559
 
 ## 5.1.4
 
