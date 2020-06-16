@@ -50,7 +50,6 @@ SentryClient ()
     if (self = [super init]) {
         self.options = options;
 
-        // TODO: inject dependencies to make SentryClient testable
         SentryCrashDefaultBinaryImageProvider *provider =
             [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
@@ -65,6 +64,19 @@ SentryClient ()
             [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                             andMachineContextWrapper:machineContextWrapper];
     }
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithOptions:(SentryOptions *)options
+                   andTransport:(id<SentryTransport>)transport
+                 andFileManager:(SentryFileManager *)fileManager
+{
+    self = [self initWithOptions:options];
+
+    self.transport = transport;
+    self.fileManager = fileManager;
+
     return self;
 }
 

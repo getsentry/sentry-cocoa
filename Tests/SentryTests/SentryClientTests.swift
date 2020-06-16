@@ -13,9 +13,12 @@ class SentryClientTest: XCTestCase {
         transport = TestTransport()
         
         do {
-            let options = try Options(dict: ["dsn": TestConstants.dsnAsString,
-                                             "transport": transport])
-            client = Client(options: options)
+            let options = try Options(dict: [
+                "attachStacktrace": true,
+                "dsn": TestConstants.dsnAsString
+            ])
+    
+            client = Client(options: options, andTransport: transport, andFileManager: try SentryFileManager(dsn: TestConstants.dsn))
         } catch {
             XCTFail("Options could not be created")
         }
@@ -26,8 +29,7 @@ class SentryClientTest: XCTestCase {
         super.tearDown()
     }
 
-    // Skips until we expose a way to replace the transport
-    func skipped_testCaptureMessage() {
+    func testCaptureMessage() {
         let message = "message"
         client.capture(message: message, scope: nil)
         
