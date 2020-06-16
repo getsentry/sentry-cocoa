@@ -463,6 +463,55 @@ toString(NSData *data)
     XCTAssertEqualObjects(result, original, @"");
 }
 
+- (void)testSerializeDeserializeDictionaryIntKeys
+{
+    NSString *expectedJson = @"{\"1\":\"Value\",\"2\":1000,\"3\":true}";
+    NSDictionary *expected = @{ @"1" : @"Value", @"2" : @1000, @"3" : @YES };
+    NSDictionary *original = @{ @1 : @"Value", @3 : @YES, @2 : @1000 };
+
+    [self testSerializeDeserializeDictionaryWith:original
+                                     andExpected:expected
+                                 andExpectedJSON:expectedJson];
+}
+
+- (void)testSerializeDeserializeDictionaryWith:(NSDictionary *)original
+                                   andExpected:(NSDictionary *)expected
+                               andExpectedJSON:(NSString *)expectedJson
+{
+    NSError *error = (NSError *)self;
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, expectedJson);
+
+    NSDictionary *result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result, expected);
+}
+
+- (void)testSerializeDeserializeDictionaryDifferentKeyTypes
+{
+    NSDictionary *expected = @{ @"One" : @"Value", @"3.01" : @YES, @"2" : @1000 };
+    NSDictionary *original = @{ @"One" : @"Value", @3.01 : @YES, @2 : @1000 };
+
+    NSError *error = (NSError *)self;
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    // When the keys are of different types the expectedJSON is not deterministic,
+    // because the keys of dictionary can't be sorted. So we only compare the dictionaries.
+
+    NSDictionary *result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result, expected);
+}
+
 - (void)testSerializeDeserializeDictionaryWithDictionary
 {
     NSError *error = (NSError *)self;
