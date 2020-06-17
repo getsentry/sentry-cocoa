@@ -6,6 +6,15 @@ class SentryClientTest: XCTestCase {
 
     private class Fixture {
         let transport = TestTransport()
+        
+        let debugMetaBuilder = SentryDebugMetaBuilder(
+            binaryImageProvider: SentryCrashDefaultBinaryImageProvider()
+        )
+        
+        let threadInspector = SentryThreadInspector(
+            stacktraceBuilder: SentryStacktraceBuilder(),
+            andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
+        )
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
             var client: Client!
@@ -35,7 +44,7 @@ class SentryClientTest: XCTestCase {
     private let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: nil)
     
     private let environment = "Environment"
-    private var scope : Scope {
+    private var scope: Scope {
         get {
             let scope = Scope()
             scope.setEnvironment(environment)
@@ -74,8 +83,8 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
-            XCTAssertNotNil(actual.debugMeta)
-            XCTAssertNotNil(actual.threads)
+            
+            assertValidStacktrace(actual: actual)
         }
     }
     
@@ -114,8 +123,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
-            XCTAssertNotNil(actual.debugMeta)
-            XCTAssertNotNil(actual.threads)
+            assertValidStacktrace(actual: actual)
         }
     }
     
@@ -126,8 +134,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(error.localizedDescription, actual.message)
-            XCTAssertNotNil(actual.debugMeta)
-            XCTAssertNotNil(actual.threads)
+            assertValidStacktrace(actual: actual)
         }
     }
     
@@ -138,8 +145,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(exception.reason, actual.message)
-            XCTAssertNotNil(actual.debugMeta)
-            XCTAssertNotNil(actual.threads)
+            assertValidStacktrace(actual: actual)
         }
     }
 
@@ -254,6 +260,21 @@ class SentryClientTest: XCTestCase {
             assert(lastSentEnvelope)
         } else {
             XCTFail("LastSentEnvelope must not be nil")
+        }
+    }
+    
+    private func assertValidStacktrace(actual: Event) {
+        let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
+        XCTAssertEqual(debugMetas, actual.debugMeta ?? [])
+        
+        let threads = fixture.threadInspector.getCurrentThreadsSkippingFrames(3)
+        
+        if let actualThreads = actual.threads {
+            // TODO: implement isEqual and hash for Threads so we can compare them
+            XCTAssertEqual(threads.count, actualThreads.count)
+            XCTAssertEqual(threads[0].stacktrace?.frames.count, actualThreads[0].stacktrace?.frames.count)
+        } else {
+            XCTFail("No threads set to event.")
         }
     }
 }
