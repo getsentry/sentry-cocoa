@@ -58,8 +58,22 @@ class SentryClientTest: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
-
+    
     func testCaptureMessage() {
+        let eventId = fixture.getSut().capture(message: message, scope: nil)
+
+        XCTAssertNotNil(eventId)
+
+        fixture.assertLastSentEvent { actual in
+            XCTAssertEqual(SentryLevel.info, actual.level)
+            XCTAssertEqual(message, actual.message)
+            XCTAssertNil(actual.debugMeta)
+            XCTAssertNil(actual.threads)
+            XCTAssertNotNil(actual.dist)
+        }
+    }
+
+    func testCaptureMessageWithStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = true
         }).capture(message: message, scope: nil)
@@ -73,17 +87,43 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureMessageWithoutStackrace() {
-        let eventId = fixture.getSut().capture(message: message, scope: nil)
-
+    func testCaptureEvent() {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = message
+        let scope = Scope()
+        let expectedTags = ["tagKey" : "tagValue"]
+        scope.setTags(expectedTags)
+        
+        let eventId = fixture.getSut().capture(event: event, scope: scope)
+        
         XCTAssertNotNil(eventId)
-
         fixture.assertLastSentEvent { actual in
-            XCTAssertEqual(SentryLevel.info, actual.level)
-            XCTAssertEqual(message, actual.message)
+            XCTAssertEqual(event.level, actual.level)
+            XCTAssertEqual(event.message, actual.message)
             XCTAssertNil(actual.debugMeta)
             XCTAssertNil(actual.threads)
-            XCTAssertNotNil(actual.dist)
+            
+            if let actualTags = actual.tags {
+                XCTAssertEqual(expectedTags, actualTags)
+            } else {
+                XCTFail("Tags of scope not applied to event.")
+            }
+        }
+    }
+    
+    func testCaptureEventWithStacktrace() {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = message
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+        }).capture(event: event, scope: nil)
+        
+        XCTAssertNotNil(eventId)
+        fixture.assertLastSentEvent { actual in
+            XCTAssertEqual(event.level, actual.level)
+            XCTAssertEqual(event.message, actual.message)
+            XCTAssertNotNil(actual.debugMeta)
+            XCTAssertNotNil(actual.threads)
         }
     }
 

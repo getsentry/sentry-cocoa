@@ -111,7 +111,7 @@ SentryClient ()
     if ([self.options.attachStacktrace boolValue]) {
         [self attachStacktrace:event];
     }
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope];
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception
@@ -120,7 +120,7 @@ SentryClient ()
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     [self attachStacktrace:event];
     event.message = exception.reason;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope];
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
@@ -128,10 +128,17 @@ SentryClient ()
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     [self attachStacktrace:event];
     event.message = error.localizedDescription;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope];
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+    if ([self.options.attachStacktrace boolValue]) {
+        [self attachStacktrace:event];
+    }
+    return [self sendEvent:event withScope:scope];
+}
+
+- (NSString *_Nullable)sendEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
     if (nil != preparedEvent) {
