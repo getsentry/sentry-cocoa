@@ -23,6 +23,49 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
+- (BOOL)isEqual:(id)object;
+{
+    if (self == object)
+        return YES;
+    if ([self class] != [object class])
+        return NO;
+
+    SentryDebugMeta *other = (SentryDebugMeta *)object;
+    if (!(_uuid == other.uuid || [_uuid isEqualToString:other.uuid]))
+        return NO;
+
+    if (!(_type == other.type || [_type isEqualToString:other.type]))
+        return NO;
+
+    if (!(_name == other.name || [_name isEqualToString:other.name]))
+        return NO;
+
+    if (!(_imageSize == other.imageSize || [_imageSize isEqualToNumber:other.imageSize]))
+        return NO;
+
+    if (!(_imageAddress == other.imageAddress ||
+            [_imageAddress isEqualToString:other.imageAddress]))
+        return NO;
+
+    if (!(_imageVmAddress == other.imageVmAddress ||
+            [_imageVmAddress isEqualToString:other.imageVmAddress]))
+        return NO;
+
+    return YES;
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger uuidHash = [_uuid hash];
+    NSUInteger typeHash = [_type hash];
+    NSUInteger nameHash = [_name hash];
+    NSUInteger imageSizeHash = [_imageSize unsignedIntValue];
+    NSUInteger imageAddressHash = [_imageAddress hash];
+    NSUInteger imageVmAddressHash = [_imageVmAddress hash];
+
+    return uuidHash ^ typeHash ^ nameHash ^ imageSizeHash ^ imageAddressHash ^ imageVmAddressHash;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

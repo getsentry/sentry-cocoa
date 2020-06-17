@@ -14,6 +14,7 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryCurrentDate.h"
 #import "SentryDateUtil.h"
+#import "SentryDebugMeta.h"
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultRateLimits.h"
