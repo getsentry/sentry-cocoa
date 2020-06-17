@@ -64,8 +64,8 @@ class SentryClientTest: XCTestCase {
             options.attachStacktrace = true
         }).capture(message: message, scope: nil)
 
+        XCTAssertNotNil(eventId)
         fixture.assertLastSentEvent { actual in
-            XCTAssertNotNil(eventId)
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
             XCTAssertNotNil(actual.debugMeta)
