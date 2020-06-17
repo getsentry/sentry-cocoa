@@ -104,10 +104,9 @@ class SentryClientTest: XCTestCase {
             XCTAssertNil(actual.debugMeta)
             XCTAssertNil(actual.threads)
             
+            XCTAssertNotNil(actual.tags)
             if let actualTags = actual.tags {
                 XCTAssertEqual(expectedTags, actualTags)
-            } else {
-                XCTFail("Tags of scope not applied to event.")
             }
         }
     }
@@ -248,18 +247,16 @@ class SentryClientTest: XCTestCase {
     }
 
     func assertLastSentEvent(assert: (Event) -> Void) {
+        XCTAssertNotNil(fixture.transport.lastSentEvent)
         if let lastSentEvent = fixture.transport.lastSentEvent {
             assert(lastSentEvent)
-        } else {
-            XCTFail("LastSentEvent must not be nil")
         }
     }
     
     func assertLastSentEnvelope(assert: (SentryEnvelope) -> Void) {
+        XCTAssertNotNil(fixture.transport.lastSentEnvelope)
         if let lastSentEnvelope = fixture.transport.lastSentEnvelope {
             assert(lastSentEnvelope)
-        } else {
-            XCTFail("LastSentEnvelope must not be nil")
         }
     }
     
@@ -269,12 +266,11 @@ class SentryClientTest: XCTestCase {
         
         let threads = fixture.threadInspector.getCurrentThreadsSkippingFrames(3)
         
+        XCTAssertNotNil(actual.threads)
         if let actualThreads = actual.threads {
             // TODO: implement isEqual and hash for Threads so we can compare them
             XCTAssertEqual(threads.count, actualThreads.count)
             XCTAssertEqual(threads[0].stacktrace?.frames.count, actualThreads[0].stacktrace?.frames.count)
-        } else {
-            XCTFail("No threads set to event.")
         }
     }
 }
