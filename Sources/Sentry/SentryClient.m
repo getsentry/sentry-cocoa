@@ -131,7 +131,8 @@ SentryClient ()
     return [self sendEvent:event withScope:scope];
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope {
+- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+{
     if ([self.options.attachStacktrace boolValue]) {
         [self attachStacktrace:event];
     }

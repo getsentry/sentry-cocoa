@@ -91,7 +91,7 @@ class SentryClientTest: XCTestCase {
         let event = Event(level: SentryLevel.fatal)
         event.message = message
         let scope = Scope()
-        let expectedTags = ["tagKey" : "tagValue"]
+        let expectedTags = ["tagKey": "tagValue"]
         scope.setTags(expectedTags)
         
         let eventId = fixture.getSut().capture(event: event, scope: scope)
