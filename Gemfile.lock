@@ -93,7 +93,7 @@ GEM
       no_proxy_fix
       octokit (~> 4.7)
       terminal-table (~> 1)
-    danger-swiftlint (0.24.2)
+    danger-swiftlint (0.24.3)
       danger
       rake (> 10)
       thor (~> 0.19)

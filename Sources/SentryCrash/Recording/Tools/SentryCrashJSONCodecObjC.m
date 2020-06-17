@@ -345,15 +345,28 @@ encodeObject(
     }
 
     if ([object isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *dict = (NSDictionary *)object;
         if ((result = sentrycrashjson_beginObject(context, cName)) != SentryCrashJSON_OK) {
             return result;
         }
-        NSArray *keys = [(NSDictionary *)object allKeys];
-        if (codec->_sorted) {
+        NSArray *keys = [dict allKeys];
+
+        BOOL allKeysOfSameType = YES;
+        for (int i = 1; i < [keys count]; i++) {
+            if ([keys[i - 1] class] != [keys[i] class]) {
+                allKeysOfSameType = NO;
+            }
+        }
+
+        // We can only sort the keys if all of them are of the same type, which is not guaranteed.
+        // Sorting an array with different types can cause a crash.
+        if (codec->_sorted && allKeysOfSameType) {
             keys = [keys sortedArrayUsingSelector:@selector(compare:)];
         }
+
         for (id key in keys) {
-            if ((result = encodeObject(codec, [object valueForKey:key], key, context))
+            // It is not guaranteed that a key is NSString.
+            if ((result = encodeObject(codec, dict[key], [key description], context))
                 != SentryCrashJSON_OK) {
                 return result;
             }
