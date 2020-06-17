@@ -108,9 +108,6 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = message;
-    if ([self.options.attachStacktrace boolValue]) {
-        [self attachStacktrace:event];
-    }
     return [self sendEvent:event withScope:scope];
 }
 
@@ -118,7 +115,6 @@ SentryClient ()
                               withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    [self attachStacktrace:event];
     event.message = exception.reason;
     return [self sendEvent:event withScope:scope];
 }
@@ -126,16 +122,12 @@ SentryClient ()
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    [self attachStacktrace:event];
     event.message = error.localizedDescription;
     return [self sendEvent:event withScope:scope];
 }
 
 - (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
-    if ([self.options.attachStacktrace boolValue]) {
-        [self attachStacktrace:event];
-    }
     return [self sendEvent:event withScope:scope];
 }
 
@@ -152,14 +144,6 @@ SentryClient ()
         }
     }
     return nil;
-}
-
-- (void)attachStacktrace:(SentryEvent *)event
-{
-    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-    // We don't want to add the stacktrace of attaching the stacktrace.
-    // Therefore we skip two frames.
-    event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -242,6 +226,13 @@ SentryClient ()
             [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
         }
         event.sdk = sdk;
+    }
+
+    if (event.level >= kSentryLevelError || [self.options.attachStacktrace boolValue]) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+        // We don't want to add the stacktrace of attaching the stacktrace.
+        // Therefore we skip three frames.
+        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
     }
 
     if (nil != scope) {

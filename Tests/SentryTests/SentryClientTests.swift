@@ -89,7 +89,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureEvent() {
-        let event = Event(level: SentryLevel.fatal)
+        let event = Event(level: SentryLevel.warning)
         event.message = message
         let scope = Scope()
         let expectedTags = ["tagKey": "tagValue"]
@@ -122,6 +122,16 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
+            assertValidStacktrace(actual: actual)
+        }
+    }
+    
+    func testCaptureEventWithLevelError() {
+        let event = Event(level: SentryLevel.error)
+        let eventId = fixture.getSut().capture(event: event, scope: nil)
+        
+        XCTAssertNotNil(eventId)
+        assertLastSentEvent { actual in
             assertValidStacktrace(actual: actual)
         }
     }
