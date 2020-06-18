@@ -261,8 +261,10 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertValidStacktrace(actual: Event) {
+        
         let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
-        XCTAssertEqual(debugMetas, actual.debugMeta ?? [])
+        let actualDebugMetas = actual.debugMeta ?? []
+        assertAreEqual(expected: debugMetas, actual: actualDebugMetas)
         
         let threads = fixture.threadInspector.getCurrentThreadsSkippingFrames(3)
         
@@ -271,6 +273,13 @@ class SentryClientTest: XCTestCase {
             // TODO: implement isEqual and hash for Threads so we can compare them
             XCTAssertEqual(threads.count, actualThreads.count)
             XCTAssertEqual(threads[0].stacktrace?.frames.count, actualThreads[0].stacktrace?.frames.count)
+        }
+    }
+    
+    private func assertAreEqual(expected: [DebugMeta], actual: [DebugMeta]) {
+        for expectedDebugMeta in expected {
+            XCTAssertTrue(actual.contains { actualDebugMeta in actualDebugMeta.isEqualTo(other: expectedDebugMeta) },
+                          "DebugMeta is not equal.")
         }
     }
 }
