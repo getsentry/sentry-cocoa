@@ -264,22 +264,24 @@ class SentryClientTest: XCTestCase {
         
         let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
         let actualDebugMetas = actual.debugMeta ?? []
-        assertAreEqual(expected: debugMetas, actual: actualDebugMetas)
+        
+        XCTAssertEqual(debugMetas, actualDebugMetas)
         
         let threads = fixture.threadInspector.getCurrentThreadsSkippingFrames(3)
+        assertEqual(expected: threads, actual: actual.threads ?? [])
+    }
+    
+   
+    
+    private func assertEqual(expected: [Sentry.Thread], actual: [Sentry.Thread]) {
+        // TODO: implement isEqual and hash for Threads so we can compare them
+        XCTAssertEqual(expected.count, actual.count)
+        XCTAssertEqual(expected[0].stacktrace?.frames.count, actual[0].stacktrace?.frames.count)
         
-        XCTAssertNotNil(actual.threads)
-        if let actualThreads = actual.threads {
-            // TODO: implement isEqual and hash for Threads so we can compare them
-            XCTAssertEqual(threads.count, actualThreads.count)
-            XCTAssertEqual(threads[0].stacktrace?.frames.count, actualThreads[0].stacktrace?.frames.count)
+        for expectedThread in expected {
+            XCTAssertTrue(actual.contains { actualThread in actualThread.isEqualTo(other: expectedThread) },
+                          "Threads are not equal. \(expectedThread)")
         }
     }
     
-    private func assertAreEqual(expected: [DebugMeta], actual: [DebugMeta]) {
-        for expectedDebugMeta in expected {
-            XCTAssertTrue(actual.contains { actualDebugMeta in actualDebugMeta.isEqualTo(other: expectedDebugMeta) },
-                          "DebugMeta is not equal.")
-        }
-    }
 }
