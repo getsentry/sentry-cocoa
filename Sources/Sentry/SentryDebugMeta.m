@@ -57,14 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash
 {
     NSUInteger hash = 17;
-    
+
     hash = hash * 31 + [_uuid hash];
     hash = hash * 31 + [_type hash];
     hash = hash * 31 + [_name hash];
     hash = hash * 31 + [_imageSize unsignedIntValue];
     hash = hash * 31 + [_imageAddress hash];
     hash = hash * 31 + [_imageVmAddress hash];
-    
+
     return hash;
 }
 

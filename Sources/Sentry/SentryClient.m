@@ -108,7 +108,7 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = message;
-    return [self sendEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception
@@ -116,24 +116,28 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = exception.reason;
-    return [self sendEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = error.localizedDescription;
-    return [self sendEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
-    return [self sendEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
-- (NSString *_Nullable)sendEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (NSString *_Nullable)sendEvent:(SentryEvent *)event
+                       withScope:(SentryScope *_Nullable)scope
+          alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
-    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:alwaysAttachStacktrace];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
@@ -179,7 +183,9 @@ SentryClient ()
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *_Nullable)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
 
@@ -228,7 +234,7 @@ SentryClient ()
         event.sdk = sdk;
     }
 
-    if (event.level >= kSentryLevelError || [self.options.attachStacktrace boolValue]) {
+    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue]) {
         event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
         // We don't want to add the stacktrace of attaching the stacktrace.
         // Therefore we skip three frames.

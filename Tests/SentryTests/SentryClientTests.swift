@@ -126,16 +126,6 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureEventWithLevelError() {
-        let event = Event(level: SentryLevel.error)
-        let eventId = fixture.getSut().capture(event: event, scope: nil)
-        
-        XCTAssertNotNil(eventId)
-        assertLastSentEvent { actual in
-            assertValidStacktrace(actual: actual)
-        }
-    }
-    
     func testCaptureError() {
         let eventId = fixture.getSut().capture(error: error, scope: scope)
         
