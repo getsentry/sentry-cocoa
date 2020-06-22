@@ -234,7 +234,8 @@ SentryClient ()
         event.sdk = sdk;
     }
 
-    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue]) {
+    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue] ||
+        [event.exceptions count] > 0) {
         event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
         // We don't want to add the stacktrace of attaching the stacktrace.
         // Therefore we skip three frames.

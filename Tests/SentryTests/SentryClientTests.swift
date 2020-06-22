@@ -111,6 +111,17 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureEventWithException() {
+        let event = Event()
+        event.exceptions = [ Exception(value: "", type: "")]
+        
+        fixture.getSut().capture(event: event, scope: scope)
+        
+        assertLastSentEvent { actual in
+            assertValidStacktrace(actual: actual)
+        }
+    }
+    
     func testCaptureEventWithStacktrace() {
         let event = Event(level: SentryLevel.fatal)
         event.message = message
@@ -270,9 +281,12 @@ class SentryClientTest: XCTestCase {
         // frame for the actual stacktrace.
         let expected = fixture.threadInspector.getCurrentThreadsSkippingFrames(5)
         var actualFrames = actual.threads?[0].stacktrace?.frames ?? []
-        actualFrames.remove(at: actualFrames.count - 1)
-        actualFrames.remove(at: actualFrames.count - 1)
-        actual.threads?[0].stacktrace?.frames = actualFrames
+        XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
+        if actualFrames.count > 1 {
+            actualFrames.remove(at: actualFrames.count - 1)
+            actualFrames.remove(at: actualFrames.count - 1)
+            actual.threads?[0].stacktrace?.frames = actualFrames
+        }
         
         XCTAssertEqual(expected, actual.threads)
     }
