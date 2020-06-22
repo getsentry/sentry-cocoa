@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Attach the stacktrace to custom events #583
 - fix: SentryCrashJSON encodeObject crash #576
 - feat: Added automatic breadcrumbs for system events #559
 
