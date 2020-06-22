@@ -97,7 +97,7 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertEqual(1, actual.count)
         
         let thread = actual[0]
-        XCTAssertNil(thread.name)
+        XCTAssertEqual("", thread.name)
     }
     
     func testLongThreadName() {
