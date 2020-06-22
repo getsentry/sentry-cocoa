@@ -1,6 +1,6 @@
 import Foundation
 
-extension DebugMeta   {
+extension DebugMeta {
     open override func isEqual(_ object: Any?) -> Bool {
         if  let other = object as? DebugMeta {
             return  uuid == other.uuid &&

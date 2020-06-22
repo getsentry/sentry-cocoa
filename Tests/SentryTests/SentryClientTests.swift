@@ -84,7 +84,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
             
-            assertValidStacktrace(actual: actual)
+               assertValidStacktrace(actual: actual)
         }
     }
     
@@ -133,7 +133,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(error.localizedDescription, actual.message)
-            assertValidStacktrace(actual: actual)
+               assertValidStacktrace(actual: actual)
         }
     }
     
@@ -144,7 +144,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(exception.reason, actual.message)
-            assertValidStacktrace(actual: actual)
+               assertValidStacktrace(actual: actual)
         }
     }
 
@@ -261,27 +261,19 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertValidStacktrace(actual: Event) {
-        
         let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
-        let actualDebugMetas = actual.debugMeta ?? []
         
-        XCTAssertEqual(debugMetas, actualDebugMetas)
+        XCTAssertEqual(debugMetas, actual.debugMeta ?? [])
         
-        let threads = fixture.threadInspector.getCurrentThreadsSkippingFrames(3)
-        assertEqual(expected: threads, actual: actual.threads ?? [])
+        // We can only compare the stacktrace up to the test method. Therefore we
+        // need to skip a few frames for the expected stacktrace and also two
+        // frame for the actual stacktrace.
+        let expected = fixture.threadInspector.getCurrentThreadsSkippingFrames(5)
+        var actualFrames = actual.threads?[0].stacktrace?.frames ?? []
+        actualFrames.remove(at: actualFrames.count - 1)
+        actualFrames.remove(at: actualFrames.count - 1)
+        actual.threads?[0].stacktrace?.frames = actualFrames
+        
+        XCTAssertEqual(expected, actual.threads)
     }
-    
-   
-    
-    private func assertEqual(expected: [Sentry.Thread], actual: [Sentry.Thread]) {
-        // TODO: implement isEqual and hash for Threads so we can compare them
-        XCTAssertEqual(expected.count, actual.count)
-        XCTAssertEqual(expected[0].stacktrace?.frames.count, actual[0].stacktrace?.frames.count)
-        
-        for expectedThread in expected {
-            XCTAssertTrue(actual.contains { actualThread in actualThread.isEqualTo(other: expectedThread) },
-                          "Threads are not equal. \(expectedThread)")
-        }
-    }
-    
 }
