@@ -60,7 +60,7 @@ SentryThreadInspector ()
     char buffer[128];
     char *const pBuffer = buffer;
     [self.machineContextWrapper getThreadName:thread andBuffer:pBuffer andBufLength:128];
-    
+
     NSString *threadName = [NSString stringWithCString:pBuffer encoding:NSUTF8StringEncoding];
     if (nil == threadName) {
         threadName = @"";
