@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Simplified SDK start #580
+
 ## 5.1.5
 
 - feat: Attach the stacktrace to custom events #583
