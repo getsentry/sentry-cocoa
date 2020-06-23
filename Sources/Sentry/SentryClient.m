@@ -108,32 +108,36 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = message;
-    if ([self.options.attachStacktrace boolValue]) {
-        [self attachStacktrace:event];
-    }
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception
                               withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    [self attachStacktrace:event];
     event.message = exception.reason;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    [self attachStacktrace:event];
     event.message = error.localizedDescription;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
-    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
+}
+
+- (NSString *_Nullable)sendEvent:(SentryEvent *)event
+                       withScope:(SentryScope *_Nullable)scope
+          alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+{
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:alwaysAttachStacktrace];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
@@ -144,14 +148,6 @@ SentryClient ()
         }
     }
     return nil;
-}
-
-- (void)attachStacktrace:(SentryEvent *)event
-{
-    event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-    // We don't want to add the stacktrace of attaching the stacktrace.
-    // Therefore we skip two frames.
-    event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:2];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -187,7 +183,9 @@ SentryClient ()
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *_Nullable)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
 
@@ -234,6 +232,14 @@ SentryClient ()
             [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
         }
         event.sdk = sdk;
+    }
+
+    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue] ||
+        [event.exceptions count] > 0) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+        // We don't want to add the stacktrace of attaching the stacktrace.
+        // Therefore we skip three frames.
+        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
     }
 
     if (nil != scope) {

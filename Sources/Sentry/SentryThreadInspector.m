@@ -57,10 +57,15 @@ SentryThreadInspector ()
 
 - (NSString *)getThreadName:(SentryCrashThread)thread
 {
-    char threadName[128];
-    char *const pThreadName = threadName;
-    [self.machineContextWrapper getThreadName:thread andBuffer:pThreadName andBufLength:128];
-    return [NSString stringWithCString:pThreadName encoding:NSUTF8StringEncoding];
+    char buffer[128];
+    char *const pBuffer = buffer;
+    [self.machineContextWrapper getThreadName:thread andBuffer:pBuffer andBufLength:128];
+
+    NSString *threadName = [NSString stringWithCString:pBuffer encoding:NSUTF8StringEncoding];
+    if (nil == threadName) {
+        threadName = @"";
+    }
+    return threadName;
 }
 
 @end
