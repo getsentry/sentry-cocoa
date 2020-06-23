@@ -17,7 +17,8 @@ NS_SWIFT_NAME(Options)
                       didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
- * The Dsn as a NSString passed in the options.
+ * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
+ * just not send any events.
  */
 @property (nonatomic, strong) NSString *_Nullable dsn;
 
