@@ -23,13 +23,7 @@ class SentrySDKTests: XCTestCase {
             XCTAssertEqual(true, options.attachStacktrace)
             XCTAssertEqual(true, options.enableAutoSessionTracking)
             
-            options.integrations?.forEach { integration in
-                if let integrationClass = NSClassFromString(integration) {
-                    XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass))
-                } else {
-                    XCTFail("Integration")
-                }
-            }
+            assertIntegrationsInstalled(integrations: options.integrations ?? [])
         }
     }
     
@@ -56,5 +50,15 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(message: "")
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
+    }
+    
+    private func assertIntegrationsInstalled(integrations: [String]) {
+        integrations.forEach { integration in
+            if let integrationClass = NSClassFromString(integration) {
+                XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass))
+            } else {
+                XCTFail("Integration \(integration) not installed.")
+            }
+        }
     }
 }
