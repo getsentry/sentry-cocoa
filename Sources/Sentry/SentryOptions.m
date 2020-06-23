@@ -18,8 +18,11 @@
 {
     if (self = [super init]) {
         self.enabled = @NO;
+        
+        // TODO: Remove this side effect
         SentrySDK.logLevel = kSentryLogLevelError;
-        _logLevel = kSentryLogLevelError;
+        self.logLevel = kSentryLogLevelError;
+        
         self.debug = @NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.integrations = SentryOptions.defaultIntegrations;
