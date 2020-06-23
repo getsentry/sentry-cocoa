@@ -4,8 +4,6 @@
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 
-@class TestTransport;
-
 @interface SentryOptionsTest : XCTestCase
 
 @end
@@ -31,7 +29,7 @@
 
 - (void)assertDisabled:(SentryOptions *)options andError:(NSError *)error
 {
-    XCTAssertNil(options.dsn);
+    XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(@NO, options.enabled);
     XCTAssertEqual(@NO, options.debug);
     XCTAssertNil(error);
@@ -276,6 +274,56 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
     XCTAssertEqual(@NO, options.attachStacktrace);
+}
+
+- (void)testEmptyConstructorSetsDefaultValues
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+
+    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertEqual(@NO, options.debug);
+    XCTAssertEqual(kSentryLogLevelError, options.logLevel);
+    XCTAssertNil(options.parsedDsn);
+    XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
+    XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
+        @"Default integrations are not set correctly");
+    XCTAssertEqual(@1, options.sampleRate);
+    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+    XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
+    XCTAssertEqual(@NO, options.attachStacktrace);
+}
+
+- (void)testSetValidDsn
+{
+    NSString *dsnAsString = @"https://username:password@sentry.io/1";
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.dsn = dsnAsString;
+
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:dsnAsString didFailWithError:nil];
+
+    XCTAssertEqual(dsnAsString, options.dsn);
+    XCTAssertTrue([dsn.url.absoluteString isEqualToString:options.parsedDsn.url.absoluteString]);
+    XCTAssertEqual(@YES, options.enabled);
+}
+
+- (void)testSetNilDsn
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+
+    [options setDsn:nil];
+    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertNil(options.dsn);
+    XCTAssertNil(options.parsedDsn);
+}
+
+- (void)testSetInvalidValidDsn
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+
+    [options setDsn:@"https://username:passwordsentry.io/1"];
+    XCTAssertNil(options.dsn);
+    XCTAssertNil(options.parsedDsn);
+    XCTAssertEqual(@NO, options.enabled);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict

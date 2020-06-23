@@ -7,7 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
-SENTRY_NO_INIT
 
 /**
  * Init SentryOptions.
@@ -18,9 +17,14 @@ SENTRY_NO_INIT
                       didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
- * The Dsn passed in the options.
+ * The Dsn as a NSString passed in the options.
  */
-@property (nonatomic, strong) SentryDsn *dsn;
+@property (nonatomic, strong) NSString *_Nullable dsn;
+
+/**
+ * The parsed internal dsn.
+ */
+@property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
 
 /**
  * debug [mode] sets a more verbose log level. Default is @NO. If set to @YES

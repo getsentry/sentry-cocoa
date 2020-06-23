@@ -6,7 +6,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        SentrySDK.start(dsn: "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394") { options in
+        SentrySDK.start { options in
+            options.dsn = "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394"
             options.beforeSend = { event in
                 return event
             }

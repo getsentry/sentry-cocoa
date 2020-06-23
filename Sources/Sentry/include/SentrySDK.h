@@ -58,11 +58,8 @@ SENTRY_NO_INIT
  */
 + (void)startWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
-+ (void)startWithDsn:(NSString *)dsn NS_SWIFT_NAME(start(dsn:));
-
-+ (void)startWithDsn:(NSString *)dsn
-    withConfigureOptionsBlock:(void (^)(SentryOptions *options))configureOptions
-    NS_SWIFT_NAME(start(dsn:configureOptionsBlock:));
++ (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
+    NS_SWIFT_NAME(start(configureOptions:));
 
 /**
  * captures an event aka. sends an event to sentry
