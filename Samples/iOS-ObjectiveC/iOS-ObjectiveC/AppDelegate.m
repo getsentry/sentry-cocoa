@@ -20,7 +20,7 @@ AppDelegate ()
         options.enableAutoSessionTracking = @YES;
         options.attachStacktrace = @YES;
         options.sessionTrackingIntervalMillis =
-            [@5000 unsignedIntegerValue]; // 5 seconds session timeout for testing
+            [@5000 unsignedIntegerValue];
     }];
 
     return YES;

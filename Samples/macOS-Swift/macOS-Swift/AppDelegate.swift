@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             options.logLevel = SentryLogLevel.verbose
             options.enableAutoSessionTracking = true
             options.attachStacktrace = true
-            options.sessionTrackingIntervalMillis = 5_000 // 5 seconds session timeout for testing
+            options.sessionTrackingIntervalMillis = 5_000
         }
     }
 
