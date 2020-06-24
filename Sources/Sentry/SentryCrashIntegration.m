@@ -134,14 +134,14 @@ SentryCrashIntegration ()
                 NSMutableDictionary<NSString *, id> *userInfo =
                     [[NSMutableDictionary alloc] initWithDictionary:[scope serialize]];
 
-                // SentryCrashReportConverter.convertReportToEvent needs the release name of the
-                // SentryOptions in the UserInfo. When SentryCrash records a crash it writes the
-                // UserInfo into SentryCrashField_User of the report.
+                // SentryCrashReportConverter.convertReportToEvent needs the release name and the
+                // dist of the SentryOptions in the UserInfo. When SentryCrash records a crash it
+                // writes the UserInfo into SentryCrashField_User of the report.
                 // SentryCrashReportConverter.initWithReport loads the contents of
                 // SentryCrashField_User into self.userContext and convertReportToEvent can map the
-                // release name to the SentryEvent.
-                // Fixes GH-581
+                // release name and dist to the SentryEvent. Fixes GH-581
                 userInfo[@"release"] = self.options.releaseName;
+                userInfo[@"dist"] = self.options.dist;
 
                 [SentryCrash.sharedInstance setUserInfo:userInfo];
             }];
