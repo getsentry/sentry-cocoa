@@ -7,7 +7,7 @@
 
 # Contributing
 
-We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests on [`GitHub`](https://github.com/getsentry/sentry-javascript). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
+We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests on [`GitHub`](https://github.com/getsentry/sentry-cocoa). Please follow our official [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
 
 ## Setting up an Environment
 
