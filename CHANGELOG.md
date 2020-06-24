@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Custom release name for crash reports #590
+
 ## 5.1.5
 
 - feat: Attach the stacktrace to custom events #583
