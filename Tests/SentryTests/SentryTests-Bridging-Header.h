@@ -9,6 +9,7 @@
 #import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashIntegration.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"

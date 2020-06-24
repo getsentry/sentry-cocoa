@@ -70,7 +70,10 @@ SentryCrashReportConverter ()
     event.debugMeta = [self convertDebugMeta];
     event.threads = [self convertThreads];
     event.exceptions = [self convertExceptions];
-    event.releaseName = self.userContext[@"release"]; // serialized the key is just release
+
+    // The releaseName must be set on the userInfo of SentryCrash.sharedInstance
+    event.releaseName = self.userContext[@"release"];
+
     event.dist = self.userContext[@"dist"];
     event.environment = self.userContext[@"environment"];
     event.context = self.userContext[@"context"];
