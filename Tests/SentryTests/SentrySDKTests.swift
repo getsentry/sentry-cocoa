@@ -17,24 +17,25 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotNil(hub.installedIntegrations)
         XCTAssertNotNil(hub.getClient()?.options)
         
-        if let options = hub.getClient()?.options {
-            XCTAssertEqual(TestConstants.dsnAsString, options.dsn)
-            XCTAssertEqual(SentryLogLevel.verbose, options.logLevel)
-            XCTAssertEqual(true, options.attachStacktrace)
-            XCTAssertEqual(true, options.enableAutoSessionTracking)
-            
-            assertIntegrationsInstalled(integrations: options.integrations ?? [])
-        }
+        let options = hub.getClient()?.options
+        XCTAssertNotNil(options)
+        XCTAssertEqual(TestConstants.dsnAsString, options?.dsn)
+        XCTAssertEqual(SentryLogLevel.verbose, options?.logLevel)
+        XCTAssertEqual(true, options?.attachStacktrace)
+        XCTAssertEqual(true, options?.enableAutoSessionTracking)
+        
+        assertIntegrationsInstalled(integrations: options?.integrations ?? [])
     }
     
-    func testStartWithConfigureOptions_WrongDsn() {
+    func testStartWithConfigureOptions_NoDsn() throws {
         SentrySDK.start { options in
-            options.dsn = "wrong"
+            options.debug = true
         }
         
         let options = SentrySDK.currentHub().getClient()?.options
-        
+        XCTAssertNotNil(options, "Options should not be nil")
         XCTAssertEqual(false, options?.enabled)
+        XCTAssertEqual(true, options?.debug)
     }
     
     func testStartWithConfigureOptions_BeforeSend() {
