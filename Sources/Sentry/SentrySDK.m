@@ -83,6 +83,13 @@ static SentryHub *currentHub;
     [SentrySDK installIntegrations];
 }
 
++ (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    configureOptions(options);
+    [SentrySDK startWithOptionsObject:options];
+}
+
 + (NSString *_Nullable)captureEvent:(SentryEvent *)event
 {
     return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];

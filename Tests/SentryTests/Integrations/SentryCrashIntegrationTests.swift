@@ -19,7 +19,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
     }
     
-    private func assertUserInfoField(userInfo: Dictionary<AnyHashable, Any>, key: String, expected: String) {
+    private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
         if let actual = userInfo[key] as? String {
             XCTAssertEqual(expected, actual)
         } else {

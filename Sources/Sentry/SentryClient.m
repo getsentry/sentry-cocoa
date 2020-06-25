@@ -93,8 +93,8 @@ SentryClient ()
 {
     if (_fileManager == nil) {
         NSError *error = nil;
-        SentryFileManager *fileManager = [[SentryFileManager alloc] initWithDsn:self.options.dsn
-                                                               didFailWithError:&error];
+        SentryFileManager *fileManager =
+            [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
             return nil;
