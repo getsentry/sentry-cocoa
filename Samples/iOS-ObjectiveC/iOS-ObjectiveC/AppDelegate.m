@@ -19,8 +19,7 @@ AppDelegate ()
         options.logLevel = kSentryLogLevelVerbose;
         options.enableAutoSessionTracking = @YES;
         options.attachStacktrace = @YES;
-        options.sessionTrackingIntervalMillis =
-            [@5000 unsignedIntegerValue];
+        options.sessionTrackingIntervalMillis = [@5000 unsignedIntegerValue];
     }];
 
     return YES;

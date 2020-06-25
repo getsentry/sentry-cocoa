@@ -50,16 +50,29 @@
     XCTAssertEqualObjects(options.releaseName, @"abc");
 }
 
+- (void)testSetEmptyRelease
+{
+    SentryOptions *options = [self getValidOptions:@{ @"release" : @"" }];
+    XCTAssertEqualObjects(options.releaseName, @"");
+}
+
+- (void)testSetReleaseToNonString
+{
+    SentryOptions *options = [self getValidOptions:@{ @"release" : @2 }];
+    XCTAssertEqualObjects(options.releaseName, [self buildDefaultReleaseName]);
+}
+
 - (void)testNoReleaseSetUsesDefault
 {
     SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqualObjects(options.releaseName, [self buildDefaultReleaseName]);
+}
 
+- (NSString *)buildDefaultReleaseName
+{
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    NSString *expectedRelease =
-        [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
-                  infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
-
-    XCTAssertEqualObjects(options.releaseName, expectedRelease);
+    return [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
+                     infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
 }
 
 - (void)testEnvironment
