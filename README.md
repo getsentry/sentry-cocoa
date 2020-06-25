@@ -26,10 +26,10 @@ import Sentry
 
 // ....
 
-SentrySDK.start(options: [
-    "dsn": "___PUBLIC_DSN___",
-    "debug": true // Helpful to see what's going on
-])
+SentrySDK.start { options in
+    options.dsn = "___PUBLIC_DSN___"
+    options.debug = true // Helpful to see what's going on
+}
 ```
 
 ```objective-c
@@ -37,9 +37,9 @@ SentrySDK.start(options: [
 
 // ....
 
-[SentrySDK startWithOptions:@{
-    @"dsn": @"___PUBLIC_DSN___",
-    @"debug": @(YES) // Helpful to see what's going on
+[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+    options.dsn = @"___PUBLIC_DSN___";
+    options.debug = @YES; // Helpful to see what's going on
 }];
 ```
 

@@ -5,15 +5,19 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        SentrySDK.start(options: [
-            "dsn": "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394",
-            "debug": true,
-            "logLevel": "verbose",
-            "enableAutoSessionTracking": true,
-            "attachStacktrace": true,
-            "sessionTrackingIntervalMillis": 5_000 // 5 seconds session timeout for testing
-        ])
+        
+        SentrySDK.start { options in
+            options.dsn = "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394"
+            options.beforeSend = { event in
+                return event
+            }
+            options.debug = true
+            options.logLevel = SentryLogLevel.verbose
+            options.enableAutoSessionTracking = true
+            options.attachStacktrace = true
+            options.sessionTrackingIntervalMillis = 5_000
+        }
+        
         return true
     }
 

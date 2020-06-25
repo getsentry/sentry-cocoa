@@ -28,6 +28,7 @@ SentryHub ()
         [self bindClient:client];
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
+        _installedIntegrations = [[NSMutableArray alloc] init];
     }
     return self;
 }
