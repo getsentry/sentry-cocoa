@@ -18,7 +18,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
- * just not send any events. If a wrong DSN is provided this throws a NSInvalidArgumentException.
+ * not send any events.
  */
 @property (nonatomic, strong) NSString *_Nullable dsn;
 

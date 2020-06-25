@@ -38,6 +38,16 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.debug)
     }
     
+    func testStartWithConfigureOptions_WrongDsn() throws {
+        SentrySDK.start { options in
+            options.dsn = "wrong"
+        }
+        
+        let options = SentrySDK.currentHub().getClient()?.options
+        XCTAssertNotNil(options, "Options should not be nil")
+        XCTAssertEqual(false, options?.enabled)
+    }
+    
     func testStartWithConfigureOptions_BeforeSend() {
         var wasBeforeSendCalled = false
         SentrySDK.start { options in

@@ -58,7 +58,7 @@ SENTRY_NO_INIT
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
- * set a valid DSN otherwise a NSInvalidArgumentException is thrown.
+ * set a valid DSN otherwise.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));

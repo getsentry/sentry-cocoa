@@ -68,10 +68,7 @@
     } else {
         self.enabled = @NO;
         NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
-        NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException
-                                                         reason:errorMessage
-                                                       userInfo:nil];
-        @throw exception;
+        [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
     }
 }
 

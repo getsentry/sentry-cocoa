@@ -323,7 +323,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
 
-    XCTAssertThrowsSpecificNamed([options setDsn:nil], NSException, NSInvalidArgumentException);
+    [options setDsn:nil];
     XCTAssertEqual(@NO, options.enabled);
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
@@ -333,8 +333,7 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
 
-    XCTAssertThrowsSpecificNamed([options setDsn:@"https://username:passwordsentry.io/1"],
-        NSException, NSInvalidArgumentException);
+    [options setDsn:@"https://username:passwordsentry.io/1"];
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(@NO, options.enabled);
