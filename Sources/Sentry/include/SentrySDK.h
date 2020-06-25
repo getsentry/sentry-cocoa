@@ -57,8 +57,8 @@ SENTRY_NO_INIT
 + (void)startWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**
- * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to set a valid DSN otherwise
- * a NSInvalidArgumentException is thrown. 
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
+ * set a valid DSN otherwise a NSInvalidArgumentException is thrown.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));
