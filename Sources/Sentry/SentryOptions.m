@@ -61,14 +61,17 @@
 {
     NSError *error = nil;
     self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:&error];
+
     if (nil == error) {
         _dsn = dsn;
         self.enabled = @YES;
     } else {
         self.enabled = @NO;
-        NSString *errorMessage =
-            [NSString stringWithFormat:@"Could not parse the DSN, will disable the SDK: %@", error];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
+        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
+        NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException
+                                                         reason:errorMessage
+                                                       userInfo:nil];
+        @throw exception;
     }
 }
 
