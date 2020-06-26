@@ -17,8 +17,8 @@ class SentrySessionTrackerTests: XCTestCase {
             options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
             
             fileManager = try! TestFileManager(dsn: SentryDsn())
-            let client = TestClient(options: options)!
-            client.sentryFileManager = fileManager
+            let client = TestClient(options: options)
+            client?.sentryFileManager = fileManager
             
             hub = TestHub(client: client, andScope: nil)
             SentrySDK.setCurrentHub(hub)
