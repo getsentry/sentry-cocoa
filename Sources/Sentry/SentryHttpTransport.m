@@ -96,6 +96,8 @@ SentryHttpTransport ()
     }
 
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
+    
+    [SentryLog logWithMessage:@"Sending Envelope %@" andLevel:kSentryLogLevelDebug];
 
     if (envelope.items.count == 0) {
         [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
@@ -183,13 +185,18 @@ SentryHttpTransport ()
 {
     __block SentryHttpTransport *_self = self;
     [self.requestManager
-               addRequest:request
-        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            [_self.rateLimits update:response];
-            if (completionHandler) {
-                completionHandler(response, error);
-            }
-        }];
+     addRequest:request
+     completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        
+        if (error != nil || response.statusCode != 200) {
+            int i = 10;
+        }
+        
+        [_self.rateLimits update:response];
+        if (completionHandler) {
+            completionHandler(response, error);
+        }
+    }];
 }
 
 /**

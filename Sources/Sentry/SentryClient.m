@@ -153,6 +153,13 @@ SentryClient ()
 - (void)captureSession:(SentrySession *)session
 {
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
+    
+    if (session.status > 0) {
+        NSString *message = [NSString stringWithFormat:@"captureSession status:%lu errors:%lu", (unsigned long)session.status, session.errors];
+        [SentryLog logWithMessage:message
+                         andLevel:kSentryLogLevelDebug];
+    }
+    
     [self captureEnvelope:envelope];
 }
 
