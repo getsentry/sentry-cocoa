@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Deployment target warning for Swift Package Manager for Xcode 12 #586
+
 ## 5.1.6
 
 - feat: Simplified SDK start #580
