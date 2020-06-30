@@ -60,7 +60,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.fileManager.timestampLastInForeground = nil
         sut.start()
 
-        willResignActive()
+        TestNotificationCenter.willResignActive()
 
         XCTAssertEqual(1, fixture.fileManager.readTimestampLastInForegroundInvocations)
         XCTAssertEqual(0, fixture.fileManager.deleteTimestampLastInForegroundInvocations)
@@ -73,7 +73,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testNotInBackground() {
         fixture.getSut().start()
 
-        didBecomeActive()
+        TestNotificationCenter.didBecomeActive()
 
         assertSessionNotEnded()
     }
@@ -81,9 +81,9 @@ class SentrySessionTrackerTests: XCTestCase {
     func testNotLongEnoughInBackground() {
         fixture.getSut().start()
 
-        willResignActive()
+        TestNotificationCenter.willResignActive()
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10))
-        didBecomeActive()
+        TestNotificationCenter.didBecomeActive()
 
         assertSessionNotEnded()
     }
@@ -93,9 +93,9 @@ class SentrySessionTrackerTests: XCTestCase {
 
         let expectedEndSessionTimestamp = fixture.currentDateProvider.date()
 
-        willResignActive()
+        TestNotificationCenter.willResignActive()
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10.01))
-        didBecomeActive()
+        TestNotificationCenter.didBecomeActive()
 
         // Session ended
         XCTAssertEqual(expectedEndSessionTimestamp, fixture.hub.endSessionTimestamp)
@@ -106,12 +106,12 @@ class SentrySessionTrackerTests: XCTestCase {
     func testForegroundResetsBackground() {
         fixture.getSut().start()
 
-        willResignActive()
+        TestNotificationCenter.willResignActive()
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10))
-        didBecomeActive()
+        TestNotificationCenter.didBecomeActive()
 
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10))
-        didBecomeActive()
+        TestNotificationCenter.didBecomeActive()
 
         assertSessionNotEnded()
     }
@@ -119,7 +119,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testTerminateWithNotInBackground() {
         fixture.getSut().start()
 
-        willTerminate()
+        TestNotificationCenter.willTerminate()
 
         XCTAssertEqual(fixture.currentDateProvider.date(), fixture.hub.endSessionTimestamp)
     }
@@ -130,22 +130,10 @@ class SentrySessionTrackerTests: XCTestCase {
         let expectedEndSessionTimestamp = fixture.currentDateProvider.date().addingTimeInterval(1)
         fixture.currentDateProvider.setDate(date: expectedEndSessionTimestamp)
 
-        willResignActive()
-        willTerminate()
+        TestNotificationCenter.willResignActive()
+        TestNotificationCenter.willTerminate()
 
         XCTAssertEqual(expectedEndSessionTimestamp, fixture.hub.endSessionTimestamp)
-    }
-
-    private func willTerminate() {
-        NotificationCenter.default.post(Notification(name: UIApplication.willTerminateNotification))
-    }
-
-    private func didBecomeActive() {
-        NotificationCenter.default.post(Notification(name: UIApplication.didBecomeActiveNotification))
-    }
-
-    private func willResignActive() {
-        NotificationCenter.default.post(Notification(name: UIApplication.willResignActiveNotification))
     }
 
     private func assertSessionNotEnded() {
