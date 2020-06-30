@@ -19,7 +19,6 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             
-            
             let client = TestClient(options: options)
             
             hub = SentryHub(client: client, andScope: nil)
@@ -47,5 +46,16 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         XCTAssertNil(fixture.fileManager.readTimestampLastInForeground())
     }
     
+    func testLaunchBackgroundExecutionFromForegroundStoresSession() {
+        // Docs about background execution sequence https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/about_the_background_execution_sequence
+        
+        fixture.getSut().start()
+        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.willResignActive()
+        TestNotificationCenter.didEnterBackground()
+        
+        XCTAssertNotNil(fixture.fileManager.readCurrentSession())
+        XCTAssertNotNil(fixture.fileManager.readTimestampLastInForeground())
+    }
     
 }
