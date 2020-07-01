@@ -18,9 +18,11 @@ SentrySessionTracker ()
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (atomic, strong) NSDate *lastInForeground;
 
-@property (nonatomic, copy) NSNumber *wasStartCalled;
-@property (nonatomic, copy) NSNumber *wasDidBecomeActiveCalled;
-@property (nonatomic, copy) NSNumber *isInBackground;
+@property (nonatomic, copy) NSNumber *wasWillEnterForegroundCalled;
+
+@property (atomic, strong) id __block foregroundNotificationToken;
+@property (atomic, strong) id __block backgroundNotificationToken;
+@property (atomic, strong) id __block willTerminateNotificationToken;
 
 @end
 
@@ -32,10 +34,8 @@ SentrySessionTracker ()
     if (self = [super init]) {
         self.options = options;
         self.currentDateProvider = currentDateProvider;
-        
-        self.wasStartCalled = @NO;
-        self.wasDidBecomeActiveCalled = @NO;
-        self.isInBackground = @NO;
+
+        self.wasWillEnterForegroundCalled = @NO;
     }
     return self;
 }
@@ -44,68 +44,86 @@ SentrySessionTracker ()
 {
     __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
-    NSNotificationName willEnterForegroundNotificationName = UIApplicationWillEnterForegroundNotification;
+    NSNotificationName willEnterForegroundNotificationName
+        = UIApplicationWillEnterForegroundNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
     NSNotificationName willTerminateNotification = UIApplicationWillTerminateNotification;
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    NSNotificationName willEnterForegroundNotificationName = NSApplicationDidBecomeActiveNotification;
+    NSNotificationName willEnterForegroundNotificationName
+        = NSApplicationDidBecomeActiveNotification;
     NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotification;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
-     @"track sessions automatically."
+                              @"track sessions automatically."
                      andLevel:kSentryLogLevelDebug];
 #endif
-    
+
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    [NSNotificationCenter.defaultCenter
-     addObserverForName:willEnterForegroundNotificationName
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) { [blockSelf willEnterForeground]; }];
-    
-    [NSNotificationCenter.defaultCenter
-     addObserverForName:willTerminateNotification
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
+    self.foregroundNotificationToken = [NSNotificationCenter.defaultCenter
+        addObserverForName:willEnterForegroundNotificationName
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) { [blockSelf willEnterForeground]; }];
+
+    self.willTerminateNotificationToken = [NSNotificationCenter.defaultCenter
+        addObserverForName:willTerminateNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
 #endif
-    
+
 #if SENTRY_HAS_UIKIT
-    [NSNotificationCenter.defaultCenter
-     addObserverForName:backgroundNotificationName
-     object:nil
-     queue:nil
-     usingBlock:^(NSNotification *notification) { [blockSelf didEnterBackground]; }];
+    self.backgroundNotificationToken =  [NSNotificationCenter.defaultCenter
+        addObserverForName:backgroundNotificationName
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) { [blockSelf didEnterBackground]; }];
+#endif
+}
+
+- (void)stop
+{
+#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self.foregroundNotificationToken];
+    [center removeObserver:self.backgroundNotificationToken];
+    [center removeObserver:self.willTerminateNotificationToken];
+
 #endif
 }
 
 - (void)willEnterForeground
 {
     SentryHub *hub = [SentrySDK currentHub];
-    
+
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
-    
+
     if (nil == self.lastInForeground) {
         [hub startSession];
-    }
-    else {
+    } else {
         NSTimeInterval timeSinceLastInForegroundInSeconds =
-        [[self.currentDateProvider date] timeIntervalSinceDate:self.lastInForeground];
-        
-        if (timeSinceLastInForegroundInSeconds * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
+            [self.lastInForeground timeIntervalSinceDate:hub.session.started];
+
+        if (timeSinceLastInForegroundInSeconds * 1000
+            >= (double)(self.options.sessionTrackingIntervalMillis)) {
+            [hub endSessionWithTimestamp:self.lastInForeground];
             [hub startSession];
         }
     }
-    
-    self.lastInForeground = [self.currentDateProvider date];
-    [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
+
+    self.wasWillEnterForegroundCalled = @YES;
 }
 
 #if SENTRY_HAS_UIKIT
 - (void)didEnterBackground
 {
-    SentryHub *hub = [SentrySDK currentHub];
-    [hub closeCachedSessionWithTimestamp:[self.currentDateProvider date]];
+    if ([self.wasWillEnterForegroundCalled boolValue]) {
+        self.lastInForeground = [self.currentDateProvider date];
+        SentryHub *hub = [SentrySDK currentHub];
+        [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
+    }
+
+    self.wasWillEnterForegroundCalled = @NO;
 }
 #endif
 

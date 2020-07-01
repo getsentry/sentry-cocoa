@@ -2,11 +2,11 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
+#import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
-#import "SentryCurrentDate.h"
 
 @interface
 SentryHub ()

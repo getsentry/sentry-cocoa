@@ -6,7 +6,7 @@ class TestClient: Client {
         sentryFileManager
     }
     
-    var sessions : [SentrySession] = []
+    var sessions: [SentrySession] = []
     override func capture(session: SentrySession) {
         sessions.append(session)
     }
