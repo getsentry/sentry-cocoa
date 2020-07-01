@@ -5,6 +5,11 @@ class TestClient: Client {
     override func fileManager() -> SentryFileManager {
         sentryFileManager
     }
+    
+    var sessions : [SentrySession] = []
+    override func capture(session: SentrySession) {
+        sessions.append(session)
+    }
 }
 
 class TestFileManager: SentryFileManager {
@@ -27,4 +32,5 @@ class TestFileManager: SentryFileManager {
         deleteTimestampLastInForegroundInvocations += 1
         timestampLastInForeground = nil
     }
+    
 }
