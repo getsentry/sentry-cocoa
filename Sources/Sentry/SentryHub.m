@@ -6,6 +6,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryCurrentDate.h"
 
 @interface
 SentryHub ()
@@ -56,7 +57,7 @@ SentryHub ()
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSessionExitedWithTimestamp:[NSDate date]];
+    [lastSession endSessionExitedWithTimestamp:[SentryCurrentDate date]];
     [self captureSession:lastSession];
 }
 

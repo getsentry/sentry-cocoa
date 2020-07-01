@@ -9,6 +9,7 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         var hub: SentryHub!
         var fileManager: SentryFileManager!
         var client: TestClient!
+        private let sessionTrackingIntervalMillis : UInt = 10_000
         
         init() {
             fileManager = try! SentryFileManager(dsn: SentryDsn())
@@ -18,12 +19,14 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
             let options = Options()
             options.dsn = TestConstants.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
-            options.sessionTrackingIntervalMillis = 10_000
+            options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
             
             client = TestClient(options: options)
             
             hub = SentryHub(client: client, andScope: nil)
             SentrySDK.setCurrentHub(hub)
+            
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
             
             return SessionTracker(options: options, currentDateProvider: currentDateProvider)
         }
@@ -38,6 +41,74 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteTimestampLastInForeground()
     }
+    
+    func testLaunchAppInForeground() {
+        fixture.getSut().start()
+        goToForeground()
+        
+        assertSessionInitSent()
+        assertSessionStored()
+    }
+    
+    func testInForeground_Background() {
+        let startTime = fixture.currentDateProvider.date()
+        fixture.getSut().start()
+        
+        goToForeground()
+        advanceTime(by: 1)
+        
+        goToBackground()
+        assertEndSession(started: startTime, duration: 1)
+    }
+    
+    func testSessionEnded_NotLongEnoughInBackground_DoesNotStartSession() {
+        let startTime = fixture.currentDateProvider.date()
+        fixture.getSut().start()
+        
+        goToForeground()
+        advanceTime(by: 9)
+        
+        goToBackground()
+        assertEndSession(started: startTime, duration: 9)
+        
+        goToForeground()
+        assertSentSessions(count: 2)
+    }
+    
+    func testSessionEnded_LongEnoughInBackground_StartsSession() {
+           let startTime = fixture.currentDateProvider.date()
+           fixture.getSut().start()
+           
+           goToForeground()
+           advanceTime(by: 10)
+           
+           goToBackground()
+           assertEndSession(started: startTime, duration: 10)
+           
+           goToForeground()
+           assertSentSessions(count: 3)
+       }
+    
+    func testGotForeground_GoToBackground_DurationTooShort_GoToForeground() {
+        let startTime = fixture.currentDateProvider.date()
+        fixture.getSut().start()
+        
+        goToForeground()
+        advanceTime(by: 9)
+        
+        goToBackground()
+        assertSentSessions(count: 1)
+        
+        goToForeground()
+        assertSentSessions(count: 1)
+        
+        advanceTime(by: 1)
+        goToBackground()
+        assertEndSession(started: startTime, duration: 10)
+    }
+    
+
+  
     
     func testLaunchFromBackground_AppNotRunning() {
         launchFromBackgroundNotRunning()
@@ -115,6 +186,7 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func goToForeground() {
+        TestNotificationCenter.willEnterForeground()
         TestNotificationCenter.didBecomeActive()
     }
     
@@ -147,6 +219,20 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(0,  fixture.client.sessions.count)
     }
     
+    private func assertEndSession(started: Date, duration: NSNumber) {
+        let session = fixture.client.sessions[1]
+        XCTAssertFalse(session.flagInit?.boolValue ?? false)
+        XCTAssertNotNil(session.sessionId)
+        XCTAssertEqual(started, session.started)
+        XCTAssertEqual(SentrySessionStatus.exited, session.status)
+        XCTAssertEqual(0, session.errors)
+        XCTAssertNotNil(session.distinctId)
+        XCTAssertEqual(fixture.currentDateProvider.date(), session.timestamp)
+        XCTAssertEqual(duration, session.duration)
+        XCTAssertNil(session.environment)
+        XCTAssertNil(session.user)
+    }
+    
     private func assertSessionInitSent() {
         if let session = fixture.client.sessions.first {
             XCTAssertTrue(session.flagInit?.boolValue ?? false)
@@ -163,6 +249,7 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
             XCTFail("No session init sent.")
         }
     }
+    
     
     private func assertSentSessions(count: Int) {
         XCTAssertEqual(count, fixture.client.sessions.count)
