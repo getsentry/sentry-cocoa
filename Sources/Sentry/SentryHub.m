@@ -2,6 +2,7 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
+#import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
@@ -56,7 +57,7 @@ SentryHub ()
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSessionExitedWithTimestamp:[NSDate date]];
+    [lastSession endSessionExitedWithTimestamp:[SentryCurrentDate date]];
     [self captureSession:lastSession];
 }
 
@@ -107,7 +108,7 @@ SentryHub ()
     }
 
     if (SentryCrash.sharedInstance.crashedLastLaunch) {
-        NSDate *timeSinceLastCrash = [[NSDate date]
+        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
             dateByAddingTimeInterval:-SentryCrash.sharedInstance.activeDurationSinceLastCrash];
 
         [SentryLog logWithMessage:@"Closing cached session as crashed."
