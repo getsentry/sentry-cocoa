@@ -1,8 +1,5 @@
 #import "SentrySessionTracker.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
-#import "SentryOptions.h"
 #import "SentrySDK.h"
 
 #if SENTRY_HAS_UIKIT
