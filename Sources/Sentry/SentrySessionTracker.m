@@ -15,6 +15,10 @@ SentrySessionTracker ()
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (atomic, strong) NSDate *lastInForeground;
 
+@property (atomic, strong) id __block foregroundNotificationToken;
+@property (atomic, strong) id __block backgroundNotificationToken;
+@property (atomic, strong) id __block willTerminateNotificationToken;
+
 @end
 
 @implementation SentrySessionTracker
@@ -56,21 +60,32 @@ SentrySessionTracker ()
 
     [hub closeCachedSessionWithTimestamp:lastInForeground];
     [hub startSession];
-    [NSNotificationCenter.defaultCenter
+
+    self.foregroundNotificationToken = [NSNotificationCenter.defaultCenter
         addObserverForName:foregroundNotificationName
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) { [blockSelf didBecomeActive]; }];
-    [NSNotificationCenter.defaultCenter
+    self.backgroundNotificationToken = [NSNotificationCenter.defaultCenter
         addObserverForName:backgroundNotificationName
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) { [blockSelf willResignActive]; }];
-    [NSNotificationCenter.defaultCenter
+    self.willTerminateNotificationToken = [NSNotificationCenter.defaultCenter
         addObserverForName:willTerminateNotification
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
+#endif
+}
+
+- (void)stop
+{
+#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self.foregroundNotificationToken];
+    [center removeObserver:self.backgroundNotificationToken];
+    [center removeObserver:self.willTerminateNotificationToken];
 #endif
 }
 

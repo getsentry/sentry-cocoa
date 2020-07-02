@@ -28,15 +28,22 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private var fixture: Fixture!
+    private var sut: SessionTracker!
 
     override func setUp() {
         super.setUp()
 
         fixture = Fixture()
+        sut = fixture.getSut()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        sut.stop()
     }
 
     func testStartClosesPreviousCachedSession() {
-        fixture.getSut().start()
+        sut.start()
 
         XCTAssertEqual(1, fixture.fileManager.readTimestampLastInForegroundInvocations)
         XCTAssertEqual(1, fixture.fileManager.deleteTimestampLastInForegroundInvocations)
@@ -45,7 +52,6 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testStartClosesPreviousCachedSessionWithoutSavedTimestamp() {
-        let sut = fixture.getSut()
         fixture.fileManager.timestampLastInForeground = nil
         sut.start()
 
@@ -56,7 +62,6 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testStoresTimestampWhenInBackground() {
-        let sut = fixture.getSut()
         fixture.fileManager.timestampLastInForeground = nil
         sut.start()
 
@@ -65,13 +70,12 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertEqual(1, fixture.fileManager.readTimestampLastInForegroundInvocations)
         XCTAssertEqual(0, fixture.fileManager.deleteTimestampLastInForegroundInvocations)
         
-        // TODO: Multiple observers are added at the notification center. We never remove them, that's why we have multiple invocations here. Fix this.
-        XCTAssertEqual(8, fixture.fileManager.storeTimestampLastInForegroundInvocations)
+        XCTAssertEqual(1, fixture.fileManager.storeTimestampLastInForegroundInvocations)
         XCTAssertEqual(fixture.currentDateProvider.date(), fixture.fileManager.timestampLastInForeground)
     }
 
     func testNotInBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         didBecomeActive()
 
@@ -79,7 +83,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testNotLongEnoughInBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         willResignActive()
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10))
@@ -89,7 +93,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testLongEnoughInBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         let expectedEndSessionTimestamp = fixture.currentDateProvider.date()
 
@@ -104,7 +108,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testForegroundResetsBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         willResignActive()
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(10))
@@ -117,7 +121,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testTerminateWithNotInBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         willTerminate()
 
@@ -125,7 +129,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
 
     func testTerminateWithInBackground() {
-        fixture.getSut().start()
+        sut.start()
 
         let expectedEndSessionTimestamp = fixture.currentDateProvider.date().addingTimeInterval(1)
         fixture.currentDateProvider.setDate(date: expectedEndSessionTimestamp)

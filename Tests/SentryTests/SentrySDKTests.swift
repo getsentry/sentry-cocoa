@@ -3,6 +3,16 @@ import XCTest
 
 class SentrySDKTests: XCTestCase {
     
+    override func tearDown() {
+        super.tearDown()
+        
+        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations.first(where: { it in
+            it is SentryAutoSessionTrackingIntegration
+        }) as? SentryAutoSessionTrackingIntegration {
+            autoSessionTracking.stop()
+        }
+    }
+    
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString

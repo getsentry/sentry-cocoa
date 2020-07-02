@@ -11,4 +11,5 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 - (void)start;
+- (void)stop;
 @end
