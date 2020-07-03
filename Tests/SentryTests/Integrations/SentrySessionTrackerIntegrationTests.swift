@@ -163,7 +163,7 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         goToForeground()
         assertLastInForegroundIsNil()
     }
-
+    
     func testLaunchFromBackground_AppWasNotRunning_Terminate() {
         launchFromBackgroundNotRunning()
         
@@ -223,21 +223,27 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func assertEndSession(started: Date, duration: NSNumber, errors: UInt = 0) {
-        if let session = fixture.client.sessions.last {
+        
+        // the end session is the second but last, because the sdk sends an session
+        // init after sending the end of the session.
+        
+        let endSessionIndex = fixture.client.sessions.count - 2
+        
+        if let session = fixture.client?.sessions[endSessionIndex] {
             XCTAssertFalse(session.flagInit?.boolValue ?? false)
-                   XCTAssertNotNil(session.sessionId)
-                   XCTAssertEqual(started, session.started)
-                   XCTAssertEqual(SentrySessionStatus.exited, session.status)
-                   XCTAssertEqual(errors, session.errors)
-                   XCTAssertNotNil(session.distinctId)
-                   XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
-                   XCTAssertEqual(duration, session.duration)
-                   XCTAssertNil(session.environment)
-                   XCTAssertNil(session.user)
+            XCTAssertNotNil(session.sessionId)
+            XCTAssertEqual(started, session.started)
+            XCTAssertEqual(SentrySessionStatus.exited, session.status)
+            XCTAssertEqual(errors, session.errors)
+            XCTAssertNotNil(session.distinctId)
+            XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
+            XCTAssertEqual(duration, session.duration)
+            XCTAssertNil(session.environment)
+            XCTAssertNil(session.user)
         } else {
             XCTFail("No session was sent.")
         }
-       
+        
     }
     
     private func assertSessionInitSent() {
@@ -267,6 +273,5 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
     
     private func assertLastInForegroundStored() {
         XCTAssertEqual(fixture.currentDateProvider.date(), fixture.fileManager.readTimestampLastInForeground())
-
     }
 }

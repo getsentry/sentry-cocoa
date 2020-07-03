@@ -1,4 +1,4 @@
-#import "SentrySessionTracker.h"
+#import "SentryUIKitSessionTracker.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
 
@@ -9,7 +9,7 @@
 #endif
 
 @interface
-SentrySessionTracker ()
+SentryUIKitSessionTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
@@ -23,7 +23,7 @@ SentrySessionTracker ()
 
 @end
 
-@implementation SentrySessionTracker
+@implementation SentryUIKitSessionTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -50,7 +50,7 @@ SentrySessionTracker ()
         = NSApplicationDidBecomeActiveNotification;
     NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotification;
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
+    [SentryLog logWithMessage:@"NO UIKit -> SentryUIKitSessionTracker will not "
                               @"track sessions automatically."
                      andLevel:kSentryLogLevelDebug];
 #endif

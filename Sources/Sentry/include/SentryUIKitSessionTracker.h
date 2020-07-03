@@ -5,7 +5,7 @@
 #import "SentryOptions.h"
 
 NS_SWIFT_NAME(SessionTracker)
-@interface SentrySessionTracker : NSObject
+@interface SentryUIKitSessionTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
