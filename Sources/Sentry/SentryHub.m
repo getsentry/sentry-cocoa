@@ -108,7 +108,7 @@ SentryHub ()
     }
 
     if (SentryCrash.sharedInstance.crashedLastLaunch) {
-        NSDate *timeSinceLastCrash = [[NSDate date]
+        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
             dateByAddingTimeInterval:-SentryCrash.sharedInstance.activeDurationSinceLastCrash];
 
         [SentryLog logWithMessage:@"Closing cached session as crashed."
