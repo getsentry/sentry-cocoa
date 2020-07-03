@@ -1,12 +1,7 @@
 #import "SentryUIKitSessionTracker.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
-
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-#    import <Cocoa/Cocoa.h>
-#endif
+#import <UIKit/UIKit.h>
 
 @interface
 SentryUIKitSessionTracker ()
@@ -41,21 +36,12 @@ SentryUIKitSessionTracker ()
 {
     __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
+
     NSNotificationName willEnterForegroundNotificationName
         = UIApplicationWillEnterForegroundNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
     NSNotificationName willTerminateNotification = UIApplicationWillTerminateNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    NSNotificationName willEnterForegroundNotificationName
-        = NSApplicationDidBecomeActiveNotification;
-    NSNotificationName willTerminateNotification = NSApplicationWillTerminateNotification;
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryUIKitSessionTracker will not "
-                              @"track sessions automatically."
-                     andLevel:kSentryLogLevelDebug];
-#endif
 
-#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
     self.foregroundNotificationToken = [NSNotificationCenter.defaultCenter
         addObserverForName:willEnterForegroundNotificationName
                     object:nil
@@ -67,10 +53,8 @@ SentryUIKitSessionTracker ()
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
-#endif
 
-#if SENTRY_HAS_UIKIT
-    self.backgroundNotificationToken =  [NSNotificationCenter.defaultCenter
+    self.backgroundNotificationToken = [NSNotificationCenter.defaultCenter
         addObserverForName:backgroundNotificationName
                     object:nil
                      queue:nil
@@ -80,12 +64,11 @@ SentryUIKitSessionTracker ()
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_HAS_UIKIT
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center removeObserver:self.foregroundNotificationToken];
     [center removeObserver:self.backgroundNotificationToken];
     [center removeObserver:self.willTerminateNotificationToken];
-
 #endif
 }
 
@@ -111,7 +94,6 @@ SentryUIKitSessionTracker ()
     self.wasWillEnterForegroundCalled = @YES;
 }
 
-#if SENTRY_HAS_UIKIT
 - (void)didEnterBackground
 {
     if ([self.wasWillEnterForegroundCalled boolValue]) {
@@ -122,7 +104,6 @@ SentryUIKitSessionTracker ()
 
     self.wasWillEnterForegroundCalled = @NO;
 }
-#endif
 
 - (void)willTerminate
 {
