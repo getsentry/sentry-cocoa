@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: All integrations implement SentryIntegrationProtocol #602
 - fix: Deployment target warning for Swift Package Manager for Xcode 12 #586
 
 ## 5.1.6
