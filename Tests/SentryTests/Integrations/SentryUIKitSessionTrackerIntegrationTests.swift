@@ -15,7 +15,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
             fileManager = try! SentryFileManager(dsn: SentryDsn())
         }
         
-        func getSut() -> UIKitSessionTracker {
+        func getSut() -> SentryUIKitSessionTracker {
             let options = Options()
             options.dsn = TestConstants.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
@@ -28,12 +28,12 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
-            return UIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
+            return SentryUIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
         }
     }
     
     private var fixture: Fixture!
-    private var sut: UIKitSessionTracker!
+    private var sut: SentryUIKitSessionTracker!
     
     override func setUp() {
         super.setUp()

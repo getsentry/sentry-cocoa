@@ -10,7 +10,7 @@ class SentryUIKitSessionTrackerTests: XCTestCase {
         var hub: TestHub!
         var fileManager: TestFileManager!
         
-        func getSut() -> UIKitSessionTracker {
+        func getSut() -> SentryUIKitSessionTracker {
             let options = Options()
             options.dsn = TestConstants.dsnAsString
             options.releaseName = "SentrySessionTrackerTests"
@@ -23,12 +23,12 @@ class SentryUIKitSessionTrackerTests: XCTestCase {
             hub = TestHub(client: client, andScope: nil)
             SentrySDK.setCurrentHub(hub)
             
-            return UIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
+            return SentryUIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
         }
     }
     
     private var fixture: Fixture!
-    private var sut: UIKitSessionTracker!
+    private var sut: SentryUIKitSessionTracker!
 
     override func setUp() {
         super.setUp()

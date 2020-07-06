@@ -4,7 +4,6 @@
 #import "SentryEvent.h"
 #import "SentryOptions.h"
 
-NS_SWIFT_NAME(SessionTracker)
 @interface SentryUIKitSessionTracker : NSObject
 SENTRY_NO_INIT
 
