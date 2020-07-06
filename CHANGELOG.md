@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Overwriting stack trace for crashes #605
 - fix: Deployment target warning for Swift Package Manager for Xcode 12 #586
 
 ## 5.1.6
