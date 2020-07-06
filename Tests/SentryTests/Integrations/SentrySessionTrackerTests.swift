@@ -7,13 +7,6 @@ class SentrySessionTrackerTests: XCTestCase {
     private var currentDateProvider: TestCurrentDateProvider!
     private var hub: TestHub!
     private var fileManager: TestFileManager!
-
-    private class Fixture {
-        static func getSut(options: Options, currentDateProvider: CurrentDateProvider) -> SessionTracker {
-           
-            return SessionTracker(options: options, currentDateProvider: currentDateProvider)
-        }
-    }
     
     private var sut: SessionTracker!
     
@@ -34,7 +27,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         currentDateProvider = TestCurrentDateProvider()
         
-        sut = Fixture.getSut(options: options, currentDateProvider: currentDateProvider)
+        sut = SessionTracker(options: options, currentDateProvider: currentDateProvider)
     }
     
     override func tearDown() {
