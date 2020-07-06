@@ -8,7 +8,7 @@ class TestClient: Client {
 }
 
 class TestFileManager: SentryFileManager {
-    var timestampLastInForeground: Date? = Date()
+    var timestampLastInForeground: Date? = nil
     var readTimestampLastInForegroundInvocations: Int = 0
     var storeTimestampLastInForegroundInvocations: Int = 0
     var deleteTimestampLastInForegroundInvocations: Int = 0
