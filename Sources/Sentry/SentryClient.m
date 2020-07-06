@@ -234,9 +234,16 @@ SentryClient ()
         event.sdk = sdk;
     }
 
-    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue] ||
-        [event.exceptions count] > 0) {
+    BOOL shouldAttachStacktrace = alwaysAttachStacktrace ||
+        [self.options.attachStacktrace boolValue] || [event.exceptions count] > 0;
+
+    BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+    if (shouldAttachStacktrace && debugMetaNotAttached) {
         event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+    }
+
+    BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+    if (shouldAttachStacktrace && threadsNotAttached) {
         // We don't want to add the stacktrace of attaching the stacktrace.
         // Therefore we skip three frames.
         event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
