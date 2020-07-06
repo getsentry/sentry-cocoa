@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryAutoSessionTrackingIntegration : NSObject <SentryIntegrationProtocol>
 
+- (void)stop;
+
 @end
 
 NS_ASSUME_NONNULL_END
