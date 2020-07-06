@@ -2,6 +2,10 @@
 
 ## unreleased
 
+## 5.1.8
+
+- fix: Cocoapods build
+
 ## 5.1.7
 
 - fix: Overwriting stack trace for crashes #605
