@@ -8,7 +8,7 @@ class SentryUIKitSessionTrackerTests: XCTestCase {
     private var hub: TestHub!
     private var fileManager: TestFileManager!
 
-    private var sut: SessionTracker!
+    private var sut: SentryUIKitSessionTracker!
 
     override func setUp() {
         super.setUp()
