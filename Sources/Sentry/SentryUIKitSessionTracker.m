@@ -12,10 +12,6 @@ SentryUIKitSessionTracker ()
 
 @property (nonatomic, copy) NSNumber *wasWillEnterForegroundCalled;
 
-@property (atomic, strong) id __block foregroundNotificationToken;
-@property (atomic, strong) id __block backgroundNotificationToken;
-@property (atomic, strong) id __block willTerminateNotificationToken;
-
 @end
 
 @implementation SentryUIKitSessionTracker
@@ -34,7 +30,6 @@ SentryUIKitSessionTracker ()
 
 - (void)start
 {
-    __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
 
     NSNotificationName willEnterForegroundNotificationName
@@ -42,34 +37,26 @@ SentryUIKitSessionTracker ()
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
     NSNotificationName willTerminateNotification = UIApplicationWillTerminateNotification;
 
-    self.foregroundNotificationToken = [NSNotificationCenter.defaultCenter
-        addObserverForName:willEnterForegroundNotificationName
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf willEnterForeground]; }];
+   [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willEnterForeground)
+                                               name:willEnterForegroundNotificationName
+                                             object:nil];
 
-    self.willTerminateNotificationToken = [NSNotificationCenter.defaultCenter
-        addObserverForName:willTerminateNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didEnterBackground)
+                                               name:backgroundNotificationName
+                                             object:nil];
 
-    self.backgroundNotificationToken = [NSNotificationCenter.defaultCenter
-        addObserverForName:backgroundNotificationName
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf didEnterBackground]; }];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willTerminate)
+                                               name:willTerminateNotification
+                                             object:nil];
 #endif
 }
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self.foregroundNotificationToken];
-    [center removeObserver:self.backgroundNotificationToken];
-    [center removeObserver:self.willTerminateNotificationToken];
-#endif
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)willEnterForeground
