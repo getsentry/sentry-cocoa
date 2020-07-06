@@ -4,6 +4,7 @@
 //
 
 #import "NSDate+SentryExtras.h"
+#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryClient+TestInit.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashBinaryImageProvider.h"

@@ -31,7 +31,6 @@ SentrySessionTracker ()
 
 - (void)start
 {
-    __block id blockSelf = self;
 #if SENTRY_HAS_UIKIT
     NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName backgroundNotificationName = UIApplicationWillResignActiveNotification;
@@ -56,21 +55,29 @@ SentrySessionTracker ()
 
     [hub closeCachedSessionWithTimestamp:lastInForeground];
     [hub startSession];
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:foregroundNotificationName
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf didBecomeActive]; }];
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:backgroundNotificationName
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf willResignActive]; }];
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:willTerminateNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) { [blockSelf willTerminate]; }];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:foregroundNotificationName
+                                             object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willResignActive)
+                                               name:backgroundNotificationName
+                                             object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willTerminate)
+                                               name:willTerminateNotification
+                                             object:nil];
+
+#endif
+}
+
+- (void)stop
+{
+#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 #endif
 }
 
