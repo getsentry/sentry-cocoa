@@ -3,46 +3,35 @@ import XCTest
 
 class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     
-    private class Fixture {
-        
-        var currentDateProvider = TestCurrentDateProvider()
-        var hub: SentryHub!
-        var fileManager: SentryFileManager!
-        var client: TestClient!
-        private let sessionTrackingIntervalMillis: UInt = 10_000
-        
-        init() {
-            fileManager = try! SentryFileManager(dsn: SentryDsn())
-        }
-        
-        func getSut() -> SentryUIKitSessionTracker {
-            let options = Options()
-            options.dsn = TestConstants.dsnAsString
-            options.releaseName = "SentrySessionTrackerIntegrationTests"
-            options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
-            
-            client = TestClient(options: options)
-            
-            hub = SentryHub(client: client, andScope: nil)
-            SentrySDK.setCurrentHub(hub)
-            
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
-            
-            return SentryUIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
-        }
-    }
+    private let sessionTrackingIntervalMillis: UInt = 10_000
+    private var fileManager: SentryFileManager!
+    private var hub: SentryHub!
+    private var client: TestClient!
+    private var currentDateProvider: TestCurrentDateProvider!
     
-    private var fixture: Fixture!
     private var sut: SentryUIKitSessionTracker!
     
     override func setUp() {
         super.setUp()
         
-        fixture = Fixture()
-        fixture.fileManager.deleteCurrentSession()
-        fixture.fileManager.deleteTimestampLastInForeground()
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString
+        options.releaseName = "SentrySessionTrackerIntegrationTests"
+        options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
         
-        sut = fixture.getSut()
+        client = TestClient(options: options)
+        
+        fileManager = try! SentryFileManager(dsn: SentryDsn())
+        fileManager.deleteCurrentSession()
+        fileManager.deleteTimestampLastInForeground()
+        
+        hub = SentryHub(client: client, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        currentDateProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(currentDateProvider)
+        
+        sut = SentryUIKitSessionTracker(options: options, currentDateProvider: currentDateProvider)
     }
     
     override func tearDown() {
@@ -71,7 +60,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     func testForeground_Background_TrackingIntervalReached() {
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         sut.start()
         
         goToForeground()
@@ -88,7 +77,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     func testForegroundWithError() {
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         sut.start()
         goToForeground()
         
@@ -109,7 +98,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     func testLaunchFromBackground_AppWasRunning_UserOpensApp() {
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         sut.start()
         goToForeground()
         advanceTime(by: 20)
@@ -131,7 +120,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
         goToBackground()
         
         advanceTime(by: 10)
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         
         // user opens app
         goToForeground()
@@ -143,7 +132,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     func testForeground_Background_Terminate() {
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         sut.start()
         goToForeground()
         advanceTime(by: 9)
@@ -159,7 +148,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
         // start app again
         // TODO: Unregister notifications from first SessionTracker to be able to test
         // if session init was sent.
-        fixture.getSut().start()
+        sut.start()
         goToForeground()
         assertLastInForegroundIsNil()
     }
@@ -172,7 +161,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     func testLaunchFromBackground_AppWasRunning_Terminate() {
-        let startTime = fixture.currentDateProvider.date()
+        let startTime = currentDateProvider.date()
         sut.start()
         goToForeground()
         advanceTime(by: 2)
@@ -203,7 +192,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func advanceTime(by: TimeInterval) {
-        fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(by))
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(by))
     }
     
     private func resumeAppInBackground() {
@@ -211,15 +200,15 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func assertSessionNotStored() {
-        XCTAssertNil(fixture.fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCurrentSession())
     }
     
     private func assertSessionStored() {
-        XCTAssertNotNil(fixture.fileManager.readCurrentSession())
+        XCTAssertNotNil(fileManager.readCurrentSession())
     }
     
     private func assertNoSessionSent() {
-        XCTAssertEqual(0, fixture.client.sessions.count)
+        XCTAssertEqual(0, client.sessions.count)
     }
     
     private func assertEndSession(started: Date, duration: NSNumber, errors: UInt = 0) {
@@ -227,9 +216,9 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
         // the end session is the second but last, because the sdk sends an session
         // init after sending the end of the session.
         
-        let endSessionIndex = fixture.client.sessions.count - 2
+        let endSessionIndex = client.sessions.count - 2
         
-        if let session = fixture.client?.sessions[endSessionIndex] {
+        if let session = client?.sessions[endSessionIndex] {
             XCTAssertFalse(session.flagInit?.boolValue ?? false)
             XCTAssertNotNil(session.sessionId)
             XCTAssertEqual(started, session.started)
@@ -247,7 +236,7 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func assertSessionInitSent() {
-        if let session = fixture.client.sessions.first {
+        if let session = client.sessions.first {
             XCTAssertTrue(session.flagInit?.boolValue ?? false)
             XCTAssertNotNil(session.sessionId)
             XCTAssertNotNil(session.started) // TODO: check for date
@@ -264,14 +253,14 @@ class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
     }
     
     private func assertSentSessions(count: Int) {
-        XCTAssertEqual(count, fixture.client.sessions.count)
+        XCTAssertEqual(count, client.sessions.count)
     }
     
     private func assertLastInForegroundIsNil() {
-        XCTAssertNil(fixture.fileManager.readTimestampLastInForeground())
+        XCTAssertNil(fileManager.readTimestampLastInForeground())
     }
     
     private func assertLastInForegroundStored() {
-        XCTAssertEqual(fixture.currentDateProvider.date(), fixture.fileManager.readTimestampLastInForeground())
+        XCTAssertEqual(currentDateProvider.date(), fileManager.readTimestampLastInForeground())
     }
 }
