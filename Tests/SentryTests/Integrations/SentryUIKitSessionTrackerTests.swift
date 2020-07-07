@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentryUIKitSessionTrackerIntegrationTests: XCTestCase {
+class SentryUIKitSessionTrackerTests: XCTestCase {
     
     private let sessionTrackingIntervalMillis: UInt = 10_000
     private var fileManager: SentryFileManager!
