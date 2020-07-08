@@ -1,6 +1,6 @@
 import Foundation
 
-class TestSentryCrashWrapper: SentryCrashWrapper {
+class TestSentryCrashWrapper: SentryCrashAdapter {
     
     var internalCrashedLastLaunch = false
     override func crashedLastLaunch() -> Bool {

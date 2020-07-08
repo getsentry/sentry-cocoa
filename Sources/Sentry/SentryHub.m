@@ -1,7 +1,7 @@
 #import "SentryHub.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
-#import "SentryCrashWrapper.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
 #import "SentryIntegrationProtocol.h"
@@ -13,7 +13,7 @@ SentryHub ()
 
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
-@property (nonatomic, strong) SentryCrashWrapper *sentryCrashWrapper;
+@property (nonatomic, strong) SentryCrashAdapter *sentryCrashWrapper;
 
 @end
 
@@ -31,7 +31,7 @@ SentryHub ()
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        self.sentryCrashWrapper = [[SentryCrashWrapper alloc] init];
+        self.sentryCrashWrapper = [[SentryCrashAdapter alloc] init];
     }
     return self;
 }
@@ -39,7 +39,7 @@ SentryHub ()
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-         andSentryCrashWrapper:(SentryCrashWrapper *)sentryCrashWrapper
+         andSentryCrashWrapper:(SentryCrashAdapter *)sentryCrashWrapper
 {
     self = [self initWithClient:client andScope:scope];
     self.sentryCrashWrapper = sentryCrashWrapper;

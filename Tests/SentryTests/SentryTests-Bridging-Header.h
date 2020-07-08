@@ -14,7 +14,7 @@
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
-#import "SentryCrashWrapper.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryDateUtil.h"
 #import "SentryDebugMeta.h"
