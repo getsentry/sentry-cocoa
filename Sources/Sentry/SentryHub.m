@@ -1,7 +1,7 @@
 #import "SentryHub.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
-#import "SentryCrash.h"
+#import "SentryCrashWrapper.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
 #import "SentryIntegrationProtocol.h"
@@ -13,6 +13,7 @@ SentryHub ()
 
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
+@property (nonatomic, strong) SentryCrashWrapper *sentryCrashWrapper;
 
 @end
 
@@ -30,7 +31,19 @@ SentryHub ()
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
+        self.sentryCrashWrapper = [[SentryCrashWrapper alloc] init];
     }
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithClient:(SentryClient *_Nullable)client
+                      andScope:(SentryScope *_Nullable)scope
+         andSentryCrashWrapper:(SentryCrashWrapper *)sentryCrashWrapper
+{
+    self = [self initWithClient:client andScope:scope];
+    self.sentryCrashWrapper = sentryCrashWrapper;
+
     return self;
 }
 
@@ -107,9 +120,9 @@ SentryHub ()
         return;
     }
 
-    if (SentryCrash.sharedInstance.crashedLastLaunch) {
+    if (self.sentryCrashWrapper.crashedLastLaunch) {
         NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
-            dateByAddingTimeInterval:-SentryCrash.sharedInstance.activeDurationSinceLastCrash];
+            dateByAddingTimeInterval:-self.sentryCrashWrapper.activeDurationSinceLastCrash];
 
         [SentryLog logWithMessage:@"Closing cached session as crashed."
                          andLevel:kSentryLogLevelDebug];
