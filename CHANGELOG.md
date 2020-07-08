@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Abnormal sessions #607
+
 ## 5.1.8
 
 - fix: Cocoapods build
