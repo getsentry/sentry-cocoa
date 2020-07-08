@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: beforeSend takes prepared event #608
+
 ## 5.1.8
 
 - fix: Cocoapods build
