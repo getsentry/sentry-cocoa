@@ -45,7 +45,7 @@ SentrySessionTracker ()
     // DidBecomeActive and WillResignActive are not called when the app launches a background task.
     // WillTerminate is called no matter if started from the background or launched into the
     // foreground.
-    
+
 #if SENTRY_HAS_UIKIT
     NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
@@ -56,7 +56,7 @@ SentrySessionTracker ()
     NSNotificationName willTerminateNotificationName = NSApplicationWillTerminateNotification;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
-     @"track sessions automatically."
+                              @"track sessions automatically."
                      andLevel:kSentryLogLevelDebug];
 #endif
 
