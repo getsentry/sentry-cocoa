@@ -25,7 +25,7 @@ class SentrySessionTrackerTests: XCTestCase {
             return SessionTracker(options: options, currentDateProvider: currentDateProvider)
         }
         
-        func setCurrentHubToSDK() {
+        func setNewHubToSDK() {
             let hub = SentryHub(client: client, andScope: nil, andSentryCrashWrapper: self.sentryCrash)
             SentrySDK.setCurrentHub(hub)
         }
@@ -45,7 +45,7 @@ class SentrySessionTrackerTests: XCTestCase {
         fileManager.deleteCurrentSession()
         fileManager.deleteTimestampLastInForeground()
         
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
         
@@ -150,7 +150,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         advanceTime(bySeconds: 1)
         sut = fixture.getSut()
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         
         sut.start()
         assertSessionSent(started: sessionStartTime, duration: 0, status: SentrySessionStatus.abnormal)
@@ -167,7 +167,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         advanceTime(bySeconds: 1)
         sut = fixture.getSut()
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         
         sut.start()
         assertSessionSent(started: sessionStartTime, duration: 5, status: SentrySessionStatus.exited)
@@ -265,7 +265,7 @@ class SentrySessionTrackerTests: XCTestCase {
         advanceTime(bySeconds: 1)
         
         // Launch the app again
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         sut = fixture.getSut()
         sut.start()
         
@@ -292,6 +292,19 @@ class SentrySessionTrackerTests: XCTestCase {
         terminateApp()
         
         assertEndSessionSent(started: startTime, duration: 2)
+    }
+    
+    func testForeground_Background_Foreground_NoSessionToEnd() {
+        sut.start()
+        goToForeground()
+        goToBackground()
+        advanceTime(bySeconds: 10)
+        
+        fixture.setNewHubToSDK()
+        goToForeground()
+        
+        assertInitSessionSent()
+        assertSessionsSent(count: 2)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
@@ -325,7 +338,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     private func launchBackgroundTaskAppNotRunning() {
         sut.stop()
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         sut = fixture.getSut()
         
         sut.start()
@@ -446,7 +459,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertAppLaunchSendsCrashedSession() {
-        fixture.setCurrentHubToSDK()
+        fixture.setNewHubToSDK()
         sut = fixture.getSut()
         let sessionStartTime = fixture.currentDateProvider.date()
         advanceTime(bySeconds: 5)
