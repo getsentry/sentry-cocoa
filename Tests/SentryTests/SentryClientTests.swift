@@ -231,6 +231,20 @@ class SentryClientTest: XCTestCase {
         assertEventNotSent(eventId: eventId)
     }
 
+    func testBeforeSendReturnsNewEvent_NewEventSent() {
+        let newEvent = Event()
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                newEvent
+            }
+        }).capture(message: message, scope: nil)
+
+        XCTAssertEqual(newEvent.eventId, eventId)
+        assertLastSentEvent { actual in
+            XCTAssertEqual(newEvent.eventId, actual.eventId)
+        }
+    }
+
     func testSdkDisabled_MessageNotSent() {
         let sut = fixture.getSutWithDisabledSdk()
         let eventId = sut.capture(message: message, scope: nil)
