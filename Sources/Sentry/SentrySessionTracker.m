@@ -30,9 +30,14 @@ SentrySessionTracker ()
     return self;
 }
 
+/**
+ * Can also be called when the system launches an app for a background task. We don't want to track
+ * sessions if an app is only in the background. Therefore we must not start a session in here. Such
+ * apps must do session tracking manually, see
+ * https://docs.sentry.io/workflow/releases/health/#session
+ */
 - (void)start
 {
-
 #if SENTRY_HAS_UIKIT
     NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
@@ -64,15 +69,7 @@ SentrySessionTracker ()
                                                name:willTerminateNotificationName
                                              object:nil];
 
-    SentryHub *hub = [SentrySDK currentHub];
-    NSDate *_Nullable lastInForeground =
-        [[[hub getClient] fileManager] readTimestampLastInForeground];
-    if (nil != lastInForeground) {
-        [[[hub getClient] fileManager] deleteTimestampLastInForeground];
-    }
-
-    [hub closeCachedSessionWithTimestamp:lastInForeground];
-
+    [self endCachedSession];
 #endif
 }
 
@@ -83,14 +80,39 @@ SentrySessionTracker ()
 #endif
 }
 
+/**
+ * End previously cached sessions. We never can be sure that WillResignActive or WillTerminate
+ are called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and
+ end them.
+ */
+- (void)endCachedSession
+{
+    SentryHub *hub = [SentrySDK currentHub];
+    NSDate *_Nullable lastInForeground =
+        [[[hub getClient] fileManager] readTimestampLastInForeground];
+    if (nil != lastInForeground) {
+        [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    }
+
+    [hub closeCachedSessionWithTimestamp:lastInForeground];
+}
+
+/**
+ * Is only called when an app is receiving events / it is in the foreground.
+ */
 - (void)didBecomeActive
 {
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
     if (nil == self.lastInForeground) {
+        // Cause we don't want to track sessions if the app is in the background we need to wait
+        // until the app is in the foreground to start a session.
         [hub startSession];
     } else {
+        // When the app was already in the foreground we have to decide whether it was long enough
+        // in the background to start a new session or to keep the session open. We don't want a new
+        // session if the user switches to another app for just a few seconds.
         NSTimeInterval secondsInBackground =
             [[self.currentDateProvider date] timeIntervalSinceDate:self.lastInForeground];
 
@@ -101,6 +123,12 @@ SentrySessionTracker ()
     }
 }
 
+/**
+ * The app is about to lose focus / going to the background. This is only called when an app was
+ * receiving events / was is in the foreground. We can't end a session here because we don't how
+ * long the app is going to be in the background. If it is just for a few seconds we want to keep
+ * the session open.
+ */
 - (void)willResignActive
 {
     self.lastInForeground = [self.currentDateProvider date];
@@ -108,6 +136,9 @@ SentrySessionTracker ()
     [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
 }
 
+/**
+ * We always end the session when the app is terminated.
+ */
 - (void)willTerminate
 {
     NSDate *sessionEnded
