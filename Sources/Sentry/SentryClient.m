@@ -140,11 +140,11 @@ SentryClient ()
                              alwaysAttachStacktrace:alwaysAttachStacktrace];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
-            event = self.options.beforeSend(event);
+            preparedEvent = self.options.beforeSend(preparedEvent);
         }
-        if (nil != event) {
+        if (nil != preparedEvent) {
             [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
-            return event.eventId;
+            return preparedEvent.eventId;
         }
     }
     return nil;

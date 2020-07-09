@@ -222,13 +222,46 @@ class SentryClientTest: XCTestCase {
     }
 
     func testBeforeSendReturnsNil_EventNotSent() {
-        let eventId = fixture.getSut(configureOptions: { options in
+        fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil
             }
         }).capture(message: message, scope: nil)
 
-        assertEventNotSent(eventId: eventId)
+        assertNoEventSent()
+    }
+
+    func testBeforeSendReturnsNewEvent_NewEventSent() {
+        let newEvent = Event()
+        let releaseName = "1.0.0"
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                newEvent
+            }
+            options.releaseName = releaseName
+        }).capture(message: message, scope: nil)
+
+        XCTAssertEqual(newEvent.eventId, eventId)
+        assertLastSentEvent { actual in
+            XCTAssertEqual(newEvent.eventId, actual.eventId)
+            XCTAssertNil(actual.releaseName)
+        }
+    }
+    
+    func testBeforeSendModifiesEvent_ModifiedEventSent() {
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                event.threads = []
+                event.debugMeta = []
+                return event
+            }
+            options.attachStacktrace = true
+        }).capture(message: message, scope: nil)
+
+        assertLastSentEvent { actual in
+            XCTAssertEqual([], actual.debugMeta)
+            XCTAssertEqual([], actual.threads)
+        }
     }
 
     func testSdkDisabled_MessageNotSent() {
@@ -303,14 +336,20 @@ class SentryClientTest: XCTestCase {
         return event
     }
     
+    private func assertNoEventSent() {
+        XCTAssertEqual(0, fixture.transport.sentEvents.count, "No events should have been sent.")
+    }
+    
     private func assertEventNotSent(eventId: String?) {
-        XCTAssertNil(fixture.transport.lastSentEvent)
-        XCTAssertNil(eventId)
+        let eventWasSent = fixture.transport.sentEvents.contains { event in
+            event.eventId == eventId
+        }
+        XCTAssertFalse(eventWasSent)
     }
 
     private func assertLastSentEvent(assert: (Event) -> Void) {
-        XCTAssertNotNil(fixture.transport.lastSentEvent)
-        if let lastSentEvent = fixture.transport.lastSentEvent {
+        XCTAssertNotNil(fixture.transport.sentEvents.last)
+        if let lastSentEvent = fixture.transport.sentEvents.last {
             assert(lastSentEvent)
         }
     }

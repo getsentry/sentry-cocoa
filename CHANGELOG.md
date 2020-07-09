@@ -2,6 +2,8 @@
 
 ## unreleased
 
+fix: beforeSend callback in SentryClient #608
+
 ## 5.1.8
 
 - fix: Cocoapods build
