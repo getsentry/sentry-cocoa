@@ -235,7 +235,8 @@ SentryClient ()
     }
 
     BOOL shouldAttachStacktrace = alwaysAttachStacktrace ||
-        [self.options.attachStacktrace boolValue] || [event.exceptions count] > 0;
+        [self.options.attachStacktrace boolValue]
+        || (nil != event.exceptions && [event.exceptions count] > 0);
 
     BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
     if (shouldAttachStacktrace && debugMetaNotAttached) {
