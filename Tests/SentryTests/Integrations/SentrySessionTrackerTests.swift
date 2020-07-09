@@ -141,10 +141,12 @@ class SentrySessionTrackerTests: XCTestCase {
         assertNoInitSessionSent()
     }
     
-    func testCachedSession_NoTimestamp_NoCrash() {
+    func testKillAppWithoutNotificationsAndNoCrash_EndsWithAbnormalSession() {
         let sessionStartTime = fixture.currentDateProvider.date()
         sut.start()
         goToForeground()
+        goToBackground(forSeconds: 2)
+        advanceTime(bySeconds: 2)
         // Terminate and goToBackground not called intenionally, because we don't want to end the session
         sut.stop()
         
@@ -270,7 +272,6 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.start()
         
         goToForeground()
-        assertLastInForegroundIsNil()
         assertInitSessionSent()
     }
     

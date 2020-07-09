@@ -131,6 +131,8 @@ SentrySessionTracker ()
             [hub startSession];
         }
     }
+    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    self.lastInForeground = nil;
 }
 
 /**
