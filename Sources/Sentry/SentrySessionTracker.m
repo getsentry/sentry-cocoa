@@ -62,6 +62,10 @@ SentrySessionTracker ()
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
+    // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
+    // ending the cached session.
+    [self endCachedSession];
+
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:didBecomeActiveNotificationName
@@ -76,8 +80,6 @@ SentrySessionTracker ()
                                            selector:@selector(willTerminate)
                                                name:willTerminateNotificationName
                                              object:nil];
-
-    [self endCachedSession];
 #endif
 }
 
