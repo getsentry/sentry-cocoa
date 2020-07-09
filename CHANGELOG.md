@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Abnormal sessions #607
+- fix: beforeSend callback in SentryClient #608
 
 ## 5.1.8
 
