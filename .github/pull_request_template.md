@@ -15,7 +15,6 @@
 
 - [ ] I reviewed submitted code
 - [ ] I added tests to verify the changes
-- [ ] All tests are passing
 - [ ] I've updated the CHANGELOG
 
 ## :crystal_ball: Next steps
