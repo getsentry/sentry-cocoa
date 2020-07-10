@@ -115,7 +115,6 @@
 
     XCTAssertNil(error);
     XCTAssertEqual(expectedDebugValue, options.debug);
-    XCTAssertEqual(expectedLogLevel, SentrySDK.logLevel);
 }
 
 - (void)testDebugWithVerbose
@@ -127,7 +126,6 @@
 
     XCTAssertNil(error);
     XCTAssertEqual(@YES, options.debug);
-    XCTAssertEqual(kSentryLogLevelVerbose, SentrySDK.logLevel);
 }
 
 - (void)testValidEnabled
