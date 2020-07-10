@@ -3,6 +3,9 @@ import XCTest
 
 class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
+    // This feature only works on iOS
+    #if os(iOS)
+    
     private class Fixture {
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventsBreadcrumbs {
             do {
@@ -159,7 +162,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         
         NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         let ser = scope.serialize()
-
+        
         XCTAssertNil(ser["breadcrumbs"], "there are breadcrumbs")
     }
     
@@ -169,14 +172,14 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         XCTAssertNotNil(ser["breadcrumbs"] as? [[String: Any]], "no scope.breadcrumbs")
         
         if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
-        
+            
             XCTAssertNotNil(breadcrumbs.first, "scope.breadcrumbs is empty")
             
             if let crumb = breadcrumbs.first {
                 XCTAssertEqual("device.orientation", crumb["category"] as? String)
                 XCTAssertEqual("navigation", crumb["type"] as? String)
                 XCTAssertEqual("info", crumb["level"] as? String)
-            
+                
                 XCTAssertNotNil(crumb["data"] as? [String: Any], "no breadcrumb.data")
                 
                 if let data = crumb["data"] as? [String: Any] {
@@ -230,4 +233,6 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
             XCTFail("no scope.breadcrumbs")
         }
     }
+    
+    #endif
 }
