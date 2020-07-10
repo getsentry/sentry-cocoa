@@ -3,6 +3,9 @@
 ## unreleased
 
 - fix: Set LogLevel in startWithConfigureOptions #613
+
+## 5.1.10-beta.0
+
 - fix: Abnormal sessions #607
 
 ## 5.1.9
