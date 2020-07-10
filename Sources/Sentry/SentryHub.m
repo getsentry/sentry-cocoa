@@ -151,7 +151,6 @@ SentryHub ()
 - (void)captureSession:(SentrySession *)session
 {
     if (nil != session) {
-        [scope applyToSession:session];
         SentryClient *client = [self getClient];
 
         if (SentrySDK.logLevel == kSentryLogLevelVerbose) {

@@ -14,8 +14,8 @@ class SentrySessionGeneratorTests: XCTestCase {
     
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
-    private var options : Options!
-    private var releaseName : String!
+    private var options: Options!
+    private var releaseName: String!
     
     override func setUp() {
         super.setUp()
@@ -38,7 +38,7 @@ class SentrySessionGeneratorTests: XCTestCase {
     /**
      * This isn't an actual test. It sends Sessions to the Sentry, but doesn't verify if they arrive there.
      */
-    func testSendSessions()  {
+    func testSendSessions() {
         sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 1, abnormal: 1))
     }
     
