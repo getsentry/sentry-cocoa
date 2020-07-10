@@ -8,8 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)id;
 
-+(void)reset;
-
 @end
 
 NS_ASSUME_NONNULL_END

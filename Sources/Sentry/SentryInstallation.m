@@ -8,17 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *volatile installationString;
 
-+(void)reset {
-    installationString = nil;
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *cachePath
-    = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-          .firstObject;
-    NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
-    [fileManager removeItemAtPath:installationFilePath error:nil];
-}
-
 + (NSString *)id
 {
     if (nil != installationString) {
