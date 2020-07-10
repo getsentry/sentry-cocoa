@@ -30,6 +30,9 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryRateLimitCategory.attachment))
     }
 
+    // Even if we don't run this test below OSX 10.12 we expect the actual
+    // implementation to be thread safe.
+    @available(OSX 10.12, *)
     func testConcurrentReadWrite() {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", qos: .background, attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
@@ -84,7 +87,10 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
             XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: d)))
         }
     }
-    
+
+    // Even if we don't run this test below OSX 10.12 we expect the actual
+    // implementation to be thread safe.
+    @available(OSX 10.12, *)
     private func getCategory(rawValue: NSNumber) -> SentryRateLimitCategory {
         func failedToCreateCategory() -> SentryRateLimitCategory {
             XCTFail("Could not create category from \(rawValue)")
