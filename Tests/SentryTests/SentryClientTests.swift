@@ -84,7 +84,8 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
             
-               assertValidStacktrace(actual: actual)
+               assertValidDebugMeta(actual: actual.debugMeta)
+               assertValidThreads(actual: actual.threads)
         }
     }
     
@@ -118,11 +119,40 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(event: event, scope: scope)
         
         assertLastSentEvent { actual in
-            assertValidStacktrace(actual: actual)
+            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
         }
     }
     
-    func testCaptureEventWithStacktrace() {
+    func testCaptureEventWithDebugMeta_KeepsDebugMeta() {
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+        })
+        
+        let event = givenEventWithDebugMeta()
+        sut.capture(event: event, scope: nil)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(event.debugMeta, actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
+        }
+    }
+    
+    func testCaptureEventWithAttachedThreads_KeepsThreads() {
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+        })
+        
+        let event = givenEventWithThreads()
+        sut.capture(event: event, scope: nil)
+        
+        assertLastSentEvent { actual in
+            assertValidDebugMeta(actual: actual.debugMeta)
+            XCTAssertEqual(event.threads, actual.threads)
+        }
+    }
+    
+    func testCaptureEventWithAttachStacktrace() {
         let event = Event(level: SentryLevel.fatal)
         event.message = message
         let eventId = fixture.getSut(configureOptions: { options in
@@ -133,29 +163,32 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
-            assertValidStacktrace(actual: actual)
+            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
         }
     }
     
-    func testCaptureError() {
+    func testCaptureErrorWithoutAttachStacktrace() {
         let eventId = fixture.getSut().capture(error: error, scope: scope)
         
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(error.localizedDescription, actual.message)
-               assertValidStacktrace(actual: actual)
+            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
         }
     }
     
-    func testCaptureException() {
+    func testCaptureExceptionWithoutAttachStacktrace() {
         let eventId = fixture.getSut().capture(exception: exception, scope: scope)
         
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.error, actual.level)
             XCTAssertEqual(exception.reason, actual.message)
-               assertValidStacktrace(actual: actual)
+            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
         }
     }
 
@@ -189,13 +222,46 @@ class SentryClientTest: XCTestCase {
     }
 
     func testBeforeSendReturnsNil_EventNotSent() {
-        let eventId = fixture.getSut(configureOptions: { options in
+        fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil
             }
         }).capture(message: message, scope: nil)
 
-        assertEventNotSent(eventId: eventId)
+        assertNoEventSent()
+    }
+
+    func testBeforeSendReturnsNewEvent_NewEventSent() {
+        let newEvent = Event()
+        let releaseName = "1.0.0"
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                newEvent
+            }
+            options.releaseName = releaseName
+        }).capture(message: message, scope: nil)
+
+        XCTAssertEqual(newEvent.eventId, eventId)
+        assertLastSentEvent { actual in
+            XCTAssertEqual(newEvent.eventId, actual.eventId)
+            XCTAssertNil(actual.releaseName)
+        }
+    }
+    
+    func testBeforeSendModifiesEvent_ModifiedEventSent() {
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                event.threads = []
+                event.debugMeta = []
+                return event
+            }
+            options.attachStacktrace = true
+        }).capture(message: message, scope: nil)
+
+        assertLastSentEvent { actual in
+            XCTAssertEqual([], actual.debugMeta)
+            XCTAssertEqual([], actual.threads)
+        }
     }
 
     func testSdkDisabled_MessageNotSent() {
@@ -252,42 +318,68 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func assertEventNotSent(eventId: String?) {
-        XCTAssertNil(fixture.transport.lastSentEvent)
-        XCTAssertNil(eventId)
+    private func givenEventWithDebugMeta() -> Event {
+        let event = Event(level: SentryLevel.fatal)
+        let debugMeta = DebugMeta()
+        debugMeta.name = "Me"
+        let debugMetas = [debugMeta]
+        event.debugMeta = debugMetas
+        return event
+    }
+    
+    private func givenEventWithThreads() -> Event {
+        let event = Event(level: SentryLevel.fatal)
+        let thread = Sentry.Thread(threadId: 1)
+        thread.crashed = true
+        let threads = [thread]
+        event.threads = threads
+        return event
+    }
+    
+    private func assertNoEventSent() {
+        XCTAssertEqual(0, fixture.transport.sentEvents.count, "No events should have been sent.")
+    }
+    
+    private func assertEventNotSent(eventId: String?) {
+        let eventWasSent = fixture.transport.sentEvents.contains { event in
+            event.eventId == eventId
+        }
+        XCTAssertFalse(eventWasSent)
     }
 
-    func assertLastSentEvent(assert: (Event) -> Void) {
-        XCTAssertNotNil(fixture.transport.lastSentEvent)
-        if let lastSentEvent = fixture.transport.lastSentEvent {
+    private func assertLastSentEvent(assert: (Event) -> Void) {
+        XCTAssertNotNil(fixture.transport.sentEvents.last)
+        if let lastSentEvent = fixture.transport.sentEvents.last {
             assert(lastSentEvent)
         }
     }
     
-    func assertLastSentEnvelope(assert: (SentryEnvelope) -> Void) {
+    private func assertLastSentEnvelope(assert: (SentryEnvelope) -> Void) {
         XCTAssertNotNil(fixture.transport.lastSentEnvelope)
         if let lastSentEnvelope = fixture.transport.lastSentEnvelope {
             assert(lastSentEnvelope)
         }
     }
     
-    private func assertValidStacktrace(actual: Event) {
+    private func assertValidDebugMeta(actual: [DebugMeta]?) {
         let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
         
-        XCTAssertEqual(debugMetas, actual.debugMeta ?? [])
-        
+        XCTAssertEqual(debugMetas, actual ?? [])
+    }
+    
+    private func assertValidThreads(actual: [Sentry.Thread]?) {
         // We can only compare the stacktrace up to the test method. Therefore we
         // need to skip a few frames for the expected stacktrace and also two
         // frame for the actual stacktrace.
         let expected = fixture.threadInspector.getCurrentThreadsSkippingFrames(5)
-        var actualFrames = actual.threads?[0].stacktrace?.frames ?? []
+        var actualFrames = actual?[0].stacktrace?.frames ?? []
         XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
         if actualFrames.count > 1 {
             actualFrames.remove(at: actualFrames.count - 1)
             actualFrames.remove(at: actualFrames.count - 1)
-            actual.threads?[0].stacktrace?.frames = actualFrames
+            actual?[0].stacktrace?.frames = actualFrames
         }
         
-        XCTAssertEqual(expected, actual.threads)
+        XCTAssertEqual(expected, actual ?? [])
     }
 }

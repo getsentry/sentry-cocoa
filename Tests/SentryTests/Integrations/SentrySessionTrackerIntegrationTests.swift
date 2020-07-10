@@ -15,8 +15,6 @@ class SentrySessionTrackerIntegrationTests: XCTestCase {
         } catch {
             XCTFail("Could not delete session data")
         }
-        
-        
     }
 
     func testWithNotifications()  {

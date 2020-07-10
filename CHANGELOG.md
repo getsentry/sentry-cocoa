@@ -2,6 +2,21 @@
 
 ## unreleased
 
+- fix: Abnormal sessions #607
+
+## 5.1.9
+
+- fix: beforeSend callback in SentryClient #608
+
+## 5.1.8
+
+- fix: Cocoapods build
+
+## 5.1.7
+
+- fix: Overwriting stack trace for crashes #605
+- fix: Deployment target warning for Swift Package Manager for Xcode 12 #586
+
 ## 5.1.6
 
 - feat: Simplified SDK start #580

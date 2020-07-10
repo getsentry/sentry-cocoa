@@ -4,8 +4,10 @@
 //
 
 #import "NSDate+SentryExtras.h"
+#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryClient+TestInit.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -26,6 +28,7 @@
 #import "SentryFileManager.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
+#import "SentryHub+TestInit.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimitParser.h"
