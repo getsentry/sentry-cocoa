@@ -18,7 +18,6 @@ class SentrySessionGeneratorTests: XCTestCase {
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
     private var options: Options!
-    private var releaseName: String!
     
     override func setUp() {
         super.setUp()
@@ -32,10 +31,6 @@ class SentrySessionGeneratorTests: XCTestCase {
         } catch {
             XCTFail("Could not delete session data")
         }
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM-dd HH:00:00"
-        self.releaseName = "Test \(dateFormatter.string(from: Date()))"
     }
     
     /**
@@ -61,7 +56,9 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         for i in Array(1...amount.errored) {
             // increment error count
-            SentrySDK.capture(error: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Error \(i) for \(String(describing: self.releaseName))"]))
+            // We use the current date for the error message to generate new
+            // issues for the release.
+            SentrySDK.capture(error: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Error \(i) for \(Date())"]))
             goToBackground()
             goToForeground()
             // sends one errored session
@@ -93,7 +90,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         options = Options()
         options.dsn = self.dsnAsString
         
-        options.releaseName = releaseName
+        options.releaseName = "Release Health"
         options.debug = true
         options.logLevel = SentryLogLevel.debug
         
