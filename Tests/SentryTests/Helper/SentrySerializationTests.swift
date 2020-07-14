@@ -39,7 +39,7 @@ class SentrySerializationTests: XCTestCase {
                 withPad: bodyChar,
                 startingAt: 0)
 
-            let itemData = bodyString.data(using: .utf8) ?? Data()
+            let itemData = bodyString.data(using: .utf8)!
             let itemHeader = SentryEnvelopeItemHeader(type: bodyChar, length: UInt(itemData.count))
             let item = SentryEnvelopeItem(
                 header: itemHeader,
@@ -100,22 +100,22 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializerZeroByteItemReturnsEnvelope() {
-        let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8) ?? Data()
+        let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
         XCTAssertNotNil(SentrySerialization.envelope(with: itemData))
     }
     
     func testSentryEnvelopeSerializerItemWithoutTypeReturnsNil() {
-        let itemData = "{}\n{\"length\":0}".data(using: .utf8) ?? Data()
+        let itemData = "{}\n{\"length\":0}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
     func testSentryEnvelopeSerializerWithoutItemReturnsNill() {
-        let itemData = "{}\n".data(using: .utf8) ?? Data()
+        let itemData = "{}\n".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
     func testSentryEnvelopeSerializerWithoutLineBreak() {
-        let itemData = "{}".data(using: .utf8) ?? Data()
+        let itemData = "{}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
 
