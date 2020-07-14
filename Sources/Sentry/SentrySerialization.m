@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
-        [serializedData setValue:envelope.header.eventId forKey:@"eventId"];
+        [serializedData setValue:envelope.header.eventId forKey:@"event_id"];
     }
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
     if (nil == header) {
@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                     error]
                                  andLevel:kSentryLogLevelError];
             } else {
-                NSString *_Nullable eventId = [headerDictionary valueForKey:@"eventId"];
+                NSString *_Nullable eventId = [headerDictionary valueForKey:@"event_id"];
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId];
             }
             break;
@@ -121,11 +121,13 @@ NS_ASSUME_NONNULL_BEGIN
     NSInteger itemHeaderStart = envelopeHeaderIndex + 1;
 
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
-    unsigned long endOfEnvelope = data.length - envelopeHeaderIndex;
+    NSUInteger endOfEnvelope = data.length - 1;
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
-            if (endOfEnvelope == i)
+            if (endOfEnvelope == i) {
                 i++; // 0 byte attachment
+            }
+                
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
 #ifdef DEBUG
