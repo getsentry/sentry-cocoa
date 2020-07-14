@@ -52,7 +52,7 @@ make format
 ```
 
 ## Linting
-We use Swiftlint and Clang-Format. To run all the linters locally execute:
+We use Swiftlint and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
 
 ```
 make lint
