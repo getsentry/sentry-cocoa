@@ -9,9 +9,9 @@ class TestNotificationCenter {
     private static let didEnterBackgroundNotification = UIApplication.didEnterBackgroundNotification
     private static let willTerminateNotification = UIApplication.willTerminateNotification
     #elseif os(macOS)
-    private static let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification;
-    private static let willResignActiveNotification = NSApplication.willResignActiveNotification;
-    private static let willTerminateNotification = NSApplication.willTerminateNotification;
+    private static let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification
+    private static let willResignActiveNotification = NSApplication.willResignActiveNotification
+    private static let willTerminateNotification = NSApplication.willTerminateNotification
     #endif
     
     static func willEnterForeground() {
