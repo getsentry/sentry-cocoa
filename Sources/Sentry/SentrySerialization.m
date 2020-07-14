@@ -36,8 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != envelope.header.eventId) {
         [serializedData setValue:envelope.header.eventId forKey:@"eventId"];
     }
-    NSData *header = [SentrySerialization dataWithJSONObject:serializedData
-                                                       error:error];
+    NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
     if (nil == header) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope header cannot "
                                                              @"be converted to JSON."]
