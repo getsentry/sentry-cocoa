@@ -1,21 +1,22 @@
 #import "SentrySerialization.h"
 #import "SentryDefines.h"
+#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySerialization
 
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
-                                options:(NSJSONWritingOptions)opt
                                   error:(NSError *_Nullable *_Nullable)error
 {
 
     NSData *data = nil;
     if ([NSJSONSerialization isValidJSONObject:dictionary] != NO) {
-        data = [NSJSONSerialization dataWithJSONObject:dictionary options:opt error:error];
+        data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
     } else {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON."]
                          andLevel:kSentryLogLevelError];
@@ -28,10 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
     return data;
 }
 
-// TODO: I think we shouldn't allow to pass options here. Setting pretty print
-// on the json could destory the envelope
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                              options:(NSJSONWritingOptions)opt
                                 error:(NSError *_Nullable *_Nullable)error
 {
 
@@ -40,9 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != envelope.header.eventId) {
         [serializedData setValue:envelope.header.eventId forKey:@"eventId"];
     }
-    NSData *header = [SentrySerialization dataWithJSONObject:serializedData
-                                                     options:opt
-                                                       error:error];
+    NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
     if (nil == header) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope header cannot "
                                                              @"be converted to JSON."]
@@ -66,9 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
                 setValue:[NSNumber numberWithUnsignedInteger:envelope.items[i].header.length]
                   forKey:@"length"];
         }
-        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedData
-                                                             options:opt
-                                                               error:error];
+        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedData error:error];
         if (nil == itemHeader) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope item header cannot "
                                                                  @"be converted to JSON."]
@@ -203,10 +197,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session
-                             options:(NSJSONWritingOptions)opt
                                error:(NSError *_Nullable *_Nullable)error
 {
-    return [self dataWithJSONObject:[session serialize] options:opt error:error];
+    return [self dataWithJSONObject:[session serialize] error:error];
 }
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData
