@@ -104,12 +104,35 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNotNil(SentrySerialization.envelope(with: itemData))
     }
     
+    func testSentryEnvelopeSerializerEnvelopeWithHeaderAndItemWithAttachmet() {
+        let eventId = "12c2d058-d584-4270-9aa2-eca08bf20986"
+        let payloadAsString = "helloworld"
+        
+        let itemData = """
+            {\"event_id\":\"\(eventId)\"}
+            {\"length\":10,\"type\":\"attachment\"}
+            \(payloadAsString)
+            """.data(using: .utf8)!
+        
+        if let envelope = SentrySerialization.envelope(with: itemData) {
+            XCTAssertEqual(eventId, envelope.header.eventId)
+             
+            XCTAssertEqual(1, envelope.items.count)
+            let item = envelope.items[0]
+            XCTAssertEqual(10, item.header.length)
+            XCTAssertEqual("attachment", item.header.type)
+            XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
+        } else {
+            XCTFail("Failed to deserialize envelope")
+        }
+    }
+    
     func testSentryEnvelopeSerializerItemWithoutTypeReturnsNil() {
         let itemData = "{}\n{\"length\":0}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testSentryEnvelopeSerializerWithoutItemReturnsNill() {
+    func testSentryEnvelopeSerializerWithoutItemReturnsNil() {
         let itemData = "{}\n".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
@@ -122,9 +145,7 @@ class SentrySerializationTests: XCTestCase {
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
-            serializedEnvelope = try SentrySerialization.data(
-                    with: envelope,
-                    options: JSONSerialization.WritingOptions(rawValue: 0))
+            serializedEnvelope = try SentrySerialization.data(with: envelope)
         } catch {
             XCTFail("Could not serialize envelope.")
         }
