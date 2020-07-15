@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
-#import "SentryEnvelope.h"
+
+@class SentrySession, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 

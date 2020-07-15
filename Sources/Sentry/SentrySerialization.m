@@ -1,8 +1,10 @@
 #import "SentrySerialization.h"
 #import "SentryDefines.h"
+#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
