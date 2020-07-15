@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
             if (endOfEnvelope == i) {
                 i++; // 0 byte attachment
             }
-                
+
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
 #ifdef DEBUG

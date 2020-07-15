@@ -117,10 +117,10 @@ class SentrySerializationTests: XCTestCase {
         if let envelope = SentrySerialization.envelope(with: itemData) {
             XCTAssertEqual(eventId, envelope.header.eventId)
              
-            XCTAssertEqual(1,  envelope.items.count)
+            XCTAssertEqual(1, envelope.items.count)
             let item = envelope.items[0]
-            XCTAssertEqual(10,  item.header.length)
-            XCTAssertEqual("attachment",  item.header.type)
+            XCTAssertEqual(10, item.header.length)
+            XCTAssertEqual("attachment", item.header.type)
             XCTAssertEqual(payloadAsString.data(using: .utf8), item.data)
         } else {
             XCTFail("Failed to deserialize envelope")
