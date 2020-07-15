@@ -1,8 +1,8 @@
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
-
-    func testSentryEnvelopeSerializesWithSingleEvent() {
+    
+    func testSentryEnvelopeSerializer_WithSingleEvent() {
         // Arrange
         let event = Event()
         
@@ -13,22 +13,17 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("event", envelope.items[0].header.type)
         
-        // Act
-        let serializedEnvelope = serializeEnvelope(envelope: envelope)
-
-        // Assert
-        if let actual = SentrySerialization.envelope(with: serializedEnvelope) {
-            XCTAssertEqual(envelope.header.eventId, actual.header.eventId)
-            XCTAssertEqual(1, actual.items.count)
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
+            XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId)
+            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+            XCTAssertEqual(1, deserializedEnvelope.items.count)
             XCTAssertEqual("event", envelope.items[0].header.type)
-            XCTAssertEqual(envelope.items[0].header.length, actual.items[0].header.length)
-            XCTAssertEqual(envelope.items[0].data, actual.items[0].data)
-        } else {
-            XCTFail("Could not deserialize envelope.")
+            XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
+            XCTAssertEqual(envelope.items[0].data, deserializedEnvelope.items[0].data)
         }
     }
-
-    func testSentryEnvelopeSerializesWithManyItems() {
+    
+    func testSentryEnvelopeSerializer_WithManyItems() {
         // Arrange
         let itemsCount = 15
         var items: [SentryEnvelopeItem] = []
@@ -38,7 +33,7 @@ class SentrySerializationTests: XCTestCase {
                 toLength: i + 1,
                 withPad: bodyChar,
                 startingAt: 0)
-
+            
             let itemData = bodyString.data(using: .utf8)!
             let itemHeader = SentryEnvelopeItemHeader(type: bodyChar, length: UInt(itemData.count))
             let item = SentryEnvelopeItem(
@@ -46,19 +41,16 @@ class SentrySerializationTests: XCTestCase {
                 data: itemData)
             items.append(item)
         }
-
+        
         let envelope = SentryEnvelope(id: nil, items: items)
         // Sanity check
         XCTAssertNil(envelope.header.eventId)
         XCTAssertEqual(itemsCount, Int(envelope.items.count))
         
-        // Act
-        let serializedEnvelope = serializeEnvelope(envelope: envelope)
-        
-        // Assert
-        if let deserializedEnvelope = SentrySerialization.envelope(with: serializedEnvelope) {
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
             XCTAssertNil(deserializedEnvelope.header.eventId)
             XCTAssertEqual(itemsCount, deserializedEnvelope.items.count)
+            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
             
             for j in 0..<itemsCount {
                 XCTAssertEqual("\(j)", envelope.items[j].header.type)
@@ -67,8 +59,6 @@ class SentrySerializationTests: XCTestCase {
                     deserializedEnvelope.items[j].header.length)
                 XCTAssertEqual( envelope.items[j].data, deserializedEnvelope.items[j].data)
             }
-        } else {
-            XCTFail("Could not deserialize envelope.")
         }
     }
     
@@ -76,35 +66,49 @@ class SentrySerializationTests: XCTestCase {
         // Arrange
         let itemData = Data()
         let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(itemData.count))
-
+        
         let item = SentryEnvelopeItem(header: itemHeader, data: itemData)
         let envelope = SentryEnvelope(id: nil, singleItem: item)
-
+        
         // Sanity check
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("attachment", envelope.items[0].header.type)
         XCTAssertEqual(0, Int(envelope.items[0].header.length))
         
-        // Act
-        let serializedEnvelope = serializeEnvelope(envelope: envelope)
-        
-        // Assert
-        if let deserializedEnvelope = SentrySerialization.envelope(with: serializedEnvelope) {
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
             XCTAssertEqual(1, deserializedEnvelope.items.count)
             XCTAssertEqual("attachment", deserializedEnvelope.items[0].header.type)
             XCTAssertEqual(0, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(0, deserializedEnvelope.items[0].data.count)
-        } else {
-            XCTFail("Could not deserialize envelope.")
+            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+        }
+    }
+
+    func testSentryEnvelopeSerializer_SdkInfo() {
+        let sdkInfo = SentrySdkInfo(sdkName: "sentry.cocoa", andVersionString: "5.0.1")
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: sdkInfo)
+        let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
+        
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
+            XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
         }
     }
     
-    func testSentryEnvelopeSerializerZeroByteItemReturnsEnvelope() {
+    func testSentryEnvelopeSerializer_SdkInfoIsNil() {
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
+        
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
+            XCTAssertNil(deserializedEnvelope.header.sdkInfo)
+        }
+    }
+    
+    func testSentryEnvelopeSerializer_ZeroByteItemReturnsEnvelope() {
         let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
         XCTAssertNotNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testSentryEnvelopeSerializerEnvelopeWithHeaderAndItemWithAttachmet() {
+    func testSentryEnvelopeSerializer_EnvelopeWithHeaderAndItemWithAttachmet() {
         let eventId = "12c2d058-d584-4270-9aa2-eca08bf20986"
         let payloadAsString = "helloworld"
         
@@ -116,7 +120,7 @@ class SentrySerializationTests: XCTestCase {
         
         if let envelope = SentrySerialization.envelope(with: itemData) {
             XCTAssertEqual(eventId, envelope.header.eventId)
-             
+            
             XCTAssertEqual(1, envelope.items.count)
             let item = envelope.items[0]
             XCTAssertEqual(10, item.header.length)
@@ -127,21 +131,21 @@ class SentrySerializationTests: XCTestCase {
         }
     }
     
-    func testSentryEnvelopeSerializerItemWithoutTypeReturnsNil() {
+    func testSentryEnvelopeSerializer_ItemWithoutTypeReturnsNil() {
         let itemData = "{}\n{\"length\":0}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testSentryEnvelopeSerializerWithoutItemReturnsNil() {
+    func testSentryEnvelopeSerializer_WithoutItemReturnsNil() {
         let itemData = "{}\n".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
-    func testSentryEnvelopeSerializerWithoutLineBreak() {
+    func testSentryEnvelopeSerializer_WithoutLineBreak() {
         let itemData = "{}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
-
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
@@ -150,5 +154,29 @@ class SentrySerializationTests: XCTestCase {
             XCTFail("Could not serialize envelope.")
         }
         return serializedEnvelope
+    }
+    
+    private func createItemWithEmptyAttachment() -> SentryEnvelopeItem {
+        let itemData = Data()
+        let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(itemData.count))
+        return SentryEnvelopeItem(header: itemHeader, data: itemData)
+    }
+    
+    private func assertEnvelopeSerialization(
+        envelope: SentryEnvelope,
+        assert: (SentryEnvelope) -> Void
+    ) {
+        let serializedEnvelope = serializeEnvelope(envelope: envelope)
+        
+        if let deserializedEnvelope = SentrySerialization.envelope(with: serializedEnvelope) {
+            assert(deserializedEnvelope)
+        } else {
+            XCTFail("Could not deserialize envelope.")
+        }
+    }
+
+    private func assertDefaultSdkInfoSet(deserializedEnvelope: SentryEnvelope) {
+        let sdkInfo = SentrySdkInfo(sdkName: SentryMeta.sdkName, andVersionString: SentryMeta.versionString)
+        XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
 }

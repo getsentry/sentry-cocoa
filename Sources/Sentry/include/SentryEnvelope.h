@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession;
+@class SentryEvent, SentrySession, SentrySdkInfo;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,7 +10,10 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 // id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(NSString *_Nullable)eventId NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithId:(NSString *_Nullable)eventId;
+
+- (instancetype)initWithId:(NSString *_Nullable)eventId
+                andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
@@ -18,6 +21,8 @@ SENTRY_NO_INIT
  * related. i.e Attachments
  */
 @property (nonatomic, readonly, copy) NSString *_Nullable eventId;
+
+@property (nonatomic, readonly, copy) SentrySdkInfo *_Nullable sdkInfo;
 
 @end
 

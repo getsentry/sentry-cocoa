@@ -4,6 +4,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentrySdkInfo.h"
 #import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,6 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != envelope.header.eventId) {
         [serializedData setValue:envelope.header.eventId forKey:@"event_id"];
     }
+
+    SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
+    if (nil != sdkInfo) {
+        [serializedData addEntriesFromDictionary:[sdkInfo serialize]];
+    }
+
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
     if (nil == header) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope header cannot "
@@ -107,8 +114,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                     error]
                                  andLevel:kSentryLogLevelError];
             } else {
-                NSString *_Nullable eventId = [headerDictionary valueForKey:@"event_id"];
-                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId];
+                NSString *_Nullable eventId = headerDictionary[@"event_id"];
+                SentrySdkInfo *sdkInfo = [self sdkInfoWithDict:headerDictionary];
+                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
+                                                               andSdkInfo:sdkInfo];
             }
             break;
         }
@@ -219,6 +228,28 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
     return session;
+}
+
++ (SentrySdkInfo *_Nullable)sdkInfoWithDict:(NSDictionary *)dict
+{
+
+    NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk_info"];
+    if (nil == sdkInfoDict) {
+        return nil;
+    }
+
+    NSString *_Nullable sdkName = sdkInfoDict[@"sdk_name"];
+    NSNumber *_Nullable versionMajor = sdkInfoDict[@"version_major"];
+    NSNumber *_Nullable versionMinor = sdkInfoDict[@"version_minor"];
+    NSNumber *_Nullable versionPatchLevel = sdkInfoDict[@"version_patchlevel"];
+
+    NSString *versionString =
+        [NSString stringWithFormat:@"%@.%@.%@", versionMajor, versionMinor, versionPatchLevel];
+
+    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithSdkName:sdkName
+                                                   andVersionString:versionString];
+
+    return sdkInfo;
 }
 
 @end
