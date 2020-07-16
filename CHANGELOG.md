@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Crash when converting Recrash Report #627
 - fix: Deserialize envelope with header and item #620
 - fix: Set LogLevel in startWithConfigureOptions #613
 

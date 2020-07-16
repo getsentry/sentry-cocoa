@@ -46,7 +46,21 @@ SentryCrashReportConverter ()
 
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
-        self.threads = crashContext[@"threads"];
+        [self initThreads:crashContext[@"threads"]];
+    }
+    return self;
+}
+
+- (void)initThreads:(NSArray<NSDictionary *> *)threads
+{
+    if (nil != threads && [threads isKindOfClass:[NSArray class]]) {
+        // SentryCrash sometimes produces recrash_reports where an element of threads is a
+        // NSString instead of a NSDictionary. When this happens we can't read the details of
+        // the thread, but we have to discard it. Otherwise we would crash.
+        NSPredicate *onlyNSDictionary = [NSPredicate predicateWithBlock:^BOOL(id object,
+            NSDictionary *bindings) { return [object isKindOfClass:[NSDictionary class]]; }];
+        self.threads = [threads filteredArrayUsingPredicate:onlyNSDictionary];
+
         for (NSUInteger i = 0; i < self.threads.count; i++) {
             NSDictionary *thread = self.threads[i];
             if ([thread[@"crashed"] boolValue]) {
@@ -55,7 +69,6 @@ SentryCrashReportConverter ()
             }
         }
     }
-    return self;
 }
 
 - (SentryEvent *)convertReportToEvent

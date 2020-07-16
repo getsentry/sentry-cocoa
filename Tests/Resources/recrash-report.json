@@ -1,0 +1,818 @@
+{
+    "recrash_report": {
+        "report": {
+            "version": "3.2.0",
+            "id": "E3584241-76E0-4C07-9E46-77BA97E59404",
+            "process_name": "process",
+            "timestamp": 1593717988,
+            "type": "standard"
+        },
+        "binary_images": [
+            {
+                "image_addr": 140735069802496,
+                "image_vmaddr": 140734875389952,
+                "image_size": 339968,
+                "name": "/usr/lib/libc++.1.dylib",
+                "uuid": "AD0805FE-F98B-3E2F-B072-83782B22DAC9",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 902,
+                "minor_version": 1,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735082270720,
+                "image_vmaddr": 140734887858176,
+                "image_size": 2457600,
+                "name": "/usr/lib/libicucore.A.dylib",
+                "uuid": "7B9204AC-EA14-3FF3-B6B9-4C85B37EED79",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 64,
+                "minor_version": 2,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735100166144,
+                "image_vmaddr": 140734905753600,
+                "image_size": 2011136,
+                "name": "/usr/lib/libsqlite3.dylib",
+                "uuid": "AF518115-4AD1-39F2-9B82-E2640E2221E1",
+                "cpu_type": 16777223,
+                "cpu_subtype": 8,
+                "major_version": 308,
+                "minor_version": 5,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735105806336,
+                "image_vmaddr": 140734911393792,
+                "image_size": 77824,
+                "name": "/usr/lib/libz.1.dylib",
+                "uuid": "DB120508-3BED-37A8-B439-5235EAB4618A",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1,
+                "minor_version": 2,
+                "revision_version": 11
+            },
+            {
+                "image_addr": 140734096121856,
+                "image_vmaddr": 140733901709312,
+                "image_size": 14422016,
+                "name": "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+                "uuid": "61269B8C-C432-335F-8894-B95C235A41A5",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1894,
+                "minor_version": 50,
+                "revision_version": 103
+            },
+            {
+                "image_addr": 140734128271360,
+                "image_vmaddr": 140733933858816,
+                "image_size": 4096,
+                "name": "/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa",
+                "uuid": "87426C3A-7C6C-39D0-905C-C591B997029E",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 23,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734184214528,
+                "image_vmaddr": 140733989801984,
+                "image_size": 3956736,
+                "name": "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+                "uuid": "1FA28BAB-7296-3A09-8E1E-E62A7D233DB8",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1676,
+                "minor_version": 105,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734191788032,
+                "image_vmaddr": 140733997375488,
+                "image_size": 675840,
+                "name": "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+                "uuid": "A0F54725-036F-3279-A46E-C2ABDBFD479B",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 275,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 4424445952,
+                "image_vmaddr": 0,
+                "image_size": 98304,
+                "name": "/Applications/example.app/Contents/Frameworks/Mixpanel.framework/Versions/A/Mixpanel",
+                "uuid": "8BAD4FE0-48B9-3A39-BAD0-934030F08970",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 4424740864,
+                "image_vmaddr": 0,
+                "image_size": 311296,
+                "name": "/Applications/example.app/Contents/Frameworks/Sentry.framework/Versions/A/Sentry",
+                "uuid": "4B58CDDD-A98F-3E8F-BED8-7F19937669D4",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734372167680,
+                "image_vmaddr": 140734177755136,
+                "image_size": 454656,
+                "name": "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+                "uuid": "0CF8726A-BE41-3E07-B895-FBC44B75450E",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1061,
+                "minor_version": 120,
+                "revision_version": 2
+            },
+            {
+                "image_addr": 140734143606784,
+                "image_vmaddr": 140733949194240,
+                "image_size": 4718592,
+                "name": "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+                "uuid": "6AF8B3CC-BC3F-3869-B9FB-1D881422364E",
+                "cpu_type": 16777223,
+                "cpu_subtype": 8,
+                "major_version": 1676,
+                "minor_version": 105,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734148329472,
+                "image_vmaddr": 140733953916928,
+                "image_size": 6770688,
+                "name": "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+                "uuid": "E1CE3919-F36B-309F-89BA-79F36DC8125E",
+                "cpu_type": 16777223,
+                "cpu_subtype": 8,
+                "major_version": 1355,
+                "minor_version": 17,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734164475904,
+                "image_vmaddr": 140733970063360,
+                "image_size": 4096,
+                "name": "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+                "uuid": "D9F6AB40-10EC-3682-A969-85560E2E4768",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1069,
+                "minor_version": 24,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734193057792,
+                "image_vmaddr": 140733998645248,
+                "image_size": 1429504,
+                "name": "/System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO",
+                "uuid": "5B4C2E04-9161-3C82-A7FB-F4D51E3C1E10",
+                "cpu_type": 16777223,
+                "cpu_subtype": 8,
+                "major_version": 1,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140734354665472,
+                "image_vmaddr": 140734160252928,
+                "image_size": 3448832,
+                "name": "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+                "uuid": "AEA33464-1507-36F1-8CAE-A86EB787F9B5",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 59306,
+                "minor_version": 120,
+                "revision_version": 7
+            },
+            {
+                "image_addr": 140735106625536,
+                "image_vmaddr": 140734912212992,
+                "image_size": 94208,
+                "name": "/usr/lib/swift/libswiftAppKit.dylib",
+                "uuid": "DCAABA1B-4CC1-34CB-99DA-C4D6E35424C2",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735106887680,
+                "image_vmaddr": 140734912475136,
+                "image_size": 3891200,
+                "name": "/usr/lib/swift/libswiftCore.dylib",
+                "uuid": "1A2096A5-7C7B-3262-9441-E8120840FC15",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1103,
+                "minor_version": 8,
+                "revision_version": 25
+            },
+            {
+                "image_addr": 140735110877184,
+                "image_vmaddr": 140734916464640,
+                "image_size": 57344,
+                "name": "/usr/lib/swift/libswiftCoreGraphics.dylib",
+                "uuid": "CEAA40BA-A222-3F81-9D05-45FE30F35F02",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735111348224,
+                "image_vmaddr": 140734916935680,
+                "image_size": 98304,
+                "name": "/usr/lib/swift/libswiftDispatch.dylib",
+                "uuid": "EFF1B143-5420-3778-9383-C74A33DEE508",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735111446528,
+                "image_vmaddr": 140734917033984,
+                "image_size": 1597440,
+                "name": "/usr/lib/swift/libswiftFoundation.dylib",
+                "uuid": "6CAC5222-75DA-3141-8C79-B2418CBCB633",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735113736192,
+                "image_vmaddr": 140734919323648,
+                "image_size": 16384,
+                "name": "/usr/lib/swift/libswiftObjectiveC.dylib",
+                "uuid": "2AD71631-C77D-3899-ACDE-1C92A53B1FCB",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735114813440,
+                "image_vmaddr": 140734920400896,
+                "image_size": 28672,
+                "name": "/usr/lib/swift/libswiftos.dylib",
+                "uuid": "07EEA707-DE31-38DD-9095-766F2EC4B8FD",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 0,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735070142464,
+                "image_vmaddr": 140734875729920,
+                "image_size": 90112,
+                "name": "/usr/lib/libc++abi.dylib",
+                "uuid": "771E9263-E832-3985-9477-8F1B2D73B771",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 902,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735114981376,
+                "image_vmaddr": 140734920568832,
+                "image_size": 24576,
+                "name": "/usr/lib/system/libcache.dylib",
+                "uuid": "A5ECC751-A681-30D8-B33C-D192C15D25C8",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 83,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735115005952,
+                "image_vmaddr": 140734920593408,
+                "image_size": 49152,
+                "name": "/usr/lib/system/libcommonCrypto.dylib",
+                "uuid": "C321A74A-AA91-3785-BEBF-BEDC6975026C",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 60165,
+                "minor_version": 120,
+                "revision_version": 1
+            },
+            {
+                "image_addr": 140735115055104,
+                "image_vmaddr": 140734920642560,
+                "image_size": 32768,
+                "name": "/usr/lib/system/libcompiler_rt.dylib",
+                "uuid": "652A6012-7E5C-3F4F-9438-86BC094526F3",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 101,
+                "minor_version": 2,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735115087872,
+                "image_vmaddr": 140734920675328,
+                "image_size": 40960,
+                "name": "/usr/lib/system/libcopyfile.dylib",
+                "uuid": "40113A69-A81C-3397-ADC6-1D16B9A22C3E",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735115128832,
+                "image_vmaddr": 140734920716288,
+                "image_size": 602112,
+                "name": "/usr/lib/system/libcorecrypto.dylib",
+                "uuid": "5E4B0E50-24DD-3E04-9374-EDA9FFD6257B",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 866,
+                "minor_version": 120,
+                "revision_version": 3
+            },
+            {
+                "image_addr": 140735116828672,
+                "image_vmaddr": 140734922416128,
+                "image_size": 266240,
+                "name": "/usr/lib/system/libdispatch.dylib",
+                "uuid": "201EDBF3-0B36-31BA-A7CB-443CE35C05D4",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1173,
+                "minor_version": 100,
+                "revision_version": 2
+            },
+            {
+                "image_addr": 140735117094912,
+                "image_vmaddr": 140734922682368,
+                "image_size": 225280,
+                "name": "/usr/lib/system/libdyld.dylib",
+                "uuid": "7E711A46-5E4D-393C-AEA6-440E2A5CCD0C",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 750,
+                "minor_version": 5,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735117320192,
+                "image_vmaddr": 140734922907648,
+                "image_size": 4096,
+                "name": "/usr/lib/system/libkeymgr.dylib",
+                "uuid": "52662CAA-DB1F-30A3-BE13-D6274B1A6D7B",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 30,
+                "minor_version": 0,
+                "revision_version": 0
+            },
+            {
+                "image_addr": 140735117377536,
+                "image_vmaddr": 140734922964992,
+                "image_size": 4096,
+                "name": "/usr/lib/system/liblaunch.dylib",
+                "uuid": "07CF647B-F9DC-3907-AD98-2F85FCB34A72",
+                "cpu_type": 16777223,
+                "cpu_subtype": 3,
+                "major_version": 1738,
+                "minor_version": 120,
+                "revision_version": 8
+            }
+        ],
+        "process": {},
+        "system": {
+            "system_name": "macOS",
+            "system_version": "10.15.5",
+            "machine": "MacBookPro14,3",
+            "model": null,
+            "kernel_version": "Darwin Kernel Version 19.5.0: Tue May 26 20:41:44 PDT 2020; root:xnu-6153.121.2~2/RELEASE_X86_64",
+            "os_version": "19F101",
+            "jailbroken": false,
+            "boot_time": "2020-06-26T01:59:28Z",
+            "app_start_time": "2020-07-02T18:25:33Z",
+            "CFBundleExecutablePath": "/Applications/xxxx.app/xxxx",
+            "CFBundleExecutable": "xxxx",
+            "CFBundleIdentifier": "com.example.xxx",
+            "CFBundleName": "example",
+            "CFBundleVersion": "1593476776",
+            "CFBundleShortVersionString": "0.0",
+            "app_uuid": "3AE39B78-33AA-33E0-BD17-342FDAAD3000",
+            "cpu_arch": "x86",
+            "cpu_type": 7,
+            "cpu_subtype": 8,
+            "binary_cpu_type": 16777223,
+            "binary_cpu_subtype": 3,
+            "time_zone": "EDT",
+            "process_name": "process",
+            "process_id": 83764,
+            "parent_process_id": 1,
+            "device_app_hash": "b6fbdafbd841c3ea14e33a6029357265ad917e92",
+            "build_type": "unknown",
+            "storage": 499963170816,
+            "memory": {
+                "size": 17179869184,
+                "usable": 15293562880,
+                "free": 410828800
+            },
+            "application_stats": {
+                "application_active": false,
+                "application_in_foreground": true,
+                "launches_since_last_crash": 16,
+                "sessions_since_last_crash": 16,
+                "active_time_since_last_crash": 0,
+                "background_time_since_last_crash": 0,
+                "sessions_since_launch": 1,
+                "active_time_since_launch": 0,
+                "background_time_since_launch": 0
+            }
+        },
+        "crash": {
+            "error": {
+                "mach": {
+                    "exception": 1,
+                    "exception_name": "EXC_BAD_ACCESS",
+                    "code": 3657279596,
+                    "subcode": 8
+                },
+                "signal": {
+                    "signal": 10,
+                    "name": "SIGBUS",
+                    "code": 0,
+                    "code_name": "BUS_NOOP"
+                },
+                "address": 69375969044588,
+                "type": "mach"
+            },
+            "threads": [
+                {
+                    "backtrace": {
+                        "contents": [
+                            {
+                                "object_name": "libobjc.A.dylib",
+                                "object_addr": 140735098613760,
+                                "symbol_name": "object_isClass",
+                                "symbol_addr": 140735098697958,
+                                "instruction_addr": 140735098697982
+                            },
+                            {
+                                "object_name": "Foundation",
+                                "object_addr": 140734184214528,
+                                "symbol_name": "-[NSObject(NSKeyValueObservingPrivate) _changeValueForKeys:count:maybeOldValuesDict:maybeNewValuesDict:usingBlock:]",
+                                "symbol_addr": 140734184373975,
+                                "instruction_addr": 140734184374269
+                            },
+                            {
+                                "object_name": "Foundation",
+                                "object_addr": 140734184214528,
+                                "symbol_name": "-[NSObject(NSKeyValueObservingPrivate) _changeValueForKey:key:key:usingBlock:]",
+                                "symbol_addr": 140734184549921,
+                                "instruction_addr": 140734184549989
+                            },
+                            {
+                                "object_name": "Foundation",
+                                "object_addr": 140734184214528,
+                                "symbol_name": "_NSSetCharValueAndNotify",
+                                "symbol_addr": 140734184559652,
+                                "instruction_addr": 140734184559919
+                            },
+                            {
+                                "object_name": "example",
+                                "object_addr": 4421500928,
+                                "symbol_addr": 4421500928,
+                                "instruction_addr": 4421775170
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSApplication(NSResponder) sendAction:to:from:]",
+                                "symbol_addr": 140734098759324,
+                                "instruction_addr": 140734098759623
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSControl sendAction:to:]",
+                                "symbol_addr": 140734098759180,
+                                "instruction_addr": 140734098759266
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "__26-[NSCell _sendActionFrom:]_block_invoke",
+                                "symbol_addr": 140734098758924,
+                                "instruction_addr": 140734098759060
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSCell _sendActionFrom:]",
+                                "symbol_addr": 140734098758635,
+                                "instruction_addr": 140734098758806
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSButtonCell _sendActionFrom:]",
+                                "symbol_addr": 140734098758525,
+                                "instruction_addr": 140734098758621
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "NSControlTrackMouse",
+                                "symbol_addr": 140734098741226,
+                                "instruction_addr": 140734098742971
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSCell trackMouse:inRect:ofView:untilMouseUp:]",
+                                "symbol_addr": 140734098741056,
+                                "instruction_addr": 140734098741186
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSButtonCell trackMouse:inRect:ofView:untilMouseUp:]",
+                                "symbol_addr": 140734098740174,
+                                "instruction_addr": 140734098740865
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSControl mouseDown:]",
+                                "symbol_addr": 140734098736913,
+                                "instruction_addr": 140734098737661
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSWindow(NSEventRouting) _handleMouseDownEvent:isDelayedEvent:]",
+                                "symbol_addr": 140734098725598,
+                                "instruction_addr": 140734098730512
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSWindow(NSEventRouting) _reallySendEvent:isDelayedEvent:]",
+                                "symbol_addr": 140734098115549,
+                                "instruction_addr": 140734098118161
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSWindow(NSEventRouting) sendEvent:]",
+                                "symbol_addr": 140734098114652,
+                                "instruction_addr": 140734098115001
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSApplication(NSEvent) sendEvent:]",
+                                "symbol_addr": 140734098107364,
+                                "instruction_addr": 140734098107716
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "-[NSApplication run]",
+                                "symbol_addr": 140734096325356,
+                                "instruction_addr": 140734096326063
+                            },
+                            {
+                                "object_name": "AppKit",
+                                "object_addr": 140734096121856,
+                                "symbol_name": "NSApplicationMain",
+                                "symbol_addr": 140734096136317,
+                                "instruction_addr": 140734096137094
+                            },
+                            {
+                                "object_name": "libdyld.dylib",
+                                "object_addr": 140735117094912,
+                                "symbol_name": "start",
+                                "symbol_addr": 140735117204680,
+                                "instruction_addr": 140735117204681
+                            }
+                        ],
+                        "skipped": 0
+                    },
+                    "registers": {
+                        "basic": {
+                            "rax": 69375969044560,
+                            "rbx": 24,
+                            "rcx": 72057594037927936,
+                            "rdx": 80501841470311241,
+                            "rdi": 105553134856272,
+                            "rsi": 140601929746944,
+                            "rbp": 140732794218080,
+                            "rsp": 140732794218024,
+                            "r8": 224,
+                            "r9": 28,
+                            "r10": 4423107984,
+                            "r11": 140734096172735,
+                            "r12": 105553134856272,
+                            "r13": 140735098640080,
+                            "r14": 28,
+                            "r15": 140732794218096,
+                            "rip": 140735098697982,
+                            "rflags": 66054,
+                            "cs": 43,
+                            "fs": 0,
+                            "gs": 0
+                        },
+                        "exception": {
+                            "trapno": 14,
+                            "err": 4,
+                            "faultvaddr": 69375969044588
+                        }
+                    },
+                    "r13": 140735098640080,
+                    "r14": 28,
+                    "r15": 140732794218096,
+                    "rip": 140735098697982,
+                    "rflags": 66054,
+                    "cs": 43,
+                    "fs": 0,
+                    "gs": 0
+                },
+                "exception"
+            ]
+        }
+    },
+    "report": {
+        "version": "3.2.0",
+        "id": "B5977216-435C-41AC-97B1-B84003685F3B",
+        "process_name": null,
+        "timestamp": 1593717988,
+        "type": "minimal"
+    },
+    "crash": {
+        "error": {
+            "mach": {
+                "exception": 0,
+                "code": 0,
+                "subcode": 0
+            },
+            "signal": {
+                "signal": 11,
+                "name": "SIGSEGV",
+                "code": 1,
+                "code_name": "SEGV_MAPERR"
+            },
+            "address": 549748534965,
+            "type": "signal"
+        },
+        "crashed_thread": {
+            "backtrace": {
+                "contents": [
+                    {
+                        "object_name": "libsystem_platform.dylib",
+                        "object_addr": 140735119257600,
+                        "symbol_name": "_platform_strcmp",
+                        "symbol_addr": 140735119259648,
+                        "instruction_addr": 140735119259667
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "sentrycrashobjc_objectType",
+                        "symbol_addr": 4424831117,
+                        "instruction_addr": 4424831315
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "writeMemoryContentsIfNotable",
+                        "symbol_addr": 4424847152,
+                        "instruction_addr": 4424847221
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "writeThread",
+                        "symbol_addr": 4424839288,
+                        "instruction_addr": 4424840649
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "writeAllThreads",
+                        "symbol_addr": 4424843037,
+                        "instruction_addr": 4424843231
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "sentrycrashreport_writeStandardReport",
+                        "symbol_addr": 4424840883,
+                        "instruction_addr": 4424842763
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "onCrash",
+                        "symbol_addr": 4424769386,
+                        "instruction_addr": 4424769552
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "sentrycrashcm_handleException",
+                        "symbol_addr": 4424815362,
+                        "instruction_addr": 4424815479
+                    },
+                    {
+                        "object_name": "Sentry",
+                        "object_addr": 4424740864,
+                        "symbol_name": "handleExceptions",
+                        "symbol_addr": 4424821189,
+                        "instruction_addr": 4424821901
+                    },
+                    {
+                        "object_name": "libsystem_pthread.dylib",
+                        "object_addr": 140735119294464,
+                        "symbol_name": "_pthread_start",
+                        "symbol_addr": 140735119319157,
+                        "instruction_addr": 140735119319305
+                    },
+                    {
+                        "object_name": "libsystem_pthread.dylib",
+                        "object_addr": 140735119294464,
+                        "symbol_name": "thread_start",
+                        "symbol_addr": 140735119301500,
+                        "instruction_addr": 140735119301515
+                    }
+                ],
+                "skipped": 0
+            },
+            "registers": {
+                "basic": {
+                    "rax": 0,
+                    "rbx": 4423107984,
+                    "rcx": 0,
+                    "rdx": 72,
+                    "rdi": 549748534965,
+                    "rsi": 4425030059,
+                    "rbp": 123145553696320,
+                    "rsp": 123145553696320,
+                    "r8": 112727,
+                    "r9": 0,
+                    "r10": 52,
+                    "r11": 518,
+                    "r12": 123145553697328,
+                    "r13": 10,
+                    "r14": 4423108024,
+                    "r15": 123145553698864,
+                    "rip": 140735119259667,
+                    "rflags": 66054,
+                    "cs": 43,
+                    "fs": 0,
+                    "gs": 0
+                },
+                "exception": {
+                    "trapno": 14,
+                    "err": 4,
+                    "faultvaddr": 549748534965
+                }
+            },
+            "index": 3,
+            "name": "SentryCrash Exception Handler (Primary)",
+            "crashed": true,
+            "current_thread": true,
+            "stack": {
+                "grow_direction": "-",
+                "dump_start": 123145553696240,
+                "dump_end": 123145553696480,
+                "stack_pointer": 123145553696320,
+                "overflow": false,
+                "contents": "00DCEE90FF7F00000A000000000000000000000000000000020000000000000040D6FB0E00700000B08EBD07010000009045A3070100000030DAFB0E00700000B845A3070100000030E0FB0E0070000060D6FB0E007000005391BD07010000009045A307010000009674C0070100000090D6FB0E0070000075CFBD07010000009045A307010000009674C00701000000150000000000000030E0FB0E0070000050DBFB0E00700000C9B5BD0701000000C91CAB72FF7F0000CCC63BE4FF7F00000070A972FF7F0000FF1405E4FF7F0000C81CAB72FF7F000015000000000000000165BE07010000002C65BE0701000000"
+            }
+        }
+    }
+}
