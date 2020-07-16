@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  andLevel:kSentryLogLevelError];
             } else {
                 NSString *_Nullable eventId = headerDictionary[@"event_id"];
-                SentrySdkInfo *sdkInfo = [self sdkInfoWithDict:headerDictionary];
+                SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
                                                                andSdkInfo:sdkInfo];
             }
@@ -228,28 +228,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
     return session;
-}
-
-+ (SentrySdkInfo *_Nullable)sdkInfoWithDict:(NSDictionary *)dict
-{
-
-    NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk_info"];
-    if (nil == sdkInfoDict) {
-        return nil;
-    }
-
-    NSString *_Nullable sdkName = sdkInfoDict[@"sdk_name"];
-    NSNumber *_Nullable versionMajor = sdkInfoDict[@"version_major"];
-    NSNumber *_Nullable versionMinor = sdkInfoDict[@"version_minor"];
-    NSNumber *_Nullable versionPatchLevel = sdkInfoDict[@"version_patchlevel"];
-
-    NSString *versionString =
-        [NSString stringWithFormat:@"%@.%@.%@", versionMajor, versionMinor, versionPatchLevel];
-
-    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithSdkName:sdkName
-                                                   andVersionString:versionString];
-
-    return sdkInfo;
 }
 
 @end

@@ -22,6 +22,10 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSString *_Nullable eventId;
 
+/**
+ * Describes the system SDK. Although this can be nil it is recommended to specifiy it when sending
+ * an envelope.
+ */
 @property (nonatomic, readonly, copy) SentrySdkInfo *_Nullable sdkInfo;
 
 @end

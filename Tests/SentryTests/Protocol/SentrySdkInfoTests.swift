@@ -86,4 +86,22 @@ class SentrySdkInfoTests: XCTestCase {
             XCTFail("Serialization of SdkInfo doesn't contain sdk_info")
         }
     }
+    
+    func testDeserialization_DictWithNoSdkInfo() {
+        XCTAssertNil(SentrySdkInfo(dict: ["": ""]))
+    }
+    
+    func testDeserialization_DictSdkInfo() {
+        let expected = SentrySdkInfo(sdkName: "cocoa", andVersionString: "10.3.1")
+        
+        let dict = ["sdk_info":
+            [ "sdk_name": expected.sdkName ?? "",
+              "version_major": expected.versionMajor ?? 0,
+              "version_minor": expected.versionMinor ?? 0,
+              "version_patchlevel": expected.versionPatchLevel ?? 0
+            ]
+        ]
+        
+        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+    }
 }

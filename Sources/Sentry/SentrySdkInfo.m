@@ -7,7 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString
 {
-
     if (self = [super init]) {
         _sdkName = sdkName;
 
@@ -44,6 +43,31 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return self;
+}
+
+- (instancetype _Nullable)initWithDict:(NSDictionary *)dict
+{
+    if (nil == dict) {
+        return nil;
+    }
+
+    NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk_info"];
+    if (nil == sdkInfoDict) {
+        return nil;
+    }
+
+    NSString *_Nullable sdkName = sdkInfoDict[@"sdk_name"];
+    NSNumber *_Nullable versionMajor = sdkInfoDict[@"version_major"];
+    NSNumber *_Nullable versionMinor = sdkInfoDict[@"version_minor"];
+    NSNumber *_Nullable versionPatchLevel = sdkInfoDict[@"version_patchlevel"];
+
+    NSString *versionString =
+        [NSString stringWithFormat:@"%@.%@.%@", versionMajor, versionMinor, versionPatchLevel];
+
+    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithSdkName:sdkName
+                                                   andVersionString:versionString];
+
+    return sdkInfo;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
