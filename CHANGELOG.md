@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add SdkInfo to Envelope Header #626
 - fix: Deserialize envelope with header and item #620
 - fix: Set LogLevel in startWithConfigureOptions #613
 
