@@ -3,7 +3,7 @@ import XCTest
 class SentrySdkInfoTests: XCTestCase {
     
     private let sdkName = "sentry.cocoa"
-
+    
     func testWithPatchLevelSuffix() {
         let actual = SentrySdkInfo(sdkName: sdkName, andVersionString: "50.10.20-beta1")
         
@@ -87,11 +87,44 @@ class SentrySdkInfoTests: XCTestCase {
         }
     }
     
-    func testDeserialization_DictWithNoSdkInfo() {
-        XCTAssertNil(SentrySdkInfo(dict: ["": ""]))
+    func testInitWithDict_NoSdkInfo() {
+        let expected = SentrySdkInfo(sdkName: "", andVersionString: "")
+        let actual = SentrySdkInfo(dict: ["": ""])
+        
+        XCTAssertEqual(expected, actual)
     }
     
-    func testDeserialization_DictSdkInfo() {
+    func testInitWithDict_AllNil() {
+        let dict = ["sdk_info":
+            [ "sdk_name": nil,
+              "version_major": nil,
+              "version_minor": nil,
+              "version_patchlevel": nil
+            ]
+        ]
+        
+        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
+    }
+    
+    func testInitWithDict_WrongTypes() {
+        let dict = ["sdk_info":
+            [ "sdk_name": 0,
+              "version_major": "",
+              "version_minor": "",
+              "version_patchlevel": ""
+            ]
+        ]
+        
+        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
+    }
+    
+    func testInitWithDict_SdkInfoIsString() {
+        let dict = ["sdk_info": ""]
+        
+        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
+    }
+    
+    func testInitWithDict_SdkInfo() {
         let expected = SentrySdkInfo(sdkName: "cocoa", andVersionString: "10.3.1")
         
         let dict = ["sdk_info":
@@ -103,5 +136,9 @@ class SentrySdkInfoTests: XCTestCase {
         ]
         
         XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+    }
+    
+    private func assertEmptySdkInfo(actual: SentrySdkInfo) {
+        XCTAssertEqual(SentrySdkInfo(sdkName: "", andVersionString: ""),actual)
     }
 }

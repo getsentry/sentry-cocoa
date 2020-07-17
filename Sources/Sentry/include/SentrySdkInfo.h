@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySdkInfo : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
-@property (nonatomic, readonly, copy) NSString *_Nullable sdkName;
+@property (nonatomic, readonly, copy) NSString *sdkName;
 
 @property (nonatomic, readonly, copy) NSNumber *_Nullable versionMajor;
 
@@ -20,7 +20,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString;
 
-- (instancetype _Nullable)initWithDict:(NSDictionary *)dict;
+- (instancetype)initWithDict:(NSDictionary *)dict;
 
 @end
 
