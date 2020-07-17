@@ -15,7 +15,7 @@ class SentrySerializationTests: XCTestCase {
         
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
             XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId)
-            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+            assertDefaultSdkInterfaceSet(deserializedEnvelope: deserializedEnvelope)
             XCTAssertEqual(1, deserializedEnvelope.items.count)
             XCTAssertEqual("event", envelope.items[0].header.type)
             XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
@@ -50,7 +50,7 @@ class SentrySerializationTests: XCTestCase {
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
             XCTAssertNil(deserializedEnvelope.header.eventId)
             XCTAssertEqual(itemsCount, deserializedEnvelope.items.count)
-            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+            assertDefaultSdkInterfaceSet(deserializedEnvelope: deserializedEnvelope)
             
             for j in 0..<itemsCount {
                 XCTAssertEqual("\(j)", envelope.items[j].header.type)
@@ -80,26 +80,26 @@ class SentrySerializationTests: XCTestCase {
             XCTAssertEqual("attachment", deserializedEnvelope.items[0].header.type)
             XCTAssertEqual(0, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(0, deserializedEnvelope.items[0].data.count)
-            assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
+            assertDefaultSdkInterfaceSet(deserializedEnvelope: deserializedEnvelope)
         }
     }
 
-    func testSentryEnvelopeSerializer_SdkInfo() {
-        let sdkInfo = SentrySdkInfo(sdkName: "sentry.cocoa", andVersionString: "5.0.1")
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: sdkInfo)
+    func testSentryEnvelopeSerializer_SdkInterface() {
+        let sdkInterface = SentrySdkInterface(name: "sentry.cocoa", andVersion: "5.0.1")
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInterface: sdkInterface)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
-            XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
+            XCTAssertEqual(sdkInterface, deserializedEnvelope.header.sdkInterface)
         }
     }
     
-    func testSentryEnvelopeSerializer_SdkInfoIsNil() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+    func testSentryEnvelopeSerializer_SdkInterfaceIsNil() {
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInterface: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
-            XCTAssertNil(deserializedEnvelope.header.sdkInfo)
+            XCTAssertNil(deserializedEnvelope.header.sdkInterface)
         }
     }
     
@@ -175,8 +175,8 @@ class SentrySerializationTests: XCTestCase {
         }
     }
 
-    private func assertDefaultSdkInfoSet(deserializedEnvelope: SentryEnvelope) {
-        let sdkInfo = SentrySdkInfo(sdkName: SentryMeta.sdkName, andVersionString: SentryMeta.versionString)
-        XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
+    private func assertDefaultSdkInterfaceSet(deserializedEnvelope: SentryEnvelope) {
+        let sdkInterface = SentrySdkInterface(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
+        XCTAssertEqual(sdkInterface, deserializedEnvelope.header.sdkInterface)
     }
 }

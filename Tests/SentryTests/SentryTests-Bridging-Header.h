@@ -35,7 +35,7 @@
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
-#import "SentrySdkInfo.h"
+#import "SentrySdkInterface.h"
 #import "SentrySessionTracker.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySystemEventsBreadcrumbs.h"

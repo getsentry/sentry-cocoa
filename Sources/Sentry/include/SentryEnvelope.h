@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo;
+@class SentryEvent, SentrySession, SentrySdkInterface;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,7 +13,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithId:(NSString *_Nullable)eventId;
 
 - (instancetype)initWithId:(NSString *_Nullable)eventId
-                andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
+           andSdkInterface:(SentrySdkInterface *_Nullable)sdkInterface NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
@@ -26,7 +26,7 @@ SENTRY_NO_INIT
  * Describes the system SDK. Although this can be nil it is recommended to specifiy it when sending
  * an envelope.
  */
-@property (nonatomic, readonly, copy) SentrySdkInfo *_Nullable sdkInfo;
+@property (nonatomic, readonly, copy) SentrySdkInterface *_Nullable sdkInterface;
 
 @end
 
