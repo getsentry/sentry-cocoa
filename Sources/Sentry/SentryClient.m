@@ -63,6 +63,17 @@ SentryClient ()
         self.threadInspector =
             [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                             andMachineContextWrapper:machineContextWrapper];
+
+        NSError *error = nil;
+        self.fileManager = [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn
+                                                 didFailWithError:&error];
+        if (nil != error) {
+            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
+        }
+
+        self.transport = [SentryTransportFactory initTransport:self.options
+                                             sentryFileManager:self.fileManager];
     }
     return self;
 }
@@ -80,27 +91,8 @@ SentryClient ()
     return self;
 }
 
-- (id<SentryTransport>)transport
-{
-    if (_transport == nil) {
-        _transport = [SentryTransportFactory initTransport:self.options
-                                         sentryFileManager:self.fileManager];
-    }
-    return _transport;
-}
-
 - (SentryFileManager *)fileManager
 {
-    if (_fileManager == nil) {
-        NSError *error = nil;
-        SentryFileManager *fileManager =
-            [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn didFailWithError:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:(error).localizedDescription andLevel:kSentryLogLevelError];
-            return nil;
-        }
-        _fileManager = fileManager;
-    }
     return _fileManager;
 }
 
