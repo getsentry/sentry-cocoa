@@ -318,6 +318,18 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testFileManagerCantBeInit() {
+         SentryFileManager.prepareInitError()
+        
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString
+        let client = Client(options: options)
+         
+        XCTAssertNil(client)
+        
+        SentryFileManager.tearDownInitError()
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
