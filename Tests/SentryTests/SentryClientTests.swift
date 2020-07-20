@@ -318,7 +318,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testFileManagerCantNotBeInit() throws {
+    func testFileManagerCantBeInit() {
          SentryFileManager.prepareInitError()
         
         let options = Options()
