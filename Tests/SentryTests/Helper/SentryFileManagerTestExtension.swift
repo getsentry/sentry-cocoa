@@ -32,10 +32,15 @@ extension SentryFileManager {
     }
     
     private static func getInternalPath() -> URL {
-        let cachePath = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).map(\.path).first ?? ""
-        
+        let cachePath: String = FileManager.default
+                .urls(for: .cachesDirectory, in: .userDomainMask)
+                .map { dir in
+                    dir.absoluteString
+                }
+                .first ?? ""
+
         let sentryPath = URL(fileURLWithPath: cachePath).appendingPathComponent("io.sentry")
-        
+
         return sentryPath
     }
 }
