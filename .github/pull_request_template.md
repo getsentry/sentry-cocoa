@@ -16,5 +16,6 @@
 - [ ] I reviewed submitted code
 - [ ] I added tests to verify the changes
 - [ ] I've updated the CHANGELOG
+- [ ] No breaking changes
 
 ## :crystal_ball: Next steps
