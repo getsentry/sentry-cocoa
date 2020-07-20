@@ -69,6 +69,7 @@ SentryClient ()
                                                  didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+            return nil;
         }
 
         self.transport = [SentryTransportFactory initTransport:self.options
