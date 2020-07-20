@@ -1,8 +1,8 @@
 import Foundation
 
-extension SentrySdkInterface {
+extension SentrySdkInfo {
     open override func isEqual(_ object: Any?) -> Bool {
-        if let other = object as? SentrySdkInterface {
+        if let other = object as? SentrySdkInfo {
             return name == other.name &&
                 version == other.version
         } else {

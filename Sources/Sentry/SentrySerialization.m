@@ -4,7 +4,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryLog.h"
-#import "SentrySdkInterface.h"
+#import "SentrySdkInfo.h"
 #import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,9 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:envelope.header.eventId forKey:@"event_id"];
     }
 
-    SentrySdkInterface *sdkInterface = envelope.header.sdkInterface;
-    if (nil != sdkInterface) {
-        [serializedData addEntriesFromDictionary:[sdkInterface serialize]];
+    SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
+    if (nil != sdkInfo) {
+        [serializedData addEntriesFromDictionary:[sdkInfo serialize]];
     }
 
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
@@ -116,12 +116,12 @@ NS_ASSUME_NONNULL_BEGIN
             } else {
                 NSString *_Nullable eventId = headerDictionary[@"event_id"];
 
-                SentrySdkInterface *sdkInterface = nil;
+                SentrySdkInfo *sdkInfo = nil;
                 if (nil != headerDictionary[@"sdk"]) {
-                    sdkInterface = [[SentrySdkInterface alloc] initWithDict:headerDictionary];
+                    sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
                 }
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
-                                                          andSdkInterface:sdkInterface];
+                                                          andSdkInfo:sdkInfo];
             }
             break;
         }

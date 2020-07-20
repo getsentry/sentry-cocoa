@@ -1,9 +1,9 @@
-#import "SentrySdkInterface.h"
+#import "SentrySdkInfo.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentrySdkInterface
+@implementation SentrySdkInfo
 
 - (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version
 {
@@ -36,13 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-            NSDictionary<NSString *, id> *sdkInterfaceDict = dict[@"sdk"];
-            if ([sdkInterfaceDict[@"name"] isKindOfClass:[NSString class]]) {
-                _name = sdkInterfaceDict[@"name"];
+            NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
+            if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
+                _name = sdkInfoDict[@"name"];
             }
 
-            if ([sdkInterfaceDict[@"version"] isKindOfClass:[NSString class]]) {
-                _version = sdkInterfaceDict[@"version"];
+            if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
+                _version = sdkInfoDict[@"version"];
             }
         } else {
             _name = @"";

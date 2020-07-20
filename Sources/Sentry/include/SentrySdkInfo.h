@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * For more info checkout: https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@interface SentrySdkInterface : NSObject <SentrySerializable>
+@interface SentrySdkInfo : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
 /**

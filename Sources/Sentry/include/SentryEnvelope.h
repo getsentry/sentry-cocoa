@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInterface;
+@class SentryEvent, SentrySession, SentrySdkInfo;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,7 +13,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithId:(NSString *_Nullable)eventId;
 
 - (instancetype)initWithId:(NSString *_Nullable)eventId
-           andSdkInterface:(SentrySdkInterface *_Nullable)sdkInterface NS_DESIGNATED_INITIALIZER;
+           andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
@@ -22,7 +22,7 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSString *_Nullable eventId;
 
-@property (nonatomic, readonly, copy) SentrySdkInterface *_Nullable sdkInterface;
+@property (nonatomic, readonly, copy) SentrySdkInfo *_Nullable sdkInfo;
 
 @end
 

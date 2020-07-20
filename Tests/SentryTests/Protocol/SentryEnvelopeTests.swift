@@ -2,7 +2,7 @@ import XCTest
 
 class SentryEnvelopeTests: XCTestCase {
     
-    private let defaultSdkInterface = SentrySdkInterface(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
+    private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
     
     func testSentryEnvelopeFromEvent() {
         let event = Event()
@@ -63,28 +63,28 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
-    func testInitSentryEnvelopeHeader_DefaultSdkInterfaceIsSet() {
-        XCTAssertEqual(defaultSdkInterface, SentryEnvelopeHeader(id: nil).sdkInterface)
+    func testInitSentryEnvelopeHeader_DefaultSdkInfoIsSet() {
+        XCTAssertEqual(defaultSdkInfo, SentryEnvelopeHeader(id: nil).sdkInfo)
     }
     
     func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
-        let allNil = SentryEnvelopeHeader(id: nil, andSdkInterface: nil)
+        let allNil = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
         XCTAssertNil(allNil.eventId)
-        XCTAssertNil(allNil.sdkInterface)
+        XCTAssertNil(allNil.sdkInfo)
     }
     
-    func testInitSentryEnvelopeHeader_SetIdAndSdkInterface() {
+    func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = "some id"
-        let sdkInterface = SentrySdkInterface(name: "sdk", andVersion: "1.2.3-alpha.0")
+        let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInterface: sdkInterface)
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
-        XCTAssertEqual(sdkInterface, envelopeHeader.sdkInterface)
+        XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
     }
     
-    func testInitSentryEnvelopeWithSession_DefaultSdkInterfaceIsSet() {
+    func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1"))
         
-        XCTAssertEqual(defaultSdkInterface, envelope.header.sdkInterface)
+        XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
 }
