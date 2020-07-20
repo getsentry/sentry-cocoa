@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
                     sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
                 }
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
-                                                          andSdkInfo:sdkInfo];
+                                                               andSdkInfo:sdkInfo];
             }
             break;
         }
