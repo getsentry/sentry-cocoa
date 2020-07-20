@@ -93,7 +93,7 @@
     SentryThread *thread = event.threads.firstObject;
     XCTAssertFalse(thread.crashed);
     XCTAssertFalse(thread.current);
-    XCTAssertEqual(21, thread.stacktrace.frames.count);
+    XCTAssertEqual(1, thread.stacktrace.frames.count);
     XCTAssertEqual(21, thread.stacktrace.registers.count);
 }
 
