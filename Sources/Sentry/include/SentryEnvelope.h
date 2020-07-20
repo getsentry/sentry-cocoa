@@ -9,9 +9,23 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryEnvelopeHeader : NSObject
 SENTRY_NO_INIT
 
-// id can be null if no event in the envelope or attachment related to event
+/**
+ * Initializes an SentryEnvelopeHeader object with the specified eventId.
+ *
+ * Sets the sdkInfo from SentryMeta.
+ *
+ * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment related to event.
+ */
 - (instancetype)initWithId:(NSString *_Nullable)eventId;
 
+/**
+ * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
+ *
+ * It is recommended to use initWithId:eventId: because it sets the sdkInfo for you.
+ *
+ * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment related to event.
+ * @param sdkInfo Describes the Sentry SDK. Can be nil if the sdkInfo is not known, but it is recommended not to be nil.
+*/
 - (instancetype)initWithId:(NSString *_Nullable)eventId
            andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
 

@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Describes the Sentry SDK and its configuration used to capture and transmit an event.
  *
+ * Both name and version are required.
+ *
  * For more info checkout: https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
 @interface SentrySdkInfo : NSObject <SentrySerializable>
