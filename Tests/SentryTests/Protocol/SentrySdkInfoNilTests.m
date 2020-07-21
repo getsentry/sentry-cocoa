@@ -41,6 +41,16 @@
     [self assertSdkInfoIsEmtpy:actual];
 }
 
+- (void)testInitWithDictWrongTypes
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithDict:@{@"sdk" : @{ @"name": @20, @"version": @0 }}];
+#pragma clang diagnostic pop
+
+    [self assertSdkInfoIsEmtpy:actual];
+}
+
 - (void)assertSdkInfoIsEmtpy:(SentrySdkInfo *)sdkInfo
 {
     XCTAssertEqualObjects(@"", sdkInfo.name);

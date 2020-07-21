@@ -9,13 +9,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
 
-        if ([name length] == 0) {
+        if (name.length == 0) {
             _name = @"";
         } else {
             _name = name;
         }
 
-        if ([version length] == 0) {
+        if (version.length == 0) {
             _version = @"";
         } else {
             _version = version;
@@ -27,30 +27,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
-    if (self = [super init]) {
-
-        if (nil == dict) {
-            _name = @"";
-            _version = @"";
-            return self;
+    NSString *name = @"";
+    NSString *version = @"";
+    
+    if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
+        NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
+        if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
+            name = sdkInfoDict[@"name"];
         }
-
-        if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-            NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
-            if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
-                _name = sdkInfoDict[@"name"];
-            }
-
-            if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
-                _version = sdkInfoDict[@"version"];
-            }
-        } else {
-            _name = @"";
-            _version = @"";
+        
+        if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
+            version = sdkInfoDict[@"version"];
         }
     }
 
-    return self;
+    return [self initWithName:name andVersion:version];
 }
 
 - (NSDictionary<NSString *, id> *)serialize
