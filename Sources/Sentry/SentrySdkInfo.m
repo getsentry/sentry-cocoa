@@ -29,13 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSString *name = @"";
     NSString *version = @"";
-    
+
     if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
         NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
         if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
             name = sdkInfoDict[@"name"];
         }
-        
+
         if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
             version = sdkInfoDict[@"version"];
         }

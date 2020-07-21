@@ -45,7 +45,8 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    SentrySdkInfo *actual = [[SentrySdkInfo alloc] initWithDict:@{@"sdk" : @{ @"name": @20, @"version": @0 }}];
+    SentrySdkInfo *actual =
+        [[SentrySdkInfo alloc] initWithDict:@{ @"sdk" : @ { @"name" : @20, @"version" : @0 } }];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];

@@ -26,8 +26,8 @@ SENTRY_NO_INIT
  *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.
- * @param sdkInfo Describes the Sentry SDK. Can be nil if the sdkInfo is not known, but it is
- * recommended not to be nil.
+ * @param sdkInfo sdkInfo Describes the Sentry SDK. Can be nil for backwards compatibility. New
+ * instances should always provide a version.
  */
 - (instancetype)initWithId:(NSString *_Nullable)eventId
                 andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
