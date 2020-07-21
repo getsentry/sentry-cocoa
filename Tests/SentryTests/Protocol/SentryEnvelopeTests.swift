@@ -2,6 +2,8 @@ import XCTest
 
 class SentryEnvelopeTests: XCTestCase {
     
+    private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
+    
     func testSentryEnvelopeFromEvent() {
         let event = Event()
         
@@ -12,7 +14,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("event", envelope.items[0].header.type)
         
-        let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions.init(rawValue: 0))
+        let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0))
         
         assertJsonIsEqual(actual: json, expected: envelope.items[0].data)
     }
@@ -61,4 +63,28 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
+    func testInitSentryEnvelopeHeader_DefaultSdkInfoIsSet() {
+        XCTAssertEqual(defaultSdkInfo, SentryEnvelopeHeader(id: nil).sdkInfo)
+    }
+    
+    func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
+        let allNil = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        XCTAssertNil(allNil.eventId)
+        XCTAssertNil(allNil.sdkInfo)
+    }
+    
+    func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
+        let eventId = "some id"
+        let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
+        
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
+        XCTAssertEqual(eventId, envelopeHeader.eventId)
+        XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
+    }
+    
+    func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1"))
+        
+        XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
+    }
 }
