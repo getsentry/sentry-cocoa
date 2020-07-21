@@ -117,6 +117,17 @@
     }
 }
 
+- (void)testWithFaultyReport
+{
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/Crash-faulty-report"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    XCTAssertNil(
+        event, "The event should be nil, because the report conversion should have failed.");
+}
+
 - (void)testAbort
 {
     [self isValidReport:@"Resources/Abort"];

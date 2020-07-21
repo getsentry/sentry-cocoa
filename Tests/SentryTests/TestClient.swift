@@ -10,6 +10,12 @@ class TestClient: Client {
     override func capture(session: SentrySession) {
         sessions.append(session)
     }
+    
+    var events: [Event] = []
+    override func capture(event: Event, scope: Scope?) -> String? {
+        events.append(event)
+        return event.eventId
+    }
 }
 
 class TestFileManager: SentryFileManager {
