@@ -15,7 +15,7 @@ extension SentryFileManager {
             XCTFail("Couldn't create file for init error of SentryFileManager.")
         }
     }
-    
+        
     /**
      * Deletes the file created with prepareInitError.
      */
