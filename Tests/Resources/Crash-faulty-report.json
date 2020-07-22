@@ -1,0 +1,790 @@
+{
+    "report": {
+        "version": "3.2.0",
+        "id": "EC55B54F-1963-41AB-A65F-E0F98EF29DFB",
+        "process_name": "CrashProbeiOS",
+        "timestamp": 1491210797,
+        "type": "standard"
+    },
+    "binary_images": [
+        {
+            "image_addr": 4295180288,
+            "image_vmaddr": 4294967296,
+            "image_size": 65536,
+            "name": "/var/containers/Bundle/Application/94765405-4249-4E20-B1E7-9801C14D5645/CrashProbeiOS.app/CrashProbeiOS",
+            "uuid": "363F8E49-2D2A-3A26-BF90-60D6A8896CF0",
+            "cpu_type": 16777228,
+            "cpu_subtype": 0,
+            "major_version": 0,
+            "minor_version": 0,
+            "revision_version": 0
+        },
+        0,
+        
+    ],
+    "process": {},
+    "system": {
+        "system_name": "iOS",
+        "system_version": "10.3",
+        "machine": "iPhone9,4",
+        "model": "D111AP",
+        "kernel_version": "Darwin Kernel Version 16.5.0: Thu Feb 23 23:22:55 PST 2017; root:xnu-3789.52.2~7/RELEASE_ARM64_T8010",
+        "os_version": "14E277",
+        "jailbroken": false,
+        "boot_time": "2017-04-02T07:15:40Z",
+        "app_start_time": "2017-04-03T07:55:56Z",
+        "CFBundleExecutablePath": "/var/containers/Bundle/Application/94765405-4249-4E20-B1E7-9801C14D5645/CrashProbeiOS.app/CrashProbeiOS",
+        "CFBundleExecutable": "CrashProbeiOS",
+        "CFBundleIdentifier": "io.sentry.crashTest",
+        "CFBundleName": "CrashProbeiOS",
+        "CFBundleVersion": "201702072010",
+        "CFBundleShortVersionString": "1.4.1",
+        "app_uuid": "363F8E49-2D2A-3A26-BF90-60D6A8896CF0",
+        "cpu_arch": "arm64",
+        "cpu_type": 16777228,
+        "cpu_subtype": 1,
+        "binary_cpu_type": 16777228,
+        "binary_cpu_subtype": 0,
+        "time_zone": "GMT+2",
+        "process_name": "CrashProbeiOS",
+        "process_id": 943,
+        "parent_process_id": 1,
+        "device_app_hash": "1a42735dcafad55839700de83abc2273870ed48a",
+        "build_type": "test",
+        "storage": 31989477376,
+        "memory": {
+            "size": 3143630848,
+            "usable": 2192113664,
+            "free": 144064512
+        },
+        "application_stats": {
+            "application_active": false,
+            "application_in_foreground": true,
+            "launches_since_last_crash": 2,
+            "sessions_since_last_crash": 2,
+            "active_time_since_last_crash": 0,
+            "background_time_since_last_crash": 0,
+            "sessions_since_launch": 1,
+            "active_time_since_launch": 0,
+            "background_time_since_launch": 0
+        }
+    },
+    "crash": {
+        "error": {
+            "mach": {
+                "exception": 1,
+                "exception_name": "EXC_BAD_ACCESS",
+                "code": 38174720,
+                "subcode": 8
+            },
+            "signal": {
+                "signal": 10,
+                "name": "SIGBUS",
+                "code": 0,
+                "code_name": "BUS_NOOP"
+            },
+            "address": 4333142016,
+            "type": "mach"
+        },
+        "threads": [
+            {
+                "backtrace": {
+                    "contents": [
+                        "hello",
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": ""
+                    },
+                    "exception": {
+                        "exception": 0,
+                        "esr": 2449473543,
+                        "far": 4333142016
+                    }
+                },
+                "index": 0,
+                "dispatch_queue": "com.apple.main-thread",
+                "crashed": true,
+                "current_thread": false,
+                "stack": {
+                    "grow_direction": "-",
+                    "dump_start": 6171693136,
+                    "dump_end": 6171693376,
+                    "stack_pointer": 6171693216,
+                    "overflow": false,
+                    "contents": "FFFFFFFF000000000000000000000000000000000000000002100000000000000080460201000000004000000000000000804602010000000040000000000000B090DC6F01000000A0CA140001000000800AE445010000008074007001000000D090DC6F010000003CD9030001000000800AE4450100000000102E70010000000091DC6F01000000EC303589010000002035D64501000000800AE44501000000632804000100000000102E70010000003091DC6F010000006C3035890100000040000000000000006328040001000000800AE44501000000008015A801000000F091DC6F01000000E0D5338901000000"
+                },
+                "notable_addresses": {
+                    "x21": {
+                        "address": 4295239779,
+                        "type": "string",
+                        "value": "doCrash"
+                    },
+                    "x26": {
+                        "address": 6608505041,
+                        "type": "string",
+                        "value": "objectAtIndex:"
+                    },
+                    "stack@0x16fdc90f0": {
+                        "address": 4295239779,
+                        "type": "string",
+                        "value": "doCrash"
+                    },
+                    "stack@0x16fdc9118": {
+                        "address": 4295239779,
+                        "type": "string",
+                        "value": "doCrash"
+                    }
+                }
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 6478011008,
+                            "instruction_addr": 6478011016
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_wqthread",
+                            "symbol_addr": 6478818696,
+                            "instruction_addr": 6478819956
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 4,
+                        "x1": 0,
+                        "x2": 0,
+                        "x3": 0,
+                        "x4": 134222079,
+                        "x5": 0,
+                        "x6": 0,
+                        "x7": 0,
+                        "x8": 2,
+                        "x9": 6176646700,
+                        "x10": 1,
+                        "x11": 0,
+                        "x12": 13510816061985795,
+                        "x13": 0,
+                        "x14": 6177031260,
+                        "x15": -64424509440,
+                        "x16": 368,
+                        "x17": 6493740032,
+                        "x18": 0,
+                        "x19": 6140489728,
+                        "x20": 25,
+                        "x21": 2555929,
+                        "x22": 0,
+                        "x23": 5123,
+                        "x24": 7133663232,
+                        "x25": 7133663232,
+                        "x26": 0,
+                        "x27": 2147483648,
+                        "x28": 2147487999,
+                        "x29": 6140489584,
+                        "fp": 6140489584,
+                        "lr": 6478819956,
+                        "sp": 6140489456,
+                        "pc": 6478011016,
+                        "cpsr": 0
+                    }
+                },
+                "index": 1,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 6477885980,
+                            "instruction_addr": 6477885988
+                        },
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg",
+                            "symbol_addr": 6477885524,
+                            "instruction_addr": 6477885596
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6494473672,
+                            "instruction_addr": 6494473864
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6494463672,
+                            "instruction_addr": 6494464732
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 6493613036,
+                            "instruction_addr": 6493613460
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 6505201664,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6505253940,
+                            "instruction_addr": 6505254244
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 6505201664,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6505388756,
+                            "instruction_addr": 6505388852
+                        },
+                        {
+                            "object_name": "UIKit",
+                            "object_addr": 6596648960,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6607132016,
+                            "instruction_addr": 6607132152
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 6505201664,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6506290916,
+                            "instruction_addr": 6506291912
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6478829164,
+                            "instruction_addr": 6478829404
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 6478828880,
+                            "instruction_addr": 6478829164
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 6142205592,
+                        "x1": 117442566,
+                        "x2": 0,
+                        "x3": 3072,
+                        "x4": 12035,
+                        "x5": 4294967295,
+                        "x6": 0,
+                        "x7": 0,
+                        "x8": 4294966207,
+                        "x9": 117440512,
+                        "x10": 117440768,
+                        "x11": 124857,
+                        "x12": 717981093105155,
+                        "x13": 0,
+                        "x14": 719080604732928,
+                        "x15": 0,
+                        "x16": -31,
+                        "x17": 7133694264,
+                        "x18": 0,
+                        "x19": 0,
+                        "x20": 4294967295,
+                        "x21": 12035,
+                        "x22": 3072,
+                        "x23": 6142205592,
+                        "x24": 117442566,
+                        "x25": 0,
+                        "x26": 117442566,
+                        "x27": 3072,
+                        "x28": 1,
+                        "x29": 6142205344,
+                        "fp": 6142205344,
+                        "lr": 6477885596,
+                        "sp": 6142205264,
+                        "pc": 6477885988,
+                        "cpsr": 1610612736
+                    }
+                },
+                "index": 2,
+                "name": "com.apple.uikit.eventfetch-thread",
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 6477885980,
+                            "instruction_addr": 6477885988
+                        },
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg",
+                            "symbol_addr": 6477885524,
+                            "instruction_addr": 6477885596
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6494473672,
+                            "instruction_addr": 6494473864
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6494463672,
+                            "instruction_addr": 6494464732
+                        },
+                        {
+                            "object_name": "CoreFoundation",
+                            "object_addr": 6493577216,
+                            "symbol_name": "CFRunLoopRunSpecific",
+                            "symbol_addr": 6493613036,
+                            "instruction_addr": 6493613460
+                        },
+                        {
+                            "object_name": "CFNetwork",
+                            "object_addr": 6501126144,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6502050576,
+                            "instruction_addr": 6502050980
+                        },
+                        {
+                            "object_name": "Foundation",
+                            "object_addr": 6505201664,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6506290916,
+                            "instruction_addr": 6506291912
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6478829164,
+                            "instruction_addr": 6478829404
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 6478828880,
+                            "instruction_addr": 6478829164
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 6142779048,
+                        "x1": 117442566,
+                        "x2": 0,
+                        "x3": 3072,
+                        "x4": 28419,
+                        "x5": 4294967295,
+                        "x6": 0,
+                        "x7": 34,
+                        "x8": 4294966207,
+                        "x9": 117440512,
+                        "x10": 117440768,
+                        "x11": 1087,
+                        "x12": 230897441886979,
+                        "x13": 0,
+                        "x14": 231996953514752,
+                        "x15": 0,
+                        "x16": -31,
+                        "x17": 7133694264,
+                        "x18": 0,
+                        "x19": 0,
+                        "x20": 4294967295,
+                        "x21": 28419,
+                        "x22": 3072,
+                        "x23": 6142779048,
+                        "x24": 117442566,
+                        "x25": 0,
+                        "x26": 117442566,
+                        "x27": 3072,
+                        "x28": 1,
+                        "x29": 6142778800,
+                        "fp": 6142778800,
+                        "lr": 6477885596,
+                        "sp": 6142778720,
+                        "pc": 6477885988,
+                        "cpsr": 1610612736
+                    }
+                },
+                "index": 3,
+                "name": "com.apple.NSURLConnectionLoader",
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "__semwait_signal",
+                            "symbol_addr": 6478009100,
+                            "instruction_addr": 6478009108
+                        },
+                        {
+                            "object_name": "libsystem_c.dylib",
+                            "object_addr": 6477037568,
+                            "symbol_name": "nanosleep",
+                            "symbol_addr": 6477088732,
+                            "instruction_addr": 6477088944
+                        },
+                        {
+                            "object_name": "libsystem_c.dylib",
+                            "object_addr": 6477037568,
+                            "symbol_name": "sleep",
+                            "symbol_addr": 6477517380,
+                            "instruction_addr": 6477517424
+                        },
+                        {
+                            "object_name": "KSCrash",
+                            "object_addr": 4304666624,
+                            "symbol_name": "ksccd_init",
+                            "symbol_addr": 4304778052,
+                            "instruction_addr": 4304778316
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6478829164,
+                            "instruction_addr": 6478829404
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 6478828880,
+                            "instruction_addr": 6478829164
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 2307,
+                        "x1": 0,
+                        "x2": 1,
+                        "x3": 1,
+                        "x4": 60,
+                        "x5": 0,
+                        "x6": 0,
+                        "x7": 0,
+                        "x8": 7133663696,
+                        "x9": 1000,
+                        "x10": 1,
+                        "x11": -4981613549350699347,
+                        "x12": 6143355268,
+                        "x13": -24,
+                        "x14": 0,
+                        "x15": 267848,
+                        "x16": 334,
+                        "x17": 0,
+                        "x18": 0,
+                        "x19": 6143355472,
+                        "x20": 6143355488,
+                        "x21": 4305088512,
+                        "x22": 4305096400,
+                        "x23": 11,
+                        "x24": 4305092608,
+                        "x25": 4305092608,
+                        "x26": 4305092608,
+                        "x27": 15,
+                        "x28": 4305092608,
+                        "x29": 6143355456,
+                        "fp": 6143355456,
+                        "lr": 6477088944,
+                        "sp": 6143355408,
+                        "pc": 6478009108,
+                        "cpsr": 1073741824
+                    }
+                },
+                "index": 4,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 6477885980,
+                            "instruction_addr": 6477885988
+                        },
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg",
+                            "symbol_addr": 6477885524,
+                            "instruction_addr": 6477885596
+                        },
+                        {
+                            "object_name": "KSCrash",
+                            "object_addr": 4304666624,
+                            "symbol_name": "kscm_machexception_getAPI",
+                            "symbol_addr": 4304809656,
+                            "instruction_addr": 4304810672
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "<redacted>",
+                            "symbol_addr": 6478829164,
+                            "instruction_addr": 6478829404
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_start",
+                            "symbol_addr": 6478828880,
+                            "instruction_addr": 6478829164
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 6143929440,
+                        "x1": 2,
+                        "x2": 0,
+                        "x3": 584,
+                        "x4": 29443,
+                        "x5": 0,
+                        "x6": 0,
+                        "x7": 0,
+                        "x8": 4294966207,
+                        "x9": 3605,
+                        "x10": 1145,
+                        "x11": 7175172215,
+                        "x12": 7175172215,
+                        "x13": 1,
+                        "x14": 1,
+                        "x15": 2177,
+                        "x16": -31,
+                        "x17": 0,
+                        "x18": 0,
+                        "x19": 0,
+                        "x20": 0,
+                        "x21": 29443,
+                        "x22": 584,
+                        "x23": 6143929440,
+                        "x24": 2,
+                        "x25": 0,
+                        "x26": 2,
+                        "x27": 0,
+                        "x28": 0,
+                        "x29": 6143929376,
+                        "fp": 6143929376,
+                        "lr": 6477885596,
+                        "sp": 6143929296,
+                        "pc": 6477885988,
+                        "cpsr": 1610612736
+                    }
+                },
+                "index": 5,
+                "name": "KSCrash Exception Handler (Secondary)",
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [],
+                    "skipped": 0
+                },
+                "index": 6,
+                "name": "KSCrash Exception Handler (Primary)",
+                "crashed": false,
+                "current_thread": true
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 6478011008,
+                            "instruction_addr": 6478011016
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_wqthread",
+                            "symbol_addr": 6478818696,
+                            "instruction_addr": 6478819488
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 64,
+                        "x1": 6146222976,
+                        "x2": 0,
+                        "x3": 0,
+                        "x4": 1,
+                        "x5": 0,
+                        "x6": 0,
+                        "x7": 3008,
+                        "x8": 6176667408,
+                        "x9": 6176667408,
+                        "x10": 1,
+                        "x11": -4981613549350699347,
+                        "x12": 147,
+                        "x13": -6176667329,
+                        "x14": 2346400707189053365,
+                        "x15": 234,
+                        "x16": 368,
+                        "x17": 6472265948,
+                        "x18": 0,
+                        "x19": 6146224128,
+                        "x20": 33,
+                        "x21": 3014689,
+                        "x22": 0,
+                        "x23": 21279,
+                        "x24": 7133663232,
+                        "x25": 7133663232,
+                        "x26": 524288,
+                        "x27": 16777216,
+                        "x28": 16785663,
+                        "x29": 6146222496,
+                        "fp": 6146222496,
+                        "lr": 6478819488,
+                        "sp": 6146222368,
+                        "pc": 6478011016,
+                        "cpsr": 0
+                    }
+                },
+                "index": 7,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "__workq_kernreturn",
+                            "symbol_addr": 6478011008,
+                            "instruction_addr": 6478011016
+                        },
+                        {
+                            "object_name": "libsystem_pthread.dylib",
+                            "object_addr": 6478815232,
+                            "symbol_name": "_pthread_wqthread",
+                            "symbol_addr": 6478818696,
+                            "instruction_addr": 6478819488
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 64,
+                        "x1": 6139341696,
+                        "x2": 1,
+                        "x3": 0,
+                        "x4": 5466648256,
+                        "x5": 32,
+                        "x6": 0,
+                        "x7": 0,
+                        "x8": 0,
+                        "x9": 0,
+                        "x10": 0,
+                        "x11": 0,
+                        "x12": 0,
+                        "x13": 0,
+                        "x14": 0,
+                        "x15": 0,
+                        "x16": 368,
+                        "x17": 13510798882144035,
+                        "x18": 0,
+                        "x19": 6139342848,
+                        "x20": 33,
+                        "x21": 4063265,
+                        "x22": 0,
+                        "x23": 32547,
+                        "x24": 7133663232,
+                        "x25": 7133663232,
+                        "x26": 524288,
+                        "x27": 50331648,
+                        "x28": 50340095,
+                        "x29": 6139341344,
+                        "fp": 6139341344,
+                        "lr": 6478819488,
+                        "sp": 6139341216,
+                        "pc": 6478011016,
+                        "cpsr": 2147483648
+                    }
+                },
+                "index": 8,
+                "crashed": false,
+                "current_thread": false
+            },
+            {
+                "backtrace": {
+                    "contents": [
+                        {
+                            "object_name": "libsystem_kernel.dylib",
+                            "object_addr": 6477881344,
+                            "symbol_name": "mach_msg_trap",
+                            "symbol_addr": 6477885980,
+                            "instruction_addr": 6477885988
+                        }
+                    ],
+                    "skipped": 0
+                },
+                "registers": {
+                    "basic": {
+                        "x0": 6139912536
+                    }
+                },
+                "index": 9,
+                "crashed": false,
+                "current_thread": false
+            }
+        ]
+    },
+    "user": {
+        "buildNumber_serialized": "201702072010",
+        "event_extra": {
+            "crash": "Dereference a bad pointer"
+        },
+        "event_tags": {},
+        "releaseVersion_serialized": "1.4.1"
+    },
+    "debug": {}
+}

@@ -69,6 +69,34 @@
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
 }
 
+/**
+ * Reproduces an issue for parsing a recrash report of a customer that leads to a crash.
+ * The report contains a string instead of a thread dictionary in crash -> threads.
+ * SentryCrashReportConverter expects threads to be a dictionary that contains the details about a
+ * thread.
+ */
+- (void)testRecrashReport_WithThreadIsStringInsteadOfDict
+{
+    NSDictionary *report = [self getCrashReport:@"Resources/recrash-report"];
+
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // Do only a few basic assertions here. RecrashReport is tested with testUnknownTypeException
+    XCTAssertEqual(1, event.exceptions.count);
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(@"EXC_BAD_ACCESS", exception.type);
+    XCTAssertEqualObjects(@"Exception 1, Code 3657279596, Subcode 8", exception.value);
+
+    XCTAssertEqual(1, event.threads.count);
+    SentryThread *thread = event.threads.firstObject;
+    XCTAssertFalse(thread.crashed);
+    XCTAssertFalse(thread.current);
+    XCTAssertEqual(1, thread.stacktrace.frames.count);
+    XCTAssertEqual(21, thread.stacktrace.registers.count);
+}
+
 - (void)testRawWithCrashReport
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/raw-crash"];
@@ -87,6 +115,17 @@
         [self compareDict:[convertedDebugImages objectAtIndex:i]
                  withDict:[serializedDebugImages objectAtIndex:i]];
     }
+}
+
+- (void)testWithFaultyReport
+{
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/Crash-faulty-report"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    XCTAssertNil(
+        event, "The event should be nil, because the report conversion should have failed.");
 }
 
 - (void)testAbort
