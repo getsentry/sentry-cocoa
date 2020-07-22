@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 5.1.10
+
 - fix: Crash when converting Recrash Report #627
 - feat: Add SdkInfo to Envelope Header #626
 - fix: Deserialize envelope with header and item #620
