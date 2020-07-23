@@ -26,10 +26,19 @@ import Sentry
 
 // ....
 
+// Added in 5.1.6
 SentrySDK.start { options in
     options.dsn = "___PUBLIC_DSN___"
     options.debug = true // Helpful to see what's going on
-}
+}    
+
+// Or
+
+// Added in 5.0.0
+SentrySDK.start(options: [
+    "dsn": "___PUBLIC_DSN___",
+    "debug": true // Helpful to see what's going on
+])
 ```
 
 ```objective-c
@@ -37,13 +46,24 @@ SentrySDK.start { options in
 
 // ....
 
+// Added in 5.1.6
 [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
     options.dsn = @"___PUBLIC_DSN___";
     options.debug = @YES; // Helpful to see what's going on
 }];
+
+// Or
+
+// Added in 5.0.0
+[SentrySDK startWithOptions:@{
+    @"dsn": @"___PUBLIC_DSN___",
+    @"debug": @(YES) // Helpful to see what's going on
+}];
 ```
 
-<sup>(1)</sup>limited symbolication support
+For more information checkout the [docs](https://docs.sentry.io/platforms/cocoa/?platform=swift).
+
+<sup>(1)</sup>limited symbolication support and no crash handling.
 
 # Resources
 

@@ -3,6 +3,16 @@ import XCTest
 
 class SentrySDKTests: XCTestCase {
     
+    override func tearDown() {
+        super.tearDown()
+        
+        if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations.first(where: { it in
+            it is SentryAutoSessionTrackingIntegration
+        }) as? SentryAutoSessionTrackingIntegration {
+            autoSessionTracking.stop()
+        }
+    }
+    
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString
@@ -61,6 +71,55 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(message: "")
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
+    }
+    
+    func testSetLogLevel_InitWithOptionsObject() {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString
+        options.logLevel = SentryLogLevel.debug
+        
+        SentrySDK(options: options)
+        
+        XCTAssertEqual(options.logLevel, SentrySDK.logLevel)
+    }
+    
+    func testSetLogLevel_InitWithOptionsDict() {
+        SentrySDK(options: [
+            "dsn": TestConstants.dsn,
+            "debug": true
+        ])
+        
+        XCTAssertEqual(SentryLogLevel.debug, SentrySDK.logLevel)
+    }
+    
+    func testSetLogLevel_StartWithOptionsDict() {
+        SentrySDK.start(options: [
+            "dsn": TestConstants.dsn,
+            "debug": true,
+            "logLevel": "verbose"
+        ])
+        
+        XCTAssertEqual(SentryLogLevel.verbose, SentrySDK.logLevel)
+    }
+    
+    func testSetLogLevel_StartWithOptionsObject() {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString
+        options.logLevel = SentryLogLevel.debug
+        
+        SentrySDK.start(options: options)
+        
+        XCTAssertEqual(options.logLevel, SentrySDK.logLevel)
+    }
+    
+    func testSetLogLevel_StartWithConfigureOptions() {
+        let logLevel = SentryLogLevel.verbose
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString
+            options.logLevel = logLevel
+        }
+        
+        XCTAssertEqual(logLevel, SentrySDK.logLevel)
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {

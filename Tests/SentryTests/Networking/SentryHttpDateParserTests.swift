@@ -19,6 +19,9 @@ class SentryHttpDateParserTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
+    // Even if we don't run this test below OSX 10.12 we expect the actual
+    // implementation to be thread safe.
+    @available(OSX 10.12, *)
     func testWithMultipleWorkItemsInParallel() {
         let queue1 = DispatchQueue(label: "SentryHttpDateParserTests1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryHttpDateParserTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])

@@ -2,6 +2,32 @@
 
 ## unreleased
 
+## 5.1.10
+
+- fix: Crash when converting Recrash Report #627
+- feat: Add SdkInfo to Envelope Header #626
+- fix: Deserialize envelope with header and item #620
+- fix: Set LogLevel in startWithConfigureOptions #613
+
+## 5.1.10-beta.0
+
+- fix: Abnormal sessions #607
+
+## 5.1.9
+
+- fix: beforeSend callback in SentryClient #608
+
+## 5.1.8
+
+- fix: Cocoapods build
+
+## 5.1.7
+
+- fix: Overwriting stack trace for crashes #605
+- fix: Deployment target warning for Swift Package Manager for Xcode 12 #586
+
+## 5.1.6
+
 - feat: Simplified SDK start #580
 - fix: Custom release name for crash reports #590
 
