@@ -2,6 +2,7 @@
 
 ## unreleased
 
+
 ## 5.1.10
 
 - fix: Crash when converting Recrash Report #627
