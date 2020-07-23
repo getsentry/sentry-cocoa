@@ -2,8 +2,6 @@
 
 ## unreleased
 
-- fix: Set GCC_WARN_64_TO_32_BIT_CONVERSION to YES on project level
-- fix: Fix compiler warnings regarding unused entity and implicit casts
 
 ## 5.1.10
 
