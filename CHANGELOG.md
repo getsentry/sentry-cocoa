@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Crash in SentryEnvelope.initWithEvent #643
 
 ## 5.1.10
 

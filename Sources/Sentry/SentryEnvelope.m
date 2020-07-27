@@ -3,6 +3,7 @@
 #import "SentryEvent.h"
 #import "SentryMeta.h"
 #import "SentrySdkInfo.h"
+#import "SentrySerialization.h"
 #import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,10 +58,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithEvent:(SentryEvent *)event
 {
-    NSData *json = [NSJSONSerialization dataWithJSONObject:[event serialize]
-                                                   options:0
-                                                     // TODO: handle error
-                                                     error:nil];
+    NSError *error;
+    NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
+
+    if (nil != error) {
+        SentryEvent *cantConvertEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+        cantConvertEvent.message = @"Event cannot be converted to JSON.";
+
+        // We accept the risk that this simple serialization fails which is covered by tests.
+        // Therefore we ignore the error on purpose and send an envelope item with an empty
+        // body.
+        json = [SentrySerialization dataWithJSONObject:[cantConvertEvent serialize] error:nil];
+    }
+
     return [self
         initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent
                                                                length:json.length]

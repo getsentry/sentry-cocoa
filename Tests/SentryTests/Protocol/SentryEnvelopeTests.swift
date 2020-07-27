@@ -87,4 +87,38 @@ class SentryEnvelopeTests: XCTestCase {
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
+    
+    func testInitWithEvent() throws {
+        let event = Event()
+        event.message = "message"
+        let envelope = SentryEnvelope(event: event)
+        
+        let expectedData = try SentrySerialization.data(withJSONObject: event.serialize())
+        
+        XCTAssertEqual(1, envelope.items.count)
+        
+        let actual = String(data: envelope.items.first?.data ?? Data(), encoding: .utf8)?.sorted()
+        let expected = String(data: expectedData, encoding: .utf8)?.sorted()
+        XCTAssertEqual(expected, actual)
+    }
+    
+    func testInitWithFaultyEvent() {
+        let event = Event()
+        event.context = ["dont": ["dothis": Date()]]
+        let envelope = SentryEnvelope(event: event)
+
+        XCTAssertEqual(1, envelope.items.count)
+        if let data = envelope.items.first?.data {
+            let json = String(data: data, encoding: .utf8) ?? ""
+            let errorMessage = "Event cannot be converted to JSON."
+            XCTAssertTrue(
+                json.contains(errorMessage),
+                """
+                The JSON convertion should have failed and
+                the event should contain the following error
+                message: \(errorMessage)
+                """
+            )
+        }
+    }
 }
