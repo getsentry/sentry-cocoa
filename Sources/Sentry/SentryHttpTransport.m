@@ -1,23 +1,13 @@
 #import "SentryHttpTransport.h"
-#import "SentryBreadcrumbTracker.h"
-#import "SentryCrash.h"
-#import "SentryCrashInstallationReporter.h"
-#import "SentryDefaultRateLimits.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryError.h"
-#import "SentryEvent.h"
 #import "SentryFileContents.h"
-#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
 #import "SentryOptions.h"
 #import "SentryRateLimitCategoryMapper.h"
-#import "SentrySDK.h"
-#import "SentryScope.h"
 #import "SentrySerialization.h"
-#import "SentryUser.h"
 
 @interface
 SentryHttpTransport ()
