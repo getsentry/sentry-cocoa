@@ -1,6 +1,7 @@
 @testable import Sentry
 import XCTest
 
+@available(OSX 10.10, *)
 class SentryCrashInstallationReporterTests: XCTestCase {
     
     private var testClient: TestClient!
