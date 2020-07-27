@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Sanitize SentryEvent.sdk when serializing #642
 
 ## 5.1.10
 

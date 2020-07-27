@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData
 {
-    [serializedData setValue:self.sdk forKey:@"sdk"];
+    [serializedData setValue:[self.sdk sentry_sanitize] forKey:@"sdk"];
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
