@@ -9,13 +9,10 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
-#import "SentryOptions.h"
-#import "SentryScope.h"
-#import "SentrySession.h"
 #import "SentryTransport.h"
 
-@class SentryEvent, SentryThread, SentryEnvelope;
-@class SentryFileManager;
+@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryThread, SentryEnvelope,
+    SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
