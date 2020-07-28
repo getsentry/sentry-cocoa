@@ -77,6 +77,8 @@ SentryFileManager ()
 
 - (NSString *)uniqueAcendingJsonName
 {
+    // %f = double, %lu = unsigned long, %@ = NSString
+    // For example 978307200.000000-0-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
     return [NSString stringWithFormat:@"%f-%lu-%@.json",
                      [[self.currentDateProvider date] timeIntervalSince1970],
                      (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
