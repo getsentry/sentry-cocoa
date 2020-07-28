@@ -53,7 +53,7 @@ SentryClient ()
 
         self.fileManager =
             [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn
-                           andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+                            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
                                   didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];

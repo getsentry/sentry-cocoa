@@ -22,7 +22,7 @@
                                  initWithString:@"https://username:password@app.getsentry.com/12345"
                                didFailWithError:nil]
         andCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
-               didFailWithError:&error];
+              didFailWithError:&error];
     XCTAssertNil(error);
 }
 
