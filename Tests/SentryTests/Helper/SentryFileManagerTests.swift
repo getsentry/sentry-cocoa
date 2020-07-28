@@ -121,10 +121,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(events.count, 15)
     }
     
-    func testEventsSorting() {
-        
-    }
-    
     func testDefaultMaxEnvelopes() {
         for _ in 0...100 {
             sut.store(TestConstants.envelope)
