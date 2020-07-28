@@ -29,7 +29,7 @@ SentryFileManager ()
 @implementation SentryFileManager
 
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
-                  currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+              withCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                      didFailWithError:(NSError **)error
 {
     self = [super init];

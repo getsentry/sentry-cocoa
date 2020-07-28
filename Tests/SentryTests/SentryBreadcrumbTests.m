@@ -21,8 +21,8 @@
         alloc] initWithDsn:[[SentryDsn alloc]
                                  initWithString:@"https://username:password@app.getsentry.com/12345"
                                didFailWithError:nil]
-        currentDateProvider:[[TestCurrentDateProvider alloc] init]
-           didFailWithError:&error];
+        withCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
+               didFailWithError:&error];
     XCTAssertNil(error);
 }
 

@@ -13,7 +13,7 @@ NS_SWIFT_NAME(SentryFileManager)
 SENTRY_NO_INIT
 
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
-                  currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+              withCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                      didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)storeEvent:(SentryEvent *)event;
