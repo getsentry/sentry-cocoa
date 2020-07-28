@@ -2,7 +2,6 @@ import XCTest
 
 struct TestResponseFactory {
     // The test fails if the responses could not be created
-    // swiftlint:disable force_unwrapping
     static func createRetryAfterResponse(headerValue: String) -> HTTPURLResponse {
         let response = HTTPURLResponse(
                 url: URL(fileURLWithPath: ""),
@@ -26,6 +25,4 @@ struct TestResponseFactory {
         }
         return response!
     }
-
-    // swiftlint:enable force_unwrapping
 }

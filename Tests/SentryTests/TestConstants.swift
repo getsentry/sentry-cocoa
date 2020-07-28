@@ -12,9 +12,7 @@ struct TestConstants {
         }
 
         // The test fails if the dsn could not be created
-        // swiftlint:disable force_unwrapping
         return dsn!
-        // swiftlint:enable force_unwrapping
     }
     
     static var eventWithSerializationError: Event {
