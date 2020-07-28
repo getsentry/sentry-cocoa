@@ -2,6 +2,12 @@ import XCTest
 
 class SentryEnvelopeTests: XCTestCase {
     
+    private let currentDateProvider = TestCurrentDateProvider()
+    
+    override func setUp() {
+        CurrentDate.setCurrentDateProvider(currentDateProvider)
+    }
+    
     private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
     
     func testSentryEnvelopeFromEvent() {
@@ -103,22 +109,39 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitWithFaultyEvent() {
+        let sdkVersion = "sdkVersion"
+        
         let event = Event()
+        event.message = "Don't do this"
+        event.releaseName = "releaseName1.0.0"
+        event.environment = "save the environment"
+        event.sdk = ["version": sdkVersion]
         event.context = ["dont": ["dothis": Date()]]
+        
+        event.serialize() // The first serialization sets the timestamp on the event
+        let eventTimestamp = CurrentDate.date() as NSDate
+        
+        // we need this to make sure the proper timestamp is set on the event
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(1))
+        
         let envelope = SentryEnvelope(event: event)
-
+        
         XCTAssertEqual(1, envelope.items.count)
+        XCTAssertNotNil(envelope.items.first?.data)
+        
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
-            let errorMessage = "Event cannot be converted to JSON."
-            XCTAssertTrue(
-                json.contains(errorMessage),
-                """
-                The JSON convertion should have failed and
-                the event should contain the following error
-                message: \(errorMessage)
-                """
-            )
+            let expectedMessage = "JSON conversion error for event with message: '\(event.message)'"
+        
+            assertJsonContains(json, expectedMessage, "message")
+            assertJsonContains(json, sdkVersion, "sdkVersion")
+            assertJsonContains(json, event.releaseName ?? "", "releaseName")
+            assertJsonContains(json, event.environment ?? "", "environment")
+            assertJsonContains(json, eventTimestamp.sentry_toIso8601String(), "timestamp")
         }
+    }
+
+    private func assertJsonContains(_ json: String, _ value: String, _ fieldName: String) {
+        XCTAssertTrue(json.contains(value), "The JSON doesn't contain the \(fieldName): '\(value)' \n \(json)")
     }
 }

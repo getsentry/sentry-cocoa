@@ -62,13 +62,23 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
     if (nil != error) {
-        SentryEvent *cantConvertEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-        cantConvertEvent.message = @"Event cannot be converted to JSON.";
+        SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+
+        // Add some context to the event. We can only set simple properties otherwise we
+        // risk that the conversion fails again.
+        NSString *messge = [NSString
+            stringWithFormat:@"JSON conversion error for event with message: '%@'", event.message];
+        errorEvent.message = messge;
+        errorEvent.releaseName = event.releaseName;
+        errorEvent.environment = event.environment;
+        errorEvent.sdk = event.sdk;
+        errorEvent.platform = event.platform;
+        errorEvent.timestamp = event.timestamp;
 
         // We accept the risk that this simple serialization fails which is covered by tests.
         // Therefore we ignore the error on purpose and send an envelope item with an empty
         // body.
-        json = [SentrySerialization dataWithJSONObject:[cantConvertEvent serialize] error:nil];
+        json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
     }
 
     return [self
