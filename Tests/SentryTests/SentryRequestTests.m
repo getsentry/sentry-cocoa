@@ -177,7 +177,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
                     initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil]
-        withCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
+        andCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
                didFailWithError:&error];
     [fileManager deleteAllStoredEventsAndEnvelopes];
     [fileManager deleteAllFolders];

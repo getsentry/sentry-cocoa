@@ -25,7 +25,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         do {
             let dsn = try SentryDsn(string: dsnAsString)
-            let fileManager = try SentryFileManager(dsn: dsn, with: TestCurrentDateProvider())
+            let fileManager = try SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
             
             fileManager.deleteCurrentSession()
             fileManager.deleteTimestampLastInForeground()

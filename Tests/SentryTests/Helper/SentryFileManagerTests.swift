@@ -9,7 +9,7 @@ class SentryFileManagerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         do {
-            sut = try SentryFileManager(dsn: TestConstants.dsn, with: TestCurrentDateProvider())
+            sut = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         } catch {
             XCTFail("SentryFileManager could not be created")
         }
@@ -28,8 +28,8 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
-        _ = try SentryFileManager(dsn: TestConstants.dsn, with: TestCurrentDateProvider())
-        let fileManager = try SentryFileManager(dsn: TestConstants.dsn, with: TestCurrentDateProvider())
+        _ = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         
         XCTAssertEqual(1, fileManager.getAllEventsAndMaybeEnvelopes().count)
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
