@@ -46,10 +46,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(events.count == 1)
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
 
-        // swiftlint:disable force_cast
-        // swiftlint:disable force_unwrapping
         let actualDict = try JSONSerialization.jsonObject(with: events[0].contents) as! [String: Any]
-        // swiftlint:enable force_unwrapping
         
         let eventDict = event.serialize()
         XCTAssertEqual(eventDict.count, actualDict.count)
@@ -58,7 +55,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(eventDict["event_id"] as! String, actualDict["event_id"] as! String)
         XCTAssertEqual(eventDict["level"] as! String, actualDict["level"] as! String)
         XCTAssertEqual(eventDict["platform"] as! String, actualDict["platform"] as! String)
-        // swiftlint:enable force_cast
     }
     
     func testEventDataStoring() throws {
