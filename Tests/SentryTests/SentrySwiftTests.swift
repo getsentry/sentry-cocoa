@@ -4,8 +4,6 @@ import XCTest
 // 0x7fc9a4920b40
 class SentrySwiftTests: XCTestCase {
     
-    // swiftlint:disable force_unwrapping
-    
     override func setUp() {
         super.setUp()
         let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"))
@@ -140,7 +138,5 @@ class SentrySwiftTests: XCTestCase {
 //            request.addValue("my-token", forHTTPHeaderField: "Authorization")
 //        }
     }
-    
-    // swiftlint:enable force_unwrapping
     
 }
