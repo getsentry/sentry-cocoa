@@ -117,8 +117,10 @@ SentryHttpTransport ()
         // If a response from the server is received, regardless of whether the
         // request completes successfully or fails, the response parameter
         // contains that information.
+        // In case response is nil, we want to queue the event locally since
+        // this indicates no internet connection.
         // In all other cases we don't want to retry sending it and just discard
-        // the event
+        // the event.
         return response == nil;
     };
 }
