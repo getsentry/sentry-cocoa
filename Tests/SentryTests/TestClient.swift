@@ -1,7 +1,7 @@
 import Foundation
 
 class TestClient: Client {
-    var sentryFileManager: SentryFileManager = try! SentryFileManager(dsn: SentryDsn())
+    var sentryFileManager: SentryFileManager = try! SentryFileManager(dsn: SentryDsn(), currentDateProvider: TestCurrentDateProvider())
     override func fileManager() -> SentryFileManager {
         sentryFileManager
     }

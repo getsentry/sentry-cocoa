@@ -2,6 +2,7 @@
 #import "SentryDsn.h"
 #import "SentryFileManager.h"
 #import <Sentry/Sentry.h>
+#import <SentryTests-Swift.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryBreadcrumbTests : XCTestCase
@@ -16,11 +17,12 @@
 {
     [super setUp];
     NSError *error = nil;
-    self.fileManager = [[SentryFileManager alloc]
-             initWithDsn:[[SentryDsn alloc]
-                               initWithString:@"https://username:password@app.getsentry.com/12345"
-                             didFailWithError:nil]
-        didFailWithError:&error];
+    self.fileManager = [[SentryFileManager
+        alloc] initWithDsn:[[SentryDsn alloc]
+                                 initWithString:@"https://username:password@app.getsentry.com/12345"
+                               didFailWithError:nil]
+        currentDateProvider:[[TestCurrentDateProvider alloc] init]
+           didFailWithError:&error];
     XCTAssertNil(error);
 }
 

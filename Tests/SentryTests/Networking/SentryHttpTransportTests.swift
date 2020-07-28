@@ -14,7 +14,7 @@ class SentryHttpTransportTests: XCTestCase {
         CurrentDate.setCurrentDateProvider(currentDateProvider)
         
         do {
-            fileManager = try SentryFileManager(dsn: TestConstants.dsn)
+            fileManager = try SentryFileManager(dsn: TestConstants.dsn, currentDateProvider: TestCurrentDateProvider())
             
             requestManager = TestRequestManager(session: URLSession())
             requestManager.returnResponse(response: HTTPURLResponse())

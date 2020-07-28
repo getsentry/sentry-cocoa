@@ -24,7 +24,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, andTransport: transport, andFileManager: try SentryFileManager(dsn: TestConstants.dsn))
+                client = Client(options: options, andTransport: transport, andFileManager: try SentryFileManager(dsn: TestConstants.dsn, currentDateProvider: TestCurrentDateProvider()))
             } catch {
                 XCTFail("Options could not be created")
             }
