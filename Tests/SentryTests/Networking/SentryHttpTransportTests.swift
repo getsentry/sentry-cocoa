@@ -7,15 +7,19 @@ class SentryHttpTransportTests: XCTestCase {
     private var requestManager: TestRequestManager!
     private var currentDateProvider: TestCurrentDateProvider!
     private var rateLimits: DefaultRateLimits!
+    private var event: Event!
     private var sut: SentryHttpTransport!
     
     override func setUp() {
         currentDateProvider = TestCurrentDateProvider()
         CurrentDate.setCurrentDateProvider(currentDateProvider)
-        
+        event = Event()
+        event.message = "Some message"
+
         do {
             fileManager = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
-            
+            fileManager.deleteAllEnvelopes()
+
             requestManager = TestRequestManager(session: URLSession())
             requestManager.returnResponse(response: HTTPURLResponse())
             
@@ -36,13 +40,13 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     override func tearDown() {
-        fileManager.deleteAllStoredEventsAndEnvelopes()
+        fileManager.deleteAllEnvelopes()
     }
     
-    func testInitSendsCachedEventsAndEnvelopes() {
+    func testInitSendsCachedEnvelopes() {
         givenNoInternetConnection()
         sendEvent()
-        assertEventsAndEnvelopesStored(eventCount: 1)
+        assertEnvelopesStored(envelopeCount: 1)
         
         givenOkResponse()
         _ = SentryHttpTransport(
@@ -53,15 +57,16 @@ class SentryHttpTransportTests: XCTestCase {
             sentryEnvelopeRateLimit: EnvelopeRateLimit()
         )
         
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
         assertRequestsSent(requestCount: 2)
     }
     
-    func testSendOneEvent() {
+    func testSendOneEvent() throws {
         sendEvent()
         
         assertRequestsSent(requestCount: 1)
-        assertEventsStored(eventCount: 0)
+        assertEventIsSentAsEnvelope()
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendEventOptionsDisabled() {
@@ -70,7 +75,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         assertRequestsSent(requestCount: 0)
-        assertEventsStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendEventWhenSessionRateLimitActive() {
@@ -78,8 +83,8 @@ class SentryHttpTransportTests: XCTestCase {
         
         sendEvent()
         
-        assertRequestsSent(requestCount: 1)
-        assertEventsStored(eventCount: 0)
+        assertEventIsSentAsEnvelope()
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendAllCachedEvents() {
@@ -90,7 +95,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEnvelope()
         
         XCTAssertEqual(3, requestManager.requests.count)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendAllCachedEnvelopes() {
@@ -103,7 +108,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(5, requestManager.requests.count)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendCachedButNotReady() {
@@ -115,7 +120,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        assertEventsAndEnvelopesStored(eventCount: 1)
+        assertEnvelopesStored(envelopeCount: 1)
     }
     
     func testSendCachedEventsButRateLimitIsActive() {
@@ -129,7 +134,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(2, requestManager.requests.count)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testRateLimitGetsActiveWhileSendAllEvents() {
@@ -148,18 +153,18 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         XCTAssertEqual(5, requestManager.requests.count)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendAllEventsAllEventsDeletedWhenNotReady() {
         givenNoInternetConnection()
         sendEvent()
         sendEvent()
-        assertEventsAndEnvelopesStored(eventCount: 2)
+        assertEnvelopesStored(envelopeCount: 2)
         
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testSendEventWithRetryAfterResponse() {
@@ -215,7 +220,8 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 2)
     }
     
-    func testSendEventWithFaultyNSUrlRequest() {
+    func disabled_testSendEventWithFaultyNSUrlRequest() {
+        // TODO: enable this test once #643 is merged.
         sut.send(event: TestConstants.eventWithSerializationError)
     }
     
@@ -260,7 +266,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         assertRequestsSent(requestCount: 2)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testActiveRateLImitForSomeCachedEnvelopeItems() {
@@ -272,7 +278,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         assertRequestsSent(requestCount: 4)
-        assertEventsAndEnvelopesStored(eventCount: 0)
+        assertEnvelopesStored(envelopeCount: 0)
     }
     
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
@@ -285,26 +291,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
     }
-    
-    /**
-     In a previous version of the SentryFileManager events and envelopes
-     were stored in the same folder. Therefore it can happen that getAllEventsAndMaybeEnvelopes
-     returns envelopes. This test handles this edge case.
-     */
-    func testEnvelopesStoredInEvents() throws {
-        // Write Envelope to events path
-        let eventPath = fileManager.store(Event())
-        let envelopePath = fileManager.store(TestConstants.envelope)
-        let envelopeAsData = FileManager.default.contents(atPath: envelopePath)
-        fileManager.deleteAllStoredEventsAndEnvelopes()
-        try envelopeAsData?.write(to: URL(fileURLWithPath: eventPath))
-     
-        sendEvent()
-        
-        assertRequestsSent(requestCount: 2)
-        assertEventsAndEnvelopesStored(eventCount: 0)
-    }
-    
+
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
         requestManager.returnResponse(response: response)
@@ -338,7 +325,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func sendEvent() {
-        sut.send(event: Event())
+        sut.send(event: event)
     }
     
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
@@ -359,12 +346,15 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(requestCount, requestManager.requests.count)
     }
     
-    private func assertEventsAndEnvelopesStored(eventCount: Int) {
-        XCTAssertEqual(eventCount, fileManager.getAllStoredEventsAndEnvelopes().count)
-    }
-    
-    private func assertEventsStored(eventCount: Int) {
-        XCTAssertEqual(eventCount, fileManager.getAllEventsAndMaybeEnvelopes().count)
+    private func assertEventIsSentAsEnvelope() {
+        do {
+            let eventData = try SentrySerialization.data(with: SentryEnvelope(event: event))
+            let expectedEventRequest = try SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: eventData)
+            let actualEventRequest = requestManager.requests.last
+            XCTAssertEqual(expectedEventRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
+        } catch {
+            XCTFail("Last event was not send as envelope.")
+        }
     }
     
     private func assertEnvelopesStored(envelopeCount: Int) {

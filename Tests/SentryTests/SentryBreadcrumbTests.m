@@ -30,7 +30,7 @@
 {
     [super tearDown];
     // SentryClient.logLevel = kSentryLogLevelError;
-    [self.fileManager deleteAllStoredEventsAndEnvelopes];
+    [self.fileManager deleteAllEnvelopes];
     [self.fileManager deleteAllFolders];
 }
 

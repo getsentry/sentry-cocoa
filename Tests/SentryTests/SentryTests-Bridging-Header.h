@@ -3,6 +3,7 @@
 //  expose to Swift.
 //
 
+#import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryClient+TestInit.h"
@@ -29,6 +30,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryFileContents.h"
+#import "SentryFileManager+EventsPath.h"
 #import "SentryFileManager.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
