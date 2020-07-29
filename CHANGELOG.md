@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Use envelopes for sending events #650
 
 ## 5.1.10
 
