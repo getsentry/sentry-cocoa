@@ -133,6 +133,7 @@ class SentryEnvelopeTests: XCTestCase {
             let json = String(data: data, encoding: .utf8) ?? ""
             let expectedMessage = "JSON conversion error for event with message: '\(event.message)'"
         
+            assertJsonContains(json, "warning", "level")
             assertJsonContains(json, expectedMessage, "message")
             assertJsonContains(json, sdkVersion, "sdkVersion")
             assertJsonContains(json, event.releaseName ?? "", "releaseName")

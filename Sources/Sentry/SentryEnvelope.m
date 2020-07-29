@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
     if (nil != error) {
-        SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+        SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 
         // Add some context to the event. We can only set simple properties otherwise we
         // risk that the conversion fails again.
