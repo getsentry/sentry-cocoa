@@ -43,7 +43,6 @@ SentryHttpTransport ()
 
 // TODO: needs refactoring
 - (void)sendEvent:(SentryEvent *)event
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
 {
     SentryRateLimitCategory category =
         [SentryRateLimitCategoryMapper mapEventTypeToCategory:event.type];
@@ -60,22 +59,17 @@ SentryHttpTransport ()
 
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
-        if (completionHandler) {
-            completionHandler(requestError);
-        }
         return;
     }
 
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEventPath = [self.fileManager storeEvent:event];
-    [self sendRequest:request storedPath:storedEventPath completionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEventPath];
 }
 
 // TODO: needs refactoring
 - (void)sendEnvelope:(SentryEnvelope *)envelope
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
 {
-
     if (![self.options.enabled boolValue]) {
         [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
                          andLevel:kSentryLogLevelDebug];
@@ -96,16 +90,13 @@ SentryHttpTransport ()
 
     if (nil != requestError) {
         [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
-        if (completionHandler) {
-            completionHandler(requestError);
-        }
         return;
     }
 
     // TODO: We do multiple serializations here, we can improve this
     NSString *storedEnvelopePath = [self.fileManager storeEnvelope:envelope];
 
-    [self sendRequest:request storedPath:storedEnvelopePath completionHandler:completionHandler];
+    [self sendRequest:request storedPath:storedEnvelopePath];
 }
 
 #pragma mark private methods
@@ -134,9 +125,7 @@ SentryHttpTransport ()
                   didFailWithError:&error];
 }
 
-- (void)sendRequest:(NSURLRequest *)request
-           storedPath:(NSString *)storedPath
-    completionHandler:(_Nullable SentryRequestFinished)completionHandler
+- (void)sendRequest:(NSURLRequest *)request storedPath:(NSString *)storedPath
 {
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request
@@ -148,9 +137,6 @@ SentryHttpTransport ()
                 if (nil == error) {
                     [_self sendCachedEventsAndEnvelopes];
                 }
-            }
-            if (completionHandler) {
-                completionHandler(error);
             }
         }];
 }

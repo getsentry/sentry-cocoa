@@ -22,15 +22,10 @@ NS_SWIFT_NAME(Transport)
  * on next app launch.
  *
  * @param event SentryEvent that should be sent
- * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-    NS_SWIFT_NAME(send(event:completion:));
+- (void)sendEvent:(SentryEvent *)event NS_SWIFT_NAME(send(event:));
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-    NS_SWIFT_NAME(send(envelope:completion:));
+- (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
 @end
 

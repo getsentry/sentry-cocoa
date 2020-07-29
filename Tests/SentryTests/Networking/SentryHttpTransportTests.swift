@@ -66,8 +66,8 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testSendEventOptionsDisabled() {
         options.enabled = false
-        sendEvent(callsCompletionHandler: false)
-        sendEvent(callsCompletionHandler: false)
+        sendEvent()
+        sendEvent()
         
         assertRequestsSent(requestCount: 0)
         assertEventsStored(eventCount: 0)
@@ -204,7 +204,7 @@ class SentryHttpTransportTests: XCTestCase {
         // Retry-After almost expired
         let date = currentDateProvider.date()
         currentDateProvider.setDate(date: date.addingTimeInterval(0.999))
-        sendEvent(callsCompletionHandler: false)
+        sendEvent()
         
         assertRequestsSent(requestCount: 1)
         
@@ -216,14 +216,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
-        var completionHandlerWasCalled = false
-        sut.send(event: TestConstants.eventWithSerializationError) { (error) in
-            XCTAssertNotNil(error)
-            XCTAssertTrue(error.debugDescription.contains("SentryErrorDomain"))
-            completionHandlerWasCalled = true
-        }
-        
-        XCTAssertTrue(completionHandlerWasCalled)
+        sut.send(event: TestConstants.eventWithSerializationError)
     }
     
     func testSendOneEnvelope() {
@@ -234,7 +227,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testEnvelopeOptionsDisabled() {
         options.enabled = false
-        sendEnvelope(callsCompletionHandler: false)
+        sendEnvelope()
         
         assertRequestsSent(requestCount: 0)
     }
@@ -243,7 +236,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
-        sendEnvelope(callsCompletionHandler: false)
+        sendEnvelope()
         
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
@@ -344,27 +337,17 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
     
-    private func sendEvent(callsCompletionHandler: Bool = true) {
-        var completionHandlerWasCalled = false
-        sut.send(event: Event()) { (error) in
-            XCTAssertNil(error)
-            completionHandlerWasCalled = true
-        }
-        XCTAssertEqual(callsCompletionHandler, completionHandlerWasCalled)
+    private func sendEvent() {
+        sut.send(event: Event())
     }
     
-    private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope, callsCompletionHandler: Bool = true) {
-        var completionHandlerWasCalled = false
-        sut.send(envelope: envelope) { (error) in
-            XCTAssertNil(error)
-            completionHandlerWasCalled = true
-        }
-        XCTAssertEqual(callsCompletionHandler, completionHandlerWasCalled)
+    private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
+        sut.send(envelope: envelope)
     }
     
     private func sendEnvelopeWithSession() {
         let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession(releaseName: "2.0.1"))])
-        sut.send(envelope: envelope, completion: nil)
+        sut.send(envelope: envelope)
     }
     
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
