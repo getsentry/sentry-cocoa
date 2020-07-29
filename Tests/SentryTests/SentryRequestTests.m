@@ -6,6 +6,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRequestOperation.h"
 #import <Sentry/Sentry.h>
+#import <SentryTests-Swift.h>
 #import <XCTest/XCTest.h>
 
 NSInteger requestShouldReturnCode = 200;
@@ -175,8 +176,9 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
 {
     NSError *error = nil;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
-             initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil]
-        didFailWithError:&error];
+                   initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil]
+        andCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
+              didFailWithError:&error];
     [fileManager deleteAllStoredEventsAndEnvelopes];
     [fileManager deleteAllFolders];
 }

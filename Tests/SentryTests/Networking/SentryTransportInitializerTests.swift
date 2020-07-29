@@ -7,7 +7,7 @@ class SentryTransportInitializerTests: XCTestCase {
     
     override func setUp() {
         do {
-            fileManager = try SentryFileManager(dsn: TestConstants.dsn)
+            fileManager = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         } catch {
             XCTFail("SentryDsn could not be created")
         }
