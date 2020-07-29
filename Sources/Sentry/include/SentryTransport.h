@@ -23,11 +23,9 @@ NS_SWIFT_NAME(Transport)
  *
  * @param event SentryEvent that should be sent
  */
-- (void)sendEvent:(SentryEvent *)event
-    NS_SWIFT_NAME(send(event:));
+- (void)sendEvent:(SentryEvent *)event NS_SWIFT_NAME(send(event:));
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope
-    NS_SWIFT_NAME(send(envelope:));
+- (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
 @end
 

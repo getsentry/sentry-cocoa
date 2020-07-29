@@ -125,8 +125,7 @@ SentryHttpTransport ()
                   didFailWithError:&error];
 }
 
-- (void)sendRequest:(NSURLRequest *)request
-           storedPath:(NSString *)storedPath
+- (void)sendRequest:(NSURLRequest *)request storedPath:(NSString *)storedPath
 {
     __block SentryHttpTransport *_self = self;
     [self sendRequest:request
