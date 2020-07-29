@@ -123,7 +123,7 @@ SentryClient ()
             preparedEvent = self.options.beforeSend(preparedEvent);
         }
         if (nil != preparedEvent) {
-            [self.transport sendEvent:preparedEvent withCompletionHandler:nil];
+            [self.transport sendEvent:preparedEvent];
             return preparedEvent.eventId;
         }
     }
@@ -146,7 +146,7 @@ SentryClient ()
 - (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope
 {
     // TODO: What is about beforeSend
-    [self.transport sendEnvelope:envelope withCompletionHandler:nil];
+    [self.transport sendEnvelope:envelope];
     return envelope.header.eventId;
 }
 
