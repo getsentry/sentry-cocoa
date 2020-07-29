@@ -53,7 +53,7 @@ SentryFileManager ()
         self.lastInForegroundFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
-        // Remove old cached events for versions before 6.0.0 
+        // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         [fileManager removeItemAtPath:self.eventsPath error:nil];
 
