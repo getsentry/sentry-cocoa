@@ -37,11 +37,13 @@
 const char *
 sentrycrashcpu_currentArch(void)
 {
-    // This is blocking App Store submissions and must be worked around
-    // TODO: Figure out a replacement
-    //    const NXArchInfo *archInfo = NXGetLocalArchInfo();
-    //    return archInfo == NULL ? NULL : archInfo->name;
+#if SENTRY_HAS_UIKIT
     return NULL;
+#else
+    // This is blocking App Store submissions for Mac apps
+    const NXArchInfo *archInfo = NXGetLocalArchInfo();
+    return archInfo == NULL ? NULL : archInfo->name;
+#endif
 }
 
 #if SentryCrashCRASH_HAS_THREADS_API
