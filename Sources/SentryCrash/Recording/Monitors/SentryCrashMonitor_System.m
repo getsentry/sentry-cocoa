@@ -402,6 +402,7 @@ getDeviceAndAppHash()
                          [nsstringSysctl(@"hw.machine") dataUsingEncoding:NSUTF8StringEncoding]];
     [data appendData:(NSData * _Nonnull)
                          [nsstringSysctl(@"hw.model") dataUsingEncoding:NSUTF8StringEncoding]];
+
 #if !SENTRY_HAS_UIKIT
     const char *cpuArch = getCurrentCPUArch();
     [data appendBytes:cpuArch length:strlen(cpuArch)];
