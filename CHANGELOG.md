@@ -1,6 +1,8 @@
 # Changelog
 
-## unreleased
+## 5.2.0
+
+- fix: nxgetlocalarch app store #651
 
 - fix: Build failure for Apple Silicon Macs #588
 

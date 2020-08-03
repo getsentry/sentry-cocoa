@@ -2,6 +2,7 @@
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryDebugMetaBuilder.h"
+#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
@@ -49,8 +50,11 @@ SentryClient ()
                                             andMachineContextWrapper:machineContextWrapper];
 
         NSError *error = nil;
-        self.fileManager = [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn
-                                                 didFailWithError:&error];
+
+        self.fileManager =
+            [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn
+                            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+                                  didFailWithError:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
             return nil;
