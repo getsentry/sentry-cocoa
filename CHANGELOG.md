@@ -4,6 +4,7 @@
 
 - fix: nxgetlocalarch app store #651
 
+- fix: Build failure for Apple Silicon Macs #588
 
 ## 5.1.10
 
