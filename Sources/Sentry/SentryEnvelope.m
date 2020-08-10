@@ -1,4 +1,5 @@
 #import "SentryEnvelope.h"
+#import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryMeta.h"
@@ -62,23 +63,30 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
     if (nil != error) {
-        SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
+        // It could be the user added something to the context that can't be serialized. Try to
+        // serialize without the context.
+        event.context = nil;
+        error = nil;
+        json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
-        // Add some context to the event. We can only set simple properties otherwise we
-        // risk that the conversion fails again.
-        NSString *messge = [NSString
-            stringWithFormat:@"JSON conversion error for event with message: '%@'", event.message];
-        errorEvent.message = messge;
-        errorEvent.releaseName = event.releaseName;
-        errorEvent.environment = event.environment;
-        errorEvent.sdk = event.sdk;
-        errorEvent.platform = event.platform;
-        errorEvent.timestamp = event.timestamp;
+        // The context was the problem for serialization. Add a breadcrumb that we are dropping the
+        // context. We take the risk that another field causes the serialization error and ignore
+        // it.
+        if (nil == error) {
+            NSMutableArray<SentryBreadcrumb *> *breadcrumbs = [event.breadcrumbs mutableCopy];
+            if (nil == breadcrumbs) {
+                breadcrumbs = [[NSMutableArray alloc] init];
+            }
 
-        // We accept the risk that this simple serialization fails which is covered by tests.
-        // Therefore we ignore the error on purpose and send an envelope item with an empty
-        // body.
-        json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
+                                                                     category:@"sentry.event"];
+            crumb.message = @"A value set to the Context is not serializable. Dropping Context.";
+            crumb.type = @"error";
+            [breadcrumbs addObject:crumb];
+            event.breadcrumbs = breadcrumbs;
+
+            json = [SentrySerialization dataWithJSONObject:[event serialize] error:nil];
+        }
     }
 
     return [self
