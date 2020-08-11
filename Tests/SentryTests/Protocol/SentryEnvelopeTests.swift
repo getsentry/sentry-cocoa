@@ -229,9 +229,9 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
     
-    private class EventSerilazationFailure : Event {
-        override func serialize() -> [String : Any] {
-            return ["is going": ["to fail" : Date()]]
+    private class EventSerilazationFailure: Event {
+        override func serialize() -> [String: Any] {
+            return ["is going": ["to fail": Date()]]
         }
     }
 }
@@ -241,6 +241,3 @@ fileprivate extension String {
         XCTAssertTrue(self.contains(value), "The JSON doesn't contain the \(fieldName): '\(value)' \n \(self)")
     }
 }
-
-
-
