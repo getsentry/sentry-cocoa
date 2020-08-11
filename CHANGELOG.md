@@ -3,6 +3,11 @@
 ## unreleased
 
 - feat: Use envelopes for sending events #650
+- fix: Build failure for Apple Silicon Macs #588
+
+## 5.2.0
+
+- fix: nxgetlocalarch app store #651
 
 ## 5.1.10
 
