@@ -1,11 +1,11 @@
-#import "NSString+SentryNSUIntegerValue.h"
+#import "NSString+SentryUnsignedLongLongValue.h"
 #import <XCTest/XCTest.h>
 
-@interface SentryNSUIntegerValueTest : XCTestCase
+@interface SentryUnsignedLongLongValueTest : XCTestCase
 
 @end
 
-@implementation SentryNSUIntegerValueTest
+@implementation SentryUnsignedLongLongValueTest
 
 - (void)testNSStringUnsignedLongLongValue
 {

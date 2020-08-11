@@ -12,6 +12,5 @@ targets:
     specPath: Sentry.podspec
   - name: registry
     type: sdk
-    linkPrereleases: true
     config:
       canonical: 'cocoapods:sentry-cocoa'
