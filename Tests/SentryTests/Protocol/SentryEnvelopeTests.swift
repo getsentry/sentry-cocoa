@@ -26,7 +26,7 @@ class SentryEnvelopeTests: XCTestCase {
         let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count))
         let item = SentryEnvelopeItem(header: itemHeader, data: data)
         
-        let envelopeId = "hopefully valid envelope id"
+        let envelopeId = SentryId()
         let header = SentryEnvelopeHeader(id: envelopeId)
         let envelope = SentryEnvelope(header: header, singleItem: item)
         
@@ -52,7 +52,7 @@ class SentryEnvelopeTests: XCTestCase {
             items.append(item)
         }
 
-        let envelopeId = "hopefully valid envelope id"
+        let envelopeId = SentryId()
         let envelope = SentryEnvelope(id: envelopeId, items: items)
 
         XCTAssertEqual(envelopeId, envelope.header.eventId)
@@ -74,7 +74,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
-        let eventId = "some id"
+        let eventId = SentryId()
         let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)

@@ -346,7 +346,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     private func sendEnvelopeWithSession() {
-        let envelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession(releaseName: "2.0.1"))])
+        let envelope = SentryEnvelope(id: SentryId(), items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: SentrySession(releaseName: "2.0.1"))])
         sut.send(envelope: envelope)
     }
     

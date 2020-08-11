@@ -178,7 +178,7 @@ SentryHub ()
     }
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
@@ -187,7 +187,7 @@ SentryHub ()
     return nil;
 }
 
-- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
@@ -196,7 +196,7 @@ SentryHub ()
     return nil;
 }
 
-- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     [self incrementSessionErrors];
     SentryClient *client = [self getClient];
@@ -206,8 +206,7 @@ SentryHub ()
     return nil;
 }
 
-- (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
 {
     [self incrementSessionErrors];
     SentryClient *client = [self getClient];

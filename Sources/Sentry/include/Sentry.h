@@ -35,6 +35,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub.h"
+#import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryMechanism.h"
 #import "SentryNSURLRequest.h"

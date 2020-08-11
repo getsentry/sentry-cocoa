@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Replace NSString for eventId with SentryId #668
 - fix: Build failure for Apple Silicon Macs #588
 
 ## 5.2.0

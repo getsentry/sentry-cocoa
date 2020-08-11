@@ -6,15 +6,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb;
+    SentryBreadcrumb, SentryId;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
 
 /**
- * This will be set by the initializer. Should be an UUID with the "-".
+ * This will be set by the initializer.
  */
-@property (nonatomic, copy) NSString *eventId;
+@property (nonatomic, strong) SentryId *eventId;
 
 /**
  * Message of the event
