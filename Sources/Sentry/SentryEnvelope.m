@@ -88,13 +88,23 @@ NS_ASSUME_NONNULL_BEGIN
 
             json = [SentrySerialization dataWithJSONObject:[event serialize] error:nil];
         } else {
-            // We take the risk that another field causes the serialization error and ignore this
-            // edge case, because all the types the other fields of the event are serializable and
-            // for extra sentry_sanitize is used.
-            [SentryLog logWithMessage:
-                           @"Can't serialize event. Please make sure the contents of the fields of "
-                           @"the event are serializable."
-                             andLevel:kSentryLogLevelDebug];
+            // We don't know what caused the serialization to fail.
+            SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
+
+            // Add some context to the event. We can only set simple properties otherwise we
+            // risk that the conversion fails again.
+            NSString *messge =
+                [NSString stringWithFormat:@"JSON conversion error for event with message: '%@'",
+                          event.message];
+            errorEvent.message = messge;
+            errorEvent.releaseName = event.releaseName;
+            errorEvent.environment = event.environment;
+            errorEvent.platform = event.platform;
+            errorEvent.timestamp = event.timestamp;
+
+            // We accept the risk that this simple serialization fails. Therefore we ignore the
+            // error on purpose.
+            json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
         }
     }
 

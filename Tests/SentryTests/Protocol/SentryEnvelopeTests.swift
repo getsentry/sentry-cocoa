@@ -40,6 +40,15 @@ class SentryEnvelopeTests: XCTestCase {
             event.breadcrumbs = [breadcrumb]
             return event
         }
+        
+        var eventWithContinousSerializationFailure: Event {
+            let event = EventSerilazationFailure()
+            event.message = "Failure"
+            event.releaseName = "release"
+            event.environment = "environment"
+            event.platform = "platform"
+            return event
+        }
     }
     
     private let fixture = Fixture()
@@ -190,6 +199,24 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
+    func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
+        let event = fixture.eventWithContinousSerializationFailure
+        let envelope = SentryEnvelope(event: event)
+        
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertNotNil(envelope.items.first?.data)
+        if let data = envelope.items.first?.data {
+            let json = String(data: data, encoding: .utf8) ?? ""
+            
+            json.assertContains("JSON conversion error for event with message: '\(event.message)'", "message")
+            json.assertContains("warning", "level")
+            json.assertContains(event.releaseName ?? "", "releaseName")
+            json.assertContains(event.environment ?? "", "environment")
+            let eventTimestamp = CurrentDate.date() as NSDate
+            json.assertContains(eventTimestamp.sentry_toIso8601String(), "timestamp")
+        }
+    }
+    
     private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
         json.assertContains("A value set to the context or sdk is not serializable. Dropping context and sdk.", "breadcrumb message")
         
@@ -201,6 +228,12 @@ class SentryEnvelopeTests: XCTestCase {
     private func assertEventDoesNotContainContext(_ json: String) {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
+    
+    private class EventSerilazationFailure : Event {
+        override func serialize() -> [String : Any] {
+            return ["is going": ["to fail" : Date()]]
+        }
+    }
 }
 
 fileprivate extension String {
@@ -208,3 +241,6 @@ fileprivate extension String {
         XCTAssertTrue(self.contains(value), "The JSON doesn't contain the \(fieldName): '\(value)' \n \(self)")
     }
 }
+
+
+
