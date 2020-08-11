@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
+#import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
@@ -63,15 +64,14 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
     if (nil != error) {
-        // It could be the user added something to the context that can't be serialized. Try to
-        // serialize without the context.
+        // It could be the user added something to the context or the sdk that can't serialized.
         event.context = nil;
+        event.sdk = nil;
         error = nil;
         json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
-        // The context was the problem for serialization. Add a breadcrumb that we are dropping the
-        // context. We take the risk that another field causes the serialization error and ignore
-        // it.
+        // The context or the sdk was the problem for serialization. Add a breadcrumb that we are
+        // dropping the context and the sdk.
         if (nil == error) {
             NSMutableArray<SentryBreadcrumb *> *breadcrumbs = [event.breadcrumbs mutableCopy];
             if (nil == breadcrumbs) {
@@ -80,12 +80,19 @@ NS_ASSUME_NONNULL_BEGIN
 
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelError
                                                                      category:@"sentry.event"];
-            crumb.message = @"A value set to the Context is not serializable. Dropping Context.";
+            crumb.message = @"A value set to the context or sdk is not serializable. Dropping "
+                            @"context and sdk.";
             crumb.type = @"error";
             [breadcrumbs addObject:crumb];
             event.breadcrumbs = breadcrumbs;
 
             json = [SentrySerialization dataWithJSONObject:[event serialize] error:nil];
+        } else {
+            // We take the risk that another field causes the serialization error and ignore this edge case, because all the types the other fields of the event are serializable and for extra sentry_sanitize is used.
+            [SentryLog logWithMessage:
+                           @"Can't serialize event. Please make sure the contents of the fields of "
+                           @"the event are serializable."
+                             andLevel:kSentryLogLevelDebug];
         }
     }
 

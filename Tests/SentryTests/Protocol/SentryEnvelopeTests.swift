@@ -29,6 +29,12 @@ class SentryEnvelopeTests: XCTestCase {
             return event
         }
         
+        var eventWithFaultySDK: Event {
+            let event = self.event
+            event.sdk = ["dont": ["dothis": Date()]]
+            return event
+        }
+        
         var eventWithFaultyContextAndBreadrumb: Event {
             let event = eventWithFaultyContext
             event.breadcrumbs = [breadcrumb]
@@ -149,7 +155,20 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertNotNil(envelope.items.first?.data)
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
-            assertContainsBreadcrumbForDroppingContext(json)
+            assertContainsBreadcrumbForDroppingContextAndSDK(json)
+            assertEventDoesNotContainContext(json)
+        }
+    }
+    
+    func testInitWithEvent_FaultySDKNoBreadcrumbs_SendsEventWithBreadcrumb() {
+        let event = fixture.eventWithFaultySDK
+        let envelope = SentryEnvelope(event: event)
+        
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertNotNil(envelope.items.first?.data)
+        if let data = envelope.items.first?.data {
+            let json = String(data: data, encoding: .utf8) ?? ""
+            assertContainsBreadcrumbForDroppingContextAndSDK(json)
             assertEventDoesNotContainContext(json)
         }
     }
@@ -164,28 +183,15 @@ class SentryEnvelopeTests: XCTestCase {
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
             
-            assertContainsBreadcrumbForDroppingContext(json)
+            assertContainsBreadcrumbForDroppingContextAndSDK(json)
             assertEventDoesNotContainContext(json)
             
             json.assertContains(fixture.breadcrumb.message!, "breadrumb message")
         }
     }
     
-    func testInitWithEvent_FaultySDK_ReturnsEnvelopeWithEmptyBody() {
-        let event = Event()
-        event.sdk = ["version": ["won't work": Date()]]
-        
-        let envelope = SentryEnvelope(event: event)
-        
-        XCTAssertEqual(1, envelope.items.count)
-        XCTAssertNotNil(envelope.items.first?.data)
-        if let data = envelope.items.first?.data {
-            XCTAssertEqual(0, data.count)
-        }
-    }
-    
-    private func assertContainsBreadcrumbForDroppingContext(_ json: String) {
-        json.assertContains("A value set to the Context is not serializable. Dropping Context.", "breadcrumb message")
+    private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
+        json.assertContains("A value set to the context or sdk is not serializable. Dropping context and sdk.", "breadcrumb message")
         
         json.assertContains("\"category\":\"sentry.event\"", "breadcrumb category")
         json.assertContains("\"type\":\"error\"", "breadcrumb type")
