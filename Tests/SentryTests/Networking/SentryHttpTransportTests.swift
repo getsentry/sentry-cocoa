@@ -220,9 +220,10 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 2)
     }
     
-    func disabled_testSendEventWithFaultyNSUrlRequest() {
-        // TODO: enable this test once #643 is merged.
+    func testSendEventWithFaultyNSUrlRequest() {
         sut.send(event: TestConstants.eventWithSerializationError)
+        
+        assertRequestsSent(requestCount: 1)
     }
     
     func testSendOneEnvelope() {
