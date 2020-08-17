@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Bump minimum iOS version to 9.0 #669
 - fix: Build failure for Apple Silicon Macs #588
 
 ## 5.2.0
