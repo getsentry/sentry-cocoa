@@ -9,7 +9,9 @@ class SentrySwiftTests: XCTestCase {
         let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"), andCurrentDateProvider: TestCurrentDateProvider())
         fileManager.deleteAllStoredEventsAndEnvelopes()
         fileManager.deleteAllFolders()
-        _ = SentrySDK(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        _ = SentrySDK.start { options in
+            options.dsn = "https://username:password@app.getsentry.com/12345"
+        }
 //        SentrySDK.init(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
     }
     
@@ -83,7 +85,9 @@ class SentrySwiftTests: XCTestCase {
         let scope = Sentry.Scope()
         scope.setExtras(["ios": true])
         XCTAssertNotNil(event.serialize())
-        _ = SentrySDK(options: ["dsn": "https://username:password@app.getsentry.com/12345"])
+        _ = SentrySDK.start { options in
+            options.dsn = "https://username:password@app.getsentry.com/12345"
+        }
         print("#####################")
         print(SentrySDK.currentHub().getClient() ?? "no client")
 

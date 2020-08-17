@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Remove deprecated SDK inits #673
 - fix: Crash in SentryEnvelope.initWithEvent #643
 - fix: Build failure for Apple Silicon Macs #588
 
