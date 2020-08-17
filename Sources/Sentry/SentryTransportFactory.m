@@ -21,7 +21,7 @@ SentryTransportFactory ()
 
 @implementation SentryTransportFactory
 
-+ (id<SentryTransport> _Nonnull)initTransport:(SentryOptions *)options
++ (id<SentryTransport>)initTransport:(SentryOptions *)options
                             sentryFileManager:(SentryFileManager *)sentryFileManager
 {
     NSURLSessionConfiguration *configuration =
