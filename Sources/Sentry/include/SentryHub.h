@@ -1,9 +1,7 @@
-#import "SentryBreadcrumb.h"
-#import "SentryClient.h"
 #import "SentryDefines.h"
-#import "SentryEvent.h"
 #import "SentryIntegrationProtocol.h"
-#import "SentryScope.h"
+
+@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject

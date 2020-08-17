@@ -7,6 +7,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 
 @interface
 SentryHub ()

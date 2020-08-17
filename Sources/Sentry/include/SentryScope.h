@@ -1,10 +1,7 @@
-#import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
-#import "SentryOptions.h"
 #import "SentrySerializable.h"
-#import "SentrySession.h"
 
-@class SentryUser;
+@class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb;
 
 NS_ASSUME_NONNULL_BEGIN
 

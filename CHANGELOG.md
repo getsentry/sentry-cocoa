@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Umbrella header #671
 - fix: Crash in SentryEnvelope.initWithEvent #643
 - fix: Build failure for Apple Silicon Macs #588
 

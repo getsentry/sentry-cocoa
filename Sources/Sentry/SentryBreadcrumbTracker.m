@@ -5,6 +5,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT
