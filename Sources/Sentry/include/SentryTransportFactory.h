@@ -9,7 +9,7 @@ NS_SWIFT_NAME(TransportInitializer)
 @interface SentryTransportFactory : NSObject
 
 + (id<SentryTransport>)initTransport:(SentryOptions *)options
-                            sentryFileManager:(SentryFileManager *)sentryFileManager;
+                   sentryFileManager:(SentryFileManager *)sentryFileManager;
 
 @end
 
