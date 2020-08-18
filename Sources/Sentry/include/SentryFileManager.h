@@ -32,6 +32,10 @@ SENTRY_NO_INIT
 
 - (void)deleteAllFolders;
 
+/**
+ * Get all envelopes sorted ascending by the timeIntervalSince1970 the envelope was stored and if
+ * two envelopes are stored at the same time sorted by the order they were stored.
+ */
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
 
 - (BOOL)removeFileAtPath:(NSString *)path;

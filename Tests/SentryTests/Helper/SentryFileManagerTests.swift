@@ -5,11 +5,18 @@ import XCTest
 class SentryFileManagerTests: XCTestCase {
     
     private var sut: SentryFileManager!
-    
+    private var currentDateProvider: TestCurrentDateProvider!
+
     override func setUp() {
         super.setUp()
         do {
-            sut = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            currentDateProvider = TestCurrentDateProvider()
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
+
+            sut = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
+
+            sut.deleteAllEnvelopes()
+            sut.deleteTimestampLastInForeground()
         } catch {
             XCTFail("SentryFileManager could not be created")
         }
@@ -29,7 +36,7 @@ class SentryFileManagerTests: XCTestCase {
 
         _ = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         let fileManager = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
-        
+
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
         XCTAssertNotNil(fileManager.readTimestampLastInForeground())
@@ -78,7 +85,7 @@ class SentryFileManagerTests: XCTestCase {
         let files = sut.allFiles(inFolder: "x")
         XCTAssertTrue(files.isEmpty)
     }
-    
+
     func testDefaultMaxEnvelopes() {
         for _ in 0...100 {
             sut.store(TestConstants.envelope)
@@ -94,6 +101,28 @@ class SentryFileManagerTests: XCTestCase {
         }
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(events.count, 15)
+    }
+
+    func testGetAllEnvelopesAreSortedByDateAscending() {
+        let eventIds = (0...110).map { i in "\(i)" }
+        eventIds.forEach { message in
+            let envelope = SentryEnvelope(id: message, singleItem: SentryEnvelopeItem(event: Event()))
+
+            sut.store(envelope)
+            advanceTime(bySeconds: 0.1)
+        }
+
+        let envelopes = sut.getAllEnvelopes()
+        
+        // Envelopes are sorted ascending by date and only the latest 100 are kept
+        let expectedEventIds = Array(eventIds[11...110])
+
+        XCTAssertEqual(100, envelopes.count)
+        for i in 0...99 {
+            let envelope = SentrySerialization.envelope(with: envelopes[i].contents)
+            let actualEventId = envelope?.header.eventId
+            XCTAssertEqual(expectedEventIds[i], actualEventId)
+        }
     }
     
     func testStoreAndReadCurrentSession() {
@@ -127,7 +156,7 @@ class SentryFileManagerTests: XCTestCase {
     func testGetAllStoredEventsAndEnvelopes() {
         sut.store(TestConstants.envelope)
         sut.store(TestConstants.envelope)
-        
+
         XCTAssertEqual(2, sut.getAllEnvelopes().count)
     }
     
@@ -137,7 +166,7 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.1"))
         
         sut.deleteAllFolders()
-        
+
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
         XCTAssertNil(sut.readCurrentSession())
         assertEventFolderDoesntExist()
@@ -147,10 +176,10 @@ class SentryFileManagerTests: XCTestCase {
         sut.store(TestConstants.envelope)
         
         sut.deleteAllEnvelopes()
-        
+
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
     }
-    
+
     private func storeEvent() {
         do {
             // Store a fake event to the events folder
@@ -160,9 +189,13 @@ class SentryFileManagerTests: XCTestCase {
             XCTFail("Failed to store fake event.")
         }
     }
-    
+
     private func assertEventFolderDoesntExist() {
         XCTAssertFalse(FileManager.default.fileExists(atPath: sut.eventsPath),
                         "Folder for events should be deleted on init: \(sut.eventsPath)")
+    }
+
+    private func advanceTime(bySeconds: TimeInterval) {
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(bySeconds))
     }
 }
