@@ -44,18 +44,6 @@ static SentryHub *currentHub;
     }
 }
 
-+ (id)initWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-{
-    [SentrySDK startWithOptions:optionsDict];
-    return nil;
-}
-
-+ (id)initWithOptionsObject:(SentryOptions *)options
-{
-    [SentrySDK startWithOptionsObject:options];
-    return nil;
-}
-
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
 {
     NSError *error = nil;

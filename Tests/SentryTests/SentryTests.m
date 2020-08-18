@@ -41,7 +41,7 @@
 
 - (void)testSDKDefaultHub
 {
-    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
     //[SentrySDK.currentHub reset];
@@ -125,7 +125,8 @@
 
 - (void)testSDKBreadCrumbAdd
 {
-    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+
     // TODO(fetzig)
     //[[SentrySDK.currentHub getClient].breadcrumbs clear];
 
@@ -150,7 +151,7 @@
 
 - (void)testSDKCaptureEvent
 {
-    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
@@ -165,7 +166,7 @@
 
 - (void)testSDKCaptureError
 {
-    [SentrySDK initWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
     NSError *error =
         [NSError errorWithDomain:@"testworld"
