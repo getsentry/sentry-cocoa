@@ -3,6 +3,7 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
+#import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
 #import "SentryId.h"
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
-        self.timestamp = [NSDate date];
+        self.timestamp = [SentryCurrentDate date];
     }
 
     NSMutableDictionary *serializedData = @{
