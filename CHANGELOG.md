@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Send cached envelopes first #676
 - feat: Use envelopes for sending events #650
 - feat: Remove deprecated SDK inits #673
 - fix: Crash in SentryEnvelope.initWithEvent #643
