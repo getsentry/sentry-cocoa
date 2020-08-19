@@ -2,7 +2,6 @@
 
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

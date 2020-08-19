@@ -3,6 +3,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryFileContents.h"
+#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
 #import "SentryOptions.h"

@@ -4,6 +4,7 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
+#import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"

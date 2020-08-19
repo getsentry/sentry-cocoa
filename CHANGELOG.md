@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Umbrella header #671
 - feat: Bump minimum iOS version to 9.0 #669
 - feat: Remove deprecated SDK inits #673
 - fix: Crash in SentryEnvelope.initWithEvent #643
