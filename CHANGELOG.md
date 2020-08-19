@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Use envelopes for sending events #650
 - feat: Replace NSString for eventId with SentryId #668
 - fix: Umbrella header #671
 - feat: Bump minimum iOS version to 9.0 #669

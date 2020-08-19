@@ -16,7 +16,6 @@ SENTRY_NO_INIT
                andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                      didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
-- (NSString *)storeEvent:(SentryEvent *)event;
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
 - (void)storeCurrentSession:(SentrySession *)session;
@@ -29,20 +28,11 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
-- (void)deleteAllStoredEventsAndEnvelopes;
+- (void)deleteAllEnvelopes;
 
 - (void)deleteAllFolders;
 
-/**
- In a previous version of SentryFileManager envelopes were stored in the same
- path as events. Now events and envelopes are stored in two different paths. We
- decided that there is no need for a migration strategy, because in worst case
- only a few envelopes get lost and this is not worth the effort. Since there is
- no migration strategy this method could also return envelopes.
- */
-- (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
-- (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes;
 
 - (BOOL)removeFileAtPath:(NSString *)path;
 
@@ -50,7 +40,6 @@ SENTRY_NO_INIT
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
-@property (nonatomic, assign) NSUInteger maxEvents;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end

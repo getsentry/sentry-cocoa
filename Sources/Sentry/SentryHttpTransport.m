@@ -37,35 +37,15 @@ SentryHttpTransport ()
         self.envelopeRateLimit = envelopeRateLimit;
 
         [self setupQueueing];
-        [self sendCachedEventsAndEnvelopes];
+        [self sendAllCachedEnvelopes];
     }
     return self;
 }
 
-// TODO: needs refactoring
 - (void)sendEvent:(SentryEvent *)event
 {
-    SentryRateLimitCategory category =
-        [SentryRateLimitCategoryMapper mapEventTypeToCategory:event.type];
-    if (![self isReadyToSend:category]) {
-        return;
-    }
-
-    NSError *requestError = nil;
-    // TODO: We do multiple serializations here, we can improve this
-    NSURLRequest *request =
-        [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.parsedDsn
-                                                   andEvent:event
-                                           didFailWithError:&requestError];
-
-    if (nil != requestError) {
-        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
-        return;
-    }
-
-    // TODO: We do multiple serializations here, we can improve this
-    NSString *storedEventPath = [self.fileManager storeEvent:event];
-    [self sendRequest:request storedPath:storedEventPath];
+    SentryEnvelope *eventEnvelope = [[SentryEnvelope alloc] initWithEvent:event];
+    [self sendEnvelope:eventEnvelope];
 }
 
 // TODO: needs refactoring
@@ -136,7 +116,7 @@ SentryHttpTransport ()
                 // thus we can remove the event from disk
                 [_self.fileManager removeFileAtPath:storedPath];
                 if (nil == error) {
-                    [_self sendCachedEventsAndEnvelopes];
+                    [_self sendAllCachedEnvelopes];
                 }
             }
         }];
@@ -174,41 +154,12 @@ SentryHttpTransport ()
 
 // TODO: This has to move somewhere else, we are missing the whole beforeSend
 // flow
-- (void)sendCachedEventsAndEnvelopes
+- (void)sendAllCachedEnvelopes
 {
     if (![self.requestManager isReady]) {
         return;
     }
 
-    [self sendAllCachedEvents];
-    [self sendAllCachedEnvelopes];
-}
-
-- (void)sendAllCachedEvents
-{
-    for (SentryFileContents *fileContents in [self.fileManager getAllEventsAndMaybeEnvelopes]) {
-        // The fileContents don't give insights on the event type. We would have
-        // to deserialize the contents, which is unnecessary at the moment,
-        // because we classify every event with the same category. We still call
-        // SentryRateLimitCategoryMapper to keep the code stable if the category
-        // for event changes.
-        SentryRateLimitCategory category =
-            [SentryRateLimitCategoryMapper mapEventTypeToCategory:SentryEnvelopeItemTypeEvent];
-        if (![self isReadyToSend:category]) {
-            [self.fileManager removeFileAtPath:fileContents.path];
-        } else {
-            NSURLRequest *request =
-                [[SentryNSURLRequest alloc] initStoreRequestWithDsn:self.options.parsedDsn
-                                                            andData:fileContents.contents
-                                                   didFailWithError:nil];
-
-            [self sendCached:request withFilePath:fileContents.path];
-        }
-    }
-}
-
-- (void)sendAllCachedEnvelopes
-{
     for (SentryFileContents *fileContents in [self.fileManager getAllEnvelopes]) {
         SentryEnvelope *envelope = [SentrySerialization envelopeWithData:fileContents.contents];
         if (nil == envelope) {
