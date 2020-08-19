@@ -1,5 +1,6 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
+#import "SentryNSURLRequest.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 

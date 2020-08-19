@@ -22,7 +22,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryNSURLRequest, SentryBreadcrumb, SentryEnvelope;
+@class SentryEvent, SentryBreadcrumb, SentryEnvelope;
 
 /**
  * Block used for returning after a request finished

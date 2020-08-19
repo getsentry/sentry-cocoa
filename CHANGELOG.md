@@ -3,6 +3,8 @@
 ## unreleased
 
 - feat: Use envelopes for sending events #650
+- fix: Umbrella header #671
+- feat: Bump minimum iOS version to 9.0 #669
 - feat: Remove deprecated SDK inits #673
 - fix: Crash in SentryEnvelope.initWithEvent #643
 - fix: Build failure for Apple Silicon Macs #588
