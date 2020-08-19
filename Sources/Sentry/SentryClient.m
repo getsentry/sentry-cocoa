@@ -6,6 +6,7 @@
 #import "SentryDsn.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
@@ -87,36 +88,35 @@ SentryClient ()
     return _fileManager;
 }
 
-- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = message;
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
-- (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = exception.reason;
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
-- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = error.localizedDescription;
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
-- (NSString *_Nullable)sendEvent:(SentryEvent *)event
-                       withScope:(SentryScope *_Nullable)scope
-          alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *_Nullable)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -130,7 +130,7 @@ SentryClient ()
             return preparedEvent.eventId;
         }
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -139,11 +139,10 @@ SentryClient ()
     [self captureEnvelope:envelope];
 }
 
-- (NSString *_Nullable)captureEnvelope:(SentryEnvelope *)envelope
+- (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     // TODO: What is about beforeSend
     [self.transport sendEnvelope:envelope];
-    return envelope.header.eventId;
 }
 
 /**

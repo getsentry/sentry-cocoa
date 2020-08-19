@@ -4,7 +4,7 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
-        
+
         var breadcrumb: Breadcrumb {
             get {
                 let crumb = Breadcrumb(level: SentryLevel.debug, category: "ui.lifecycle")
@@ -12,7 +12,7 @@ class SentryEnvelopeTests: XCTestCase {
                 return crumb
             }
         }
-        
+
         var event: Event {
             let event = Event()
             event.level = SentryLevel.info
@@ -22,25 +22,25 @@ class SentryEnvelopeTests: XCTestCase {
             event.sdk = ["version": sdkVersion]
             return event
         }
-        
+
         var eventWithFaultyContext: Event {
             let event = self.event
             event.context = ["dont": ["dothis": Date()]]
             return event
         }
-        
+
         var eventWithFaultySDK: Event {
             let event = self.event
             event.sdk = ["dont": ["dothis": Date()]]
             return event
         }
-        
+
         var eventWithFaultyContextAndBreadrumb: Event {
             let event = eventWithFaultyContext
             event.breadcrumbs = [breadcrumb]
             return event
         }
-        
+
         var eventWithContinousSerializationFailure: Event {
             let event = EventSerilazationFailure()
             event.message = "Failure"
@@ -50,13 +50,13 @@ class SentryEnvelopeTests: XCTestCase {
             return event
         }
     }
-    
+
     private let fixture = Fixture()
-    
+
     override func setUp() {
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
     }
-    
+
     private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
     
     func testSentryEnvelopeFromEvent() {
@@ -81,7 +81,7 @@ class SentryEnvelopeTests: XCTestCase {
         let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count))
         let item = SentryEnvelopeItem(header: itemHeader, data: data)
         
-        let envelopeId = "hopefully valid envelope id"
+        let envelopeId = SentryId()
         let header = SentryEnvelopeHeader(id: envelopeId)
         let envelope = SentryEnvelope(header: header, singleItem: item)
         
@@ -98,7 +98,7 @@ class SentryEnvelopeTests: XCTestCase {
         let itemCount = 3
         var attachment = ""
         attachment += UUID().uuidString
-        
+
         for _ in 0..<itemCount {
             attachment += UUID().uuidString
             let data = attachment.data(using: .utf8)!
@@ -106,13 +106,13 @@ class SentryEnvelopeTests: XCTestCase {
             let item = SentryEnvelopeItem(header: itemHeader, data: data)
             items.append(item)
         }
-        
-        let envelopeId = "hopefully valid envelope id"
+
+        let envelopeId = SentryId()
         let envelope = SentryEnvelope(id: envelopeId, items: items)
-        
+
         XCTAssertEqual(envelopeId, envelope.header.eventId)
         XCTAssertEqual(itemCount, envelope.items.count)
-        
+
         for i in 0..<itemCount {
             XCTAssertEqual("attachment", envelope.items[i].header.type)
         }
@@ -129,7 +129,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
-        let eventId = "some id"
+        let eventId = SentryId()
         let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
@@ -142,24 +142,24 @@ class SentryEnvelopeTests: XCTestCase {
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
-    
+
     func testInitWithEvent() throws {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
-        
+
         let expectedData = try SentrySerialization.data(withJSONObject: event.serialize())
-        
+
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
         let actual = String(data: envelope.items.first?.data ?? Data(), encoding: .utf8)?.sorted()
         let expected = String(data: expectedData, encoding: .utf8)?.sorted()
         XCTAssertEqual(expected, actual)
     }
-    
+
     func testInitWithEvent_FaultyContextNoBreadcrumbs_SendsEventWithBreadcrumb() {
         let event = fixture.eventWithFaultyContext
         let envelope = SentryEnvelope(event: event)
-        
+
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertNotNil(envelope.items.first?.data)
         if let data = envelope.items.first?.data {
@@ -168,11 +168,11 @@ class SentryEnvelopeTests: XCTestCase {
             assertEventDoesNotContainContext(json)
         }
     }
-    
+
     func testInitWithEvent_FaultySDKNoBreadcrumbs_SendsEventWithBreadcrumb() {
         let event = fixture.eventWithFaultySDK
         let envelope = SentryEnvelope(event: event)
-        
+
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertNotNil(envelope.items.first?.data)
         if let data = envelope.items.first?.data {
@@ -181,33 +181,33 @@ class SentryEnvelopeTests: XCTestCase {
             assertEventDoesNotContainContext(json)
         }
     }
-    
+
     func testInitWithEvent_FaultyContextAndBreadcrumb_SendsEventWithBreadcrumbs() {
         let event = fixture.eventWithFaultyContextAndBreadrumb
-        
+
         let envelope = SentryEnvelope(event: event)
-        
+
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertNotNil(envelope.items.first?.data)
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
-            
+
             assertContainsBreadcrumbForDroppingContextAndSDK(json)
             assertEventDoesNotContainContext(json)
-            
+
             json.assertContains(fixture.breadcrumb.message!, "breadrumb message")
         }
     }
-    
+
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
-        
+
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertNotNil(envelope.items.first?.data)
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
-            
+
             json.assertContains("JSON conversion error for event with message: '\(event.message)'", "message")
             json.assertContains("warning", "level")
             json.assertContains(event.releaseName ?? "", "releaseName")
@@ -216,19 +216,19 @@ class SentryEnvelopeTests: XCTestCase {
             json.assertContains(eventTimestamp.sentry_toIso8601String(), "timestamp")
         }
     }
-    
+
     private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
         json.assertContains("A value set to the context or sdk is not serializable. Dropping context and sdk.", "breadcrumb message")
-        
+
         json.assertContains("\"category\":\"sentry.event\"", "breadcrumb category")
         json.assertContains("\"type\":\"error\"", "breadcrumb type")
         json.assertContains("\"level\":\"error\"", "breadcrumb level")
     }
-    
+
     private func assertEventDoesNotContainContext(_ json: String) {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
-    
+
     private class EventSerilazationFailure: Event {
         override func serialize() -> [String: Any] {
             return ["is going": ["to fail": Date()]]

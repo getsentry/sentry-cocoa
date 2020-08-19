@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryEnvelopeHeader
 
 // id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(NSString *_Nullable)eventId
+- (instancetype)initWithId:(SentryId *_Nullable)eventId
 {
     SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                                       andVersion:SentryMeta.versionString];
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithId:(NSString *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
+- (instancetype)initWithId:(SentryId *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
 {
     if (self = [super init]) {
         _eventId = eventId;
@@ -153,12 +153,12 @@ NS_ASSUME_NONNULL_BEGIN
                      singleItem:item];
 }
 
-- (instancetype)initWithId:(NSString *_Nullable)id singleItem:(SentryEnvelopeItem *)item
+- (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item
 {
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] singleItem:item];
 }
 
-- (instancetype)initWithId:(NSString *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items
+- (instancetype)initWithId:(SentryId *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items
 {
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] items:items];
 }

@@ -12,7 +12,7 @@ class TestClient: Client {
     }
     
     var events: [Event] = []
-    override func capture(event: Event, scope: Scope?) -> String? {
+    override func capture(event: Event, scope: Scope?) -> SentryId {
         events.append(event)
         return event.eventId
     }
