@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A SentryId with an empty UUID "00000000-0000-0000-0000-000000000000".
  */
-@property (class, readonly, strong) SentryId *empty;
+@property (class, nonatomic, readonly, strong) SentryId *empty;
 
 @end
 

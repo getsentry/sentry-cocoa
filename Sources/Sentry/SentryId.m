@@ -14,6 +14,8 @@ SentryId ()
 
 @implementation SentryId
 
+static SentryId *_empty = nil;
+
 - (instancetype)init
 {
     return [self initWithUUID:[NSUUID UUID]];
@@ -69,7 +71,10 @@ SentryId ()
 
 + (SentryId *)empty
 {
-    return [[SentryId alloc] initWithUUIDString:emptyUUIDString];
+    if (nil == _empty) {
+        _empty = [[SentryId alloc] initWithUUIDString:emptyUUIDString];
+    }
+    return _empty;
 }
 
 @end
