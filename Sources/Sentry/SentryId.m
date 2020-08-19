@@ -31,7 +31,18 @@ static SentryId *_empty = nil;
 
 - (instancetype)initWithUUIDString:(NSString *)string
 {
-    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:string];
+    NSUUID *uuid;
+    if (string.length == 36) {
+        uuid = [[NSUUID alloc] initWithUUIDString:string];
+    } else if (string.length == 32) {
+        NSMutableString *mutableString = [[NSMutableString alloc] initWithString:string];
+        [mutableString insertString:@"-" atIndex:8];
+        [mutableString insertString:@"-" atIndex:13];
+        [mutableString insertString:@"-" atIndex:18];
+        [mutableString insertString:@"-" atIndex:23];
+
+        uuid = [[NSUUID alloc] initWithUUIDString:mutableString];
+    }
 
     if (nil != uuid) {
         return [self initWithUUID:uuid];
@@ -42,7 +53,9 @@ static SentryId *_empty = nil;
 
 - (NSString *)sentryIdString;
 {
-    return self.uuid.UUIDString;
+    NSString *sentryIdString = [self.uuid.UUIDString stringByReplacingOccurrencesOfString:@"-"
+                                                                               withString:@""];
+    return [sentryIdString lowercaseString];
 }
 
 - (NSString *)description
