@@ -6,6 +6,7 @@
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
+#import "SentryId.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -24,9 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        self.eventId =
-            [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-"
-                                                                 withString:@""] lowercaseString];
+        self.eventId = [[SentryId alloc] init];
         self.level = level;
         self.platform = @"cocoa";
     }
@@ -49,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSMutableDictionary *serializedData = @{
-        @"event_id" : self.eventId,
+        @"event_id" : self.eventId.sentryIdString,
         @"timestamp" : [self.timestamp sentry_toIso8601String],
         @"platform" : @"cocoa",
     }

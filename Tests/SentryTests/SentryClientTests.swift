@@ -211,16 +211,6 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureEnvelope() {
-        let envelope = SentryEnvelope(event: Event())
-        let headerEventId = fixture.getSut().capture(envelope: envelope)
-
-        assertLastSentEnvelope { actual in
-            XCTAssertEqual(envelope.header.eventId, headerEventId)
-            XCTAssertEqual(envelope, actual)
-        }
-    }
-
     func testBeforeSendReturnsNil_EventNotSent() {
         fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
@@ -267,7 +257,7 @@ class SentryClientTest: XCTestCase {
     func testSdkDisabled_MessageNotSent() {
         let sut = fixture.getSutWithDisabledSdk()
         let eventId = sut.capture(message: message, scope: nil)
-        XCTAssertNil(eventId)
+        XCTAssertEqual(SentryId.empty, eventId)
         assertEventNotSent(eventId: eventId)
     }
 
@@ -283,11 +273,11 @@ class SentryClientTest: XCTestCase {
         assertEventNotSent(eventId: eventId)
     }
 
-    func testSdkDisabled_EnvelopesAreSent() {
-        let envelope = SentryEnvelope(event: Event())
+    func testSdkDisabled_SessionsAreSent() {
+        _ = SentryEnvelope(event: Event())
         fixture.getSut(configureOptions: { options in
             options.enabled = false
-        }).capture(envelope: envelope)
+        }).capture(session: SentrySession(releaseName: ""))
 
         assertLastSentEnvelope { actual in
             XCTAssertNotNil(actual)
@@ -352,7 +342,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEvents.count, "No events should have been sent.")
     }
     
-    private func assertEventNotSent(eventId: String?) {
+    private func assertEventNotSent(eventId: SentryId?) {
         let eventWasSent = fixture.transport.sentEvents.contains { event in
             event.eventId == eventId
         }
