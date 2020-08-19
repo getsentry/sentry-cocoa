@@ -1,10 +1,8 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
-#import "SentryEvent.h"
-#import "SentryHub.h"
-#import "SentryOptions.h"
+
+@class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser;
 
 @class SentryId;
 

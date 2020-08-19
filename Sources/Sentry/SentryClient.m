@@ -4,13 +4,16 @@
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
+#import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 
 #if SENTRY_HAS_UIKIT

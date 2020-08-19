@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
-#import "SentryTransport.h"
 
 @class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryThread, SentryEnvelope,
     SentryFileManager, SentryId;

@@ -2,6 +2,7 @@
 #import "SentryCrashInstallationReporter.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
