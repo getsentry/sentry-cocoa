@@ -35,6 +35,7 @@
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+TestInit.h"
+#import "SentryId.h"
 #import "SentryMeta.h"
 #import "SentryNSURLRequest.h"
 #import "SentryRateLimitCategory.h"

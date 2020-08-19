@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +17,7 @@ SENTRY_NO_INIT
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.
  */
-- (instancetype)initWithId:(NSString *_Nullable)eventId;
+- (instancetype)initWithId:(SentryId *_Nullable)eventId;
 
 /**
  * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
@@ -29,7 +29,7 @@ SENTRY_NO_INIT
  * @param sdkInfo sdkInfo Describes the Sentry SDK. Can be nil for backwards compatibility. New
  * instances should always provide a version.
  */
-- (instancetype)initWithId:(NSString *_Nullable)eventId
+- (instancetype)initWithId:(SentryId *_Nullable)eventId
                 andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -37,7 +37,7 @@ SENTRY_NO_INIT
  * An event id exist if the envelope contains an event of items within it are
  * related. i.e Attachments
  */
-@property (nonatomic, readonly, copy) NSString *_Nullable eventId;
+@property (nonatomic, readonly, copy) SentryId *_Nullable eventId;
 
 @property (nonatomic, readonly, copy) SentrySdkInfo *_Nullable sdkInfo;
 
@@ -80,12 +80,12 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id singleItem:(SentryEnvelopeItem *)item;
+- (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header singleItem:(SentryEnvelopeItem *)item;
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items;
+- (instancetype)initWithId:(SentryId *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items;
 
 /**
  * Initializes a SentryEnvelope with a single session.
