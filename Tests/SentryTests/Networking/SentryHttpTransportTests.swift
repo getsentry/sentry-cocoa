@@ -321,7 +321,19 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.eventRequest.httpBody, fixture.requestManager.requests[1].httpBody, "Cached envelope was not sent first.")
         
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests[2].httpBody, "Cached envelope was not sent first.")
-      
+    }
+    
+    func testPerformanceOfSending() {
+        self.measure {
+            givenNoInternetConnection()
+            for _ in Array(0...5) {
+                sendEnvelopeWithSession()
+            }
+            givenOkResponse()
+            for _ in Array(0...5) {
+                sendEvent()
+            }
+        }
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
