@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Send cached envelopes first #676
 - feat: Use envelopes for sending events #650
 - feat: Replace NSString for eventId with SentryId #668
 - fix: Umbrella header #671
