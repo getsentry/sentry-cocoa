@@ -11,11 +11,30 @@ class TestClient: Client {
         sessions.append(session)
     }
     
-    var events: [Event] = []
+    var captureEventArguments: [Pair<Event, Scope?>] = []
     override func capture(event: Event, scope: Scope?) -> SentryId {
-        events.append(event)
+        captureEventArguments.append(Pair(event, scope))
         return event.eventId
     }
+    
+    var captureMessageArguments: [Pair<String, Scope?>] = []
+    override func capture(message: String, scope: Scope?) -> SentryId {
+        captureMessageArguments.append(Pair(message, scope))
+        return SentryId()
+    }
+    
+    var captureErrorArguments: [Pair<Error, Scope?>] = []
+    override func capture(error: Error, scope: Scope?) -> SentryId {
+        captureErrorArguments.append(Pair(error, scope))
+        return SentryId()
+    }
+    
+    var captureExceptionArguments: [Pair<NSException, Scope?>] = []
+    override func capture(exception: NSException, scope: Scope?) -> SentryId {
+        captureExceptionArguments.append(Pair(exception, scope))
+        return SentryId()
+    }
+    
 }
 
 class TestFileManager: SentryFileManager {

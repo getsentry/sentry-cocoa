@@ -4,10 +4,22 @@ class SentryHubTests: XCTestCase {
     
     private class Fixture {
         let options: Options
+        let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User wants to crash", userInfo: nil)
+        var client: TestClient!
+        let crumb = Breadcrumb(level: .error, category: "default")
+        let scope = Scope()
+        let message = "some message"
+        let event: Event
         
         init() {
             options = Options()
             options.dsn = "https://username@sentry.io/1"
+            
+            scope.add(crumb)
+            
+            event = Event()
+            event.message = message
         }
         
         func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
@@ -16,7 +28,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options) -> SentryHub {
-            let client = Client(options: options)
+            client = TestClient(options: options)
             let hub = SentryHub(client: client, andScope: nil)
             hub.bindClient(client)
             return hub
@@ -112,12 +124,111 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(scopeUserId, "123")
     }
     
+    func testCaptureEventWithScope() {
+        fixture.getSut().capture(event: fixture.event, scope: fixture.scope)
+        
+        XCTAssertEqual(1, fixture.client.captureEventArguments.count)
+        if let firstCapturedEvent = fixture.client.captureEventArguments.first {
+            XCTAssertEqual(fixture.event.eventId, firstCapturedEvent.first.eventId)
+            XCTAssertEqual(fixture.scope, firstCapturedEvent.second)
+        }
+    }
+    
+    func testCaptureEventWithoutScope() {
+        fixture.getSut().capture(event: fixture.event, scope: nil)
+        
+        XCTAssertEqual(1, fixture.client.captureEventArguments.count)
+        if let firstCapturedEvent = fixture.client.captureEventArguments.first {
+            XCTAssertEqual(fixture.event.eventId, firstCapturedEvent.first.eventId)
+            XCTAssertNil(firstCapturedEvent.second)
+        }
+    }
+    
+    func testCaptureMessageWithScope() {
+        fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
+        
+        XCTAssertEqual(1, fixture.client.captureMessageArguments.count)
+        if let firstCapturedMessage = fixture.client.captureMessageArguments.first {
+            XCTAssertEqual(fixture.message, firstCapturedMessage.first)
+            XCTAssertEqual(fixture.scope, firstCapturedMessage.second)
+        }
+    }
+    
+    func testCaptureMessageWithoutScope() {
+        fixture.getSut().capture(message: fixture.message, scope: nil)
+        
+        XCTAssertEqual(1, fixture.client.captureMessageArguments.count)
+        if let firstCapturedMessage = fixture.client.captureMessageArguments.first {
+            XCTAssertEqual(fixture.message, firstCapturedMessage.first)
+            XCTAssertNil(firstCapturedMessage.second)
+        }
+    }
+    
+    func testCatpureErrorWithScope() {
+        XCTAssertNotNil(fixture.getSut().capture(error: fixture.error, scope: fixture.scope))
+        
+        XCTAssertEqual(1, fixture.client.captureErrorArguments.count)
+        if let firstCaptureError = fixture.client.captureErrorArguments.first {
+            let actualError = firstCaptureError.first as NSError
+            let actualScope = firstCaptureError.second
+            
+            XCTAssertEqual(fixture.error, actualError)
+            XCTAssertEqual(fixture.scope, actualScope)
+        }
+    }
+    
+    func testCatpureErrorWithoutScope() {
+        XCTAssertNotNil(fixture.getSut().capture(error: fixture.error, scope: nil))
+        
+        XCTAssertEqual(1, fixture.client.captureErrorArguments.count)
+        if let firstCaptureError = fixture.client.captureErrorArguments.first {
+            XCTAssertEqual(fixture.error, firstCaptureError.first as NSError)
+            let actualScope = firstCaptureError.second
+            XCTAssertNil(actualScope)
+        }
+    }
+    
+    func testCatpureExceptionWithScope() {
+        XCTAssertNotNil(fixture.getSut().capture(exception: fixture.exception, scope: fixture.scope))
+        
+        XCTAssertEqual(1, fixture.client.captureExceptionArguments.count)
+        if let firstCaptureError = fixture.client.captureExceptionArguments.first {
+            XCTAssertEqual(fixture.exception, firstCaptureError.first)
+            XCTAssertEqual(fixture.scope, firstCaptureError.second)
+        }
+    }
+    
+    func testCatpureExceptionWithoutScope() {
+        XCTAssertNotNil(fixture.getSut().capture(exception: fixture.exception, scope: nil))
+        
+        XCTAssertEqual(1, fixture.client.captureExceptionArguments.count)
+        if let firstCaptureError = fixture.client.captureExceptionArguments.first {
+            XCTAssertEqual(fixture.exception, firstCaptureError.first)
+            let actualScope = firstCaptureError.second
+            XCTAssertNil(actualScope)
+        }
+    }
+    
+    func testCaptureClientIsNil_ReturnsEmptySentryId() {
+        let sut = fixture.getSut()
+        sut.bindClient(nil)
+        
+        XCTAssertEqual(SentryId.empty, sut.capture(error: fixture.error, scope: nil))
+        XCTAssertEqual(0, fixture.client.captureErrorArguments.count)
+        
+        XCTAssertEqual(SentryId.empty, sut.capture(message: fixture.message, scope: fixture.scope))
+        XCTAssertEqual(0, fixture.client.captureMessageArguments.count)
+        
+        XCTAssertEqual(SentryId.empty, sut.capture(event: fixture.event, scope: nil))
+        XCTAssertEqual(0, fixture.client.captureEventArguments.count)
+        
+        XCTAssertEqual(SentryId.empty, sut.capture(exception: fixture.exception, scope: nil))
+        XCTAssertEqual(0, fixture.client.captureExceptionArguments.count)
+    }
+    
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
-            let crumb = Breadcrumb(
-                level: .error,
-                category: "default")
-            scope.add(crumb)
+            scope.add(self.fixture.crumb)
         })
     }
     
