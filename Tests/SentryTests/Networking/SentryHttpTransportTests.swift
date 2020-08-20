@@ -50,10 +50,11 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
     
-    private let fixture = Fixture()
+    private var fixture: Fixture!
     private var sut: SentryHttpTransport!
     
     override func setUp() {
+        fixture = Fixture()
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
         
         fixture.fileManager.deleteAllEnvelopes()
