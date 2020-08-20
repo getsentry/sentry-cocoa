@@ -22,7 +22,7 @@ class SentryHttpTransportTests: XCTestCase {
             eventRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: eventData)
             
             session = SentrySession(releaseName: "2.0.1")
-            sessionEnvelope = SentryEnvelope(id: "id", items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: session)])
+            sessionEnvelope = SentryEnvelope(id: SentryId(), items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: session)])
             let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
             sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: sessionData)
             

@@ -3,6 +3,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryFileContents.h"
+#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
 #import "SentryOptions.h"
@@ -91,7 +92,8 @@ SentryHttpTransport ()
         }
 
         NSError *requestError = nil;
-        NSURLRequest *request = [self createEnvelopeRequest:fileContents.contents didFailWithError:requestError];
+        NSURLRequest *request = [self createEnvelopeRequest:fileContents.contents
+                                           didFailWithError:requestError];
 
         if (nil != requestError) {
             [SentryLog logWithMessage:requestError.localizedDescription
@@ -107,10 +109,9 @@ SentryHttpTransport ()
 - (NSURLRequest *)createEnvelopeRequest:(NSData *)envelopeData
                        didFailWithError:(NSError *_Nullable)error
 {
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithDsn:self.options.parsedDsn
-                           andData:envelopeData
-                  didFailWithError:&error];
+    return [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.parsedDsn
+                                                          andData:envelopeData
+                                                 didFailWithError:&error];
 }
 
 - (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath

@@ -104,16 +104,16 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testGetAllEnvelopesAreSortedByDateAscending() {
-        let eventIds = (0...110).map { i in "\(i)" }
-        eventIds.forEach { message in
-            let envelope = SentryEnvelope(id: message, singleItem: SentryEnvelopeItem(event: Event()))
+        let eventIds = (0...110).map { _ in SentryId() }
+        eventIds.forEach { id in
+            let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
 
             sut.store(envelope)
             advanceTime(bySeconds: 0.1)
         }
 
         let envelopes = sut.getAllEnvelopes()
-        
+
         // Envelopes are sorted ascending by date and only the latest 100 are kept
         let expectedEventIds = Array(eventIds[11...110])
 
@@ -124,7 +124,7 @@ class SentryFileManagerTests: XCTestCase {
             XCTAssertEqual(expectedEventIds[i], actualEventId)
         }
     }
-    
+
     func testStoreAndReadCurrentSession() {
         let expectedSession = SentrySession(releaseName: "1.0.0")
         sut.storeCurrentSession(expectedSession)

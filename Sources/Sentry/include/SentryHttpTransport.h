@@ -5,7 +5,7 @@
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
-@class SentryEnvelopeRateLimit, SentryOptions, SentryEvent;
+@class SentryEnvelopeRateLimit, SentryOptions, SentryEvent, SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
