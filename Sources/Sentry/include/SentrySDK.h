@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
-#import "SentryEvent.h"
-#import "SentryHub.h"
-#import "SentryOptions.h"
+
+@class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser;
+
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,52 +56,55 @@ SENTRY_NO_INIT
  *
  * USAGE: Create a `SentryEvent`, fill it up with data, and send it with this
  * method.
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (NSString *_Nullable)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
-+ (NSString *_Nullable)captureEvent:(SentryEvent *)event
-                          withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(event:scope:));
-+ (NSString *_Nullable)captureEvent:(SentryEvent *)event
-                     withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(event:block:));
++ (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
++ (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
++ (SentryId *)captureEvent:(SentryEvent *)event
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
- captures an error aka. sends an NSError to sentry.
+ * captures an error aka. sends an NSError to sentry.
 
- uses default `SentryHub`
+ * uses default `SentryHub`
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (NSString *_Nullable)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
-+ (NSString *_Nullable)captureError:(NSError *)error
-                          withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(error:scope:));
-+ (NSString *_Nullable)captureError:(NSError *)error
-                     withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(error:block:));
++ (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
++ (SentryId *)captureError:(NSError *)error
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
- captures an exception aka. sends an NSException to sentry.
+ * captures an exception aka. sends an NSException to sentry.
 
- uses default `SentryHub`
+
+ * uses default `SentryHub`
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (NSString *_Nullable)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
-+ (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
++ (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
++ (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *_Nullable)scope
     NS_SWIFT_NAME(capture(exception:scope:));
-+ (NSString *_Nullable)captureException:(NSException *)exception
-                         withScopeBlock:(void (^)(SentryScope *scope))block
++ (SentryId *)captureException:(NSException *)exception
+                withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(exception:block:));
 
 /**
- captures a message aka. sends a string to sentry.
-
- uses default `SentryHub`
+ * captures a message aka. sends a string to sentry.
+ *
+ * uses default `SentryHub`
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (NSString *_Nullable)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
-+ (NSString *_Nullable)captureMessage:(NSString *)message
-                            withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(message:scope:));
-+ (NSString *_Nullable)captureMessage:(NSString *)message
-                       withScopeBlock:(void (^)(SentryScope *scope))block
++ (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
++ (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
++ (SentryId *)captureMessage:(NSString *)message
+              withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
 
 /**
