@@ -5,6 +5,7 @@
 - fix: Add IP address to user serialization #665
 - fix: Crash in SentryEnvelope.initWithEvent #643
 - fix: Build failure for Apple Silicon Macs #588
+- feat: capture userinfo from NSError and NSException #679
 
 ## 5.2.0
 
