@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 5.2.1
 
 - fix: Add IP address to user serialization #665
 - fix: Crash in SentryEnvelope.initWithEvent #643
