@@ -4,11 +4,11 @@
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
+#import "SentryId.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
-#import "SentryId.h"
 
 @interface
 SentryHub ()
