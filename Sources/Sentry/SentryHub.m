@@ -1,5 +1,6 @@
 #import "SentryHub.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
@@ -203,7 +204,11 @@ SentryHub ()
     [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
-        return [client captureError:error withScope:scope];
+        if (nil != _session) {
+            return [client captureError:error withSession:_session withScope:scope];
+        } else {
+            return [client captureError:error withScope:scope];
+        }
     }
     return SentryId.empty;
 }
@@ -213,7 +218,11 @@ SentryHub ()
     [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
-        return [client captureException:exception withScope:scope];
+        if (nil != _session) {
+            return [client captureException:exception withSession:_session withScope:scope];
+        } else {
+            return [client captureException:exception withScope:scope];
+        }
     }
     return SentryId.empty;
 }

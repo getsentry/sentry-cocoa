@@ -102,11 +102,40 @@ SentryClient ()
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
+- (SentryId *)captureException:(NSException *)exception
+                   withSession:(SentrySession *)session
+                     withScope:(SentryScope *_Nullable)scope
+{
+
+    return SentryId.empty;
+}
+
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = error.localizedDescription;
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
+}
+
+- (SentryId *)captureError:(NSError *)error
+               withSession:(SentrySession *)session
+                 withScope:(SentryScope *_Nullable)scope
+{
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    event.message = error.localizedDescription;
+
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:YES];
+
+    NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
+    [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:preparedEvent]];
+
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
+    [self.transport sendEnvelope:envelope];
+
+    return SentryId.empty;
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
