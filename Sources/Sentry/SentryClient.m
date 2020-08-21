@@ -258,10 +258,14 @@ SentryClient ()
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event
 {
     if (nil != event && nil != userInfo && userInfo.count > 0) {
+        NSMutableDictionary *context;
         if (nil == event.context) {
-            event.context = [[NSMutableDictionary alloc] init];
+            context = [[NSMutableDictionary alloc] init];
+        } else {
+            context = [event.context mutableCopy];
         }
-        [event.context setValue:userInfo forKey:@"user info"];
+
+        [context setValue:userInfo forKey:@"user info"];
     }
 }
 
