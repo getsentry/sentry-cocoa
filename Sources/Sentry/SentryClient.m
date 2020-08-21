@@ -261,6 +261,7 @@ SentryClient ()
         NSMutableDictionary *context;
         if (nil == event.context) {
             context = [[NSMutableDictionary alloc] init];
+            event.context = context;
         } else {
             context = [event.context mutableCopy];
         }
