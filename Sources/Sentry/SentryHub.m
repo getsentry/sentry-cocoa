@@ -177,8 +177,12 @@ SentryHub ()
         if (nil != _session) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
+            
         }
+        
+        // todo return local copy of session
     }
+    
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
@@ -204,6 +208,7 @@ SentryHub ()
     [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
+        // Todo get a copy of session
         if (nil != _session) {
             return [client captureError:error withSession:_session withScope:scope];
         } else {

@@ -9,3 +9,13 @@ func assertJsonIsEqual(actual: Data, expected: Data) {
     
     XCTAssertTrue(actualAsString.sorted() == expectedAsString.sorted(), "\(actualAsString) is not equal to \(expectedAsString)")
 }
+
+extension SentryId {
+    func assertIsEmpty() {
+        XCTAssertEqual(SentryId.empty, self)
+    }
+    
+    func assertIsNotEmpty() {
+        XCTAssertNotEqual(SentryId.empty, self)
+    }
+}
