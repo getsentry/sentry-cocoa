@@ -4,6 +4,7 @@
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
+#import "SentryId.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
@@ -185,7 +186,7 @@ SentryHub ()
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
@@ -194,7 +195,7 @@ SentryHub ()
     if (nil != client) {
         return [client captureMessage:message withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
@@ -204,7 +205,7 @@ SentryHub ()
     if (nil != client) {
         return [client captureError:error withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
@@ -214,7 +215,7 @@ SentryHub ()
     if (nil != client) {
         return [client captureException:exception withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
