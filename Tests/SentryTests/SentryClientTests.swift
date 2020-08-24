@@ -179,7 +179,18 @@ class SentryClientTest: XCTestCase {
             assertValidThreads(actual: actual.threads)
         }
     }
-    
+
+    func testCaptureErrorWithUserInfo() {
+        let expectedValue = "val"
+        let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
+        let eventId = fixture.getSut().capture(error: error, scope: scope)
+
+        XCTAssertNotNil(eventId)
+        assertLastSentEvent { actual in
+            XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
+        }
+    }
+
     func testCaptureExceptionWithoutAttachStacktrace() {
         let eventId = fixture.getSut().capture(exception: exception, scope: scope)
         
@@ -189,6 +200,17 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(exception.reason, actual.message)
             assertValidDebugMeta(actual: actual.debugMeta)
             assertValidThreads(actual: actual.threads)
+        }
+    }
+
+    func testCaptureExceptionWithUserInfo() {
+        let expectedValue = "val"
+        let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: ["key": expectedValue])
+        let eventId = fixture.getSut().capture(exception: exception, scope: scope)
+
+        XCTAssertNotNil(eventId)
+        assertLastSentEvent { actual in
+            XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
 
