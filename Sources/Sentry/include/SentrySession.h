@@ -1,4 +1,6 @@
-#import "SentryEvent.h"
+#import "SentryDefines.h"
+
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
