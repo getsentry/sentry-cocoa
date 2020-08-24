@@ -171,18 +171,18 @@ SentryHub ()
     }
 }
 
-- (void)incrementSessionErrors
+- (SentrySession *)incrementSessionErrors
 {
+    SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
         if (nil != _session) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
-            
+            sessionCopy = [_session copy];
         }
-        
-        // todo return local copy of session
     }
     
+    return sessionCopy;
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
@@ -205,12 +205,11 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
-    [self incrementSessionErrors];
+    SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
-        // Todo get a copy of session
-        if (nil != _session) {
-            return [client captureError:error withSession:_session withScope:scope];
+        if (nil != currentSession) {
+            return [client captureError:error withSession:currentSession withScope:scope];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -220,11 +219,12 @@ SentryHub ()
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
 {
-    [self incrementSessionErrors];
+    SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
+    
     if (nil != client) {
-        if (nil != _session) {
-            return [client captureException:exception withSession:_session withScope:scope];
+        if (nil != currentSession) {
+            return [client captureException:exception withSession:currentSession withScope:scope];
         } else {
             return [client captureException:exception withScope:scope];
         }

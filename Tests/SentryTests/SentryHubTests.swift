@@ -231,6 +231,7 @@ class SentryHubTests: XCTestCase {
             XCTAssertNil(actualScope)
         }
     }
+    
     func testCatpureExceptionWithSessionWithScope() {
         let sut = fixture.getSut()
         sut.startSession()
@@ -249,6 +250,32 @@ class SentryHubTests: XCTestCase {
         
         // only session init is sent
         XCTAssertEqual(1, fixture.client.sessions.count)
+    }
+    
+    @available(OSX 10.12, *)
+    func testCatpureMultipleExceptionWithSessionInParallel() {
+        captureInParallelWithSession(count: 10) { sut in
+            XCTAssertNotNil(sut.capture(exception: self.fixture.exception, scope: self.fixture.scope))
+        }
+        
+        XCTAssertEqual(10, fixture.client.captureExceptionWithSessionArguments.count)
+        for i in Array(0...9) {
+            let arguments = fixture.client.captureExceptionWithSessionArguments[i]
+            XCTAssertEqual(i + 1, Int(arguments.second.errors))
+        }
+    }
+    
+    @available(OSX 10.12, *)
+    func testCatpureMultipleErrorsWithSessionInParallel() {
+        captureInParallelWithSession(count: 10) { sut in
+            XCTAssertNotNil(sut.capture(error: self.fixture.error, scope: self.fixture.scope))
+        }
+        
+        XCTAssertEqual(10, fixture.client.captureErrorWithSessionArguments.count)
+        for i in Array(0...9) {
+            let arguments = fixture.client.captureErrorWithSessionArguments[i]
+            XCTAssertEqual(i + 1, Int(arguments.second.errors))
+        }
     }
     
     func testCaptureClientIsNil_ReturnsEmptySentryId() {
@@ -274,10 +301,33 @@ class SentryHubTests: XCTestCase {
         })
     }
     
+    // Even if we don't run this test below OSX 10.12 we expect the actual
+    // implementation to be thread safe.
+    @available(OSX 10.12, *)
+    private func captureInParallelWithSession(count: Int, _ capture: @escaping (SentryHub) ->()) {
+        let sut = fixture.getSut()
+        sut.startSession()
+        
+        let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        
+        let group = DispatchGroup()
+        for _ in Array(0...count - 1) {
+            group.enter()
+            queue.async {
+                capture(sut)
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+    }
+    
     private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHub) {
         let scope = hub.getScope()
         let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [AnyHashable]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
     }
+
 }
