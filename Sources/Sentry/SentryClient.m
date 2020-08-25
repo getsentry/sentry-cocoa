@@ -107,7 +107,6 @@ SentryClient ()
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-
     return [self sendEvent:event withSession:session];
 }
 
@@ -131,7 +130,6 @@ SentryClient ()
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-
     return [self sendEvent:event withSession:session];
 }
 

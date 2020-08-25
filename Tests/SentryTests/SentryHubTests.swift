@@ -165,35 +165,30 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureErrorWithScope() {
-        XCTAssertNotNil(fixture.getSut().capture(error: fixture.error, scope: fixture.scope))
+        fixture.getSut().capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorArguments.count)
         if let errorArguments = fixture.client.captureErrorArguments.first {
-            let actualError = errorArguments.first as NSError
-            let actualScope = errorArguments.second
-            
-            XCTAssertEqual(fixture.error, actualError)
-            XCTAssertEqual(fixture.scope, actualScope)
+            XCTAssertEqual(fixture.error, errorArguments.first as NSError)
+            XCTAssertEqual(fixture.scope, errorArguments.second)
         }
     }
     
     func testCatpureErrorWithSessionWithScope() {
         let sut = fixture.getSut()
         sut.startSession()
-        XCTAssertNotNil(sut.capture(error: fixture.error, scope: fixture.scope))
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorWithSessionArguments.count)
         if let errorArguments = fixture.client.captureErrorWithSessionArguments.first {
-            let actualError = errorArguments.first as NSError
             let actualSession = errorArguments.second
-            let actualScope = errorArguments.third
             
-            XCTAssertEqual(fixture.error, actualError)
+            XCTAssertEqual(fixture.error, errorArguments.first as NSError)
             
             XCTAssertEqual(1, actualSession.errors)
             XCTAssertEqual(SentrySessionStatus.ok, actualSession.status)
             
-            XCTAssertEqual(fixture.scope, actualScope)
+            XCTAssertEqual(fixture.scope, errorArguments.third)
         }
         
         // only session init is sent
@@ -201,7 +196,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureErrorWithoutScope() {
-        XCTAssertNotNil(fixture.getSut().capture(error: fixture.error, scope: nil))
+        fixture.getSut().capture(error: fixture.error, scope: nil).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorArguments.count)
         if let errorArguments = fixture.client.captureErrorArguments.first {
@@ -212,7 +207,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureExceptionWithScope() {
-        XCTAssertNotNil(fixture.getSut().capture(exception: fixture.exception, scope: fixture.scope))
+        fixture.getSut().capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionArguments.count)
         if let errorArguments = fixture.client.captureExceptionArguments.first {
@@ -222,7 +217,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureExceptionWithoutScope() {
-        XCTAssertNotNil(fixture.getSut().capture(exception: fixture.exception, scope: nil))
+        fixture.getSut().capture(exception: fixture.exception, scope: nil).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionArguments.count)
         if let errorArguments = fixture.client.captureExceptionArguments.first {
@@ -235,7 +230,7 @@ class SentryHubTests: XCTestCase {
     func testCatpureExceptionWithSessionWithScope() {
         let sut = fixture.getSut()
         sut.startSession()
-        XCTAssertNotNil(sut.capture(exception: fixture.exception, scope: fixture.scope))
+        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithSessionArguments.count)
         if let exceptionArguments = fixture.client.captureExceptionWithSessionArguments.first {
@@ -254,8 +249,8 @@ class SentryHubTests: XCTestCase {
     
     @available(OSX 10.12, *)
     func testCatpureMultipleExceptionWithSessionInParallel() {
-        captureInParallelWithSession(count: 10) { sut in
-            XCTAssertNotNil(sut.capture(exception: self.fixture.exception, scope: self.fixture.scope))
+        captureConcurrentWithSession(count: 10) { sut in
+            sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
         }
         
         XCTAssertEqual(10, fixture.client.captureExceptionWithSessionArguments.count)
@@ -267,8 +262,8 @@ class SentryHubTests: XCTestCase {
     
     @available(OSX 10.12, *)
     func testCatpureMultipleErrorsWithSessionInParallel() {
-        captureInParallelWithSession(count: 10) { sut in
-            XCTAssertNotNil(sut.capture(error: self.fixture.error, scope: self.fixture.scope))
+        captureConcurrentWithSession(count: 10) { sut in
+            sut.capture(error: self.fixture.error, scope: self.fixture.scope)
         }
         
         XCTAssertEqual(10, fixture.client.captureErrorWithSessionArguments.count)
@@ -304,7 +299,7 @@ class SentryHubTests: XCTestCase {
     // Even if we don't run this test below OSX 10.12 we expect the actual
     // implementation to be thread safe.
     @available(OSX 10.12, *)
-    private func captureInParallelWithSession(count: Int, _ capture: @escaping (SentryHub) ->()) {
+    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) ->Void) {
         let sut = fixture.getSut()
         sut.startSession()
         
@@ -329,5 +324,4 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
     }
-
 }

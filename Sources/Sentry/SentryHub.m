@@ -181,7 +181,7 @@ SentryHub ()
             sessionCopy = [_session copy];
         }
     }
-    
+
     return sessionCopy;
 }
 
@@ -221,7 +221,7 @@ SentryHub ()
 {
     SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
-    
+
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureException:exception withSession:currentSession withScope:scope];

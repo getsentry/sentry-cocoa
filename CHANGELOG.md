@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Errors and sessions in the same envelope #686
 - feat: Implement NSCopying for SentrySession #683
 - fix: Crash when SentryClient is nil in SentryHub #681
 - feat: Send cached envelopes first #676
