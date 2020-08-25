@@ -15,6 +15,9 @@ class SentryHttpTransportTests: XCTestCase {
         let rateLimits: DefaultRateLimits
         
         init() {
+            currentDateProvider = TestCurrentDateProvider()
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            
             event = Event()
             event.message = "Some message"
             
@@ -22,11 +25,9 @@ class SentryHttpTransportTests: XCTestCase {
             eventRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: eventData)
             
             session = SentrySession(releaseName: "2.0.1")
-            sessionEnvelope = SentryEnvelope(id: SentryId(), items: [SentryEnvelopeItem(event: Event()), SentryEnvelopeItem(session: session)])
+            sessionEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)])
             let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
             sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: sessionData)
-            
-            currentDateProvider = TestCurrentDateProvider()
             
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
             
@@ -55,7 +56,6 @@ class SentryHttpTransportTests: XCTestCase {
     
     override func setUp() {
         fixture = Fixture()
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
         
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
@@ -277,7 +277,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func testActiveRateLImitForAllCachedEnvelopeItems() {
+    func testActiveRateLimitForAllCachedEnvelopeItems() {
         givenNoInternetConnection()
         sendEnvelope()
         
@@ -288,9 +288,9 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func testActiveRateLImitForSomeCachedEnvelopeItems() {
+    func testActiveRateLimitForSomeCachedEnvelopeItems() {
         givenNoInternetConnection()
-        sendEnvelope()
+        sendEvent()
         sendEnvelopeWithSession()
         
         givenRateLimitResponse(forCategory: "error")
@@ -298,6 +298,13 @@ class SentryHttpTransportTests: XCTestCase {
         
         assertRequestsSent(requestCount: 5)
         assertEnvelopesStored(envelopeCount: 0)
+        
+        let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
+        
+        let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
+        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: sessionData)
+    
+        XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests[4].httpBody, "Envelope with only session item should be sent.")
     }
     
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
