@@ -35,14 +35,17 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testCopySession() {
+        let user = User()
+        user.email = "someone@sentry.io"
+        
         let session = SentrySession(releaseName: "1.0.0")
+        session.user = user
         let copiedSession = session.copy() as! SentrySession
         
         XCTAssertEqual(session, copiedSession)
         
-        let user = User()
-        user.email = "someone@sentry.io"
-        session.user = user
+        // The user is copied as well
+        session.user?.email = "someone_else@sentry.io"
         XCTAssertNotEqual(session, copiedSession)
     }
 }
