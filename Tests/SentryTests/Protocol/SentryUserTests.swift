@@ -5,7 +5,7 @@ class SentryUserTests: XCTestCase {
     private class Fixture {
         
         let date: Date
-        let user : User
+        let user: User
         
         init() {
             date = Date(timeIntervalSince1970: 10)
