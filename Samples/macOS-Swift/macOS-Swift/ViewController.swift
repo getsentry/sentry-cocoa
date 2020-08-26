@@ -30,7 +30,7 @@ class ViewController: NSViewController {
     }
 
     @IBAction func crashOnException(_ sender: Any) {
-        let userInfo:[String: String] = ["user-info-key-1":"user-info-value-1", "user-info-key-2": "user-info-value-2"]
+        let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
         let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo)
         NSApp.perform("_crashOnException:", with: exception)
     }
