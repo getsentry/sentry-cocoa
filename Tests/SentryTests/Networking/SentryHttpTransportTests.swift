@@ -5,6 +5,7 @@ class SentryHttpTransportTests: XCTestCase {
     private class Fixture {
         let event: Event
         let eventRequest: SentryNSURLRequest
+        let eventWithSessionEnvelope : SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
         let session: SentrySession
         let sessionEnvelope: SentryEnvelope
@@ -18,7 +19,7 @@ class SentryHttpTransportTests: XCTestCase {
         init() {
             currentDateProvider = TestCurrentDateProvider()
             CurrentDate.setCurrentDateProvider(currentDateProvider)
-            
+
             event = Event()
             event.message = "Some message"
             
@@ -26,13 +27,12 @@ class SentryHttpTransportTests: XCTestCase {
             
             session = SentrySession(releaseName: "2.0.1")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
-            
             sessionRequest = buildRequest(sessionEnvelope)
-            
+
             let items = [SentryEnvelopeItem(session: session), SentryEnvelopeItem(event: event)]
-            let eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
+            eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
-            
+
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
             
             options = Options()
@@ -59,7 +59,7 @@ class SentryHttpTransportTests: XCTestCase {
         let envelopeData = try! SentrySerialization.data(with: envelope)
         return try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: envelopeData)
     }
-    
+
     private var fixture: Fixture!
     private var sut: SentryHttpTransport!
     
@@ -115,28 +115,28 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testSendEventWithSession_SentInOneEnvelope() {
         sut.send(fixture.event, with: fixture.session)
-        
+
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
-        
+
         assertEventAndSesionAreSentInOneEnvelope()
     }
-    
+
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
-        
+
         sut.send(fixture.event, with: fixture.session)
-        
+
         assertRequestsSent(requestCount: 2)
         assertEnvelopesStored(envelopeCount: 0)
-        
+
         // Envelope with only Session is sent
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: [SentryEnvelopeItem(session: fixture.session)])
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
-    
+
     func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
@@ -309,7 +309,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func testActiveRateLImitForAllCachedEnvelopeItems() {
+    func testActiveRateLimitForAllCachedEnvelopeItems() {
         givenNoInternetConnection()
         sendEnvelope()
         
@@ -320,16 +320,23 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func testActiveRateLImitForSomeCachedEnvelopeItems() {
+    func testActiveRateLimitForSomeCachedEnvelopeItems() {
         givenNoInternetConnection()
-        sendEnvelope()
-        sendEnvelopeWithSession()
+        sendEvent()
+        sut.send(envelope: fixture.eventWithSessionEnvelope)
         
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
         assertRequestsSent(requestCount: 5)
         assertEnvelopesStored(envelopeCount: 0)
+
+        let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
+
+        let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
+        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: sessionData)
+
+        XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests[4].httpBody, "Envelope with only session item should be sent.")
     }
     
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
@@ -431,7 +438,7 @@ class SentryHttpTransportTests: XCTestCase {
         let actualEventRequest = fixture.requestManager.requests.last
         XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
     }
-    
+
     private func assertEnvelopesStored(envelopeCount: Int) {
         XCTAssertEqual(envelopeCount, fixture.fileManager.getAllEnvelopes().count)
     }

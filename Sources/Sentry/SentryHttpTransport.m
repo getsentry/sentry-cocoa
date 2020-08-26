@@ -103,7 +103,7 @@ SentryHttpTransport ()
         }
 
         NSError *requestError = nil;
-        NSURLRequest *request = [self createEnvelopeRequest:fileContents.contents
+        NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
                                            didFailWithError:requestError];
 
         if (nil != requestError) {
@@ -117,12 +117,13 @@ SentryHttpTransport ()
     }
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(NSData *)envelopeData
+- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
                        didFailWithError:(NSError *_Nullable)error
 {
-    return [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.parsedDsn
-                                                          andData:envelopeData
-                                                 didFailWithError:&error];
+    return [[SentryNSURLRequest alloc]
+        initEnvelopeRequestWithDsn:self.options.parsedDsn
+                           andData:[SentrySerialization dataWithEnvelope:envelope error:&error]
+                  didFailWithError:&error];
 }
 
 - (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath
