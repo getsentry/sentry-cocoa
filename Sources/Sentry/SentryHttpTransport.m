@@ -19,6 +19,13 @@ SentryHttpTransport ()
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 
+/**
+ * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
+ * 30% slower. As this is the only part of this class that needs synchronization it is fine to sync
+ * on self.
+ */
+@property (nonatomic) BOOL isSending;
+
 @end
 
 @implementation SentryHttpTransport
@@ -35,6 +42,7 @@ SentryHttpTransport ()
         self.fileManager = sentryFileManager;
         self.rateLimits = sentryRateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
+        _isSending = NO;
 
         [self sendAllCachedEnvelopes];
     }
@@ -84,36 +92,47 @@ SentryHttpTransport ()
 // flow
 - (void)sendAllCachedEnvelopes
 {
-    if (![self.requestManager isReady]) {
+    @synchronized(self) {
+        if (self.isSending || ![self.requestManager isReady]) {
+            return;
+        }
+
+        self.isSending = YES;
+    }
+
+    SentryFileContents *oldestEnvelope = [self.fileManager getOldestEnvelope];
+    if (nil == oldestEnvelope) {
+        @synchronized(self) {
+            self.isSending = NO;
+        }
         return;
     }
 
-    for (SentryFileContents *fileContents in [self.fileManager getAllEnvelopes]) {
-        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:fileContents.contents];
-        if (nil == envelope) {
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        }
+    SentryEnvelope *envelope = [SentrySerialization envelopeWithData:oldestEnvelope.contents];
+    if (nil == envelope) {
+        [self.fileManager removeFileAtPath:oldestEnvelope.path];
+        [self sendNextCachedEnvelope];
+        return;
+    }
 
-        SentryEnvelope *rateLimitedEnvelope =
-            [self.envelopeRateLimit removeRateLimitedItems:envelope];
-        if (rateLimitedEnvelope.items.count == 0) {
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        }
+    SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
+    if (rateLimitedEnvelope.items.count == 0) {
+        [self.fileManager removeFileAtPath:oldestEnvelope.path];
+        [self sendNextCachedEnvelope];
+        return;
+    }
 
-        NSError *requestError = nil;
-        NSURLRequest *request = [self createEnvelopeRequest:fileContents.contents
-                                           didFailWithError:requestError];
+    NSError *requestError = nil;
+    NSURLRequest *request = [self createEnvelopeRequest:oldestEnvelope.contents
+                                       didFailWithError:requestError];
 
-        if (nil != requestError) {
-            [SentryLog logWithMessage:requestError.localizedDescription
-                             andLevel:kSentryLogLevelError];
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        } else {
-            [self sendCached:request withFilePath:fileContents.path];
-        }
+    if (nil != requestError) {
+        [SentryLog logWithMessage:requestError.localizedDescription andLevel:kSentryLogLevelError];
+        [self.fileManager removeFileAtPath:oldestEnvelope.path];
+        [self sendNextCachedEnvelope];
+        return;
+    } else {
+        [self sendCached:request withFilePath:oldestEnvelope.path];
     }
 }
 
@@ -123,6 +142,14 @@ SentryHttpTransport ()
     return [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:self.options.parsedDsn
                                                           andData:envelopeData
                                                  didFailWithError:&error];
+}
+
+- (void)sendNextCachedEnvelope
+{
+    @synchronized(self) {
+        self.isSending = NO;
+    }
+    [self sendAllCachedEnvelopes];
 }
 
 - (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath
@@ -138,6 +165,12 @@ SentryHttpTransport ()
             if (nil != response) {
                 [_self.fileManager removeFileAtPath:filePath];
                 [_self.rateLimits update:response];
+
+                [_self sendNextCachedEnvelope];
+            } else {
+                @synchronized(_self) {
+                    _self.isSending = NO;
+                }
             }
         }];
 }

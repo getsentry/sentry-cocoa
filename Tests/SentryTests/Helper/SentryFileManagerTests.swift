@@ -4,6 +4,11 @@ import XCTest
 
 class SentryFileManagerTests: XCTestCase {
     
+    private class Fixture {
+        let eventIds = (0...110).map { _ in SentryId() }
+    }
+    
+    private var fixture: Fixture!
     private var sut: SentryFileManager!
     private var currentDateProvider: TestCurrentDateProvider!
 
@@ -12,6 +17,8 @@ class SentryFileManagerTests: XCTestCase {
         do {
             currentDateProvider = TestCurrentDateProvider()
             CurrentDate.setCurrentDateProvider(currentDateProvider)
+            
+            fixture = Fixture()
 
             sut = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
 
@@ -104,18 +111,12 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testGetAllEnvelopesAreSortedByDateAscending() {
-        let eventIds = (0...110).map { _ in SentryId() }
-        eventIds.forEach { id in
-            let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
-
-            sut.store(envelope)
-            advanceTime(bySeconds: 0.1)
-        }
+        given100Envelopes()
 
         let envelopes = sut.getAllEnvelopes()
 
         // Envelopes are sorted ascending by date and only the latest 100 are kept
-        let expectedEventIds = Array(eventIds[11...110])
+        let expectedEventIds = Array(fixture.eventIds[11...110])
 
         XCTAssertEqual(100, envelopes.count)
         for i in 0...99 {
@@ -123,6 +124,25 @@ class SentryFileManagerTests: XCTestCase {
             let actualEventId = envelope?.header.eventId
             XCTAssertEqual(expectedEventIds[i], actualEventId)
         }
+    }
+    
+    func testGetOldestEnvelope() {
+        given100Envelopes()
+        
+        let actualEnvelope = SentrySerialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
+        
+        XCTAssertEqual(fixture.eventIds[11], actualEnvelope?.header.eventId)
+    }
+    
+    func testGetOldestEnvelope_WhenNoEnvelopes() {
+        XCTAssertNil(sut.getOldestEnvelope())
+    }
+    
+    func testGetOldestEnvelope_WithGarbageInEnvelopesFolder() {
+        givenGarbageInEnvelopesFolder()
+        
+        let actualEnvelope = SentrySerialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
+        XCTAssertNil(actualEnvelope)
     }
 
     func testStoreAndReadCurrentSession() {
@@ -178,6 +198,23 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllEnvelopes()
 
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
+    }
+    
+    private func given100Envelopes() {
+        fixture.eventIds.forEach { id in
+            let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
+
+            sut.store(envelope)
+            advanceTime(bySeconds: 0.1)
+        }
+    }
+    
+    private func givenGarbageInEnvelopesFolder() {
+        do {
+            try "garbage".write(to: URL(fileURLWithPath: "\(sut.envelopesPath)/garbage.json"), atomically: true, encoding: .utf8)
+        } catch {
+            XCTFail("Failed to store garbage in Envelopes folder.")
+        }
     }
 
     private func storeEvent() {

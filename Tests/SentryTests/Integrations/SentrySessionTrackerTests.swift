@@ -47,8 +47,6 @@ class SentrySessionTrackerTests: XCTestCase {
         
         fixture.setNewHubToSDK()
         
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
-        
         sut = fixture.getSut()
     }
     
