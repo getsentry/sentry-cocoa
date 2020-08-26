@@ -8,7 +8,7 @@ class SentryHttpTransportTests: XCTestCase {
     private class Fixture {
         let event: Event
         let eventRequest: SentryNSURLRequest
-        let eventWithSessionEnvelope : SentryEnvelope
+        let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
         let session: SentrySession
         let sessionEnvelope: SentryEnvelope
