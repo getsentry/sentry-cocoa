@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 5.2.2
 
 - feat: Add crashedLastRun to SentrySDK #688
 
