@@ -10,6 +10,11 @@ public class TestTransport: NSObject, Transport {
         sentEvents.append(event)
     }
     
+    var sentEventsWithSession: [Pair<Event, SentrySession>] = []
+    public func send(_ event: Event, with session: SentrySession) {
+        sentEventsWithSession.append(Pair(event, session))
+    }
+    
     public func send(envelope: SentryEnvelope) {
         lastSentEnvelope = envelope
     }

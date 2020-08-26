@@ -47,6 +47,17 @@ SentryHttpTransport ()
     [self sendEnvelope:eventEnvelope];
 }
 
+- (void)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
+{
+    NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
+    [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
+
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
+
+    [self sendEnvelope:envelope];
+}
+
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
     if (![self.options.enabled boolValue]) {

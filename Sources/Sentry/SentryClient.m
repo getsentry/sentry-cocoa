@@ -97,18 +97,48 @@ SentryClient ()
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
 {
+    SentryEvent *event = [self buildExceptionEvent:exception];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
+}
+
+- (SentryId *)captureException:(NSException *)exception
+                   withSession:(SentrySession *)session
+                     withScope:(SentryScope *_Nullable)scope
+{
+    SentryEvent *event = [self buildExceptionEvent:exception];
+    event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
+    return [self sendEvent:event withSession:session];
+}
+
+- (SentryEvent *)buildExceptionEvent:(NSException *)exception
+{
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = exception.reason;
     [self setUserInfo:exception.userInfo withEvent:event];
-    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
+    return event;
 }
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
+    SentryEvent *event = [self buildErrorEvent:error];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
+}
+
+- (SentryId *)captureError:(NSError *)error
+               withSession:(SentrySession *)session
+                 withScope:(SentryScope *_Nullable)scope
+{
+    SentryEvent *event = [self buildErrorEvent:error];
+    event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
+    return [self sendEvent:event withSession:session];
+}
+
+- (SentryEvent *)buildErrorEvent:(NSError *)error
+{
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = error.localizedDescription;
     [self setUserInfo:error.userInfo withEvent:event];
-    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
+    return event;
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
@@ -123,16 +153,24 @@ SentryClient ()
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace];
+
     if (nil != preparedEvent) {
-        if (nil != self.options.beforeSend) {
-            preparedEvent = self.options.beforeSend(preparedEvent);
-        }
-        if (nil != preparedEvent) {
-            [self.transport sendEvent:preparedEvent];
-            return preparedEvent.eventId;
-        }
+        [self.transport sendEvent:preparedEvent];
+        return preparedEvent.eventId;
     }
+
     return SentryId.empty;
+}
+
+- (SentryId *)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
+{
+    if (nil != event) {
+        [self.transport sendEvent:event withSession:session];
+        return event.eventId;
+    } else {
+        [self captureSession:session];
+        return SentryId.empty;
+    }
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -231,7 +269,13 @@ SentryClient ()
         event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
     }
 
-    return [self callEventProcessors:event];
+    event = [self callEventProcessors:event];
+
+    if (nil != self.options.beforeSend) {
+        event = self.options.beforeSend(event);
+    }
+
+    return event;
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
