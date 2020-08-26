@@ -24,6 +24,8 @@ NS_SWIFT_NAME(Transport)
  */
 - (void)sendEvent:(SentryEvent *)event NS_SWIFT_NAME(send(event:));
 
+- (void)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session;
+
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
 @end
