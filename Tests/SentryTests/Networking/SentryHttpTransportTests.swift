@@ -335,6 +335,7 @@ waitForAllRequests()
         
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
+        waitForAllRequests()
         
         assertRequestsSent(requestCount: 4)
         assertEnvelopesStored(envelopeCount: 0)
