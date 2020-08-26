@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+- feat: Add crashedLastRun to SentrySDK #688
+
 ## 5.2.1
 
 - fix: Add IP address to user serialization #665
