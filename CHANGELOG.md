@@ -13,7 +13,11 @@
 - feat: Bump minimum iOS version to 9.0 #669
 - feat: Remove deprecated SDK inits #673
 
-## 5.2.1 
+## 5.2.2
+
+- feat: Add crashedLastRun to SentrySDK #688
+
+## 5.2.1
 
 - fix: Add IP address to user serialization #665
 - fix: Crash in SentryEnvelope.initWithEvent #643
