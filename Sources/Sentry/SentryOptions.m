@@ -25,7 +25,7 @@
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.integrations = SentryOptions.defaultIntegrations;
         self.sampleRate = @1;
-        self.enableAutoSessionTracking = @NO;
+        self.enableAutoSessionTracking = @YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = @NO;
 
