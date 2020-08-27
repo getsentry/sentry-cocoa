@@ -103,6 +103,10 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(logLevel, SentrySDK.logLevel)
     }
     
+    func testCrashedLastRun() {
+        XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
+    }
+    
     private func assertIntegrationsInstalled(integrations: [String]) {
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
