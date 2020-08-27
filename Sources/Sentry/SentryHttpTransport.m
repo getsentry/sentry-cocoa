@@ -15,7 +15,7 @@ SentryHttpTransport ()
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
-@property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 
@@ -90,11 +90,12 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllCachedEnvelopes
 {
-    if (self.isSending || ![self.requestManager isReady]) {
-        return;
+    @synchronized (self) {
+        if (self.isSending || ![self.requestManager isReady]) {
+            return;
+        }
+        self.isSending = YES;
     }
-    
-    self.isSending = YES;
     
     SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
     if (nil == envelopeFileContents) {
