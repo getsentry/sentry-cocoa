@@ -2,11 +2,15 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
+#import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryFileContents.h"
 #import "SentryLog.h"
+#import "SentryMigrateSessionInit.h"
 #import "SentrySerialization.h"
+#import "SentrySession+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,9 +79,12 @@ SentryFileManager ()
 
 - (NSString *)uniqueAcendingJsonName
 {
-    // %f = double, %lu = unsigned long, %@ = NSString
-    // For example 978307200.000000-0-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
-    return [NSString stringWithFormat:@"%f-%lu-%@.json",
+    // %f = double
+    // %05lu = unsigned with always 5 digits and leading zeros if number is too small. We
+    //      need this because otherwise 10 would be sorted before 2 for example.
+    // %@ = NSString
+    // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
+    return [NSString stringWithFormat:@"%f-%05lu-%@.json",
                      [[self.currentDateProvider date] timeIntervalSince1970],
                      (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
@@ -147,9 +154,39 @@ SentryFileManager ()
     @synchronized(self) {
         NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope error:nil]
                                     toPath:self.envelopesPath];
-        [self handleFileManagerLimit:self.envelopesPath maxCount:self.maxEnvelopes];
+        [self handleEnvelopesLimit];
         return result;
     }
+}
+
+- (void)handleEnvelopesLimit
+{
+    NSArray<NSString *> *envelopeFilePaths = [self allFilesInFolder:self.envelopesPath];
+    NSInteger numberOfEnvelopesToRemove = envelopeFilePaths.count - self.maxEnvelopes;
+    if (numberOfEnvelopesToRemove <= 0) {
+        return;
+    }
+
+    for (NSUInteger i = 0; i < numberOfEnvelopesToRemove; i++) {
+        NSString *envelopeFilePath =
+            [self.envelopesPath stringByAppendingPathComponent:envelopeFilePaths[i]];
+
+        // Remove current envelope path
+        NSMutableArray<NSString *> *envelopePathsCopy =
+            [[NSMutableArray alloc] initWithArray:[envelopeFilePaths copy]];
+        [envelopePathsCopy removeObjectAtIndex:i];
+
+        [SentryMigrateSessionInit migrateSessionInit:envelopeFilePath
+                                    envelopesDirPath:self.envelopesPath
+                                   envelopeFilePaths:envelopePathsCopy];
+
+        [self removeFileAtPath:envelopeFilePath];
+    }
+
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from <%@>",
+                                        (long)numberOfEnvelopesToRemove,
+                                        [self.envelopesPath lastPathComponent]]
+                     andLevel:kSentryLogLevelDebug];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -260,20 +297,6 @@ SentryFileManager ()
     return nil != saveData ? [self storeData:saveData toPath:path]
                            : path; // TODO: Should we return null instead? Whoever is using this
                                    // return value is being tricked.
-}
-
-- (void)handleFileManagerLimit:(NSString *)path maxCount:(NSUInteger)maxCount
-{
-    NSArray<NSString *> *files = [self allFilesInFolder:path];
-    NSInteger numbersOfFilesToRemove = ((NSInteger)files.count) - maxCount;
-    if (numbersOfFilesToRemove > 0) {
-        for (NSUInteger i = 0; i < numbersOfFilesToRemove; i++) {
-            [self removeFileAtPath:[path stringByAppendingPathComponent:[files objectAtIndex:i]]];
-        }
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from <%@>",
-                                            (long)numbersOfFilesToRemove, [path lastPathComponent]]
-                         andLevel:kSentryLogLevelDebug];
-    }
 }
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error
