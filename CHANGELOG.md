@@ -3,6 +3,7 @@
 ## unreleased
 
 - feat: Enable auto session tracking per default #689
+- fix: Sending envelopes multiple times #687
 - fix: Rate limiting for cached envelope items #685
 - feat: Errors and sessions in the same envelope #686
 - feat: Implement NSCopying for SentrySession #683

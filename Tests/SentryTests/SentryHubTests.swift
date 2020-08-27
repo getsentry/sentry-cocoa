@@ -299,7 +299,7 @@ class SentryHubTests: XCTestCase {
     // Even if we don't run this test below OSX 10.12 we expect the actual
     // implementation to be thread safe.
     @available(OSX 10.12, *)
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) ->Void) {
+    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
         let sut = fixture.getSut()
         sut.startSession()
         

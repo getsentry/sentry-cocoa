@@ -38,6 +38,13 @@ SENTRY_NO_INIT
  */
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
 
+/**
+ * Gets the oldest stored envelope. For the order see getAllEnvelopes.
+ *
+ * @return SentryFileContens if there is an envelope and nil if there are no envelopes.
+ */
+- (SentryFileContents *_Nullable)getOldestEnvelope;
+
 - (BOOL)removeFileAtPath:(NSString *)path;
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
