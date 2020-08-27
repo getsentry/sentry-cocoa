@@ -96,7 +96,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSNumber *_Nullable sampleRate;
 
 /**
- * Whether to enable automatic session tracking.
+ * Whether to enable automatic session tracking or not. Default is @YES.
  */
 @property (nonatomic, copy) NSNumber *enableAutoSessionTracking;
 
