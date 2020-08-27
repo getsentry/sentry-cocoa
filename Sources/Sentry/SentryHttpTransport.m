@@ -30,10 +30,10 @@ SentryHttpTransport ()
 @implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options
-    sentryFileManager:(SentryFileManager *)sentryFileManager
- sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
-     sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
-sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+          sentryFileManager:(SentryFileManager *)sentryFileManager
+       sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
+           sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
+    sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 {
     if (self = [super init]) {
         self.options = options;
@@ -42,7 +42,7 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
         self.rateLimits = sentryRateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
         _isSending = NO;
-        
+
         [self sendAllCachedEnvelopes];
     }
     return self;
@@ -59,9 +59,9 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
     [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
-    
+
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
-    
+
     [self sendEnvelope:envelope];
 }
 
@@ -72,15 +72,15 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
                          andLevel:kSentryLogLevelDebug];
         return;
     }
-    
+
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
-    
+
     if (envelope.items.count == 0) {
         [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
                          andLevel:kSentryLogLevelDebug];
         return;
     }
-    
+
     [self.fileManager storeEnvelope:envelope];
     [self sendAllCachedEnvelopes];
 }
@@ -90,35 +90,35 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 // TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllCachedEnvelopes
 {
-    @synchronized (self) {
+    @synchronized(self) {
         if (self.isSending || ![self.requestManager isReady]) {
             return;
         }
         self.isSending = YES;
     }
-    
+
     SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
     if (nil == envelopeFileContents) {
         self.isSending = NO;
         return;
     }
-    
+
     SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
     if (nil == envelope) {
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     }
-    
+
     SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
     if (rateLimitedEnvelope.items.count == 0) {
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     }
-    
+
     NSError *requestError = nil;
     NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
                                        didFailWithError:requestError];
-    
+
     if (nil != requestError) {
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
@@ -127,7 +127,8 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     }
 }
 
-- (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath {
+- (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
+{
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
@@ -138,27 +139,28 @@ sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
                        didFailWithError:(NSError *_Nullable)error
 {
     return [[SentryNSURLRequest alloc]
-            initEnvelopeRequestWithDsn:self.options.parsedDsn
-            andData:[SentrySerialization dataWithEnvelope:envelope error:&error]
-            didFailWithError:&error];
+        initEnvelopeRequestWithDsn:self.options.parsedDsn
+                           andData:[SentrySerialization dataWithEnvelope:envelope error:&error]
+                  didFailWithError:&error];
 }
 
-- (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request {
+- (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request
+{
     __block SentryHttpTransport *_self = self;
     [self.requestManager
-            addRequest:request
-     completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-         // TODO: How does beforeSend work here
+               addRequest:request
+        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            // TODO: How does beforeSend work here
 
-         // If the response is not nil we had an internet connection.
-         // We don't worry about errors here.
-         if (nil != response) {
-             [_self.rateLimits update:response];
-             [_self deleteEnvelopeAndSendNext:envelopePath];
-         } else {
-             _self.isSending = NO;
-         }
-     }];
+            // If the response is not nil we had an internet connection.
+            // We don't worry about errors here.
+            if (nil != response) {
+                [_self.rateLimits update:response];
+                [_self deleteEnvelopeAndSendNext:envelopePath];
+            } else {
+                _self.isSending = NO;
+            }
+        }];
 }
 
 @end
