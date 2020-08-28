@@ -360,7 +360,7 @@ class SentryFileManagerTests: XCTestCase {
     private func assertSessionEnvelopesStored(count: Int) {
         let fileContentsWithSession = sut.getAllEnvelopes().filter { envelopeFileContents in
             let envelope = SentrySerialization.envelope(with: envelopeFileContents.contents)
-            return envelope?.items.filter { item in item.header.type == SentryEnvelopeItemTypeSession }.count != 0
+            return !(envelope?.items.filter { item in item.header.type == SentryEnvelopeItemTypeSession }.isEmpty ?? false)
         }
 
         XCTAssertEqual(count, fileContentsWithSession.count)
