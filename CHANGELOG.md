@@ -4,16 +4,35 @@
 
 - feat: Migrate session init for stored envelopes #693
 
+## 6.0.0-alpha.0
+
+**Breaking Change**: This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
+If you are using an on-premise installation it requires Sentry version
+`>= v20.6.0` to work. If you are using sentry.io nothing will change and
+no action is needed. Furtehrmore, with this version
+[auto session tracking](https://github.com/getsentry/sentry-cocoa/blob/7876949ca78aebfe7883432e35727993c5c30829/Sources/Sentry/include/SentryOptions.h#L101)
+is enabled per default.
+[This feature](https://docs.sentry.io/product/releases/health/)
+is collecting and sending health data about the usage of your
+application.
+We are going to add the official migration guide in one of the next beta releases.
+Here is an overview of all the breaking changes:
+
+- feat: Enable auto session tracking per default #689
+- feat: Remove deprecated SDK inits #673
+- feat: Bump minimum iOS version to 9.0 #669
+- fix: Umbrella header #671
+- feat: Replace NSString for eventId with SentryId #668
+- feat: Use envelopes for sending events #650
+
+Other new features and fixes:
+
+- fix: Sending envelopes multiple times #687
 - fix: Rate limiting for cached envelope items #685
 - feat: Errors and sessions in the same envelope #686
 - feat: Implement NSCopying for SentrySession #683
 - fix: Crash when SentryClient is nil in SentryHub #681
 - feat: Send cached envelopes first #676
-- feat: Use envelopes for sending events #650
-- feat: Replace NSString for eventId with SentryId #668
-- fix: Umbrella header #671
-- feat: Bump minimum iOS version to 9.0 #669
-- feat: Remove deprecated SDK inits #673
 
 ## 5.2.2
 

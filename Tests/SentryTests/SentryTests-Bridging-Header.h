@@ -31,7 +31,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryFileContents.h"
-#import "SentryFileManager+EventsPath.h"
+#import "SentryFileManager+TestProperties.h"
 #import "SentryFileManager.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"

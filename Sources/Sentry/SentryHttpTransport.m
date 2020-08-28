@@ -15,9 +15,15 @@ SentryHttpTransport ()
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
-@property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
+
+/**
+ * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
+ * 30% slower than using atomic here.
+ */
+@property (atomic) BOOL isSending;
 
 @end
 
@@ -35,6 +41,7 @@ SentryHttpTransport ()
         self.fileManager = sentryFileManager;
         self.rateLimits = sentryRateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
+        _isSending = NO;
 
         [self sendAllCachedEnvelopes];
     }
@@ -80,41 +87,52 @@ SentryHttpTransport ()
 
 #pragma mark private methods
 
-// TODO: This has to move somewhere else, we are missing the whole beforeSend
-// flow
+// TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllCachedEnvelopes
 {
-    if (![self.requestManager isReady]) {
+    @synchronized(self) {
+        if (self.isSending || ![self.requestManager isReady]) {
+            return;
+        }
+        self.isSending = YES;
+    }
+
+    SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
+    if (nil == envelopeFileContents) {
+        self.isSending = NO;
         return;
     }
 
-    for (SentryFileContents *fileContents in [self.fileManager getAllEnvelopes]) {
-        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:fileContents.contents];
-        if (nil == envelope) {
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        }
-
-        SentryEnvelope *rateLimitedEnvelope =
-            [self.envelopeRateLimit removeRateLimitedItems:envelope];
-        if (rateLimitedEnvelope.items.count == 0) {
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        }
-
-        NSError *requestError = nil;
-        NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
-                                           didFailWithError:requestError];
-
-        if (nil != requestError) {
-            [SentryLog logWithMessage:requestError.localizedDescription
-                             andLevel:kSentryLogLevelError];
-            [self.fileManager removeFileAtPath:fileContents.path];
-            continue;
-        } else {
-            [self sendCached:request withFilePath:fileContents.path];
-        }
+    SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+    if (nil == envelope) {
+        [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
+        return;
     }
+
+    SentryEnvelope *rateLimitedEnvelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
+    if (rateLimitedEnvelope.items.count == 0) {
+        [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
+        return;
+    }
+
+    NSError *requestError = nil;
+    NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
+                                       didFailWithError:requestError];
+
+    if (nil != requestError) {
+        [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
+        return;
+    } else {
+        [self sendEnvelope:envelopeFileContents.path request:request];
+    }
+}
+
+- (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
+{
+    [self.fileManager removeFileAtPath:envelopePath];
+    self.isSending = NO;
+    [self sendAllCachedEnvelopes];
+    return;
 }
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
@@ -126,7 +144,7 @@ SentryHttpTransport ()
                   didFailWithError:&error];
 }
 
-- (void)sendCached:(NSURLRequest *)request withFilePath:(NSString *)filePath
+- (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request
 {
     __block SentryHttpTransport *_self = self;
     [self.requestManager
@@ -137,8 +155,10 @@ SentryHttpTransport ()
             // If the response is not nil we had an internet connection.
             // We don't worry about errors here.
             if (nil != response) {
-                [_self.fileManager removeFileAtPath:filePath];
                 [_self.rateLimits update:response];
+                [_self deleteEnvelopeAndSendNext:envelopePath];
+            } else {
+                _self.isSending = NO;
             }
         }];
 }

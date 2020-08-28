@@ -94,20 +94,47 @@ SentryFileManager ()
     return [self allFilesContentInFolder:self.envelopesPath];
 }
 
+- (SentryFileContents *_Nullable)getOldestEnvelope
+{
+    NSArray<NSString *> *pathsOfAllEnvelopes;
+    @synchronized(self) {
+        pathsOfAllEnvelopes = [self allFilesInFolder:self.envelopesPath];
+    }
+
+    if (pathsOfAllEnvelopes.count > 0) {
+        NSString *filePath = pathsOfAllEnvelopes[0];
+        return [self getFileContents:self.envelopesPath filePath:filePath];
+    }
+
+    return nil;
+}
+
 - (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path
 {
     @synchronized(self) {
         NSMutableArray<SentryFileContents *> *contents = [NSMutableArray new];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
         for (NSString *filePath in [self allFilesInFolder:path]) {
-            NSString *finalPath = [path stringByAppendingPathComponent:filePath];
-            NSData *content = [fileManager contentsAtPath:finalPath];
-            if (nil != content) {
-                [contents addObject:[[SentryFileContents alloc] initWithPath:finalPath
-                                                                 andContents:content]];
+            SentryFileContents *fileContents = [self getFileContents:path filePath:filePath];
+
+            if (nil != fileContents) {
+                [contents addObject:fileContents];
             }
         }
         return contents;
+    }
+}
+
+- (SentryFileContents *_Nullable)getFileContents:(NSString *)folderPath
+                                        filePath:(NSString *)filePath
+{
+
+    NSString *finalPath = [folderPath stringByAppendingPathComponent:filePath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *content = [fileManager contentsAtPath:finalPath];
+    if (nil != content) {
+        return [[SentryFileContents alloc] initWithPath:finalPath andContents:content];
+    } else {
+        return nil;
     }
 }
 
