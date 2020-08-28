@@ -247,6 +247,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.sessions.count)
     }
     
+    @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     func testCatpureMultipleExceptionWithSessionInParallel() {
         captureConcurrentWithSession(count: 10) { sut in
@@ -260,6 +261,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
+    @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     func testCatpureMultipleErrorsWithSessionInParallel() {
         captureConcurrentWithSession(count: 10) { sut in
@@ -296,8 +298,9 @@ class SentryHubTests: XCTestCase {
         })
     }
     
-    // Even if we don't run this test below OSX 10.12 we expect the actual
-    // implementation to be thread safe.
+    // Altough we only run this test above the below specified versions, we exped the
+    // implementation to be thread safe
+    @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
         let sut = fixture.getSut()
