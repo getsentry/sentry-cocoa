@@ -36,9 +36,9 @@ ViewController ()
 
 - (IBAction)captureMessage:(id)sender
 {
-    NSString *eventId = [SentrySDK captureMessage:@"Yeah captured a message"];
+    SentryId *eventId = [SentrySDK captureMessage:@"Yeah captured a message"];
     // Returns eventId in case of successful processed event
-    // otherwise nil
+    // otherwise emptyId
     NSLog(@"%@", eventId);
 }
 
