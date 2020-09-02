@@ -64,15 +64,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertEventsStored(eventCount: 0)
     }
     
-    func testSendEventOptionsDisabled() {
-        options.enabled = false
-        sendEvent(callsCompletionHandler: false)
-        sendEvent(callsCompletionHandler: false)
-        
-        assertRequestsSent(requestCount: 0)
-        assertEventsStored(eventCount: 0)
-    }
-    
     func testSendEventWhenSessionRateLimitActive() {
         rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key"))
         
@@ -230,13 +221,6 @@ class SentryHttpTransportTests: XCTestCase {
         sendEnvelope()
         
         assertRequestsSent(requestCount: 1)
-    }
-    
-    func testEnvelopeOptionsDisabled() {
-        options.enabled = false
-        sendEnvelope(callsCompletionHandler: false)
-        
-        assertRequestsSent(requestCount: 0)
     }
     
     func testActiveRateLimitForAllEnvelopeItems() {

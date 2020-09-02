@@ -75,13 +75,6 @@ SentryHttpTransport ()
 - (void)sendEnvelope:(SentryEnvelope *)envelope
     withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
 {
-
-    if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
-                         andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
@@ -172,16 +165,10 @@ SentryHttpTransport ()
 /**
  * validation for `sendEvent:...`
  *
- * @return BOOL NO if options.enabled = false or rate limit exceeded
+ * @return BOOL NO if rate limit exceeded
  */
 - (BOOL)isReadyToSend:(SentryRateLimitCategory)category
 {
-    if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
-                         andLevel:kSentryLogLevelDebug];
-        return NO;
-    }
-
     return ![self.rateLimits isRateLimitActive:category];
 }
 
