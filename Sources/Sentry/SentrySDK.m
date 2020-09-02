@@ -207,7 +207,7 @@ static SentryHub *currentHub;
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
 }
- 
+
 + (BOOL)isEnabled
 {
     @synchronized(self) {

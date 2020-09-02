@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add isEnabled property to SentrySDK #697
 - fix: Remove redundant sdk options enable check in SentryHttpTransport #698
 
 ## 5.2.2
