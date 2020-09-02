@@ -123,6 +123,30 @@ class SentryClientTest: XCTestCase {
             assertValidThreads(actual: actual.threads)
         }
     }
+
+    func testCaptureEventOptionsDisabled() {
+        let event = Event()
+
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.enabled = false
+        }).capture(event: event, scope: nil)
+        
+        XCTAssertNil(eventId)
+    }
+
+    func testCaptureEventOptionsReEnabled() {
+        let event = Event()
+
+        let sut = fixture.getSut(configureOptions: { options in
+            options.enabled = false
+        })
+        
+        sut.options.enabled = true
+        
+        let eventId = sut.capture(event: event, scope: nil)
+        
+        XCTAssertNotNil(eventId)
+    }
     
     func testCaptureEventWithDebugMeta_KeepsDebugMeta() {
         let sut = fixture.getSut(configureOptions: { options in
