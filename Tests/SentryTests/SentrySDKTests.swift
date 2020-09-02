@@ -11,6 +11,8 @@ class SentrySDKTests: XCTestCase {
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
         }
+        
+        SentrySDK.setCurrentHub(.init(client: nil, andScope: nil))
     }
     
     func testStartWithConfigureOptions() {
@@ -124,6 +126,17 @@ class SentrySDKTests: XCTestCase {
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
+    }
+    
+    func testSentrySdkIsEnabled_BeforeStart() {
+        XCTAssertFalse(SentrySDK.isEnabled)
+    }
+    
+    func testSentrySdkIsEnabled_AfterStart() {
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString
+        }
+        XCTAssertTrue(SentrySDK.isEnabled)
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {

@@ -207,6 +207,16 @@ static SentryHub *currentHub;
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
 }
+ 
++ (BOOL)isEnabled
+{
+    @synchronized(self) {
+        if (currentHub == nil) {
+            return NO;
+        }
+        return currentHub.isEnabled.boolValue;
+    }
+}
 
 /**
  * Install integrations and keeps ref in `SentryHub.integrations`

@@ -14,6 +14,7 @@ SentryHub ()
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *sentryCrashWrapper;
+@property (nonatomic, strong) NSNumber *isEnabled;
 
 @end
 
@@ -27,6 +28,7 @@ SentryHub ()
                       andScope:(SentryScope *_Nullable)scope
 {
     if (self = [super init]) {
+        self.isEnabled = @NO;
         [self bindClient:client];
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
@@ -256,6 +258,7 @@ SentryHub ()
 - (void)bindClient:(SentryClient *_Nullable)client
 {
     self.client = client;
+    self.isEnabled = client != nil ? @YES : @NO;
 }
 
 - (void)configureScope:(void (^)(SentryScope *scope))callback

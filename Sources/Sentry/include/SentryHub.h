@@ -15,6 +15,7 @@ SENTRY_NO_INIT
 // Since there's no scope stack, single hub instance, experimenting with holding
 // session here.
 @property (nonatomic, readonly, strong) SentrySession *_Nullable session;
+@property (nonatomic, readonly, strong) NSNumber *isEnabled;
 
 - (void)startSession;
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;

@@ -141,6 +141,11 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
+ * Checks if the SentrySDK was enabled or not.
+ */
+@property (nonatomic, class, readonly) BOOL isEnabled;
+
+/**
  * Set global user -> thus will be sent with every event
  */
 + (void)setUser:(SentryUser *_Nullable)user;
