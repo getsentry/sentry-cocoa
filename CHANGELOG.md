@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Remove redundant sdk options enable check in SentryHttpTransport #698
+
 ## 5.2.2
 
 - feat: Add crashedLastRun to SentrySDK #688
