@@ -39,10 +39,12 @@
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setExtraValue:@1 forKey:@"A"];
     [scope setExtraValue:@2 forKey:@"B"];
+    [scope setExtraValue:@3 forKey:@"C"];
 
     __block BOOL wasListenerCalled = false;
     [scope addScopeListener:^(SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
     [scope removeExtraForKey:@"A"];
+    [scope setExtraValue:nil forKey:@"C"];
 
     NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"extra"];
     XCTAssertTrue([@{ @"B" : @2 } isEqualToDictionary:actual]);
