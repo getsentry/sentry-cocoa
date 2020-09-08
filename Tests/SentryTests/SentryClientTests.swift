@@ -258,15 +258,15 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
-
-    func testScopeIsNotNil() {
-        let eventId = fixture.getSut().capture(message: message, scope: scope)
-
-        eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
-            XCTAssertEqual(environment, actual.environment)
-        }
-    }
+//
+//    func testScopeIsNotNil() {
+//        let eventId = fixture.getSut().capture(message: message, scope: scope)
+//
+//        eventId.assertIsNotEmpty()
+//        assertLastSentEvent { actual in
+//            XCTAssertEqual(environment, actual.environment)
+//        }
+//    }
 
     func testCaptureSession() {
         let session = SentrySession(releaseName: "release")
