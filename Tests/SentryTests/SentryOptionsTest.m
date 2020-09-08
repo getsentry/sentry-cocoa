@@ -272,19 +272,19 @@
 - (void)testAttachStackTraceDisabledPerDefault
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(@YES, options.attachStacktrace);
 }
 
-- (void)testAttachStackTraceEnabled
+- (void)testAttachStackTraceDisabled
 {
-    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @YES }];
-    XCTAssertEqual(@YES, options.attachStacktrace);
+    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @NO }];
+    XCTAssertEqual(@NO, options.attachStacktrace);
 }
 
 - (void)testInvalidAttachStackTrace
 {
     SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(@YES, options.attachStacktrace);
 }
 
 - (void)testEmptyConstructorSetsDefaultValues
@@ -301,7 +301,7 @@
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(@YES, options.enableAutoSessionTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(@YES, options.attachStacktrace);
 }
 
 - (void)testSetValidDsn

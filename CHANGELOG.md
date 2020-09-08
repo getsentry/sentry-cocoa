@@ -7,13 +7,16 @@
 **Breaking Change**: This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
 If you are using an on-premise installation it requires Sentry version
 `>= v20.6.0` to work. If you are using sentry.io nothing will change and
-no action is needed. Furtehrmore, with this version
+no action is needed. Furthermore, with this version
 [auto session tracking](https://github.com/getsentry/sentry-cocoa/blob/7876949ca78aebfe7883432e35727993c5c30829/Sources/Sentry/include/SentryOptions.h#L101)
 is enabled per default.
 [This feature](https://docs.sentry.io/product/releases/health/)
 is collecting and sending health data about the usage of your
 application.
 We are going to add the official migration guide in one of the next beta releases.
+This release also enables by default the option `attackStacktrace` which includes
+the stacktrace in all events, including `captureMessage` by default.
+
 Here is an overview of all the breaking changes:
 
 - feat: Enable auto session tracking per default #689
@@ -22,6 +25,7 @@ Here is an overview of all the breaking changes:
 - fix: Umbrella header #671
 - feat: Replace NSString for eventId with SentryId #668
 - feat: Use envelopes for sending events #650
+- feat: Attach stacktraces to all events by default
 
 Other new features and fixes:
 
