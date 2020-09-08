@@ -109,7 +109,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
-            XCTAssertNil(actual.debugMeta)
+            XCTAssertNotNil(actual.debugMeta)
             XCTAssertNotNil(actual.threads)
             
             XCTAssertNotNil(actual.tags)
@@ -176,7 +176,9 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureErrorWithoutAttachStacktrace() {
-        let eventId = fixture.getSut().capture(error: error, scope: scope)
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+        }).capture(error: error, scope: scope)
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
