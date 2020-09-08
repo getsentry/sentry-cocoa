@@ -76,7 +76,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
             XCTAssertNil(actual.debugMeta)
-            XCTAssertNil(actual.threads)
+            XCTAssertNotNil(actual.threads)
             XCTAssertNotNil(actual.dist)
         }
     }
@@ -110,7 +110,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
             XCTAssertNil(actual.debugMeta)
-            XCTAssertNil(actual.threads)
+            XCTAssertNotNil(actual.threads)
             
             XCTAssertNotNil(actual.tags)
             if let actualTags = actual.tags {

@@ -25,7 +25,7 @@ Here is an overview of all the breaking changes:
 - fix: Umbrella header #671
 - feat: Replace NSString for eventId with SentryId #668
 - feat: Use envelopes for sending events #650
-- feat: Attach stacktraces to all events by default
+- feat: Attach stacktraces to all events by default #705
 
 Other new features and fixes:
 
