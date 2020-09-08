@@ -216,7 +216,9 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureExceptionWithoutAttachStacktrace() {
-        let eventId = fixture.getSut().capture(exception: exception, scope: scope)
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = false
+        }).capture(exception: exception, scope: scope)
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
