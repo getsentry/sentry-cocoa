@@ -14,7 +14,7 @@ AppDelegate ()
     // Override point for customization after application launch.
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
-        options.dsn = @"https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394";
+        options.dsn = @"https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557";
         options.debug = @YES;
         options.logLevel = kSentryLogLevelVerbose;
         options.enableAutoSessionTracking = @YES;
