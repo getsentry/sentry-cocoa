@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeSession]) {
             SentrySession *session = [SentrySerialization sessionWithData:item.data];
             if (nil != session && [session.flagInit boolValue]) {
-                [self setInitFlagOnNextEnvelopWithSameSessionId:session
+                [self setInitFlagOnNextEnvelopeWithSameSessionId:session
                                                envelopesDirPath:envelopesDirPath
                                               envelopeFilePaths:envelopeFilePaths];
             }
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-+ (void)setInitFlagOnNextEnvelopWithSameSessionId:(SentrySession *)session
++ (void)setInitFlagOnNextEnvelopeWithSameSessionId:(SentrySession *)session
                                  envelopesDirPath:(NSString *)envelopesDirPath
                                 envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths
 {
