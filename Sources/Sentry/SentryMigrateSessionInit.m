@@ -26,16 +26,16 @@ NS_ASSUME_NONNULL_BEGIN
             SentrySession *session = [SentrySerialization sessionWithData:item.data];
             if (nil != session && [session.flagInit boolValue]) {
                 [self setInitFlagOnNextEnvelopeWithSameSessionId:session
-                                               envelopesDirPath:envelopesDirPath
-                                              envelopeFilePaths:envelopeFilePaths];
+                                                envelopesDirPath:envelopesDirPath
+                                               envelopeFilePaths:envelopeFilePaths];
             }
         }
     }
 }
 
 + (void)setInitFlagOnNextEnvelopeWithSameSessionId:(SentrySession *)session
-                                 envelopesDirPath:(NSString *)envelopesDirPath
-                                envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths
+                                  envelopesDirPath:(NSString *)envelopesDirPath
+                                 envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
@@ -45,14 +45,18 @@ NS_ASSUME_NONNULL_BEGIN
         SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
 
         if (nil != envelope) {
-            [self setInitFlagIfContainsSameSessionId:session.sessionId
-                                            envelope:envelope
-                                    envelopeFilePath:envelopePath];
+            BOOL didSetInitFlag = [self setInitFlagIfContainsSameSessionId:session.sessionId
+                                                                  envelope:envelope
+                                                          envelopeFilePath:envelopePath];
+
+            if (didSetInitFlag) {
+                break;
+            }
         }
     }
 }
 
-+ (void)setInitFlagIfContainsSameSessionId:(NSUUID *)sessionId
++ (BOOL)setInitFlagIfContainsSameSessionId:(NSUUID *)sessionId
                                   envelope:(SentryEnvelope *)envelope
                           envelopeFilePath:(NSString *)envelopeFilePath
 {
@@ -64,9 +68,12 @@ NS_ASSUME_NONNULL_BEGIN
                 [localSession setFlagInit];
 
                 [self storeSessionInit:envelope session:localSession path:envelopeFilePath];
+                return YES;
             }
         }
     }
+
+    return NO;
 }
 
 + (void)storeSessionInit:(SentryEnvelope *)originalEnvelope

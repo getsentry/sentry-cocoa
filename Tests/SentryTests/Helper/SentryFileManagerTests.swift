@@ -24,8 +24,10 @@ class SentryFileManagerTests: XCTestCase {
         init() {
             sessionEnvelope = SentryEnvelope(session: session)
 
-            sessionUpdate = session.copy() as! SentrySession
-            sessionUpdate.incrementErrors()
+            let sessionCopy = session.copy() as! SentrySession
+            sessionCopy.incrementErrors()
+            // We need to serialize in order to set the timestamp and the duration
+            sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())
 
             let event = Event()
             let items = [SentryEnvelopeItem(session: sessionUpdate), SentryEnvelopeItem(event: event)]
@@ -191,6 +193,24 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionInitMoved(sut.getAllEnvelopes()[50])
         assertSessionEnvelopesStored(count: 1)
     }
+    
+    func testMigrateSessionInit_MovesInitFlagOnlyToFirstSessionUpdate() {
+        sut.store(fixture.sessionEnvelope)
+        for _ in 0...50 {
+            sut.store(TestConstants.envelope)
+        }
+        sut.store(fixture.sessionUpdateEnvelope)
+        sut.store(fixture.sessionUpdateEnvelope)
+        sut.store(fixture.sessionUpdateEnvelope)
+        for _ in 0...46 {
+            sut.store(TestConstants.envelope)
+        }
+
+        assertSessionInitMoved(sut.getAllEnvelopes()[50])
+        assertSessionInitNotMoved(sut.getAllEnvelopes()[51])
+        assertSessionInitNotMoved(sut.getAllEnvelopes()[52])
+        assertSessionEnvelopesStored(count: 3)
+    }
 
     func testMigrateSessionInit_NoOtherSessionUpdate() {
         sut.store(fixture.sessionEnvelope)
@@ -355,6 +375,16 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
+    }
+    
+    private func assertSessionInitNotMoved(_ actualSessionFileContents: SentryFileContents) {
+        let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
+        XCTAssertEqual(2, actualSessionEnvelope?.items.count)
+
+        let actualSession = SentrySerialization.session(with: actualSessionEnvelope?.items[0].data ?? Data())
+        XCTAssertNotNil(actualSession)
+
+        XCTAssertEqual(fixture.sessionUpdate, actualSession)
     }
 
     private func assertSessionEnvelopesStored(count: Int) {
