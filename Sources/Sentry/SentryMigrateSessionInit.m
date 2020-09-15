@@ -42,6 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *envelopeFilePath in envelopeFilePaths) {
         NSString *envelopePath = [envelopesDirPath stringByAppendingPathComponent:envelopeFilePath];
         NSData *envelopeData = [fileManager contentsAtPath:envelopePath];
+
+        // Some error occured while getting the envelopeData
+        if (nil == envelopeData) {
+            continue;
+        }
+
         SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
 
         if (nil != envelope) {

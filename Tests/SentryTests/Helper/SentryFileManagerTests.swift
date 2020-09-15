@@ -221,6 +221,24 @@ class SentryFileManagerTests: XCTestCase {
 
         assertSessionEnvelopesStored(count: 0)
     }
+    
+    func testMigrateSessionInit_FailToLoadEnvelope() {
+        sut.store(fixture.sessionEnvelope)
+        
+        for _ in 0...97 {
+            sut.store(TestConstants.envelope)
+        }
+        
+        // Trying to load the file content of a directory is going to return nil for the envelope.
+        let envelopePath = sut.store(TestConstants.envelope)
+        let fileManager = FileManager.default
+        try! fileManager.removeItem(atPath: envelopePath)
+        try! fileManager.createDirectory(atPath: envelopePath, withIntermediateDirectories: false, attributes: nil)
+        
+        sut.store(fixture.sessionUpdateEnvelope)
+
+        assertSessionInitMoved(sut.getAllEnvelopes().last!)
+    }
 
     /**
      * We need to deserialize every envelope and check if it contains a session.
