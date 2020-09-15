@@ -35,6 +35,7 @@ Other new features and fixes:
 - feat: Implement NSCopying for SentrySession #683
 - fix: Crash when SentryClient is nil in SentryHub #681
 - feat: Send cached envelopes first #676
+- fix: Remove redundant sdk options enable check in SentryHttpTransport #698
 
 ## 5.2.2
 

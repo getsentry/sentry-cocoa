@@ -67,12 +67,6 @@ SentryHttpTransport ()
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
-    if (![self.options.enabled boolValue]) {
-        [SentryLog logWithMessage:@"SentryClient is disabled. (options.enabled = false)"
-                         andLevel:kSentryLogLevelDebug];
-        return;
-    }
-
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
