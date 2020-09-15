@@ -14,7 +14,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         var abnormal = 0
     }
     
-    private let dsnAsString = "https://8ee5199a90354faf995292b15c196d48@o19635.ingest.sentry.io/4394"
+    private let dsnAsString = "https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557"
     
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
