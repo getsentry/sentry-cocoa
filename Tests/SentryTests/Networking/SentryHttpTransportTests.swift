@@ -19,7 +19,7 @@ class SentryHttpTransportTests: XCTestCase {
         let options: Options
         let requestManager: TestRequestManager
         let rateLimits: DefaultRateLimits
-        
+
         init() {
             currentDateProvider = TestCurrentDateProvider()
             CurrentDate.setCurrentDateProvider(currentDateProvider)
@@ -28,7 +28,7 @@ class SentryHttpTransportTests: XCTestCase {
             event.message = "Some message"
             
             eventRequest = buildRequest(SentryEnvelope(event: event))
-            
+
             session = SentrySession(releaseName: "2.0.1")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
             sessionRequest = buildRequest(sessionEnvelope)
@@ -38,14 +38,14 @@ class SentryHttpTransportTests: XCTestCase {
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
-            
+
             options = Options()
             options.dsn = TestConstants.dsnAsString
-            
+
             requestManager = TestRequestManager(session: URLSession())
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
         }
-        
+
         var sut: SentryHttpTransport {
             get {
                 return SentryHttpTransport(
@@ -58,7 +58,7 @@ class SentryHttpTransportTests: XCTestCase {
             }
         }
     }
-    
+
     class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
         let envelopeData = try! SentrySerialization.data(with: envelope)
         return try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: envelopeData)
@@ -66,15 +66,15 @@ class SentryHttpTransportTests: XCTestCase {
 
     private var fixture: Fixture!
     private var sut: SentryHttpTransport!
-    
+
     override func setUp() {
         fixture = Fixture()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
-        
+
         sut = fixture.sut
     }
-    
+
     override func tearDown() {
         fixture.fileManager.deleteAllEnvelopes()
     }
@@ -100,16 +100,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEventIsSentAsEnvelope()
         assertEnvelopesStored(envelopeCount: 0)
     }
-    
-    func testSendEventOptionsDisabled() {
-        fixture.options.enabled = false
-        sendEvent()
-        sendEvent()
-        
-        assertRequestsSent(requestCount: 0)
-        assertEnvelopesStored(envelopeCount: 0)
-    }
-    
+
     func testSendEventWhenSessionRateLimitActive() {
         fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key"))
         
@@ -118,7 +109,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEventIsSentAsEnvelope()
         assertEnvelopesStored(envelopeCount: 0)
     }
-    
+
     func testSendEventWithSession_SentInOneEnvelope() {
         sut.send(fixture.event, with: fixture.session)
 waitForAllRequests()
@@ -290,14 +281,7 @@ waitForAllRequests()
         
         assertRequestsSent(requestCount: 1)
     }
-    
-    func testEnvelopeOptionsDisabled() {
-        fixture.options.enabled = false
-        sendEnvelope()
-        
-        assertRequestsSent(requestCount: 0)
-    }
-    
+
     func testActiveRateLimitForAllEnvelopeItems() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
@@ -366,14 +350,14 @@ waitForAllRequests()
         
         givenOkResponse()
         sendEnvelopeWithSession()
- 
+
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
         XCTAssertEqual(fixture.eventRequest.httpBody, fixture.requestManager.requests[1].httpBody, "Cached envelope was not sent first.")
-        
+
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests[2].httpBody, "Cached envelope was not sent first.")
     }
-    
+
     func testPerformanceOfSending() {
         self.measure {
             givenNoInternetConnection()
@@ -455,7 +439,7 @@ waitForAllRequests()
     private func sendEventAsync() {
         sut.send(event: fixture.event)
     }
-    
+
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
         sut.send(envelope: envelope)
         waitForAllRequests()
