@@ -399,23 +399,27 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertSessionSent(started: Date, duration: NSNumber, status: SentrySessionStatus) {
-        
+
         let endSessionIndex = fixture.client.sessions.count - 1
-        
+
         if fixture.client.sessions.indices.contains(endSessionIndex) {
             let session = fixture.client.sessions[endSessionIndex]
-            XCTAssertFalse(session.flagInit?.boolValue ?? false)
-            XCTAssertEqual(started, session.started)
-            XCTAssertEqual(status, session.status)
-            XCTAssertEqual(0, session.errors)
-            XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
-            XCTAssertEqual(duration, session.duration)
-            assertSessionFields(session: session)
+            assertSession(session: session, started: started, status: status, duration: duration)
         } else {
             XCTFail("Can't find session.")
         }
     }
     
+    private func assertSession(session: SentrySession, started: Date, status: SentrySessionStatus, duration: NSNumber) {
+        XCTAssertFalse(session.flagInit?.boolValue ?? false)
+        XCTAssertEqual(started, session.started)
+        XCTAssertEqual(status, session.status)
+        XCTAssertEqual(0, session.errors)
+        XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
+        XCTAssertEqual(duration, session.duration)
+        assertSessionFields(session: session)
+    }
+
     private func assertInitSessionSent() {
         assertSessionInitSent(sessionStarted: fixture.currentDateProvider.date())
     }
@@ -442,13 +446,28 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertNoInitSessionSent() {
-        if let session = fixture.client.sessions.last {
+        let eventWithSessions = fixture.client.captureEventWithSessionArguments.map({ triple in triple.second })
+        let errorWithSessions = fixture.client.captureErrorWithSessionArguments.map({ triple in triple.second })
+        let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.map({ triple in triple.second })
+        
+        var sessions = fixture.client.sessions + eventWithSessions + errorWithSessions + exceptionWithSessions
+        
+        sessions.sort { first, second in return first.started < second.started }
+        
+        if let session = sessions.last {
             XCTAssertFalse(session.flagInit?.boolValue ?? false)
         }
     }
     
     private func assertSessionsSent(count: Int) {
-        XCTAssertEqual(count, fixture.client.sessions.count)
+        let eventWithSessions = fixture.client.captureEventWithSessionArguments.count
+        let errorWithSessions = fixture.client.captureErrorWithSessionArguments.count
+        let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.count
+        let sessions = fixture.client.sessions.count
+        
+        let sessionsSent = eventWithSessions + errorWithSessions + exceptionWithSessions + sessions
+        
+        XCTAssertEqual(count, sessionsSent)
     }
     
     private func assertLastInForegroundIsNil() {
@@ -465,6 +484,12 @@ class SentrySessionTrackerTests: XCTestCase {
         let sessionStartTime = fixture.currentDateProvider.date()
         advanceTime(bySeconds: 5)
         sut.start()
-        assertSessionSent(started: sessionStartTime, duration: 5, status: SentrySessionStatus.crashed)
+        SentrySDK.captureCrash(Event())
+        
+        if let session = fixture.client.captureEventWithSessionArguments.last?.second {
+            assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
+        } else {
+            XCTFail("No session sent with event.")
+        }
     }
 }

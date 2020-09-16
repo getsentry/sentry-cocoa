@@ -4,6 +4,7 @@
 #import "SentryClient.h"
 #import "SentryCrash.h"
 #import "SentryDefines.h"
+#import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -83,6 +84,11 @@ static SentryHub *currentHub;
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
+}
+
++ (void)captureCrashEvent:(SentryEvent *)event
+{
+    [SentrySDK.currentHub captureCrashEvent:event];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event

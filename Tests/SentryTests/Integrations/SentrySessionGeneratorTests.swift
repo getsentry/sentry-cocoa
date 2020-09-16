@@ -71,6 +71,14 @@ class SentrySessionGeneratorTests: XCTestCase {
             autoSessionTrackingIntegration.stop()
             autoSessionTrackingIntegration.install(with: options)
             goToForeground()
+            
+            // Almost always the AutoSessionTrackingIntegration is faster
+            // than the SentryCrashIntegration creating the event from the
+            // crash report on a background thread.
+            let crashEvent = Event()
+            crashEvent.level = SentryLevel.fatal
+            crashEvent.message = "Crash for SentrySessionGeneratorTests"
+            SentrySDK.captureCrash(crashEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false
         

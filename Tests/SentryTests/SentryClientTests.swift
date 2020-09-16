@@ -17,10 +17,15 @@ class SentryClientTest: XCTestCase {
         )
         
         let session: SentrySession
+        let event: Event
+        let environment = "Environment"
         
         init() {
             session = SentrySession(releaseName: "release")
             session.incrementErrors()
+            
+            event = Event()
+            event.message = "some message"
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -44,20 +49,20 @@ class SentryClientTest: XCTestCase {
                 options.enabled = false
             })
         }
+        
+        var scope: Scope {
+            get {
+                let scope = Scope()
+                scope.setEnvironment(environment)
+                scope.setTag(value: "value", key: "key")
+                return scope
+            }
+        }
     }
 
     private let error = NSError(domain: "domain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
     
     private let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: nil)
-    
-    private let environment = "Environment"
-    private var scope: Scope {
-        get {
-            let scope = Scope()
-            scope.setEnvironment(environment)
-            return scope
-        }
-    }
     
     private let message = "message"
     private var fixture: Fixture!
@@ -123,7 +128,7 @@ class SentryClientTest: XCTestCase {
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
         
-        fixture.getSut().capture(event: event, scope: scope)
+        fixture.getSut().capture(event: event, scope: fixture.scope)
         
         assertLastSentEvent { actual in
             assertValidDebugMeta(actual: actual.debugMeta)
@@ -199,7 +204,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureErrorWithoutAttachStacktrace() {
-        let eventId = fixture.getSut().capture(error: error, scope: scope)
+        let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
@@ -226,11 +231,27 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertLastSentEnvelopeIsASession()
     }
+    
+    func testCaptureEventWithSession() {
+        let eventId = fixture.getSut().capture(fixture.event, with: fixture.session, with: fixture.scope)
+        
+        eventId.assertIsNotEmpty()
+        XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
+        if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
+            let event = eventWithSessionArguments.first
+            XCTAssertEqual(fixture.event.eventId, event.eventId)
+            XCTAssertEqual(fixture.event.message, event.message)
+            XCTAssertEqual("value", event.tags?["key"] ?? "")
+            
+            XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
+        }
+        
+    }
 
     func testCaptureErrorWithUserInfo() {
         let expectedValue = "val"
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
-        let eventId = fixture.getSut().capture(error: error, scope: scope)
+        let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
@@ -239,7 +260,7 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureExceptionWithoutAttachStacktrace() {
-        let eventId = fixture.getSut().capture(exception: exception, scope: scope)
+        let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
@@ -270,7 +291,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureExceptionWithUserInfo() {
         let expectedValue = "val"
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: ["key": expectedValue])
-        let eventId = fixture.getSut().capture(exception: exception, scope: scope)
+        let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
 
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
@@ -279,11 +300,11 @@ class SentryClientTest: XCTestCase {
     }
 
     func testScopeIsNotNil() {
-        let eventId = fixture.getSut().capture(message: message, scope: scope)
+        let eventId = fixture.getSut().capture(message: message, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            XCTAssertEqual(environment, actual.environment)
+            XCTAssertEqual(fixture.environment, actual.environment)
         }
     }
 

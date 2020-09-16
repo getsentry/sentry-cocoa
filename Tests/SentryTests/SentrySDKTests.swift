@@ -107,6 +107,19 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
     }
     
+    func testCaptureCrashEvent() {
+        let hub = TestHub(client: nil, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        let event = Event()
+        event.message = "crash"
+        SentrySDK.captureCrash(event)
+    
+        XCTAssertEqual(1, hub.sentCrashEvents.count)
+        XCTAssertEqual(event.message, hub.sentCrashEvents.first?.message)
+        XCTAssertEqual(event.eventId, hub.sentCrashEvents.first?.eventId)
+    }
+    
     private func assertIntegrationsInstalled(integrations: [String]) {
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
