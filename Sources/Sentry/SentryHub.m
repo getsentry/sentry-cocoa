@@ -26,6 +26,7 @@ SentryHub ()
 
 @implementation SentryHub {
     NSObject *_sessionLock;
+    NSObject *_crashEventAndSessionLock;
 }
 
 @synthesize scope;
@@ -136,9 +137,11 @@ SentryHub ()
                          andLevel:kSentryLogLevelDebug];
 
         [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
-        self.crashedSession = [session copy];
+        @synchronized (_crashEventAndSessionLock) {
+            self.crashedSession = [session copy];
+            [self sendCrashedEventAndSession];
+        }
         [self deleteCurrentSession];
-        [self sendCrashedEventAndSession];
         return;
     } else {
         if (nil == timestamp) {
@@ -198,13 +201,15 @@ SentryHub ()
 {
     SentryClient *client = [self getClient];
 
-    //  When enableAutoSessionTracking is enabled, we send the crash event and session together.
-    if (nil != client && [client.options.enableAutoSessionTracking boolValue]
-        && !self.crashEventAndSessionSent) {
-        self.crashedEvent = event;
-        [self sendCrashedEventAndSession];
-    } else {
-        [self captureEvent:event withScope:self.scope];
+    @synchronized (_crashEventAndSessionLock) {
+        //  When enableAutoSessionTracking is enabled, we send the crash event and session together.
+        if (nil != client && [client.options.enableAutoSessionTracking boolValue]
+            && !self.crashEventAndSessionSent) {
+            self.crashedEvent = event;
+            [self sendCrashedEventAndSession];
+        } else {
+            [self captureEvent:event withScope:self.scope];
+        }
     }
 }
 
