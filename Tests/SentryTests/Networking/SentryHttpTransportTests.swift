@@ -50,10 +50,10 @@ class SentryHttpTransportTests: XCTestCase {
             get {
                 return SentryHttpTransport(
                     options: options,
-                    sentryFileManager: fileManager,
-                    sentryRequestManager: requestManager,
-                    sentryRateLimits: rateLimits,
-                    sentryEnvelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits)
+                    fileManager: fileManager,
+                    requestManager: requestManager,
+                    rateLimits: rateLimits,
+                    envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits)
                 )
             }
         }
