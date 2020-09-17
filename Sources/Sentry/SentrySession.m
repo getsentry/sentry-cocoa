@@ -68,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)setFlagInit
+{
+    _init = @YES;
+}
+
 - (void)endSessionExitedWithTimestamp:(NSDate *)timestamp
 {
     @synchronized(self) {
