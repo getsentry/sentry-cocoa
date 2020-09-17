@@ -211,7 +211,8 @@ SentryHub ()
 /**
  * Sends the event and session of a crash together.
  * The session is marked as crashed in closeCachedSessionWithTimestamp and the crash event is
- * received in captureCrashEvent. There is no guarantee in which order these come in. We need to
+ * received in captureCrashEvent. There is no guarantee in which order these come in, but most of
+ * the time the session comes in first as the event is created on a background thread. We need to
  * send them together so our release health statistics show proper numbers.
  *
  * If there are multiple crash events to be sent on the start of the SDK there is currently no way
