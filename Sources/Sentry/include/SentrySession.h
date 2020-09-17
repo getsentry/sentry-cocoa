@@ -1,4 +1,6 @@
-#import "SentryEvent.h"
+#import "SentryDefines.h"
+
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,7 +11,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
     kSentrySessionStatusAbnormal = 3,
 };
 
-@interface SentrySession : NSObject
+@interface SentrySession : NSObject <NSCopying>
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName;

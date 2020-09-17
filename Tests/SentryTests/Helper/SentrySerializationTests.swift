@@ -109,7 +109,7 @@ class SentrySerializationTests: XCTestCase {
     }
 
     func testSentryEnvelopeSerializer_EnvelopeWithHeaderAndItemWithAttachmet() {
-        let eventId = "12c2d058-d584-4270-9aa2-eca08bf20986"
+        let eventId = SentryId(uuidString: "12c2d058-d584-4270-9aa2-eca08bf20986")
         let payloadAsString = "helloworld"
 
         let itemData = """
@@ -119,7 +119,7 @@ class SentrySerializationTests: XCTestCase {
                        """.data(using: .utf8)!
 
         if let envelope = SentrySerialization.envelope(with: itemData) {
-            XCTAssertEqual(eventId, envelope.header.eventId)
+            XCTAssertEqual(eventId, envelope.header.eventId!)
 
             XCTAssertEqual(1, envelope.items.count)
             let item = envelope.items[0]

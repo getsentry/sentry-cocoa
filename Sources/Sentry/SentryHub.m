@@ -1,12 +1,15 @@
 #import "SentryHub.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
+#import "SentryId.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 
 @interface
 SentryHub ()
@@ -168,53 +171,65 @@ SentryHub ()
     }
 }
 
-- (void)incrementSessionErrors
+- (SentrySession *)incrementSessionErrors
 {
+    SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
         if (nil != _session) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
+            sessionCopy = [_session copy];
         }
     }
+
+    return sessionCopy;
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
-- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureMessage:message withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
-- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
-    [self incrementSessionErrors];
+    SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
-        return [client captureError:error withScope:scope];
+        if (nil != currentSession) {
+            return [client captureError:error withSession:currentSession withScope:scope];
+        } else {
+            return [client captureError:error withScope:scope];
+        }
     }
-    return nil;
+    return SentryId.empty;
 }
 
-- (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
 {
-    [self incrementSessionErrors];
+    SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
+
     if (nil != client) {
-        return [client captureException:exception withScope:scope];
+        if (nil != currentSession) {
+            return [client captureException:exception withSession:currentSession withScope:scope];
+        } else {
+            return [client captureException:exception withScope:scope];
+        }
     }
-    return nil;
+    return SentryId.empty;
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb

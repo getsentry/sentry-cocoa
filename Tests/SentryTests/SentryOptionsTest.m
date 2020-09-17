@@ -250,7 +250,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+    XCTAssertEqual(@YES, options.enableAutoSessionTracking);
 }
 
 - (void)testSessionTrackingIntervalMillis
@@ -299,7 +299,7 @@
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
-    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+    XCTAssertEqual(@YES, options.enableAutoSessionTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(@NO, options.attachStacktrace);
 }

@@ -1,5 +1,9 @@
 import Foundation
 
+#if os(tvOS) || os(iOS)
+import UIKit
+#endif
+
 class TestNotificationCenter {
 
     #if os(tvOS) || os(iOS) 
