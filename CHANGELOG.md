@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Migrate session init for stored envelopes #693
+
 ## 6.0.0-alpha.0
 
 **Breaking Change**: This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
