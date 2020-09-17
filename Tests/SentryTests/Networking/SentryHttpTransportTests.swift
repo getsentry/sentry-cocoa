@@ -53,7 +53,8 @@ class SentryHttpTransportTests: XCTestCase {
                     sentryFileManager: fileManager,
                     sentryRequestManager: requestManager,
                     sentryRateLimits: rateLimits,
-                    sentryEnvelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits)
+                    sentryEnvelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
+                    dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
                 )
             }
         }

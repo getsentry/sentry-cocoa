@@ -1,4 +1,5 @@
 #import "SentryHttpTransport.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -18,6 +19,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 /**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
@@ -34,6 +36,7 @@ SentryHttpTransport ()
        sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
            sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
     sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -41,6 +44,7 @@ SentryHttpTransport ()
         self.fileManager = sentryFileManager;
         self.rateLimits = sentryRateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
+        self.dispatchQueue = dispatchQueueWrapper;
         _isSending = NO;
 
         [self sendAllCachedEnvelopes];
@@ -75,8 +79,10 @@ SentryHttpTransport ()
         return;
     }
 
-    [self.fileManager storeEnvelope:envelope];
-    [self sendAllCachedEnvelopes];
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        [self.fileManager storeEnvelope:envelope];
+        [self sendAllCachedEnvelopes];
+    }];
 }
 
 #pragma mark private methods

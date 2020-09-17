@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Async storing of envelope to disk #714
 - feat: Migrate session init for stored envelopes #693
 - fix: Remove redundant sdk options enable check in SentryHttpTransport #698
 
