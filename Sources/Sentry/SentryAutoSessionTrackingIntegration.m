@@ -18,7 +18,7 @@ SentryAutoSessionTrackingIntegration ()
 
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
-    if ([options.enableAutoSessionTracking isEqual:@YES]) {
+    if (options.enableAutoSessionTracking) {
         id<SentryCurrentDateProvider> currentDateProvider =
             [[SentryDefaultCurrentDateProvider alloc] init];
         SentrySessionTracker *tracker =
