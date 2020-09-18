@@ -30,16 +30,16 @@ SentryHttpTransport ()
 @implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options
-          sentryFileManager:(SentryFileManager *)sentryFileManager
-       sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
-           sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
-    sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+          fileManager:(SentryFileManager *)fileManager
+       requestManager:(id<SentryRequestManager>)requestManager
+           rateLimits:(id<SentryRateLimits>)rateLimits
+    envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
 {
     if (self = [super init]) {
         self.options = options;
-        self.requestManager = sentryRequestManager;
-        self.fileManager = sentryFileManager;
-        self.rateLimits = sentryRateLimits;
+        self.requestManager = requestManager;
+        self.fileManager = fileManager;
+        self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
         _isSending = NO;
 

@@ -42,10 +42,10 @@ SentryTransportFactory ()
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
 
     return [[SentryHttpTransport alloc] initWithOptions:options
-                                      sentryFileManager:sentryFileManager
-                                   sentryRequestManager:requestManager
-                                       sentryRateLimits:rateLimits
-                                sentryEnvelopeRateLimit:envelopeRateLimit];
+                                            fileManager:sentryFileManager
+                                         requestManager:requestManager
+                                             rateLimits:rateLimits
+                                      envelopeRateLimit:envelopeRateLimit];
 }
 
 @end
