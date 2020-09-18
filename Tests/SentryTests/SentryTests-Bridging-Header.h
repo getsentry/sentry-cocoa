@@ -27,6 +27,7 @@
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"

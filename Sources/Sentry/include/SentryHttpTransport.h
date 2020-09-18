@@ -5,7 +5,8 @@
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
-@class SentryEnvelopeRateLimit, SentryOptions, SentryEvent, SentryFileManager;
+@class SentryEnvelopeRateLimit, SentryOptions, SentryEvent, SentryFileManager,
+    SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,10 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (id)initWithOptions:(SentryOptions *)options
-          fileManager:(SentryFileManager *)fileManager
-       requestManager:(id<SentryRequestManager>)requestManager
-           rateLimits:(id<SentryRateLimits>)rateLimits
-    envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit;
+             fileManager:(SentryFileManager *)fileManager
+          requestManager:(id<SentryRequestManager>)requestManager
+              rateLimits:(id<SentryRateLimits>)rateLimits
+       envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 
