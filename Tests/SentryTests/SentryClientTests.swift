@@ -199,7 +199,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureErrorWithoutAttachStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
-            options.attachStacktrace = true
+            options.attachStacktrace = false
         }).capture(error: error, scope: scope)
         
         eventId.assertIsNotEmpty()
