@@ -288,7 +288,7 @@
 - (void)testInvalidAttachStackTrace
 {
     SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
-    XCTAssertEqual(YES, options.attachStacktrace);
+    XCTAssertEqual(NO, options.attachStacktrace);
 }
 
 - (void)testEmptyConstructorSetsDefaultValues
