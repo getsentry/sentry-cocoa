@@ -1,4 +1,5 @@
 #import "SentryHttpTransport.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -18,6 +19,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 /**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
@@ -30,17 +32,19 @@ SentryHttpTransport ()
 @implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options
-          sentryFileManager:(SentryFileManager *)sentryFileManager
-       sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
-           sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
-    sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+             fileManager:(SentryFileManager *)fileManager
+          requestManager:(id<SentryRequestManager>)requestManager
+              rateLimits:(id<SentryRateLimits>)rateLimits
+       envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.options = options;
-        self.requestManager = sentryRequestManager;
-        self.fileManager = sentryFileManager;
-        self.rateLimits = sentryRateLimits;
+        self.requestManager = requestManager;
+        self.fileManager = fileManager;
+        self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
+        self.dispatchQueue = dispatchQueueWrapper;
         _isSending = NO;
 
         [self sendAllCachedEnvelopes];
@@ -75,8 +79,13 @@ SentryHttpTransport ()
         return;
     }
 
-    [self.fileManager storeEnvelope:envelope];
-    [self sendAllCachedEnvelopes];
+    // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
+    // because this being done on a background thread, but instead we don't block the calling
+    // thread, which could be the main thread.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        [self.fileManager storeEnvelope:envelope];
+        [self sendAllCachedEnvelopes];
+    }];
 }
 
 #pragma mark private methods
