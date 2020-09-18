@@ -14,11 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (id)initWithOptions:(SentryOptions *)options
-          sentryFileManager:(SentryFileManager *)sentryFileManager
-       sentryRequestManager:(id<SentryRequestManager>)sentryRequestManager
-           sentryRateLimits:(id<SentryRateLimits>)sentryRateLimits
-    sentryEnvelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+             fileManager:(SentryFileManager *)fileManager
+          requestManager:(id<SentryRequestManager>)requestManager
+              rateLimits:(id<SentryRateLimits>)rateLimits
+       envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 

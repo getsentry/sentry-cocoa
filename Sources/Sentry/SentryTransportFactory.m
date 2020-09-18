@@ -45,10 +45,10 @@ SentryTransportFactory ()
     SentryDispatchQueueWrapper *dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
 
     return [[SentryHttpTransport alloc] initWithOptions:options
-                                      sentryFileManager:sentryFileManager
-                                   sentryRequestManager:requestManager
-                                       sentryRateLimits:rateLimits
-                                sentryEnvelopeRateLimit:envelopeRateLimit
+                                            fileManager:sentryFileManager
+                                         requestManager:requestManager
+                                             rateLimits:rateLimits
+                                      envelopeRateLimit:envelopeRateLimit
                                    dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
