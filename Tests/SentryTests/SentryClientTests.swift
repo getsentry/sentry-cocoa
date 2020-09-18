@@ -69,30 +69,29 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureMessage() {
         let eventId = fixture.getSut().capture(message: message, scope: nil)
-
-        XCTAssertNotNil(eventId)
-
-        assertLastSentEvent { actual in
-            XCTAssertEqual(SentryLevel.info, actual.level)
-            XCTAssertEqual(message, actual.message)
-            XCTAssertNil(actual.debugMeta)
-            XCTAssertNotNil(actual.threads)
-            XCTAssertNotNil(actual.dist)
-        }
-    }
-
-    func testCaptureMessageWithStacktrace() {
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.attachStacktrace = true
-        }).capture(message: message, scope: nil)
-
-        XCTAssertNotNil(eventId)
+        
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(message, actual.message)
             
-               assertValidDebugMeta(actual: actual.debugMeta)
-               assertValidThreads(actual: actual.threads)
+            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidThreads(actual: actual.threads)
+        }
+    }
+
+    func testCaptureMessageWithOutStacktrace() {
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = false
+        }).capture(message: message, scope: nil)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(SentryLevel.info, actual.level)
+            XCTAssertEqual(message, actual.message)
+            XCTAssertNil(actual.debugMeta)
+            XCTAssertNil(actual.threads)
+            XCTAssertNotNil(actual.dist)
         }
     }
     
@@ -281,15 +280,15 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
-//
-//    func testScopeIsNotNil() {
-//        let eventId = fixture.getSut().capture(message: message, scope: scope)
-//
-//        eventId.assertIsNotEmpty()
-//        assertLastSentEvent { actual in
-//            XCTAssertEqual(environment, actual.environment)
-//        }
-//    }
+
+    func testScopeIsNotNil() {
+        let eventId = fixture.getSut().capture(message: message, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(environment, actual.environment)
+        }
+    }
 
     func testCaptureSession() {
         let session = SentrySession(releaseName: "release")
