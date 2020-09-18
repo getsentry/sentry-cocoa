@@ -13,9 +13,9 @@
 
 <!--- Put an `x` in the boxes that apply -->
 
-- [ ] I reviewed submitted code
+- [ ] I reviewed the submitted code
 - [ ] I added tests to verify the changes
-- [ ] I've updated the CHANGELOG
+- [ ] I updated the CHANGELOG
 - [ ] No breaking changes
 
 ## :crystal_ball: Next steps
