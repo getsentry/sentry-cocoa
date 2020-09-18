@@ -2,10 +2,24 @@
 
 ## unreleased
 
+This release also enables by default the option `attackStacktrace` which includes
+the stacktrace in all events, including `captureMessage` by default.
+
+Breaking Changes: 
 - feat: Attach stacktraces to all events by default #705 !Breaking
+
+Features and fixes: 
+
+## 6.0.0-beta.0
+
+Breaking changes:
+
+- feat: Replace NSNumber with BOOL in SentryOptions #719
+
+Features and fixes: 
+
 - fix: Header Imports for the Swift Package Manager #721
 - fix: Async storing of envelope to disk #714
-- feat: Replace NSNumber with BOOL in SentryOptions #719 !Breaking
 - feat: Migrate session init for stored envelopes #693
 - fix: Remove redundant sdk options enable check in SentryHttpTransport #698
 
@@ -21,8 +35,6 @@ is enabled per default.
 is collecting and sending health data about the usage of your
 application.
 We are going to add the official migration guide in one of the next beta releases.
-This release also enables by default the option `attackStacktrace` which includes
-the stacktrace in all events, including `captureMessage` by default.
 
 Here is an overview of all the breaking changes:
 
