@@ -204,7 +204,7 @@ SentryClient ()
 {
     NSParameterAssert(event);
 
-    if (NO == [self.options.enabled boolValue]) {
+    if (!self.options.enabled) {
         [SentryLog logWithMessage:@"SDK is disabled, will not do anything"
                          andLevel:kSentryLogLevelDebug];
         return nil;
@@ -249,8 +249,7 @@ SentryClient ()
         event.sdk = sdk;
     }
 
-    BOOL shouldAttachStacktrace = alwaysAttachStacktrace ||
-        [self.options.attachStacktrace boolValue]
+    BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
         || (nil != event.exceptions && [event.exceptions count] > 0);
 
     BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);

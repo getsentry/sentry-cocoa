@@ -15,9 +15,9 @@ AppDelegate ()
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
         options.dsn = @"https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557";
-        options.debug = @YES;
+        options.debug = YES;
         options.logLevel = kSentryLogLevelVerbose;
-        options.attachStacktrace = @YES;
+        options.attachStacktrace = YES;
         options.sessionTrackingIntervalMillis = [@5000 unsignedIntegerValue];
     }];
 

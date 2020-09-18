@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Attach stacktraces to all events by default #705 !Breaking
+- feat: Replace NSNumber with BOOL in SentryOptions #719 !Breaking
 - feat: Migrate session init for stored envelopes #693
 - fix: Remove redundant sdk options enable check in SentryHttpTransport #698
 
@@ -28,7 +30,6 @@ Here is an overview of all the breaking changes:
 - fix: Umbrella header #671
 - feat: Replace NSString for eventId with SentryId #668
 - feat: Use envelopes for sending events #650
-- feat: Attach stacktraces to all events by default #705
 
 Other new features and fixes:
 
