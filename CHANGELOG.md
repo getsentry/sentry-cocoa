@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Header Imports for the Swift Package Manager #721
 - fix: Async storing of envelope to disk #714
 - feat: Replace NSNumber with BOOL in SentryOptions #719 !Breaking
 - feat: Migrate session init for stored envelopes #693

@@ -1,4 +1,7 @@
-#import <Sentry/Sentry.h>
+#import "SentryClient.h"
+#import <Foundation/Foundation.h>
+
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
