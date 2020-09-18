@@ -79,6 +79,9 @@ SentryHttpTransport ()
         return;
     }
 
+    // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
+    // because this being done on a background thread, but instead we don't block the calling
+    // thread, which could be the main thread.
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         [self.fileManager storeEnvelope:envelope];
         [self sendAllCachedEnvelopes];
