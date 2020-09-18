@@ -27,7 +27,7 @@
         self.sampleRate = @1;
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
-        self.attachStacktrace = NO;
+        self.attachStacktrace = YES;
 
         // Set default release name
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
