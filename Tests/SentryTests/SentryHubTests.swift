@@ -17,7 +17,7 @@ class SentryHubTests: XCTestCase {
         
         init() {
             options = Options()
-            options.dsn = "https://username@sentry.io/1"
+            options.dsn = TestConstants.dsnAsString
             options.enableAutoSessionTracking = true
             
             scope.add(crumb)
@@ -48,7 +48,15 @@ class SentryHubTests: XCTestCase {
     
     override func setUp() {
         fixture = Fixture()
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteTimestampLastInForeground()
+        
         sut = fixture.getSut()
+    }
+    
+    override func tearDown() {
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteTimestampLastInForeground()
     }
 
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {
@@ -322,10 +330,20 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureCrashEvent_CrashedSessionDoesNotExist() {
+        sut.startSession() // there is already an existing session
         sut.captureCrash(fixture.event)
 
         assertNoCrashedSessionSent()
         assertNoEventsSent()
+    }
+    
+    /**
+     * When autoSessionTracking is just enabled and there is a previous crash on the disk there is no session on the disk.
+     */
+    func testCatpureCrashEvent_CrashExistsButNoSessionExists() {
+        sut.captureCrash(fixture.event)
+        
+        assertEventSent()
     }
     
     func testCaptureCrashEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
