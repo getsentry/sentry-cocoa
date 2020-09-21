@@ -1,8 +1,58 @@
 # Changelog
 
-## Unreleased
+## unreleased
 
+This release also enables by default the option `attackStacktrace` which includes
+the stacktrace in all events, including `captureMessage` by default.
+
+Breaking Changes: 
+- feat: Attach stacktraces to all events by default #705 !Breaking
+
+Features and fixes: 
+
+## 6.0.0-beta.0
+
+Breaking changes:
+
+- feat: Replace NSNumber with BOOL in SentryOptions #719
+
+Features and fixes: 
+
+- fix: Header Imports for the Swift Package Manager #721
+- fix: Async storing of envelope to disk #714
+- feat: Migrate session init for stored envelopes #693
 - fix: Remove redundant sdk options enable check in SentryHttpTransport #698
+
+## 6.0.0-alpha.0
+
+**Breaking Change**: This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
+If you are using an on-premise installation it requires Sentry version
+`>= v20.6.0` to work. If you are using sentry.io nothing will change and
+no action is needed. Furthermore, with this version
+[auto session tracking](https://github.com/getsentry/sentry-cocoa/blob/7876949ca78aebfe7883432e35727993c5c30829/Sources/Sentry/include/SentryOptions.h#L101)
+is enabled per default.
+[This feature](https://docs.sentry.io/product/releases/health/)
+is collecting and sending health data about the usage of your
+application.
+We are going to add the official migration guide in one of the next beta releases.
+
+Here is an overview of all the breaking changes:
+
+- feat: Enable auto session tracking per default #689
+- feat: Remove deprecated SDK inits #673
+- feat: Bump minimum iOS version to 9.0 #669
+- fix: Umbrella header #671
+- feat: Replace NSString for eventId with SentryId #668
+- feat: Use envelopes for sending events #650
+
+Other new features and fixes:
+
+- fix: Sending envelopes multiple times #687
+- fix: Rate limiting for cached envelope items #685
+- feat: Errors and sessions in the same envelope #686
+- feat: Implement NSCopying for SentrySession #683
+- fix: Crash when SentryClient is nil in SentryHub #681
+- feat: Send cached envelopes first #676
 
 ## 5.2.2
 

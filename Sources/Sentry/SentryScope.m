@@ -1,8 +1,10 @@
 #import "SentryScope.h"
+#import "SentryBreadcrumb.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
 #import "SentryScope+Private.h"
+#import "SentrySession.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN

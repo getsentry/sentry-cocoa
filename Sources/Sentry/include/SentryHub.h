@@ -1,9 +1,9 @@
-#import "SentryBreadcrumb.h"
-#import "SentryClient.h"
 #import "SentryDefines.h"
-#import "SentryEvent.h"
 #import "SentryIntegrationProtocol.h"
-#import "SentryScope.h"
+
+@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb;
+
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -25,31 +25,36 @@ SENTRY_NO_INIT
 
 /**
  * Captures an SentryEvent
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event
-                          withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(event:scope:));
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a NSError
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (NSString *_Nullable)captureError:(NSError *)error
-                          withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(error:scope:));
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures a NSException
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *_Nullable)scope
     NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures a Message
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (NSString *_Nullable)captureMessage:(NSString *)message
-                            withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(message:scope:));
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Invokes the callback with a mutable reference to the scope for modifications.

@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,14 +27,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
 
 /**
- * debug [mode] sets a more verbose log level. Default is @NO. If set to @YES
+ * debug [mode] sets a more verbose log level. Default is NO. If set to YES
  * sentry prints more log messages to the console.
  */
-@property (nonatomic, copy) NSNumber *debug;
+@property (nonatomic, assign) BOOL debug;
 
 /**
- DEPRECATED: use debug bool instead (debug = @YES maps to logLevel
- kSentryLogLevelError, debug = @NO maps to loglevel kSentryLogLevelError). thus
+ DEPRECATED: use debug bool instead (debug = YES maps to logLevel
+ kSentryLogLevelError, debug = NO maps to loglevel kSentryLogLevelError). thus
  kSentryLogLevelNone and kSentryLogLevelDebug will be dropped entirely. defines
  the log level of sentry log (console output).
  */
@@ -57,10 +56,10 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * Is the client enabled?. Default is @YES, if set @NO sending of events will be
+ * Is the client enabled?. Default is YES, if set NO sending of events will be
  * prevented.
  */
-@property (nonatomic, copy) NSNumber *enabled;
+@property (nonatomic, assign) BOOL enabled;
 
 /**
  * How many breadcrumbs do you want to keep in memory?
@@ -97,9 +96,9 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSNumber *_Nullable sampleRate;
 
 /**
- * Whether to enable automatic session tracking.
+ * Whether to enable automatic session tracking or not. Default is YES.
  */
-@property (nonatomic, copy) NSNumber *enableAutoSessionTracking;
+@property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
@@ -113,7 +112,7 @@ NS_SWIFT_NAME(Options)
  *
  * This feature is disabled by default.
  */
-@property (nonatomic, copy) NSNumber *attachStacktrace;
+@property (nonatomic, assign) BOOL attachStacktrace;
 
 @end
 

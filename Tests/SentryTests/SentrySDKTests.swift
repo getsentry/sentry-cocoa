@@ -73,25 +73,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
     
-    func testSetLogLevel_InitWithOptionsObject() {
-        let options = Options()
-        options.dsn = TestConstants.dsnAsString
-        options.logLevel = SentryLogLevel.debug
-        
-        SentrySDK(options: options)
-        
-        XCTAssertEqual(options.logLevel, SentrySDK.logLevel)
-    }
-    
-    func testSetLogLevel_InitWithOptionsDict() {
-        SentrySDK(options: [
-            "dsn": TestConstants.dsn,
-            "debug": true
-        ])
-        
-        XCTAssertEqual(SentryLogLevel.debug, SentrySDK.logLevel)
-    }
-    
     func testSetLogLevel_StartWithOptionsDict() {
         SentrySDK.start(options: [
             "dsn": TestConstants.dsn,

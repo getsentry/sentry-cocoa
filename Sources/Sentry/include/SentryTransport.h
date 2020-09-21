@@ -2,7 +2,6 @@
 
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,15 +21,12 @@ NS_SWIFT_NAME(Transport)
  * on next app launch.
  *
  * @param event SentryEvent that should be sent
- * @param completionHandler SentryRequestFinished
  */
-- (void)sendEvent:(SentryEvent *)event
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-    NS_SWIFT_NAME(send(event:completion:));
+- (void)sendEvent:(SentryEvent *)event NS_SWIFT_NAME(send(event:));
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope
-    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-    NS_SWIFT_NAME(send(envelope:completion:));
+- (void)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session;
+
+- (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
 @end
 

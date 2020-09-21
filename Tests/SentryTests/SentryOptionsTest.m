@@ -30,8 +30,8 @@
 - (void)assertDisabled:(SentryOptions *)options andError:(NSError *)error
 {
     XCTAssertNil(options.parsedDsn);
-    XCTAssertEqual(@NO, options.enabled);
-    XCTAssertEqual(@NO, options.debug);
+    XCTAssertEqual(NO, options.enabled);
+    XCTAssertEqual(NO, options.debug);
     XCTAssertNil(error);
 }
 
@@ -95,18 +95,20 @@
 
 - (void)testValidDebug
 {
-    [self testDebugWith:@YES expected:@YES expectedLogLevel:kSentryLogLevelDebug];
-    [self testDebugWith:@"YES" expected:@YES expectedLogLevel:kSentryLogLevelDebug];
+    [self testDebugWith:@YES expected:YES expectedLogLevel:kSentryLogLevelDebug];
+    [self testDebugWith:@"YES" expected:YES expectedLogLevel:kSentryLogLevelDebug];
+    [self testDebugWith:@(YES) expected:YES expectedLogLevel:kSentryLogLevelDebug];
 }
 
 - (void)testInvalidDebug
 {
-    [self testDebugWith:@"Invalid" expected:@NO expectedLogLevel:kSentryLogLevelError];
-    [self testDebugWith:@NO expected:@NO expectedLogLevel:kSentryLogLevelError];
+    [self testDebugWith:@"Invalid" expected:NO expectedLogLevel:kSentryLogLevelError];
+    [self testDebugWith:@NO expected:NO expectedLogLevel:kSentryLogLevelError];
+    [self testDebugWith:@(NO) expected:NO expectedLogLevel:kSentryLogLevelError];
 }
 
 - (void)testDebugWith:(NSObject *)debugValue
-             expected:(NSNumber *)expectedDebugValue
+             expected:(BOOL)expectedDebugValue
      expectedLogLevel:(SentryLogLevel)expectedLogLevel
 {
     NSError *error = nil;
@@ -125,22 +127,24 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
-    XCTAssertEqual(@YES, options.debug);
+    XCTAssertEqual(YES, options.debug);
 }
 
 - (void)testValidEnabled
 {
-    [self testEnabledWith:@YES expected:@YES];
-    [self testEnabledWith:@"YES" expected:@YES];
+    [self testEnabledWith:@YES expected:YES];
+    [self testEnabledWith:@"YES" expected:YES];
+    [self testEnabledWith:@(YES) expected:YES];
 }
 
 - (void)testInvalidEnabled
 {
-    [self testEnabledWith:@"Invalid" expected:@NO];
-    [self testEnabledWith:@NO expected:@NO];
+    [self testEnabledWith:@"Invalid" expected:NO];
+    [self testEnabledWith:@NO expected:NO];
+    [self testEnabledWith:@(NO) expected:NO];
 }
 
-- (void)testEnabledWith:(NSObject *)enabledValue expected:(NSNumber *)expectedValue
+- (void)testEnabledWith:(NSObject *)enabledValue expected:(BOOL)expectedValue
 {
     SentryOptions *options = [self getValidOptions:@{ @"enabled" : enabledValue }];
 
@@ -243,14 +247,14 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableAutoSessionTracking" : @YES }];
 
-    XCTAssertEqual(@YES, options.enableAutoSessionTracking);
+    XCTAssertEqual(YES, options.enableAutoSessionTracking);
 }
 
 - (void)testDefaultEnableAutoSessionTracking
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+    XCTAssertEqual(YES, options.enableAutoSessionTracking);
 }
 
 - (void)testSessionTrackingIntervalMillis
@@ -272,36 +276,36 @@
 - (void)testAttachStackTraceDisabledPerDefault
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(YES, options.attachStacktrace);
 }
 
-- (void)testAttachStackTraceEnabled
+- (void)testAttachStackTraceDisabled
 {
-    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @YES }];
-    XCTAssertEqual(@YES, options.attachStacktrace);
+    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @NO }];
+    XCTAssertEqual(NO, options.attachStacktrace);
 }
 
 - (void)testInvalidAttachStackTrace
 {
     SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(NO, options.attachStacktrace);
 }
 
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
 
-    XCTAssertEqual(@NO, options.enabled);
-    XCTAssertEqual(@NO, options.debug);
+    XCTAssertEqual(NO, options.enabled);
+    XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLogLevelError, options.logLevel);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
-    XCTAssertEqual(@NO, options.enableAutoSessionTracking);
+    XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
-    XCTAssertEqual(@NO, options.attachStacktrace);
+    XCTAssertEqual(YES, options.attachStacktrace);
 }
 
 - (void)testSetValidDsn
@@ -314,7 +318,7 @@
 
     XCTAssertEqual(dsnAsString, options.dsn);
     XCTAssertTrue([dsn.url.absoluteString isEqualToString:options.parsedDsn.url.absoluteString]);
-    XCTAssertEqual(@YES, options.enabled);
+    XCTAssertEqual(YES, options.enabled);
 }
 
 - (void)testSetNilDsn
@@ -322,7 +326,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
 
     [options setDsn:nil];
-    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertEqual(NO, options.enabled);
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
 }
@@ -334,7 +338,7 @@
     [options setDsn:@"https://username:passwordsentry.io/1"];
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
-    XCTAssertEqual(@NO, options.enabled);
+    XCTAssertEqual(NO, options.enabled);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict

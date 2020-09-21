@@ -6,11 +6,16 @@ public class TestTransport: NSObject, Transport {
     var lastSentEnvelope: SentryEnvelope?
     var sentEvents: [Event] = []
    
-    public func send(event: Event, completion completionHandler: SentryRequestFinished? = nil) {
+    public func send(event: Event) {
         sentEvents.append(event)
     }
     
-    public func send(envelope: SentryEnvelope, completion completionHandler: SentryRequestFinished? = nil) {
+    var sentEventsWithSession: [Pair<Event, SentrySession>] = []
+    public func send(_ event: Event, with session: SentrySession) {
+        sentEventsWithSession.append(Pair(event, session))
+    }
+    
+    public func send(envelope: SentryEnvelope) {
         lastSentEnvelope = envelope
     }
 }

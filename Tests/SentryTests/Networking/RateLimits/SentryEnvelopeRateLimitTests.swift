@@ -53,7 +53,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         envelopeItems.append(SentryEnvelopeItem(header: envelopeHeader, data: Data()))
         envelopeItems.append(SentryEnvelopeItem(header: envelopeHeader, data: Data()))
         
-        let envelope = SentryEnvelope(id: "1", items: envelopeItems)
+        let envelope = SentryEnvelope(id: SentryId(), items: envelopeItems)
         
         let actual = sut.removeRateLimitedItems(envelope)
         
@@ -73,7 +73,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
             envelopeItems.append(SentryEnvelopeItem(session: session))
         }
         
-        return SentryEnvelope(id: "1", items: envelopeItems)
+        return SentryEnvelope(id: SentryId(), items: envelopeItems)
     }
     
 }

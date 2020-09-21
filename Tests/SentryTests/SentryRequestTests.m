@@ -179,7 +179,7 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
                    initWithDsn:[[SentryDsn alloc] initWithString:dsn didFailWithError:nil]
         andCurrentDateProvider:[[TestCurrentDateProvider alloc] init]
               didFailWithError:&error];
-    [fileManager deleteAllStoredEventsAndEnvelopes];
+    [fileManager deleteAllEnvelopes];
     [fileManager deleteAllFolders];
 }
 
@@ -212,8 +212,8 @@ NSString *dsn = @"https://username:password@app.getsentry.com/12345";
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for file queue"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (NSInteger i = 0; i <= 100; i++) {
-            NSLog(@"@@ %lu", (unsigned long)[fileManager getAllStoredEventsAndEnvelopes].count);
-            if ([fileManager getAllStoredEventsAndEnvelopes].count == 0) {
+            NSLog(@"@@ %lu", (unsigned long)[fileManager getAllEnvelopes].count);
+            if ([fileManager getAllEnvelopes].count == 0) {
                 [expectation fulfill];
                 return;
             }

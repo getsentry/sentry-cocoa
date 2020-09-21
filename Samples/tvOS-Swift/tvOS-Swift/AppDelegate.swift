@@ -13,7 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.dsn = "https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557"
             options.debug = true
             options.logLevel = SentryLogLevel.verbose
-            options.enableAutoSessionTracking = true
             options.attachStacktrace = true
             options.sessionTrackingIntervalMillis = 5_000
         }

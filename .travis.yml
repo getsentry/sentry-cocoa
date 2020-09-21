@@ -2,7 +2,7 @@ branches:
   only:
     - master
     - /^release\/.+$/
-    - 5.x
+    - 6.0.0
 
 os: osx
 language: objective-c
