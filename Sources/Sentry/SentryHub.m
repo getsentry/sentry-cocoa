@@ -138,7 +138,7 @@ SentryHub ()
                          andLevel:kSentryLogLevelDebug];
 
         [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
-        @synchronized (_crashEventAndSessionLock) {
+        @synchronized(_crashEventAndSessionLock) {
             self.crashedSession = [session copy];
             [self sendCrashedEventAndSession];
         }
@@ -202,7 +202,7 @@ SentryHub ()
 {
     SentryClient *client = [self getClient];
 
-    @synchronized (_crashEventAndSessionLock) {
+    @synchronized(_crashEventAndSessionLock) {
         //  When enableAutoSessionTracking is enabled, we send the crash event and session together.
         if (nil != client && client.options.enableAutoSessionTracking
             && !self.crashEventAndSessionSent) {
