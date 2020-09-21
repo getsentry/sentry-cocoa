@@ -6,9 +6,12 @@ This release also enables by default the option `attackStacktrace` which include
 the stacktrace in all events, including `captureMessage` by default.
 
 Breaking Changes: 
+
 - feat: Attach stacktraces to all events by default #705 !Breaking
 
 Features and fixes: 
+
+- feat: Allow nil in setExtraValue on SentryScope to remove key #703
 
 ## 6.0.0-beta.0
 
