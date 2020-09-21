@@ -200,30 +200,33 @@ SentryHub ()
 
 - (void)captureCrashEvent:(SentryEvent *)event
 {
-    SentryClient *client = [self getClient];
-    if (nil == client) {
-        return;
-    }
-
-    SentrySession *session;
-    @synchronized(_sessionLock) {
-        session = [[client fileManager] readCurrentSession];
-    }
-
     @synchronized(_crashEventAndSessionLock) {
-
-        // When autoSessionTracking is enabled, there is a previous crash and we don't have a
-        // session yet we send the crash event without a session. Otherwise the crash event would never be sent.
-        BOOL isThereAnExistingSession = nil != session || nil != self.crashedSession;
-
-        if (client.options.enableAutoSessionTracking && isThereAnExistingSession
-            && !self.crashEventAndSessionSent) {
+        if ([self shouldSendCrashEventAndSessionTogether]) {
             self.crashedEvent = event;
             [self sendCrashedEventAndSession];
         } else {
             [self captureEvent:event withScope:self.scope];
         }
     }
+}
+
+- (BOOL)shouldSendCrashEventAndSessionTogether
+{
+    SentryClient *client = [self getClient];
+    if (nil == client) {
+        return NO;
+    }
+
+    // Check these conditions first to avoid unnecessary I/O
+    if (client.options.enableAutoSessionTracking && !self.crashEventAndSessionSent) {
+        // Is there an existing session?
+        // When autoSessionTracking is enabled, there is a previous crash and we don't have a
+        // session yet, we send the crash event without a session. Otherwise the crash event would
+        // never be sent.
+        return nil != self.crashedSession || nil != [[client fileManager] readCurrentSession];
+    }
+
+    return NO;
 }
 
 /**
