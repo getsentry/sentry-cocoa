@@ -38,6 +38,7 @@ SentryHub ()
         [self bindClient:client];
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
+        _crashEventAndSessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         self.sentryCrashWrapper = [[SentryCrashAdapter alloc] init];
         self.crashEventAndSessionSent = NO;
