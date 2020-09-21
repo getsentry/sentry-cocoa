@@ -204,7 +204,7 @@ SentryHub ()
     if (nil == client) {
         return;
     }
-    
+
     @synchronized(_crashEventAndSessionLock) {
         //  When enableAutoSessionTracking is enabled, we send the crash event and session together.
         if (client.options.enableAutoSessionTracking && !self.crashEventAndSessionSent) {
