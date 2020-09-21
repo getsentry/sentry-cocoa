@@ -222,7 +222,7 @@ SentryHub ()
  * send them together so our release health statistics show proper numbers.
  *
  * If there are multiple crash events to be sent on the start of the SDK there is currently no way
- * to know which one belongs to the crahsed session so we just send the session with the first
+ * to know which one belongs to the crashed session so we just send the session with the first
  * crashed event we receive.
  *
  * The tradeoff of this functionality is that we increase the timespan slightly the session and the
