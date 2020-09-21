@@ -328,14 +328,31 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-    func testCaptureCrashEvent_WithoutAutoSessionTracking() {
-        let options = fixture.options
-        options.enableAutoSessionTracking = false
-        sut = fixture.getSut(options)
+    func testCaptureCrashEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
+        givenAutoSessionTrackingDisabled()
         
         sut.captureCrash(fixture.event)
-
+        
         assertEventSent()
+    }
+    
+    func testCaptureCrashEvent_SessionExistsButAutoSessionTrackingDisabled() {
+        givenAutoSessionTrackingDisabled()
+        givenCrashedSession()
+    
+        sut.captureCrash(fixture.event)
+        
+        assertEventSent()
+    }
+    
+    func testCaptureCrashEvent_ClientIsNil() {
+        sut = fixture.getSut()
+        sut.bindClient(nil)
+        
+        givenCrashedSession()
+        sut.captureCrash(fixture.event)
+        
+        assertNoEventsSent()
     }
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
@@ -368,11 +385,22 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        sut.startSession()
+        // Start the session from a previous hub.
+        // When the app crashed startSession is called after the existing session on
+        // the disk is closed.
+        let otherSut = SentryHub(client: fixture.client, andScope: fixture.scope)
+        otherSut.startSession()
+        
         advanceTime(bySeconds: 1)
 
         fixture.sentryCrash.internalCrashedLastLaunch = true
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+    }
+    
+    private func givenAutoSessionTrackingDisabled() {
+        let options = fixture.options
+        options.enableAutoSessionTracking = false
+        sut = fixture.getSut(options)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
@@ -398,6 +426,7 @@ class SentryHubTests: XCTestCase {
     
     private func assertNoEventsSent() {
         XCTAssertEqual(0, fixture.client.captureEventArguments.count)
+        XCTAssertEqual(0, fixture.client.captureEventWithSessionArguments.count)
     }
     
     private func assertEventSent() {

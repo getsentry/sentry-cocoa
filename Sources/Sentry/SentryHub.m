@@ -201,11 +201,13 @@ SentryHub ()
 - (void)captureCrashEvent:(SentryEvent *)event
 {
     SentryClient *client = [self getClient];
-
+    if (nil == client) {
+        return;
+    }
+    
     @synchronized(_crashEventAndSessionLock) {
         //  When enableAutoSessionTracking is enabled, we send the crash event and session together.
-        if (nil != client && client.options.enableAutoSessionTracking
-            && !self.crashEventAndSessionSent) {
+        if (client.options.enableAutoSessionTracking && !self.crashEventAndSessionSent) {
             self.crashedEvent = event;
             [self sendCrashedEventAndSession];
         } else {
