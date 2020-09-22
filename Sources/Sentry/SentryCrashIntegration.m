@@ -6,14 +6,9 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
-#import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
-#import "SentryScope.h"
-#import "SentrySession.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>

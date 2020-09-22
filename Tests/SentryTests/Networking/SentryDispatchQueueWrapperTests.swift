@@ -2,7 +2,7 @@ import XCTest
 
 class SentryDispatchQueueWrapperTests: XCTestCase {
 
-    func testDispatchOnce()  {
+    func testDispatchOnce() {
         var a = 0
         
         var firstWasCalled = false
