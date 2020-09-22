@@ -1,6 +1,11 @@
 #import "SentryCrashIntegration.h"
+#import "SentryClient.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryCurrentDate.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
+#import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
@@ -8,6 +13,7 @@
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
+#import "SentrySession.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -19,10 +25,31 @@ static SentryCrashInstallationReporter *installation = nil;
 SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, strong) SentryCrashAdapter *crashWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
 @implementation SentryCrashIntegration
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.crashWrapper = [[SentryCrashAdapter alloc] init];
+    }
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithCrashWrapper:(SentryCrashAdapter *)crashWrapper
+             andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    self = [self init];
+    self.crashWrapper = crashWrapper;
+    self.dispatchQueueWrapper = dispatchQueueWrapper;
+
+    return self;
+}
 
 /**
  * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
@@ -47,11 +74,54 @@ SentryCrashIntegration ()
 - (void)startCrashHandler
 {
     static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
-        installation = [[SentryCrashInstallationReporter alloc] init];
-        [installation install];
-        [installation sendAllReports];
-    });
+    [self.dispatchQueueWrapper dispatchOnce:&onceToken
+                                      block:^{
+                                          installation =
+                                              [[SentryCrashInstallationReporter alloc] init];
+                                          [installation install];
+                                          [self storeCrashedSession];
+                                          [installation sendAllReports];
+                                      }];
+}
+
+/**
+ * When a crash happened the current session is marked as crashed and stored at a different
+ * location. Checkout SentryHub where most of the session logic is implemented.
+ *
+ * We need to send the crashed event together with the crashed session in the same envelope to have
+ * proper statistics in release health. To achieve this we need both synchronously in the hub. The
+ * crashed event is converted from a SentryCrashReport to an event in SentryCrashReportSink and then
+ * passed to the SDK on a background thread. This process is started with installing this
+ * integration. We need to end and delete the previous session before being able to start a new
+ * session for the AutoSessionTrackingIntegration. The SentryCrashIntegration is installed before
+ * the AutoSessionTrackingIntegration so there is no guarantee if the crashed event is created
+ * before or after the AutoSessionTrackingIntegration. By ending the previous session and storing it
+ * as crashed in here we have the guarantee once the crashed event is sent to the hub it is already
+ * there and the AutoSessionTrackingIntegration can work properly.
+ *
+ * This is a pragmatic and not the most optimal place for this logic.
+ */
+- (void)storeCrashedSession
+{
+    if (self.crashWrapper.crashedLastLaunch) {
+        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+
+        if (nil == fileManager) {
+            return;
+        }
+
+        SentrySession *session = [fileManager readCurrentSession];
+        if (nil == session) {
+            return;
+        }
+
+        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
+            dateByAddingTimeInterval:-self.crashWrapper.activeDurationSinceLastCrash];
+
+        [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
+        [fileManager storeCrashedSession:session];
+        [fileManager deleteCurrentSession];
+    }
 }
 
 - (void)configureScope

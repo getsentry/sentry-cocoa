@@ -18,15 +18,10 @@ SentryHub ()
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *sentryCrashWrapper;
 
-@property (nonatomic, strong) SentrySession *_Nullable crashedSession;
-@property (nonatomic, strong) SentryEvent *_Nullable crashedEvent;
-@property BOOL crashEventAndSessionSent;
-
 @end
 
 @implementation SentryHub {
     NSObject *_sessionLock;
-    NSObject *_crashEventAndSessionLock;
 }
 
 @synthesize scope;
@@ -38,10 +33,8 @@ SentryHub ()
         [self bindClient:client];
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
-        _crashEventAndSessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         self.sentryCrashWrapper = [[SentryCrashAdapter alloc] init];
-        self.crashEventAndSessionSent = NO;
     }
     return self;
 }
@@ -130,21 +123,9 @@ SentryHub ()
         return;
     }
 
-    if (self.sentryCrashWrapper.crashedLastLaunch) {
-        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
-            dateByAddingTimeInterval:-self.sentryCrashWrapper.activeDurationSinceLastCrash];
-
-        [SentryLog logWithMessage:@"Closing cached session as crashed."
-                         andLevel:kSentryLogLevelDebug];
-
-        [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
-        @synchronized(_crashEventAndSessionLock) {
-            self.crashedSession = [session copy];
-            [self sendCrashedEventAndSession];
-        }
-        [self deleteCurrentSession];
-        return;
-    } else {
+    // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
+    // out more.
+    if (!self.sentryCrashWrapper.crashedLastLaunch) {
         if (nil == timestamp) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
@@ -159,9 +140,9 @@ SentryHub ()
                              andLevel:kSentryLogLevelDebug];
             [session endSessionExitedWithTimestamp:timestamp];
         }
+        [self deleteCurrentSession];
+        [client captureSession:session];
     }
-    [self deleteCurrentSession];
-    [client captureSession:session];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -198,62 +179,34 @@ SentryHub ()
     return sessionCopy;
 }
 
+/**
+ * If autoSessionTracking is enabled we want to send the crash and the event together to get proper
+ * numbers for release health statistics. If there are multiple crash events to be sent on the start
+ * of the SDK there is currently no way to know which one belongs to the crashed session so we just
+ * send the session with the first crashed event we receive.
+ */
 - (void)captureCrashEvent:(SentryEvent *)event
-{
-    @synchronized(_crashEventAndSessionLock) {
-        if ([self shouldSendCrashEventAndSessionTogether]) {
-            self.crashedEvent = event;
-            [self sendCrashedEventAndSession];
-        } else {
-            [self captureEvent:event withScope:self.scope];
-        }
-    }
-}
-
-- (BOOL)shouldSendCrashEventAndSessionTogether
 {
     SentryClient *client = [self getClient];
     if (nil == client) {
-        return NO;
+        return;
     }
 
-    // Check these conditions first to avoid unnecessary I/O
-    if (client.options.enableAutoSessionTracking && !self.crashEventAndSessionSent) {
-        // Is there an existing session?
-        // When autoSessionTracking is enabled, there is a previous crash and we don't have a
-        // session yet, we send the crash event without a session. Otherwise the crash event would
-        // never be sent.
-        return nil != self.crashedSession || nil != [[client fileManager] readCurrentSession];
+    // Check this condition first to avoid unnecessary I/O
+    if (client.options.enableAutoSessionTracking) {
+        SentryFileManager *fileManager = [client fileManager];
+        SentrySession *crashedSession = [fileManager readCrashedSession];
+
+        // It can be that there is no session yet, because autoSessionTracking was just enabled and
+        // there is a previous crash on disk. In this case we just send the crash event.
+        if (nil != crashedSession) {
+            [client captureEvent:event withSession:crashedSession withScope:self.scope];
+            [fileManager deleteCrashedSession];
+            return;
+        }
     }
 
-    return NO;
-}
-
-/**
- * Sends the event and session of a crash together.
- * The session is marked as crashed in closeCachedSessionWithTimestamp and the crash event is
- * received in captureCrashEvent. There is no guarantee in which order these come in, but most of
- * the time the session comes in first as the event is created on a background thread. We need to
- * send them together so our release health statistics show proper numbers.
- *
- * If there are multiple crash events to be sent on the start of the SDK there is currently no way
- * to know which one belongs to the crashed session so we just send the session with the first
- * crashed event we receive.
- *
- * The tradeoff of this functionality is that we increase the timespan slightly the session and the
- * event stay in memory and might get lost due to another crash happening in the meantime.
- */
-- (void)sendCrashedEventAndSession
-{
-    SentryClient *client = [self getClient];
-    if (nil != client && nil != self.crashedEvent && nil != self.crashedSession) {
-        [client captureEvent:self.crashedEvent
-                 withSession:self.crashedSession
-                   withScope:self.scope];
-        self.crashedEvent = nil;
-        self.crashedSession = nil;
-        self.crashEventAndSessionSent = YES;
-    }
+    [self captureEvent:event withScope:self.scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope

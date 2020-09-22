@@ -43,6 +43,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         fileManager.deleteCurrentSession()
+        fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
         
         fixture.setNewHubToSDK()
@@ -482,7 +483,14 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
         let sessionStartTime = fixture.currentDateProvider.date()
+        
+        // SentryCrashIntegration stores the crashed session to the disk. We emulate
+        // the result here.
+        let crashedSession = SentrySession(releaseName: "1.0.0")
         advanceTime(bySeconds: 5)
+        crashedSession.endCrashed(withTimestamp: fixture.currentDateProvider.date())
+        fileManager.storeCrashedSession(crashedSession)
+        
         sut.start()
         SentrySDK.captureCrash(Event())
         

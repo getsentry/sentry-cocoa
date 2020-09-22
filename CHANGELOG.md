@@ -11,7 +11,7 @@ Breaking Changes:
 
 Features and fixes: 
 
-- feat: Crash event and session in same envelope #716
+- feat: Crash event and session in same envelope #731
 - feat: Allow nil in setExtraValue on SentryScope to remove key #703
 
 ## 6.0.0-beta.0

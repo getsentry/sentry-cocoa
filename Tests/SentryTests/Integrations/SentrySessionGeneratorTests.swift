@@ -18,14 +18,16 @@ class SentrySessionGeneratorTests: XCTestCase {
     
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
+    private var crashIntegration: SentryCrashIntegration!
     private var options: Options!
+    private var fileManager: SentryFileManager!
     
     override func setUp() {
         super.setUp()
         
         do {
             let dsn = try SentryDsn(string: dsnAsString)
-            let fileManager = try SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
             
             fileManager.deleteCurrentSession()
             fileManager.deleteTimestampLastInForeground()
@@ -37,8 +39,8 @@ class SentrySessionGeneratorTests: XCTestCase {
     /**
      * Disabled on purpose. This test just sends sessions to Sentry, but doesn't verify that they arrive there properly.
      */
-    func tesSendSessions() {
-        sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 1, abnormal: 1))
+    func testSendSessions() {
+        sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 3, abnormal: 1))
     }
     
     private func sendSessions(amount: Sessions ) {
@@ -68,6 +70,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         sentryCrash.internalCrashedLastLaunch = true
         for _ in Array(1...amount.crashed) {
             // send crashed session
+            crashIntegration.install(with: options)
             autoSessionTrackingIntegration.stop()
             autoSessionTrackingIntegration.install(with: options)
             goToForeground()
@@ -117,6 +120,9 @@ class SentrySessionGeneratorTests: XCTestCase {
         let client = SentrySDK.currentHub().getClient()
         let hub = SentryHub(client: client, andScope: nil, andSentryCrashWrapper: self.sentryCrash)
         SentrySDK.setCurrentHub(hub)
+        
+        crashIntegration = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        crashIntegration.install(with: options)
         
         autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration()
         autoSessionTrackingIntegration.install(with: options)

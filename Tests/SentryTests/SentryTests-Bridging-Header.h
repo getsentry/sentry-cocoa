@@ -15,6 +15,7 @@
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryCrashIntegration+TestInit.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashReportSink.h"

@@ -19,8 +19,11 @@ SENTRY_NO_INIT
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
 - (void)storeCurrentSession:(SentrySession *)session;
+- (void)storeCrashedSession:(SentrySession *)session;
 - (SentrySession *_Nullable)readCurrentSession;
+- (SentrySession *_Nullable)readCrashedSession;
 - (void)deleteCurrentSession;
+- (void)deleteCrashedSession;
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp;
 - (NSDate *_Nullable)readTimestampLastInForeground;

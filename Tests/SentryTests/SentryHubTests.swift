@@ -14,6 +14,7 @@ class SentryHubTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let sentryCrash = TestSentryCrashWrapper()
         let fileManager: SentryFileManager
+        let crashedSession: SentrySession
         
         init() {
             options = Options()
@@ -28,6 +29,9 @@ class SentryHubTests: XCTestCase {
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
+            
+            crashedSession = SentrySession(releaseName: "1.0.0")
+            crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
         }
         
         func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
@@ -49,6 +53,7 @@ class SentryHubTests: XCTestCase {
     override func setUp() {
         fixture = Fixture()
         fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
         
         sut = fixture.getSut()
@@ -56,6 +61,7 @@ class SentryHubTests: XCTestCase {
     
     override func tearDown() {
         fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
     }
 
@@ -317,11 +323,10 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut(fixture.options, fixture.scope)
         givenCrashedSession()
         
-        assertSessionDeleted()
         assertNoCrashedSessionSent()
 
         sut.captureCrash(fixture.event)
-
+        
         assertEventSentWithSession()
         
         // Make sure further crash events are sent
@@ -334,7 +339,7 @@ class SentryHubTests: XCTestCase {
         sut.captureCrash(fixture.event)
 
         assertNoCrashedSessionSent()
-        assertNoEventsSent()
+        assertEventSent()
     }
     
     /**
@@ -403,16 +408,10 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        // Start the session from a previous hub.
-        // When the app crashed startSession is called after the existing session on
-        // the disk is closed.
-        let otherSut = SentryHub(client: fixture.client, andScope: fixture.scope)
-        otherSut.startSession()
-        
-        advanceTime(bySeconds: 1)
-
         fixture.sentryCrash.internalCrashedLastLaunch = true
+        fixture.fileManager.storeCrashedSession(fixture.crashedSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+        sut.startSession()
     }
     
     private func givenAutoSessionTrackingDisabled() {
