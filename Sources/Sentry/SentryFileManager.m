@@ -32,7 +32,6 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
                andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                      didFailWithError:(NSError **)error
@@ -283,16 +282,16 @@ SentryFileManager ()
         if (nil == currentData) {
             return nil;
         }
-        SentrySession *currentSession = [SentrySerialization sessionWithData:currentData];
-        if (nil == currentSession) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in session: "
-                                                                 @"'%@' was not parsed as session.",
-                                                sessionFilePath]
-                             andLevel:kSentryLogLevelError];
-            return nil;
-        }
-        return currentSession;
     }
+    SentrySession *currentSession = [SentrySerialization sessionWithData:currentData];
+    if (nil == currentSession) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in session: "
+                                                             @"'%@' was not parsed as session.",
+                                            sessionFilePath]
+                         andLevel:kSentryLogLevelError];
+        return nil;
+    }
+    return currentSession;
 }
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp
