@@ -2,12 +2,14 @@
 
 ## unreleased
 
+## 6.0.0-beta.1
+
 This release also enables by default the option `attackStacktrace` which includes
 the stacktrace in all events, including `captureMessage` by default.
 
 Breaking Changes: 
 
-- feat: Attach stacktraces to all events by default #705 !Breaking
+- feat: Attach stacktraces to all events by default #705
 
 Features and fixes: 
 
