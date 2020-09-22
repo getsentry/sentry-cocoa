@@ -25,7 +25,7 @@ SentrySessionCrashedHandler ()
     return self;
 }
 
-- (void)storeCrashedSession
+- (void)endCurrentSessionAsCrashedWhenCrashed
 {
     if (self.crashWrapper.crashedLastLaunch) {
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];

@@ -88,7 +88,7 @@ SentryCrashIntegration ()
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.crashedSessionHandler storeCrashedSession];
+        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashed];
 
         [installation sendAllReports];
     };
