@@ -32,7 +32,6 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-NSObject *_sessionLock;
 
 - (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
                andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -72,8 +71,6 @@ NSObject *_sessionLock;
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = defaultMaxEnvelopes;
-
-        _sessionLock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -239,7 +236,7 @@ NSObject *_sessionLock;
     NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing session: %@", sessionFilePath]
                      andLevel:kSentryLogLevelDebug];
-    @synchronized(_sessionLock) {
+    @synchronized(self.currentSessionFilePath) {
         [sessionData writeToFile:sessionFilePath options:NSDataWritingAtomic error:nil];
     }
 }
@@ -259,7 +256,7 @@ NSObject *_sessionLock;
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting session: %@", sessionFilePath]
                      andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    @synchronized(_sessionLock) {
+    @synchronized(self.currentSessionFilePath) {
         [fileManager removeItemAtPath:sessionFilePath error:nil];
     }
 }
@@ -281,7 +278,7 @@ NSObject *_sessionLock;
               andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = nil;
-    @synchronized(_sessionLock) {
+    @synchronized(self.currentSessionFilePath) {
         currentData = [fileManager contentsAtPath:sessionFilePath];
         if (nil == currentData) {
             return nil;
