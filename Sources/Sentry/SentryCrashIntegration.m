@@ -36,6 +36,7 @@ SentryCrashIntegration ()
 {
     if (self = [super init]) {
         self.crashWrapper = [[SentryCrashAdapter alloc] init];
+        self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
     }
     return self;
 }
