@@ -141,6 +141,16 @@ SentryClient ()
     return event;
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+               withSession:(SentrySession *)session
+                 withScope:(SentryScope *_Nullable)scope
+{
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:NO];
+    return [self sendEvent:preparedEvent withSession:session];
+}
+
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];

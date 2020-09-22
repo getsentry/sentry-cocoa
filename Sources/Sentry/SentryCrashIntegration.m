@@ -1,13 +1,12 @@
 #import "SentryCrashIntegration.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
-#import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
-#import "SentryScope.h"
+#import "SentrySessionCrashedHandler.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -19,10 +18,35 @@ static SentryCrashInstallationReporter *installation = nil;
 SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 
 @end
 
 @implementation SentryCrashIntegration
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        SentryCrashAdapter *crashWrapper = [[SentryCrashAdapter alloc] init];
+        self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        self.crashedSessionHandler =
+            [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashWrapper];
+    }
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithCrashWrapper:(SentryCrashAdapter *)crashWrapper
+             andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    self = [self init];
+    self.dispatchQueueWrapper = dispatchQueueWrapper;
+    self.crashedSessionHandler =
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashWrapper];
+
+    return self;
+}
 
 /**
  * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
@@ -47,11 +71,28 @@ SentryCrashIntegration ()
 - (void)startCrashHandler
 {
     static dispatch_once_t onceToken = 0;
-    dispatch_once(&onceToken, ^{
+    void (^block)(void) = ^{
         installation = [[SentryCrashInstallationReporter alloc] init];
         [installation install];
+
+        // We need to send the crashed event together with the crashed session in the same envelope
+        // to have proper statistics in release health. To achieve this we need both synchronously
+        // in the hub. The crashed event is converted from a SentryCrashReport to an event in
+        // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
+        // started with installing this integration. We need to end and delete the previous session
+        // before being able to start a new session for the AutoSessionTrackingIntegration. The
+        // SentryCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
+        // no guarantee if the crashed event is created before or after the
+        // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
+        // in here we have the guarantee once the crashed event is sent to the hub it is already
+        // there and the AutoSessionTrackingIntegration can work properly.
+        //
+        // This is a pragmatic and not the most optimal place for this logic.
+        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashed];
+
         [installation sendAllReports];
-    });
+    };
+    [self.dispatchQueueWrapper dispatchOnce:&onceToken block:block];
 }
 
 - (void)configureScope

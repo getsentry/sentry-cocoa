@@ -24,6 +24,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *eventsPath;
 @property (nonatomic, copy) NSString *envelopesPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
+@property (nonatomic, copy) NSString *crashedSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 
@@ -53,6 +54,9 @@ SentryFileManager ()
 
         self.currentSessionFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"session.current"];
+
+        self.crashedSessionFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
 
         self.lastInForegroundFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
@@ -218,48 +222,76 @@ SentryFileManager ()
 
 - (void)storeCurrentSession:(SentrySession *)session
 {
+    [self storeSession:session sessionFilePath:self.currentSessionFilePath];
+}
+
+- (void)storeCrashedSession:(SentrySession *)session
+{
+    [self storeSession:session sessionFilePath:self.crashedSessionFilePath];
+}
+
+- (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
+{
     NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to current session: %@",
-                                        self.currentSessionFilePath]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing session: %@", sessionFilePath]
                      andLevel:kSentryLogLevelDebug];
     @synchronized(self.currentSessionFilePath) {
-        [sessionData writeToFile:self.currentSessionFilePath options:NSDataWritingAtomic error:nil];
+        [sessionData writeToFile:sessionFilePath options:NSDataWritingAtomic error:nil];
     }
 }
 
 - (void)deleteCurrentSession
 {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting current session: %@",
-                                        self.currentSessionFilePath]
+    [self deleteSession:self.currentSessionFilePath];
+}
+
+- (void)deleteCrashedSession
+{
+    [self deleteSession:self.crashedSessionFilePath];
+}
+
+- (void)deleteSession:(NSString *)sessionFilePath
+{
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting session: %@", sessionFilePath]
                      andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.currentSessionFilePath) {
-        [fileManager removeItemAtPath:self.currentSessionFilePath error:nil];
+        [fileManager removeItemAtPath:sessionFilePath error:nil];
     }
 }
 
 - (SentrySession *_Nullable)readCurrentSession
 {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Reading from current session: %@",
-                                        self.currentSessionFilePath]
-                     andLevel:kSentryLogLevelDebug];
+    return [self readSession:self.currentSessionFilePath];
+}
+
+- (SentrySession *_Nullable)readCrashedSession
+{
+    return [self readSession:self.crashedSessionFilePath];
+}
+
+- (SentrySession *)readSession:(NSString *)sessionFilePath
+{
+    [SentryLog
+        logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
+              andLevel:kSentryLogLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSData *currentSessionData = nil;
+    NSData *currentData = nil;
     @synchronized(self.currentSessionFilePath) {
-        currentSessionData = [fileManager contentsAtPath:self.currentSessionFilePath];
-        if (nil == currentSessionData) {
+        currentData = [fileManager contentsAtPath:sessionFilePath];
+        if (nil == currentData) {
             return nil;
         }
-        SentrySession *currentSession = [SentrySerialization sessionWithData:currentSessionData];
-        if (nil == currentSession) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in current session: "
-                                                                 @"'%@' was not parsed as session.",
-                                                self.currentSessionFilePath]
-                             andLevel:kSentryLogLevelError];
-            return nil;
-        }
-        return currentSession;
     }
+    SentrySession *currentSession = [SentrySerialization sessionWithData:currentData];
+    if (nil == currentSession) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in session: "
+                                                             @"'%@' was not parsed as session.",
+                                            sessionFilePath]
+                         andLevel:kSentryLogLevelError];
+        return nil;
+    }
+    return currentSession;
 }
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp

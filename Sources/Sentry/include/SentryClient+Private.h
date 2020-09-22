@@ -15,6 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
                    withSession:(SentrySession *)session
                      withScope:(SentryScope *_Nullable)scope;
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+               withSession:(SentrySession *)session
+                 withScope:(SentryScope *_Nullable)scope;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -46,6 +46,13 @@ class TestClient: Client {
         captureExceptionWithSessionArguments.append(Triple(exception, session, scope))
         return SentryId()
     }
+    
+    var captureEventWithSessionArguments: [Triple<Event, SentrySession, Scope?>] = []
+    override func capture(_ event: Event, with session: SentrySession, with scope: Scope?) -> SentryId {
+        captureEventWithSessionArguments.append(Triple(event, session, scope))
+        return SentryId()
+    }
+    
 }
 
 class TestFileManager: SentryFileManager {

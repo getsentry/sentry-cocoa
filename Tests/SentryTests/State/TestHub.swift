@@ -19,4 +19,9 @@ class TestHub: SentryHub {
     override func endSession(withTimestamp timestamp: Date) {
         endSessionTimestamp = timestamp
     }
+    
+    var sentCrashEvents: [Event] = []
+    override func captureCrash(_ event: Event) {
+        sentCrashEvents.append(event)
+    }
 }

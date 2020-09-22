@@ -295,12 +295,27 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(expectedSession)
         let actualSession = sut.readCurrentSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
+        XCTAssertNil(sut.readCrashedSession())
+    }
+    
+    func testStoreAndReadCrashedSession() {
+        let expectedSession = SentrySession(releaseName: "1.0.0")
+        sut.storeCrashedSession(expectedSession)
+        let actualSession = sut.readCrashedSession()
+        XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
     }
 
     func testStoreDeleteCurrentSession() {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.deleteCurrentSession()
         let actualSession = sut.readCurrentSession()
+        XCTAssertNil(actualSession)
+    }
+    
+    func testStoreDeleteCrashedSession() {
+        sut.storeCrashedSession(SentrySession(releaseName: "1.0.0"))
+        sut.deleteCrashedSession()
+        let actualSession = sut.readCrashedSession()
         XCTAssertNil(actualSession)
     }
 
