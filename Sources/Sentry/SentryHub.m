@@ -64,6 +64,12 @@ SentryHub ()
             lastSession = _session;
         }
         _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
+
+        NSString *environment = options.environment;
+        if (nil != environment) {
+            _session.environment = environment;
+        }
+
         [scope applyToSession:_session];
 
         [self storeCurrentSession:_session];

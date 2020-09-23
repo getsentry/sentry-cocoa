@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Setting environment for Sessions #734
+
 ## 6.0.0-beta.1
 
 This release also enables by default the option `attackStacktrace` which includes
