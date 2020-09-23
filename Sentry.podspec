@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "6.0.0-beta.1"
+  s.version      = "6.0.0-fix-umbrella-header"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -21,7 +21,11 @@ Pod::Spec.new do |s|
   s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
-    sp.source_files = "Sources/Sentry/**/*.{h,m}",
-                      "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
+      sp.source_files = "Sources/Sentry/**/*.{h,m}",
+        "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
+        
+      sp.public_header_files =
+        "Sources/Sentry/Public/*.h"
+      
   end
 end
