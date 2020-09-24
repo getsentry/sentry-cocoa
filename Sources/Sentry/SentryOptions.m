@@ -17,8 +17,6 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.enabled = NO;
-
         self.logLevel = kSentryLogLevelError;
 
         self.debug = NO;
@@ -62,9 +60,7 @@
 
     if (nil == error) {
         _dsn = dsn;
-        self.enabled = YES;
     } else {
-        self.enabled = NO;
         NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
         [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
     }
@@ -92,19 +88,13 @@
         }
     }
 
-    if (nil == [options valueForKey:@"dsn"]
-        || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        self.enabled = NO;
-        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK"
-                         andLevel:kSentryLogLevelDebug];
-        return;
+    NSString *dsn = @"";
+    if (nil != [options valueForKey:@"dsn"] &&
+        [[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
+        dsn = [options valueForKey:@"dsn"];
     }
 
-    self.parsedDsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"]
-                                      didFailWithError:error];
-    if (nil != error && nil != *error) {
-        self.enabled = NO;
-    }
+    self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
 
     if ([options[@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = options[@"release"];
@@ -116,12 +106,6 @@
 
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
         self.dist = options[@"dist"];
-    }
-
-    if (nil != options[@"enabled"]) {
-        self.enabled = [options[@"enabled"] boolValue];
-    } else {
-        self.enabled = YES;
     }
 
     if (nil != options[@"maxBreadcrumbs"]) {
