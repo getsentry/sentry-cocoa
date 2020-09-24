@@ -15,6 +15,7 @@ class SentrySessionTrackerTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
+            options.environment = "debug"
             
             client = TestClient(options: options)
             
@@ -442,7 +443,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func assertSessionFields(session: SentrySession) {
         XCTAssertNotNil(session.sessionId)
         XCTAssertNotNil(session.distinctId)
-        XCTAssertNil(session.environment)
+        XCTAssertEqual(fixture.options.environment, session.environment)
         XCTAssertNil(session.user)
     }
     
@@ -487,6 +488,7 @@ class SentrySessionTrackerTests: XCTestCase {
         // SentryCrashIntegration stores the crashed session to the disk. We emulate
         // the result here.
         let crashedSession = SentrySession(releaseName: "1.0.0")
+        crashedSession.environment = fixture.options.environment
         advanceTime(bySeconds: 5)
         crashedSession.endCrashed(withTimestamp: fixture.currentDateProvider.date())
         fileManager.storeCrashedSession(crashedSession)

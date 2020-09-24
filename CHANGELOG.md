@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Public Headers #735 !Breaking
+- fix: Setting environment for Sessions #734
 
 ## 6.0.0-beta.1
 
