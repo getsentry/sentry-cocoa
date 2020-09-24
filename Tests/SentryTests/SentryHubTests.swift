@@ -20,6 +20,7 @@ class SentryHubTests: XCTestCase {
             options = Options()
             options.dsn = TestConstants.dsnAsString
             options.enableAutoSessionTracking = true
+            options.environment = "debug"
             
             scope.add(crumb)
             
@@ -32,6 +33,7 @@ class SentryHubTests: XCTestCase {
             
             crashedSession = SentrySession(releaseName: "1.0.0")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
+            crashedSession.environment = options.environment
         }
         
         func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
@@ -462,6 +464,7 @@ class SentryHubTests: XCTestCase {
         let session = argument?.second
         XCTAssertEqual(fixture.currentDateProvider.date(), session?.timestamp)
         XCTAssertEqual(SentrySessionStatus.crashed, session?.status)
+        XCTAssertEqual(fixture.options.environment, session?.environment)
 
         XCTAssertEqual(fixture.scope, argument?.third)
     }
