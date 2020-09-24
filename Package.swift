@@ -24,7 +24,7 @@ let package = Package(
             ],
             sources: [
                 "Sentry/",
-                "SentryCrash/",
+                "SentryCrash/"
             ],
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
