@@ -271,9 +271,7 @@ SentryClient ()
 
     BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
     if (shouldAttachStacktrace && threadsNotAttached) {
-        // We don't want to add the stacktrace of attaching the stacktrace.
-        // Therefore we skip three frames.
-        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
+        event.threads = [self.threadInspector getCurrentThreads];
     }
 
     if (nil != scope) {

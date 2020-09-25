@@ -209,7 +209,7 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            assertValidErrorEvent(actual, framesToSkip: 6)
+            assertValidErrorEvent(actual)
         }
     }
     
@@ -267,7 +267,7 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            assertValidExceptionEvent(actual, framesToSkip: 6)
+            assertValidExceptionEvent(actual)
         }
     }
     
@@ -463,18 +463,18 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidErrorEvent(_ event: Event, framesToSkip: Int = 5) {
+    private func assertValidErrorEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
         XCTAssertEqual(error.localizedDescription, event.message)
         assertValidDebugMeta(actual: event.debugMeta)
-        assertValidThreads(actual: event.threads, framesToSkip)
+        assertValidThreads(actual: event.threads)
     }
     
-    private func assertValidExceptionEvent(_ event: Event, framesToSkip: Int = 5) {
+    private func assertValidExceptionEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
         XCTAssertEqual(exception.reason, event.message)
         assertValidDebugMeta(actual: event.debugMeta)
-        assertValidThreads(actual: event.threads, framesToSkip)
+        assertValidThreads(actual: event.threads)
     }
     
     private func assertLastSentEnvelope(assert: (SentryEnvelope) -> Void) {
@@ -497,20 +497,24 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(debugMetas, actual ?? [])
     }
     
-    private func assertValidThreads(actual: [Sentry.Thread]?, _ framesToSkip: Int = 5) {
+    private func assertValidThreads(actual: [Sentry.Thread]?) {
+        let expected = fixture.threadInspector.getCurrentThreads()
+        
         // We can only compare the stacktrace up to the test method. Therefore we
-        // need to skip a few frames for the expected stacktrace and also two
-        // frame for the actual stacktrace.
-        let expected = fixture.threadInspector.getCurrentThreadsSkippingFrames(framesToSkip)
-        var actualFrames = actual?[0].stacktrace?.frames ?? []
-        XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
-        if actualFrames.count > 1 {
-            actualFrames.remove(at: actualFrames.count - 1)
-            actualFrames.remove(at: actualFrames.count - 1)
-            actual?[0].stacktrace?.frames = actualFrames
-        }
+        // need to remove a few frames for the stacktraces.
+        removeFrames(threads: expected)
+        removeFrames(threads: actual ?? [])
         
         XCTAssertEqual(expected.count, actual?.count)
         XCTAssertEqual(expected, actual ?? [])
+    }
+    
+    private func removeFrames(threads: [Sentry.Thread]) {
+        var actualFrames = threads[0].stacktrace?.frames ?? []
+        XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
+        if actualFrames.count > 1 {
+            actualFrames.removeLast(3)
+            threads[0].stacktrace?.frames = actualFrames
+        }
     }
 }
