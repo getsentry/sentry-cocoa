@@ -194,6 +194,12 @@ SentryClient ()
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     // TODO: What is about beforeSend
+
+    if (nil == self.options.parsedDsn) {
+        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     [self.transport sendEnvelope:envelope];
 }
 
@@ -216,9 +222,8 @@ SentryClient ()
 {
     NSParameterAssert(event);
 
-    if (!self.options.enabled) {
-        [SentryLog logWithMessage:@"SDK is disabled, will not do anything"
-                         andLevel:kSentryLogLevelDebug];
+    if (nil == self.options.parsedDsn) {
+        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
         return nil;
     }
 
