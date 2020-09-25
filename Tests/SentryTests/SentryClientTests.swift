@@ -44,9 +44,9 @@ class SentryClientTest: XCTestCase {
             return client
         }
 
-        func getSutWithDisabledSdk() -> Client {
+        func getSutWithNoDsn() -> Client {
             getSut(configureOptions: { options in
-                options.enabled = false
+                options.parsedDsn = nil
             })
         }
 
@@ -135,24 +135,24 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureEventOptionsDisabled() {
+    func testCaptureEventWithNoDsn() {
         let event = Event()
 
         let eventId = fixture.getSut(configureOptions: { options in
-            options.enabled = false
+            options.dsn = nil
         }).capture(event: event, scope: nil)
         
         eventId.assertIsEmpty()
     }
 
-    func testCaptureEventOptionsReEnabled() {
+    func testCaptureEventWithDsnSetAfterwards() {
         let event = Event()
 
         let sut = fixture.getSut(configureOptions: { options in
-            options.enabled = false
+            options.dsn = nil
         })
         
-        sut.options.enabled = true
+        sut.options.dsn = TestConstants.dsnAsString
         
         let eventId = sut.capture(event: event, scope: nil)
         eventId.assertIsNotEmpty()
@@ -361,34 +361,67 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testSdkDisabled_MessageNotSent() {
-        let sut = fixture.getSutWithDisabledSdk()
+    func testNoDsn_MessageNotSent() {
+        let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(message: message, scope: nil)
-        XCTAssertEqual(SentryId.empty, eventId)
-        assertEventNotSent(eventId: eventId)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
     }
 
-    func testSdkDisabled_ExceptionNotSent() {
-        let sut = fixture.getSutWithDisabledSdk()
+    func testNoDsn_ExceptionNotSent() {
+        let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(exception: exception, scope: nil)
-        assertEventNotSent(eventId: eventId)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
     }
 
-    func testSdkDisabled_ErrorNotSent() {
-        let sut = fixture.getSutWithDisabledSdk()
+    func testNoDsn_ErrorNotSent() {
+        let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(error: error, scope: nil)
-        assertEventNotSent(eventId: eventId)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
     }
 
-    func testSdkDisabled_SessionsAreSent() {
+    func testNoDsn_SessionsNotSent() {
         _ = SentryEnvelope(event: Event())
         fixture.getSut(configureOptions: { options in
-            options.enabled = false
-        }).capture(session: SentrySession(releaseName: ""))
-
-        assertLastSentEnvelope { actual in
-            XCTAssertNotNil(actual)
-        }
+            options.dsn = nil
+        }).capture(session: fixture.session)
+        
+        assertNothingSent()
+    }
+    
+    func testNoDsn_EventWithSessionsNotSent() {
+        _ = SentryEnvelope(event: Event())
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.dsn = nil
+        }).capture(Event(), with: fixture.session, with: nil)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
+    }
+    
+    func testNoDsn_ExceptionWithSessionsNotSent() {
+        _ = SentryEnvelope(event: Event())
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.dsn = nil
+        }).capture(self.exception, with: fixture.session, with: nil)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
+    }
+    
+    func testNoDsn_ErrorWithSessionsNotSent() {
+        _ = SentryEnvelope(event: Event())
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.dsn = nil
+        }).captureError(self.error, with: fixture.session, with: nil)
+        
+        eventId.assertIsEmpty()
+        assertNothingSent()
     }
 
     func testDistIsSet() {
@@ -512,5 +545,11 @@ class SentryClientTest: XCTestCase {
         
         XCTAssertEqual(expected.count, actual?.count)
         XCTAssertEqual(expected, actual ?? [])
+    }
+    
+    private func assertNothingSent() {
+        XCTAssertNil(fixture.transport.lastSentEnvelope)
+        XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
+        XCTAssertEqual(0, fixture.transport.sentEvents.count)
     }
 }

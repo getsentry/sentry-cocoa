@@ -44,7 +44,7 @@ class SentrySDKTests: XCTestCase {
         
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
-        XCTAssertEqual(false, options?.enabled)
+        XCTAssertNil(options?.parsedDsn)
         XCTAssertEqual(true, options?.debug)
     }
     
@@ -55,7 +55,7 @@ class SentrySDKTests: XCTestCase {
         
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
-        XCTAssertEqual(false, options?.enabled)
+        XCTAssertNil(options?.parsedDsn)
     }
     
     func testStartWithConfigureOptions_BeforeSend() {

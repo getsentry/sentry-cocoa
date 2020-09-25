@@ -56,12 +56,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * Is the client enabled?. Default is YES, if set NO sending of events will be
- * prevented.
- */
-@property (nonatomic, assign) BOOL enabled;
-
-/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */
