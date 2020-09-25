@@ -61,7 +61,7 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 + (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 + (SentryId *)captureEvent:(SentryEvent *)event
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
@@ -74,7 +74,7 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
 + (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 + (SentryId *)captureError:(NSError *)error
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
@@ -87,7 +87,7 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 + (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *_Nullable)scope
+                     withScope:(SentryScope *)scope
     NS_SWIFT_NAME(capture(exception:scope:));
 + (SentryId *)captureException:(NSException *)exception
                 withScopeBlock:(void (^)(SentryScope *scope))block
@@ -102,7 +102,7 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
 + (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 + (SentryId *)captureMessage:(NSString *)message
               withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));

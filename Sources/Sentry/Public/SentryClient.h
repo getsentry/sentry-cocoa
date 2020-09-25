@@ -25,7 +25,21 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
+                 NS_SWIFT_NAME(capture(event:));
+
+/**
+ * Captures an SentryEvent.
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
+
+/**
+ * Captures a NSError
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
 
 /**
  * Captures a NSError
@@ -33,7 +47,14 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
+
+/**
+ * Captures a NSException
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 
 /**
  * Captures a NSException
@@ -41,8 +62,14 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(exception:scope:));
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
+
+/**
+ * Captures a Message
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
 
 /**
  * Captures a Message
@@ -50,7 +77,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
