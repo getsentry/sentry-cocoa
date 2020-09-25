@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Remove SDK frames when attaching stacktrace #739
 - feat: Remove SentryOptions.enabled #736 !Breaking
 - fix: Public Headers #735 !Breaking
 - fix: Setting environment for Sessions #734
