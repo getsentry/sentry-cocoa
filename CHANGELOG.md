@@ -2,8 +2,14 @@
 
 ## unreleased
 
-- feat: Remove SentryOptions.enabled #736 !Breaking
-- fix: Public Headers #735 !Breaking
+## 6.0.0-beta.2
+
+Breaking changes:
+
+- feat: Remove SentryOptions.enabled #736
+- fix: Public Headers #735
+
+Fix:
 - fix: Setting environment for Sessions #734
 
 ## 6.0.0-beta.1
