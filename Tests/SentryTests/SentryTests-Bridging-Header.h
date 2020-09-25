@@ -6,6 +6,7 @@
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAutoSessionTrackingIntegration.h"
+#import "SentryBreadcrumbTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryConcurrentRateLimitsDictionary.h"

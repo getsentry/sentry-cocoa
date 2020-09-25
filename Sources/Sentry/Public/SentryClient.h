@@ -2,8 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryThread, SentryEnvelope,
-    SentryFileManager, SentryId;
+@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryFileManager, SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
