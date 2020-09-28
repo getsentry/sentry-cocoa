@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Remove SDK frames when attaching stacktrace #739
+
 ## 6.0.0-beta.2
 
 Breaking changes:
@@ -10,6 +12,7 @@ Breaking changes:
 - fix: Public Headers #735
 
 Fix:
+>>>>>>> master
 - fix: Setting environment for Sessions #734
 
 ## 6.0.0-beta.1
