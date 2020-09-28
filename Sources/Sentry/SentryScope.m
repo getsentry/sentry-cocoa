@@ -427,15 +427,15 @@ SentryScope ()
 - (NSUInteger)hash
 {
     NSUInteger hash = [self.userObject hash];
-    hash = hash * 31u + [self.tagDictionary hash];
-    hash = hash * 31u + [self.extraDictionary hash];
-    hash = hash * 31u + [self.contextDictionary hash];
-    hash = hash * 31u + [self.breadcrumbArray hash];
-    hash = hash * 31u + (NSUInteger)self.distString;
-    hash = hash * 31u + (NSUInteger)self.environmentString;
-    hash = hash * 31u + [self.fingerprintArray hash];
-    hash = hash * 31u + (NSUInteger)self.levelEnum;
-    hash = hash * 31u + self.maxBreadcrumbs;
+    hash = hash * 23 + [self.tagDictionary hash];
+    hash = hash * 23 + [self.extraDictionary hash];
+    hash = hash * 23 + [self.contextDictionary hash];
+    hash = hash * 23 + [self.breadcrumbArray hash];
+    hash = hash * 23 + (NSUInteger)self.distString;
+    hash = hash * 23 + (NSUInteger)self.environmentString;
+    hash = hash * 23 + [self.fingerprintArray hash];
+    hash = hash * 23 + (NSUInteger)self.levelEnum;
+    hash = hash * 23 + self.maxBreadcrumbs;
     return hash;
 }
 
