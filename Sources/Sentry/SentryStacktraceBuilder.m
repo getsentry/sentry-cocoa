@@ -4,12 +4,28 @@
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
+#import "SentryFrameRemover.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryStacktrace.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentryStacktraceBuilder ()
+
+@property (nonatomic, strong) SentryFrameRemover *frameRemover;
+
+@end
+
 @implementation SentryStacktraceBuilder
+
+- (id)initWithSentryFrameRemover:(SentryFrameRemover *)frameRemover
+{
+    if (self = [super init]) {
+        self.frameRemover = frameRemover;
+    }
+    return self;
+}
 
 - (SentryStacktrace *)buildStacktraceForCurrentThread
 {
@@ -27,19 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    // When including Sentry via the Swift Package Manager the package is the same as the
-    // application that includes Sentry. Therefore removing frames with a package containing
-    // "sentry" doesn't work. We could instead look into the function name, but then we risk
-    // removing functions that are not from this SDK and contain "sentry", which would lead to a
-    // loss of frames on the stacktrace. Therefore we don't remove any frames.
-    NSUInteger indexOfFirstNonSentryFrame = [frames indexOfObjectPassingTest:^BOOL(
-        SentryFrame *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        return ![[obj.package lowercaseString] containsString:@"sentry"];
-    }];
-
-    NSArray<SentryFrame *> *framesCleared =
-        [frames subarrayWithRange:NSMakeRange(indexOfFirstNonSentryFrame,
-                                      frames.count - indexOfFirstNonSentryFrame)];
+    NSArray<SentryFrame *> *framesCleared = [self.frameRemover removeNonSdkFrames:frames];
 
     // The frames must be ordered from caller to callee, or oldest to youngest
     NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];

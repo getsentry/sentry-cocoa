@@ -7,6 +7,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
+#import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -47,7 +48,9 @@ SentryClient ()
         self.debugMetaBuilder =
             [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
 
-        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        SentryFrameRemover *frameRemover = [[SentryFrameRemover alloc] init];
+        SentryStacktraceBuilder *stacktraceBuilder =
+            [[SentryStacktraceBuilder alloc] initWithSentryFrameRemover:frameRemover];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
             [[SentryCrashDefaultMachineContextWrapper alloc] init];
 
