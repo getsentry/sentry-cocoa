@@ -118,7 +118,7 @@ SentryClient ()
 
 - (SentryId *)captureException:(NSException *)exception
                    withSession:(SentrySession *)session
-                     withScope:(SentryScope *_Nullable)scope
+                     withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -146,7 +146,7 @@ SentryClient ()
 
 - (SentryId *)captureError:(NSError *)error
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -163,7 +163,7 @@ SentryClient ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -182,7 +182,7 @@ SentryClient ()
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     SentryEvent *preparedEvent = [self prepareEvent:event

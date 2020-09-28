@@ -52,6 +52,12 @@ NS_SWIFT_NAME(Breadcrumb)
 
 - (NSDictionary<NSString *, id> *)serialize;
 
+- (BOOL)isEqual:(id)other;
+
+- (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb;
+
+- (NSUInteger)hash;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -212,7 +212,12 @@ SentryHub ()
     [self captureEvent:event withScope:self.scope];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureEvent:(SentryEvent *)event
+{
+    return [self captureEvent:event withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
@@ -221,7 +226,12 @@ SentryHub ()
     return SentryId.empty;
 }
 
-- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message
+{
+    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
@@ -230,7 +240,12 @@ SentryHub ()
     return SentryId.empty;
 }
 
-- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error
+{
+    return [self captureError:error withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
@@ -244,7 +259,12 @@ SentryHub ()
     return SentryId.empty;
 }
 
-- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception
+{
+    return [self captureException:exception withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];

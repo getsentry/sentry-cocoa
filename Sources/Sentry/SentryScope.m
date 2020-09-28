@@ -380,6 +380,65 @@ SentryScope ()
     }
 }
 
+- (BOOL)isEqual:(id)other
+{
+    if (other == self)
+        return YES;
+    if (!other || ![[other class] isEqual:[self class]])
+        return NO;
+
+    return [self isEqualToScope:other];
+}
+
+- (BOOL)isEqualToScope:(SentryScope *)scope
+{
+    if (self == scope)
+        return YES;
+    if (scope == nil)
+        return NO;
+    if (self.userObject != scope.userObject && ![self.userObject isEqualToUser:scope.userObject])
+        return NO;
+    if (self.tagDictionary != scope.tagDictionary
+        && ![self.tagDictionary isEqualToDictionary:scope.tagDictionary])
+        return NO;
+    if (self.extraDictionary != scope.extraDictionary
+        && ![self.extraDictionary isEqualToDictionary:scope.extraDictionary])
+        return NO;
+    if (self.contextDictionary != scope.contextDictionary
+        && ![self.contextDictionary isEqualToDictionary:scope.contextDictionary])
+        return NO;
+    if (self.breadcrumbArray != scope.breadcrumbArray
+        && ![self.breadcrumbArray isEqualToArray:scope.breadcrumbArray])
+        return NO;
+    if (self.distString != scope.distString)
+        return NO;
+    if (self.environmentString != scope.environmentString)
+        return NO;
+    if (self.fingerprintArray != scope.fingerprintArray
+        && ![self.fingerprintArray isEqualToArray:scope.fingerprintArray])
+        return NO;
+    if (self.levelEnum != scope.levelEnum)
+        return NO;
+    if (self.maxBreadcrumbs != scope.maxBreadcrumbs)
+        return NO;
+    return YES;
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [self.userObject hash];
+    hash = hash * 31u + [self.tagDictionary hash];
+    hash = hash * 31u + [self.extraDictionary hash];
+    hash = hash * 31u + [self.contextDictionary hash];
+    hash = hash * 31u + [self.breadcrumbArray hash];
+    hash = hash * 31u + (NSUInteger)self.distString;
+    hash = hash * 31u + (NSUInteger)self.environmentString;
+    hash = hash * 31u + [self.fingerprintArray hash];
+    hash = hash * 31u + (NSUInteger)self.levelEnum;
+    hash = hash * 31u + self.maxBreadcrumbs;
+    return hash;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

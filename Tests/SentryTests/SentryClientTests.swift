@@ -214,7 +214,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureErrorWithSession() {
-        let eventId = fixture.getSut().captureError(error, with: fixture.session, with: nil)
+        let eventId = fixture.getSut().captureError(error, with: fixture.session, with: Scope())
         
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
@@ -227,7 +227,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureErrorWithSession_WithBeforeSendReturnsNil() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).captureError(error, with: fixture.session, with: nil)
+        }).captureError(error, with: fixture.session, with: Scope())
         
         eventId.assertIsEmpty()
         assertLastSentEnvelopeIsASession()
@@ -272,7 +272,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureExceptionWithSession() {
-        let eventId = fixture.getSut().capture(exception, with: fixture.session, with: nil)
+        let eventId = fixture.getSut().capture(exception, with: fixture.session, with: Scope())
         
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
@@ -285,7 +285,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).capture(exception, with: fixture.session, with: nil)
+        }).capture(exception, with: fixture.session, with: Scope())
         
         eventId.assertIsEmpty()
         assertLastSentEnvelopeIsASession()
@@ -395,7 +395,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).capture(Event(), with: fixture.session, with: nil)
+        }).capture(Event(), with: fixture.session, with: Scope())
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -405,7 +405,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).capture(self.exception, with: fixture.session, with: nil)
+        }).capture(self.exception, with: fixture.session, with: Scope())
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -415,7 +415,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureError(self.error, with: fixture.session, with: nil)
+        }).captureError(self.error, with: fixture.session, with: Scope())
 
         eventId.assertIsEmpty()
         assertNothingSent()

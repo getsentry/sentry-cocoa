@@ -41,6 +41,12 @@ NS_SWIFT_NAME(User)
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
+- (BOOL)isEqual:(id)other;
+
+- (BOOL)isEqualToUser:(SentryUser *)user;
+
+- (NSUInteger)hash;
+
 @end
 
 NS_ASSUME_NONNULL_END

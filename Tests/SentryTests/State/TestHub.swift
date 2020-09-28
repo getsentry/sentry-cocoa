@@ -15,7 +15,7 @@ class TestHub: SentryHub {
         closeCachedSessionTimestamp = timestamp
         closeCachedSessionInvocations += 1
     }
-
+    
     override func endSession(withTimestamp timestamp: Date) {
         endSessionTimestamp = timestamp
     }
@@ -24,4 +24,11 @@ class TestHub: SentryHub {
     override func captureCrash(_ event: Event) {
         sentCrashEvents.append(event)
     }
+    
+    var capturedEventsWithScopes: [Pair<Event, Scope>] = []
+    override func capture(event: Event, scope: Scope) -> SentryId {
+        capturedEventsWithScopes.append(Pair(event, scope))
+        return event.eventId
+    }
+    
 }
