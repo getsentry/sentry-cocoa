@@ -12,7 +12,7 @@ class SentryClientTest: XCTestCase {
         )
         
         let threadInspector = SentryThreadInspector(
-            stacktraceBuilder: SentryStacktraceBuilder(),
+            stacktraceBuilder: SentryStacktraceBuilder(sentryFrameRemover: SentryFrameRemover()),
             andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
         )
         
@@ -364,7 +364,6 @@ class SentryClientTest: XCTestCase {
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(message: message)
-
         eventId.assertIsEmpty()
         assertNothingSent()
     }
@@ -372,7 +371,6 @@ class SentryClientTest: XCTestCase {
     func testNoDsn_ExceptionNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(exception: exception)
-
         eventId.assertIsEmpty()
         assertNothingSent()
     }
@@ -380,7 +378,6 @@ class SentryClientTest: XCTestCase {
     func testNoDsn_ErrorNotSent() {
         let sut = fixture.getSutWithNoDsn()
         let eventId = sut.capture(error: error)
-
         eventId.assertIsEmpty()
         assertNothingSent()
     }

@@ -24,8 +24,7 @@ SENTRY_NO_INIT
  * Captures an SentryEvent.
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 NS_SWIFT_NAME(capture(event:));
+- (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 
 /**
  * Captures an SentryEvent.

@@ -87,8 +87,7 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 + (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-    NS_SWIFT_NAME(capture(exception:scope:));
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 + (SentryId *)captureException:(NSException *)exception
                 withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(exception:block:));

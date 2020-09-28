@@ -7,6 +7,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
+#import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -47,7 +48,9 @@ SentryClient ()
         self.debugMetaBuilder =
             [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
 
-        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        SentryFrameRemover *frameRemover = [[SentryFrameRemover alloc] init];
+        SentryStacktraceBuilder *stacktraceBuilder =
+            [[SentryStacktraceBuilder alloc] initWithSentryFrameRemover:frameRemover];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
             [[SentryCrashDefaultMachineContextWrapper alloc] init];
 
@@ -92,7 +95,7 @@ SentryClient ()
 
 - (SentryId *)captureMessage:(NSString *)message
 {
-    return [self captureMessage:message withScope:[[SentryScope alloc ] init]];
+    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
 }
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
@@ -300,7 +303,7 @@ SentryClient ()
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-    
+
     event = [self callEventProcessors:event];
 
     if (nil != self.options.beforeSend) {
