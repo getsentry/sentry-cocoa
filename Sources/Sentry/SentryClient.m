@@ -6,6 +6,7 @@
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
+#import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
@@ -128,7 +129,9 @@ SentryClient ()
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = exception.reason;
+    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
+                                                                         type:exception.name];
+    event.exceptions = @[ sentryException ];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
