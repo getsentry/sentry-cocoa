@@ -410,9 +410,10 @@ SentryScope ()
     if (self.breadcrumbArray != scope.breadcrumbArray
         && ![self.breadcrumbArray isEqualToArray:scope.breadcrumbArray])
         return NO;
-    if (self.distString != scope.distString)
+    if (self.distString != scope.distString && ![self.distString isEqualToString:scope.distString])
         return NO;
-    if (self.environmentString != scope.environmentString)
+    if (self.environmentString != scope.environmentString
+        && ![self.environmentString isEqualToString:scope.environmentString])
         return NO;
     if (self.fingerprintArray != scope.fingerprintArray
         && ![self.fingerprintArray isEqualToArray:scope.fingerprintArray])
@@ -431,8 +432,8 @@ SentryScope ()
     hash = hash * 23 + [self.extraDictionary hash];
     hash = hash * 23 + [self.contextDictionary hash];
     hash = hash * 23 + [self.breadcrumbArray hash];
-    hash = hash * 23 + (NSUInteger)self.distString;
-    hash = hash * 23 + (NSUInteger)self.environmentString;
+    hash = hash * 23 + [self.distString hash];
+    hash = hash * 23 + [self.environmentString hash];
     hash = hash * 23 + [self.fingerprintArray hash];
     hash = hash * 23 + (NSUInteger)self.levelEnum;
     hash = hash * 23 + self.maxBreadcrumbs;
