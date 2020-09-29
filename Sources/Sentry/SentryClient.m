@@ -4,7 +4,10 @@
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
+#import "SentryEnvelope.h"
+#import "SentryEvent.h"
 #import "SentryFileManager.h"
+#import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -45,7 +48,9 @@ SentryClient ()
         self.debugMetaBuilder =
             [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
 
-        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        SentryFrameRemover *frameRemover = [[SentryFrameRemover alloc] init];
+        SentryStacktraceBuilder *stacktraceBuilder =
+            [[SentryStacktraceBuilder alloc] initWithSentryFrameRemover:frameRemover];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
             [[SentryCrashDefaultMachineContextWrapper alloc] init];
 
@@ -88,14 +93,24 @@ SentryClient ()
     return _fileManager;
 }
 
-- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message
+{
+    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = message;
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
-- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureException:(NSException *)exception
+{
+    return [self captureException:exception withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -103,7 +118,7 @@ SentryClient ()
 
 - (SentryId *)captureException:(NSException *)exception
                    withSession:(SentrySession *)session
-                     withScope:(SentryScope *_Nullable)scope
+                     withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -118,7 +133,12 @@ SentryClient ()
     return event;
 }
 
-- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error
+{
+    return [self captureError:error withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildErrorEvent:error];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -126,7 +146,7 @@ SentryClient ()
 
 - (SentryId *)captureError:(NSError *)error
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -143,7 +163,7 @@ SentryClient ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -151,13 +171,18 @@ SentryClient ()
     return [self sendEvent:preparedEvent withSession:session];
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureEvent:(SentryEvent *)event
+{
+    return [self captureEvent:event withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *_Nullable)scope
+                 withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
@@ -192,6 +217,12 @@ SentryClient ()
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     // TODO: What is about beforeSend
+
+    if (nil == self.options.parsedDsn) {
+        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     [self.transport sendEnvelope:envelope];
 }
 
@@ -209,14 +240,13 @@ SentryClient ()
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *_Nullable)scope
+                             withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
 
-    if (!self.options.enabled) {
-        [SentryLog logWithMessage:@"SDK is disabled, will not do anything"
-                         andLevel:kSentryLogLevelDebug];
+    if (nil == self.options.parsedDsn) {
+        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
         return nil;
     }
 
@@ -269,14 +299,10 @@ SentryClient ()
 
     BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
     if (shouldAttachStacktrace && threadsNotAttached) {
-        // We don't want to add the stacktrace of attaching the stacktrace.
-        // Therefore we skip three frames.
-        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
+        event.threads = [self.threadInspector getCurrentThreads];
     }
 
-    if (nil != scope) {
-        event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-    }
+    event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
     event = [self callEventProcessors:event];
 

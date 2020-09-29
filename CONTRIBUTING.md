@@ -62,6 +62,15 @@ make lint
 
 Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
 
+## Public Headers
+
+To make a header public follow these steps:
+
+* Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
+* Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
+* Set the target membership to public.
+
+
 ## Final Notes
 
 When contributing to the codebase, please make note of the following:

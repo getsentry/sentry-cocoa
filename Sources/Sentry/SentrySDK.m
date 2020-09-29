@@ -1,11 +1,8 @@
 #import "SentrySDK.h"
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
-#import "SentryDefines.h"
 #import "SentryHub+Private.h"
-#import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
@@ -81,25 +78,24 @@ static SentryHub *currentHub;
     [SentrySDK startWithOptionsObject:options];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event
-{
-    return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
-}
-
 + (void)captureCrashEvent:(SentryEvent *)event
 {
     [SentrySDK.currentHub captureCrashEvent:event];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *_Nonnull))block
+{
+    return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
+}
+
++ (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureEvent:event withScope:scope];
 }
 
-+ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
@@ -116,7 +112,7 @@ static SentryHub *currentHub;
     return [SentrySDK captureError:error withScope:scope];
 }
 
-+ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureError:error withScope:scope];
 }
@@ -127,14 +123,14 @@ static SentryHub *currentHub;
 }
 
 + (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SentryScope *_Nonnull))block
+                withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureException:exception withScope:scope];
 }
 
-+ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope
++ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureException:exception withScope:scope];
 }
@@ -144,15 +140,14 @@ static SentryHub *currentHub;
     return [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message
-              withScopeBlock:(void (^)(SentryScope *_Nonnull))block
++ (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureMessage:message withScope:scope];
 }
 
-+ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
 }

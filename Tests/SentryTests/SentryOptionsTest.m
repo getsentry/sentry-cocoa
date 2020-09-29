@@ -15,7 +15,7 @@
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{} didFailWithError:&error];
 
-    [self assertDisabled:options andError:error];
+    [self assertDsnNil:options andError:error];
 }
 
 - (void)testInvalidDsnBoolean
@@ -24,15 +24,14 @@
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @YES }
                                                 didFailWithError:&error];
 
-    [self assertDisabled:options andError:error];
+    [self assertDsnNil:options andError:error];
 }
 
-- (void)assertDisabled:(SentryOptions *)options andError:(NSError *)error
+- (void)assertDsnNil:(SentryOptions *)options andError:(NSError *)error
 {
     XCTAssertNil(options.parsedDsn);
-    XCTAssertEqual(NO, options.enabled);
     XCTAssertEqual(NO, options.debug);
-    XCTAssertNil(error);
+    XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
 }
 
 - (void)testInvalidDsn
@@ -112,7 +111,10 @@
      expectedLogLevel:(SentryLogLevel)expectedLogLevel
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"debug" : debugValue }
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn" : @"https://username:password@sentry.io/1",
+        @"debug" : debugValue
+    }
                                                 didFailWithError:&error];
 
     XCTAssertNil(error);
@@ -122,33 +124,15 @@
 - (void)testDebugWithVerbose
 {
     NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"debug" : @YES, @"logLevel" : @"verbose" }
-                           didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn" : @"https://username:password@sentry.io/1",
+        @"debug" : @YES,
+        @"logLevel" : @"verbose"
+    }
+                                                didFailWithError:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual(YES, options.debug);
-}
-
-- (void)testValidEnabled
-{
-    [self testEnabledWith:@YES expected:YES];
-    [self testEnabledWith:@"YES" expected:YES];
-    [self testEnabledWith:@(YES) expected:YES];
-}
-
-- (void)testInvalidEnabled
-{
-    [self testEnabledWith:@"Invalid" expected:NO];
-    [self testEnabledWith:@NO expected:NO];
-    [self testEnabledWith:@(NO) expected:NO];
-}
-
-- (void)testEnabledWith:(NSObject *)enabledValue expected:(BOOL)expectedValue
-{
-    SentryOptions *options = [self getValidOptions:@{ @"enabled" : enabledValue }];
-
-    XCTAssertEqual(expectedValue, options.enabled);
 }
 
 - (void)testMaxBreadCrumbs
@@ -295,7 +279,6 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
 
-    XCTAssertEqual(NO, options.enabled);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLogLevelError, options.logLevel);
     XCTAssertNil(options.parsedDsn);
@@ -318,7 +301,6 @@
 
     XCTAssertEqual(dsnAsString, options.dsn);
     XCTAssertTrue([dsn.url.absoluteString isEqualToString:options.parsedDsn.url.absoluteString]);
-    XCTAssertEqual(YES, options.enabled);
 }
 
 - (void)testSetNilDsn
@@ -326,7 +308,6 @@
     SentryOptions *options = [[SentryOptions alloc] init];
 
     [options setDsn:nil];
-    XCTAssertEqual(NO, options.enabled);
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
 }
@@ -338,7 +319,6 @@
     [options setDsn:@"https://username:passwordsentry.io/1"];
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
-    XCTAssertEqual(NO, options.enabled);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict

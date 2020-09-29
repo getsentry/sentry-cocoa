@@ -1,4 +1,4 @@
-#import <Sentry/Sentry.h>
+#import "SentrySDK.h"
 
 @class SentryId;
 

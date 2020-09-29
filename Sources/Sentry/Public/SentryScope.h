@@ -110,6 +110,12 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)clear;
 
+- (BOOL)isEqual:(id)other;
+
+- (BOOL)isEqualToScope:(SentryScope *)scope;
+
+- (NSUInteger)hash;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -64,7 +64,7 @@ whitelist_rules:
   - trailing_newline
   - trailing_semicolon
   #- trailing_whitespace
-  - type_body_length
+  #- type_body_length
   - type_name
   - unused_closure_parameter
   - unused_enumerated
