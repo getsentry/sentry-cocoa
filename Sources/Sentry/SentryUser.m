@@ -21,12 +21,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)copyWithZone:(nullable NSZone *)zone
 {
-    SentryUser *user = [[SentryUser allocWithZone:zone] init];
-    user.userId = self.userId;
-    user.email = self.email;
-    user.username = self.username;
-    user.data = self.data.mutableCopy;
-    return user;
+    SentryUser *copy = [[SentryUser allocWithZone:zone] init];
+
+    if (copy != nil) {
+        copy.userId = self.userId;
+        copy.email = self.email;
+        copy.username = self.username;
+        copy.ipAddress = self.ipAddress;
+        copy.data = self.data.mutableCopy;
+    }
+
+    return copy;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
