@@ -505,7 +505,8 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidExceptionEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual(exception.reason, event.message)
+        XCTAssertEqual(exception.reason, event.exceptions!.first!.value)
+        XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
