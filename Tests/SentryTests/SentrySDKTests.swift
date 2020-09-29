@@ -3,6 +3,34 @@ import XCTest
 
 class SentrySDKTests: XCTestCase {
     
+    private class Fixture {
+    
+        let event: Event
+        let scope: Scope
+        let client: TestClient
+        let hub: SentryHub
+        let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
+        
+        init() {
+            event = Event()
+            event.message = "message"
+            
+            scope = Scope()
+            scope.setTag(value: "value", key: "key")
+            
+            client = TestClient(options: Options())!
+            hub = SentryHub(client: client, andScope: scope)
+        }
+        
+    }
+    
+    private var fixture: Fixture!
+    
+    override func setUp() {
+        fixture = Fixture()
+    }
+    
     override func tearDown() {
         super.tearDown()
         
@@ -111,13 +139,67 @@ class SentrySDKTests: XCTestCase {
         let hub = TestHub(client: nil, andScope: nil)
         SentrySDK.setCurrentHub(hub)
         
-        let event = Event()
-        event.message = "crash"
+        let event = fixture.event
         SentrySDK.captureCrash(event)
     
         XCTAssertEqual(1, hub.sentCrashEvents.count)
         XCTAssertEqual(event.message, hub.sentCrashEvents.first?.message)
         XCTAssertEqual(event.eventId, hub.sentCrashEvents.first?.eventId)
+    }
+    
+    func testCaptureEvent() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(event: fixture.event)
+        
+        assertEventCaptured(expectedScope: fixture.scope)
+    }
+
+    func testCaptureEventWithScope() {
+        givenSdkWithHub()
+        
+        let scope = Scope()
+        SentrySDK.capture(event: fixture.event, scope: scope)
+    
+        assertEventCaptured(expectedScope: scope)
+    }
+    
+    func testCaptureError() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(error: fixture.error)
+        
+        assertErrorCaptured(expectedScope: fixture.scope)
+    }
+    
+    func testCaptureErrorWithScope() {
+        givenSdkWithHub()
+        
+        let scope = Scope()
+        SentrySDK.capture(error: fixture.error, scope: scope)
+        
+        assertErrorCaptured(expectedScope: scope)
+    }
+    
+    func testCaptureException() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(exception: fixture.exception)
+        
+        assertExceptionCaptured(expectedScope: fixture.scope)
+    }
+    
+    func testCaptureExceptionWithScope() {
+        givenSdkWithHub()
+        
+        let scope = Scope()
+        SentrySDK.capture(exception: fixture.exception, scope: scope)
+        
+        assertExceptionCaptured(expectedScope: scope)
+    }
+    
+    private func givenSdkWithHub() {
+        SentrySDK.setCurrentHub(fixture.hub)
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
@@ -128,5 +210,32 @@ class SentrySDKTests: XCTestCase {
                 XCTFail("Integration \(integration) not installed.")
             }
         }
+    }
+    
+    private func assertEventCaptured(expectedScope: Scope) {
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureEventWithScopeArguments.count)
+        let actualEvent = client.captureEventWithScopeArguments.first?.first
+        let actualScope = client.captureEventWithScopeArguments.first?.second
+        XCTAssertEqual(fixture.event, actualEvent)
+        XCTAssertEqual(expectedScope, actualScope)
+    }
+    
+    private func assertErrorCaptured(expectedScope: Scope) {
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureErrorWithScopeArguments.count)
+        let actualError = client.captureErrorWithScopeArguments.first?.first
+        let actualScope = client.captureErrorWithScopeArguments.first?.second
+        XCTAssertEqual(fixture.error.localizedDescription, actualError?.localizedDescription)
+        XCTAssertEqual(expectedScope, actualScope)
+    }
+    
+    private func assertExceptionCaptured(expectedScope: Scope) {
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureExceptionWithScopeArguments.count)
+        let actualException = client.captureExceptionWithScopeArguments.first?.first
+        let actualScope = client.captureExceptionWithScopeArguments.first?.second
+        XCTAssertEqual(fixture.exception, actualException)
+        XCTAssertEqual(expectedScope, actualScope)
     }
 }

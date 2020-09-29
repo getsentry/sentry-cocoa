@@ -44,4 +44,39 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(1, actual.count)
     }
     
+    func testHash() {
+        let fixture2 = Fixture()
+        XCTAssertEqual(fixture.user.hash(), fixture2.user.hash())
+        
+        let user2 = fixture2.user
+        user2.email = "some"
+        XCTAssertNotEqual(fixture.user.hash(), user2.hash())
+    }
+    
+    func testIsEqualToSelf() {
+        XCTAssertEqual(fixture.user, fixture.user)
+        XCTAssertTrue(fixture.user.isEqual(to: fixture.user))
+    }
+    
+    func testIsNotEqualToOtherClass() {
+        XCTAssertFalse(fixture.user.isEqual(1))
+    }
+    
+    func testIsEqualToCopy() {
+        XCTAssertEqual(fixture.user, fixture.user.copy() as! User)
+    }
+    
+    func testNotIsEqual() {
+        testIsNotEqual { user in user.userId = "" }
+        testIsNotEqual { user in user.email = "" }
+        testIsNotEqual { user in user.username = "" }
+        testIsNotEqual { user in user.ipAddress = "" }
+        testIsNotEqual { user in user.data?.removeAll() }
+    }
+    
+    func testIsNotEqual(block: (User) -> Void ) {
+        let user = fixture.user.copy() as! User
+        block(user)
+        XCTAssertNotEqual(fixture.user, user)
+    }
 }

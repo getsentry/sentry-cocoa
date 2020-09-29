@@ -24,37 +24,84 @@ SENTRY_NO_INIT
     NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 /**
- * Captures an SentryEvent
+ * Captures a manually created event and sends it to Sentry.
+ *
+ * @param event The event to send to Sentry.
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
+
+/**
+ * Captures a manually created event and sends it to Sentry.
+ *
+ * @param event The event to send to Sentry.
+ * @param scope The scope containing event metadata.
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
- * Captures a NSError
+ * Captures an error event and sends it to Sentry.
+ *
+ * @param error The error to send to Sentry.
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
+
+/**
+ * Captures an error event and sends it to Sentry.
+ *
+ * @param error The error to send to Sentry.
+ * @param scope The scope containing event metadata.
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
- * Captures a NSException
+ * Captures an exception event and sends it to Sentry.
+ *
+ * @param exception The exception to send to Sentry.
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
+
+/**
+ * Captures an exception event and sends it to Sentry.
+ *
+ * @param exception The exception to send to Sentry.
+ * @param scope The scope containing event metadata.
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *_Nullable)scope
-    NS_SWIFT_NAME(capture(exception:scope:));
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
- * Captures a Message
+ * Captures a message event and sends it to Sentry.
+ *
+ * @param message The message to send to Sentry.
+ *
+ * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ */
+- (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
+
+/**
+ * Captures a message event and sends it to Sentry.
+ *
+ * @param message The message to send to Sentry.
+ * @param scope The scope containing event metadata.
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Invokes the callback with a mutable reference to the scope for modifications.

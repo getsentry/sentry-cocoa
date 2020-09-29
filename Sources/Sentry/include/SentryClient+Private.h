@@ -9,15 +9,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureError:(NSError *)error
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope;
+                 withScope:(SentryScope *)scope;
 
 - (SentryId *)captureException:(NSException *)exception
                    withSession:(SentrySession *)session
-                     withScope:(SentryScope *_Nullable)scope;
+                     withScope:(SentryScope *)scope;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                withSession:(SentrySession *)session
-                 withScope:(SentryScope *_Nullable)scope;
+                 withScope:(SentryScope *)scope;
 
 @end
 
