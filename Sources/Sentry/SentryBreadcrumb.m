@@ -52,14 +52,15 @@
         return NO;
     if (self.level != breadcrumb.level)
         return NO;
-    if (self.category != breadcrumb.category)
+    if (self.category != breadcrumb.category
+        && ![self.category isEqualToString:breadcrumb.category])
         return NO;
     if (self.timestamp != breadcrumb.timestamp
         && ![self.timestamp isEqualToDate:breadcrumb.timestamp])
         return NO;
-    if (self.type != breadcrumb.type)
+    if (self.type != breadcrumb.type && ![self.type isEqualToString:breadcrumb.type])
         return NO;
-    if (self.message != breadcrumb.message)
+    if (self.message != breadcrumb.message && ![self.message isEqualToString:breadcrumb.message])
         return NO;
     if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
         return NO;
@@ -68,14 +69,12 @@
 
 - (NSUInteger)hash
 {
-
     NSUInteger hash = 17;
-
     hash = hash * 23 + (NSUInteger)self.level;
-    hash = hash * 23 + (NSUInteger)self.category;
+    hash = hash * 23 + [self.category hash];
     hash = hash * 23 + [self.timestamp hash];
-    hash = hash * 23 + (NSUInteger)self.type;
-    hash = hash * 23 + (NSUInteger)self.message;
+    hash = hash * 23 + [self.type hash];
+    hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
     return hash;
 }
