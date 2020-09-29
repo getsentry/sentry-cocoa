@@ -129,7 +129,8 @@ SentryClient ()
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason type:exception.name];
+    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
+                                                                         type:exception.name];
     event.exceptions = @[ sentryException ];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
