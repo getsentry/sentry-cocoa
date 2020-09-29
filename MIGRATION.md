@@ -30,7 +30,7 @@ If you are using an on-premise installation it requires Sentry version
 `>= v20.6.0` to work. If you are using sentry.io nothing will change and
 no action is needed.
 
-### Sdk Inits
+### SDK Inits
 
 We removed the [deprecated SDK inits](https://github.com/getsentry/sentry-cocoa/blob/5.2.2/Sources/Sentry/include/SentrySDK.h#L35-L47). The recommended way to initialize Sentry is now:
 
@@ -58,25 +58,25 @@ and tell us your use case so we either make the class public again or provide an
 
 In 5.x we use a nullable NSString to represent an event ID. The SDK, Hub and Client returned this
 nullable NSString for the event ID for capturing messages, events, errors, etc. With 6.x we have a new type SentryId which is not nullable to represent an event ID.
-Instead of returning `nil` when an event coulnd't be sent we return `SentryId.empty`.
+Instead of returning `nil` when an event coulnd't be queued for submission we return `SentryId.empty`.
 
 `5.x`
 
 ```swift
 let eventId = SentrySDK.capture(message: "A message")
 if (nil != eventId) {
-    // event was sent
+    // event was queued for submission
 } else {
-    // event wasn't sent
+    // event wasn't queued for submission
 }
 ```
 
 ```objective-c
 SentryId *eventId = [SentrySDK captureMessage:@"A message"];
 if (nil != eventId) {
-    // event was sent
+    // event was queued for submission
 } else {
-    // event wasn't sent
+    // event wasn't queued for submission
 }
 ```
 
@@ -85,18 +85,18 @@ if (nil != eventId) {
 ```swift
 let eventId = SentrySDK.capture(message: "A message")
 if (eventId != SentryId.empty) {
-    // event was sent
+    // event was queued for submission
 } else {
-    // event wasn't sent
+    // event wasn't queued for submission
 }
 ```
 
 ```objective-c
 SentryId *eventId = [SentrySDK captureMessage:@"A message"];
 if (eventId != SentryId.empty) {
-    // event was sent
+    // event was queued for submission
 } else {
-    // event wasn't sent
+    // event wasn't queued for submission
 }
 ```
 
