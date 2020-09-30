@@ -80,7 +80,7 @@ class SentrySessionGeneratorTests: XCTestCase {
             // crash report on a background thread.
             let crashEvent = Event()
             crashEvent.level = SentryLevel.fatal
-            crashEvent.message = "Crash for SentrySessionGeneratorTests"
+            crashEvent.message = SentryMessage(formatted: "Crash for SentrySessionGeneratorTests")
             SentrySDK.captureCrash(crashEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false

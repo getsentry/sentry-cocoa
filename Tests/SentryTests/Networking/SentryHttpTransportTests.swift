@@ -25,7 +25,7 @@ class SentryHttpTransportTests: XCTestCase {
             CurrentDate.setCurrentDateProvider(currentDateProvider)
 
             event = Event()
-            event.message = "Some message"
+            event.message = SentryMessage(formatted: "Some message")
             
             eventRequest = buildRequest(SentryEnvelope(event: event))
 

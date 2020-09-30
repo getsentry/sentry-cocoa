@@ -17,7 +17,7 @@ struct TestConstants {
     
     static var eventWithSerializationError: Event {
         let event = Event()
-        event.message = ""
+        event.message = SentryMessage(formatted: "")
         event.sdk = ["event": Event()]
         return event
     }

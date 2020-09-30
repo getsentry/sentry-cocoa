@@ -12,6 +12,7 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryLog.h"
+#import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
@@ -101,8 +102,9 @@ SentryClient ()
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
+
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    event.message = message;
+    event.message = [SentryMessage messageWithFormatted:message];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
@@ -159,7 +161,7 @@ SentryClient ()
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = error.localizedDescription;
+    event.message = [SentryMessage messageWithFormatted:error.localizedDescription];
     [self setUserInfo:error.userInfo withEvent:event];
     return event;
 }

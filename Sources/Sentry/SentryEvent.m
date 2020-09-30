@@ -7,6 +7,7 @@
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
 #import "SentryId.h"
+#import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -133,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [serializedData setValue:self.context forKey:@"contexts"];
 
-    [serializedData setValue:self.message forKey:@"message"];
+    [serializedData setValue:[self.message serialize] forKey:@"message"];
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
     [serializedData setValue:self.type forKey:@"type"];

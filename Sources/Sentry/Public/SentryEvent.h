@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb, SentryId;
+    SentryBreadcrumb, SentryId, SentryMessage;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -19,7 +19,7 @@ NS_SWIFT_NAME(Event)
 /**
  * Message of the event
  */
-@property (nonatomic, copy) NSString *message;
+@property (nonatomic, strong) SentryMessage *message;
 
 /**
  * NSDate of when the event occured

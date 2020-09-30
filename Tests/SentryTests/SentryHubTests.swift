@@ -25,7 +25,7 @@ class SentryHubTests: XCTestCase {
             scope.add(crumb)
             
             event = Event()
-            event.message = message
+            event.message = SentryMessage(formatted: message)
             
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
             

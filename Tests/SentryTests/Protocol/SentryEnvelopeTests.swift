@@ -16,7 +16,7 @@ class SentryEnvelopeTests: XCTestCase {
         var event: Event {
             let event = Event()
             event.level = SentryLevel.info
-            event.message = "Don't do this"
+            event.message = SentryMessage(formatted: "Don't do this")
             event.releaseName = "releaseName1.0.0"
             event.environment = "save the environment"
             event.sdk = ["version": sdkVersion]
@@ -43,7 +43,7 @@ class SentryEnvelopeTests: XCTestCase {
 
         var eventWithContinousSerializationFailure: Event {
             let event = EventSerilazationFailure()
-            event.message = "Failure"
+            event.message = SentryMessage(formatted: "Failure")
             event.releaseName = "release"
             event.environment = "environment"
             event.platform = "platform"

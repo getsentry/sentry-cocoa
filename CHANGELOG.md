@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add SentryMessage #752
 - feat: Replace passing nullable Scope with overloads #743 !Breaking
 - feat: Remove SDK frames when attaching stacktrace #739
 - fix: captureException crates a event type=error #746

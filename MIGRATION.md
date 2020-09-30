@@ -54,7 +54,7 @@ We cleaned up our public headers and made most of our classes private. If you ca
 of the classes you need please [open an issue](https://github.com/getsentry/sentry-cocoa/issues/new/choose)
 and tell us your use case so we either make the class public again or provide another API for you.
 
-### Use new type SentryId for eventId
+### New type SentryId for eventId
 
 In 5.x we use a nullable NSString to represent an event ID. The SDK, Hub and Client returned this
 nullable NSString for the event ID for capturing messages, events, errors, etc. With 6.x we have a new type SentryId which is not nullable to represent an event ID.
@@ -98,6 +98,36 @@ if (eventId != SentryId.empty) {
 } else {
     // event wasn't queued for submission
 }
+```
+
+### New type SentryMessage for Event.message
+
+In 6.x we introduce a new type [SentryMessage](https://develop.sentry.dev/sdk/event-payloads/message/)
+for `event.message`. SentryMessage gives you the possibilty to pass a format string with parameters
+to Sentry, which can help to group similar messages into the same issue.
+
+`5.x`
+
+```swift
+let event = Event()
+event.message = "Hello World"
+```
+
+```objective-c
+SentryEvent *event = [[SentryEvent alloc] init];
+event.message = "Hello World";
+```
+
+`6.x`
+
+```swift
+let event = Event()
+event.message = SentryMessage(formatted: "Hello World")
+```
+
+```objective-c
+SentryEvent *event = [[SentryEvent alloc] init];
+event.message = [SentryMessage messageWithFormatted:"Hello World"];
 ```
 
 ### Make Scope nonnull for capture methods
