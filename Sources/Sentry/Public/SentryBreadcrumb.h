@@ -52,7 +52,7 @@ NS_SWIFT_NAME(Breadcrumb)
 
 - (NSDictionary<NSString *, id> *)serialize;
 
-- (BOOL)isEqual:(id)other;
+- (BOOL)isEqual:(id _Nullable)other;
 
 - (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb;
 
