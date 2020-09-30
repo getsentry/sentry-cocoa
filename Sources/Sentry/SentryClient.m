@@ -159,7 +159,7 @@ SentryClient ()
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = error.localizedDescription;
+    event.message = [NSString stringWithFormat:@"%@ %ld", error.domain, (long)error.code];
     [self setUserInfo:error.userInfo withEvent:event];
     return event;
 }

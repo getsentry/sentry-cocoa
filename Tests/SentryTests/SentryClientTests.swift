@@ -60,7 +60,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    private let error = NSError(domain: "domain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+    private let error = NSError(domain: "domain", code: -20, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
 
     private let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: nil)
 
@@ -210,6 +210,16 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             assertValidErrorEvent(actual)
+        }
+    }
+    
+    func testCaptureErrorWithEnum() {
+        let eventId = fixture.getSut().capture(error: TestError.invalidTest)
+        
+        eventId.assertIsNotEmpty()
+        let error = TestError.invalidTest as NSError
+        assertLastSentEvent { actual in
+            XCTAssertEqual("\(error.domain) \(error.code)", actual.message)
         }
     }
     
@@ -495,7 +505,7 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidErrorEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual(error.localizedDescription, event.message)
+        XCTAssertEqual("\(error.domain) \(error.code)", event.message)
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
@@ -553,5 +563,11 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(fixture.transport.lastSentEnvelope)
         XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
+    }
+    
+    private enum TestError : Error {
+        case invalidTest
+        case testIsFailing
+        case somethingElse
     }
 }
