@@ -213,6 +213,16 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureErrorWithEnum() {
+        let eventId = fixture.getSut().capture(error: TestError.invalidTest)
+        
+        eventId.assertIsNotEmpty()
+        let error = TestError.invalidTest as NSError
+        assertLastSentEvent { actual in
+            XCTAssertEqual("\(error.domain) \(error.code)", actual.message)
+        }
+    }
+    
     func testCaptureErrorWithSession() {
         let eventId = fixture.getSut().captureError(error, with: fixture.session, with: Scope())
         
@@ -553,5 +563,11 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(fixture.transport.lastSentEnvelope)
         XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
+    }
+    
+    private enum TestError : Error {
+        case invalidTest
+        case testIsFailing
+        case somethingElse
     }
 }
