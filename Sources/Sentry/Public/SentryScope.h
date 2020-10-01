@@ -110,7 +110,7 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)clear;
 
-- (BOOL)isEqual:(id)other;
+- (BOOL)isEqual:(id _Nullable)other;
 
 - (BOOL)isEqualToScope:(SentryScope *)scope;
 
