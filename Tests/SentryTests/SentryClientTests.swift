@@ -222,7 +222,9 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            XCTAssertEqual("\(error.domain) \(error.code)", actual.message.formatted)
+            XCTAssertNil(actual.message.formatted)
+            XCTAssertEqual("\(error.domain) %s", actual.message.message)
+            XCTAssertEqual(["error code: \(error.code)"], actual.message.params)
         }
     }
 
@@ -508,7 +510,9 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidErrorEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual("\(error.domain) \(error.code)", event.message.formatted)
+        XCTAssertNil(event.message.formatted)
+        XCTAssertEqual("\(error.domain) %s", event.message.message)
+        XCTAssertEqual(["error code: \(error.code)"], event.message.params)
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
@@ -568,7 +572,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
     }
 
-    private enum TestError : Error {
+    private enum TestError: Error {
         case invalidTest
         case testIsFailing
         case somethingElse
