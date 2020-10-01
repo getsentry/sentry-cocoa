@@ -17,7 +17,6 @@ class SentryCrashIntegrationTests: XCTestCase {
         var options: Options {
             let options = Options()
             options.dsn = TestConstants.dsnAsString
-            options.enableAutoSessionTracking = true
             return options
         }
         

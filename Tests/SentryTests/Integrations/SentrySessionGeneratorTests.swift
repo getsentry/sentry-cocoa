@@ -107,7 +107,6 @@ class SentrySessionGeneratorTests: XCTestCase {
         options.logLevel = SentryLogLevel.debug
         
         options.sessionTrackingIntervalMillis = 1
-        options.enableAutoSessionTracking = true
         
         // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
         options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
