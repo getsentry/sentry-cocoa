@@ -58,7 +58,8 @@ class SentrySwiftTests: XCTestCase {
     
     func testFunctionCalls() {
         let event = Event(level: .debug)
-        event.message = "Test Message"
+        event.message = SentryMessage(formatted: "Test Message")
+    
         event.environment = "staging"
         let scope = Sentry.Scope()
         scope.setExtras(["ios": true])

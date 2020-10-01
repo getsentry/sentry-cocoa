@@ -19,13 +19,17 @@ class SentryClientTest: XCTestCase {
         let session: SentrySession
         let event: Event
         let environment = "Environment"
+        let messageAsString = "message"
+        let message: SentryMessage
 
         init() {
             session = SentrySession(releaseName: "release")
             session.incrementErrors()
 
+            message = SentryMessage(formatted: messageAsString)
+
             event = Event()
-            event.message = "some message"
+            event.message = message
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -64,7 +68,6 @@ class SentryClientTest: XCTestCase {
 
     private let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: nil)
 
-    private let message = "message"
     private var fixture: Fixture!
 
     override func setUp() {
@@ -73,12 +76,12 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureMessage() {
-        let eventId = fixture.getSut().capture(message: message)
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.info, actual.level)
-            XCTAssertEqual(message, actual.message)
+            XCTAssertEqual(fixture.message, actual.message)
 
             assertValidDebugMeta(actual: actual.debugMeta)
             assertValidThreads(actual: actual.threads)
@@ -88,12 +91,12 @@ class SentryClientTest: XCTestCase {
     func testCaptureMessageWithOutStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = false
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(SentryLevel.info, actual.level)
-            XCTAssertEqual(message, actual.message)
+            XCTAssertEqual(fixture.message, actual.message)
             XCTAssertNil(actual.debugMeta)
             XCTAssertNil(actual.threads)
             XCTAssertNotNil(actual.dist)
@@ -102,7 +105,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureEvent() {
         let event = Event(level: SentryLevel.warning)
-        event.message = message
+        event.message = fixture.message
         let scope = Scope()
         let expectedTags = ["tagKey": "tagValue"]
         scope.setTags(expectedTags)
@@ -188,7 +191,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureEventWithAttachStacktrace() {
         let event = Event(level: SentryLevel.fatal)
-        event.message = message
+        event.message = fixture.message
         let eventId = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = true
         }).capture(event: event)
@@ -215,14 +218,16 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureErrorWithEnum() {
         let eventId = fixture.getSut().capture(error: TestError.invalidTest)
-        
+
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            XCTAssertEqual("\(error.domain) \(error.code)", actual.message)
+            XCTAssertNil(actual.message.formatted)
+            XCTAssertEqual("\(error.domain) %s", actual.message.message)
+            XCTAssertEqual(["error code: \(error.code)"], actual.message.params)
         }
     }
-    
+
     func testCaptureErrorWithSession() {
         let eventId = fixture.getSut().captureError(error, with: fixture.session, with: Scope())
         
@@ -313,7 +318,7 @@ class SentryClientTest: XCTestCase {
     }
 
     func testScopeIsNotNil() {
-        let eventId = fixture.getSut().capture(message: message, scope: fixture.scope)
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
@@ -333,7 +338,7 @@ class SentryClientTest: XCTestCase {
             options.beforeSend = { _ in
                 nil
             }
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         assertNoEventSent()
     }
@@ -346,7 +351,7 @@ class SentryClientTest: XCTestCase {
                 newEvent
             }
             options.releaseName = releaseName
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         XCTAssertEqual(newEvent.eventId, eventId)
         assertLastSentEvent { actual in
@@ -363,7 +368,7 @@ class SentryClientTest: XCTestCase {
                 return event
             }
             options.attachStacktrace = true
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         assertLastSentEvent { actual in
             XCTAssertEqual([], actual.debugMeta)
@@ -373,7 +378,7 @@ class SentryClientTest: XCTestCase {
 
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
-        let eventId = sut.capture(message: message)
+        let eventId = sut.capture(message: fixture.messageAsString)
         eventId.assertIsEmpty()
         assertNothingSent()
     }
@@ -435,7 +440,7 @@ class SentryClientTest: XCTestCase {
         let dist = "dist"
         let eventId = fixture.getSut(configureOptions: { options in
             options.dist = dist
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
@@ -447,7 +452,7 @@ class SentryClientTest: XCTestCase {
         let environment = "environment"
         let eventId = fixture.getSut(configureOptions: { options in
             options.environment = environment
-        }).capture(message: message)
+        }).capture(message: fixture.messageAsString)
 
         XCTAssertNotNil(eventId)
         assertLastSentEvent { actual in
@@ -505,7 +510,9 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidErrorEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual("\(error.domain) \(error.code)", event.message)
+        XCTAssertNil(event.message.formatted)
+        XCTAssertEqual("\(error.domain) %s", event.message.message)
+        XCTAssertEqual(["error code: \(error.code)"], event.message.params)
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
@@ -564,8 +571,8 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
     }
-    
-    private enum TestError : Error {
+
+    private enum TestError: Error {
         case invalidTest
         case testIsFailing
         case somethingElse

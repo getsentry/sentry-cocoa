@@ -14,7 +14,7 @@ class SentrySDKTests: XCTestCase {
         
         init() {
             event = Event()
-            event.message = "message"
+            event.message = SentryMessage(formatted: "message")
             
             scope = Scope()
             scope.setTag(value: "value", key: "key")
