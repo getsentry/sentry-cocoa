@@ -28,7 +28,10 @@ application.
 This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
 If you are using an on-premise installation it requires Sentry version
 `>= v20.6.0` to work. If you are using sentry.io nothing will change and
-no action is needed.
+no action is needed. For this change, we also cache events now in envelopes on the disk.
+We decided not to take the effort to migrate these few cached events from 5.x to 6.x into
+envelopes. Instead we remove them from the disk. This means you might lose a few cached 
+events of your users when upgrading.
 
 ### SDK Inits
 
