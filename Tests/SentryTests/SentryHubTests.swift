@@ -19,7 +19,6 @@ class SentryHubTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = TestConstants.dsnAsString
-            options.enableAutoSessionTracking = true
             options.environment = "debug"
             
             scope.add(crumb)
