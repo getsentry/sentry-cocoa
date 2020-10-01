@@ -2,7 +2,8 @@
 
 ## unreleased
 
-- feat: Add SentryMessage #752
+- feat: Add SentryMessage #752 !Breaking
+- fix: Make public isEqual _Nullable #751
 - feat: Use error domain and code for event message #750
 - feat: Replace passing nullable Scope with overloads #743 !Breaking
 - feat: Remove SDK frames when attaching stacktrace #739
