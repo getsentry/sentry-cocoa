@@ -157,7 +157,7 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
     event.timestamp = [NSDate date];
-    event.message = [SentryMessage messageWithFormatted:@"testy test"];
+    event.message = [[SentryMessage alloc] initWithFormatted:@"testy test"];
 
     [SentrySDK captureEvent:event];
 

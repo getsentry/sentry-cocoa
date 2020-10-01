@@ -7,25 +7,16 @@ const NSUInteger MAX_STRING_LENGTH = 8192;
 
 @implementation SentryMessage
 
-- (instancetype)init
+- (instancetype)initWithFormatted:(NSString *)formatted
 {
-    return [super init];
-}
-
-+ (instancetype)messageWithFormatted:(NSString *_Nullable)formatted
-{
-    SentryMessage *message = [[SentryMessage alloc] init];
-    message.formatted = formatted;
-    return message;
-}
-
-- (void)setFormatted:(NSString *_Nullable)formatted
-{
-    if (nil != formatted && formatted.length > MAX_STRING_LENGTH) {
-        _formatted = [formatted substringToIndex:MAX_STRING_LENGTH];
-    } else {
-        _formatted = formatted;
+    if (self = [super init]) {
+        if (nil != formatted && formatted.length > MAX_STRING_LENGTH) {
+            _formatted = [formatted substringToIndex:MAX_STRING_LENGTH];
+        } else {
+            _formatted = formatted;
+        }
     }
+    return self;
 }
 
 - (void)setMessage:(NSString *_Nullable)message

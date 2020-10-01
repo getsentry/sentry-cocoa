@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentrySerializable.h"
 #import <Foundation/Foundation.h>
 
@@ -10,19 +11,15 @@ NS_ASSUME_NONNULL_BEGIN
  * For more info checkout: https://develop.sentry.dev/sdk/event-payloads/message/
  */
 @interface SentryMessage : NSObject <SentrySerializable>
+SENTRY_NO_INIT
 
-- (instancetype)init;
-
-/**
- * Creates a new message containing the given formatted.
- */
-+ (instancetype)messageWithFormatted:(NSString *_Nullable)formatted NS_SWIFT_NAME(init(formatted:));
+- (instancetype)initWithFormatted:(NSString *)formatted;
 
 /**
  * The fully formatted message. If missing, Sentry will try to interpolate the message. It must not
  * exceed 8192 characters. Longer messages will be truncated.
  */
-@property (nonatomic, copy) NSString *_Nullable formatted;
+@property (nonatomic, readonly, copy) NSString *formatted;
 
 /**
  * The raw message string (uninterpolated). It must not exceed 8192 characters. Longer messages will
