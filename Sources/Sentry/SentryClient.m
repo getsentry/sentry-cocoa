@@ -102,7 +102,6 @@ SentryClient ()
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = [SentryMessage messageWithFormatted:message];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
@@ -161,7 +160,8 @@ SentryClient ()
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = [SentryMessage messageWithFormatted:error.localizedDescription];
+    NSString *message = [NSString stringWithFormat:@"%@ %ld", error.domain, (long)error.code];
+    event.message = [SentryMessage messageWithFormatted:message];
     [self setUserInfo:error.userInfo withEvent:event];
     return event;
 }
