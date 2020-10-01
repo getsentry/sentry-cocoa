@@ -47,7 +47,6 @@ class SentrySDKTests: XCTestCase {
             options.debug = true
             options.logLevel = SentryLogLevel.verbose
             options.attachStacktrace = true
-            options.enableAutoSessionTracking = true
         }
         
         let hub = SentrySDK.currentHub()
