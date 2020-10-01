@@ -222,9 +222,9 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            XCTAssertNil(actual.message.formatted)
+            XCTAssertEqual("\(error.domain) \(error.code)", actual.message.formatted)
             XCTAssertEqual("\(error.domain) %s", actual.message.message)
-            XCTAssertEqual(["error code: \(error.code)"], actual.message.params)
+            XCTAssertEqual(["\(error.code)"], actual.message.params)
         }
     }
 
@@ -510,9 +510,9 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidErrorEvent(_ event: Event) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertNil(event.message.formatted)
+        XCTAssertEqual("\(error.domain) \(error.code)", event.message.formatted)
         XCTAssertEqual("\(error.domain) %s", event.message.message)
-        XCTAssertEqual(["error code: \(error.code)"], event.message.params)
+        XCTAssertEqual(["\(error.code)"], event.message.params)
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }

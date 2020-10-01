@@ -9,6 +9,7 @@ For a detailed explanation  how to updgrade please checkout the [migration guide
 
 Breaking changes:
 
+- fix: Make SentryMessage formatted required #756
 - feat: Add SentryMessage #752
 - feat: Replace passing nullable Scope with overloads #743
 - feat: Remove SentryOptions.enabled #736

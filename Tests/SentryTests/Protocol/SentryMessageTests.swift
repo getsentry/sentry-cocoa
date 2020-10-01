@@ -17,20 +17,18 @@ class SentryMessageTests: XCTestCase {
     
     func testTruncateFormatted() {
         let message = SentryMessage(formatted: "aaaaa")
-        XCTAssertEqual(5, message.formatted?.count)
+        XCTAssertEqual(5, message.formatted.count)
         
-        message.formatted = fixture.maximumCount
-        XCTAssertEqual(fixture.stringMaxCount, message.formatted?.count)
+        XCTAssertEqual(fixture.stringMaxCount, SentryMessage(formatted: fixture.maximumCount).formatted.count)
         
-        message.formatted = fixture.tooLong
-        XCTAssertEqual(fixture.stringMaxCount, message.formatted?.count)
+        XCTAssertEqual(fixture.stringMaxCount, SentryMessage(formatted: fixture.tooLong).formatted.count)
     }
     
     func testTruncateMessage() {
-        let message = SentryMessage()
-        message.message = "aaaaa"
+        let message = SentryMessage(formatted: "")
+        message.message = "aaaaa %s"
         
-        XCTAssertEqual(5, message.message?.count)
+        XCTAssertEqual(8, message.message?.count)
         
         message.message = fixture.maximumCount
         XCTAssertEqual(fixture.stringMaxCount, message.message?.count)
@@ -40,9 +38,8 @@ class SentryMessageTests: XCTestCase {
     }
     
     func testSerialize() {
-        let message = SentryMessage()
-        message.formatted = "Something %s"
-        message.message = "A message"
+        let message = SentryMessage(formatted: "A message my params")
+        message.message = "A message %s %s"
         message.params = ["my", "params"]
         
         let actual = message.serialize()

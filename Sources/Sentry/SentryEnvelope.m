@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
                 [NSString stringWithFormat:@"JSON conversion error for event with message: '%@'",
                           event.message];
 
-            errorEvent.message = [SentryMessage messageWithFormatted:message];
+            errorEvent.message = [[SentryMessage alloc] initWithFormatted:message];
             errorEvent.releaseName = event.releaseName;
             errorEvent.environment = event.environment;
             errorEvent.platform = event.platform;
