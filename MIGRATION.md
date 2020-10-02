@@ -61,7 +61,7 @@ and tell us your use case so we either make the class public again or provide an
 
 In 5.x we use a nullable NSString to represent an event ID. The SDK, Hub and Client returned this
 nullable NSString for the event ID for capturing messages, events, errors, etc. With 6.x we have a new type SentryId which is not nullable to represent an event ID.
-Instead of returning `nil` when an event coulnd't be queued for submission we return `SentryId.empty`.
+Instead of returning `nil` when an event couldn't be queued for submission we return `SentryId.empty`.
 
 `5.x`
 
