@@ -11,6 +11,7 @@
 #import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
+#import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
@@ -20,6 +21,7 @@
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUser.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -312,6 +314,9 @@ SentryClient ()
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
+    // Need to do this after the scope is applied cause this sets the user if there is any
+    [self setUserIdIfNoUserSet:event];
+
     event = [self callEventProcessors:event];
 
     if (nil != self.options.beforeSend) {
@@ -349,6 +354,17 @@ SentryClient ()
         }
 
         [context setValue:userInfo forKey:@"user info"];
+    }
+}
+
+- (void)setUserIdIfNoUserSet:(SentryEvent *)event
+{
+    // We only want to set the id if the customer didn't set a user so we at least set something to
+    // identify the user.
+    if (nil == event.user) {
+        SentryUser *user = [[SentryUser alloc] init];
+        user.userId = [SentryInstallation id];
+        event.user = user;
     }
 }
 

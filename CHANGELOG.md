@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Set userId to installationId if no user set #757
+
 ## 6.0.0
 
 This is a major bump with lots of internal improvements and a few breaking changes.

@@ -21,6 +21,8 @@ class SentryClientTest: XCTestCase {
         let environment = "Environment"
         let messageAsString = "message"
         let message: SentryMessage
+        
+        let user: User
 
         init() {
             session = SentrySession(releaseName: "release")
@@ -30,6 +32,9 @@ class SentryClientTest: XCTestCase {
 
             event = Event()
             event.message = message
+            
+            user = User()
+            user.email = "someone@sentry.io"
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -461,15 +466,47 @@ class SentryClientTest: XCTestCase {
     }
     
     func testFileManagerCantBeInit() {
-         SentryFileManager.prepareInitError()
+        SentryFileManager.prepareInitError()
         
         let options = Options()
         options.dsn = TestConstants.dsnAsString
         let client = Client(options: options)
-         
+        
         XCTAssertNil(client)
         
         SentryFileManager.tearDownInitError()
+    }
+    
+    func testInstallationIdSetWhenNoUserId() {
+        fixture.getSut().capture(message: "any message")
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(SentryInstallation.id(), actual.user?.userId)
+        }
+    }
+    
+    func testInstallationIdNotSetWhenUserIsSetWithoutId() {
+        let scope = Scope()
+        scope.setUser(fixture.user)
+        fixture.getSut().capture(message: "any message", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(fixture.user.userId, actual.user?.userId)
+            XCTAssertEqual(fixture.user.email, actual.user?.email)
+        }
+    }
+    
+    func testInstallationIdNotSetWhenUserIsSetWithId() {
+        let scope = Scope()
+        let user = fixture.user
+        user.userId = "id"
+        scope.setUser(user)
+        fixture.getSut().capture(message: "any message", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(user.userId, actual.user?.userId)
+            XCTAssertEqual(fixture.user.email, actual.user?.email)
+        }
     }
     
     private func givenEventWithDebugMeta() -> Event {
