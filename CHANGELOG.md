@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- feat: Set userId to installationId if no user set #757
+- feat: Set userId to installationId if no user set #757 !Merge https://github.com/getsentry/sentry-docs/pull/2427 when releasing
 
 ## 6.0.0
 
