@@ -411,7 +411,6 @@
 		15E0A8EC240F2CB000F044E3 /* SentrySerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySerialization.m; sourceTree = "<group>"; };
 		15E0A8EF240F638200F044E3 /* SentrySerializationNilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySerializationNilTests.m; sourceTree = "<group>"; };
 		15E0A8F12411A45A00F044E3 /* SentrySession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySession.m; sourceTree = "<group>"; };
-		15E0A8F32411A47A00F044E3 /* SentryUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryUser.h; path = Public/SentryUser.h; sourceTree = "<group>"; };
 		630435FC1EBCA9D900C4D3FA /* SentryNSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLRequest.h; path = include/SentryNSURLRequest.h; sourceTree = "<group>"; };
 		630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLRequest.m; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* NSData+SentryCompression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+SentryCompression.h"; path = "include/NSData+SentryCompression.h"; sourceTree = "<group>"; };
@@ -893,7 +892,6 @@
 				6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */,
 				6360850C1ED2AFE100E8599E /* SentryBreadcrumb.m */,
 				7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */,
-				15E0A8F32411A47A00F044E3 /* SentryUser.h */,
 				7B4E24FB251C97B400060D68 /* SentrySession.h */,
 				15E0A8F12411A45A00F044E3 /* SentrySession.m */,
 				7BE1E32624F7AE08009D3AD0 /* SentrySession+Private.h */,
