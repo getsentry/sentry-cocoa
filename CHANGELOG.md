@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Warning Duplicate build file in Copy Headers #761
+- fix: Warning when integrating SDK via Carthage #760
 - feat: Set installationId to userId if no user is set #757 !Merge https://github.com/getsentry/sentry-docs/pull/2427 when releasing
 
 ## 6.0.0
