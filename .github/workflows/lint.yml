@@ -8,13 +8,16 @@ jobs:
       - uses: actions/checkout@v2
       - run: pod lib lint Sentry.podspec
 
-  swift-lint:
+  SwiftLint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run swift-lint
-        run: swiftlint
-        shell: bash
+      - name: GitHub Action for SwiftLint
+        uses: norio-nomura/action-swiftlint@3.1.0
+      - name: GitHub Action for SwiftLint with --strict
+        uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: --strict
 
   clang-format:
     runs-on: macos-latest
