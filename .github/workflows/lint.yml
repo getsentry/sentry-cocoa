@@ -7,13 +7,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: pod lib lint Sentry.podspec
+
   swift-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: norio-nomura/action-swiftlint@3.1.0
+
   clang-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: jidicula/clang-format-action@master 
+
+  super-lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Super-Linter
+        uses: github/super-linter@v3
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
