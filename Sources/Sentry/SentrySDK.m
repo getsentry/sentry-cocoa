@@ -38,7 +38,8 @@ static SentryHub *currentHub;
 
 + (void)setCurrentHub:(SentryHub *)hub
 {
-    @synchronized(self) {
+    @synchronized(self)
+    {
         currentHub = hub;
     }
 }
