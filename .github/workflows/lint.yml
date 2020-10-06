@@ -2,7 +2,8 @@ name: lint
 on:
   pull_request:
 jobs:
-  pod-lint:
+  validate-podspec:
+    name: Validate Podspec
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -10,7 +11,8 @@ jobs:
         run: pod spec lint Sentry.podspec
         shell: sh
 
-  SwiftLint:
+  swift-lint:
+    name: Swift Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +22,7 @@ jobs:
           args: --strict
 
   clang-format:
+    name: ClangFormat
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
