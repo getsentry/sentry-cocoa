@@ -1,6 +1,149 @@
+# Upgrading from 5.x to 6.x
+
+In this version there are a few breaking changes. This guide should help you to update your code.
+
+## Configuration Changes
+
+With this version we changed a few things for the configuration:
+
+- [Auto Session Tracking](https://github.com/getsentry/sentry-cocoa/blob/7876949ca78aebfe7883432e35727993c5c30829/Sources/Sentry/include/SentryOptions.h#L101)
+is enabled per default.
+[This feature](https://docs.sentry.io/product/releases/health/)
+is collecting and sending health data about the usage of your
+application.
+
+- [Attach stacktraces](https://github.com/getsentry/sentry-cocoa/blob/b5bf9769a158c66a34352556ade243e55f163a27/Sources/Sentry/Public/SentryOptions.h#L109)
+ is enabled per default.
+
+- We bumped the minimum iOS version to 9.0.
+
+- Use a BOOL in SentryOptions instead of NSNumber to store booleans.
+
+- We removed [enabled](https://github.com/getsentry/sentry-cocoa/blob/5.2.2/Sources/Sentry/include/SentryOptions.h#L63) on the SentryOptions.
+
+## Breaking Changes
+
+### Store Endpoint
+
+This version uses the [envelope endpoint](https://develop.sentry.dev/sdk/envelopes/).
+If you are using an on-premise installation it requires Sentry version
+`>= v20.6.0` to work. If you are using sentry.io nothing will change and
+no action is needed. For this change, we also cache events now in envelopes on the disk.
+We decided not to take the effort to migrate these few cached events from 5.x to 6.x into
+envelopes. Instead we remove them from the disk. This means you might lose a few cached 
+events of your users when upgrading.
+
+### SDK Inits
+
+We removed the [deprecated SDK inits](https://github.com/getsentry/sentry-cocoa/blob/5.2.2/Sources/Sentry/include/SentrySDK.h#L35-L47). The recommended way to initialize Sentry is now:
+
+```swift
+SentrySDK.start { options in
+    options.dsn = "___PUBLIC_DSN___"
+    // ...
+}
+```
+
+```objective-c
+[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+    options.dsn = @"___PUBLIC_DSN___";
+    // ...
+}];
+```
+
+### Cleanup Public Headers
+
+We cleaned up our public headers and made most of our classes private. If you can't access one
+of the classes you need please [open an issue](https://github.com/getsentry/sentry-cocoa/issues/new/choose)
+and tell us your use case so we either make the class public again or provide another API for you.
+
+### New type SentryId for eventId
+
+In 5.x we use a nullable NSString to represent an event ID. The SDK, Hub and Client returned this
+nullable NSString for the event ID for capturing messages, events, errors, etc. With 6.x we have a new type SentryId which is not nullable to represent an event ID.
+Instead of returning `nil` when an event couldn't be queued for submission we return `SentryId.empty`.
+
+`5.x`
+
+```swift
+let eventId = SentrySDK.capture(message: "A message")
+if (nil != eventId) {
+    // event was queued for submission
+} else {
+    // event wasn't queued for submission
+}
+```
+
+```objective-c
+SentryId *eventId = [SentrySDK captureMessage:@"A message"];
+if (nil != eventId) {
+    // event was queued for submission
+} else {
+    // event wasn't queued for submission
+}
+```
+
+`6.x`
+
+```swift
+let eventId = SentrySDK.capture(message: "A message")
+if (eventId != SentryId.empty) {
+    // event was queued for submission
+} else {
+    // event wasn't queued for submission
+}
+```
+
+```objective-c
+SentryId *eventId = [SentrySDK captureMessage:@"A message"];
+if (eventId != SentryId.empty) {
+    // event was queued for submission
+} else {
+    // event wasn't queued for submission
+}
+```
+
+### New type SentryMessage for Event.message
+
+In 6.x we introduce a new type [SentryMessage](https://develop.sentry.dev/sdk/event-payloads/message/)
+for `event.message`. SentryMessage gives you the possibilty to pass a format string with parameters
+to Sentry, which can help to group similar messages into the same issue.
+
+`5.x`
+
+```swift
+let event = Event()
+event.message = "Hello World"
+```
+
+```objective-c
+SentryEvent *event = [[SentryEvent alloc] init];
+event.message = "Hello World";
+```
+
+`6.x`
+
+```swift
+let event = Event()
+event.message = SentryMessage(formatted: "Hello World")
+```
+
+```objective-c
+SentryEvent *event = [[SentryEvent alloc] init];
+event.message = [SentryMessage messageWithFormatted:"Hello World"];
+```
+
+### Make Scope nonnull for capture methods
+
+In 5.x you could pass a nullable scope to capture methods of the SDK, Hub and Client, such as
+`SentrySdk.captureMessage()`. In 6.x we changed the Scope to nonnull and provide overloads
+for the Hub and the Client.
+
+Please checkout the [Changelog](CHANGELOG.md) for a complete list of changes.
+
 # Upgrading from 4.x to 5.x
 
-Here are some examples of how the new SDK works. 
+Here are some examples of how the new SDK works.
 
 ### Initialization
 

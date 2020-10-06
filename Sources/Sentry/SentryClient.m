@@ -6,11 +6,14 @@
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
+#import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
+#import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
@@ -18,6 +21,7 @@
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUser.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -101,7 +105,7 @@ SentryClient ()
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    event.message = message;
+    event.message = [[SentryMessage alloc] initWithFormatted:message];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
@@ -128,7 +132,9 @@ SentryClient ()
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = exception.reason;
+    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
+                                                                         type:exception.name];
+    event.exceptions = @[ sentryException ];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
@@ -156,7 +162,11 @@ SentryClient ()
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    event.message = error.localizedDescription;
+    NSString *formatted = [NSString stringWithFormat:@"%@ %ld", error.domain, (long)error.code];
+    SentryMessage *message = [[SentryMessage alloc] initWithFormatted:formatted];
+    message.message = [error.domain stringByAppendingString:@" %s"];
+    message.params = @[ [NSString stringWithFormat:@"%ld", (long)error.code] ];
+    event.message = message;
     [self setUserInfo:error.userInfo withEvent:event];
     return event;
 }
@@ -304,6 +314,9 @@ SentryClient ()
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
+    // Need to do this after the scope is applied cause this sets the user if there is any
+    [self setUserIdIfNoUserSet:event];
+
     event = [self callEventProcessors:event];
 
     if (nil != self.options.beforeSend) {
@@ -341,6 +354,17 @@ SentryClient ()
         }
 
         [context setValue:userInfo forKey:@"user info"];
+    }
+}
+
+- (void)setUserIdIfNoUserSet:(SentryEvent *)event
+{
+    // We only want to set the id if the customer didn't set a user so we at least set something to
+    // identify the user.
+    if (nil == event.user) {
+        SentryUser *user = [[SentryUser alloc] init];
+        user.userId = [SentryInstallation id];
+        event.user = user;
     }
 }
 

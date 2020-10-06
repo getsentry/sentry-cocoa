@@ -3,7 +3,7 @@
 
 @implementation SentrySession (Equality)
 
-- (BOOL)isEqual:(id)other
+- (BOOL)isEqual:(id _Nullable)other
 {
     if (other == self)
         return YES;

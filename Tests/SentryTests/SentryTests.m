@@ -1,5 +1,6 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryMessage.h"
 #import "SentryMeta.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
@@ -156,7 +157,7 @@
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
     event.timestamp = [NSDate date];
-    event.message = @"testy test";
+    event.message = [[SentryMessage alloc] initWithFormatted:@"testy test"];
 
     [SentrySDK captureEvent:event];
 

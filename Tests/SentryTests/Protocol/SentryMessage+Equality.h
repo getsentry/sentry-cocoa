@@ -1,12 +1,12 @@
-#import "SentrySession.h"
+#import "SentryMessage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySession (Equality)
+@interface SentryMessage (Equality)
 
 - (BOOL)isEqual:(id _Nullable)object;
 
-- (BOOL)isEqualToSession:(SentrySession *)session;
+- (BOOL)isEqualToMessage:(SentryMessage *)message;
 
 - (NSUInteger)hash;
 

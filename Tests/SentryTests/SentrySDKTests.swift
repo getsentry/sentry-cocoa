@@ -14,7 +14,7 @@ class SentrySDKTests: XCTestCase {
         
         init() {
             event = Event()
-            event.message = "message"
+            event.message = SentryMessage(formatted: "message")
             
             scope = Scope()
             scope.setTag(value: "value", key: "key")
@@ -47,7 +47,6 @@ class SentrySDKTests: XCTestCase {
             options.debug = true
             options.logLevel = SentryLogLevel.verbose
             options.attachStacktrace = true
-            options.enableAutoSessionTracking = true
         }
         
         let hub = SentrySDK.currentHub()

@@ -2,8 +2,52 @@
 
 ## unreleased
 
-- feat: Replace passing nullable Scope with overloads #743 !Breaking
+## 6.0.1
+
+- fix: Warning Duplicate build file in Copy Headers #761
+- fix: Warning when integrating SDK via Carthage #760
+- feat: Set installationId to userId if no user is set #757
+
+## 6.0.0
+
+This is a major bump with lots of internal improvements and a few breaking changes.
+For a detailed explanation  how to updgrade please checkout the [migration guide](MIGRATION.md).
+
+Breaking changes:
+
+- fix: Make SentryMessage formatted required #756
+- feat: Add SentryMessage #752
+- feat: Replace passing nullable Scope with overloads #743
+- feat: Remove SentryOptions.enabled #736
+- fix: Public Headers #735
+- feat: Attach stacktraces to all events by default #705
+- feat: Replace NSNumber with BOOL in SentryOptions #719
+- feat: Enable auto session tracking per default #689
+- feat: Remove deprecated SDK inits #673
+- feat: Bump minimum iOS version to 9.0 #669
+- fix: Umbrella header #671
+- feat: Replace NSString for eventId with SentryId #668
+- feat: Use envelopes for sending events #650
+
+Features and fixes:
+
+- fix: Make public isEqual _Nullable #751
+- feat: Use error domain and code for event message #750
 - feat: Remove SDK frames when attaching stacktrace #739
+- fix: captureException crates a event type=error #746
+- fix: Setting environment for Sessions #734
+- feat: Crash event and session in same envelope #731
+- feat: Allow nil in setExtraValue on SentryScope to remove key #703
+- fix: Header Imports for the Swift Package Manager #721
+- fix: Async storing of envelope to disk #714
+- feat: Migrate session init for stored envelopes #693
+- fix: Remove redundant sdk options enable check in SentryHttpTransport #698
+- fix: Sending envelopes multiple times #687
+- fix: Rate limiting for cached envelope items #685
+- feat: Errors and sessions in the same envelope #686
+- feat: Implement NSCopying for SentrySession #683
+- fix: Crash when SentryClient is nil in SentryHub #681
+- feat: Send cached envelopes first #676
 
 ## 6.0.0-beta.2
 

@@ -63,7 +63,7 @@ static SentryId *_empty = nil;
     return [self sentryIdString];
 }
 
-- (BOOL)isEqual:(id)object
+- (BOOL)isEqual:(id _Nullable)object
 {
     if (object == self) {
         return YES;

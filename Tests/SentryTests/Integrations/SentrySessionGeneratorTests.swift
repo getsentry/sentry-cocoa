@@ -80,7 +80,7 @@ class SentrySessionGeneratorTests: XCTestCase {
             // crash report on a background thread.
             let crashEvent = Event()
             crashEvent.level = SentryLevel.fatal
-            crashEvent.message = "Crash for SentrySessionGeneratorTests"
+            crashEvent.message = SentryMessage(formatted: "Crash for SentrySessionGeneratorTests")
             SentrySDK.captureCrash(crashEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false
@@ -107,7 +107,6 @@ class SentrySessionGeneratorTests: XCTestCase {
         options.logLevel = SentryLogLevel.debug
         
         options.sessionTrackingIntervalMillis = 1
-        options.enableAutoSessionTracking = true
         
         // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
         options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in

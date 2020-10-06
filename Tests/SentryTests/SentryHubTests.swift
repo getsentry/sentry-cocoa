@@ -19,13 +19,12 @@ class SentryHubTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = TestConstants.dsnAsString
-            options.enableAutoSessionTracking = true
             options.environment = "debug"
             
             scope.add(crumb)
             
             event = Event()
-            event.message = message
+            event.message = SentryMessage(formatted: message)
             
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
             

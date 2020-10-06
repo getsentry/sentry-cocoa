@@ -45,7 +45,7 @@ ViewController ()
 - (IBAction)captureError:(id)sender
 {
     NSError *error =
-        [[NSError alloc] initWithDomain:@""
+        [[NSError alloc] initWithDomain:@"SampleErrorDomain"
                                    code:0
                                userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
     [SentrySDK captureError:error
