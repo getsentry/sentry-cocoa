@@ -21,5 +21,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run clang-format
-        run: make lint
-        shell: bash
+        run: ./scripts/check-clang-format.py -r Sources Tests
