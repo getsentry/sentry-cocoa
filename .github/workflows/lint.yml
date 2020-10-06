@@ -17,10 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: GitHub Action for SwiftLint with --strict
-        uses: norio-nomura/action-swiftlint@3.1.0
-        with:
-          args: --strict
+      - name: Run SwiftLint
+        run: swiftlint
+        shell: sh
 
   clang-format:
     name: ClangFormat
