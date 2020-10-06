@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run clang-format
-      - uses: DoozyX/clang-format-lint-action@v0.10
+        uses: DoozyX/clang-format-lint-action@v0.10
         with:
           source: '.'
           extensions: 'h,cpp,m,c'
