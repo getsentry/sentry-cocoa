@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: GitHub Action for SwiftLint
-        uses: norio-nomura/action-swiftlint@3.1.0
       - name: GitHub Action for SwiftLint with --strict
         uses: norio-nomura/action-swiftlint@3.1.0
         with:
@@ -24,4 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run clang-format
-        run: ./scripts/check-clang-format.py -r Sources Tests
+      - uses: DoozyX/clang-format-lint-action@v0.10
+        with:
+          source: '.'
+          extensions: 'h,cpp,m,c'
+          clangFormatVersion: 11
+          style: file
