@@ -33,15 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithJSON:(NSData *)json
-{
-    self = [self initWithLevel:kSentryLevelInfo];
-    if (self) {
-        self.json = json;
-    }
-    return self;
-}
-
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
