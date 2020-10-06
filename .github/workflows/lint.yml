@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run SwiftLint
-        run: swiftlint
-        shell: sh
+      - name: GitHub Action for SwiftLint
+        uses: norio-nomura/action-swiftlint@3.1.0
+
 
   clang-format:
     name: ClangFormat
@@ -41,3 +41,5 @@ jobs:
           message: 'Committing clang-format changes'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+
+  
