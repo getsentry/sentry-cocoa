@@ -8,6 +8,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Validate Podspec
         run: pod spec lint Sentry.podspec
+        shell: sh
 
   SwiftLint:
     runs-on: ubuntu-latest
