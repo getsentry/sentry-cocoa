@@ -29,3 +29,10 @@ jobs:
           clangFormatVersion: 11
           style: file
           inplace: True
+      - uses: EndBug/add-and-commit@v5
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@sentry.io
+          message: 'Committing clang-format changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
