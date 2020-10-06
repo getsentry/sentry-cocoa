@@ -1,12 +1,13 @@
 name: lint
 on:
-  push:
+  pull_request:
 jobs:
   pod-lint:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - run: pod lib lint Sentry.podspec
+      - name: Validate Podspec
+        run: pod spec lint Sentry.podspec
 
   SwiftLint:
     runs-on: ubuntu-latest
