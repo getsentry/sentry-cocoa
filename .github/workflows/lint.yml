@@ -12,21 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: norio-nomura/action-swiftlint@3.1.0
+      - name: Run swift-lint
+        run: swiftlint
+        shell: bash
 
   clang-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: jidicula/clang-format-action@master 
-
-  super-lint:
-    name: Lint code base
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run Super-Linter
-        uses: github/super-linter@v3
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+      - name: Run clang-format
+        run: ./scripts/check-clang-format.py -r Sources Tests
+        shell: bash
