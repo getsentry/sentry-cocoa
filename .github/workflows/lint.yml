@@ -1,6 +1,7 @@
 name: lint
 on:
   pull_request:
+
 jobs:
   validate-podspec:
     name: Validate Podspec
