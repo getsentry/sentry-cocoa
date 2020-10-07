@@ -34,8 +34,7 @@ ViewController ()
     [SentrySDK addBreadcrumb:crumb];
 }
 
-- (IBAction)captureMessage:(id)sender
-{
+- (IBAction)captureMessage:(id)sender {
     SentryId *eventId = [SentrySDK captureMessage:@"Yeah captured a message"];
     // Returns eventId in case of successful processed event
     // otherwise emptyId
