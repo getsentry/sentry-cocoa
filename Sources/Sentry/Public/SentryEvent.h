@@ -152,11 +152,6 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
- * JSON baggage, that will only be filled if initWithJSON is called.
- */
-@property (nonatomic, strong) NSData *json;
-
-/**
  * Init an SentryEvent will set all needed fields by default
  * @return SentryEvent
  */

@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- ref: Remove event.json field #768
+
 ## 6.0.1
 
 - fix: Warning Duplicate build file in Copy Headers #761
