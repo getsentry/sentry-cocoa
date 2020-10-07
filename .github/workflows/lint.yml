@@ -1,0 +1,21 @@
+name: lint
+on:
+  pull_request:
+
+jobs:
+  validate-podspec:
+    name: Validate Podspec
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate Podspec
+        run: pod spec lint Sentry.podspec
+        shell: sh  
+
+  swift-lint:
+    name: Swift Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: GitHub Action for SwiftLint
+        uses: norio-nomura/action-swiftlint@3.1.0

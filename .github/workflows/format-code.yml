@@ -1,0 +1,33 @@
+name: format code
+on:
+  pull_request:
+
+jobs:
+
+# Formats Swift, Objective-C, C++, and C code and commits the formatted code
+# if necessary
+
+  format-code:
+    name: Format Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Format Objective-C, C++ and C
+        uses: DoozyX/clang-format-lint-action@v0.10
+        with:
+          source: '.'
+          extensions: 'h,cpp,m,c'
+          clangFormatVersion: 11
+          style: file
+          inplace: True
+      - name: Format Swift
+        uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: autocorrect    
+      - uses: EndBug/add-and-commit@v5
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@sentry.io
+          message: 'Committing formatted code'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
