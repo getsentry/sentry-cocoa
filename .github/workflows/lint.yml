@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sudo apt-get install swiftlint
+      - uses: docker://norionomura/swiftlint:0.40.3_swift-5.3.0
       - run: swiftlint autocorrect
       - uses: EndBug/add-and-commit@v5
         with:
