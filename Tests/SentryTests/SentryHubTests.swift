@@ -278,6 +278,7 @@ class SentryHubTests: XCTestCase {
     
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     func testCatpureMultipleExceptionWithSessionInParallel() {
         captureConcurrentWithSession(count: 10) { sut in
             sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
@@ -292,6 +293,7 @@ class SentryHubTests: XCTestCase {
     
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     func testCatpureMultipleErrorsWithSessionInParallel() {
         captureConcurrentWithSession(count: 10) { sut in
             sut.capture(error: self.fixture.error, scope: self.fixture.scope)
@@ -389,6 +391,7 @@ class SentryHubTests: XCTestCase {
     // implementation to be thread safe
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
         let sut = fixture.getSut()
         sut.startSession()
