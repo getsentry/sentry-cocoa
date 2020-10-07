@@ -19,34 +19,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: GitHub Action for SwiftLint
         uses: norio-nomura/action-swiftlint@3.1.0
-        with:
-          args: autocorrect
-      - uses: EndBug/add-and-commit@v5
-        with:
-          author_name: Clang Robot
-          author_email: clang-robot@sentry.io
-          message: 'Committing swiftlint changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
 
-  clang-format:
-    name: ClangFormat
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run clang-format
-        uses: DoozyX/clang-format-lint-action@v0.10
-        with:
-          source: '.'
-          extensions: 'h,cpp,m,c'
-          clangFormatVersion: 11
-          style: file
-          inplace: True
-      - uses: EndBug/add-and-commit@v5
-        with:
-          author_name: Clang Robot
-          author_email: clang-robot@sentry.io
-          message: 'Committing clang-format changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
   

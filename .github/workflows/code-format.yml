@@ -1,0 +1,31 @@
+name: code-format
+on:
+  pull_request:
+
+jobs:
+
+  code-format:
+    name: ClangFormat
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Format Objective-C, C++ and C
+        uses: DoozyX/clang-format-lint-action@v0.10
+        with:
+          source: '.'
+          extensions: 'h,cpp,m,c'
+          clangFormatVersion: 11
+          style: file
+          inplace: True
+      - name: Format Swift
+        uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: autocorrect    
+      - uses: EndBug/add-and-commit@v5
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@sentry.io
+          message: 'Committing clang-format changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+  
