@@ -4,6 +4,7 @@ import XCTest
 // implementation to be thread safe
 @available(tvOS 10.0, *)
 @available(OSX 10.12, *)
+@available(iOS 10.0, *)
 class SentryHttpTransportTests: XCTestCase {
     
     private class Fixture {

@@ -21,6 +21,7 @@ class SentryHttpDateParserTests: XCTestCase {
 
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
+    @available(iOS 10.0, *)
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     func testWithMultipleWorkItemsInParallel() {
