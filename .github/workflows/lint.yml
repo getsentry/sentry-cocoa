@@ -17,10 +17,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: GitHub Action for SwiftLint
-        uses: norio-nomura/action-swiftlint@3.1.0
       - run: brew install swiftlint  
       - run: swiftlint autocorrect
+      - run: swiftlint
 
   clang-format:
     name: ClangFormat
