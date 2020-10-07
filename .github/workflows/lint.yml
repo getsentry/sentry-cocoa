@@ -19,6 +19,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: GitHub Action for SwiftLint
         uses: norio-nomura/action-swiftlint@3.1.0
+      - name: Autocorrect  
+        run: swiftlint autocorrect
+        shell: sh
 
   clang-format:
     name: ClangFormat
