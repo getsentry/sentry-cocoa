@@ -28,7 +28,7 @@ jobs:
         with:
           author_name: Clang Robot
           author_email: clang-robot@sentry.io
-          message: 'Committing clang-format changes'
+          message: 'Committing formatted code'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
   
