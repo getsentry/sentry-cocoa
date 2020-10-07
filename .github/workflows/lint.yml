@@ -18,7 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: swiftlint autocorrect
-      - run: swiftlint
+      - uses: EndBug/add-and-commit@v5
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@sentry.io
+          message: 'Committing swiftlint changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      - run: swiftlint    
 
   clang-format:
     name: ClangFormat
