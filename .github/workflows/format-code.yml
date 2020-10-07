@@ -1,11 +1,14 @@
-name: code-format
+name: format code
 on:
   pull_request:
 
 jobs:
 
-  code-format:
-    name: ClangFormat
+# Formats Swift, Objective-C, C++, and C code and commits the formatted code
+# if necessary
+
+  format-code:
+    name: Format Code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
