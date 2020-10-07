@@ -31,4 +31,3 @@ jobs:
           message: 'Committing formatted code'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
-  
