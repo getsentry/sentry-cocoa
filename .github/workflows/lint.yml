@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: apt-get install swiftlint
       - run: swiftlint autocorrect
       - run: swiftlint
 
