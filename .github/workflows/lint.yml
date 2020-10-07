@@ -14,10 +14,10 @@ jobs:
 
   swift-lint:
     name: Swift Lint
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: brew install swiftlint  
+      - run: apt-get install swiftlint
       - run: swiftlint autocorrect
       - run: swiftlint
 
