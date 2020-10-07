@@ -17,7 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: docker://norionomura/swiftlint:0.40.3_swift-5.3.0 swiftlint autocorrect
+      - name: GitHub Action for SwiftLint with --strict
+        uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: autoformat --strict
       - uses: EndBug/add-and-commit@v5
         with:
           author_name: Clang Robot
