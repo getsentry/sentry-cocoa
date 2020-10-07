@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Validate Podspec
         run: pod spec lint Sentry.podspec
-        shell: sh
+        shell: sh  
 
   swift-lint:
     name: Swift Lint
@@ -19,8 +19,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: GitHub Action for SwiftLint
         uses: norio-nomura/action-swiftlint@3.1.0
-        with:
-          args: autocorrect --strict
 
   clang-format:
     name: ClangFormat
