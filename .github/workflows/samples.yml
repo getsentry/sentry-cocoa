@@ -4,7 +4,7 @@ on:
     branches:
       - master
   pull_request:
-  
+
 jobs:
   build:
     name: ${{ matrix.scheme }}
@@ -28,3 +28,4 @@ jobs:
           scheme: ${{matrix.scheme}}
           configuration: Debug
           action: build
+          build-settings: -allowProvisioningUpdates ## For automatic signing
