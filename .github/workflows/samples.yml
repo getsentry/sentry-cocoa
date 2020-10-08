@@ -28,4 +28,4 @@ jobs:
           scheme: ${{matrix.scheme}}
           configuration: Debug
           action: build
-          build-settings: -allowProvisioningUpdates ## For automatic signing
+          build-settings: CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
