@@ -17,7 +17,7 @@ jobs:
           - platform=macOS,variant=Mac Catalyst
           - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
           - platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
-          - platform=watchOS Simulator,OS=7.0,name=Apple Watch Series 4 - 40mm
+          # Can't run tests on watchOS because XCTest is not available
 
     steps:
       - uses: actions/checkout@v2
