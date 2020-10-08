@@ -4,7 +4,7 @@ on:
     branches:
       - master
   pull_request:
-
+  
 jobs:
   build:
     name: ${{ matrix.scheme }} | ${{ matrix.sdk }}
@@ -16,6 +16,7 @@ jobs:
         sdk: [iphonesimulator, macosx, watchsimulator, appletvsimulator]
     steps:
       - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
       - uses: sersoft-gmbh/xcodebuild-action@v1
         with:
           workspace: Sentry.xcworkspace
