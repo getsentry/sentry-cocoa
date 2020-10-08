@@ -23,4 +23,5 @@ jobs:
           scheme: ${{matrix.scheme}}
           configuration: Release
           sdk: ${{matrix.sdk}}
-          action: build
+          action: test
+          
