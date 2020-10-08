@@ -25,6 +25,7 @@ jobs:
         with:
           workspace: Sentry.xcworkspace
           scheme: Sentry
+          destination: ${{matrix.destination}}
           configuration: Release
           sdk: ${{matrix.sdk}}
           build-settings: GCC_GENERATE_TEST_COVERAGE_FILES=YES
