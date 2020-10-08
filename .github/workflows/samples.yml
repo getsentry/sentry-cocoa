@@ -14,9 +14,9 @@ jobs:
       matrix:
         scheme: 
           - iOS-Swift
-          - macOS-Swift
           - iOS-ObjectiveC
-          - macOS-ObjectiveC
+          - macOS-Swift
+          - tvOS-Swift
           - watchOS-Swift WatchKit App
           - watchOS-Swift WatchKit App (Notification)
     steps:
