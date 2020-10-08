@@ -17,8 +17,6 @@ jobs:
           - iOS-ObjectiveC
           - macOS-Swift
           - tvOS-Swift
-          - watchOS-Swift WatchKit App
-          - watchOS-Swift WatchKit App (Notification)
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
@@ -26,6 +24,21 @@ jobs:
         with:
           workspace: Sentry.xcworkspace
           scheme: ${{matrix.scheme}}
+          configuration: Debug
+          action: build
+          # Disable code signing. We just want to make sure these compile
+          build-settings: CODE_SIGNING_ALLOWED="NO"
+
+  buildWatchOS:
+      runs-on: macos-latest
+      steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+      - run: make build-for-watchos
+      - uses: sersoft-gmbh/xcodebuild-action@v1
+        with:
+          workspace: Sentry.xcworkspace
+          scheme: watchOS-Swift WatchKit App
           configuration: Debug
           action: build
           # Disable code signing. We just want to make sure these compile
