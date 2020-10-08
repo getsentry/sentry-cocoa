@@ -28,4 +28,5 @@ jobs:
           scheme: ${{matrix.scheme}}
           configuration: Debug
           action: build
-          build-settings: CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          # Disable code signing. We just want to make sure these compile
+          build-settings: CODE_SIGNING_ALLOWED="NO"
