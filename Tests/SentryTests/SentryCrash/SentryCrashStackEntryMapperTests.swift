@@ -74,7 +74,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         var cursor = SentryCrashStackCursor()
        
         let cString = imageName.cString(using: String.Encoding.utf8)
-        var result : Frame = Frame()
+        var result: Frame = Frame()
         cString?.withUnsafeBufferPointer { bufferPointer in
             cursor.stackEntry.imageName = bufferPointer.baseAddress
             result = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
