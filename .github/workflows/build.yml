@@ -7,19 +7,29 @@ on:
   
 jobs:
   build:
-    name: ${{ matrix.scheme }} | ${{ matrix.sdk }}
+    name: ${{ matrix.sdk }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
         sdk: [iphonesimulator, macosx, watchsimulator, appletvsimulator]
+        destination:
+          - platform=macOS
+          - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
+
       - uses: sersoft-gmbh/xcodebuild-action@v1
         with:
           workspace: Sentry.xcworkspace
           scheme: Sentry
           configuration: Release
           sdk: ${{matrix.sdk}}
+          build-settings: GCC_GENERATE_TEST_COVERAGE_FILES=YES
           action: test
+
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
