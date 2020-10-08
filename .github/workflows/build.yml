@@ -12,10 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [iphonesimulator, macosx, watchsimulator, appletvsimulator]
         destination:
           - platform=macOS
           - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+          - platform=iOS Simulator,OS=10.3.1,name=iPhone SE
 
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,6 @@ jobs:
           scheme: Sentry
           destination: ${{matrix.destination}}
           configuration: Release
-          sdk: ${{matrix.sdk}}
           build-settings: GCC_GENERATE_TEST_COVERAGE_FILES=YES
           action: test
 
