@@ -18,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./Scripts/ci-select-xcode.sh
+      - run: carthage build --no-skip-current
         shell: sh
       - run: carthage archive Sentry --output Sentry.framework.zip
         shell: sh
