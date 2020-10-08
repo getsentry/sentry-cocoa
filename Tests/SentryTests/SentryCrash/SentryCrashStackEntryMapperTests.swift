@@ -7,20 +7,20 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
 
     func testSymbolAddress() {
         var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.symbolAddress = 4_391_813_104
+        cursor.stackEntry.symbolAddress = 2_391_813_104
         
         let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
         
-        XCTAssertEqual("0x0000000105c5bff0", frame.symbolAddress ?? "")
+        XCTAssertEqual("0x000000008e902bf0", frame.symbolAddress ?? "")
     }
     
     func testInstructionAddress() {
         var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.address = 4_412_813_376
+        cursor.stackEntry.address = 2_412_813_376
         
         let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
         
-        XCTAssertEqual("0x0000000107063040", frame.instructionAddress ?? "")
+        XCTAssertEqual("0x000000008fd09c40", frame.instructionAddress ?? "")
     }
     
     func testSymbolNameIsNull() {
@@ -62,11 +62,11 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     
     func testImageAddress () {
         var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.imageAddress = 4_488_998_912
+        cursor.stackEntry.imageAddress = 2_488_998_912
         
         let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
         
-        XCTAssertEqual("0x000000010b90b000", frame.imageAddress ?? "")
+        XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
     }
     
     private func getFrameWithImageName(imageName: String) -> Frame {

@@ -18,6 +18,7 @@ jobs:
           - platform=iOS Simulator,OS=10.3.1,name=iPhone SE
 
     steps:
+      - name: ${{matrix.destination}}
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
 
