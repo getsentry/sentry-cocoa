@@ -131,6 +131,8 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
     func getThreadName(_ thread: SentryCrashThread, andBuffer buffer: UnsafeMutablePointer<Int8>, andBufLength bufLength: Int32) {
         if threadName != nil {
             strcpy(buffer, threadName)
+        } else {
+            strcpy(buffer, UnsafePointer([]))
         }
     }
 }
