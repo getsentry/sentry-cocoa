@@ -6,8 +6,7 @@ on:
   pull_request:
   
 jobs:
-  build:
-    name: ${{ matrix.destination }}
+  test:
     runs-on: macos-latest
     strategy:
       fail-fast: false
