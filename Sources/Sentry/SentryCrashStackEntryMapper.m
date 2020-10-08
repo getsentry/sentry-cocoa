@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
         frame.package = imageName;
 
         BOOL isInApp = [self isInApp:imageName];
-        frame.inApp = [NSNumber numberWithBool:isInApp];
+        frame.inApp = @(isInApp);
     }
 
     return frame;

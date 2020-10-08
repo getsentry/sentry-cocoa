@@ -33,7 +33,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         let symbolName = "-[SentryCrash symbolName]"
         var cursor = SentryCrashStackCursor()
         var buffer: [Int8] = Array(repeating: 0, count: 256)
-        strcpy(&buffer, symbolName)
+        strcpy(&buffer, symbolName.cString(using: String.Encoding.utf8))
         cursor.stackEntry.symbolName = UnsafePointer(buffer)
         
         let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
@@ -72,7 +72,8 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     private func getFrameWithImageName(imageName: String) -> Frame {
         var cursor = SentryCrashStackCursor()
         var buffer: [Int8] = Array(repeating: 0, count: 256)
-        strcpy(&buffer, imageName)
+        strcpy(&buffer, imageName.cString(using: String.Encoding.utf8))
+        
         cursor.stackEntry.imageName = UnsafePointer(buffer)
         
         return SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
