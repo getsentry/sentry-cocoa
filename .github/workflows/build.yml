@@ -14,16 +14,14 @@ jobs:
       matrix:
         destination:
           - platform=macOS
+          - platform=macOS,variant=Mac Catalyst
           - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-          - platform=Apple TV Simulator,OS=14.0,name=Apple TV 4K
-          - platform=Watch TV Simulator,OS=7.0,name=Apple Watch Series 4 - 44mm
+          - platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+          - platform=watchOS Simulator,OS=7.0,name=Apple Watch Series 4 - 40mm
 
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-      
-      - name: List of available devices
-        run: xcrun xctrace list devices
 
       - uses: sersoft-gmbh/xcodebuild-action@v1
         with:
