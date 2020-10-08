@@ -7,7 +7,7 @@ on:
   
 jobs:
   build:
-    name: ${{ matrix.sdk }}
+    name: ${{ matrix.destination }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -20,9 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
+      
+      - name: List of available devices
+        run: xcrun xctrace list devices
 
-      - name: ${{matrix.destination}}
-        uses: sersoft-gmbh/xcodebuild-action@v1
+      - uses: sersoft-gmbh/xcodebuild-action@v1
         with:
           workspace: Sentry.xcworkspace
           scheme: Sentry
@@ -31,6 +33,7 @@ jobs:
           build-settings: GCC_GENERATE_TEST_COVERAGE_FILES=YES
           action: test
 
-      - uses: codecov/codecov-action@v1
+      - name: Push code coverage to codecov
+        uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
