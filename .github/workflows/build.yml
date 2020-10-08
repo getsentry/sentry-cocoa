@@ -1,0 +1,26 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  
+jobs:
+  build:
+    name: ${{ matrix.scheme }} | ${{ matrix.sdk }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scheme: ['Sentry', 'SentryTests']
+        sdk: [iphonesimulator, macosx, watchsimulator, appletvsimulator]
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+      - uses: sersoft-gmbh/xcodebuild-action@v1
+        with:
+          workspace: Sentry.xcworkspace
+          scheme: ${{matrix.scheme}}
+          configuration: Release
+          sdk: ${{matrix.sdk}}
+          action: build
