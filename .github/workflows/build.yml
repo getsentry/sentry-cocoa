@@ -15,7 +15,8 @@ jobs:
         destination:
           - platform=macOS
           - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-          - platform=iOS Simulator,OS=10.3.1,name=iPhone SE
+          - platform=Apple TV Simulator,OS=14.0,name=Apple TV 4K
+          - platform=Watch TV Simulator,OS=7.0,name=Apple Watch Series 4 - 44mm
 
     steps:
       - uses: actions/checkout@v2
