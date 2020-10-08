@@ -11,7 +11,16 @@ jobs:
       - run: ./Scripts/ci-select-xcode.sh
       - name: Validate Podspec
         run: pod spec lint Sentry.podspec
-        shell: sh  
+        shell: sh
+
+  validate-carthage:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./Scripts/ci-select-xcode.sh
+      - run: ./Scripts/ci-select-xcode.sh
+      - run: carthage build --no-skip-current
+      - run: carthage archive Sentry --output Sentry.framework.zip
 
   swift-lint:
     name: Swift Lint

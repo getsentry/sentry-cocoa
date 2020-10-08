@@ -4,9 +4,10 @@ on:
     branches:
       - master
   pull_request:
+  
 jobs:
   build:
-    name: ${{ matrix.scheme }} | ${{ matrix.sdk }}
+    name: ${{ matrix.scheme }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
