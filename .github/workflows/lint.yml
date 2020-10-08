@@ -18,8 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./Scripts/ci-select-xcode.sh
+      - run: brew install carthage
       - run: make build-carthage
         shell: sh
+      - with:
+          name: logs
+          path: output/test/code-coverage.html
 
   swift-lint:
     name: Swift Lint
