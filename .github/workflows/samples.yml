@@ -18,6 +18,8 @@ jobs:
           - iOS-ObjectiveC
           - macOS-Swift
           - tvOS-Swift
+
+        # WatchOS needs Sentry as a XCFramework  
         include:
           - scheme: watchOS-Swift WatchKit App
             beforeXcode: 'make build-for-watchos'

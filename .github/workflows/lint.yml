@@ -18,11 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./Scripts/ci-select-xcode.sh
-      - run: carthage build --no-skip-current
+      - run: make build-carthage
         shell: sh
-      - run: carthage archive Sentry --output Sentry.framework.zip
-        shell: sh
-
 
   swift-lint:
     name: Swift Lint
