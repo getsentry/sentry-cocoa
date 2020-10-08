@@ -8,6 +8,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - run: ./Scripts/ci-select-xcode.sh
       - name: Validate Podspec
         run: pod spec lint Sentry.podspec
         shell: sh  
