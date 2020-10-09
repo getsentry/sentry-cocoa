@@ -36,7 +36,7 @@ class SentryHttpDateParserTests: XCTestCase {
         
         queue1.activate()
         queue2.activate()
-        group.wait()
+        group.waitWithTimeout()
     }
     
     func startWorkItemTest(i: Int, queue: DispatchQueue, group: DispatchGroup) {
