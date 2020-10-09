@@ -29,7 +29,7 @@ jobs:
           -configuration Debug 
           GCC_GENERATE_TEST_COVERAGE_FILES=YES 
           -destination "${{matrix.destination}}" 
-          test | xcpretty
+          test | xcpretty -t && exit ${PIPESTATUS[0]}
 
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
