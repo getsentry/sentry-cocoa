@@ -1,4 +1,5 @@
 import Foundation
+import XCTest
 
 @available(OSX 10.10, *)
 func delayNonBlocking(timeout: Double = 0.2) {
@@ -11,4 +12,15 @@ func delayNonBlocking(timeout: Double = 0.2) {
     }
     
     group.wait()
+}
+
+extension DispatchGroup {
+    
+    /**
+     * Waits for a default of 100 milliseconds and fails the test if the group didn't finish before the timeout.
+     */
+    func waitWithTimeout(timeout: Double = 100) {
+        let result = self.wait(timeout: .now() + timeout)
+        XCTAssertEqual(DispatchTimeoutResult.success, result)
+    }
 }

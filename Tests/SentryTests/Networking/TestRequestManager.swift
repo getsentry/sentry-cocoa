@@ -32,7 +32,7 @@ public class TestRequestManager: NSObject, RequestManager {
     }
     
     public func waitForAllRequests() {
-        group.wait()
+        group.waitWithTimeout()
     }
     
     public func cancelAllOperations() {
