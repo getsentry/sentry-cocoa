@@ -22,7 +22,8 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
 
-      - run: >-
+      - name: Running tests
+        run: >-
           xcodebuild 
           -workspace Sentry.xcworkspace 
           -scheme Sentry 
