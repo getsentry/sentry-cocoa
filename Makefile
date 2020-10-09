@@ -17,7 +17,7 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	bundle exec fastlane test
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" clean test | xcpretty
 .PHONY: test
 
 build-carthage:

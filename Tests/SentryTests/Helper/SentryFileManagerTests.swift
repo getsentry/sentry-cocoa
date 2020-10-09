@@ -6,6 +6,7 @@ import XCTest
 // implementation to be thread safe.
 @available(OSX 10.12, *)
 @available(iOS 10.0, *)
+@available(tvOS 10.0, *)
 class SentryFileManagerTests: XCTestCase {
     
     private class Fixture {

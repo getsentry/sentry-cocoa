@@ -1,0 +1,37 @@
+name: unit tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        destination:
+          - platform=macOS
+          - platform=macOS,variant=Mac Catalyst
+          - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+          - platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+          # Can't run tests on watchOS because XCTest is not available
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+
+      - run: >-
+          xcodebuild 
+          -workspace Sentry.xcworkspace 
+          -scheme Sentry 
+          -configuration Debug 
+          GCC_GENERATE_TEST_COVERAGE_FILES=YES 
+          -destination "${{matrix.destination}}" 
+          test | xcpretty
+
+      - name: Push code coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
