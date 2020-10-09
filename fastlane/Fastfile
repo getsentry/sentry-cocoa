@@ -26,15 +26,6 @@ lane :dangerLint do
     end
 end
 
-lane :lint do
-    sh('cd ..; ./scripts/check-clang-format.py -r Sources Tests')
-    swiftlint(
-        mode: :lint,
-        config_file: ".swiftlint.yml",
-        raise_if_swiftlint_error: true
-    )
-end
-
 lane :test do
     scan(scheme: "Sentry", code_coverage: true)
 end
