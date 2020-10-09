@@ -28,11 +28,12 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
       - run: ${{matrix.beforeXcode}}
-      - uses: sersoft-gmbh/xcodebuild-action@v1
-        with:
-          workspace: Sentry.xcworkspace
-          scheme: ${{matrix.scheme}}
-          configuration: Debug
-          action: build
-          # Disable code signing. We just want to make sure these compile
-          build-settings: CODE_SIGNING_ALLOWED="NO"
+      
+      # Disable code signing. We just want to make sure these compile
+      - run: >-
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme ${{matrix.scheme}}
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build | xcpretty
