@@ -17,7 +17,7 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" clean test | xcpretty
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES  test | xcpretty
 .PHONY: test
 
 build-carthage:

@@ -1,3 +1,4 @@
 #!/bin/bash
 
-sudo xcode-select -s /Applications/Xcode_11.5.app/Contents/Developer
+# unit tests don't work yet on Xcode 12
+sudo xcode-select -s /Applications/Xcode_11.7.app/Contents/Developer
