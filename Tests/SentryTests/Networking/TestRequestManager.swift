@@ -21,10 +21,10 @@ public class TestRequestManager: NSObject, RequestManager {
         
         requests.append(request)
         
+        let response = self.nextResponse()
         group.enter()
         queue.asyncAfter(deadline: .now() + responseDelay, execute: {
             if let handler = completionHandler {
-                let response = self.nextResponse() ?? HTTPURLResponse(coder: NSCoder())
                 handler(response, nil)
             }
             self.group.leave()
