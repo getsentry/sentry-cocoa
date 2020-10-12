@@ -408,7 +408,7 @@ class SentryHubTests: XCTestCase {
         }
 
         queue.activate()
-        group.wait()
+        group.waitWithTimeout()
     }
     
     private func givenCrashedSession() {
