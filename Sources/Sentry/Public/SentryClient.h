@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryFileManager, SentryId;
+@class SentryOptions, SentrySession, SentryEvent, SentryEnvelope, SentryScope, SentryFileManager, SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,6 +101,8 @@ SENTRY_NO_INIT
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
+
+- (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 - (SentryFileManager *)fileManager;
 
