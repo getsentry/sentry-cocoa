@@ -389,7 +389,7 @@ waitForAllRequests()
             }
 
             queue.activate()
-            group.wait()
+            group.waitWithTimeout()
 
             waitForAllRequests()
         }

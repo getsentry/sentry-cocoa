@@ -142,7 +142,7 @@ class SentryFileManagerTests: XCTestCase {
             storeAsync(envelope: TestConstants.envelope)
         }
         fixture.queue.activate()
-        fixture.group.wait()
+        fixture.group.waitWithTimeout()
 
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(events.count, 100)
