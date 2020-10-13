@@ -3,6 +3,7 @@
 ## unreleased
 
 - ref: Remove event.json field #768
+- feat: Expose `captureEnvelope` on the client #784
 
 ## 6.0.1
 
