@@ -10,8 +10,6 @@ osx_image: xcode12
 addons:
   homebrew:
     packages:
-      - swiftlint
-      - clang-format
       - python
     update: true
 
@@ -26,9 +24,6 @@ jobs:
   include:
       - name: Test
         env: LANE=test XCWORKSPACE=Sentry.xcworkspace
-        script: .travis/run.sh
-      - name: Lint
-        env: LANE=lint XCWORKSPACE=Sentry.xcworkspace
         script: .travis/run.sh
       - name: DangerLint
         env: LANE=dangerLint XCWORKSPACE=Sentry.xcworkspace
