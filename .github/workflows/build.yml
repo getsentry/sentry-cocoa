@@ -1,0 +1,12 @@
+name: build
+on:
+  pull_request:
+
+jobs:
+  validate-carthage:
+    name: Validate Carthage
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make build-carthage
+        shell: sh  
