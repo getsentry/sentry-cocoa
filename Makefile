@@ -22,8 +22,8 @@ test:
 
 build-carthage:
 	@echo "--> Creating Sentry framework package with carthage"
-	carthage build --no-skip-current
-	carthage archive Sentry --output Sentry.framework.zip
+	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
+	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
 
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.

@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Carthage for Xcode 12 #780
 - ref: Remove event.json field #768
 
 ## 6.0.1
