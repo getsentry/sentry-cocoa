@@ -1,0 +1,39 @@
+name: samples
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.scheme }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        beforeXcode: ['']
+        scheme: 
+          - iOS-Swift
+          - iOS-ObjectiveC
+          - macOS-Swift
+          - tvOS-Swift
+
+        # WatchOS needs Sentry as a XCFramework  
+        include:
+          - scheme: watchOS-Swift WatchKit App
+            beforeXcode: 'make build-for-watchos'
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+      - run: ${{matrix.beforeXcode}}
+      
+      # Disable code signing. We just want to make sure these compile
+      - run: >-
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme ${{matrix.scheme}}
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build | xcpretty
