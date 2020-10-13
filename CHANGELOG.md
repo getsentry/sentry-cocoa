@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.2
+
 - fix: Remove initWithJSON from SentryEvent #781
 - fix: Carthage for Xcode 12 #780
 - fix: Add missing SentrySdkInfo.h to umbrella header #779
