@@ -67,7 +67,7 @@ SentryNSURLRequest ()
         self.HTTPMethod = @"POST";
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
+        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
@@ -89,7 +89,7 @@ SentryNSURLRequest ()
         self.HTTPMethod = @"POST";
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:@"sentry-cocoa" forHTTPHeaderField:@"User-Agent"];
+        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
@@ -119,7 +119,7 @@ newAuthHeader(NSURL *url)
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
     [string appendFormat:@"%@,",
             newHeaderPart(@"sentry_client",
-                [NSString stringWithFormat:@"sentry-cocoa/%@", SentryMeta.versionString])];
+                [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
     [string
         appendFormat:@"%@,",
         newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];

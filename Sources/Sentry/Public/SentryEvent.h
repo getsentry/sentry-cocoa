@@ -93,8 +93,8 @@ NS_SWIFT_NAME(Event)
  * you Don't touch it if you not know what you are doing.
  *
  * {
- *  version: "3.3.3",
- *  name: "sentry-cocoa",
+ *  version: "6.0.1",
+ *  name: "sentry.cocoa",
  *  integrations: [
  *      "react-native"
  *  ]
