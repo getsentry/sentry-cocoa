@@ -22,9 +22,6 @@ before_install:
 
 jobs:
   include:
-      - name: Test
-        env: LANE=test XCWORKSPACE=Sentry.xcworkspace
-        script: .travis/run.sh
       - name: DangerLint
         env: LANE=dangerLint XCWORKSPACE=Sentry.xcworkspace
         script: .travis/run.sh
