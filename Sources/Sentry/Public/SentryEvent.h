@@ -164,16 +164,6 @@ NS_SWIFT_NAME(Event)
  */
 - (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
 
-/**
- * Init an SentryEvent with a JSON blob that completly bypasses all other
- * attributes in the event. Instead only the JSON will be sent, this is used in
- * react-native for example where we consider the event from JS as the source of
- * truth.
- * @param json NSData
- * @return SentryEvent
- */
-- (instancetype)initWithJSON:(NSData *)json;
-
 @end
 
 NS_ASSUME_NONNULL_END
