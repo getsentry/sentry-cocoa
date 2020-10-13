@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Carthage for Xcode 12 #780
 - fix: Add missing SentrySdkInfo.h to umbrella header #779
 - ref: Remove event.json field #768
 
