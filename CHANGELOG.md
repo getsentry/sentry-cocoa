@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Add missing SentrySdkInfo.h to umbrella header #779
 - ref: Remove event.json field #768
 
 ## 6.0.1
