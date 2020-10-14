@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Xcode 12 warnings for Cocoapods #791
+
 ## 6.0.3
 
 - fix: Making SentrySdkInfo Public #788
