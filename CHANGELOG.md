@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.3
+
 - fix: Making SentrySdkInfo Public #788
 
 ## 6.0.2
