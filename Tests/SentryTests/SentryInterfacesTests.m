@@ -112,7 +112,7 @@
     event3.sdk = @{
         @"version" : @"0.15.2",
         @"name" : @"sentry-react-native",
-        @"integrations" : @[ @"sentry-cocoa" ]
+        @"integrations" : @[ @"sentry.cocoa" ]
     };
     NSDictionary *serialized3 = @{
         @"event_id" : [event3.eventId sentryIdString],
@@ -121,7 +121,7 @@
         @"sdk" : @ {
             @"name" : @"sentry-react-native",
             @"version" : @"0.15.2",
-            @"integrations" : @[ @"sentry-cocoa" ]
+            @"integrations" : @[ @"sentry.cocoa" ]
         },
         @"timestamp" : [date sentry_toIso8601String]
     };
@@ -153,7 +153,7 @@
     event.sdk = @{
         @"version" : @"0.15.2",
         @"name" : @"sentry-react-native",
-        @"integrations" : @[ @"sentry-cocoa" ]
+        @"integrations" : @[ @"sentry.cocoa" ]
     };
     NSDictionary *serialized = @{
         @"event_id" : [event.eventId sentryIdString],
@@ -164,7 +164,7 @@
         @"sdk" : @ {
             @"name" : @"sentry-react-native",
             @"version" : @"0.15.2",
-            @"integrations" : @[ @"sentry-cocoa" ]
+            @"integrations" : @[ @"sentry.cocoa" ]
         },
         @"timestamp" : [date sentry_toIso8601String]
     };
@@ -176,7 +176,7 @@
     event3.sdk = @{
         @"version" : @"0.15.2",
         @"name" : @"sentry-react-native",
-        @"integrations" : @[ @"sentry-cocoa" ]
+        @"integrations" : @[ @"sentry.cocoa" ]
     };
     NSDictionary *serialized3 = @{
         @"event_id" : [event3.eventId sentryIdString],
@@ -186,7 +186,7 @@
         @"sdk" : @ {
             @"name" : @"sentry-react-native",
             @"version" : @"0.15.2",
-            @"integrations" : @[ @"sentry-cocoa" ]
+            @"integrations" : @[ @"sentry.cocoa" ]
         },
         @"timestamp" : [date sentry_toIso8601String]
     };
