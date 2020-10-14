@@ -4,6 +4,7 @@
 
 ## 6.0.2
 
+- fix: iOS 13.4 Runtime Crash #786
 - fix: Using wrong SDK name #782
 - feat: Expose `captureEnvelope` on the client #784
 - fix: Remove initWithJSON from SentryEvent #781
