@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Making SentrySdkInfo Public #788
+
 ## 6.0.2
 
 - fix: iOS 13.4 Runtime Crash #786
