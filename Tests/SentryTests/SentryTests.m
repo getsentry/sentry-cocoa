@@ -21,7 +21,10 @@
 {
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
     NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
-    XCTAssert([version isEqualToString:SentryMeta.versionString]);
+    if ([info[@"CFBundleIdentifier"] isEqualTo:@"io.sentry.Sentry"]) {
+        // Tests running as part of another build
+        XCTAssert([version isEqualToString:SentryMeta.versionString]);
+    }
 }
 
 - (void)testSharedClient

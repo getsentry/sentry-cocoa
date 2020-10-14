@@ -1,4 +1,5 @@
 #import "SentryDsn.h"
+#import "SentryMeta.h"
 #import "SentryError.h"
 #import "SentryNSURLRequest.h"
 #import <Sentry/Sentry.h>
@@ -28,8 +29,7 @@
                                                                               andData:[NSData data]
                                                                      didFailWithError:&error];
 
-    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
-    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    NSString *version = SentryMeta.versionString;
 
     NSString *authHeader =
         [[NSString alloc] initWithFormat:@"Sentry "
