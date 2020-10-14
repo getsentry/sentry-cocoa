@@ -117,9 +117,7 @@
     }
 }
 
-// TODO: Doesn't work on Github Actions fix this
-// Most likely it doesn't work because try catch is disabled
-- (void)tesWithFaultyReport
+- (void)testWithFaultyReport
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/Crash-faulty-report"];
     SentryCrashReportConverter *reportConverter =
