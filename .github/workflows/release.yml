@@ -5,6 +5,7 @@ on:
       branches: [ci/**]
       types: 
       - completed
+      - requested
 
 jobs:
   job_release:
