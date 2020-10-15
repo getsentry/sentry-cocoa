@@ -1,30 +1,35 @@
 name: Build & Test
 on:
-  pull_request:
   push:
     branches:
       - master
       - release/**
+  pull_request:
 
 jobs:
   unit-tests:
-    name: Unit Tests ${{matrix.destination}}
+    name: Unit Tests ${{matrix.name}}
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        pushCodecov: [true]
-        destination:
-          - platform=macOS,variant=Mac Catalyst
-          - platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-          - platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
-          # Can't run tests on watchOS because XCTest is not available
         
-        # SentrySystemEventsBreadcrumbsTest don't run on macOS
-        # so the coverage report shows a reduced coverage.
         include:
-          - destination: platform=macOS
+          # SentrySystemEventsBreadcrumbsTest don't run on macOS
+          # so the coverage report shows a reduced coverage.
+          - name: macOS
+            destination: platform=macOS
             pushCodecov: false
+          - name: Mac Catalyst
+            destination: platform=macOS,variant=Mac Catalyst  
+            pushCodecov: true
+          - name: iOS  
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+            pushCodecov: true
+          - name: tvOS  
+            destination: platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+            pushCodecov: true    
+          # Can't run tests on watchOS because XCTest is not available  
 
     steps:
       - uses: actions/checkout@v2
