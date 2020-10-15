@@ -15,7 +15,7 @@ jobs:
       matrix:
         
         include:
-          # SentrySystemEventsBreadcrumbsTest don't run on macOS
+          # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
           # so the coverage report shows a reduced coverage.
           - name: macOS
             destination: platform=macOS
@@ -28,7 +28,7 @@ jobs:
             pushCodecov: true
           - name: tvOS  
             destination: platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
-            pushCodecov: true    
+            pushCodecov: false    
           # Can't run tests on watchOS because XCTest is not available  
 
     steps:
