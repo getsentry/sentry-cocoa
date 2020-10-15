@@ -3,15 +3,6 @@ on:
   pull_request:
 
 jobs:
-  validate-podspec:
-    name: Validate Podspec
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Validate Podspec
-        run: pod lib lint
-        shell: sh  
-
   swift-lint:
     name: Swift Lint
     runs-on: ubuntu-latest
