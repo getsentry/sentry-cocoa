@@ -49,7 +49,7 @@ release: bump-version git-commit-add
 
 pod-lint:
 	@echo "--> Build local pod"
-	pod lib lint --allow-warnings --verbose
+	pod lib lint --verbose
 
 git-commit-add:
 	@echo "\n\n\n--> Commting git ${TO}"
