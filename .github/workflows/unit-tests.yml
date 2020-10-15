@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: ${{matrix.destination}}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -26,11 +27,8 @@ jobs:
             pushCodecov: false
 
     steps:
-      - name: ${{matrix.destination}}
-        uses: actions/checkout@v2
-        
+      - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-
       - name: Running tests
         run: >-
           xcodebuild 
