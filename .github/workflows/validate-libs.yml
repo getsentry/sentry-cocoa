@@ -8,7 +8,6 @@ on:
 
 jobs:
   validate-podspec:
-    name: Validate Podspec
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,16 +15,15 @@ jobs:
         run: pod lib lint
         shell: sh
 
-  validate-carthage:
-    name: Validate Carthage
+  build-carthage:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - run: make build-carthage
         shell: sh 
 
-      - name: Archiving artifacts
+      - name: Archiving Sentry.Framework.zip
         uses: actions/upload-artifact@v2
         with:
-          name: Archiving Sentry.Framework.zip
+          name: Sentry.Framework.zip
           path: Sentry.framework.zip  

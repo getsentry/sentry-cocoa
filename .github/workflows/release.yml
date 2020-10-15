@@ -1,7 +1,7 @@
 name: release
 on:
-  # workflow_run:
-  #    workflows: ["samples", "unit-tests", "validate-libs"]
+  workflow_run:
+      workflows: ["samples", "unit-tests", "validate-libs"]
   pull_request: # Todo remove
   push:
     branches:
@@ -12,6 +12,7 @@ jobs:
     name: Building Carthage
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: make build-carthage
-        shell: sh  
+      - name: Download Sentry.Framework.zip
+        uses: actions/download-artifact@v2
+        with:
+          name: Sentry.Framework.zip
