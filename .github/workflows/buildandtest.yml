@@ -75,7 +75,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: ${{matrix.beforeXcode}}
       
-      # Disable code signing. We just want to make sure these compile
+      # Disable code signing. We just want to make sure these compile.
       - run: >-
           xcodebuild
           -workspace Sentry.xcworkspace
