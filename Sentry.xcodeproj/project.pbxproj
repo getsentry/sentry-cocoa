@@ -793,11 +793,7 @@
 		7D826E43239084F000EED93D /* ISSUE_TEMPLATE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ISSUE_TEMPLATE.md; sourceTree = "<group>"; };
 		7D826E44239084F100EED93D /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		7D826E45239084F100EED93D /* .craft.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .craft.yml; sourceTree = "<group>"; };
-		7D826E46239084F100EED93D /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .travis.yml; sourceTree = "<group>"; };
 		7D826E47239084F100EED93D /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		7D826E49239084F100EED93D /* bump.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bump.sh; sourceTree = "<group>"; };
-		7D826E4A239084F100EED93D /* stage-carthage.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "stage-carthage.sh"; sourceTree = "<group>"; };
-		7D826E4B239084F100EED93D /* run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = run.sh; sourceTree = "<group>"; };
 		7D826E4C239084F100EED93D /* .oclint */ = {isa = PBXFileReference; lastKnownFileType = text; path = .oclint; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.yaml; };
 		7D826E4D239084F100EED93D /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
 		7D826E4E239084F100EED93D /* .slather.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .slather.yml; sourceTree = "<group>"; };
@@ -954,8 +950,6 @@
 				7D826E4C239084F100EED93D /* .oclint */,
 				7D826E4E239084F100EED93D /* .slather.yml */,
 				7D826E44239084F100EED93D /* .swiftlint.yml */,
-				7D826E48239084F100EED93D /* .travis */,
-				7D826E46239084F100EED93D /* .travis.yml */,
 				7D826E4F2390854600EED93D /* fastlane */,
 			);
 			sourceTree = "<group>";
@@ -1563,16 +1557,6 @@
 				7D826E43239084F000EED93D /* ISSUE_TEMPLATE.md */,
 			);
 			path = .github;
-			sourceTree = "<group>";
-		};
-		7D826E48239084F100EED93D /* .travis */ = {
-			isa = PBXGroup;
-			children = (
-				7D826E49239084F100EED93D /* bump.sh */,
-				7D826E4A239084F100EED93D /* stage-carthage.sh */,
-				7D826E4B239084F100EED93D /* run.sh */,
-			);
-			path = .travis;
 			sourceTree = "<group>";
 		};
 		7D826E4F2390854600EED93D /* fastlane */ = {
