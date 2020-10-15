@@ -28,7 +28,8 @@ jobs:
     steps:
       - name: ${{matrix.destination}}
         uses: actions/checkout@v2
-        run: ./scripts/ci-select-xcode.sh
+        
+      - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests
         run: >-
