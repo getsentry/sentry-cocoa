@@ -1,0 +1,17 @@
+name: release
+on:
+  # workflow_run:
+  #    workflows: ["samples", "unit-tests", "validate-libs"]
+  pull_request: # Todo remove
+  push:
+    branches:
+      - release/**
+
+jobs:
+  job_release:
+    name: Building Carthage
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make build-carthage
+        shell: sh  
