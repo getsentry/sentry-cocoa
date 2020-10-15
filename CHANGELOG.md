@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Sanitize UserInfo of NSError and NSException #770
 - fix: Xcode 12 warnings for Cocoapods #791
 
 ## 6.0.3
@@ -17,7 +18,6 @@
 - fix: Carthage for Xcode 12 #780
 - fix: Add missing SentrySdkInfo.h to umbrella header #779
 - ref: Remove event.json field #768
-- fix: Sanitize user info of captured errors #770
 
 ## 6.0.1
 
