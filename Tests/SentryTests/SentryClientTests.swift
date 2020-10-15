@@ -233,6 +233,18 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureErrorWithComplexUserInfo() {
+        let url = URL(string: "https://github.com/getsentry")!
+        let error = NSError(domain: "domain", code: 0, userInfo: ["url": url])
+        let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
+
+        eventId.assertIsNotEmpty()
+
+        assertLastSentEvent { actual in
+            XCTAssertEqual(url.absoluteString, actual.context!["user info"]!["url"] as? String)
+        }
+    }
+
     func testCaptureErrorWithSession() {
         let eventId = fixture.getSut().captureError(error, with: fixture.session, with: Scope())
         
