@@ -2,7 +2,7 @@ name: Build & Test
 on:
   pull_request:
   push:
-    branches:
+    branc hes:
       - master
       - release/**
 
@@ -103,7 +103,7 @@ jobs:
 
   release:
     ## Only run on a release branch
-    if: github.event_name == 'push' && github.ref.contains('refs/heads/release')
+    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/release')
     needs: [build-carthage, validate-podspec, build-sample, unit-tests]
     name: Release
     runs-on: ubuntu-latest
