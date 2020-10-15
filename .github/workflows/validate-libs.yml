@@ -1,4 +1,4 @@
-name: validate libs
+name: validate-libs
 on:
   push:
     branches:
