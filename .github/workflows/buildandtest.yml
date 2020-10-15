@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: ${{matrix.destination}}
+    name: Unit Tests ${{matrix.destination}}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -48,7 +48,7 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
 
   build-sample:
-    name: ${{ matrix.scheme }}
+    name: Sample ${{ matrix.scheme }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -80,6 +80,7 @@ jobs:
           build | xcpretty
 
   validate-podspec:
+    name: Validate Podspec
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -88,6 +89,7 @@ jobs:
         shell: sh
 
   build-carthage:
+    name: Build Carthage
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
