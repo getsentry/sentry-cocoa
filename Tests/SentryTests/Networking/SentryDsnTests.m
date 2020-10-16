@@ -29,14 +29,12 @@
                                                                               andData:[NSData data]
                                                                      didFailWithError:&error];
 
-    NSString *version = SentryMeta.versionString;
-
     NSString *authHeader =
         [[NSString alloc] initWithFormat:@"Sentry "
                                          @"sentry_version=7,sentry_client=sentry.cocoa/"
                                          @"%@,sentry_timestamp=%@,sentry_key=username,sentry_"
                                          @"secret=password",
-                          version, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
+                          SentryMeta.versionString, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
@@ -51,13 +49,11 @@
                                                                               andData:[NSData data]
                                                                      didFailWithError:&error];
 
-    NSString *version = SentryMeta.versionString;
-
     NSString *authHeader =
         [[NSString alloc] initWithFormat:@"Sentry "
                                          @"sentry_version=7,sentry_client=sentry.cocoa/"
                                          @"%@,sentry_timestamp=%@,sentry_key=username",
-                          version, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
+                          SentryMeta.versionString, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
