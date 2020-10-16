@@ -21,7 +21,13 @@
 {
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
     NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
-    XCTAssert([version isEqualToString:SentryMeta.versionString]);
+    if ([info[@"CFBundleIdentifier"] isEqualToString:@"io.sentry.Sentry"]) {
+        // This test is running on a bundle that is not the SDK
+        // (code was loaded inside an app for example)
+        // in this case, we don't care about asserting our hard coded value matches
+        // since this will be the app version instead of our SDK version.
+        XCTAssert([version isEqualToString:SentryMeta.versionString]);
+    }
 }
 
 - (void)testSharedClient
