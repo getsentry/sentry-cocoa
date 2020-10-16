@@ -1,0 +1,137 @@
+name: Build & Test
+on:
+  push:
+    branches:
+      - master
+      - release/**
+  pull_request:
+
+jobs:
+  unit-tests:
+    name: Unit Tests ${{matrix.name}}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        
+        include:
+          # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
+          # so the coverage report shows a reduced coverage.
+          - name: macOS
+            destination: platform=macOS
+            pushCodecov: false
+          - name: Mac Catalyst
+            destination: platform=macOS,variant=Mac Catalyst  
+            pushCodecov: true
+          - name: iOS  
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+            pushCodecov: true
+          - name: tvOS  
+            destination: platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+            pushCodecov: false    
+          # Can't run tests on watchOS because XCTest is not available  
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+      - name: Running tests
+        run: >-
+          xcodebuild 
+          -workspace Sentry.xcworkspace 
+          -scheme Sentry 
+          -configuration Debug 
+          GCC_GENERATE_TEST_COVERAGE_FILES=YES 
+          -destination "${{matrix.destination}}" 
+          test | xcpretty -t && exit ${PIPESTATUS[0]}
+
+      # We can upload all coverage reports, because codecov merges them.
+      # See https://docs.codecov.io/docs/merging-reports
+      - name: Push code coverage to codecov
+        uses: codecov/codecov-action@v1
+        if: ${{matrix.pushCodecov}}
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+
+  build-sample:
+    name: Sample ${{ matrix.scheme }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        beforeXcode: ['']
+        scheme: 
+          - iOS-Swift
+          - iOS-ObjectiveC
+          - macOS-Swift
+          - tvOS-Swift
+
+        # WatchOS needs Sentry as a XCFramework  
+        include:
+          - scheme: watchOS-Swift WatchKit App
+            beforeXcode: 'make build-for-watchos'
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+      - run: ${{matrix.beforeXcode}}
+      
+      # Disable code signing. We just want to make sure these compile.
+      - run: >-
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme ${{matrix.scheme}}
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build | xcpretty
+
+  validate-podspec:
+    name: Validate Podspec
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate Podspec
+        run: pod lib lint
+        shell: sh
+
+  build-carthage:
+    name: Build Carthage
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make build-carthage
+        shell: sh 
+
+      - name: Archiving Sentry.Framework.zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: Sentry.Framework.zip
+          path: Sentry.framework.zip  
+        
+
+  release:
+    ## Only run on a release branch
+    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/release')
+    needs: [build-carthage, validate-podspec, build-sample, unit-tests]
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Sentry.Framework.zip
+        uses: actions/download-artifact@v2
+        with:
+          name: Sentry.Framework.zip
+    
+      - uses: actions/setup-node@v1
+     
+      - name: Install Zeus
+        run: |
+          yarn global add @zeus-ci/cli
+          echo "::add-path::$(yarn global bin)"
+      - name: Upload to Zeus
+        env:
+          ZEUS_API_TOKEN: ${{ secrets.ZEUS_API_TOKEN }}
+          ZEUS_HOOK_BASE: ${{ secrets.ZEUS_HOOK_BASE }}
+        run: |
+          zeus job update -b $GITHUB_RUN_ID -j $GITHUB_RUN_NUMBER -r $GITHUB_SHA
+          zeus upload -b $GITHUB_RUN_ID -j $GITHUB_RUN_NUMBER -t "application/zip+carthage" Sentry.framework.zip
+          zeus job update --status=passed -b $GITHUB_RUN_ID -j $GITHUB_RUN_NUMBER -r $GITHUB_SHA
+
