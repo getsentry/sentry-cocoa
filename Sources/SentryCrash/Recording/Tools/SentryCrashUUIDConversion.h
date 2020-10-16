@@ -15,7 +15,7 @@ extern "C" {
  * @param dst A buffer with the length of 37 to hold the human readable UUID.
  *
  */
-static void
+static inline void
 sentrycrashdl_convertBinaryImageUUID(const unsigned char *src, char *dst)
 {
     const char g_hexNybbles[]
