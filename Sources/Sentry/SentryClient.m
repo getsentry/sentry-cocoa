@@ -1,4 +1,5 @@
 #import "SentryClient.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryDebugMetaBuilder.h"
@@ -353,7 +354,7 @@ SentryClient ()
             context = [event.context mutableCopy];
         }
 
-        [context setValue:userInfo forKey:@"user info"];
+        [context setValue:[userInfo sentry_sanitize] forKey:@"user info"];
     }
 }
 

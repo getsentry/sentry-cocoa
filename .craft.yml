@@ -3,7 +3,7 @@ github:
   owner: getsentry
   repo: sentry-cocoa
 changelogPolicy: simple
-preReleaseCommand: bash .travis/bump.sh
+preReleaseCommand: bash /scripts/bump.sh
 statusProvider:
   name: github
 targets:
