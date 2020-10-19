@@ -13,6 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryMessage : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
+/**
+ * Returns a SentyMessage with setting formatted.
+ *
+ * @param formatted The fully formatted message. If missing, Sentry will try to interpolate the
+ * message. It must not exceed 8192 characters. Longer messages will be truncated.
+ */
 - (instancetype)initWithFormatted:(NSString *)formatted;
 
 /**
