@@ -21,12 +21,24 @@ class SentryCrashUUIDConversionTests: XCTestCase {
             expected: "4E852D8F-9427-382C-ACF0-6C38654710D0",
             uuidAsCharArray: [78, 133, 45, 143, 148, 39, 56, 44, 172, 240, 108, 56, 101, 71, 16, 208]
         )
+        
+        testWith(
+            expected: "4E852D8F-9427-382C-ACF0-6C38654710D0",
+            uuidAsCharArray: [78, 133, 45, 143, 148, 39, 56, 44, 172, 240, 108, 56, 101, 71, 16, 208]
+        )
     }
     
     func testWith(expected: String, uuidAsCharArray: [UInt8]) {
-        var dst: [Int8] = Array(repeating: 0, count: 37)
+        var dst: [Int8] = Array(repeating: Int8.random(in: 0..<50), count: 37)
         sentrycrashdl_convertBinaryImageUUID(uuidAsCharArray, &dst)
         
         XCTAssertEqual(expected.cString(using: .ascii), dst)
+    }
+    
+    func testConvertBinaryImageUUID_EndsWithNullTerminated() {
+        var dst: [Int8] = Array(repeating: Int8.random(in: 0..<50), count: 37)
+        sentrycrashdl_convertBinaryImageUUID([78, 133, 45, 143, 148, 39, 56, 44, 172, 240, 108, 56, 101, 71, 16], &dst)
+        
+        XCTAssertEqual(0, dst.last)
     }
 }
