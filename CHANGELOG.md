@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Manually capturing User Feedback #804
 - fix: Sanitize UserInfo of NSError and NSException #770
 - fix: Xcode 12 warnings for Cocoapods #791
 

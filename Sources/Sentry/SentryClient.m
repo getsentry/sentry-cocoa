@@ -237,6 +237,11 @@ SentryClient ()
     [self.transport sendEnvelope:envelope];
 }
 
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    [self.transport sendUserFeedback:userFeedback];
+}
+
 /**
  * returns BOOL chance of YES is defined by sampleRate.
  * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate

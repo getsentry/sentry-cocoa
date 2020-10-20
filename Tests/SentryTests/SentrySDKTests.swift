@@ -11,6 +11,7 @@ class SentrySDKTests: XCTestCase {
         let hub: SentryHub
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
+        let userFeedback: UserFeedack
         
         init() {
             event = Event()
@@ -21,8 +22,12 @@ class SentrySDKTests: XCTestCase {
             
             client = TestClient(options: Options())!
             hub = SentryHub(client: client, andScope: scope)
+            
+            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback.comments = "Again really?"
+            userFeedback.email = "tim@apple.com"
+            userFeedback.name = "Tim Apple"
         }
-        
     }
     
     private var fixture: Fixture!
@@ -195,6 +200,21 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(exception: fixture.exception, scope: scope)
         
         assertExceptionCaptured(expectedScope: scope)
+    }
+    
+    func testCaptureUserFeedback() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(userFeedback: fixture.userFeedback)
+        let client = fixture.client
+        XCTAssertEqual(1, client.capturedUserFeedback.count)
+        if let actual = client.capturedUserFeedback.first {
+            let expected = fixture.userFeedback
+            XCTAssertEqual(expected.eventId, actual.eventId)
+            XCTAssertEqual(expected.name, actual.name)
+            XCTAssertEqual(expected.email, actual.email)
+            XCTAssertEqual(expected.comments, actual.comments)
+        }
     }
     
     private func givenSdkWithHub() {

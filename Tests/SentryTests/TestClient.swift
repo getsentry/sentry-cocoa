@@ -77,6 +77,10 @@ class TestClient: Client {
         return SentryId()
     }
     
+    var capturedUserFeedback: [UserFeedack] = []
+    override func capture(userFeedback: UserFeedack) {
+        capturedUserFeedback.append(userFeedback)
+    }
 }
 
 class TestFileManager: SentryFileManager {

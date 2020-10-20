@@ -13,6 +13,20 @@ struct ContentView: View {
         SentrySDK.capture(message: "Yeah captured a message")
     }
     
+    var captureUserFeedbackAction: () -> Void = {
+        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
+
+        let eventId = SentrySDK.capture(error: error) { scope in
+            scope.setLevel(.fatal)
+        }
+        
+        let userFeedback = UserFeedack(eventId: eventId)
+        userFeedback.comments = "It broke on tvOS-Swift. I don't know why, but this happens."
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        SentrySDK.capture(userFeedback: userFeedback)
+    }
+    
     var captureErrorAction: () -> Void = {
         let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         SentrySDK.capture(error: error) { (scope) in
@@ -35,6 +49,10 @@ struct ContentView: View {
             
             Button(action: captureMessageAction) {
                 Text("Capture Message")
+            }
+            
+            Button(action: captureUserFeedbackAction) {
+                Text("Capture User Feedback")
             }
             
             Button(action: captureErrorAction) {

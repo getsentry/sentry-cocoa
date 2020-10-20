@@ -34,6 +34,20 @@ class ViewController: UIViewController {
         print("\(String(describing: eventId))")
     }
     
+    @IBAction func captureUserFeedback(_ sender: Any) {
+        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
+
+        let eventId = SentrySDK.capture(error: error) { scope in
+            scope.setLevel(.fatal)
+        }
+        
+        let userFeedback = UserFeedack(eventId: eventId)
+        userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        SentrySDK.capture(userFeedback: userFeedback)
+    }
+    
     @IBAction func captureError(_ sender: Any) {
         let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
 

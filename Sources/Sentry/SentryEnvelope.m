@@ -8,6 +8,7 @@
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentryUserFeedback.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -127,6 +128,27 @@ NS_ASSUME_NONNULL_BEGIN
                                                                length:json.length]
                   data:json];
 }
+
+- (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
+{
+
+    NSError *error = nil;
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[userFeedback serialize]
+                                                   options:0
+                                                     error:&error];
+
+    if (nil != error) {
+        [SentryLog logWithMessage:@"Couldn't serialize user feedback."
+                         andLevel:kSentryLogLevelError];
+        json = [NSData new];
+    }
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeUserFeedback
+                                          length:json.length]
+                           data:json];
+}
+
 @end
 
 @implementation SentryEnvelope
@@ -153,6 +175,13 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:event.eventId]
                      singleItem:item];
+}
+
+- (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
+
+    return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] singleItem:item];
 }
 
 - (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item

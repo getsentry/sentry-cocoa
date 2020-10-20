@@ -2,9 +2,8 @@
 
 #import "SentryDefines.h"
 
-@class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser;
-
-@class SentryId;
+@class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
+    SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -182,6 +181,14 @@ SENTRY_NO_INIT
 + (SentryId *)captureMessage:(NSString *)message
               withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
+
+/**
+ * Captures a manually created user feedback and sends it to Sentry.
+ *
+ * @param userFeedback The user feedback to send to Sentry.
+ */
++ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+    NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Adds a SentryBreadcrumb to the current Scope on the `currentHub`.
