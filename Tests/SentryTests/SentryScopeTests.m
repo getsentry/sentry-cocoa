@@ -30,7 +30,8 @@
     [scope setExtraValue:@3 forKey:@"C"];
 
     __block BOOL wasListenerCalled = false;
-    [scope addScopeListener:^(SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull __attribute__((unused)) scope) { wasListenerCalled = true; }];
     [scope removeExtraForKey:@"A"];
     [scope setExtraValue:nil forKey:@"C"];
 
@@ -70,16 +71,6 @@
     XCTAssertEqual(100, [scopeCrumbs count]);
 }
 
-- (void)testSetExtraValueForKey
-{
-#warning TODO implement
-}
-
-- (void)testSetTags
-{
-#warning TODO implement
-}
-
 - (void)testSetTagValueForKey
 {
     NSDictionary<NSString *, NSString *> *excpected = @{ @"A" : @"1", @"B" : @"2", @"C" : @"" };
@@ -106,7 +97,8 @@
     [scope setTagValue:@"2" forKey:@"B"];
 
     __block BOOL wasListenerCalled = false;
-    [scope addScopeListener:^(SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull __attribute__((unused)) scope) { wasListenerCalled = true; }];
     [scope removeTagForKey:@"A"];
 
     NSDictionary<NSString *, NSString *> *actual = scope.serialize[@"tags"];
@@ -129,21 +121,6 @@
     XCTAssertEqualObjects(scopeUserId, @"123");
 }
 
-- (void)testSerialize
-{
-#warning TODO implement
-}
-
-- (void)testAddBreadcrumb
-{
-#warning TODO implement
-}
-
-- (void)testApplyToEvent
-{
-#warning TODO implement
-}
-
 - (void)testSetContextValueForKey
 {
     SentryScope *scope = [[SentryScope alloc] init];
@@ -162,23 +139,14 @@
     [scope setContextValue:@{ @"BB" : @"2" } forKey:@"B"];
 
     __block BOOL wasListenerCalled = false;
-    [scope addScopeListener:^(SentryScope *_Nonnull scope) { wasListenerCalled = true; }];
+    [scope addScopeListener:^(
+        SentryScope *_Nonnull __attribute__((unused)) scope) { wasListenerCalled = true; }];
     [scope removeContextForKey:@"B"];
 
     NSDictionary *actual = scope.serialize[@"context"];
     NSDictionary *expected = @{ @"A" : @ { @"AA" : @1 } };
     XCTAssertTrue([expected isEqualToDictionary:actual]);
     XCTAssertTrue(wasListenerCalled);
-}
-
-- (void)testCallingEventProcessors
-{
-#warning TODO implement
-}
-
-- (void)testClear
-{
-#warning TODO implement
 }
 
 - (void)testDistSerializes
