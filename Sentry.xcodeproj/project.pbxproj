@@ -778,7 +778,6 @@
 		7D5C4419237C2E1F00DAB0A3 /* SentryHub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryHub.m; sourceTree = "<group>"; };
 		7D65260B237F649E00113EA2 /* SentryScope.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScope.m; sourceTree = "<group>"; };
 		7D7F0A5E23DF3D2C00A4629C /* SentryGlobalEventProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGlobalEventProcessor.h; path = include/SentryGlobalEventProcessor.h; sourceTree = "<group>"; };
-		7D826E332390838C00EED93D /* Dangerfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dangerfile; sourceTree = "<group>"; };
 		7D826E342390838C00EED93D /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		7D826E352390838C00EED93D /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = "<group>"; };
 		7D826E362390838D00EED93D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -936,7 +935,6 @@
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				7D826E3C2390840E00EED93D /* Utils */,
 				7D826E392390838D00EED93D /* CHANGELOG.md */,
-				7D826E332390838C00EED93D /* Dangerfile */,
 				7D826E372390838D00EED93D /* Gemfile */,
 				7D826E352390838C00EED93D /* Gemfile.lock */,
 				7D826E3A2390838D00EED93D /* LICENSE.md */,
