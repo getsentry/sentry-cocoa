@@ -21,7 +21,7 @@ bundle install
 
 All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). To install Clang Format:
 
-```
+```sh
 npm install -g clang-format
 # OR
 brew install clang-format
@@ -36,25 +36,23 @@ With that, the repo is fully set up and you are ready to run all commands.
 
 ## Run Tests
 
-Test can either be ran inside from Xcode or using [`fastlane`](https://docs.fastlane.tools/):
+Test can either be ran inside from Xcode or via 
 
-```
-bundle exec fastlane test
-# OR
-make test 
+```sh
+make test
 ```
 
 ## Code Formatting
 Only PRs with properly formatted code are acccepted. To format all code run:
 
-```
+```sh
 make format
 ```
 
 ## Linting
 We use Swiftlint and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
 
-```
+```sh
 make lint
 ```
 
