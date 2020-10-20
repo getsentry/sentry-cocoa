@@ -778,7 +778,6 @@
 		7D5C4419237C2E1F00DAB0A3 /* SentryHub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryHub.m; sourceTree = "<group>"; };
 		7D65260B237F649E00113EA2 /* SentryScope.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScope.m; sourceTree = "<group>"; };
 		7D7F0A5E23DF3D2C00A4629C /* SentryGlobalEventProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGlobalEventProcessor.h; path = include/SentryGlobalEventProcessor.h; sourceTree = "<group>"; };
-		7D826E332390838C00EED93D /* Dangerfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dangerfile; sourceTree = "<group>"; };
 		7D826E342390838C00EED93D /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		7D826E352390838C00EED93D /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = "<group>"; };
 		7D826E362390838D00EED93D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -797,7 +796,6 @@
 		7D826E4C239084F100EED93D /* .oclint */ = {isa = PBXFileReference; lastKnownFileType = text; path = .oclint; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.yaml; };
 		7D826E4D239084F100EED93D /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
 		7D826E4E239084F100EED93D /* .slather.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .slather.yml; sourceTree = "<group>"; };
-		7D826E502390854600EED93D /* Fastfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Fastfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		7D9B079F23D1E89800C5FC8E /* SentryMeta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMeta.h; path = include/SentryMeta.h; sourceTree = "<group>"; };
 		7DAC588E23D8B2E0001CF26B /* SentryGlobalEventProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryGlobalEventProcessor.m; sourceTree = "<group>"; };
 		7DB3A684238EA75E00A2D442 /* SentryHttpTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpTransport.m; sourceTree = "<group>"; };
@@ -937,7 +935,6 @@
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				7D826E3C2390840E00EED93D /* Utils */,
 				7D826E392390838D00EED93D /* CHANGELOG.md */,
-				7D826E332390838C00EED93D /* Dangerfile */,
 				7D826E372390838D00EED93D /* Gemfile */,
 				7D826E352390838C00EED93D /* Gemfile.lock */,
 				7D826E3A2390838D00EED93D /* LICENSE.md */,
@@ -950,7 +947,6 @@
 				7D826E4C239084F100EED93D /* .oclint */,
 				7D826E4E239084F100EED93D /* .slather.yml */,
 				7D826E44239084F100EED93D /* .swiftlint.yml */,
-				7D826E4F2390854600EED93D /* fastlane */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1557,14 +1553,6 @@
 				7D826E43239084F000EED93D /* ISSUE_TEMPLATE.md */,
 			);
 			path = .github;
-			sourceTree = "<group>";
-		};
-		7D826E4F2390854600EED93D /* fastlane */ = {
-			isa = PBXGroup;
-			children = (
-				7D826E502390854600EED93D /* Fastfile */,
-			);
-			path = fastlane;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
