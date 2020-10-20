@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.4
+
 - fix: Sanitize UserInfo of NSError and NSException #770
 - fix: Xcode 12 warnings for Cocoapods #791
 
