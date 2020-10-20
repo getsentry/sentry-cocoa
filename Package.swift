@@ -16,7 +16,6 @@ let package = Package(
             name: "Sentry",
             path: "Sources",
             exclude: [
-                "fastlane", 
                 "Samples", 
                 "scripts",
                 "Tests",

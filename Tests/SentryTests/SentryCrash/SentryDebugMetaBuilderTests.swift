@@ -100,12 +100,25 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         name: [CChar]? = nil,
         uuidAsCharArray: [UInt8]? = nil
     ) -> SentryCrashBinaryImage {
-        SentryCrashBinaryImage(
+        
+        var namePointer = UnsafeMutablePointer<CChar>(nil)
+        if let nameNotNil = name {
+            namePointer = UnsafeMutablePointer<CChar>.allocate(capacity: nameNotNil.count)
+            namePointer?.initialize(from: nameNotNil, count: nameNotNil.count)
+        }
+        
+        var uuidPointer = UnsafeMutablePointer<UInt8>(nil)
+        if let uuidNotNil = uuidAsCharArray {
+            uuidPointer = UnsafeMutablePointer<UInt8>.allocate(capacity: uuidNotNil.count)
+            uuidPointer?.initialize(from: uuidNotNil, count: uuidNotNil.count)
+        }
+        
+        return SentryCrashBinaryImage(
             address: address,
             vmAddress: vmAddress,
             size: size,
-            name: name,
-            uuid: uuidAsCharArray,
+            name: namePointer,
+            uuid: uuidPointer,
             cpuType: 0,
             cpuSubType: 0,
             majorVersion: 0,
