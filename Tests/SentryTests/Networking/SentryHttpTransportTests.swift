@@ -43,7 +43,7 @@ class SentryHttpTransportTests: XCTestCase {
             options = Options()
             options.dsn = TestConstants.dsnAsString
 
-            requestManager = TestRequestManager(session: URLSession())
+            requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
         }
 
