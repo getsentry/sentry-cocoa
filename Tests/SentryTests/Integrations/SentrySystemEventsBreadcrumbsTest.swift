@@ -24,6 +24,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     }
     
     private let fixture = Fixture()
+    private var sut: SentrySystemEventsBreadcrumbs!
     
     internal class MyUIDevice: UIDevice {
         private var _batteryLevel: Float
@@ -51,7 +52,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(batteryLevel: 0.56, batteryState: UIDevice.BatteryState.full)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
         
@@ -62,7 +63,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(batteryLevel: -1, batteryState: UIDevice.BatteryState.unknown)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
         
@@ -73,7 +74,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(batteryLevel: -1, batteryState: UIDevice.BatteryState.full)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
         
@@ -84,7 +85,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice()
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.batteryStateDidChangeNotification, object: currentDevice))
         
@@ -95,7 +96,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(batteryState: UIDevice.BatteryState.unplugged)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.batteryStateDidChangeNotification, object: currentDevice))
         
@@ -138,7 +139,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice()
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         assertPositionOrientationBreadcrumb(position: "portrait", scope: scope)
@@ -148,7 +149,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(orientation: UIDeviceOrientation.landscapeLeft)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         assertPositionOrientationBreadcrumb(position: "landscape", scope: scope)
@@ -158,7 +159,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         let currentDevice = MyUIDevice(orientation: UIDeviceOrientation.unknown)
         
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
         NotificationCenter.default.post(Notification(name: UIDevice.orientationDidChangeNotification, object: currentDevice))
         let ser = scope.serialize()
@@ -191,7 +192,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     func testShownKeyboardBreadcrumb() {
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: nil)
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
         
         NotificationCenter.default.post(Notification(name: UIWindow.keyboardDidShowNotification))
         assertBreadcrumbAction(scope: scope, action: "UIKeyboardDidShowNotification")
@@ -199,7 +200,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     func testHiddenKeyboardBreadcrumb() {
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: nil)
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
         
         NotificationCenter.default.post(Notification(name: UIWindow.keyboardDidHideNotification))
         assertBreadcrumbAction(scope: scope, action: "UIKeyboardDidHideNotification")
@@ -207,7 +208,7 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
     
     func testScreenshotBreadcrumb() {
         let scope = Scope()
-        let sut = fixture.getSut(scope: scope, currentDevice: nil)
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
         
         NotificationCenter.default.post(Notification(name: UIApplication.userDidTakeScreenshotNotification))
         assertBreadcrumbAction(scope: scope, action: "UIApplicationUserDidTakeScreenshotNotification")
