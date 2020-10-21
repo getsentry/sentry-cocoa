@@ -22,7 +22,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryBreadcrumb;
+@class SentryEvent, SentryBreadcrumb, SentryId;
 
 /**
  * Block used for returning after a request finished
@@ -47,6 +47,12 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  * To avoid sending the event altogether, return nil instead.
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
+/**
+ * Block can be used to mutate event before its send.
+ * To avoid sending the event altogether, return nil instead.
+ */
+typedef void (^SentryOnCrashedLastRunCallback)(SentryId *_Nonnull eventId);
 
 /**
  * Block can be used to determine if an event should be queued and stored

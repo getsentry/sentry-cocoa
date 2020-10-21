@@ -73,6 +73,8 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
+@property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
+
 /**
  * Array of integrations to install.
  */
