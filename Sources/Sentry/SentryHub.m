@@ -279,6 +279,14 @@ SentryHub ()
     return SentryId.empty;
 }
 
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        [client captureUserFeedback:userFeedback];
+    }
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     SentryBeforeBreadcrumbCallback callback = [[[self client] options] beforeBreadcrumb];

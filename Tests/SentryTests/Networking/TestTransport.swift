@@ -15,6 +15,11 @@ public class TestTransport: NSObject, Transport {
         sentEventsWithSession.append(Pair(event, session))
     }
     
+    var sentUserFeedback: [UserFeedack] = []
+    public func send(userFeedback: UserFeedack) {
+        sentUserFeedback.append(userFeedback)
+    }
+    
     public func send(envelope: SentryEnvelope) {
         lastSentEnvelope = envelope
     }

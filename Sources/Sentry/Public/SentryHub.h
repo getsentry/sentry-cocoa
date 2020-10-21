@@ -1,9 +1,8 @@
 #import "SentryDefines.h"
 #import "SentryIntegrationProtocol.h"
 
-@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb;
-
-@class SentryId;
+@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
+    SentryId, SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -102,6 +101,14 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
+
+/**
+ * Captures a manually created user feedback and sends it to Sentry.
+ *
+ * @param userFeedback The user feedback to send to Sentry.
+ */
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+    NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Invokes the callback with a mutable reference to the scope for modifications.

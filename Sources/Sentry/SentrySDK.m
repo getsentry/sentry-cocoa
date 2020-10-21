@@ -152,6 +152,11 @@ static SentryHub *currentHub;
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
 }
 
++ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    [SentrySDK.currentHub captureUserFeedback:userFeedback];
+}
+
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentrySDK.currentHub addBreadcrumb:crumb];

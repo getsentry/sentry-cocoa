@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo, SentryId;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,6 +61,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
 - (instancetype)initWithSession:(SentrySession *)session;
+- (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
                           data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 
@@ -108,6 +109,8 @@ SENTRY_NO_INIT
 
 // Convenience init for a single event
 - (instancetype)initWithEvent:(SentryEvent *)event;
+
+- (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 
 /**
  * The envelope header.

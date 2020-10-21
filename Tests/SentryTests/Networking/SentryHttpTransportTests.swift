@@ -20,6 +20,9 @@ class SentryHttpTransportTests: XCTestCase {
         let options: Options
         let requestManager: TestRequestManager
         let rateLimits: DefaultRateLimits
+        
+        let userFeedback: UserFeedack
+        let userFeedbackRequest: SentryNSURLRequest
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -45,6 +48,13 @@ class SentryHttpTransportTests: XCTestCase {
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
+            
+            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback.comments = "It doesn't really"
+            userFeedback.email = "john@me.com"
+            userFeedback.name = "John Me"
+            
+            userFeedbackRequest = buildRequest(SentryEnvelope(userFeedback: userFeedback))
         }
 
         var sut: SentryHttpTransport {
@@ -114,7 +124,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     func testSendEventWithSession_SentInOneEnvelope() {
         sut.send(fixture.event, with: fixture.session)
-waitForAllRequests()
+        waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
@@ -395,6 +405,16 @@ waitForAllRequests()
         }
 
         XCTAssertEqual(210, fixture.requestManager.requests.count)
+    }
+    
+    func testSendUserFeedback() {
+        sut.send(userFeedback: fixture.userFeedback)
+        waitForAllRequests()
+        
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+        
+        let actualRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
