@@ -17,13 +17,13 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
+#import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
-#import "SentrySDK.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -329,8 +329,9 @@ SentryClient ()
     if (nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
     }
-    
-    if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun && event.level == kSentryLevelFatal) {
+
+    if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
+        && event.level == kSentryLevelFatal) {
         self.options.onCrashedLastRun(event.eventId);
     }
 

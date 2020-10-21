@@ -119,7 +119,7 @@
     if (nil != options[@"beforeBreadcrumb"]) {
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
-    
+
     if (nil != options[@"onCrashedLastRun"]) {
         self.onCrashedLastRun = options[@"onCrashedLastRun"];
     }
