@@ -3,7 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -44,7 +44,6 @@
                                         <rect key="frame" x="0.0" y="60" width="398" height="30"/>
                                         <state key="normal" title="captureUserFeedback"/>
                                         <connections>
-                                            <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ik1-Af-TBC"/>
                                             <action selector="captureUserFeedback:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ek5-6c-HRz"/>
                                         </connections>
                                     </button>
