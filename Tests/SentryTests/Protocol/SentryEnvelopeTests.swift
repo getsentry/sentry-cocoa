@@ -230,7 +230,7 @@ class SentryEnvelopeTests: XCTestCase {
         let userFeedback = fixture.userFeedback
         
         let envelope = SentryEnvelope(userFeedback: userFeedback)
-        XCTAssertNil(envelope.header.eventId)
+        XCTAssertEqual(userFeedback.eventId, envelope.header.eventId)
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
         
         XCTAssertEqual(1, envelope.items.count)

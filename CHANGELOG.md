@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Add eventId to user feedback envelope header #809
 - feat: Manually capturing User Feedback #804
 
 ## 6.0.4
