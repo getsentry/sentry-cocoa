@@ -33,7 +33,7 @@ SentrySDK.start { options in
 }    
 ```
 
-```objective-c
+```objc
 @import Sentry;
 
 // ....
