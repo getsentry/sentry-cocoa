@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.6
+
 - fix: Call beforeBreadcrumb for Breadcrumb Tracker #815
 
 ## 6.0.5
