@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Call beforeBreadcrumb for Breadcrumb Tracker #815
+
 ## 6.0.5
 
 - fix: Add eventId to user feedback envelope header #809
