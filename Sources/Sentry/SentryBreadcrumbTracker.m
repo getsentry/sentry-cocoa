@@ -152,7 +152,7 @@
                 NSString *viewControllerName = [SentryBreadcrumbTracker
                     sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                 crumb.data = @ { @"screen" : viewControllerName };
-                
+
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
