@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Remove enum specifier for SentryLevel #822
+
 ## 6.0.6
 
 - fix: Call beforeBreadcrumb for Breadcrumb Tracker #815
