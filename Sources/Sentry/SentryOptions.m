@@ -107,7 +107,7 @@
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
         self.dist = options[@"dist"];
     }
-    
+
     if (nil != options[@"enabled"]) {
         self.enabled = [options[@"enabled"] boolValue];
     }

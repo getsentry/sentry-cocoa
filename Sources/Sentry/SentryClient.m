@@ -230,7 +230,8 @@ SentryClient ()
     // TODO: What is about beforeSend
 
     if (!self.options.enabled || nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
+                         andLevel:kSentryLogLevelDebug];
         return;
     }
 
@@ -240,7 +241,8 @@ SentryClient ()
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     if (!self.options.enabled || nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
+                         andLevel:kSentryLogLevelDebug];
         return;
     }
     [self.transport sendUserFeedback:userFeedback];
@@ -265,7 +267,8 @@ SentryClient ()
 {
     NSParameterAssert(event);
     if (!self.options.enabled || nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
+                         andLevel:kSentryLogLevelDebug];
         return nil;
     }
 
