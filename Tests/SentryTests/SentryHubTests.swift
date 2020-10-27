@@ -136,6 +136,37 @@ class SentryHubTests: XCTestCase {
         assert(withScopeBreadcrumbsCount: 200, with: hub)
     }
     
+    func testAddBreadcrumb_WithCallbackReturnsNil() {
+        let options = Options()
+        options.beforeBreadcrumb = { crumb in
+            return nil
+        }
+        let hub = fixture.getSut(options)
+        
+        hub.add(fixture.crumb)
+        
+        let scope = hub.getScope()
+        XCTAssertNil(scope.serialize()["breadcrumbs"])
+    }
+    
+    func testAddBreadcrumb_WithCallbackModifies() {
+        let crumbMessage = "modified"
+        let options = Options()
+        options.beforeBreadcrumb = { crumb in
+            crumb.message = crumbMessage
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+        
+        hub.add(fixture.crumb)
+        
+        let scope = hub.getScope()
+        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [[String: Any]]
+        XCTAssertNotNil(scopeBreadcrumbs)
+        XCTAssertEqual(1, scopeBreadcrumbs?.count)
+        XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
+    }
+    
     func testAddUserToTheScope() {
         let client = Client(options: fixture.options)
         let hub = SentryHub(client: client, andScope: Scope())

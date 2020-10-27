@@ -3,6 +3,13 @@
 ## unreleased
 
 - feat: Bring back SentryOptions.enabled #818
+
+## 6.0.6
+
+- fix: Call beforeBreadcrumb for Breadcrumb Tracker #815
+
+## 6.0.5
+
 - fix: Add eventId to user feedback envelope header #809
 - feat: Manually capturing User Feedback #804
 
