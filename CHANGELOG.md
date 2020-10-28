@@ -3,6 +3,7 @@
 ## unreleased
 
 - feat: Bring back SentryOptions.enabled #818
+- fix: Remove enum specifier for SentryLevel #822
 
 ## 6.0.6
 
