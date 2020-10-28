@@ -17,13 +17,7 @@ Pod::Spec.new do |s|
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
   s.xcconfig = {
-      'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
-      # Default Xcode 12 settings fail to build CocoaPods-generate umbrella headers:
-      # https://github.com/CocoaPods/CocoaPods/issues/9902.
-      # The fix of cocoapods does the same:
-      # https://github.com/CocoaPods/CocoaPods/pull/9905/
-      # Remove this when cocoapods 1.10 is released
-      'CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER' => 'NO'
+      'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES'
 }
 
   s.default_subspecs = ['Core']
