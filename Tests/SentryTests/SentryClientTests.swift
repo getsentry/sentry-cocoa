@@ -58,6 +58,12 @@ class SentryClientTest: XCTestCase {
                 options.parsedDsn = nil
             })
         }
+        
+        func getSutDisabledSdk() -> Client {
+            getSut(configureOptions: { options in
+                options.enabled = false
+            })
+        }
 
         var scope: Scope {
             get {
@@ -399,6 +405,13 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertNothingSent()
     }
+    
+    func testDisabled_MessageNotSent() {
+        let sut = fixture.getSutDisabledSdk()
+        let eventId = sut.capture(message: fixture.messageAsString)
+        eventId.assertIsEmpty()
+        assertNothingSent()
+    }
 
     func testNoDsn_ExceptionNotSent() {
         let sut = fixture.getSutWithNoDsn()
@@ -450,6 +463,18 @@ class SentryClientTest: XCTestCase {
         }).captureError(self.error, with: fixture.session, with: Scope())
 
         eventId.assertIsEmpty()
+        assertNothingSent()
+    }
+    
+    func testNoDsn_UserFeedbackNotSent() {
+        let sut = fixture.getSutWithNoDsn()
+        sut.capture(userFeedback: UserFeedack(eventId: SentryId.empty))
+        assertNothingSent()
+    }
+    
+    func testDisabled_UserFeedbackNotSent() {
+        let sut = fixture.getSutDisabledSdk()
+        sut.capture(userFeedback: UserFeedack(eventId: SentryId.empty))
         assertNothingSent()
     }
 
