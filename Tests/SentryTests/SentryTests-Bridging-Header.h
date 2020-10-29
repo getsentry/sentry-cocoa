@@ -61,3 +61,4 @@
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUserFeedback.h"

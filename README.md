@@ -33,7 +33,7 @@ SentrySDK.start { options in
 }    
 ```
 
-```objective-c
+```objc
 @import Sentry;
 
 // ....
@@ -48,6 +48,10 @@ SentrySDK.start { options in
 For more information checkout the [docs](https://docs.sentry.io/platforms/apple).
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
+
+# Sentry Self Hosted Compatibility
+
+Since version 6.0.0 of this SDK, Sentry version >= v20.6.0 is required. This only applies to on-premise Sentry, if you are using [sentry.io](http://sentry.io/) no action is needed.
 
 # Resources
 

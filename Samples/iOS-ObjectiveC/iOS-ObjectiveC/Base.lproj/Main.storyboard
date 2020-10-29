@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -16,44 +18,52 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sentry Test App (Objective-C)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Si0-bZ-rNR">
-                                <rect key="frame" x="91.5" y="88" width="231" height="20.5"/>
+                                <rect key="frame" x="92.5" y="88" width="229.5" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AVC-4r-eVc">
-                                <rect key="frame" x="8" y="116.5" width="398" height="150"/>
+                                <rect key="frame" x="8" y="116.5" width="398" height="180"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rUC-at-hwU">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rUC-at-hwU">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
                                         <state key="normal" title="add Breadcrumb"/>
                                         <connections>
                                             <action selector="addBreadcrumb:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0dE-6E-p1k"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bI8-Df-UZb">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bI8-Df-UZb">
                                         <rect key="frame" x="0.0" y="30" width="398" height="30"/>
                                         <state key="normal" title="captureMessage"/>
                                         <connections>
                                             <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DCQ-8y-GOx"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G9Q-jA-9Nd">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bD3-Kg-hld">
                                         <rect key="frame" x="0.0" y="60" width="398" height="30"/>
+                                        <state key="normal" title="captureUserFeedback"/>
+                                        <connections>
+                                            <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dxD-CU-dxJ"/>
+                                            <action selector="captureUserFeedback:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PfT-MW-tlq"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G9Q-jA-9Nd">
+                                        <rect key="frame" x="0.0" y="90" width="398" height="30"/>
                                         <state key="normal" title="captureNSError"/>
                                         <connections>
                                             <action selector="captureError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Btq-8D-8N6"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ugR-6E-UFA">
-                                        <rect key="frame" x="0.0" y="90" width="398" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ugR-6E-UFA">
+                                        <rect key="frame" x="0.0" y="120" width="398" height="30"/>
                                         <state key="normal" title="captureNSException"/>
                                         <connections>
                                             <action selector="captureException:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ezD-qB-SSr"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PFR-up-CPy">
-                                        <rect key="frame" x="0.0" y="120" width="398" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PFR-up-CPy">
+                                        <rect key="frame" x="0.0" y="150" width="398" height="30"/>
                                         <state key="normal" title="crash"/>
                                         <connections>
                                             <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6xT-zA-EZI"/>
@@ -62,7 +72,8 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="Si0-bZ-rNR" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Bh6-ET-Oa9"/>
                             <constraint firstItem="AVC-4r-eVc" firstAttribute="top" secondItem="Si0-bZ-rNR" secondAttribute="bottom" constant="8" id="Zbd-ic-Ehe"/>
@@ -70,7 +81,6 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AVC-4r-eVc" secondAttribute="trailing" constant="8" id="fQp-Gx-Ttx"/>
                             <constraint firstItem="Si0-bZ-rNR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="44" id="vPw-aJ-2hv"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -78,4 +88,9 @@
             <point key="canvasLocation" x="133" y="139"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

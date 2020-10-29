@@ -71,6 +71,12 @@ SentryHttpTransport ()
     [self sendEnvelope:envelope];
 }
 
+- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithUserFeedback:userFeedback];
+    [self sendEnvelope:envelope];
+}
+
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];

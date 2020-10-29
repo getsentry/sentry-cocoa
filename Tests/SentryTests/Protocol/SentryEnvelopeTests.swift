@@ -4,6 +4,14 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
+        let userFeedback: UserFeedack
+        
+        init() {
+            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback.comments = "It doesn't work!"
+            userFeedback.email = "john@me.com"
+            userFeedback.name = "John Me"
+        }
 
         var breadcrumb: Breadcrumb {
             get {
@@ -49,6 +57,7 @@ class SentryEnvelopeTests: XCTestCase {
             event.platform = "platform"
             return event
         }
+        
     }
 
     private let fixture = Fixture()
@@ -215,6 +224,25 @@ class SentryEnvelopeTests: XCTestCase {
             let eventTimestamp = CurrentDate.date() as NSDate
             json.assertContains(eventTimestamp.sentry_toIso8601String(), "timestamp")
         }
+    }
+    
+    func testInitWithUserFeedback() throws {
+        let userFeedback = fixture.userFeedback
+        
+        let envelope = SentryEnvelope(userFeedback: userFeedback)
+        XCTAssertEqual(userFeedback.eventId, envelope.header.eventId)
+        XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
+        
+        XCTAssertEqual(1, envelope.items.count)
+        let item = envelope.items.first
+        XCTAssertEqual("user_report", item?.header.type)
+        XCTAssertNotNil(item?.data)
+        
+        let expectedData = try SentrySerialization.data(withJSONObject: userFeedback.serialize())
+
+        let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
+        let expected = String(data: expectedData, encoding: .utf8)?.sorted()
+        XCTAssertEqual(expected, actual)
     }
 
     private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
