@@ -4,6 +4,7 @@
 
 - feat: Bring back SentryOptions.enabled #818
 - fix: Remove enum specifier for SentryLevel #822
+- feat: Send environment 'production' if nothing was set #825
 
 ## 6.0.6
 

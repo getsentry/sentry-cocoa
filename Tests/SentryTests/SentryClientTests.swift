@@ -123,7 +123,7 @@ class SentryClientTest: XCTestCase {
         
         let eventId = fixture.getSut().capture(event: event, scope: scope)
         
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
@@ -292,7 +292,7 @@ class SentryClientTest: XCTestCase {
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -334,7 +334,7 @@ class SentryClientTest: XCTestCase {
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -484,21 +484,60 @@ class SentryClientTest: XCTestCase {
             options.dist = dist
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(dist, actual.dist)
         }
     }
+    
+    func testEnvironmentDefaultToProduction() {
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
-    func testEnvironmentIsSet() {
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("production", actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetViaOptions() {
         let environment = "environment"
         let eventId = fixture.getSut(configureOptions: { options in
             options.environment = environment
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(environment, actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetInEventTakesPrecedenceOverOptions() {
+        let optionsEnvironment = "environment"
+        let event = Event()
+        event.environment = "event"
+        let scope = Scope()
+        scope.setEnvironment("scope")
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.environment = optionsEnvironment
+        }).capture(event: event, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("event", actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetInEventTakesPrecedenceOverScope() {
+        let optionsEnvironment = "environment"
+        let event = Event()
+        event.environment = "event"
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.environment = optionsEnvironment
+        }).capture(event: event)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("event", actual.environment)
         }
     }
     
