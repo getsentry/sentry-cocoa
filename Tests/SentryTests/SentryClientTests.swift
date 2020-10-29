@@ -117,7 +117,7 @@ class SentryClientTest: XCTestCase {
         
         let eventId = fixture.getSut().capture(event: event, scope: scope)
         
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
@@ -286,7 +286,7 @@ class SentryClientTest: XCTestCase {
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -328,7 +328,7 @@ class SentryClientTest: XCTestCase {
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -459,7 +459,7 @@ class SentryClientTest: XCTestCase {
             options.dist = dist
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(dist, actual.dist)
         }
@@ -468,7 +468,7 @@ class SentryClientTest: XCTestCase {
     func testEnvironmentDefaultToProduction() {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual("production", actual.environment)
         }
@@ -480,7 +480,7 @@ class SentryClientTest: XCTestCase {
             options.environment = environment
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(environment, actual.environment)
         }
@@ -496,7 +496,7 @@ class SentryClientTest: XCTestCase {
             options.environment = optionsEnvironment
         }).capture(event: event, scope: scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual("event", actual.environment)
         }
@@ -510,7 +510,7 @@ class SentryClientTest: XCTestCase {
             options.environment = optionsEnvironment
         }).capture(event: event)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual("event", actual.environment)
         }
