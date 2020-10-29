@@ -293,6 +293,7 @@ SentryClient ()
 
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
+        // Set the environment from option to the event before Scope is applied
         event.environment = environment;
     }
 
@@ -320,6 +321,12 @@ SentryClient ()
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
+    // With scope applied, before running callbacks run:
+    if (nil == event.environment) {
+        // We default to environment 'production' if nothing was set
+        event.environment = @"production";
+    }
+    
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
