@@ -17,8 +17,8 @@
 - (instancetype)init
 {
     if (self = [super init]) {
+        self.enabled = YES;
         self.logLevel = kSentryLogLevelError;
-
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.integrations = SentryOptions.defaultIntegrations;
@@ -61,7 +61,7 @@
     if (nil == error) {
         _dsn = dsn;
     } else {
-        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
+        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
         [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
     }
 }
@@ -106,6 +106,10 @@
 
     if ([options[@"dist"] isKindOfClass:[NSString class]]) {
         self.dist = options[@"dist"];
+    }
+
+    if (nil != options[@"enabled"]) {
+        self.enabled = [options[@"enabled"] boolValue];
     }
 
     if (nil != options[@"maxBreadcrumbs"]) {

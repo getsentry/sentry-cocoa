@@ -56,6 +56,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
+ * Specifies wether this SDK should send events to Sentry. If set to NO events will be
+ * dropped in the client and not sent to Sentry. Default is YES.
+ */
+@property (nonatomic, assign) BOOL enabled;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */

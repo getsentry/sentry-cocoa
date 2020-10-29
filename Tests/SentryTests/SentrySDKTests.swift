@@ -77,6 +77,7 @@ class SentrySDKTests: XCTestCase {
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
         XCTAssertNil(options?.parsedDsn)
+        XCTAssertTrue(options?.enabled ?? false)
         XCTAssertEqual(true, options?.debug)
     }
     
@@ -87,6 +88,7 @@ class SentrySDKTests: XCTestCase {
         
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
+        XCTAssertTrue(options?.enabled ?? false)
         XCTAssertNil(options?.parsedDsn)
     }
     

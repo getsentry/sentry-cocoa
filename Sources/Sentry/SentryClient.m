@@ -229,8 +229,8 @@ SentryClient ()
 {
     // TODO: What is about beforeSend
 
-    if (nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
         return;
     }
 
@@ -239,6 +239,10 @@ SentryClient ()
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
     [self.transport sendUserFeedback:userFeedback];
 }
 
@@ -260,9 +264,8 @@ SentryClient ()
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
-
-    if (nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
         return nil;
     }
 
@@ -330,6 +333,17 @@ SentryClient ()
     }
 
     return event;
+}
+
+- (BOOL)isDisabled
+{
+    return !self.options.enabled || nil == self.options.parsedDsn;
+}
+
+- (void)logDisabledMessage
+{
+    [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
+                     andLevel:kSentryLogLevelDebug];
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
