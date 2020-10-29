@@ -326,7 +326,7 @@ SentryClient ()
         // We default to environment 'production' if nothing was set
         event.environment = @"production";
     }
-    
+
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
