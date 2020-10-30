@@ -11,7 +11,7 @@ class SentrySDKTests: XCTestCase {
         let hub: SentryHub
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        let userFeedback: UserFeedack
+        let userFeedback: UserFeedback
         
         init() {
             event = Event()
@@ -23,7 +23,7 @@ class SentrySDKTests: XCTestCase {
             client = TestClient(options: Options())!
             hub = SentryHub(client: client, andScope: scope)
             
-            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
             userFeedback.email = "tim@apple.com"
             userFeedback.name = "Tim Apple"

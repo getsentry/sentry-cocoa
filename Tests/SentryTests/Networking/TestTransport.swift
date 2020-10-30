@@ -15,8 +15,8 @@ public class TestTransport: NSObject, Transport {
         sentEventsWithSession.append(Pair(event, session))
     }
     
-    var sentUserFeedback: [UserFeedack] = []
-    public func send(userFeedback: UserFeedack) {
+    var sentUserFeedback: [UserFeedback] = []
+    public func send(userFeedback: UserFeedback) {
         sentUserFeedback.append(userFeedback)
     }
     

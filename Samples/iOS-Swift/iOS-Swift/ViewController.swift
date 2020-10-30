@@ -41,7 +41,7 @@ class ViewController: UIViewController {
             scope.setLevel(.fatal)
         }
         
-        let userFeedback = UserFeedack(eventId: eventId)
+        let userFeedback = UserFeedback(eventId: eventId)
         userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
