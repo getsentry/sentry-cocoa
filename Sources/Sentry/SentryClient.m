@@ -40,6 +40,8 @@ SentryClient ()
 
 @end
 
+NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
+
 @implementation SentryClient
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
@@ -210,7 +212,14 @@ SentryClient ()
 
 - (SentryId *)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
 {
+
     if (nil != event) {
+        if (nil == session.releaseName || [session.releaseName length] == 0) {
+            [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+            [self.transport sendEvent:event];
+            return event.eventId;
+        }
+
         [self.transport sendEvent:event withSession:session];
         return event.eventId;
     } else {
@@ -221,6 +230,11 @@ SentryClient ()
 
 - (void)captureSession:(SentrySession *)session
 {
+    if (nil == session.releaseName || [session.releaseName length] == 0) {
+        [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
     [self captureEnvelope:envelope];
 }

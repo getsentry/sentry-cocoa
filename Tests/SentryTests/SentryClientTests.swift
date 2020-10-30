@@ -355,6 +355,21 @@ class SentryClientTest: XCTestCase {
 
         assertLastSentEnvelopeIsASession()
     }
+    
+    func testCaptureSessionWithoutReleaseName() {
+        let session = SentrySession(releaseName: "")
+        
+        fixture.getSut().capture(session: session)
+        fixture.getSut().capture(exception, with: session, with: Scope())
+            .assertIsNotEmpty()
+        fixture.getSut().capture(fixture.event, with: session, with: Scope())
+            .assertIsNotEmpty()
+        
+        // No sessions sent
+        XCTAssertNil(fixture.transport.lastSentEnvelope)
+        XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
+        XCTAssertEqual(2, fixture.transport.sentEvents.count)
+    }
 
     func testBeforeSendReturnsNil_EventNotSent() {
         fixture.getSut(configureOptions: { options in
