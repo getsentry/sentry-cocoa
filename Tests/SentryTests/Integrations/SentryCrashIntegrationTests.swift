@@ -60,6 +60,13 @@ class SentryCrashIntegrationTests: XCTestCase {
                                   "dist": dist]
         )
         
+        // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
+        // Furthermore we would need to use TestSentryDispatchQueueWrapper to make make sure the sync of the scope to SentryCrash happened, which is complicated when we call
+        // SentrySDK.start.
+        // Setting this up needs quite some refactoring, which is complex and we accept this
+        // test smell of waiting a bit for now.
+        delayNonBlocking(timeout: 0.1)
+        
         let instance = SentryCrash.sharedInstance()
         let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
         assertUserInfoField(userInfo: userInfo, key: "release", expected: releaseName)
