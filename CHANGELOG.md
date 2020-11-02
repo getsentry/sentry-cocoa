@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- perf: Async synching of scope on to SentryCrash #832
+
 ## 6.0.7
 
 - fix: Drop Sessions without release name #826

@@ -219,6 +219,38 @@ class SentrySDKTests: XCTestCase {
         }
     }
     
+    func testPerformanceOfConfigureScope() {
+        func buildCrumb(_ i: Int) -> Breadcrumb {
+            let crumb = Breadcrumb()
+            crumb.message = String(repeating: String(i), count: 100)
+            crumb.data = ["some": String(repeating: String(i), count: 1_000)]
+            crumb.category = String(i)
+            return crumb
+        }
+        
+        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString])
+        
+        SentrySDK.configureScope { scope in
+            let user = User()
+            user.email = "someone@gmail.com"
+            scope.setUser(user)
+        }
+        
+        for i in Array(0...100) {
+            SentrySDK.configureScope { scope in
+                scope.add(buildCrumb(i))
+            }
+        }
+        
+        self.measure {
+            for i in Array(0...10) {
+                SentrySDK.configureScope { scope in
+                    scope.add(buildCrumb(i))
+                }
+            }
+        }
+    }
+    
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
     }
