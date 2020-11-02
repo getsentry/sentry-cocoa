@@ -483,13 +483,13 @@ class SentryClientTest: XCTestCase {
     
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
-        sut.capture(userFeedback: UserFeedack(eventId: SentryId.empty))
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
     }
     
     func testDisabled_UserFeedbackNotSent() {
         let sut = fixture.getSutDisabledSdk()
-        sut.capture(userFeedback: UserFeedack(eventId: SentryId.empty))
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
     }
 

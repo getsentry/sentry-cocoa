@@ -3,7 +3,7 @@ import XCTest
 class SentryUserFeedbackTests: XCTestCase {
     
     func testSerialize() {
-        let userFeedback = UserFeedack(eventId: SentryId())
+        let userFeedback = UserFeedback(eventId: SentryId())
         userFeedback.comments = "Fix this please."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
