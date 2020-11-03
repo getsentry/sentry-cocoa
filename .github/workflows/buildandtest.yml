@@ -105,5 +105,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.sha }}
-          path: Sentry.framework.zip  
-
+          path: |
+            ${{ github.workspace }}/*.tgz
