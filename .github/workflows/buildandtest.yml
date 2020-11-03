@@ -106,4 +106,4 @@ jobs:
         with:
           name: ${{ github.sha }}
           path: |
-            ${{ github.workspace }}/*.tgz
+            ${{ github.workspace }}/*.zip
