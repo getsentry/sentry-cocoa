@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.7
+
 - fix: Drop Sessions without release name #826
 - feat: Bring back SentryOptions.enabled #818
 - fix: Remove enum specifier for SentryLevel #822
