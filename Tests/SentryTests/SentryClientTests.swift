@@ -483,12 +483,18 @@ class SentryClientTest: XCTestCase {
     
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
         assertNothingSent()
     }
     
     func testDisabled_UserFeedbackNotSent() {
         let sut = fixture.getSutDisabledSdk()
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
+        assertNothingSent()
+    }
+    
+    func testCaptureUserFeedback_WithEmptyEventId() {
+        let sut = fixture.getSut()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
         assertNothingSent()
     }
@@ -698,6 +704,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(fixture.transport.lastSentEnvelope)
         XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
+        XCTAssertEqual(0, fixture.transport.sentUserFeedback.count)
     }
 
     private enum TestError: Error {
