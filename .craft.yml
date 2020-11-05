@@ -6,6 +6,8 @@ changelogPolicy: simple
 preReleaseCommand: bash ./scripts/bump.sh
 statusProvider:
   name: github
+artifactProvider:
+  name: github
 targets:
   - name: github
   - name: cocoapods

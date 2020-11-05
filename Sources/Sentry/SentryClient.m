@@ -23,6 +23,7 @@
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
+#import "SentryUserFeedback.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -257,6 +258,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self logDisabledMessage];
         return;
     }
+
+    if ([SentryId.empty isEqual:userFeedback.eventId]) {
+        [SentryLog logWithMessage:@"Capturing UserFeedback with an empty event id. Won't send it."
+                         andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     [self.transport sendUserFeedback:userFeedback];
 }
 
