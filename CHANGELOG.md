@@ -3,6 +3,7 @@
 ## unreleased
 
 - perf: Async synching of scope on to SentryCrash #832
+- feat: Expose SentryFileManager and SentryCurrentDateProvider #835
 
 ## 6.0.7
 
