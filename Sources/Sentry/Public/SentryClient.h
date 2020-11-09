@@ -113,7 +113,10 @@ SENTRY_NO_INIT
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
-- (SentryFileManager *)fileManager;
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
 
 @end
 

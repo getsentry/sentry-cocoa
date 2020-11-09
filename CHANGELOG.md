@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add storeEnvelope on SentryClient #836
 - perf: Async synching of scope on to SentryCrash #832
 
 ## 6.0.7

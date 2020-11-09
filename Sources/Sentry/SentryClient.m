@@ -268,6 +268,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transport sendUserFeedback:userFeedback];
 }
 
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    [self.fileManager storeEnvelope:envelope];
+}
+
 /**
  * returns BOOL chance of YES is defined by sampleRate.
  * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate
