@@ -3,7 +3,7 @@ codecov:
     after_n_builds: 2 # Wait for both iOS and Mac Catalyst to finish
 
 coverage:
-  range: "80...100"
+  range: "93...100"
 
 parsers:
   gcov:
@@ -14,7 +14,8 @@ parsers:
       macro: no
 
 ignore:
-  - "Sources/SentryCrash" 
+  - "Sources/SentryCrash"
+  - "Tests/SentryTests" 
 
 comment:
   layout: "reach,diff,flags,files,footer"
