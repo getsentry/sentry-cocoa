@@ -49,8 +49,6 @@ jobs:
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
         if: ${{matrix.pushCodecov}}
-        with:
-          token: ${{secrets.CODECOV_TOKEN}}
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
