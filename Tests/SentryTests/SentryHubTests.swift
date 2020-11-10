@@ -80,7 +80,7 @@ class SentryHubTests: XCTestCase {
     
     func testBeforeBreadcrumbWithCallbackReturningNullDropsBreadcrumb() {
         let options = fixture.options
-        options.beforeBreadcrumb = { crumb in return nil }
+        options.beforeBreadcrumb = { _ in return nil }
         
         sut = fixture.getSut(options, nil)
         
@@ -138,7 +138,7 @@ class SentryHubTests: XCTestCase {
     
     func testAddBreadcrumb_WithCallbackReturnsNil() {
         let options = Options()
-        options.beforeBreadcrumb = { crumb in
+        options.beforeBreadcrumb = { _ in
             return nil
         }
         let hub = fixture.getSut(options)

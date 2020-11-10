@@ -23,6 +23,7 @@ class SentryClientTest: XCTestCase {
         let message: SentryMessage
         
         let user: User
+        let fileManager: SentryFileManager
 
         init() {
             session = SentrySession(releaseName: "release")
@@ -35,6 +36,8 @@ class SentryClientTest: XCTestCase {
             
             user = User()
             user.email = "someone@sentry.io"
+            
+            fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -45,7 +48,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, andTransport: transport, andFileManager: try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider()))
+                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -84,6 +87,7 @@ class SentryClientTest: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        fixture.fileManager.deleteAllEnvelopes()
     }
     
     func testCaptureMessage() {
@@ -604,6 +608,11 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(user.userId, actual.user?.userId)
             XCTAssertEqual(fixture.user.email, actual.user?.email)
         }
+    }
+    
+    func testStoreEnvelope_StoresEnvelopeToDisk() {
+        fixture.getSut().store(SentryEnvelope(event: Event()))
+        XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
     
     private func givenEventWithDebugMeta() -> Event {

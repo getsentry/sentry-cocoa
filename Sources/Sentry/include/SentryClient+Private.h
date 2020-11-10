@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClient (Private)
 
+- (SentryFileManager *)fileManager;
+
 - (SentryId *)captureError:(NSError *)error
                withSession:(SentrySession *)session
                  withScope:(SentryScope *)scope;
