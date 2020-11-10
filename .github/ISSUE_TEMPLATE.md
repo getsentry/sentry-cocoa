@@ -9,6 +9,7 @@ _Swift:_
 - [ ]  No
 
 _sentry-cocoa installed with:_
+- [ ] Swift Package Manager
 - [ ] CocoaPods
 - [ ] Carthage
 - [ ] Manually
