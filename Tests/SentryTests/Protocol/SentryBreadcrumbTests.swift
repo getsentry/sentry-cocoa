@@ -6,12 +6,17 @@ class SentryBreadcrumbTests: XCTestCase {
         let breadcrumb: Breadcrumb
         let date: Date
         
+        let category = "category"
+        let type = "user"
+        let message = "Click something"
+        
         init() {
             date = Date(timeIntervalSince1970: 10)
             
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
+            breadcrumb.category = category
             breadcrumb.type = "user"
             breadcrumb.message = "Click something"
             breadcrumb.data = ["some": ["data": "data", "date": date]]
@@ -62,5 +67,25 @@ class SentryBreadcrumbTests: XCTestCase {
         let breadcrumb = Fixture().breadcrumb
         block(breadcrumb)
         XCTAssertNotEqual(fixture.breadcrumb, breadcrumb)
+    }
+    
+    func testSerialize() {
+        let crumb = fixture.breadcrumb
+        let actual = crumb.serialize()
+        
+        // Changing the original doesn't modify the serialized
+        crumb.level = SentryLevel.debug
+        crumb.timestamp = nil
+        crumb.category = ""
+        crumb.type = ""
+        crumb.message = ""
+        crumb.data = nil
+        
+        XCTAssertEqual("info", actual["level"] as? String)
+        XCTAssertEqual(fixture.dateAs8601String, actual["timestamp"] as? String)
+        XCTAssertEqual(fixture.category, actual["category"] as? String)
+        XCTAssertEqual(fixture.type, actual["type"] as? String)
+        XCTAssertEqual(fixture.message, actual["message"] as? String)
+        XCTAssertEqual(["some": ["data": "data", "date": fixture.dateAs8601String]], actual["data"] as? Dictionary)
     }
 }
