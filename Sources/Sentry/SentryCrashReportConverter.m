@@ -43,7 +43,7 @@ SentryCrashReportConverter ()
         } else {
             crashContext = report[@"crash"];
         }
-        
+
         if (nil != report[@"recrash_report"][@"binary_images"]) {
             self.binaryImages = report[@"recrash_report"][@"binary_images"];
         } else {
