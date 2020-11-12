@@ -368,6 +368,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event = self.options.beforeSend(event);
     }
 
+    // The callback is also called when SentrySDK.crashedLastRun is true and the
+    // SentryCrashReportSink didn't capture the crash event yet and the user manually captures an
+    // event with level fatal.
+    // We could also call this callback in SentryHub.captureCrashEvent, but then the event would
+    // miss detail from SentryClient.prepareEvent.
     if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
         && !SentrySDK.crashedLastRunCalled && event.level == kSentryLevelFatal) {
         SentrySDK.crashedLastRunCalled = YES;
