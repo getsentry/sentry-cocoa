@@ -11,7 +11,7 @@ class SentrySDKTests: XCTestCase {
         let hub: SentryHub
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        let userFeedback: UserFeedack
+        let userFeedback: UserFeedback
         
         init() {
             event = Event()
@@ -23,7 +23,7 @@ class SentrySDKTests: XCTestCase {
             client = TestClient(options: Options())!
             hub = SentryHub(client: client, andScope: scope)
             
-            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
             userFeedback.email = "tim@apple.com"
             userFeedback.name = "Tim Apple"
@@ -77,6 +77,7 @@ class SentrySDKTests: XCTestCase {
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
         XCTAssertNil(options?.parsedDsn)
+        XCTAssertTrue(options?.enabled ?? false)
         XCTAssertEqual(true, options?.debug)
     }
     
@@ -87,6 +88,7 @@ class SentrySDKTests: XCTestCase {
         
         let options = SentrySDK.currentHub().getClient()?.options
         XCTAssertNotNil(options, "Options should not be nil")
+        XCTAssertTrue(options?.enabled ?? false)
         XCTAssertNil(options?.parsedDsn)
     }
     
@@ -214,6 +216,38 @@ class SentrySDKTests: XCTestCase {
             XCTAssertEqual(expected.name, actual.name)
             XCTAssertEqual(expected.email, actual.email)
             XCTAssertEqual(expected.comments, actual.comments)
+        }
+    }
+    
+    func testPerformanceOfConfigureScope() {
+        func buildCrumb(_ i: Int) -> Breadcrumb {
+            let crumb = Breadcrumb()
+            crumb.message = String(repeating: String(i), count: 100)
+            crumb.data = ["some": String(repeating: String(i), count: 1_000)]
+            crumb.category = String(i)
+            return crumb
+        }
+        
+        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString])
+        
+        SentrySDK.configureScope { scope in
+            let user = User()
+            user.email = "someone@gmail.com"
+            scope.setUser(user)
+        }
+        
+        for i in Array(0...100) {
+            SentrySDK.configureScope { scope in
+                scope.add(buildCrumb(i))
+            }
+        }
+        
+        self.measure {
+            for i in Array(0...10) {
+                SentrySDK.configureScope { scope in
+                    scope.add(buildCrumb(i))
+                }
+            }
         }
     }
     

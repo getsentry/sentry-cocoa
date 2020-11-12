@@ -1,4 +1,5 @@
 #import "SentrySessionCrashedHandler.h"
+#import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"

@@ -2,6 +2,26 @@
 
 ## unreleased
 
+## 6.0.8
+
+- feat: Add storeEnvelope on SentryClient #836
+- perf: Async synching of scope on to SentryCrash #832
+
+## 6.0.7
+
+- fix: Drop Sessions without release name #826
+- feat: Bring back SentryOptions.enabled #818
+- fix: Remove enum specifier for SentryLevel #822
+- feat: Send environment 'production' if nothing was set #825
+- fix: Typo for Swift name: UserFeedback #829
+
+## 6.0.6
+
+- fix: Call beforeBreadcrumb for Breadcrumb Tracker #815
+
+## 6.0.5
+
+- fix: Add eventId to user feedback envelope header #809
 - feat: Manually capturing User Feedback #804
 
 ## 6.0.4

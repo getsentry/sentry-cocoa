@@ -4,10 +4,10 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
-        let userFeedback: UserFeedack
+        let userFeedback: UserFeedback
         
         init() {
-            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "It doesn't work!"
             userFeedback.email = "john@me.com"
             userFeedback.name = "John Me"
@@ -230,7 +230,7 @@ class SentryEnvelopeTests: XCTestCase {
         let userFeedback = fixture.userFeedback
         
         let envelope = SentryEnvelope(userFeedback: userFeedback)
-        XCTAssertNil(envelope.header.eventId)
+        XCTAssertEqual(userFeedback.eventId, envelope.header.eventId)
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
         
         XCTAssertEqual(1, envelope.items.count)

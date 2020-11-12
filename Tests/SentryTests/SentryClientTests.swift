@@ -23,6 +23,7 @@ class SentryClientTest: XCTestCase {
         let message: SentryMessage
         
         let user: User
+        let fileManager: SentryFileManager
 
         init() {
             session = SentrySession(releaseName: "release")
@@ -35,6 +36,8 @@ class SentryClientTest: XCTestCase {
             
             user = User()
             user.email = "someone@sentry.io"
+            
+            fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -45,7 +48,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, andTransport: transport, andFileManager: try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider()))
+                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -56,6 +59,12 @@ class SentryClientTest: XCTestCase {
         func getSutWithNoDsn() -> Client {
             getSut(configureOptions: { options in
                 options.parsedDsn = nil
+            })
+        }
+        
+        func getSutDisabledSdk() -> Client {
+            getSut(configureOptions: { options in
+                options.enabled = false
             })
         }
 
@@ -78,6 +87,7 @@ class SentryClientTest: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        fixture.fileManager.deleteAllEnvelopes()
     }
     
     func testCaptureMessage() {
@@ -117,7 +127,7 @@ class SentryClientTest: XCTestCase {
         
         let eventId = fixture.getSut().capture(event: event, scope: scope)
         
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
@@ -286,7 +296,7 @@ class SentryClientTest: XCTestCase {
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -328,7 +338,7 @@ class SentryClientTest: XCTestCase {
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: ["key": expectedValue])
         let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
@@ -348,6 +358,21 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(session: session)
 
         assertLastSentEnvelopeIsASession()
+    }
+    
+    func testCaptureSessionWithoutReleaseName() {
+        let session = SentrySession(releaseName: "")
+        
+        fixture.getSut().capture(session: session)
+        fixture.getSut().capture(exception, with: session, with: Scope())
+            .assertIsNotEmpty()
+        fixture.getSut().capture(fixture.event, with: session, with: Scope())
+            .assertIsNotEmpty()
+        
+        // No sessions sent
+        XCTAssertNil(fixture.transport.lastSentEnvelope)
+        XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
+        XCTAssertEqual(2, fixture.transport.sentEvents.count)
     }
 
     func testBeforeSendReturnsNil_EventNotSent() {
@@ -395,6 +420,13 @@ class SentryClientTest: XCTestCase {
 
     func testNoDsn_MessageNotSent() {
         let sut = fixture.getSutWithNoDsn()
+        let eventId = sut.capture(message: fixture.messageAsString)
+        eventId.assertIsEmpty()
+        assertNothingSent()
+    }
+    
+    func testDisabled_MessageNotSent() {
+        let sut = fixture.getSutDisabledSdk()
         let eventId = sut.capture(message: fixture.messageAsString)
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -452,6 +484,24 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsEmpty()
         assertNothingSent()
     }
+    
+    func testNoDsn_UserFeedbackNotSent() {
+        let sut = fixture.getSutWithNoDsn()
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
+        assertNothingSent()
+    }
+    
+    func testDisabled_UserFeedbackNotSent() {
+        let sut = fixture.getSutDisabledSdk()
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
+        assertNothingSent()
+    }
+    
+    func testCaptureUserFeedback_WithEmptyEventId() {
+        let sut = fixture.getSut()
+        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
+        assertNothingSent()
+    }
 
     func testDistIsSet() {
         let dist = "dist"
@@ -459,21 +509,60 @@ class SentryClientTest: XCTestCase {
             options.dist = dist
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(dist, actual.dist)
         }
     }
+    
+    func testEnvironmentDefaultToProduction() {
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
-    func testEnvironmentIsSet() {
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("production", actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetViaOptions() {
         let environment = "environment"
         let eventId = fixture.getSut(configureOptions: { options in
             options.environment = environment
         }).capture(message: fixture.messageAsString)
 
-        XCTAssertNotNil(eventId)
+        eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             XCTAssertEqual(environment, actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetInEventTakesPrecedenceOverOptions() {
+        let optionsEnvironment = "environment"
+        let event = Event()
+        event.environment = "event"
+        let scope = Scope()
+        scope.setEnvironment("scope")
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.environment = optionsEnvironment
+        }).capture(event: event, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("event", actual.environment)
+        }
+    }
+    
+    func testEnvironmentIsSetInEventTakesPrecedenceOverScope() {
+        let optionsEnvironment = "environment"
+        let event = Event()
+        event.environment = "event"
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.environment = optionsEnvironment
+        }).capture(event: event)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual("event", actual.environment)
         }
     }
     
@@ -519,6 +608,11 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(user.userId, actual.user?.userId)
             XCTAssertEqual(fixture.user.email, actual.user?.email)
         }
+    }
+    
+    func testStoreEnvelope_StoresEnvelopeToDisk() {
+        fixture.getSut().store(SentryEnvelope(event: Event()))
+        XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
     
     private func givenEventWithDebugMeta() -> Event {
@@ -619,6 +713,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(fixture.transport.lastSentEnvelope)
         XCTAssertEqual(0, fixture.transport.sentEventsWithSession.count)
         XCTAssertEqual(0, fixture.transport.sentEvents.count)
+        XCTAssertEqual(0, fixture.transport.sentUserFeedback.count)
     }
 
     private enum TestError: Error {

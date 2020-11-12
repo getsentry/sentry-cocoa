@@ -21,7 +21,7 @@ class SentryHttpTransportTests: XCTestCase {
         let requestManager: TestRequestManager
         let rateLimits: DefaultRateLimits
         
-        let userFeedback: UserFeedack
+        let userFeedback: UserFeedback
         let userFeedbackRequest: SentryNSURLRequest
 
         init() {
@@ -49,7 +49,7 @@ class SentryHttpTransportTests: XCTestCase {
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
             
-            userFeedback = UserFeedack(eventId: SentryId())
+            userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "It doesn't really"
             userFeedback.email = "john@me.com"
             userFeedback.name = "John Me"

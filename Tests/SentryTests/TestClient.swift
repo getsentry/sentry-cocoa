@@ -77,8 +77,8 @@ class TestClient: Client {
         return SentryId()
     }
     
-    var capturedUserFeedback: [UserFeedack] = []
-    override func capture(userFeedback: UserFeedack) {
+    var capturedUserFeedback: [UserFeedback] = []
+    override func capture(userFeedback: UserFeedback) {
         capturedUserFeedback.append(userFeedback)
     }
 }

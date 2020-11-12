@@ -24,6 +24,7 @@
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
+#import "SentryUserFeedback.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -40,6 +41,8 @@ SentryClient ()
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
+
+NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
 @implementation SentryClient
 
@@ -211,7 +214,14 @@ SentryClient ()
 
 - (SentryId *)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
 {
+
     if (nil != event) {
+        if (nil == session.releaseName || [session.releaseName length] == 0) {
+            [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+            [self.transport sendEvent:event];
+            return event.eventId;
+        }
+
         [self.transport sendEvent:event withSession:session];
         return event.eventId;
     } else {
@@ -222,6 +232,11 @@ SentryClient ()
 
 - (void)captureSession:(SentrySession *)session
 {
+    if (nil == session.releaseName || [session.releaseName length] == 0) {
+        [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
     [self captureEnvelope:envelope];
 }
@@ -230,8 +245,8 @@ SentryClient ()
 {
     // TODO: What is about beforeSend
 
-    if (nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
         return;
     }
 
@@ -240,7 +255,23 @@ SentryClient ()
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
+    if ([SentryId.empty isEqual:userFeedback.eventId]) {
+        [SentryLog logWithMessage:@"Capturing UserFeedback with an empty event id. Won't send it."
+                         andLevel:kSentryLogLevelDebug];
+        return;
+    }
+
     [self.transport sendUserFeedback:userFeedback];
+}
+
+- (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    [self.fileManager storeEnvelope:envelope];
 }
 
 /**
@@ -261,9 +292,8 @@ SentryClient ()
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
-
-    if (nil == self.options.parsedDsn) {
-        [SentryLog logWithMessage:@"No DSN set. Won't do anyting." andLevel:kSentryLogLevelDebug];
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
         return nil;
     }
 
@@ -294,6 +324,7 @@ SentryClient ()
 
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
+        // Set the environment from option to the event before Scope is applied
         event.environment = environment;
     }
 
@@ -321,6 +352,12 @@ SentryClient ()
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
+    // With scope applied, before running callbacks run:
+    if (nil == event.environment) {
+        // We default to environment 'production' if nothing was set
+        event.environment = @"production";
+    }
+
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
@@ -336,6 +373,17 @@ SentryClient ()
     }
 
     return event;
+}
+
+- (BOOL)isDisabled
+{
+    return !self.options.enabled || nil == self.options.parsedDsn;
+}
+
+- (void)logDisabledMessage
+{
+    [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
+                     andLevel:kSentryLogLevelDebug];
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
