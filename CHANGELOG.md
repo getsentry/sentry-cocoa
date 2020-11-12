@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.9
+
 - fix: Serialization of SentryScope #841
 - fix: Recrash parsing in SentryCrash #850
 - fix: Not crash during crash reporting #849 
