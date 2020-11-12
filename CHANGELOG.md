@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Serialization of SentryScope #841
+
 ## 6.0.8
 
 - feat: Add storeEnvelope on SentryClient #836
