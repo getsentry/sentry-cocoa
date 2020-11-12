@@ -803,7 +803,8 @@ isValidIvarType(const char *const type)
     return false;
 }
 
-static bool containsValidExtData(class_rw_t *rw)
+static bool
+containsValidExtData(class_rw_t *rw)
 {
     uintptr_t ext_ptr = rw->ro_or_rw_ext;
     if (ext_ptr & 0x1UL) {
