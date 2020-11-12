@@ -17,6 +17,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
+#import "SentrySDK+Private.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
@@ -368,8 +369,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
-        && event.level == kSentryLevelFatal) {
-        self.options.onCrashedLastRun(event.eventId);
+        && !SentrySDK.crashedLastRunCalled && event.level == kSentryLevelFatal) {
+        SentrySDK.crashedLastRunCalled = YES;
+        self.options.onCrashedLastRun(event);
     }
 
     return event;

@@ -13,8 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             
-            options.onCrashedLastRun = { eventId in
-                self.displayUserFeedback(eventId: eventId)
+            options.onCrashedLastRun = { event in
+                self.displayUserFeedback(event: event)
             }
             
             options.debug = true
@@ -26,8 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    private func displayUserFeedback(eventId: SentryId) {
-        let userFeedback = UserFeedack(eventId: eventId)
+    private func displayUserFeedback(event: Event) {
+        let userFeedback = UserFeedback(eventId: event.eventId)
         userFeedback.comments = "It broke on iOS-Swift from onCrashedLastRun."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"

@@ -79,6 +79,14 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
+/**
+ * This gets called shortly after the initialization of the SDK when the last program execution
+ * terminated with a crash.
+ *
+ * @discussion When the SDK has to send multiple crash events, which can happen when the program
+ * terminates with a crash before the SDK can send the crash event, this callback is only executed
+ * for the first crash event. You can look into beforeSend if you prefer a callback for every event.
+ */
 @property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
 
 /**
