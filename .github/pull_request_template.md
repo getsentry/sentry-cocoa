@@ -17,6 +17,7 @@
 - [ ] I added tests to verify the changes
 - [ ] I updated the CHANGELOG
 - [ ] I updated the docs if needed
+- [ ] Review from the native team if needed
 - [ ] No breaking changes
 
 ## :crystal_ball: Next steps
