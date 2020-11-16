@@ -14,6 +14,7 @@
 #import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentryMechanism.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
@@ -368,16 +369,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event = self.options.beforeSend(event);
     }
 
-    // The callback is also called when SentrySDK.crashedLastRun is true and the
-    // SentryCrashReportSink didn't capture the crash event yet and the user manually captures an
-    // event with level fatal.
-    // We could also call this callback in SentryHub.captureCrashEvent, but then the event would
-    // miss detail from SentryClient.prepareEvent.
-    if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
-        && !SentrySDK.crashedLastRunCalled && event.level == kSentryLevelFatal) {
-        SentrySDK.crashedLastRunCalled = YES;
-        self.options.onCrashedLastRun(event);
-    }
+    [self callOnCrashedLastRun:event];
 
     return event;
 }
@@ -432,6 +424,33 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation id];
         event.user = user;
+    }
+}
+
+/**
+ * Calls onCrashedLastRun if the execution terminated with a crash.
+ */
+- (void)callOnCrashedLastRun:(SentryEvent *)event
+{
+    if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
+        && !SentrySDK.crashedLastRunCalled && nil != event.exceptions) {
+
+        NSPredicate *unhandledExpeptions = [NSPredicate predicateWithBlock:^BOOL(
+            id _Nullable object, NSDictionary<NSString *, id> *_Nullable bindings) {
+            SentryException *exception = object;
+            return nil != exception.mechanism && nil != exception.mechanism.handled
+                && ![exception.mechanism.handled boolValue];
+        }];
+
+        // We only want to filter the array if the above conditions are true to avoid unecessary work
+        BOOL eventContainsUnhandledExceptions =
+            [event.exceptions filteredArrayUsingPredicate:unhandledExpeptions].count > 0;
+
+        if (eventContainsUnhandledExceptions) {
+            // We only want to call the callback once. It can occur that multiple crash events are about to be sent.
+            SentrySDK.crashedLastRunCalled = YES;
+            self.options.onCrashedLastRun(event);
+        }
     }
 }
 
