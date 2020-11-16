@@ -442,12 +442,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 && ![exception.mechanism.handled boolValue];
         }];
 
-        // We only want to filter the array if the above conditions are true to avoid unecessary work
+        // We only want to filter the array if the above conditions are true to avoid unecessary
+        // work
         BOOL eventContainsUnhandledExceptions =
             [event.exceptions filteredArrayUsingPredicate:unhandledExpeptions].count > 0;
 
         if (eventContainsUnhandledExceptions) {
-            // We only want to call the callback once. It can occur that multiple crash events are about to be sent.
+            // We only want to call the callback once. It can occur that multiple crash events are
+            // about to be sent.
             SentrySDK.crashedLastRunCalled = YES;
             self.options.onCrashedLastRun(event);
         }
