@@ -71,7 +71,15 @@ SentryScope ()
     if (self = [super init]) {
         self.listeners = [NSMutableArray new];
         self.maxBreadcrumbs = maxBreadcrumbs;
-        [self clear];
+        self.breadcrumbArray = [NSMutableArray new];
+        self.userObject = nil;
+        self.tagDictionary = [NSMutableDictionary new];
+        self.extraDictionary = [NSMutableDictionary new];
+        self.contextDictionary = [NSMutableDictionary new];
+        self.distString = nil;
+        self.environmentString = nil;
+        self.levelEnum = kSentryLevelNone;
+        self.fingerprintArray = [NSMutableArray new];
     }
     return self;
 }
