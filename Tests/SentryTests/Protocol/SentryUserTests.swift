@@ -1,9 +1,17 @@
 import XCTest
 
 class SentryUserTests: XCTestCase {
-    
+
     func testSerializationWithAllProperties() {
-        let actual = TestData.user.serialize()
+        let user = TestData.user.copy() as! User
+        let actual = user.serialize()
+
+        // Changing the original doesn't modify the serialized
+        user.userId = ""
+        user.email = ""
+        user.username = ""
+        user.ipAddress = ""
+        user.data?.removeAll()
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)

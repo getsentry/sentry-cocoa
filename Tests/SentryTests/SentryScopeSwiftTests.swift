@@ -16,6 +16,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let tags = ["key": "value"]
         let extra = ["key": "value"]
         let level = SentryLevel.info
+        let ipAddress = "127.0.0.1"
         
         let maxBreadcrumbs = 5
 
@@ -25,7 +26,7 @@ class SentryScopeSwiftTests: XCTestCase {
             user = User(userId: "id")
             user.email = "user@sentry.io"
             user.username = "user123"
-            user.ipAddress = "127.0.0.1"
+            user.ipAddress = ipAddress
             user.data = ["some": ["data": "data", "date": date]]
             
             breadcrumb = Breadcrumb()
@@ -106,19 +107,33 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testSerialize() {
-        let actual = fixture.scope.serialize()
+        let scope = fixture.scope
+        let actual = scope.serialize()
+        
+        // Changing the original doesn't modify the serialized
+        scope.setTag(value: "another", key: "another")
+        scope.setExtra(value: "another", key: "another")
+        scope.setContext(value: ["": 1], key: "another")
+        scope.setUser(User())
+        scope.setDist("")
+        scope.setEnvironment("")
+        scope.setFingerprint([])
+        scope.setLevel(SentryLevel.debug)
+        scope.clearBreadcrumbs()
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
         XCTAssertEqual(fixture.context, actual["context"] as? [String: [String: String]])
         
         let actualUser = actual["user"] as? [String: Any]
-        XCTAssertEqual(fixture.user.ipAddress, actualUser?["ip_address"] as? String )
+        XCTAssertEqual(fixture.ipAddress, actualUser?["ip_address"] as? String)
         
         XCTAssertEqual("dist", actual["dist"] as? String)
         XCTAssertEqual(fixture.environment, actual["environment"] as? String)
         XCTAssertEqual(fixture.fingerprint, actual["fingerprint"] as? [String])
         XCTAssertEqual("info", actual["level"] as? String)
+        
+        XCTAssertNotNil(actual["breadcrumbs"])
     }
     
     func testApplyToEvent() {
