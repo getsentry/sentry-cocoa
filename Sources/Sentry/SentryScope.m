@@ -86,17 +86,8 @@ SentryScope ()
     if (self = [self init]) {
         self.extraDictionary = scope.extraDictionary.mutableCopy;
         self.tagDictionary = scope.tagDictionary.mutableCopy;
-        SentryUser *scopeUser = scope.userObject;
-        SentryUser *user = nil;
-        if (nil != scopeUser) {
-            user = [[SentryUser alloc] init];
-            user.userId = scopeUser.userId;
-            user.data = scopeUser.data.mutableCopy;
-            user.username = scopeUser.username;
-            user.email = scopeUser.email;
-        }
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
-        self.userObject = user;
+        self.userObject = scope.userObject.copy;
         self.contextDictionary = scope.contextDictionary.mutableCopy;
         self.breadcrumbArray = scope.breadcrumbArray.mutableCopy;
         self.distString = scope.distString;
