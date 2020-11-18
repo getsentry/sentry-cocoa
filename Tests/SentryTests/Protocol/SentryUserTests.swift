@@ -62,4 +62,18 @@ class SentryUserTests: XCTestCase {
         block(user)
         XCTAssertNotEqual(TestData.user, user)
     }
+    
+    func testCopyWithZone_CopiesDeepCopy() {
+        let user = TestData.user
+        let copiedUser = user.copy() as! User
+        
+        // Modifying the original does not change the copy
+        user.userId = ""
+        user.email = ""
+        user.username = ""
+        user.ipAddress = ""
+        user.data = [:]
+        
+        XCTAssertEqual(TestData.user, copiedUser)
+    }
 }
