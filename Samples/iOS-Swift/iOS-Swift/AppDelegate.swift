@@ -8,15 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         SentrySDK.start { options in
             options.dsn = "https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557"
-            
             options.beforeSend = { event in
                 return event
             }
-            
-            options.onCrashedLastRun = { event in
-                self.displayUserFeedback(event: event)
-            }
-            
             options.debug = true
             options.logLevel = SentryLogLevel.verbose
             options.attachStacktrace = true
@@ -24,14 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return true
-    }
-    
-    private func displayUserFeedback(event: Event) {
-        let userFeedback = UserFeedback(eventId: event.eventId)
-        userFeedback.comments = "It broke on iOS-Swift from onCrashedLastRun."
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        SentrySDK.capture(userFeedback: userFeedback)
     }
 
     // MARK: UISceneSession Lifecycle
