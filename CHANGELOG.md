@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add onCrashedLastRun #808
+
 ## 6.0.9
 
 - fix: Serialization of SentryScope #841
