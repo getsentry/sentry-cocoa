@@ -25,6 +25,8 @@ class SentryClientTest: XCTestCase {
         let user: User
         let fileManager: SentryFileManager
 
+        let crashAdapter = TestSentryCrashWrapper()
+        
         init() {
             session = SentrySession(releaseName: "release")
             session.incrementErrors()
@@ -48,7 +50,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
+                client = Client(options: options, andTransport: transport, andFileManager: fileManager, andCrashAdapter: crashAdapter)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -76,6 +78,16 @@ class SentryClientTest: XCTestCase {
                 return scope
             }
         }
+        
+        var eventWithCrash: Event {
+            let event = TestData.event
+            let exception = Exception(value: "value", type: "type")
+            let mechanism = Mechanism(type: "mechanism")
+            mechanism.handled = false
+            exception.mechanism = mechanism
+            event.exceptions = [exception]
+            return event
+        }
     }
 
     private let error = NSError(domain: "domain", code: -20, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
@@ -88,6 +100,11 @@ class SentryClientTest: XCTestCase {
         super.setUp()
         fixture = Fixture()
         fixture.fileManager.deleteAllEnvelopes()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        SentrySDK.crashedLastRunCalled = false
     }
     
     func testCaptureMessage() {
@@ -613,6 +630,44 @@ class SentryClientTest: XCTestCase {
     func testStoreEnvelope_StoresEnvelopeToDisk() {
         fixture.getSut().store(SentryEnvelope(event: Event()))
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
+    }
+    
+    func testOnCrashedLastRun_WithTwoCrashes_OnlyInvoceOnce() {
+        let event = fixture.eventWithCrash
+        
+        var onCrashedLastRunCalled = false
+        let client = fixture.getSut(configureOptions: { options in
+            options.onCrashedLastRun = { crashEvent in
+                onCrashedLastRunCalled = true
+                XCTAssertEqual(event.eventId, crashEvent.eventId)
+            }
+        })
+        fixture.crashAdapter.internalCrashedLastLaunch = true
+        
+        client.capture(event: event)
+        client.capture(event: fixture.eventWithCrash)
+        
+        XCTAssertTrue(onCrashedLastRunCalled)
+    }
+    
+    func testOnCrashedLastRun_WithHandledException() {
+        var onCrashedLastRunCalled = false
+        let client = fixture.getSut(configureOptions: { options in
+            options.onCrashedLastRun = { _ in
+                onCrashedLastRunCalled = true
+            }
+        })
+        fixture.crashAdapter.internalCrashedLastLaunch = true
+        
+        client.capture(event: TestData.event)
+        
+        XCTAssertFalse(onCrashedLastRunCalled)
+    }
+    
+    func testOnCrashedLastRun_WithOutCallback_DoesNothing() {
+        let client = fixture.getSut()
+        fixture.crashAdapter.internalCrashedLastLaunch = true
+        client.capture(event: fixture.eventWithCrash)
     }
     
     private func givenEventWithDebugMeta() -> Event {

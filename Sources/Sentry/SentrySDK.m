@@ -49,9 +49,9 @@ static BOOL crashedLastRunCalled;
     return crashedLastRunCalled;
 }
 
-+ (void)setCrashedLastRunCalled:(BOOL)called
++ (void)setCrashedLastRunCalled:(BOOL)value
 {
-    crashedLastRunCalled = called;
+    crashedLastRunCalled = value;
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

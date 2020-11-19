@@ -203,6 +203,28 @@
     XCTAssertNil(options.beforeBreadcrumb);
 }
 
+- (void)testOnCrashedLastRun
+{
+    __block BOOL onCrashedLastRunCalled = NO;
+    void (^callback)(SentryEvent *event) = ^(SentryEvent *event) {
+        onCrashedLastRunCalled = YES;
+        XCTAssertNotNil(event);
+    };
+    SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : callback }];
+
+    options.onCrashedLastRun([[SentryEvent alloc] init]);
+
+    XCTAssertEqual(callback, options.onCrashedLastRun);
+    XCTAssertTrue(onCrashedLastRunCalled);
+}
+
+- (void)testDefaultOnCrashedLastRun
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.onCrashedLastRun);
+}
+
 - (void)testIntegrations
 {
     NSArray<NSString *> *integrations = @[ @"integration1", @"integration2" ];

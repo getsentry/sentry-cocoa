@@ -1,5 +1,6 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryCrashAdapter.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryDebugMetaBuilder.h"
@@ -41,6 +42,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 
 @end
 
@@ -82,6 +84,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.transport = [SentryTransportFactory initTransport:self.options
                                              sentryFileManager:self.fileManager];
+
+        self.crashAdapter = [[SentryCrashAdapter alloc] init];
     }
     return self;
 }
@@ -90,11 +94,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (instancetype)initWithOptions:(SentryOptions *)options
                    andTransport:(id<SentryTransport>)transport
                  andFileManager:(SentryFileManager *)fileManager
+                andCrashAdapter:(SentryCrashAdapter *)crashAdapter
 {
     self = [self initWithOptions:options];
 
     self.transport = transport;
     self.fileManager = fileManager;
+    self.crashAdapter = crashAdapter;
 
     return self;
 }
@@ -432,7 +438,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
  */
 - (void)callOnCrashedLastRun:(SentryEvent *)event
 {
-    if (nil != self.options.onCrashedLastRun && SentrySDK.crashedLastRun
+    if (nil != self.options.onCrashedLastRun && self.crashAdapter.crashedLastLaunch
         && !SentrySDK.crashedLastRunCalled && nil != event.exceptions) {
 
         NSPredicate *unhandledExpeptions = [NSPredicate predicateWithBlock:^BOOL(

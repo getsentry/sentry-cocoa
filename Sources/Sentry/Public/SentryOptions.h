@@ -81,11 +81,12 @@ NS_SWIFT_NAME(Options)
 
 /**
  * This gets called shortly after the initialization of the SDK when the last program execution
- * terminated with a crash.
+ * terminated with a crash. It is not guaranteed that this is called on the main thread.
  *
- * @discussion When the SDK has to send multiple crash events, which can happen when the program
- * terminates with a crash before the SDK can send the crash event, this callback is only executed
- * for the first crash event. You can look into beforeSend if you prefer a callback for every event.
+ * @discussion This callback is only executed once during the entire run of the program to avoid
+ * multiple callbacks if there are multiple crash events to send. This can happen when the program
+ * terminates with a crash before the SDK can send the crash event. You can look into beforeSend if
+ * you prefer a callback for every event.
  */
 @property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
 
