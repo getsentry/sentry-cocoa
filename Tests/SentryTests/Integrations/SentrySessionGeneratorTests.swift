@@ -117,7 +117,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         sentryCrash = TestSentryCrashWrapper()
         let client = SentrySDK.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andSentryCrashWrapper: self.sentryCrash)
+        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
         SentrySDK.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
