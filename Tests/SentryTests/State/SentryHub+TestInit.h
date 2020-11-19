@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-         andSentryCrashWrapper:(SentryCrashAdapter *)sentryCrashWrapper;
+               andCrashAdapter:(SentryCrashAdapter *)crashAdapter;
 
 @end
 

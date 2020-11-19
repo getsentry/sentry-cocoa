@@ -13,7 +13,7 @@ SentryHub ()
 
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
-@property (nonatomic, strong) SentryCrashAdapter *sentryCrashWrapper;
+@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 
 @end
 
@@ -31,7 +31,7 @@ SentryHub ()
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        self.sentryCrashWrapper = [[SentryCrashAdapter alloc] init];
+        self.crashAdapter = [[SentryCrashAdapter alloc] init];
     }
     return self;
 }
@@ -39,10 +39,10 @@ SentryHub ()
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-         andSentryCrashWrapper:(SentryCrashAdapter *)sentryCrashWrapper
+               andCrashAdapter:(SentryCrashAdapter *)crashAdapter
 {
     self = [self initWithClient:client andScope:scope];
-    self.sentryCrashWrapper = sentryCrashWrapper;
+    self.crashAdapter = crashAdapter;
 
     return self;
 }
@@ -128,7 +128,7 @@ SentryHub ()
 
     // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
     // out more.
-    if (!self.sentryCrashWrapper.crashedLastLaunch) {
+    if (!self.crashAdapter.crashedLastLaunch) {
         if (nil == timestamp) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
