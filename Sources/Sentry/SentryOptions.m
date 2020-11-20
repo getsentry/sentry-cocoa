@@ -2,7 +2,9 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentrySDK.h"
+#import "SentrySdkInfo.h"
 
 @implementation SentryOptions
 
@@ -26,6 +28,8 @@
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
+        self.sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                andVersion:SentryMeta.versionString];
 
         // Set default release name
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
