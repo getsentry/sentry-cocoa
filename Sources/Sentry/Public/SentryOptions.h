@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn;
+@class SentryDsn, SentrySdkInfo;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -113,6 +113,11 @@ NS_SWIFT_NAME(Options)
  * This feature is disabled by default.
  */
 @property (nonatomic, assign) BOOL attachStacktrace;
+
+/**
+ * Describes the Sentry SDK and its configuration used to capture and transmit an event.
+ */
+@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;
 
 @end
 
