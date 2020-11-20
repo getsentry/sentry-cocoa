@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add SentrySdkInfo to SentryOptions #859
+
 ## 6.0.9
 
 - fix: Serialization of SentryScope #841
