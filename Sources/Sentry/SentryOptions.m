@@ -28,7 +28,7 @@
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                                 andVersion:SentryMeta.versionString];
 
         // Set default release name

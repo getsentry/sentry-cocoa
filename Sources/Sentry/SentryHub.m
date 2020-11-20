@@ -39,7 +39,7 @@ SentryHub ()
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-         andCrashAdapter:(SentryCrashAdapter *)crashAdapter
+               andCrashAdapter:(SentryCrashAdapter *)crashAdapter
 {
     self = [self initWithClient:client andScope:scope];
     self.crashAdapter = crashAdapter;
