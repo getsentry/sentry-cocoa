@@ -29,7 +29,7 @@
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                andVersion:SentryMeta.versionString];
+                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
