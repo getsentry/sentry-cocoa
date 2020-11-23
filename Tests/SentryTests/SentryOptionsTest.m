@@ -1,6 +1,7 @@
 #import "SentryOptions.h"
 #import "SentryError.h"
 #import "SentrySDK.h"
+#import "SentrySdkInfo.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 
@@ -367,6 +368,14 @@
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(YES, options.enabled);
+}
+
+- (void)testSdkInfo
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
