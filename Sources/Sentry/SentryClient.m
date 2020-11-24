@@ -434,7 +434,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 /**
- * Calls onCrashedLastRun if the execution terminated with a crash.
+ * Calls onCrashedLastRun if the last execution terminated with a crash.
  */
 - (void)callOnCrashedLastRun:(SentryEvent *)event
 {

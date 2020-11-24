@@ -632,7 +632,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
     
-    func testOnCrashedLastRun_WithTwoCrashes_OnlyInvoceOnce() {
+    func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeOnce() {
         let event = fixture.eventWithCrash
         
         var onCrashedLastRunCalled = false
@@ -664,7 +664,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertFalse(onCrashedLastRunCalled)
     }
     
-    func testOnCrashedLastRun_WithOutCallback_DoesNothing() {
+    func testOnCrashedLastRun_WithoutCallback_DoesNothing() {
         let client = fixture.getSut()
         fixture.crashAdapter.internalCrashedLastLaunch = true
         client.capture(event: fixture.eventWithCrash)
