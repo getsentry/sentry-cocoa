@@ -456,8 +456,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (eventContainsUnhandledExceptions) {
             // We only want to call the callback once. It can occur that multiple crash events are
             // about to be sent.
-            SentrySDK.crashedLastRunCalled = YES;
             self.options.onCrashedLastRun(event);
+            SentrySDK.crashedLastRunCalled = YES;
         }
     }
 }
