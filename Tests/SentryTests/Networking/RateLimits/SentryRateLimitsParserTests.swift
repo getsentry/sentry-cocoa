@@ -21,6 +21,21 @@ class SentryRateLimitsParserTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
     
+    /**
+     * Relay can add reason codes to the rate limit response, see https://github.com/getsentry/relay/pull/850
+     * This test makes sure we just ignore the reason code.
+     *
+     */
+    func testIgnoreReasonCode() {
+        let expected = [
+            SentryRateLimitCategory.transaction.asNSNumber: CurrentDate.date().addingTimeInterval(50)
+        ]
+        
+        let actual = sut.parse("50:transaction:key:reason")
+        
+        XCTAssertEqual(expected, actual)
+    }
+    
     func testOneQuotaTwoCategories() {
         let retryAfter = CurrentDate.date().addingTimeInterval(50)
         let expected = [
