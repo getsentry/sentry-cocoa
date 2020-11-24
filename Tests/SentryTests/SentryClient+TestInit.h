@@ -10,8 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    andTransport:(id<SentryTransport>)transport
-                 andFileManager:(SentryFileManager *)fileManager
-                andCrashAdapter:(SentryCrashAdapter *)crashAdapter;
+                 andFileManager:(SentryFileManager *)fileManager;
 
 @end
 
