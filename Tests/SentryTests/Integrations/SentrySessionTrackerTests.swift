@@ -448,7 +448,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertNoInitSessionSent() {
-        let eventWithSessions = fixture.client.captureEventWithSessionArguments.map({ triple in triple.second })
+        let eventWithSessions = fixture.client.captureCrashEventWithSessionArguments.map({ triple in triple.second })
         let errorWithSessions = fixture.client.captureErrorWithSessionArguments.map({ triple in triple.second })
         let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.map({ triple in triple.second })
         
@@ -462,7 +462,7 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertSessionsSent(count: Int) {
-        let eventWithSessions = fixture.client.captureEventWithSessionArguments.count
+        let eventWithSessions = fixture.client.captureCrashEventWithSessionArguments.count
         let errorWithSessions = fixture.client.captureErrorWithSessionArguments.count
         let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.count
         let sessions = fixture.client.sessions.count
@@ -496,7 +496,7 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.start()
         SentrySDK.captureCrash(Event())
         
-        if let session = fixture.client.captureEventWithSessionArguments.last?.second {
+        if let session = fixture.client.captureCrashEventWithSessionArguments.last?.second {
             assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
         } else {
             XCTFail("No session sent with event.")

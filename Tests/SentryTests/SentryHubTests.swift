@@ -365,7 +365,7 @@ class SentryHubTests: XCTestCase {
         
         // Make sure further crash events are sent
         sut.captureCrash(fixture.event)
-        assertEventSent()
+        assertCrashEventSent()
     }
     
     func testCaptureCrashEvent_CrashedSessionDoesNotExist() {
@@ -373,7 +373,7 @@ class SentryHubTests: XCTestCase {
         sut.captureCrash(fixture.event)
 
         assertNoCrashedSessionSent()
-        assertEventSent()
+        assertCrashEventSent()
     }
     
     /**
@@ -382,7 +382,7 @@ class SentryHubTests: XCTestCase {
     func testCatpureCrashEvent_CrashExistsButNoSessionExists() {
         sut.captureCrash(fixture.event)
         
-        assertEventSent()
+        assertCrashEventSent()
     }
     
     func testCaptureCrashEvent_WithoutExistingSessionAndAutoSessionTrackingEnabled() {
@@ -390,7 +390,7 @@ class SentryHubTests: XCTestCase {
         
         sut.captureCrash(fixture.event)
         
-        assertEventSent()
+        assertCrashEventSent()
     }
     
     func testCaptureCrashEvent_SessionExistsButAutoSessionTrackingDisabled() {
@@ -399,7 +399,7 @@ class SentryHubTests: XCTestCase {
     
         sut.captureCrash(fixture.event)
         
-        assertEventSent()
+        assertCrashEventSent()
     }
     
     func testCaptureCrashEvent_ClientIsNil() {
@@ -478,7 +478,7 @@ class SentryHubTests: XCTestCase {
     
     private func assertNoEventsSent() {
         XCTAssertEqual(0, fixture.client.captureEventArguments.count)
-        XCTAssertEqual(0, fixture.client.captureEventWithSessionArguments.count)
+        XCTAssertEqual(0, fixture.client.captureCrashEventWithSessionArguments.count)
     }
     
     private func assertEventSent() {
@@ -486,9 +486,15 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, arguments.count)
         XCTAssertEqual(fixture.event, arguments.first?.first)
     }
+    
+    private func assertCrashEventSent() {
+        let arguments = fixture.client.captureCrashEventArguments
+        XCTAssertEqual(1, arguments.count)
+        XCTAssertEqual(fixture.event, arguments.first?.first)
+    }
 
     private func assertEventSentWithSession() {
-        let arguments = fixture.client.captureEventWithSessionArguments
+        let arguments = fixture.client.captureCrashEventWithSessionArguments
         XCTAssertEqual(1, arguments.count)
 
         let argument = arguments.first

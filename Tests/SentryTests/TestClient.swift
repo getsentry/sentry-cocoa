@@ -71,9 +71,15 @@ class TestClient: Client {
         return SentryId()
     }
     
-    var captureEventWithSessionArguments: [Triple<Event, SentrySession, Scope>] = []
-    override func capture(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureEventWithSessionArguments.append(Triple(event, session, scope))
+    var captureCrashEventArguments: [Pair<Event, Scope>] = []
+    override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
+        captureCrashEventArguments.append(Pair(event, scope))
+        return SentryId()
+    }
+    
+    var captureCrashEventWithSessionArguments: [Triple<Event, SentrySession, Scope>] = []
+    override func captureCrash(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
+        captureCrashEventWithSessionArguments.append(Triple(event, session, scope))
         return SentryId()
     }
     

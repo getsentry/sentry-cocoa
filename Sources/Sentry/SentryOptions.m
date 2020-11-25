@@ -128,6 +128,10 @@
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
 
+    if (nil != options[@"onCrashedLastRun"]) {
+        self.onCrashedLastRun = options[@"onCrashedLastRun"];
+    }
+
     if (nil != options[@"integrations"]) {
         self.integrations = options[@"integrations"];
     }

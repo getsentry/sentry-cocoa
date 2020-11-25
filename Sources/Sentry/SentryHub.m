@@ -203,13 +203,13 @@ SentryHub ()
         // It can be that there is no session yet, because autoSessionTracking was just enabled and
         // there is a previous crash on disk. In this case we just send the crash event.
         if (nil != crashedSession) {
-            [client captureEvent:event withSession:crashedSession withScope:self.scope];
+            [client captureCrashEvent:event withSession:crashedSession withScope:self.scope];
             [fileManager deleteCrashedSession];
             return;
         }
     }
 
-    [self captureEvent:event withScope:self.scope];
+    [client captureCrashEvent:event withScope:self.scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
