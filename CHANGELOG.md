@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.10
+
 - feat: Add onCrashedLastRun #808
 - feat: Add SentrySdkInfo to SentryOptions #859
 
