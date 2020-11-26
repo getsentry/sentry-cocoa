@@ -13,9 +13,23 @@ class SentrySDKTests: XCTestCase {
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let userFeedback: UserFeedback
         
+        let scopeBlock: (Scope) -> Void = { scope in
+            scope.setTag(value: "tag", key: "tag")
+        }
+        
+        var scopeWithBlockApplied: Scope {
+            get {
+                let scope = self.scope
+                scopeBlock(scope)
+                return scope
+            }
+        }
+        
+        let message = "message"
+        
         init() {
             event = Event()
-            event.message = SentryMessage(formatted: "message")
+            event.message = SentryMessage(formatted: message)
             
             scope = Scope()
             scope.setTag(value: "value", key: "key")
@@ -170,6 +184,22 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: scope)
     }
     
+    func testCaptureEventWithScopeBlock_ScopePassedToHub() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
+    
+        assertEventCaptured(expectedScope: fixture.scopeWithBlockApplied)
+    }
+    
+    func testCaptureEventWithScopeBlock_CreatesNewScope() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
+    
+        assertHubScopeNotChanged()
+    }
+    
     func testCaptureError() {
         givenSdkWithHub()
         
@@ -185,6 +215,22 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(error: fixture.error, scope: scope)
         
         assertErrorCaptured(expectedScope: scope)
+    }
+    
+    func testCaptureErrorWithScopeBlock_ScopePassedToHub() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(error: fixture.error, block: fixture.scopeBlock)
+        
+        assertErrorCaptured(expectedScope: fixture.scopeWithBlockApplied)
+    }
+    
+    func testCaptureErrorWithScopeBlock_CreatesNewScope() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(error: fixture.error, block: fixture.scopeBlock)
+        
+        assertHubScopeNotChanged()
     }
     
     func testCaptureException() {
@@ -204,6 +250,38 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: scope)
     }
     
+    func testCaptureExceptionWithScopeBlock_ScopePassedToHub() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(exception: fixture.exception, block: fixture.scopeBlock)
+        
+        assertExceptionCaptured(expectedScope: fixture.scopeWithBlockApplied)
+    }
+    
+    func testCaptureExceptionWithScopeBlock_CreatesNewScope() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(exception: fixture.exception, block: fixture.scopeBlock)
+        
+        assertHubScopeNotChanged()
+    }
+    
+    func testCaptureMessageWithScopeBlock_ScopePassedToHub() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(message: fixture.message, block: fixture.scopeBlock)
+        
+        assertMessageCaptured(expectedScope: fixture.scopeWithBlockApplied)
+    }
+    
+    func testCaptureMessageWithScopeBlock_CreatesNewScope() {
+        givenSdkWithHub()
+        
+        SentrySDK.capture(message: fixture.message, block: fixture.scopeBlock)
+        
+        assertHubScopeNotChanged()
+    }
+    
     func testCaptureUserFeedback() {
         givenSdkWithHub()
         
@@ -217,6 +295,17 @@ class SentrySDKTests: XCTestCase {
             XCTAssertEqual(expected.email, actual.email)
             XCTAssertEqual(expected.comments, actual.comments)
         }
+    }
+    
+    func testSetUser_SetsUserToScopeOfHub() {
+        givenSdkWithHub()
+        
+        let user = TestData.user
+        SentrySDK.setUser(user)
+        
+        let actualScope = SentrySDK.currentHub().getScope()
+        let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
+        XCTAssertEqual(event?.user, user)
     }
     
     func testPerformanceOfConfigureScope() {
@@ -249,6 +338,30 @@ class SentrySDKTests: XCTestCase {
                 }
             }
         }
+    }
+    
+    func testInstallIntegrations() {
+        let options = Options()
+        options.dsn = "mine"
+        options.integrations = ["SentryTestIntegration", "SentryTestIntegration", "IDontExist"]
+        
+        SentrySDK.start(options: options)
+        
+        assertIntegrationsInstalled(integrations: ["SentryTestIntegration"])
+        let integration = SentrySDK.currentHub().installedIntegrations.firstObject
+        XCTAssertTrue(integration is SentryTestIntegration)
+        if let testIntegration = integration as? SentryTestIntegration {
+            XCTAssertEqual(options.dsn, testIntegration.options.dsn)
+            XCTAssertEqual(options.integrations, testIntegration.options.integrations)
+        }
+    }
+    
+    func testInstallIntegrations_NoIntegrations() {
+        SentrySDK.start { options in
+            options.integrations = []
+        }
+        
+        assertIntegrationsInstalled(integrations: [])
     }
     
     private func givenSdkWithHub() {
@@ -290,5 +403,19 @@ class SentrySDKTests: XCTestCase {
         let actualScope = client.captureExceptionWithScopeArguments.first?.second
         XCTAssertEqual(fixture.exception, actualException)
         XCTAssertEqual(expectedScope, actualScope)
+    }
+    
+    private func assertMessageCaptured(expectedScope: Scope) {
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureMessageWithScopeArguments.count)
+        let actualMessage = client.captureMessageWithScopeArguments.first?.first
+        let actualScope = client.captureMessageWithScopeArguments.first?.second
+        XCTAssertEqual(fixture.message, actualMessage)
+        XCTAssertEqual(expectedScope, actualScope)
+    }
+    
+    private func assertHubScopeNotChanged() {
+        let hubScope = SentrySDK.currentHub().getScope()
+        XCTAssertEqual(fixture.scope, hubScope)
     }
 }
