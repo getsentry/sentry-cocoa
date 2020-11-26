@@ -10,6 +10,8 @@ public class TestRequestManager: NSObject, RequestManager {
     public var requests: [URLRequest] = []
     
     private let queue = DispatchQueue(label: "TestRequestManager", qos: .background, attributes: [])
+    
+    private let semaphore = DispatchSemaphore(value: 1)
     private let group = DispatchGroup()
     
     public required init(session: URLSession) {
@@ -19,7 +21,9 @@ public class TestRequestManager: NSObject, RequestManager {
     var responseDelay = 0.0
     public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
         
+        semaphore.wait()
         requests.append(request)
+        semaphore.signal()
         
         let response = self.nextResponse()
         group.enter()
