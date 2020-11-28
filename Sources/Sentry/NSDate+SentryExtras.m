@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSDate *date = [[self.class getIso8601FormatterWithMillisecondPrecision] dateFromString:string];
     if (nil == date) {
+        // Parse date with low precision formatter for backward compatible
         return [[self.class getIso8601Formatter] dateFromString:string];
     } else {
         return date;
