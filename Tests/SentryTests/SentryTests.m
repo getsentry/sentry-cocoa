@@ -245,23 +245,22 @@
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     XCTAssertEqual(
         [[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
-        timeInterval
-    );
+        timeInterval);
 }
 
 - (void)testDateCategoryPrecision
 {
     NSDate *date1 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.1234];
-    XCTAssertEqualObjects(
-        [date1 sentry_toIso8601String],
-        @"2001-01-01T00:00:00.123Z"
-    );
+    XCTAssertEqualObjects([date1 sentry_toIso8601String], @"2001-01-01T00:00:00.123Z");
 
     NSDate *date2 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.9995];
-    XCTAssertEqualObjects(
-        [date2 sentry_toIso8601String],
-        @"2001-01-01T00:00:01.000Z"
-    );
+    XCTAssertEqualObjects([date2 sentry_toIso8601String], @"2001-01-01T00:00:01.000Z");
+}
+
+- (void)testDateCategoryCompactibility
+{
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2001-01-01T00:00:00Z"];
+    XCTAssertEqual([date timeIntervalSinceReferenceDate], 0.0);
 }
 
 - (void)testBreadcrumbTracker
