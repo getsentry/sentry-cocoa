@@ -259,8 +259,8 @@
 
 - (void)testDateCategoryCompactibility
 {
-    NSDate *date = [NSDate sentry_fromIso8601String:@"2001-01-01T00:00:00Z"];
-    XCTAssertEqual([date timeIntervalSinceReferenceDate], 0.0);
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-27T11:35:26Z"];
+    XCTAssertEqual([date timeIntervalSince1970], 1582803326.0);
 }
 
 - (void)testBreadcrumbTracker
