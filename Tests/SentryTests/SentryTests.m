@@ -241,11 +241,26 @@
 
 - (void)testDateCategory
 {
-    NSDate *date = [NSDate date];
+    NSTimeInterval timeInterval = 1605888590.123;
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     XCTAssertEqual(
-        (NSInteger)[
-            [NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
-        (NSInteger)[date timeIntervalSince1970]);
+        [[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
+        timeInterval);
+}
+
+- (void)testDateCategoryPrecision
+{
+    NSDate *date1 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.1234];
+    XCTAssertEqualObjects([date1 sentry_toIso8601String], @"2001-01-01T00:00:00.123Z");
+
+    NSDate *date2 = [NSDate dateWithTimeIntervalSinceReferenceDate:0.9995];
+    XCTAssertEqualObjects([date2 sentry_toIso8601String], @"2001-01-01T00:00:01.000Z");
+}
+
+- (void)testDateCategoryCompactibility
+{
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-27T11:35:26Z"];
+    XCTAssertEqual([date timeIntervalSince1970], 1582803326.0);
 }
 
 - (void)testBreadcrumbTracker
