@@ -7,7 +7,17 @@ public class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse : () -> HTTPURLResponse? = { return nil }
     public var isReady: Bool
-    public var requests: [URLRequest] = []
+    
+    private var _requests: [URLRequest] = []
+    public var requests: [URLRequest] {
+        get {
+            var result: [URLRequest] = []
+            semaphore.wait()
+            result.append(contentsOf: _requests)
+            semaphore.signal()
+            return result
+        }
+    }
     
     private let queue = DispatchQueue(label: "TestRequestManager", qos: .background, attributes: [])
     
@@ -22,7 +32,7 @@ public class TestRequestManager: NSObject, RequestManager {
     public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
         
         semaphore.wait()
-        requests.append(request)
+        _requests.append(request)
         semaphore.signal()
         
         let response = self.nextResponse()
