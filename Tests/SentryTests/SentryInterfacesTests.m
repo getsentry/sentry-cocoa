@@ -131,10 +131,10 @@
     event4.timestamp = date;
     event4.sdk = @{ @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString };
     event4.extra =
-        @{ @"key" : @ { @1 : @"1", @2 : [NSDate dateWithTimeIntervalSince1970:1582803326] } };
+        @{ @"key" : @ { @1 : @"1", @2 : [NSDate dateWithTimeIntervalSince1970:1582803326.1235] } };
     NSDictionary *serialized4 = @{
         @"event_id" : [event4.eventId sentryIdString],
-        @"extra" : @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26Z" } },
+        @"extra" : @ { @"key" : @ { @"1" : @"1", @"2" : @"2020-02-27T11:35:26.124Z" } },
         @"level" : @"info",
         @"platform" : @"cocoa",
         @"sdk" : @ { @"name" : @"sentry.cocoa", @"version" : SentryMeta.versionString },
@@ -214,10 +214,10 @@
                 @"2" : @2,
                 @"3" : @ { @"a" : @0 },
                 @"4" : @[
-                    @"1", @2, @{ @"a" : @0 }, @[ @"a" ], @"2020-02-27T11:35:26Z",
+                    @"1", @2, @{ @"a" : @0 }, @[ @"a" ], @"2020-02-27T11:35:26.000Z",
                     @"https://sentry.io"
                 ],
-                @"5" : @"2020-02-27T11:35:26Z",
+                @"5" : @"2020-02-27T11:35:26.000Z",
                 @"6" : @"https://sentry.io"
             }
         },
