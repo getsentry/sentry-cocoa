@@ -58,6 +58,7 @@
 #import "SentrySessionTracker.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySystemEventsBreadcrumbs.h"
+#import "SentryTestIntegration.h"
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
