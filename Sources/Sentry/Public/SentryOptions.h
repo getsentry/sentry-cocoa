@@ -121,7 +121,7 @@ NS_SWIFT_NAME(Options)
  * always attached to exceptions but when this is set stack traces are also sent with messages.
  * Stack traces are only attached for the current thread.
  *
- * This feature is disabled by default.
+ * This feature is enabled by default.
  */
 @property (nonatomic, assign) BOOL attachStacktrace;
 
