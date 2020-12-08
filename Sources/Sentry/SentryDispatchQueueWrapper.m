@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDispatchQueueWrapper ()
+@interface
+SentryDispatchQueueWrapper ()
 
 @property (nonatomic, strong) dispatch_queue_t queue;
 
