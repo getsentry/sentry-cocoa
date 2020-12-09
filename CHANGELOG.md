@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 6.0.11
+
+- perf: Drop global dispatch queue (#869)
 - fix: Increase precision of iso8601 date formatter #860
 
 ## 6.0.10
