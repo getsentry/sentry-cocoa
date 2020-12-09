@@ -27,6 +27,28 @@
 				</dict>
 			</dict>
 		</dict>
+		<key>SentrySDKTests</key>
+		<dict>
+			<key>testMemoryFootprintOfAddingBreadCrumbs()</key>
+			<dict>
+				<key>com.apple.dt.XCTMetric_Memory.physical</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>300</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+					<key>maxPercentRelativeStandardDeviation</key>
+					<real>200</real>
+				</dict>
+				<key>com.apple.dt.XCTMetric_Memory.physical-peak</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
+		</dict>
 	</dict>
 </dict>
 </plist>

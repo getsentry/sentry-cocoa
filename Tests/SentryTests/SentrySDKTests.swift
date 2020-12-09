@@ -364,6 +364,26 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
     
+    @available(tvOS 13.0, *)
+    @available(OSX 10.15, *)
+    @available(iOS 13.0, *)
+    func testMemoryFootprintOfAddingBreadcrumbs() {
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString
+            options.debug = true
+            options.logLevel = SentryLogLevel.verbose
+            options.attachStacktrace = true
+        }
+        
+        self.measure(metrics: [XCTMemoryMetric()]) {
+            for i in Array(0...1_000) {
+                let crumb = TestData.crumb
+                crumb.message = "\(i)"
+                SentrySDK.addBreadcrumb(crumb: crumb)
+            }
+        }
+    }
+    
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
     }
