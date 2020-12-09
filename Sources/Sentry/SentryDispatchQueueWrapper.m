@@ -23,7 +23,11 @@ SentryDispatchQueueWrapper ()
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block
 {
-    dispatch_async(self.queue, block);
+    dispatch_async(self.queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
 }
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
