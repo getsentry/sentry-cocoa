@@ -48,4 +48,26 @@ class SentrySessionTestsSwift: XCTestCase {
         session.user?.email = "someone_else@sentry.io"
         XCTAssertNotEqual(session, copiedSession)
     }
+    
+    func testInitWithJson_IfJsonMissesField_DefaultValuesAreUsed() {
+        let expected = SentrySession(releaseName: "release")
+        var serialized = expected.serialize()
+        serialized["sid"] = nil
+        serialized["started"] = nil
+        serialized["status"] = nil
+        serialized["seq"] = nil
+        serialized["errors"] = nil
+        serialized["did"] = nil
+        serialized["init"] = nil
+        serialized["attrs"] = nil
+
+        let session = SentrySession(jsonObject: serialized)
+        
+        XCTAssertNotEqual(expected.sessionId, session.sessionId)
+        XCTAssertEqual(expected.started, session.started)
+        XCTAssertEqual(expected.status, session.status)
+        XCTAssertEqual(expected.sequence, session.sequence)
+        XCTAssertEqual(expected.errors, session.errors)
+        XCTAssertNil(session.releaseName)
+    }
 }
