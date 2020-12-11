@@ -70,4 +70,27 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(expected.errors, session.errors)
         XCTAssertNil(session.releaseName)
     }
+    
+    func testInitWithJson_IfJsonContainsWrongFields_DefaultValuesAreUsed() {
+        let expected = SentrySession(releaseName: "release")
+        var serialized = expected.serialize()
+        serialized["sid"] = 20
+        serialized["started"] = 20
+        serialized["status"] = 20
+        serialized["seq"] = "nil"
+        serialized["errors"] = nil
+        serialized["did"] = nil
+        serialized["init"] = nil
+        serialized["attrs"] = nil
+
+        let session = SentrySession(jsonObject: serialized)
+        
+        XCTAssertNotEqual(expected.sessionId, session.sessionId)
+        XCTAssertEqual(expected.started, session.started)
+        XCTAssertEqual(expected.status, session.status)
+        XCTAssertEqual(expected.sequence, session.sequence)
+        XCTAssertEqual(expected.errors, session.errors)
+        XCTAssertNil(session.releaseName)
+    }
+
 }
