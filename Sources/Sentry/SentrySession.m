@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(self) {
         NSMutableDictionary *serializedData = @{
             @"sid" : _sessionId.UUIDString,
-            @"errors" : [NSNumber numberWithLong:_errors],
+            @"errors" : @(_errors),
             @"started" : [_started sentry_toIso8601String],
         }
                                                   .mutableCopy;
@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         // TODO: seq to be just unix time in mills?
-        [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
+        [serializedData setValue:@(_sequence) forKey:@"seq"];
 
         if (nil != _releaseName || nil != _environment) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];
