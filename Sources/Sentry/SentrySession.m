@@ -42,6 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
     // because this could cause crashes, for example, in serialize.
     // With this approach we avoid crashes and accept the tradeoff that some session data might not
     // be 100% accurate.
+    // Ideally we would return nil, if the passed JSON is not valid, which we can't do because it
+    // would be a breaking change.
     if (self = [self initDefault]) {
         id sid = [jsonObject valueForKey:@"sid"];
         if (nil != sid && [sid isKindOfClass:[NSString class]]) {
