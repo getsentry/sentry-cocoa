@@ -126,7 +126,7 @@ class SentryAttachmentTests: XCTestCase {
     }
     
     func testIsNotEqual() {
-        XCTAssertFalse(fixture.fileAttachment.isEqual(to: nil))
+        XCTAssertFalse(fixture.fileAttachment.isEqual(nil))
         XCTAssertNotEqual(Attachment(data: Data(), filename: ""), fixture.dataAttachment)
         XCTAssertNotEqual(Attachment(path: ""), fixture.fileAttachment)
         XCTAssertNotEqual(Attachment(data: fixture.data, filename: ""), fixture.dataAttachment)
