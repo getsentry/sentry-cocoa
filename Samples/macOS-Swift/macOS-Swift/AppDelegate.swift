@@ -15,10 +15,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         SentrySDK.configureScope { scope in
-            let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg")!
-            scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+            }
             
-            scope.add(Attachment(data: "hello".data(using: .utf8)!, filename: "log.txt"))
+            if let data = "hello".data(using: .utf8) {
+                scope.add(Attachment(data: data, filename: "log.txt"))
+            }
         }
     }
 
