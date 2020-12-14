@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         id status = [jsonObject valueForKey:@"status"];
-        if (nil != status && [status isKindOfClass:[NSString class]]) {
+        if ([status isKindOfClass:[NSString class]]) {
             if ([@"ok" isEqualToString:status]) {
                 _status = kSentrySessionStatusOk;
             } else if ([@"exited" isEqualToString:status]) {
@@ -70,45 +70,45 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         id seq = [jsonObject valueForKey:@"seq"];
-        if (nil != seq && [seq isKindOfClass:[NSNumber class]]) {
+        if ([seq isKindOfClass:[NSNumber class]]) {
             _sequence = [seq unsignedIntegerValue];
         }
 
         id errors = [jsonObject valueForKey:@"errors"];
-        if (nil != errors && [errors isKindOfClass:[NSNumber class]]) {
+        if ([errors isKindOfClass:[NSNumber class]]) {
             _errors = [errors unsignedIntegerValue];
         }
 
         id did = [jsonObject valueForKey:@"did"];
-        if (nil != did && [did isKindOfClass:[NSString class]]) {
+        if ([did isKindOfClass:[NSString class]]) {
             _distinctId = did;
         }
 
         id init = [jsonObject valueForKey:@"init"];
-        if (nil != init && [init isKindOfClass:[NSNumber class]]) {
+        if ([init isKindOfClass:[NSNumber class]]) {
             _init = init;
         }
 
         id attrs = [jsonObject valueForKey:@"attrs"];
         if (nil != attrs) {
             id releaseName = [attrs valueForKey:@"release"];
-            if (nil != releaseName && [releaseName isKindOfClass:[NSString class]]) {
+            if ([releaseName isKindOfClass:[NSString class]]) {
                 _releaseName = releaseName;
             }
 
             id environment = [attrs valueForKey:@"environment"];
-            if (nil != environment && [environment isKindOfClass:[NSString class]]) {
+            if ([environment isKindOfClass:[NSString class]]) {
                 _environment = environment;
             }
         }
 
         id timestamp = [jsonObject valueForKey:@"timestamp"];
-        if (nil != timestamp && [timestamp isKindOfClass:[NSString class]]) {
+        if ([timestamp isKindOfClass:[NSString class]]) {
             _timestamp = [NSDate sentry_fromIso8601String:timestamp];
         }
 
         id duration = [jsonObject valueForKey:@"duration"];
-        if (nil != duration && [duration isKindOfClass:[NSNumber class]]) {
+        if ([duration isKindOfClass:[NSNumber class]]) {
             _duration = duration;
         }
     }
