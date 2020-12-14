@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add basic support for attachments #875
+
 ## 6.0.11
 
 - perf: Drop global dispatch queue (#869)

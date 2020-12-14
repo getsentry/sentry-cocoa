@@ -20,6 +20,15 @@ ViewController ()
         SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
         user.email = @"tony@example.com";
         [scope setUser:user];
+
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
+        [scope addAttachment:[[SentryAttachment alloc] initPath:path
+                                                       filename:@"Tongariro.jpg"
+                                                    contentType:@"image/jpeg"]];
+
+        [scope addAttachment:[[SentryAttachment alloc]
+                                 initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
+                                     filename:@"log.txt"]];
     }];
     // Also works
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];

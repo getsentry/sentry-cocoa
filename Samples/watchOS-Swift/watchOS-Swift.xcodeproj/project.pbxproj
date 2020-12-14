@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B34280225876DFC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B34280125876DFC00056519 /* Tongariro.jpg */; };
 		7B82C48424C98A93002CA6D1 /* watchOS-Swift WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7B82C48A24C98A93002CA6D1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48824C98A93002CA6D1 /* Interface.storyboard */; };
 		7B82C48C24C98A95002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C48B24C98A95002CA6D1 /* Assets.xcassets */; };
@@ -76,6 +77,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7B34280125876DFC00056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 		7B82C47F24C98A93002CA6D1 /* watchOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C48324C98A93002CA6D1 /* watchOS-Swift WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchOS-Swift WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C48924C98A93002CA6D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 				7B82C49D24C98A95002CA6D1 /* NotificationController.swift */,
 				7B82C49F24C98A95002CA6D1 /* NotificationView.swift */,
 				7B82C4A124C98A96002CA6D1 /* Assets.xcassets */,
+				7B34280125876DFC00056519 /* Tongariro.jpg */,
 				7B82C4A624C98A96002CA6D1 /* Info.plist */,
 				7B82C4A724C98A96002CA6D1 /* PushNotificationPayload.apns */,
 				7B82C4A324C98A96002CA6D1 /* Preview Content */,
@@ -292,6 +295,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */,
+				7B34280225876DFC00056519 /* Tongariro.jpg in Resources */,
 				7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

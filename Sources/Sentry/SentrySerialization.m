@@ -66,6 +66,17 @@ NS_ASSUME_NONNULL_BEGIN
             if (nil != envelope.items[i].header.type) {
                 [serializedData setValue:envelope.items[i].header.type forKey:@"type"];
             }
+
+            NSString *filename = envelope.items[i].header.filename;
+            if (nil != filename) {
+                [serializedData setValue:filename forKey:@"filename"];
+            }
+
+            NSString *contentType = envelope.items[i].header.contentType;
+            if (nil != contentType) {
+                [serializedData setValue:contentType forKey:@"content_type"];
+            }
+
             [serializedData
                 setValue:[NSNumber numberWithUnsignedInteger:envelope.items[i].header.length]
                   forKey:@"length"];
@@ -187,8 +198,20 @@ NS_ASSUME_NONNULL_BEGIN
                           andLevel:kSentryLogLevelError];
                 break;
             }
-            SentryEnvelopeItemHeader *itemHeader =
-                [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
+
+            NSString *_Nullable filename = [headerDictionary valueForKey:@"filename"];
+            NSString *_Nullable contentType = [headerDictionary valueForKey:@"content_type"];
+
+            SentryEnvelopeItemHeader *itemHeader;
+            if (nil != filename && nil != contentType) {
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
+                                                                     length:bodyLength
+                                                                  filenname:filename
+                                                                contentType:contentType];
+            } else {
+                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
+            }
+
             NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
 #ifdef DEBUG
             if ([SentryEnvelopeItemTypeEvent isEqual:type] ||

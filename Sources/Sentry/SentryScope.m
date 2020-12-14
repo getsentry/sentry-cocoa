@@ -1,4 +1,5 @@
 #import "SentryScope.h"
+#import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
@@ -60,6 +61,8 @@ SentryScope ()
 
 @property (atomic) NSInteger maxBreadcrumbs;
 
+@property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
+
 @end
 
 @implementation SentryScope
@@ -94,6 +97,7 @@ SentryScope ()
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
         self.fingerprintArray = scope.fingerprintArray.mutableCopy;
+        self.attachmentArray = scope.attachmentArray.mutableCopy;
     }
     return self;
 }
@@ -125,6 +129,7 @@ SentryScope ()
         self.environmentString = nil;
         self.levelEnum = kSentryLevelNone;
         self.fingerprintArray = [NSMutableArray new];
+        self.attachmentArray = [NSMutableArray new];
     }
     [self notifyListeners];
 }
@@ -242,6 +247,18 @@ SentryScope ()
 {
     self.levelEnum = level;
     [self notifyListeners];
+}
+
+- (void)addAttachment:(SentryAttachment *)attachment
+{
+    @synchronized(self) {
+        [self.attachmentArray addObject:attachment];
+    }
+}
+
+- (NSArray<SentryAttachment *> *)attachments
+{
+    return self.attachmentArray.copy;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -412,6 +429,9 @@ SentryScope ()
         return NO;
     if (self.maxBreadcrumbs != scope.maxBreadcrumbs)
         return NO;
+    if (self.attachmentArray != scope.attachmentArray
+        && ![self.attachmentArray isEqualToArray:scope.attachmentArray])
+        return NO;
     return YES;
 }
 
@@ -427,6 +447,7 @@ SentryScope ()
     hash = hash * 23 + [self.fingerprintArray hash];
     hash = hash * 23 + (NSUInteger)self.levelEnum;
     hash = hash * 23 + self.maxBreadcrumbs;
+    hash = hash * 23 + [self.attachmentArray hash];
     return hash;
 }
 

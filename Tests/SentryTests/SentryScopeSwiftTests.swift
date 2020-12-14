@@ -49,6 +49,8 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setLevel(level)
             scope.add(breadcrumb)
             
+            scope.add(TestData.fileAttachment)
+            
             event = Event()
             event.message = SentryMessage(formatted: "message")
         }
@@ -96,6 +98,7 @@ class SentryScopeSwiftTests: XCTestCase {
         testIsNotEqual { scope in scope.add(Breadcrumb()) }
         testIsNotEqual { scope in scope.clear() }
         testIsNotEqual { scope in scope.setLevel(SentryLevel.error) }
+        testIsNotEqual { scope in scope.add(TestData.fileAttachment) }
 
         XCTAssertNotEqual(Scope(maxBreadcrumbs: fixture.maxBreadcrumbs), Scope(maxBreadcrumbs: 4))
     }
@@ -120,6 +123,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setFingerprint([])
         scope.setLevel(SentryLevel.debug)
         scope.clearBreadcrumbs()
+        scope.add(TestData.fileAttachment)
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
@@ -244,5 +248,15 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let expected = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
         XCTAssertEqual(expected, scope)
+        XCTAssertEqual(0, scope.attachments.count)
+    }
+    
+    func testAttachmentsIsACopy() {
+        let scope = fixture.scope
+        
+        let attachments = scope.attachments
+        scope.add(TestData.fileAttachment)
+        
+        XCTAssertEqual(1, attachments.count)
     }
 }

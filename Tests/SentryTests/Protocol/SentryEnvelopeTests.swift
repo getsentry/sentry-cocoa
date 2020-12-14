@@ -5,6 +5,8 @@ class SentryEnvelopeTests: XCTestCase {
     private class Fixture {
         let sdkVersion = "sdkVersion"
         let userFeedback: UserFeedback
+        let path = "test.log"
+        let data = "hello".data(using: .utf8)
         
         init() {
             userFeedback = UserFeedback(eventId: SentryId())
@@ -64,6 +66,17 @@ class SentryEnvelopeTests: XCTestCase {
 
     override func setUp() {
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+    }
+    
+    override func tearDown() {
+        do {
+            let fileManager = FileManager.default
+            if fileManager.fileExists(atPath: fixture.path) {
+                try fileManager.removeItem(atPath: fixture.path)
+            }
+        } catch {
+            XCTFail("Couldn't delete files.")
+        }
     }
 
     private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
@@ -243,6 +256,42 @@ class SentryEnvelopeTests: XCTestCase {
         let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
         let expected = String(data: expectedData, encoding: .utf8)?.sorted()
         XCTAssertEqual(expected, actual)
+    }
+    
+    func testInitWithDataAttachment() {
+        let attachment = TestData.dataAttachment
+        
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment)!
+        
+        XCTAssertEqual("attachment", envelopeItem.header.type)
+        XCTAssertEqual(UInt(attachment.data?.count ?? 0), envelopeItem.header.length)
+        XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
+        XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
+    }
+    
+    func testInitWithFileAttachment() {
+        do {
+            try fixture.data?.write(to: URL(fileURLWithPath: fixture.path))
+        } catch {
+            XCTFail("Failed to store attachment.")
+        }
+        
+        let attachment = Attachment(path: fixture.path)
+        
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment)!
+        
+        XCTAssertEqual("attachment", envelopeItem.header.type)
+        XCTAssertEqual(UInt(fixture.data?.count ?? 0), envelopeItem.header.length)
+        XCTAssertEqual(attachment.filename, envelopeItem.header.filename)
+        XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
+    }
+    
+    func testInitWithNonExistentFileAttachment() {
+        let attachment = Attachment(path: fixture.path)
+        
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment)
+        
+        XCTAssertNil(envelopeItem)
     }
 
     private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
