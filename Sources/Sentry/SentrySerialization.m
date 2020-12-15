@@ -259,6 +259,14 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
     SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
+
+    if (nil == session.releaseName || [session.releaseName isEqualToString:@""]) {
+        [SentryLog
+            logWithMessage:@"Deserialized session doesn't contain a release name. Dropping it."
+                  andLevel:kSentryLogLevelError];
+        return nil;
+    }
+
     return session;
 }
 

@@ -145,6 +145,25 @@ class SentrySerializationTests: XCTestCase {
         let itemData = "{}".data(using: .utf8)!
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
+    
+    func testSerializeSessionWithNoReleaseName() throws {
+        var dict = SentrySession(releaseName: "1.0.0").serialize()
+        dict["attrs"] = nil // Remove release name
+        let session = SentrySession(jsonObject: dict)
+        
+        let data = try SentrySerialization.data(with: session)
+        
+        XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeSessionWithEmptyReleaseName() throws {
+        let dict = SentrySession(releaseName: "").serialize()
+        let session = SentrySession(jsonObject: dict)
+        
+        let data = try SentrySerialization.data(with: session)
+        
+        XCTAssertNil(SentrySerialization.session(with: data))
+    }
 
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
