@@ -251,14 +251,16 @@ SentryScope ()
 
 - (void)addAttachment:(SentryAttachment *)attachment
 {
-    @synchronized(self) {
+    @synchronized(self.attachmentArray) {
         [self.attachmentArray addObject:attachment];
     }
 }
 
 - (NSArray<SentryAttachment *> *)attachments
 {
-    return self.attachmentArray.copy;
+    @synchronized(self.attachmentArray) {
+        return self.attachmentArray.copy;
+    }
 }
 
 - (NSDictionary<NSString *, id> *)serialize
