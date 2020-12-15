@@ -10,6 +10,7 @@ class SentryHttpTransportTests: XCTestCase {
     private class Fixture {
         let event: Event
         let eventRequest: SentryNSURLRequest
+        let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
         let session: SentrySession
@@ -32,12 +33,15 @@ class SentryHttpTransportTests: XCTestCase {
             event.message = SentryMessage(formatted: "Some message")
             
             eventRequest = buildRequest(SentryEnvelope(event: event))
+            
+            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(attachment: TestData.dataAttachment)!])
+            eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
             sessionRequest = buildRequest(sessionEnvelope)
 
-            let items = [SentryEnvelopeItem(session: session), SentryEnvelopeItem(event: event)]
+            let items = [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)]
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
@@ -123,7 +127,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithSession_SentInOneEnvelope() {
-        sut.send(fixture.event, with: fixture.session)
+        sut.send(fixture.event, with: fixture.session, attachments: [])
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
@@ -136,7 +140,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
-        sut.send(fixture.event, with: fixture.session)
+        sut.send(fixture.event, with: fixture.session, attachments: [])
 
         waitForAllRequests()
 
@@ -195,7 +199,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
-        XCTAssertEqual(2, fixture.requestManager.requests.count)
+        XCTAssertEqual(3, fixture.requestManager.requests.count)
         assertEnvelopesStored(envelopeCount: 0)
     }
     
@@ -205,7 +209,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         sendEvent()
         
-        // 3 envelopes are saved in the FileManager
+        // 7 envelopes are saved in the FileManager
         // The next envelope is stored as well and now all 4 should be sent.
         // The first stored envelope from the FileManager is sent normally and for the
         // second envelope the response contains a rate limit.
@@ -214,7 +218,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenFirstRateLimitGetsActiveWithSecondResponse()
         sendEvent()
         
-        XCTAssertEqual(5, fixture.requestManager.requests.count)
+        XCTAssertEqual(7, fixture.requestManager.requests.count)
         assertEnvelopesStored(envelopeCount: 0)
     }
     
@@ -273,17 +277,17 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.currentDateProvider.setDate(date: date.addingTimeInterval(0.999))
         sendEvent()
         
-        assertRequestsSent(requestCount: 1)
+        assertRequestsSent(requestCount: 2)
         
         // Retry-After expired
         fixture.currentDateProvider.setDate(date: date.addingTimeInterval(1))
         sendEvent()
         
-        assertRequestsSent(requestCount: 2)
+        assertRequestsSent(requestCount: 3)
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
-        sut.send(event: TestConstants.eventWithSerializationError)
+        sut.send(event: TestConstants.eventWithSerializationError, attachments: [])
         
         assertRequestsSent(requestCount: 1)
     }
@@ -321,7 +325,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
-        assertRequestsSent(requestCount: 2)
+        assertRequestsSent(requestCount: 3)
         assertEnvelopesStored(envelopeCount: 0)
     }
     
@@ -334,7 +338,7 @@ class SentryHttpTransportTests: XCTestCase {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
-        assertRequestsSent(requestCount: 4)
+        assertRequestsSent(requestCount: 5)
         assertEnvelopesStored(envelopeCount: 0)
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
@@ -365,7 +369,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
-        XCTAssertEqual(fixture.eventRequest.httpBody, fixture.requestManager.requests[1].httpBody, "Cached envelope was not sent first.")
+        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests[1].httpBody, "Cached envelope was not sent first.")
 
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests[2].httpBody, "Cached envelope was not sent first.")
     }
@@ -416,6 +420,18 @@ class SentryHttpTransportTests: XCTestCase {
         let actualRequest = fixture.requestManager.requests.last
         XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
     }
+    
+    func testSendFaultyAttachment() {
+        let faultyAttachment = Attachment(path: "")
+        sut.send(event: fixture.event, attachments: [faultyAttachment])
+        waitForAllRequests()
+        
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+        
+        // The attachment gets dropped
+        let actualRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.eventRequest.httpBody, actualRequest?.httpBody, "Request for faulty attachment is faulty.")
+    }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
@@ -459,7 +475,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private func sendEventAsync() {
-        sut.send(event: fixture.event)
+        sut.send(event: fixture.event, attachments: [TestData.dataAttachment])
     }
 
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
@@ -483,7 +499,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     private func assertEventIsSentAsEnvelope() {
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
+        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
     }
     
     private func assertEventAndSesionAreSentInOneEnvelope() {

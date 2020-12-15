@@ -13,6 +13,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             options.attachStacktrace = true
             options.sessionTrackingIntervalMillis = 5_000
         }
+        
+        SentrySDK.configureScope { scope in
+            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+            }
+            
+            if let data = "hello".data(using: .utf8) {
+                scope.add(Attachment(data: data, filename: "log.txt"))
+            }
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

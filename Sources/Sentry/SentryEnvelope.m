@@ -1,4 +1,5 @@
 #import "SentryEnvelope.h"
+#import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
@@ -43,6 +44,18 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _type = type;
         _length = length;
+    }
+    return self;
+}
+
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                   filenname:(NSString *)filename
+                 contentType:(NSString *)contentType
+{
+    if (self = [self initWithType:type length:length]) {
+        _filename = filename;
+        _contentType = contentType;
     }
     return self;
 }
@@ -147,6 +160,29 @@ NS_ASSUME_NONNULL_BEGIN
                                     initWithType:SentryEnvelopeItemTypeUserFeedback
                                           length:json.length]
                            data:json];
+}
+
+- (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
+{
+    NSData *data = nil;
+    if (nil != attachment.data) {
+        data = attachment.data;
+    } else if (nil != attachment.path) {
+        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+    }
+
+    if (nil == data) {
+        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLogLevelError];
+        return nil;
+    }
+
+    SentryEnvelopeItemHeader *itemHeader =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
+                                                length:data.length
+                                             filenname:attachment.filename
+                                           contentType:attachment.contentType];
+
+    return [self initWithHeader:itemHeader data:data];
 }
 
 @end

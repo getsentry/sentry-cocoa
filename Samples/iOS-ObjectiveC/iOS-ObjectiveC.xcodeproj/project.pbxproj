@@ -16,6 +16,7 @@
 		637AFDD6243B036D0034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD5243B036D0034958B /* Assets.xcassets */; };
 		637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD7243B036D0034958B /* LaunchScreen.storyboard */; };
 		637AFDDC243B036D0034958B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDDB243B036D0034958B /* main.m */; };
+		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		637AFDD8243B036D0034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		637AFDDA243B036D0034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		637AFDDB243B036D0034958B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		7B3427F925876DDB00056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 				637AFDD0243B036B0034958B /* ViewController.m */,
 				637AFDD2243B036B0034958B /* Main.storyboard */,
 				637AFDD5243B036D0034958B /* Assets.xcassets */,
+				7B3427F925876DDB00056519 /* Tongariro.jpg */,
 				637AFDD7243B036D0034958B /* LaunchScreen.storyboard */,
 				637AFDDA243B036D0034958B /* Info.plist */,
 				637AFDDB243B036D0034958B /* main.m */,
@@ -221,6 +224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */,
+				7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */,
 				637AFDD6243B036D0034958B /* Assets.xcassets in Resources */,
 				637AFDD4243B036B0034958B /* Main.storyboard in Resources */,
 			);

@@ -124,4 +124,12 @@ class TestData {
         
         return frame
     }
+    
+    static var fileAttachment: Attachment {
+        return Attachment(path: "path/to/file.txt", filename: "file.txt")
+    }
+    
+    static var dataAttachment: Attachment {
+        return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
+    }
 }
