@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.0.12
+
 - fix: Crash in SentrySession.serialize #870
 
 ## 6.0.11
