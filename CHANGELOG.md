@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Crash in SentrySession.serialize #870
+
 ## 6.0.11
 
 - perf: Drop global dispatch queue (#869)
