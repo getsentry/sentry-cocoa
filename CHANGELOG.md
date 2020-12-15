@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.0-alpha.0
+
 - feat: Add basic support for attachments #875
 
 ## 6.0.12
