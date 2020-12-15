@@ -19,7 +19,7 @@ SDKROOT__CARTHAGE_ = iphoneos
 // ⋯ quite early in the process, queried values not compiled into Carthage will cause hard errors.
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4
-SKIP_INSTALL = YES
+SKIP_INSTALL = NO
 
 DEFINES_MODULE = YES
 DYLIB_COMPATIBILITY_VERSION = 1
