@@ -38,7 +38,7 @@ SENTRY_NO_INIT
  *
  * @param path The path of the file whose contents you want to upload to Sentry.
  */
-- (instancetype)initPath:(NSString *)path;
+- (instancetype)initWithPath:(NSString *)path;
 
 /**
  * Initializes an attachment with a path. Sets the content type to "application/octet-stream".
@@ -49,7 +49,7 @@ SENTRY_NO_INIT
  * @param path The path of the file whose contents you want to upload to Sentry.
  * @param filename The name of the attachment to display in Sentry.
  */
-- (instancetype)initPath:(NSString *)path filename:(NSString *)filename;
+- (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename;
 
 /**
  * Initializes an attachment with a path.
@@ -61,9 +61,9 @@ SENTRY_NO_INIT
  * @param filename The name of the attachment to display in Sentry.
  * @param contentType The content type of the attachment. Default is "application/octet-stream".
  */
-- (instancetype)initPath:(NSString *)path
-                filename:(NSString *)filename
-             contentType:(NSString *)contentType;
+- (instancetype)initWithPath:(NSString *)path
+                    filename:(NSString *)filename
+                 contentType:(NSString *)contentType;
 
 /**
  * The data of the attachment.
