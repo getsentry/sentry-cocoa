@@ -5,6 +5,7 @@
 
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryAttachment.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient+Private.h"
@@ -52,6 +53,7 @@
 #import "SentryRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"

@@ -73,6 +73,7 @@ class SentryClientTest: XCTestCase {
                 let scope = Scope()
                 scope.setEnvironment(environment)
                 scope.setTag(value: "value", key: "key")
+                scope.add(TestData.dataAttachment)
                 return scope
             }
         }
@@ -162,7 +163,7 @@ class SentryClientTest: XCTestCase {
         
         fixture.getSut().capture(event: event, scope: fixture.scope)
         
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             assertValidDebugMeta(actual: actual.debugMeta)
             assertValidThreads(actual: actual.threads)
         }
@@ -241,7 +242,7 @@ class SentryClientTest: XCTestCase {
         }).capture(error: error, scope: fixture.scope)
         
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             assertValidErrorEvent(actual)
         }
     }
@@ -265,7 +266,7 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual(url.absoluteString, actual.context!["user info"]!["url"] as? String)
         }
     }
@@ -322,7 +323,7 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         
-        assertLastSentEvent { event in
+        assertLastSentEventWithAttachment { event in
             XCTAssertEqual(fixture.event.eventId, event.eventId)
             XCTAssertEqual(fixture.event.message, event.message)
             XCTAssertEqual("value", event.tags?["key"] ?? "")
@@ -336,7 +337,7 @@ class SentryClientTest: XCTestCase {
         
         fixture.getSut().captureCrash(event, with: fixture.scope)
         
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertNil(actual.threads)
             XCTAssertNil(actual.debugMeta)
         }
@@ -348,7 +349,7 @@ class SentryClientTest: XCTestCase {
         let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
@@ -359,26 +360,27 @@ class SentryClientTest: XCTestCase {
         }).capture(exception: exception, scope: fixture.scope)
         
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             assertValidExceptionEvent(actual)
         }
     }
     
     func testCaptureExceptionWithSession() {
-        let eventId = fixture.getSut().capture(exception, with: fixture.session, with: Scope())
+        let eventId = fixture.getSut().capture(exception, with: fixture.session, with: fixture.scope)
         
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
             assertValidExceptionEvent(eventWithSessionArguments.first)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
+            XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.third)
         }
     }
     
     func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).capture(exception, with: fixture.session, with: Scope())
+        }).capture(exception, with: fixture.session, with: fixture.scope)
         
         eventId.assertIsEmpty()
         assertLastSentEnvelopeIsASession()
@@ -390,7 +392,7 @@ class SentryClientTest: XCTestCase {
         let eventId = fixture.getSut().capture(exception: exception, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
@@ -399,7 +401,7 @@ class SentryClientTest: XCTestCase {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual(fixture.environment, actual.environment)
         }
     }
@@ -510,7 +512,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureCrash(Event(), with: fixture.session, with: Scope())
+        }).captureCrash(Event(), with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -520,7 +522,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).capture(self.exception, with: fixture.session, with: Scope())
+        }).capture(self.exception, with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -530,7 +532,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureError(self.error, with: fixture.session, with: Scope())
+        }).captureError(self.error, with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -591,14 +593,14 @@ class SentryClientTest: XCTestCase {
         let optionsEnvironment = "environment"
         let event = Event()
         event.environment = "event"
-        let scope = Scope()
+        let scope = fixture.scope
         scope.setEnvironment("scope")
         let eventId = fixture.getSut(configureOptions: { options in
             options.environment = optionsEnvironment
         }).capture(event: event, scope: scope)
 
         eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual("event", actual.environment)
         }
     }
@@ -638,11 +640,11 @@ class SentryClientTest: XCTestCase {
     }
     
     func testInstallationIdNotSetWhenUserIsSetWithoutId() {
-        let scope = Scope()
+        let scope = fixture.scope
         scope.setUser(fixture.user)
         fixture.getSut().capture(message: "any message", scope: scope)
         
-        assertLastSentEvent { actual in
+        assertLastSentEventWithAttachment { actual in
             XCTAssertEqual(fixture.user.userId, actual.user?.userId)
             XCTAssertEqual(fixture.user.email, actual.user?.email)
         }
@@ -725,7 +727,7 @@ class SentryClientTest: XCTestCase {
     
     private func assertEventNotSent(eventId: SentryId?) {
         let eventWasSent = fixture.transport.sentEvents.contains { event in
-            event.eventId == eventId
+            event.first.eventId == eventId
         }
         XCTAssertFalse(eventWasSent)
     }
@@ -733,7 +735,19 @@ class SentryClientTest: XCTestCase {
     private func assertLastSentEvent(assert: (Event) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEvents.last)
         if let lastSentEvent = fixture.transport.sentEvents.last {
-            assert(lastSentEvent)
+            let event = lastSentEvent.first
+            assert(event)
+        }
+    }
+    
+    private func assertLastSentEventWithAttachment(assert: (Event) -> Void) {
+        XCTAssertNotNil(fixture.transport.sentEvents.last)
+        if let lastSentEvent = fixture.transport.sentEvents.last {
+            let event = lastSentEvent.first
+            assert(event)
+            
+            let attachments = lastSentEvent.second
+            XCTAssertEqual([TestData.dataAttachment], attachments)
         }
     }
     

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
     // would be a breaking change.
     if (self = [self initDefault]) {
         id sid = [jsonObject valueForKey:@"sid"];
-        if (nil != sid && [sid isKindOfClass:[NSString class]]) {
+        if ([sid isKindOfClass:[NSString class]]) {
             NSUUID *sessionId = [[NSUUID UUID] initWithUUIDString:sid];
             if (nil != sessionId) {
                 _sessionId = sessionId;
