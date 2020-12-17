@@ -25,19 +25,19 @@ NSString *const DefaultContentType = @"application/octet-stream";
     return self;
 }
 
-- (instancetype)initPath:(NSString *)path
+- (instancetype)initWithPath:(NSString *)path
 {
-    return [self initPath:path filename:[path lastPathComponent]];
+    return [self initWithPath:path filename:[path lastPathComponent]];
 }
 
-- (instancetype)initPath:(NSString *)path filename:(NSString *)filename
+- (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename
 {
-    return [self initPath:path filename:filename contentType:DefaultContentType];
+    return [self initWithPath:path filename:filename contentType:DefaultContentType];
 }
 
-- (instancetype)initPath:(NSString *)path
-                filename:(NSString *)filename
-             contentType:(NSString *)contentType
+- (instancetype)initWithPath:(NSString *)path
+                    filename:(NSString *)filename
+                 contentType:(NSString *)contentType
 {
     if (self = [super init]) {
         _path = path;

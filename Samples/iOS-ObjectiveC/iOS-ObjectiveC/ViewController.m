@@ -22,9 +22,9 @@ ViewController ()
         [scope setUser:user];
 
         NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
-        [scope addAttachment:[[SentryAttachment alloc] initPath:path
-                                                       filename:@"Tongariro.jpg"
-                                                    contentType:@"image/jpeg"]];
+        [scope addAttachment:[[SentryAttachment alloc] initWithPath:path
+                                                           filename:@"Tongariro.jpg"
+                                                        contentType:@"image/jpeg"]];
 
         [scope addAttachment:[[SentryAttachment alloc]
                                  initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
