@@ -118,31 +118,6 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)clear;
 
-/**
- * Returns a Boolean value that indicates whether the receiver and a given object are equal.
- *
- * The scope class is mutable. Consider using initWithScope to create a new instance that won't be
- * modified.
- */
-- (BOOL)isEqual:(id _Nullable)other;
-
-/**
- * Returns a Boolean value that indicates whether the contents of the receiving scope are equal to
- * the contents of another given scope.
- *
- * The scope class is mutable. Consider using initWithScope to create a new instance that won't be
- * modified.
- */
-- (BOOL)isEqualToScope:(SentryScope *)scope;
-
-/**
- * Returns an integer that can be used as a table address in a hash table structure.
- *
- * Before putting the scope into a hash table consider using initWithScope to create a new instance
- * that won't be modified after you added it to the hash table.
- */
-- (NSUInteger)hash;
-
 @end
 
 NS_ASSUME_NONNULL_END
