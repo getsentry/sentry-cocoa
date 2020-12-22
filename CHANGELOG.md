@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- ref: Remove SentryScope.isEqual and hash #883
+- ref: Remove SentryScope.isEqual and hash #884
 
 ## 6.1.0-alpha.0
 
