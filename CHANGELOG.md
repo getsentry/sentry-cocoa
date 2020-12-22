@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- ref: Remove SentryScope.isEqual and hash #883
+
 ## 6.1.0-alpha.0
 
 - feat: Add basic support for attachments #875

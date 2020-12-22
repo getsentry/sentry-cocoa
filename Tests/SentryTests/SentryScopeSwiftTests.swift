@@ -63,51 +63,6 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     private let fixture = Fixture()
-
-    func testHash() {
-        let fixture2 = Fixture()
-        XCTAssertEqual(fixture.scope.hash(), fixture2.scope.hash())
-        
-        let scope2 = fixture2.scope
-        scope2.setEnvironment("other environment")
-        XCTAssertNotEqual(fixture.scope.hash(), scope2.hash())
-    }
-    
-    func testIsEqualToSelf() {
-        XCTAssertEqual(fixture.scope, fixture.scope)
-        XCTAssertTrue(fixture.scope.isEqual(to: fixture.scope))
-    }
-    
-    func testIsNotEqualToOtherClass() {
-        XCTAssertFalse(fixture.scope.isEqual(1))
-    }
-
-    func testIsEqualToOtherInstanceWithSameValues() {
-        let fixture2 = Fixture()
-        XCTAssertEqual(fixture.scope, fixture2.scope)
-    }
-    
-    func testNotIsEqual() {
-        testIsNotEqual { scope in scope.setUser(User()) }
-        testIsNotEqual { scope in scope.setTag(value: "h", key: "a") }
-        testIsNotEqual { scope in scope.setExtra(value: "h", key: "a") }
-        testIsNotEqual { scope in scope.setContext(value: ["some": "context"], key: "hello") }
-        testIsNotEqual { scope in scope.setDist("") }
-        testIsNotEqual { scope in scope.setEnvironment("") }
-        testIsNotEqual { scope in scope.setFingerprint([]) }
-        testIsNotEqual { scope in scope.add(Breadcrumb()) }
-        testIsNotEqual { scope in scope.clear() }
-        testIsNotEqual { scope in scope.setLevel(SentryLevel.error) }
-        testIsNotEqual { scope in scope.add(TestData.fileAttachment) }
-
-        XCTAssertNotEqual(Scope(maxBreadcrumbs: fixture.maxBreadcrumbs), Scope(maxBreadcrumbs: 4))
-    }
-    
-    private func testIsNotEqual(block: (Scope) -> Void ) {
-        let scope = Fixture().scope
-        block(scope)
-        XCTAssertNotEqual(fixture.scope, scope)
-    }
     
     func testSerialize() {
         let scope = fixture.scope
