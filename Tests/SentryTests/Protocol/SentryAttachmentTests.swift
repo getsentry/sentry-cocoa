@@ -98,39 +98,4 @@ class SentryAttachmentTests: XCTestCase {
         XCTAssertEqual(fixture.filename, attachment.filename)
         XCTAssertEqual(fixture.contentType, attachment.contentType)
     }
-    
-    func testHash() {
-        let fixture2 = Fixture()
-        XCTAssertEqual(fixture.dataAttachment.hash(), fixture2.dataAttachment.hash())
-        XCTAssertEqual(fixture.fileAttachment.hash(), fixture2.fileAttachment.hash())
-        
-        XCTAssertNotEqual(Attachment(data: Data(), filename: fixture.filename).hash(), fixture.dataAttachment.hash())
-    }
-    
-    func testIsEqualToSelf() {
-        XCTAssertEqual(fixture.dataAttachment, fixture.dataAttachment)
-        XCTAssertTrue(fixture.dataAttachment.isEqual(to: fixture.dataAttachment))
-        
-        XCTAssertEqual(fixture.fileAttachment, fixture.fileAttachment)
-        XCTAssertTrue(fixture.fileAttachment.isEqual(to: fixture.fileAttachment))
-    }
-    
-    func testIsNotEqualToOtherClass() {
-        XCTAssertFalse(fixture.fileAttachment.isEqual(1))
-    }
-
-    func testIsEqualToOtherInstanceWithSameValues() {
-        let fixture2 = Fixture()
-        XCTAssertEqual(fixture.dataAttachment, fixture2.dataAttachment)
-        XCTAssertEqual(fixture.fileAttachment, fixture2.fileAttachment)
-    }
-    
-    func testIsNotEqual() {
-        XCTAssertFalse(fixture.fileAttachment.isEqual(nil))
-        XCTAssertNotEqual(Attachment(data: Data(), filename: ""), fixture.dataAttachment)
-        XCTAssertNotEqual(Attachment(path: ""), fixture.fileAttachment)
-        XCTAssertNotEqual(Attachment(data: fixture.data, filename: ""), fixture.dataAttachment)
-        XCTAssertNotEqual(Attachment(data: fixture.data, filename: fixture.filename, contentType: ""), fixture.dataAttachment)
-        
-    }
 }

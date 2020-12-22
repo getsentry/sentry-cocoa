@@ -85,12 +85,6 @@ SENTRY_NO_INIT
  */
 @property (readonly, nonatomic, copy) NSString *contentType;
 
-- (BOOL)isEqual:(id _Nullable)other;
-
-- (BOOL)isEqualToAttachment:(SentryAttachment *)attachment;
-
-- (NSUInteger)hash;
-
 @end
 
 NS_ASSUME_NONNULL_END
