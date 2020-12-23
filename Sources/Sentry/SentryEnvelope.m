@@ -180,6 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
 
             return nil;
         }
+        
         data = attachment.data;
     } else if (nil != attachment.path) {
 
@@ -193,6 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
                 stringWithFormat:@"Couldn't check file size of attachment with path: %@. Error: %@",
                 attachment.path, error.localizedDescription];
             [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
+            
             return nil;
         }
 
