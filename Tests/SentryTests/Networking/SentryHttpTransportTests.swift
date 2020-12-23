@@ -34,7 +34,7 @@ class SentryHttpTransportTests: XCTestCase {
             
             eventRequest = buildRequest(SentryEnvelope(event: event))
             
-            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(attachment: TestData.dataAttachment)!])
+            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5)!])
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")

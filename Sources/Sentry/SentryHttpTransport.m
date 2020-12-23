@@ -84,10 +84,12 @@ SentryHttpTransport ()
     [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
 
     for (SentryAttachment *attachment in attachments) {
-        SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithAttachment:attachment];
+        SentryEnvelopeItem *item =
+            [[SentryEnvelopeItem alloc] initWithAttachment:attachment
+                                         maxAttachmentSize:self.options.maxAttachmentSize];
         // The item is nil, when creating the envelopeItem failed.
         if (nil != item) {
-            [items addObject:[[SentryEnvelopeItem alloc] initWithAttachment:attachment]];
+            [items addObject:item];
         }
     }
 
