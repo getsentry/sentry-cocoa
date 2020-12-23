@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- ref: Remove SentryAttachment.isEqual and hash #885
 - ref: Remove SentryScope.isEqual and hash #884
 
 ## 6.1.0-alpha.0
