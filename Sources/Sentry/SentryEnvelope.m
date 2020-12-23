@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != attachment.data) {
         if (attachment.data.length > maxAttachmentSizeInBytes) {
             NSString *message =
-                [NSString stringWithFormat:@"Dropping attachment  with filename '%@', because the "
+                [NSString stringWithFormat:@"Dropping attachment with filename '%@', because the "
                                            @"size of the passed data with %lu bytes is bigger than "
                                            @"the maximum allowed attachment size of %lu bytes.",
                           attachment.filename, attachment.data.length, maxAttachmentSizeInBytes];

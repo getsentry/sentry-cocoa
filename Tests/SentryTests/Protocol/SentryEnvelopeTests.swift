@@ -18,9 +18,9 @@ class SentryEnvelopeTests: XCTestCase {
             userFeedback.email = "john@me.com"
             userFeedback.name = "John Me"
             
-            let maxAttachmentNumberOfBytes = 1_024 * 1_024 * maxAttachmentSize
-            dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentNumberOfBytes)))
-            dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentNumberOfBytes) + 1))
+            let maxAttachmentSizeInBytes = 1_024 * 1_024 * maxAttachmentSize
+            dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes)))
+            dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes) + 1))
         }
 
         var breadcrumb: Breadcrumb {
@@ -307,9 +307,13 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitWithDataAttachment_MaxAttachmentSize() {
-        XCTAssertNil(SentryEnvelopeItem(attachment: Attachment(data: fixture.dataTooBig, filename: ""), maxAttachmentSize: fixture.maxAttachmentSize))
+        let attachmentTooBig = Attachment(data: fixture.dataTooBig, filename: "")
+        XCTAssertNil(
+            SentryEnvelopeItem(attachment: attachmentTooBig, maxAttachmentSize: fixture.maxAttachmentSize))
         
-        XCTAssertNotNil(SentryEnvelopeItem(attachment: Attachment(data: fixture.dataAllowed, filename: ""), maxAttachmentSize: fixture.maxAttachmentSize))
+        let attachment = Attachment(data: fixture.dataAllowed, filename: "")
+        XCTAssertNotNil(
+            SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize))
     }
     
     private func writeDataToFile(data: Data) {
