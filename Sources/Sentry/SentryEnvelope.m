@@ -174,7 +174,8 @@ NS_ASSUME_NONNULL_BEGIN
                 [NSString stringWithFormat:@"Dropping attachment with filename '%@', because the "
                                            @"size of the passed data with %lu bytes is bigger than "
                                            @"the maximum allowed attachment size of %lu bytes.",
-                          attachment.filename, attachment.data.length, maxAttachmentSizeInBytes];
+                          attachment.filename, (unsigned long)attachment.data.length,
+                          (unsigned long)maxAttachmentSizeInBytes];
             [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
 
             return nil;
@@ -202,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
                 stringWithFormat:
                     @"Dropping attachment, because the size of the it located at '%@' with %llu "
                     @"bytes is bigger than the maximum allowed attachment size of %lu bytes.",
-                attachment.path, fileSize, maxAttachmentSizeInBytes];
+                attachment.path, fileSize, (unsigned long)maxAttachmentSizeInBytes];
             [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
             return nil;
         }
