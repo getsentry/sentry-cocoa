@@ -334,7 +334,7 @@
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual([@5 unsignedIntValue], options.maxAttachmentSize);
+    XCTAssertEqual([@20 unsignedIntValue], options.maxAttachmentSize);
 }
 
 - (void)testSetValidDsn
@@ -381,7 +381,7 @@
 
 - (void)testMaxAttachmentSize
 {
-    NSNumber *maxAttachmentSize = @6;
+    NSNumber *maxAttachmentSize = @21;
     SentryOptions *options = [self getValidOptions:@{ @"maxAttachmentSize" : maxAttachmentSize }];
 
     XCTAssertEqual([maxAttachmentSize unsignedIntValue], options.maxAttachmentSize);
@@ -391,7 +391,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual([@5 unsignedIntValue], options.maxAttachmentSize);
+    XCTAssertEqual([@20 unsignedIntValue], options.maxAttachmentSize);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
