@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- perf: Improve locks in SentryScope #888
+
 ## 6.1.0-alpha.1
 
 - feat: Add maxAttachmentSize to SentryOptions #887

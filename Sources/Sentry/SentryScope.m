@@ -108,7 +108,7 @@ SentryScope ()
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
                      andLevel:kSentryLogLevelDebug];
-    @synchronized(self) {
+    @synchronized(self.breadcrumbArray) {
         [self.breadcrumbArray addObject:crumb];
         if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
             [self.breadcrumbArray removeObjectAtIndex:0];
@@ -136,7 +136,7 @@ SentryScope ()
 
 - (void)clearBreadcrumbs
 {
-    @synchronized(self) {
+    @synchronized(self.breadcrumbArray) {
         [self.breadcrumbArray removeAllObjects];
     }
     [self notifyListeners];
@@ -144,7 +144,7 @@ SentryScope ()
 
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.contextDictionary) {
         [self.contextDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
@@ -152,7 +152,7 @@ SentryScope ()
 
 - (void)removeContextForKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.contextDictionary) {
         [self.contextDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
@@ -160,7 +160,7 @@ SentryScope ()
 
 - (void)setExtraValue:(id _Nullable)value forKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.extraDictionary) {
         [self.extraDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
@@ -168,7 +168,7 @@ SentryScope ()
 
 - (void)removeExtraForKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.extraDictionary) {
         [self.extraDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
@@ -179,7 +179,7 @@ SentryScope ()
     if (extras == nil) {
         return;
     }
-    @synchronized(self) {
+    @synchronized(self.extraDictionary) {
         [self.extraDictionary addEntriesFromDictionary:extras];
     }
     [self notifyListeners];
@@ -187,7 +187,7 @@ SentryScope ()
 
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.tagDictionary) {
         self.tagDictionary[key] = value;
     }
     [self notifyListeners];
@@ -195,7 +195,7 @@ SentryScope ()
 
 - (void)removeTagForKey:(NSString *)key
 {
-    @synchronized(self) {
+    @synchronized(self.tagDictionary) {
         [self.tagDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
@@ -206,7 +206,7 @@ SentryScope ()
     if (tags == nil) {
         return;
     }
-    @synchronized(self) {
+    @synchronized(self.tagDictionary) {
         [self.tagDictionary addEntriesFromDictionary:tags];
     }
     [self notifyListeners];
@@ -232,7 +232,7 @@ SentryScope ()
 
 - (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint
 {
-    @synchronized(self) {
+    @synchronized(self.fingerprintArray) {
         if (fingerprint == nil) {
             self.fingerprintArray = [NSMutableArray new];
         } else {
