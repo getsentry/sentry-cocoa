@@ -8,11 +8,19 @@ class SentryEnvelopeTests: XCTestCase {
         let path = "test.log"
         let data = "hello".data(using: .utf8)
         
+        let maxAttachmentSize: UInt = 5
+        let dataAllowed: Data
+        let dataTooBig: Data
+        
         init() {
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "It doesn't work!"
             userFeedback.email = "john@me.com"
             userFeedback.name = "John Me"
+            
+            let maxAttachmentSizeInBytes = 1_024 * 1_024 * maxAttachmentSize
+            dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes)))
+            dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes) + 1))
         }
 
         var breadcrumb: Breadcrumb {
@@ -261,7 +269,7 @@ class SentryEnvelopeTests: XCTestCase {
     func testInitWithDataAttachment() {
         let attachment = TestData.dataAttachment
         
-        let envelopeItem = SentryEnvelopeItem(attachment: attachment)!
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize)!
         
         XCTAssertEqual("attachment", envelopeItem.header.type)
         XCTAssertEqual(UInt(attachment.data?.count ?? 0), envelopeItem.header.length)
@@ -270,15 +278,11 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitWithFileAttachment() {
-        do {
-            try fixture.data?.write(to: URL(fileURLWithPath: fixture.path))
-        } catch {
-            XCTFail("Failed to store attachment.")
-        }
+        writeDataToFile(data: fixture.data ?? Data())
         
         let attachment = Attachment(path: fixture.path)
         
-        let envelopeItem = SentryEnvelopeItem(attachment: attachment)!
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize)!
         
         XCTAssertEqual("attachment", envelopeItem.header.type)
         XCTAssertEqual(UInt(fixture.data?.count ?? 0), envelopeItem.header.length)
@@ -289,9 +293,35 @@ class SentryEnvelopeTests: XCTestCase {
     func testInitWithNonExistentFileAttachment() {
         let attachment = Attachment(path: fixture.path)
         
-        let envelopeItem = SentryEnvelopeItem(attachment: attachment)
+        let envelopeItem = SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize)
         
         XCTAssertNil(envelopeItem)
+    }
+    
+    func testInitWithFileAttachment_MaxAttachmentSize() {
+        writeDataToFile(data: fixture.dataAllowed)
+        XCTAssertNotNil(SentryEnvelopeItem(attachment: Attachment(path: fixture.path), maxAttachmentSize: fixture.maxAttachmentSize))
+        
+        writeDataToFile(data: fixture.dataTooBig)
+        XCTAssertNil(SentryEnvelopeItem(attachment: Attachment(path: fixture.path), maxAttachmentSize: fixture.maxAttachmentSize))
+    }
+    
+    func testInitWithDataAttachment_MaxAttachmentSize() {
+        let attachmentTooBig = Attachment(data: fixture.dataTooBig, filename: "")
+        XCTAssertNil(
+            SentryEnvelopeItem(attachment: attachmentTooBig, maxAttachmentSize: fixture.maxAttachmentSize))
+        
+        let attachment = Attachment(data: fixture.dataAllowed, filename: "")
+        XCTAssertNotNil(
+            SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize))
+    }
+    
+    private func writeDataToFile(data: Data) {
+        do {
+            try data.write(to: URL(fileURLWithPath: fixture.path))
+        } catch {
+            XCTFail("Failed to store attachment.")
+        }
     }
 
     private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {

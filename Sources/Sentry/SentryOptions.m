@@ -28,6 +28,7 @@
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
+        self.maxAttachmentSize = [@20 unsignedIntValue];
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                             andVersion:SentryMeta.versionString];
 
@@ -152,6 +153,10 @@
 
     if (nil != options[@"attachStacktrace"]) {
         self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
+    }
+
+    if (nil != options[@"maxAttachmentSize"]) {
+        self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
     }
 }
 
