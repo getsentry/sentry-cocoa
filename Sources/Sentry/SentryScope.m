@@ -119,18 +119,17 @@ SentryScope ()
 
 - (void)clear
 {
-    @synchronized(self) {
-        self.breadcrumbArray = [NSMutableArray new];
-        self.userObject = nil;
-        self.tagDictionary = [NSMutableDictionary new];
-        self.extraDictionary = [NSMutableDictionary new];
-        self.contextDictionary = [NSMutableDictionary new];
-        self.distString = nil;
-        self.environmentString = nil;
-        self.levelEnum = kSentryLevelNone;
-        self.fingerprintArray = [NSMutableArray new];
-        self.attachmentArray = [NSMutableArray new];
-    }
+    self.breadcrumbArray = [NSMutableArray new];
+    self.userObject = nil;
+    self.tagDictionary = [NSMutableDictionary new];
+    self.extraDictionary = [NSMutableDictionary new];
+    self.contextDictionary = [NSMutableDictionary new];
+    self.distString = nil;
+    self.environmentString = nil;
+    self.levelEnum = kSentryLevelNone;
+    self.fingerprintArray = [NSMutableArray new];
+    self.attachmentArray = [NSMutableArray new];
+    
     [self notifyListeners];
 }
 
@@ -265,32 +264,32 @@ SentryScope ()
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    @synchronized(self) {
-        NSMutableDictionary *serializedData = [NSMutableDictionary new];
-        [serializedData setValue:[self.tagDictionary copy] forKey:@"tags"];
-        [serializedData setValue:[self.extraDictionary copy] forKey:@"extra"];
-        [serializedData setValue:[self.contextDictionary copy] forKey:@"context"];
-        [serializedData setValue:[self.userObject serialize] forKey:@"user"];
-        [serializedData setValue:self.distString forKey:@"dist"];
-        [serializedData setValue:self.environmentString forKey:@"environment"];
-        [serializedData setValue:[self.fingerprintArray copy] forKey:@"fingerprint"];
-        if (self.levelEnum != kSentryLevelNone) {
-            [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
-        }
-        NSArray *crumbs = [self serializeBreadcrumbs];
-        if (crumbs.count > 0) {
-            [serializedData setValue:crumbs forKey:@"breadcrumbs"];
-        }
-        return serializedData;
+    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    [serializedData setValue:[self.tagDictionary copy] forKey:@"tags"];
+    [serializedData setValue:[self.extraDictionary copy] forKey:@"extra"];
+    [serializedData setValue:[self.contextDictionary copy] forKey:@"context"];
+    [serializedData setValue:[self.userObject serialize] forKey:@"user"];
+    [serializedData setValue:self.distString forKey:@"dist"];
+    [serializedData setValue:self.environmentString forKey:@"environment"];
+    [serializedData setValue:[self.fingerprintArray copy] forKey:@"fingerprint"];
+    if (self.levelEnum != kSentryLevelNone) {
+        [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
     }
+    NSArray *crumbs = [self serializeBreadcrumbs];
+    if (crumbs.count > 0) {
+        [serializedData setValue:crumbs forKey:@"breadcrumbs"];
+    }
+    return serializedData;
 }
 
 - (NSArray *)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
 
-    for (SentryBreadcrumb *crumb in self.breadcrumbArray) {
-        [crumbs addObject:[crumb serialize]];
+    @synchronized(self.breadcrumbArray) {
+        for (SentryBreadcrumb *crumb in self.breadcrumbArray) {
+            [crumbs addObject:[crumb serialize]];
+        }
     }
 
     return crumbs;
@@ -298,25 +297,23 @@ SentryScope ()
 
 - (void)applyToSession:(SentrySession *)session
 {
-    @synchronized(self) {
-        if (nil != self.userObject) {
-            session.user = self.userObject.copy;
-        }
-
-        NSString *environment = self.environmentString;
-        if (nil != environment) {
-            // TODO: Make sure environment set on options is applied to the
-            // scope so it's available now
-            session.environment = environment;
-        }
+    if (nil != self.userObject) {
+        session.user = self.userObject.copy;
+    }
+    
+    NSString *environment = self.environmentString;
+    if (nil != environment) {
+        // TODO: Make sure environment set on options is applied to the
+        // scope so it's available now
+        session.environment = environment;
     }
 }
 
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
-    @synchronized(self) {
-        if (nil != self.tagDictionary) {
+    if (nil != self.tagDictionary) {
+        @synchronized(self.tagDictionary) {
             if (nil == event.tags) {
                 event.tags = self.tagDictionary.copy;
             } else {
@@ -326,8 +323,10 @@ SentryScope ()
                 event.tags = newTags;
             }
         }
+    }
 
-        if (nil != self.extraDictionary) {
+    if (nil != self.extraDictionary) {
+        @synchronized(self.extraDictionary) {
             if (nil == event.extra) {
                 event.extra = self.extraDictionary.copy;
             } else {
@@ -337,44 +336,24 @@ SentryScope ()
                 event.extra = newExtra;
             }
         }
-
-        if (nil != self.userObject) {
-            event.user = self.userObject.copy;
+    }
+    
+    @synchronized(self.fingerprintArray) {
+        if (self.fingerprintArray.count > 0 && nil == event.fingerprint) {
+            event.fingerprint = self.fingerprintArray.mutableCopy;
         }
-
-        NSString *dist = self.distString;
-        if (nil != dist && nil == event.dist) {
-            // dist can also be set via options but scope takes precedence.
-            event.dist = dist;
+    }
+    
+    @synchronized(self.breadcrumbArray) {
+        if (nil == event.breadcrumbs) {
+            event.breadcrumbs = [self.breadcrumbArray
+                                 subarrayWithRange:NSMakeRange(0,
+                                                               MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
         }
+    }
 
-        NSString *environment = self.environmentString;
-        if (nil != environment && nil == event.environment) {
-            // environment can also be set via options but scope takes
-            // precedence.
-            event.environment = environment;
-        }
-
-        NSArray *fingerprint = self.fingerprintArray;
-        if (fingerprint.count > 0 && nil == event.fingerprint) {
-            event.fingerprint = fingerprint.mutableCopy;
-        }
-
-        if (self.levelEnum != kSentryLevelNone) {
-            // We always want to set the level from the scope since this has
-            // benn set on purpose
-            event.level = self.levelEnum;
-        }
-
-        if (nil != self.breadcrumbArray) {
-            if (nil == event.breadcrumbs) {
-                event.breadcrumbs = [self.breadcrumbArray
-                    subarrayWithRange:NSMakeRange(
-                                          0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
-            }
-        }
-
-        if (nil != self.contextDictionary) {
+    if (nil != self.contextDictionary) {
+        @synchronized(self.contextDictionary) {
             if (nil == event.context) {
                 event.context = self.contextDictionary;
             } else {
@@ -384,9 +363,32 @@ SentryScope ()
                 event.context = newContext;
             }
         }
-
-        return event;
     }
+    
+    if (nil != self.userObject) {
+        event.user = self.userObject.copy;
+    }
+    
+    NSString *dist = self.distString;
+    if (nil != dist && nil == event.dist) {
+        // dist can also be set via options but scope takes precedence.
+        event.dist = dist;
+    }
+    
+    NSString *environment = self.environmentString;
+    if (nil != environment && nil == event.environment) {
+        // environment can also be set via options but scope takes
+        // precedence.
+        event.environment = environment;
+    }
+    
+    if (self.levelEnum != kSentryLevelNone) {
+        // We always want to set the level from the scope since this has
+        // benn set on purpose
+        event.level = self.levelEnum;
+    }
+    
+    return event;
 }
 
 @end
