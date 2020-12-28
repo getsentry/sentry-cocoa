@@ -129,7 +129,7 @@ SentryScope ()
     self.levelEnum = kSentryLevelNone;
     self.fingerprintArray = [NSMutableArray new];
     self.attachmentArray = [NSMutableArray new];
-    
+
     [self notifyListeners];
 }
 
@@ -300,7 +300,7 @@ SentryScope ()
     if (nil != self.userObject) {
         session.user = self.userObject.copy;
     }
-    
+
     NSString *environment = self.environmentString;
     if (nil != environment) {
         // TODO: Make sure environment set on options is applied to the
@@ -337,18 +337,18 @@ SentryScope ()
             }
         }
     }
-    
+
     @synchronized(self.fingerprintArray) {
         if (self.fingerprintArray.count > 0 && nil == event.fingerprint) {
             event.fingerprint = self.fingerprintArray.mutableCopy;
         }
     }
-    
+
     @synchronized(self.breadcrumbArray) {
         if (nil == event.breadcrumbs) {
             event.breadcrumbs = [self.breadcrumbArray
-                                 subarrayWithRange:NSMakeRange(0,
-                                                               MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
+                subarrayWithRange:NSMakeRange(
+                                      0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
         }
     }
 
@@ -364,30 +364,30 @@ SentryScope ()
             }
         }
     }
-    
+
     if (nil != self.userObject) {
         event.user = self.userObject.copy;
     }
-    
+
     NSString *dist = self.distString;
     if (nil != dist && nil == event.dist) {
         // dist can also be set via options but scope takes precedence.
         event.dist = dist;
     }
-    
+
     NSString *environment = self.environmentString;
     if (nil != environment && nil == event.environment) {
         // environment can also be set via options but scope takes
         // precedence.
         event.environment = environment;
     }
-    
+
     if (self.levelEnum != kSentryLevelNone) {
         // We always want to set the level from the scope since this has
         // benn set on purpose
         event.level = self.levelEnum;
     }
-    
+
     return event;
 }
 
