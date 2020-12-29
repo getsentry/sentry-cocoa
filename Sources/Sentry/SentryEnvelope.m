@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            @"size of the passed data with %lu bytes is bigger than "
                                            @"the maximum allowed attachment size of %lu bytes.",
                           attachment.filename, (unsigned long)attachment.data.length,
-                 (unsigned long)maxAttachmentSize];
+                          (unsigned long)maxAttachmentSize];
             [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
 
             return nil;

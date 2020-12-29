@@ -8,7 +8,7 @@ class SentryEnvelopeTests: XCTestCase {
         let path = "test.log"
         let data = "hello".data(using: .utf8)
         
-        let maxAttachmentSize: UInt = 5 * 1024 * 1024
+        let maxAttachmentSize: UInt = 5 * 1_024 * 1_024
         let dataAllowed: Data
         let dataTooBig: Data
         
