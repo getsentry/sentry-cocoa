@@ -234,7 +234,7 @@ SentryScope ()
 {
     @synchronized(self) {
         if (fingerprint == nil) {
-            self.fingerprintArray = [NSMutableArray new];
+            self.fingerprintArray = [NSArray new];
         } else {
             self.fingerprintArray = fingerprint.mutableCopy;
         }
