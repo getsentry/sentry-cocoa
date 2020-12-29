@@ -253,7 +253,7 @@ class SentryScopeSwiftTests: XCTestCase {
                 scope.setTags(["tag1": "hello", "tag2": "hello"])
                 
                 scope.add(TestData.fileAttachment)
-                XCTAssertTrue(scope.attachments.count >= 0)
+                XCTAssertFalse(scope.attachments.isEmpty)
                 
                 scope.setUser(self.fixture.user)
                 scope.setDist("dist")
