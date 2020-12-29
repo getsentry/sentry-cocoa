@@ -21,18 +21,18 @@ SentryScope ()
 /**
  * Set global tags -> these will be sent with every event
  */
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *_Nullable tagDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *_Nullable extraDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
  * used to add values in event context.
  */
 @property (nonatomic, strong)
-    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable contextDictionary;
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
@@ -52,7 +52,7 @@ SentryScope ()
 /**
  * Set the fingerprint of an event to determine the grouping
  */
-@property (atomic, strong) NSArray<NSString *> *_Nullable fingerprintArray;
+@property (nonatomic, strong) NSMutableArray<NSString *> *fingerprintArray;
 
 /**
  * SentryLevel of the event
@@ -61,7 +61,7 @@ SentryScope ()
 
 @property (atomic) NSInteger maxBreadcrumbs;
 
-@property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
+@property (nonatomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
 @end
 
@@ -74,7 +74,12 @@ SentryScope ()
     if (self = [super init]) {
         self.listeners = [NSMutableArray new];
         self.maxBreadcrumbs = maxBreadcrumbs;
-        [self clear];
+        self.breadcrumbArray = [NSMutableArray new];
+        self.tagDictionary = [NSMutableDictionary new];
+        self.extraDictionary = [NSMutableDictionary new];
+        self.contextDictionary = [NSMutableDictionary new];
+        self.attachmentArray = [NSMutableArray new];
+        self.fingerprintArray = [NSMutableArray new];
     }
     return self;
 }
@@ -87,17 +92,30 @@ SentryScope ()
 - (instancetype)initWithScope:(SentryScope *)scope
 {
     if (self = [self init]) {
-        self.extraDictionary = scope.extraDictionary.mutableCopy;
-        self.tagDictionary = scope.tagDictionary.mutableCopy;
+        @synchronized(_extraDictionary) {
+            [_extraDictionary addEntriesFromDictionary:[scope extras]];
+        }
+        @synchronized(_tagDictionary) {
+            [_tagDictionary addEntriesFromDictionary:[scope tags]];
+        }
+        @synchronized(_contextDictionary) {
+            [_contextDictionary addEntriesFromDictionary:[scope context]];
+        }
+        @synchronized(_breadcrumbArray) {
+            [_breadcrumbArray addObjectsFromArray:[scope breadcrumbs]];
+        }
+        @synchronized(_fingerprintArray) {
+            [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
+        }
+        @synchronized(_attachmentArray) {
+            [_attachmentArray addObjectsFromArray:[scope attachments]];
+        }
+
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
-        self.contextDictionary = scope.contextDictionary.mutableCopy;
-        self.breadcrumbArray = scope.breadcrumbArray.mutableCopy;
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
-        self.fingerprintArray = scope.fingerprintArray.mutableCopy;
-        self.attachmentArray = scope.attachmentArray.mutableCopy;
     }
     return self;
 }
@@ -108,7 +126,7 @@ SentryScope ()
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
                      andLevel:kSentryLogLevelDebug];
-    @synchronized(self.breadcrumbArray) {
+    @synchronized(_breadcrumbArray) {
         [self.breadcrumbArray addObject:crumb];
         if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
             [self.breadcrumbArray removeObjectAtIndex:0];
@@ -119,56 +137,87 @@ SentryScope ()
 
 - (void)clear
 {
-    self.breadcrumbArray = [NSMutableArray new];
+    // As we need to synchronize the accesses of the arrays and dictionaries and we use the
+    // references instead of self we remove all objects instead of creating new instances. Removing
+    // all objects is usually O(n). This is acceptable as we don't expect a huge amount of elements
+    // in the arrays or dictionaries, that would slow down the performance.
+    @synchronized(self.breadcrumbArray) {
+        [self.breadcrumbArray removeAllObjects];
+    }
+    @synchronized(self.tagDictionary) {
+        [self.tagDictionary removeAllObjects];
+    }
+    @synchronized(self.extraDictionary) {
+        [self.extraDictionary removeAllObjects];
+    }
+    @synchronized(self.contextDictionary) {
+        [self.contextDictionary removeAllObjects];
+    }
+    @synchronized(self.fingerprintArray) {
+        [self.fingerprintArray removeAllObjects];
+    }
+    @synchronized(self.attachmentArray) {
+        [self.attachmentArray removeAllObjects];
+    }
+
     self.userObject = nil;
-    self.tagDictionary = [NSMutableDictionary new];
-    self.extraDictionary = [NSMutableDictionary new];
-    self.contextDictionary = [NSMutableDictionary new];
     self.distString = nil;
     self.environmentString = nil;
     self.levelEnum = kSentryLevelNone;
-    self.fingerprintArray = [NSMutableArray new];
-    self.attachmentArray = [NSMutableArray new];
 
     [self notifyListeners];
 }
 
 - (void)clearBreadcrumbs
 {
-    @synchronized(self.breadcrumbArray) {
-        [self.breadcrumbArray removeAllObjects];
+    @synchronized(_breadcrumbArray) {
+        [_breadcrumbArray removeAllObjects];
     }
     [self notifyListeners];
 }
 
+- (NSArray<SentryBreadcrumb *> *)breadcrumbs
+{
+    @synchronized(_breadcrumbArray) {
+        return _breadcrumbArray.copy;
+    }
+}
+
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key
 {
-    @synchronized(self.contextDictionary) {
-        [self.contextDictionary setValue:value forKey:key];
+    @synchronized(_contextDictionary) {
+        [_contextDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
 }
 
 - (void)removeContextForKey:(NSString *)key
 {
-    @synchronized(self.contextDictionary) {
-        [self.contextDictionary removeObjectForKey:key];
+    @synchronized(_contextDictionary) {
+        [_contextDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
 }
 
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)context
+{
+    @synchronized(_contextDictionary) {
+        return _contextDictionary.copy;
+    }
+}
+
 - (void)setExtraValue:(id _Nullable)value forKey:(NSString *)key
 {
-    @synchronized(self.extraDictionary) {
-        [self.extraDictionary setValue:value forKey:key];
+    @synchronized(_extraDictionary) {
+        [_extraDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
 }
 
 - (void)removeExtraForKey:(NSString *)key
 {
-    @synchronized(self.extraDictionary) {
-        [self.extraDictionary removeObjectForKey:key];
+    @synchronized(_extraDictionary) {
+        [_extraDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
 }
@@ -178,24 +227,31 @@ SentryScope ()
     if (extras == nil) {
         return;
     }
-    @synchronized(self.extraDictionary) {
-        [self.extraDictionary addEntriesFromDictionary:extras];
+    @synchronized(_extraDictionary) {
+        [_extraDictionary addEntriesFromDictionary:extras];
     }
     [self notifyListeners];
 }
 
+- (NSDictionary<NSString *, id> *)extras
+{
+    @synchronized(_extraDictionary) {
+        return _extraDictionary.copy;
+    }
+}
+
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
-    @synchronized(self.tagDictionary) {
-        self.tagDictionary[key] = value;
+    @synchronized(_tagDictionary) {
+        _tagDictionary[key] = value;
     }
     [self notifyListeners];
 }
 
 - (void)removeTagForKey:(NSString *)key
 {
-    @synchronized(self.tagDictionary) {
-        [self.tagDictionary removeObjectForKey:key];
+    @synchronized(_tagDictionary) {
+        [_tagDictionary removeObjectForKey:key];
     }
     [self notifyListeners];
 }
@@ -205,10 +261,17 @@ SentryScope ()
     if (tags == nil) {
         return;
     }
-    @synchronized(self.tagDictionary) {
-        [self.tagDictionary addEntriesFromDictionary:tags];
+    @synchronized(_tagDictionary) {
+        [_tagDictionary addEntriesFromDictionary:tags];
     }
     [self notifyListeners];
+}
+
+- (NSDictionary<NSString *, NSString *> *)tags
+{
+    @synchronized(_tagDictionary) {
+        return _tagDictionary.copy;
+    }
 }
 
 - (void)setUser:(SentryUser *_Nullable)user
@@ -231,15 +294,21 @@ SentryScope ()
 
 - (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint
 {
-    @synchronized(self.fingerprintArray) {
-        if (fingerprint == nil) {
-            self.fingerprintArray = [NSMutableArray new];
-        } else {
-            self.fingerprintArray = fingerprint.mutableCopy;
+    @synchronized(_fingerprintArray) {
+        [_fingerprintArray removeAllObjects];
+        if (fingerprint != nil) {
+            [_fingerprintArray addObjectsFromArray:fingerprint];
         }
-        self.fingerprintArray = fingerprint;
     }
+
     [self notifyListeners];
+}
+
+- (NSArray<NSString *> *)fingerprints
+{
+    @synchronized(_fingerprintArray) {
+        return _fingerprintArray.copy;
+    }
 }
 
 - (void)setLevel:(enum SentryLevel)level
@@ -250,28 +319,29 @@ SentryScope ()
 
 - (void)addAttachment:(SentryAttachment *)attachment
 {
-    @synchronized(self.attachmentArray) {
-        [self.attachmentArray addObject:attachment];
+    @synchronized(_attachmentArray) {
+        [_attachmentArray addObject:attachment];
     }
 }
 
 - (NSArray<SentryAttachment *> *)attachments
 {
-    @synchronized(self.attachmentArray) {
-        return self.attachmentArray.copy;
+    @synchronized(_attachmentArray) {
+        return _attachmentArray.copy;
     }
 }
 
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    [serializedData setValue:[self.tagDictionary copy] forKey:@"tags"];
-    [serializedData setValue:[self.extraDictionary copy] forKey:@"extra"];
-    [serializedData setValue:[self.contextDictionary copy] forKey:@"context"];
+    [serializedData setValue:[self tags] forKey:@"tags"];
+    [serializedData setValue:[self extras] forKey:@"extra"];
+    [serializedData setValue:[self context] forKey:@"context"];
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
-    [serializedData setValue:[self.fingerprintArray copy] forKey:@"fingerprint"];
+    [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+
     if (self.levelEnum != kSentryLevelNone) {
         [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
     }
@@ -284,15 +354,14 @@ SentryScope ()
 
 - (NSArray *)serializeBreadcrumbs
 {
-    NSMutableArray *crumbs = [NSMutableArray new];
+    NSMutableArray *serializedCrumbs = [NSMutableArray new];
 
-    @synchronized(self.breadcrumbArray) {
-        for (SentryBreadcrumb *crumb in self.breadcrumbArray) {
-            [crumbs addObject:[crumb serialize]];
-        }
+    NSArray<SentryBreadcrumb *> *crumbs = [self breadcrumbs];
+    for (SentryBreadcrumb *crumb in crumbs) {
+        [serializedCrumbs addObject:[crumb serialize]];
     }
 
-    return crumbs;
+    return serializedCrumbs;
 }
 
 - (void)applyToSession:(SentrySession *)session
@@ -312,57 +381,42 @@ SentryScope ()
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
-    if (nil != self.tagDictionary) {
-        @synchronized(self.tagDictionary) {
-            if (nil == event.tags) {
-                event.tags = self.tagDictionary.copy;
-            } else {
-                NSMutableDictionary *newTags = [NSMutableDictionary new];
-                [newTags addEntriesFromDictionary:self.tagDictionary];
-                [newTags addEntriesFromDictionary:event.tags];
-                event.tags = newTags;
-            }
-        }
+    if (nil == event.tags) {
+        event.tags = [self tags];
+    } else {
+        NSMutableDictionary *newTags = [NSMutableDictionary new];
+        [newTags addEntriesFromDictionary:[self tags]];
+        [newTags addEntriesFromDictionary:event.tags];
+        event.tags = newTags;
     }
 
-    if (nil != self.extraDictionary) {
-        @synchronized(self.extraDictionary) {
-            if (nil == event.extra) {
-                event.extra = self.extraDictionary.copy;
-            } else {
-                NSMutableDictionary *newExtra = [NSMutableDictionary new];
-                [newExtra addEntriesFromDictionary:self.extraDictionary];
-                [newExtra addEntriesFromDictionary:event.extra];
-                event.extra = newExtra;
-            }
-        }
+    if (nil == event.extra) {
+        event.extra = [self extras];
+    } else {
+        NSMutableDictionary *newExtra = [NSMutableDictionary new];
+        [newExtra addEntriesFromDictionary:[self extras]];
+        [newExtra addEntriesFromDictionary:event.extra];
+        event.extra = newExtra;
     }
 
-    @synchronized(self.fingerprintArray) {
-        if (self.fingerprintArray.count > 0 && nil == event.fingerprint) {
-            event.fingerprint = self.fingerprintArray.mutableCopy;
-        }
+    NSArray *fingerprints = [self fingerprints];
+    if (fingerprints.count > 0 && nil == event.fingerprint) {
+        event.fingerprint = fingerprints;
     }
 
-    @synchronized(self.breadcrumbArray) {
-        if (nil == event.breadcrumbs) {
-            event.breadcrumbs = [self.breadcrumbArray
-                subarrayWithRange:NSMakeRange(
-                                      0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
-        }
+    if (nil == event.breadcrumbs) {
+        NSArray *breadcrumbs = [self breadcrumbs];
+        event.breadcrumbs = [breadcrumbs
+            subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
-    if (nil != self.contextDictionary) {
-        @synchronized(self.contextDictionary) {
-            if (nil == event.context) {
-                event.context = self.contextDictionary;
-            } else {
-                NSMutableDictionary *newContext = [NSMutableDictionary new];
-                [newContext addEntriesFromDictionary:self.contextDictionary];
-                [newContext addEntriesFromDictionary:event.context];
-                event.context = newContext;
-            }
-        }
+    if (nil == event.context) {
+        event.context = [self context];
+    } else {
+        NSMutableDictionary *newContext = [NSMutableDictionary new];
+        [newContext addEntriesFromDictionary:[self context]];
+        [newContext addEntriesFromDictionary:event.context];
+        event.context = newContext;
     }
 
     if (nil != self.userObject) {
