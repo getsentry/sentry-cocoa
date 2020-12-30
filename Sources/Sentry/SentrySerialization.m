@@ -61,27 +61,28 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (int i = 0; i < envelope.items.count; ++i) {
         [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        NSMutableDictionary *serializedData = [NSMutableDictionary new];
+        NSMutableDictionary *serializedItemHeaderData = [NSMutableDictionary new];
         if (nil != envelope.items[i].header) {
             if (nil != envelope.items[i].header.type) {
-                [serializedData setValue:envelope.items[i].header.type forKey:@"type"];
+                [serializedItemHeaderData setValue:envelope.items[i].header.type forKey:@"type"];
             }
 
             NSString *filename = envelope.items[i].header.filename;
             if (nil != filename) {
-                [serializedData setValue:filename forKey:@"filename"];
+                [serializedItemHeaderData setValue:filename forKey:@"filename"];
             }
 
             NSString *contentType = envelope.items[i].header.contentType;
             if (nil != contentType) {
-                [serializedData setValue:contentType forKey:@"content_type"];
+                [serializedItemHeaderData setValue:contentType forKey:@"content_type"];
             }
 
-            [serializedData
+            [serializedItemHeaderData
                 setValue:[NSNumber numberWithUnsignedInteger:envelope.items[i].header.length]
                   forKey:@"length"];
         }
-        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedData error:error];
+        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData
+                                                               error:error];
         if (nil == itemHeader) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope item header cannot "
                                                                  @"be converted to JSON."]
