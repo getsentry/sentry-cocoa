@@ -315,7 +315,7 @@ SentryHub ()
 {
     @synchronized(self) {
         if (self.scope == nil) {
-            SentryClient *client = [self getClient];
+            SentryClient *client = _client;
             if (nil != client) {
                 self.scope =
                     [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
@@ -330,7 +330,7 @@ SentryHub ()
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
     SentryScope *scope = [self getScope];
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client && nil != scope) {
         callback(scope);
     }
@@ -353,7 +353,7 @@ SentryHub ()
 
 - (id _Nullable)getIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = [self getClient].options.integrations;
+    NSArray *integrations = _client.options.integrations;
     if (![integrations containsObject:integrationName]) {
         return nil;
     }
