@@ -28,7 +28,7 @@
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.maxAttachmentSize = [@20 unsignedIntValue];
+        self.maxAttachmentSize = 20 * 1024 * 1024;
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                             andVersion:SentryMeta.versionString];
 
