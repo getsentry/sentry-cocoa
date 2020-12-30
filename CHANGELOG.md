@@ -6,6 +6,7 @@
 
 ## 6.1.0-alpha.1
 
+- fix: Change maxAttachmentSize from MiB to bytes #891
 - feat: Add maxAttachmentSize to SentryOptions #887
 - ref: Remove SentryAttachment.isEqual and hash #885
 - ref: Remove SentryScope.isEqual and hash #884

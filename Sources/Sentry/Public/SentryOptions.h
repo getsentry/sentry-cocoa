@@ -131,9 +131,9 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;
 
 /**
- * The maximum size for each attachment in MiB. Default is 20 MiB.
+ * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
  *
- * Please also check the maxium attachment size of relay to make sure your attachments don't get
+ * Please also check the maximum attachment size of relay to make sure your attachments don't get
  * discarded there: https://docs.sentry.io/product/relay/options/
  */
 @property (nonatomic, assign) NSUInteger maxAttachmentSize;

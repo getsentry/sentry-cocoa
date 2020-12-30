@@ -8,7 +8,7 @@ class SentryEnvelopeTests: XCTestCase {
         let path = "test.log"
         let data = "hello".data(using: .utf8)
         
-        let maxAttachmentSize: UInt = 5
+        let maxAttachmentSize: UInt = 5 * 1_024 * 1_024
         let dataAllowed: Data
         let dataTooBig: Data
         
@@ -18,9 +18,8 @@ class SentryEnvelopeTests: XCTestCase {
             userFeedback.email = "john@me.com"
             userFeedback.name = "John Me"
             
-            let maxAttachmentSizeInBytes = 1_024 * 1_024 * maxAttachmentSize
-            dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes)))
-            dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentSizeInBytes) + 1))
+            dataAllowed = Data([UInt8](repeating: 1, count: Int(maxAttachmentSize)))
+            dataTooBig = Data([UInt8](repeating: 1, count: Int(maxAttachmentSize) + 1))
         }
 
         var breadcrumb: Breadcrumb {
