@@ -27,11 +27,11 @@ SentryHub ()
                       andScope:(SentryScope *_Nullable)scope
 {
     if (self = [super init]) {
-        [self bindClient:client];
+        _client = client;
         self.scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
+        _crashAdapter = [[SentryCrashAdapter alloc] init];
     }
     return self;
 }
@@ -42,7 +42,7 @@ SentryHub ()
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter
 {
     self = [self initWithClient:client andScope:scope];
-    self.crashAdapter = crashAdapter;
+    _crashAdapter = crashAdapter;
 
     return self;
 }
@@ -51,8 +51,7 @@ SentryHub ()
 {
     SentrySession *lastSession = nil;
     SentryScope *scope = [self getScope];
-    SentryClient *client = [self getClient];
-    SentryOptions *options = [client options];
+    SentryOptions *options = [_client options];
     if (nil == options || nil == options.releaseName) {
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
@@ -101,17 +100,17 @@ SentryHub ()
 
 - (void)storeCurrentSession:(SentrySession *)session
 {
-    [[[self getClient] fileManager] storeCurrentSession:session];
+    [[_client fileManager] storeCurrentSession:session];
 }
 
 - (void)deleteCurrentSession
 {
-    [[[self getClient] fileManager] deleteCurrentSession];
+    [[_client fileManager] deleteCurrentSession];
 }
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp
 {
-    SentryFileManager *fileManager = [[self getClient] fileManager];
+    SentryFileManager *fileManager = [_client fileManager];
     SentrySession *session = [fileManager readCurrentSession];
     if (nil == session) {
         [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLogLevelDebug];
@@ -120,7 +119,7 @@ SentryHub ()
     [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLogLevelDebug];
 
     // Make sure there's a client bound.
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil == client) {
         [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLogLevelDebug];
         return;
@@ -151,7 +150,7 @@ SentryHub ()
 - (void)captureSession:(SentrySession *)session
 {
     if (nil != session) {
-        SentryClient *client = [self getClient];
+        SentryClient *client = _client;
 
         if (SentrySDK.logLevel == kSentryLogLevelVerbose) {
             NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
@@ -190,7 +189,7 @@ SentryHub ()
  */
 - (void)captureCrashEvent:(SentryEvent *)event
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil == client) {
         return;
     }
@@ -219,7 +218,7 @@ SentryHub ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
     }
@@ -233,7 +232,7 @@ SentryHub ()
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         return [client captureMessage:message withScope:scope];
     }
@@ -248,7 +247,7 @@ SentryHub ()
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureError:error withSession:currentSession withScope:scope];
@@ -267,8 +266,8 @@ SentryHub ()
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
-    SentryClient *client = [self getClient];
 
+    SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureException:exception withSession:currentSession withScope:scope];
@@ -281,7 +280,7 @@ SentryHub ()
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         [client captureUserFeedback:userFeedback];
     }
@@ -304,7 +303,12 @@ SentryHub ()
 
 - (SentryClient *_Nullable)getClient
 {
-    return self.client;
+    return _client;
+}
+
+- (void)bindClient:(SentryClient *_Nullable)client
+{
+    self.client = client;
 }
 
 - (SentryScope *)getScope
@@ -321,11 +325,6 @@ SentryHub ()
         }
         return self.scope;
     }
-}
-
-- (void)bindClient:(SentryClient *_Nullable)client
-{
-    self.client = client;
 }
 
 - (void)configureScope:(void (^)(SentryScope *scope))callback
