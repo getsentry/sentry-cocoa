@@ -366,8 +366,9 @@ SentryScope ()
 
 - (void)applyToSession:(SentrySession *)session
 {
-    if (nil != self.userObject) {
-        session.user = self.userObject.copy;
+    SentryUser *userObject = self.userObject;
+    if (nil != userObject) {
+        session.user = userObject.copy;
     }
 
     NSString *environment = self.environmentString;
@@ -436,10 +437,11 @@ SentryScope ()
         event.environment = environment;
     }
 
-    if (self.levelEnum != kSentryLevelNone) {
+    SentryLevel level = self.levelEnum;
+    if (level != kSentryLevelNone) {
         // We always want to set the level from the scope since this has
         // benn set on purpose
-        event.level = self.levelEnum;
+        event.level = level;
     }
 
     return event;
