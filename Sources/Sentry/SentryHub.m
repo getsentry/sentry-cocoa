@@ -21,14 +21,12 @@ SentryHub ()
     NSObject *_sessionLock;
 }
 
-@synthesize scope;
-
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
 {
     if (self = [super init]) {
         _client = client;
-        self.scope = scope;
+        _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
@@ -50,7 +48,7 @@ SentryHub ()
 - (void)startSession
 {
     SentrySession *lastSession = nil;
-    SentryScope *scope = [self getScope];
+    SentryScope *scope = self.scope;
     SentryOptions *options = [_client options];
     if (nil == options || nil == options.releaseName) {
         [SentryLog
@@ -298,7 +296,7 @@ SentryHub ()
                          andLevel:kSentryLogLevelDebug];
         return;
     }
-    [[self getScope] addBreadcrumb:crumb];
+    [self.scope addBreadcrumb:crumb];
 }
 
 - (SentryClient *_Nullable)getClient
@@ -311,10 +309,10 @@ SentryHub ()
     self.client = client;
 }
 
-- (SentryScope *)getScope
+- (SentryScope *)scope
 {
     @synchronized(self) {
-        if (self.scope == nil) {
+        if (_scope == nil) {
             SentryClient *client = _client;
             if (nil != client) {
                 self.scope =
@@ -323,13 +321,18 @@ SentryHub ()
                 self.scope = [[SentryScope alloc] init];
             }
         }
-        return self.scope;
+        return _scope;
     }
+}
+
+- (SentryScope *)getScope
+{
+    return self.scope;
 }
 
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
-    SentryScope *scope = [self getScope];
+    SentryScope *scope = self.scope;
     SentryClient *client = _client;
     if (nil != client && nil != scope) {
         callback(scope);
@@ -365,7 +368,7 @@ SentryHub ()
  */
 - (void)setUser:(SentryUser *_Nullable)user
 {
-    SentryScope *scope = [self getScope];
+    SentryScope *scope = self.scope;
     if (nil != scope) {
         [scope setUser:user];
     }
