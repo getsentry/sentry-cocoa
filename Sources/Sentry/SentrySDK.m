@@ -90,8 +90,9 @@ static BOOL crashedLastRunCalled;
 }
 
 + (void)captureCrashEvent:(SentryEvent *)event
+              attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    [SentrySDK.currentHub captureCrashEvent:event];
+    [SentrySDK.currentHub captureCrashEvent:event attachments:attachments];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event

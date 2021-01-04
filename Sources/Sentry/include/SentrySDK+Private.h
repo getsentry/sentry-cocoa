@@ -1,12 +1,13 @@
 #import "SentrySDK.h"
 
-@class SentryId;
+@class SentryId, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySDK (Private)
 
-+ (void)captureCrashEvent:(SentryEvent *)event;
++ (void)captureCrashEvent:(SentryEvent *)event
+              attachments:(NSArray<SentryAttachment *> *)attachments;
 
 /**
  * SDK private field to store the state if onCrashedLastRun was called.

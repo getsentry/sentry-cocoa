@@ -1,4 +1,5 @@
 #import "SentryCrashIntegration.h"
+#import "SentryAttachment.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -189,6 +190,21 @@ SentryCrashIntegration ()
                     // the release name and dist to the SentryEvent. Fixes GH-581
                     userInfo[@"release"] = self.options.releaseName;
                     userInfo[@"dist"] = self.options.dist;
+
+                    NSMutableArray *attachments = [NSMutableArray new];
+                    for (SentryAttachment *attachment in [scope attachments]) {
+                        NSMutableDictionary *attachmentDict = [NSMutableDictionary new];
+                        attachmentDict[@"data"] =
+                            [[NSString alloc] initWithData:attachment.data
+                                                  encoding:NSUTF8StringEncoding];
+                        attachmentDict[@"path"] = attachment.path;
+                        attachmentDict[@"filename"] = attachment.filename;
+                        attachmentDict[@"contentType"] = attachment.contentType;
+
+                        [attachments addObject:attachmentDict];
+                    }
+
+                    userInfo[@"attachments"] = attachments;
 
                     [SentryCrash.sharedInstance setUserInfo:userInfo];
                 }];

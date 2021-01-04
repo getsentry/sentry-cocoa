@@ -189,10 +189,17 @@ SentryHub ()
  * send the session with the first crashed event we receive.
  */
 - (void)captureCrashEvent:(SentryEvent *)event
+              attachments:(NSArray<SentryAttachment *> *)attachments
 {
     SentryClient *client = [self getClient];
     if (nil == client) {
         return;
+    }
+
+    SentryScope *scope = [[SentryScope alloc] initWithScope:self.scope];
+
+    for (SentryAttachment *attachment in attachments) {
+        [scope addAttachment:attachment];
     }
 
     // Check this condition first to avoid unnecessary I/O
@@ -203,13 +210,13 @@ SentryHub ()
         // It can be that there is no session yet, because autoSessionTracking was just enabled and
         // there is a previous crash on disk. In this case we just send the crash event.
         if (nil != crashedSession) {
-            [client captureCrashEvent:event withSession:crashedSession withScope:self.scope];
+            [client captureCrashEvent:event withSession:crashedSession withScope:scope];
             [fileManager deleteCrashedSession];
             return;
         }
     }
 
-    [client captureCrashEvent:event withScope:self.scope];
+    [client captureCrashEvent:event withScope:scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event

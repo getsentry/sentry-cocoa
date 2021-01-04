@@ -1,5 +1,6 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMeta.h"
@@ -75,6 +76,34 @@ SentryCrashReportConverter ()
             }
         }
     }
+}
+
+- (NSArray<SentryAttachment *> *)convertReportToAttachments
+{
+    NSMutableArray<SentryAttachment *> *attachments = [NSMutableArray new];
+
+    for (NSDictionary *dict in self.userContext[@"attachments"]) {
+
+        SentryAttachment *attachment = nil;
+        if (nil != dict[@"path"]) {
+
+            attachment = [[SentryAttachment alloc] initWithPath:dict[@"path"]
+                                                       filename:dict[@"filename"]
+                                                    contentType:dict[@"contentType"]];
+
+        } else if (nil != dict[@"data"]) {
+            NSString *data = dict[@"data"];
+            attachment =
+                [[SentryAttachment alloc] initWithData:[data dataUsingEncoding:NSUTF8StringEncoding]
+                                              filename:dict[@"filename"]];
+        }
+
+        if (nil != attachment) {
+            [attachments addObject:attachment];
+        }
+    }
+
+    return attachments;
 }
 
 - (SentryEvent *_Nullable)convertReportToEvent

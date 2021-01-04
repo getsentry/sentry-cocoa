@@ -1,4 +1,5 @@
 #import "SentryCrashReportSink.h"
+#import "SentryAttachment.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"
@@ -14,11 +15,12 @@
 @implementation SentryCrashReportSink
 
 - (void)handleConvertedEvent:(SentryEvent *)event
+                 attachments:(NSArray<SentryAttachment *> *)attachments
                       report:(NSDictionary *)report
                  sentReports:(NSMutableArray *)sentReports
 {
     [sentReports addObject:report];
-    [SentrySDK captureCrashEvent:event];
+    [SentrySDK captureCrashEvent:event attachments:attachments];
 }
 
 - (void)filterReports:(NSArray *)reports
@@ -32,8 +34,14 @@
                 [[SentryCrashReportConverter alloc] initWithReport:report];
             if (nil != [SentrySDK.currentHub getClient]) {
                 SentryEvent *event = [reportConverter convertReportToEvent];
+
                 if (nil != event) {
-                    [self handleConvertedEvent:event report:report sentReports:sentReports];
+                    NSArray<SentryAttachment *> *attachments =
+                        [reportConverter convertReportToAttachments];
+                    [self handleConvertedEvent:event
+                                   attachments:attachments
+                                        report:report
+                                   sentReports:sentReports];
                 }
             } else {
                 [SentryLog logWithMessage:@"Crash reports were found but no "

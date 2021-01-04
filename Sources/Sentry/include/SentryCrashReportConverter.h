@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@class SentryEvent;
+@class SentryEvent, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The converted event or nil if an error occured during the conversion.
  */
 - (SentryEvent *_Nullable)convertReportToEvent;
+
+- (NSArray<SentryAttachment *> *)convertReportToAttachments;
 
 @end
 

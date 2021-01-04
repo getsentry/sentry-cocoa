@@ -1,12 +1,13 @@
 #import "SentryHub.h"
 
-@class SentryId, SentryScope;
+@class SentryId, SentryScope, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryHub (Private)
 
-- (void)captureCrashEvent:(SentryEvent *)event;
+- (void)captureCrashEvent:(SentryEvent *)event
+              attachments:(NSArray<SentryAttachment *> *)attachments;
 
 @end
 
