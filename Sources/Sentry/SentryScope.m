@@ -127,9 +127,9 @@ SentryScope ()
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
                      andLevel:kSentryLogLevelDebug];
     @synchronized(_breadcrumbArray) {
-        [self.breadcrumbArray addObject:crumb];
-        if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
-            [self.breadcrumbArray removeObjectAtIndex:0];
+        [_breadcrumbArray addObject:crumb];
+        if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
+            [_breadcrumbArray removeObjectAtIndex:0];
         }
     }
     [self notifyListeners];
@@ -141,23 +141,23 @@ SentryScope ()
     // references instead of self we remove all objects instead of creating new instances. Removing
     // all objects is usually O(n). This is acceptable as we don't expect a huge amount of elements
     // in the arrays or dictionaries, that would slow down the performance.
-    @synchronized(self.breadcrumbArray) {
-        [self.breadcrumbArray removeAllObjects];
+    @synchronized(_breadcrumbArray) {
+        [_breadcrumbArray removeAllObjects];
     }
-    @synchronized(self.tagDictionary) {
-        [self.tagDictionary removeAllObjects];
+    @synchronized(_tagDictionary) {
+        [_tagDictionary removeAllObjects];
     }
-    @synchronized(self.extraDictionary) {
-        [self.extraDictionary removeAllObjects];
+    @synchronized(_extraDictionary) {
+        [_extraDictionary removeAllObjects];
     }
-    @synchronized(self.contextDictionary) {
-        [self.contextDictionary removeAllObjects];
+    @synchronized(_contextDictionary) {
+        [_contextDictionary removeAllObjects];
     }
-    @synchronized(self.fingerprintArray) {
-        [self.fingerprintArray removeAllObjects];
+    @synchronized(_fingerprintArray) {
+        [_fingerprintArray removeAllObjects];
     }
-    @synchronized(self.attachmentArray) {
-        [self.attachmentArray removeAllObjects];
+    @synchronized(_attachmentArray) {
+        [_attachmentArray removeAllObjects];
     }
 
     self.userObject = nil;
