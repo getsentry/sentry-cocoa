@@ -277,8 +277,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
-            assertValidErrorEvent(eventWithSessionArguments.first)
-            XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
+            assertValidErrorEvent(eventWithSessionArguments.event)
+            XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
         }
     }
     
@@ -371,9 +371,9 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
-            assertValidExceptionEvent(eventWithSessionArguments.first)
-            XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
-            XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.third)
+            assertValidExceptionEvent(eventWithSessionArguments.event)
+            XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
+            XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.attachments)
         }
     }
     
@@ -726,35 +726,32 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertEventNotSent(eventId: SentryId?) {
-        let eventWasSent = fixture.transport.sentEvents.contains { event in
-            event.first.eventId == eventId
+        let eventWasSent = fixture.transport.sentEvents.contains { eventArguments in
+            eventArguments.event.eventId == eventId
         }
         XCTAssertFalse(eventWasSent)
     }
 
     private func assertLastSentEvent(assert: (Event) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEvents.last)
-        if let lastSentEvent = fixture.transport.sentEvents.last {
-            let event = lastSentEvent.first
-            assert(event)
+        if let lastSentEventArguments = fixture.transport.sentEvents.last {
+            assert(lastSentEventArguments.event)
         }
     }
     
     private func assertLastSentEventWithAttachment(assert: (Event) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEvents.last)
-        if let lastSentEvent = fixture.transport.sentEvents.last {
-            let event = lastSentEvent.first
-            assert(event)
+        if let lastSentEventArguments = fixture.transport.sentEvents.last {
+            assert(lastSentEventArguments.event)
             
-            let attachments = lastSentEvent.second
-            XCTAssertEqual([TestData.dataAttachment], attachments)
+            XCTAssertEqual([TestData.dataAttachment], lastSentEventArguments.attachments)
         }
     }
     
     private func assertLastSentEventWithSession(assert: (Event, SentrySession) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let args = fixture.transport.sentEventsWithSession.last {
-            assert(args.first, args.second)
+            assert(args.event, args.session)
         }
     }
     

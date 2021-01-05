@@ -189,8 +189,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureEventWithScopeArguments.count)
         if let eventArguments = fixture.client.captureEventWithScopeArguments.first {
-            XCTAssertEqual(fixture.event.eventId, eventArguments.first.eventId)
-            XCTAssertEqual(fixture.scope, eventArguments.second)
+            XCTAssertEqual(fixture.event.eventId, eventArguments.event.eventId)
+            XCTAssertEqual(fixture.scope, eventArguments.scope)
         }
     }
     
@@ -199,8 +199,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureEventWithScopeArguments.count)
         if let eventArguments = fixture.client.captureEventWithScopeArguments.first {
-            XCTAssertEqual(fixture.event.eventId, eventArguments.first.eventId)
-            XCTAssertEqual(Scope(), eventArguments.second)
+            XCTAssertEqual(fixture.event.eventId, eventArguments.event.eventId)
+            XCTAssertEqual(Scope(), eventArguments.scope)
         }
     }
     
@@ -209,8 +209,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureMessageWithScopeArguments.count)
         if let messageArguments = fixture.client.captureMessageWithScopeArguments.first {
-            XCTAssertEqual(fixture.message, messageArguments.first)
-            XCTAssertEqual(fixture.scope, messageArguments.second)
+            XCTAssertEqual(fixture.message, messageArguments.message)
+            XCTAssertEqual(fixture.scope, messageArguments.scope)
         }
     }
     
@@ -219,8 +219,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureMessageWithScopeArguments.count)
         if let messageArguments = fixture.client.captureMessageWithScopeArguments.first {
-            XCTAssertEqual(fixture.message, messageArguments.first)
-            XCTAssertEqual(Scope(), messageArguments.second)
+            XCTAssertEqual(fixture.message, messageArguments.message)
+            XCTAssertEqual(Scope(), messageArguments.scope)
         }
     }
     
@@ -229,8 +229,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureErrorWithScopeArguments.count)
         if let errorArguments = fixture.client.captureErrorWithScopeArguments.first {
-            XCTAssertEqual(fixture.error, errorArguments.first as NSError)
-            XCTAssertEqual(fixture.scope, errorArguments.second)
+            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
+            XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
     
@@ -241,14 +241,12 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureErrorWithSessionArguments.count)
         if let errorArguments = fixture.client.captureErrorWithSessionArguments.first {
-            let actualSession = errorArguments.second
+            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
             
-            XCTAssertEqual(fixture.error, errorArguments.first as NSError)
+            XCTAssertEqual(1, errorArguments.session.errors)
+            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session.status)
             
-            XCTAssertEqual(1, actualSession.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, actualSession.status)
-            
-            XCTAssertEqual(fixture.scope, errorArguments.third)
+            XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
         
         // only session init is sent
@@ -260,9 +258,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureErrorWithScopeArguments.count)
         if let errorArguments = fixture.client.captureErrorWithScopeArguments.first {
-            XCTAssertEqual(fixture.error, errorArguments.first as NSError)
-            let actualScope = errorArguments.second
-            XCTAssertEqual(Scope(), actualScope)
+            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
+            XCTAssertEqual(Scope(), errorArguments.scope)
         }
     }
     
@@ -271,8 +268,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithScopeArguments.count)
         if let errorArguments = fixture.client.captureExceptionWithScopeArguments.first {
-            XCTAssertEqual(fixture.exception, errorArguments.first)
-            XCTAssertEqual(fixture.scope, errorArguments.second)
+            XCTAssertEqual(fixture.exception, errorArguments.exception)
+            XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
     
@@ -281,9 +278,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithScopeArguments.count)
         if let errorArguments = fixture.client.captureExceptionWithScopeArguments.first {
-            XCTAssertEqual(fixture.exception, errorArguments.first)
-            let actualScope = errorArguments.second
-            XCTAssertEqual(Scope(), actualScope)
+            XCTAssertEqual(fixture.exception, errorArguments.exception)
+            XCTAssertEqual(Scope(), errorArguments.scope)
         }
     }
     
@@ -294,13 +290,12 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithSessionArguments.count)
         if let exceptionArguments = fixture.client.captureExceptionWithSessionArguments.first {
-            XCTAssertEqual(fixture.exception, exceptionArguments.first)
+            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
             
-            let actualSession = exceptionArguments.second
-            XCTAssertEqual(1, actualSession.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, actualSession.status)
+            XCTAssertEqual(1, exceptionArguments.session.errors)
+            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session.status)
             
-            XCTAssertEqual(fixture.scope, exceptionArguments.third)
+            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
         }
         
         // only session init is sent
@@ -318,7 +313,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(10, fixture.client.captureExceptionWithSessionArguments.count)
         for i in Array(0...9) {
             let arguments = fixture.client.captureExceptionWithSessionArguments[i]
-            XCTAssertEqual(i + 1, Int(arguments.second.errors))
+            XCTAssertEqual(i + 1, Int(arguments.session.errors))
         }
     }
     
@@ -333,7 +328,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(10, fixture.client.captureErrorWithSessionArguments.count)
         for i in Array(0...9) {
             let arguments = fixture.client.captureErrorWithSessionArguments[i]
-            XCTAssertEqual(i + 1, Int(arguments.second.errors))
+            XCTAssertEqual(i + 1, Int(arguments.session.errors))
         }
     }
     
@@ -484,13 +479,13 @@ class SentryHubTests: XCTestCase {
     private func assertEventSent() {
         let arguments = fixture.client.captureEventWithScopeArguments
         XCTAssertEqual(1, arguments.count)
-        XCTAssertEqual(fixture.event, arguments.first?.first)
+        XCTAssertEqual(fixture.event, arguments.first?.event)
     }
     
     private func assertCrashEventSent() {
         let arguments = fixture.client.captureCrashEventArguments
         XCTAssertEqual(1, arguments.count)
-        XCTAssertEqual(fixture.event, arguments.first?.first)
+        XCTAssertEqual(fixture.event, arguments.first?.event)
     }
 
     private func assertEventSentWithSession() {
@@ -498,13 +493,13 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, arguments.count)
 
         let argument = arguments.first
-        XCTAssertEqual(fixture.event, argument?.first)
+        XCTAssertEqual(fixture.event, argument?.event)
 
-        let session = argument?.second
+        let session = argument?.session
         XCTAssertEqual(fixture.currentDateProvider.date(), session?.timestamp)
         XCTAssertEqual(SentrySessionStatus.crashed, session?.status)
         XCTAssertEqual(fixture.options.environment, session?.environment)
 
-        XCTAssertEqual(fixture.scope, argument?.third)
+        XCTAssertEqual(fixture.scope, argument?.scope)
     }
 }
