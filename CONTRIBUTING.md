@@ -34,7 +34,10 @@ formatting Swift code.
 
 With that, the repo is fully set up and you are ready to run all commands.
 
-## Run Tests
+## Tests
+
+We write our tests mainly in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests. 
+New tests should all be written in Swift.
 
 Test can either be ran inside from Xcode or via 
 
