@@ -25,9 +25,9 @@ class TestHub: SentryHub {
         sentCrashEvents.append(event)
     }
     
-    var capturedEventsWithScopes: [Pair<Event, Scope>] = []
+    var capturedEventsWithScopes: [(event: Event, scope: Scope)] = []
     override func capture(event: Event, scope: Scope) -> SentryId {
-        capturedEventsWithScopes.append(Pair(event, scope))
+        capturedEventsWithScopes.append((event, scope))
         return event.eventId
     }
     

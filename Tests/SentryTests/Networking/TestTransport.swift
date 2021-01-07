@@ -5,14 +5,14 @@ public class TestTransport: NSObject, Transport {
     
     var lastSentEnvelope: SentryEnvelope?
     
-    var sentEvents: [Pair<Event, [Attachment]>] = []
+    var sentEvents: [(event: Event, attachments: [Attachment])] = []
     public func send(event: Event, attachments: [Attachment]) {
-        sentEvents.append(Pair(event, attachments))
+        sentEvents.append((event, attachments))
     }
     
-    var sentEventsWithSession: [Triple<Event, SentrySession, [Attachment]>] = []
+    var sentEventsWithSession: [(event: Event, session: SentrySession, attachments: [Attachment])] = []
     public func send(_ event: Event, with session: SentrySession, attachments: [Attachment]) {
-        sentEventsWithSession.append(Triple(event, session, attachments))
+        sentEventsWithSession.append((event, session, attachments))
     }
     
     var sentUserFeedback: [UserFeedback] = []
