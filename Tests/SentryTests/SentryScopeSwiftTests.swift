@@ -221,7 +221,7 @@ class SentryScopeSwiftTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testModifyingScopeFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentryScopeTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
         let scope = fixture.scope
@@ -253,7 +253,6 @@ class SentryScopeSwiftTests: XCTestCase {
                 scope.setTags(["tag1": "hello", "tag2": "hello"])
                 
                 scope.add(TestData.fileAttachment)
-                XCTAssertFalse(scope.attachments.isEmpty)
                 
                 scope.setUser(self.fixture.user)
                 scope.setDist("dist")

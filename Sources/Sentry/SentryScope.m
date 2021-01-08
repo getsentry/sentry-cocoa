@@ -21,23 +21,23 @@ SentryScope ()
 /**
  * Set global tags -> these will be sent with every event
  */
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
+@property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
+@property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
  * used to add values in event context.
  */
-@property (nonatomic, strong)
+@property (atomic, strong)
     NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
  */
-@property (nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 /**
  * This distribution of the application.
@@ -52,7 +52,7 @@ SentryScope ()
 /**
  * Set the fingerprint of an event to determine the grouping
  */
-@property (nonatomic, strong) NSMutableArray<NSString *> *fingerprintArray;
+@property (atomic, strong) NSMutableArray<NSString *> *fingerprintArray;
 
 /**
  * SentryLevel of the event
@@ -61,7 +61,7 @@ SentryScope ()
 
 @property (atomic) NSInteger maxBreadcrumbs;
 
-@property (nonatomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
+@property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
 @end
 
@@ -92,24 +92,12 @@ SentryScope ()
 - (instancetype)initWithScope:(SentryScope *)scope
 {
     if (self = [self init]) {
-        @synchronized(_extraDictionary) {
-            [_extraDictionary addEntriesFromDictionary:[scope extras]];
-        }
-        @synchronized(_tagDictionary) {
-            [_tagDictionary addEntriesFromDictionary:[scope tags]];
-        }
-        @synchronized(_contextDictionary) {
-            [_contextDictionary addEntriesFromDictionary:[scope context]];
-        }
-        @synchronized(_breadcrumbArray) {
-            [_breadcrumbArray addObjectsFromArray:[scope breadcrumbs]];
-        }
-        @synchronized(_fingerprintArray) {
-            [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
-        }
-        @synchronized(_attachmentArray) {
-            [_attachmentArray addObjectsFromArray:[scope attachments]];
-        }
+        [_extraDictionary addEntriesFromDictionary:[scope extras]];
+        [_tagDictionary addEntriesFromDictionary:[scope tags]];
+        [_contextDictionary addEntriesFromDictionary:[scope context]];
+        [_breadcrumbArray addObjectsFromArray:[scope breadcrumbs]];
+        [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
+        [_attachmentArray addObjectsFromArray:[scope attachments]];
 
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
         self.userObject = scope.userObject.copy;
@@ -342,8 +330,9 @@ SentryScope ()
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
 
-    if (self.levelEnum != kSentryLevelNone) {
-        [serializedData setValue:SentryLevelNames[self.levelEnum] forKey:@"level"];
+    SentryLevel level = self.levelEnum;
+    if (level != kSentryLevelNone) {
+        [serializedData setValue:SentryLevelNames[level] forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {
@@ -420,8 +409,9 @@ SentryScope ()
         event.context = newContext;
     }
 
-    if (nil != self.userObject) {
-        event.user = self.userObject.copy;
+    SentryUser *user = self.userObject.copy;
+    if (nil != user) {
+        event.user = user;
     }
 
     NSString *dist = self.distString;
