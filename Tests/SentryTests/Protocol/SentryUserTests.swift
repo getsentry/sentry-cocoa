@@ -76,4 +76,51 @@ class SentryUserTests: XCTestCase {
         
         XCTAssertEqual(TestData.user, copiedUser)
     }
+    
+    // Altough we only run this test above the below specified versions, we exped the
+    // implementation to be thread safe
+    // With this test we test if modifications from multiple threads don't lead to a crash.
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testModifyingFromMultipleThreads() {
+        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        let user = TestData.user.copy() as! User
+        
+        for i in Array(0...20) {
+            group.enter()
+            queue.async {
+                
+                // The number is kept small for the CI to not take to long.
+                // If you really want to test this increase to 100_000 or so.
+                for _ in Array (0...1_000) {
+                    
+                    // Simulate some real world modifications of the user
+                    
+                    // Trigger is equal
+                    XCTAssertNotEqual(user, TestData.user)
+                    user.serialize()
+                    
+                    user.serialize()
+                    
+                    user.userId = "\(i)"
+                    user.email = "john@example.com"
+                    user.username = "\(i)"
+                    user.ipAddress = "\(i)"
+                    
+                    user.data?["\(i)"] = "\(i)"
+                    
+                    // Trigger hash
+                    XCTAssertNotNil([user: user])
+                }
+                
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.waitWithTimeout()
+    }
 }
