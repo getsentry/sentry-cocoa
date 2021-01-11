@@ -99,13 +99,14 @@ class SentryUserTests: XCTestCase {
                     
                     // Simulate some real world modifications of the user
                     
-                    // Trigger is equal
-                    XCTAssertNotEqual(user, TestData.user)
-                    user.serialize()
-                    
-                    user.serialize()
-                    
                     user.userId = "\(i)"
+                    
+                    // Trigger is equal
+                    user.isEqual(to: TestData.user)
+                    user.serialize()
+                    
+                    user.serialize()
+                    
                     user.email = "john@example.com"
                     user.username = "\(i)"
                     user.ipAddress = "\(i)"
