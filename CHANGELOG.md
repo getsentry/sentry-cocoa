@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.0
+
 - perf: Improve locks in SentryScope #888
 
 ## 6.1.0-alpha.1
