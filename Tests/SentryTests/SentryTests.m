@@ -176,7 +176,7 @@
     [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
     NSError *error =
-        [NSError errorWithDomain:@"testworld"
+        [NSError sentryErrorWithDomain:@"testworld"
                             code:200
                         userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
     [SentrySDK captureError:error];

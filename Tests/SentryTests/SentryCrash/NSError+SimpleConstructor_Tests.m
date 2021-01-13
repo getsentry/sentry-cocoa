@@ -33,9 +33,9 @@
 
 @implementation NSError_SimpleConstructor_Tests
 
-- (void)testErrorWithDomain
+- (void)testsentryErrorWithDomain
 {
-    NSError *error = [NSError errorWithDomain:@"Domain" code:10 description:@"A description %d", 1];
+    NSError *error = [NSError sentryErrorWithDomain:@"Domain" code:10 description:@"A description %d", 1];
     NSString *expectedDomain = @"Domain";
     NSInteger expectedCode = 10;
     NSString *expectedDescription = @"A description 1";
@@ -63,7 +63,7 @@
 
 - (void)testClearError
 {
-    NSError *error = [NSError errorWithDomain:@"" code:1 description:@""];
+    NSError *error = [NSError sentryErrorWithDomain:@"" code:1 description:@""];
     XCTAssertNotNil(error, @"");
     [NSError clearError:&error];
     XCTAssertNil(error, @"");
