@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.1
+
 - fix: Duplicate symbol clash with KSCrash #902
 
 ## 6.1.0
