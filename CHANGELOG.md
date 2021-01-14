@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- ref: prefix with category methods with sentry #902
+
 ## 6.1.0
 
 - perf: Improve locks in SentryScope #888
