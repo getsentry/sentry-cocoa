@@ -130,9 +130,9 @@ SentryCrashReportFilterCombine ()
     if (filterCount != [keys count]) {
         sentrycrash_callCompletion(onCompletion, reports, NO,
             [NSError sentryErrorWithDomain:[[self class] description]
-                                code:0
-                         description:@"Key/filter mismatch (%d keys, %d filters", [keys count],
-                         filterCount]);
+                                      code:0
+                               description:@"Key/filter mismatch (%d keys, %d filters",
+                               [keys count], filterCount]);
         return;
     }
 
@@ -152,8 +152,8 @@ SentryCrashReportFilterCombine ()
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError sentryErrorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"filteredReports was nil"]);
+                                              code:0
+                                       description:@"filteredReports was nil"]);
             }
             disposeOfCompletion();
             return;
@@ -265,8 +265,8 @@ SentryCrashReportFilterPipeline ()
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError sentryErrorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"filteredReports was nil"]);
+                                              code:0
+                                       description:@"filteredReports was nil"]);
             }
             disposeOfCompletion();
             return;
@@ -335,8 +335,8 @@ SentryCrashReportFilterObjectForKey ()
             if (!self.allowNotFound) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError sentryErrorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"Key not found: %@", self.key]);
+                                              code:0
+                                       description:@"Key not found: %@", self.key]);
                 return;
             }
             [filteredReports addObject:[NSDictionary dictionary]];
@@ -467,8 +467,8 @@ SentryCrashReportFilterSubset ()
             if (object == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                     [NSError sentryErrorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"Report did not have key path %@", keyPath]);
+                                              code:0
+                                       description:@"Report did not have key path %@", keyPath]);
                 return;
             }
             [subset setObject:object forKey:[keyPath lastPathComponent]];
@@ -517,8 +517,8 @@ SentryCrashReportFilterSubset ()
         if (converted == nil) {
             sentrycrash_callCompletion(onCompletion, filteredReports, NO,
                 [NSError sentryErrorWithDomain:[[self class] description]
-                                    code:0
-                             description:@"Could not convert report to UTF-8"]);
+                                          code:0
+                                   description:@"Could not convert report to UTF-8"]);
             return;
         } else {
             [filteredReports addObject:converted];

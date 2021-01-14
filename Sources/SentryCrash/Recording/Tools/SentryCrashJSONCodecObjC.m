@@ -171,8 +171,8 @@ onElement(SentryCrashJSONCodec *codec, NSString *name, id element)
     if (codec->_currentContainer == nil) {
         codec.error = [NSError
             sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                       code:0
-                description:@"Type %@ not allowed as top level container", [element class]];
+                             code:0
+                      description:@"Type %@ not allowed as top level container", [element class]];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
 
@@ -277,8 +277,8 @@ onEndContainer(void *const userData)
     if ([codec->_containerStack count] == 0) {
         codec.error =
             [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                                code:0
-                         description:@"Already at the top level; no container left to end"];
+                                      code:0
+                               description:@"Already at the top level; no container left to end"];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
     [codec->_containerStack removeLastObject];
@@ -316,8 +316,8 @@ encodeObject(
         result = sentrycrashjson_addStringElement(context, cName, data.bytes, (int)data.length);
         if (result == SentryCrashJSON_ERROR_INVALID_CHARACTER) {
             codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                                              code:0
-                                       description:@"Invalid character in %@", object];
+                                                    code:0
+                                             description:@"Invalid character in %@", object];
         }
         return result;
     }
@@ -397,8 +397,8 @@ encodeObject(
     }
 
     codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                                      code:0
-                               description:@"Could not determine type of %@", [object class]];
+                                            code:0
+                                     description:@"Could not determine type of %@", [object class]];
     return SentryCrashJSON_ERROR_INVALID_DATA;
 }
 
@@ -433,10 +433,10 @@ encodeObject(
         = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length, stringData.mutableBytes,
             (int)stringData.length, codec.callbacks, (__bridge void *)codec, &errorOffset);
     if (result != SentryCrashJSON_OK && codec.error == nil) {
-        codec.error = [NSError
-            sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                       code:0
-                description:@"%s (offset %d)", sentrycrashjson_stringForError(result), errorOffset];
+        codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
+                                                code:0
+                                         description:@"%s (offset %d)",
+                                         sentrycrashjson_stringForError(result), errorOffset];
     }
     if (error != nil) {
         *error = codec.error;

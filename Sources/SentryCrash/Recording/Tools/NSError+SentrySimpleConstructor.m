@@ -29,8 +29,8 @@
 @implementation NSError (SentrySimpleConstructor)
 
 + (NSError *)sentryErrorWithDomain:(NSString *)domain
-                        code:(NSInteger)code
-                 description:(NSString *)fmt, ...
+                              code:(NSInteger)code
+                       description:(NSString *)fmt, ...
 {
     va_list args;
     va_start(args, fmt);
