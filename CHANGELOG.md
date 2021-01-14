@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- ref: prefix with category methods with sentry #902
+- fix: Duplicate symbol clash with KSCrash #902
 
 ## 6.1.0
 
