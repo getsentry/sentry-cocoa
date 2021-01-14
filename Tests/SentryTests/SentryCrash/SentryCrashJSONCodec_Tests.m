@@ -1049,14 +1049,6 @@ toString(NSData *data)
     XCTAssertNotNil(error, @"");
 }
 
-//- (void) testSerializeBadTopLevelType
-//{
-//    NSError* error = (NSError*)self;
-//    id source = @"Blah";
-//    NSString* result = toString([SentryCrashJSONCodec encode:source
-//    error:&error]); XCTAssertNil(result, @""); XCTAssertNotNil(error, @"");
-//}
-
 - (void)testSerializeArrayBadType
 {
     NSError *error = (NSError *)self;
