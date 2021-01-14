@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.2
+
 - fix: Clash with KSCrash functions #905
 
 ## 6.1.1
