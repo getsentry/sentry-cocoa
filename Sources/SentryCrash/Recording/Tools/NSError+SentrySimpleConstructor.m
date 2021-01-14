@@ -45,9 +45,9 @@
 }
 
 + (BOOL)sentryFillError:(NSError *__autoreleasing *)error
-       withDomain:(NSString *)domain
-             code:(NSInteger)code
-      description:(NSString *)fmt, ...
+             withDomain:(NSString *)domain
+                   code:(NSInteger)code
+            description:(NSString *)fmt, ...
 {
     if (error != nil) {
         va_list args;

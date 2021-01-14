@@ -53,9 +53,9 @@
  * @return NO (to keep the analyzer happy).
  */
 + (BOOL)sentryFillError:(NSError **)error
-       withDomain:(NSString *)domain
-             code:(NSInteger)code
-      description:(NSString *)fmt, ...;
+             withDomain:(NSString *)domain
+                   code:(NSInteger)code
+            description:(NSString *)fmt, ...;
 
 /** Clear a pointer-to-error to nil of its pointer is not nil.
  *
