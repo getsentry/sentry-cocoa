@@ -33,7 +33,7 @@
 
 @implementation NSError_SimpleConstructor_Tests
 
-- (void)testsentryErrorWithDomain
+- (void)testSentryErrorWithDomain
 {
     NSError *error = [NSError sentryErrorWithDomain:@"Domain"
                                                code:10
@@ -46,7 +46,7 @@
     XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
 }
 
-- (void)testsentryFillError
+- (void)testSentryFillError
 {
     NSError *error = nil;
     [NSError sentryFillError:&error
@@ -61,12 +61,12 @@
     XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
 }
 
-- (void)testsentryFillErrorNil
+- (void)testSentryFillErrorNil
 {
     [NSError sentryFillError:nil withDomain:@"Domain" code:10 description:@"A description %d", 1];
 }
 
-- (void)testsentryClearError
+- (void)testSentryClearError
 {
     NSError *error = [NSError sentryErrorWithDomain:@"" code:1 description:@""];
     XCTAssertNotNil(error, @"");
@@ -74,7 +74,7 @@
     XCTAssertNil(error, @"");
 }
 
-- (void)testsentryClearErrorNil
+- (void)testSentryClearErrorNil
 {
     [NSError sentryClearError:nil];
 }
