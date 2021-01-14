@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Duplicate symbol clash with KSCrash #902
+
 ## 6.1.0
 
 - perf: Improve locks in SentryScope #888
