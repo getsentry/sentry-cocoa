@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Clash with KSCrash functions #905
+
 ## 6.1.1
 
 - fix: Duplicate symbol clash with KSCrash #902
