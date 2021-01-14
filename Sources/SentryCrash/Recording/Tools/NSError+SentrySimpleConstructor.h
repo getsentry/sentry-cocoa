@@ -40,8 +40,8 @@
  * key NSLocalizedDescriptionKey).
  */
 + (NSError *)sentryErrorWithDomain:(NSString *)domain
-                        code:(NSInteger)code
-                 description:(NSString *)fmt, ...;
+                              code:(NSInteger)code
+                       description:(NSString *)fmt, ...;
 
 /** Fill an error pointer with an NSError object if it's not nil.
  *
