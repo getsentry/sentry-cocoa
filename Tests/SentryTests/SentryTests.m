@@ -177,8 +177,8 @@
 
     NSError *error =
         [NSError errorWithDomain:@"testworld"
-                                  code:200
-                              userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
+                            code:200
+                        userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
     [SentrySDK captureError:error];
 
     // TODO(fetzig)
