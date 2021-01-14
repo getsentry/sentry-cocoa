@@ -44,7 +44,7 @@
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
 
-+ (BOOL)fillError:(NSError *__autoreleasing *)error
++ (BOOL)sentryFillError:(NSError *__autoreleasing *)error
        withDomain:(NSString *)domain
              code:(NSInteger)code
       description:(NSString *)fmt, ...
@@ -65,7 +65,7 @@
     return NO;
 }
 
-+ (BOOL)clearError:(NSError *__autoreleasing *)error
++ (BOOL)sentryClearError:(NSError *__autoreleasing *)error
 {
     if (error != nil) {
         *error = nil;

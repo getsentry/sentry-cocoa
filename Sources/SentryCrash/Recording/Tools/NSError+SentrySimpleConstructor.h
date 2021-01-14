@@ -52,7 +52,7 @@
  * key NSLocalizedDescriptionKey).
  * @return NO (to keep the analyzer happy).
  */
-+ (BOOL)fillError:(NSError **)error
++ (BOOL)sentryFillError:(NSError **)error
        withDomain:(NSString *)domain
              code:(NSInteger)code
       description:(NSString *)fmt, ...;
@@ -62,6 +62,6 @@
  * @param error Error pointer to fill (ignored if nil).
  * @return NO (to keep the analyzer happy).
  */
-+ (BOOL)clearError:(NSError **)error;
++ (BOOL)sentryClearError:(NSError **)error;
 
 @end

@@ -46,10 +46,10 @@
     XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
 }
 
-- (void)testFillError
+- (void)testsentryFillError
 {
     NSError *error = nil;
-    [NSError fillError:&error withDomain:@"Domain" code:10 description:@"A description %d", 1];
+    [NSError sentryFillError:&error withDomain:@"Domain" code:10 description:@"A description %d", 1];
     NSString *expectedDomain = @"Domain";
     NSInteger expectedCode = 10;
     NSString *expectedDescription = @"A description 1";
@@ -58,22 +58,22 @@
     XCTAssertEqualObjects(error.localizedDescription, expectedDescription, @"");
 }
 
-- (void)testFillErrorNil
+- (void)testsentryFillErrorNil
 {
-    [NSError fillError:nil withDomain:@"Domain" code:10 description:@"A description %d", 1];
+    [NSError sentryFillError:nil withDomain:@"Domain" code:10 description:@"A description %d", 1];
 }
 
-- (void)testClearError
+- (void)testsentryClearError
 {
     NSError *error = [NSError sentryErrorWithDomain:@"" code:1 description:@""];
     XCTAssertNotNil(error, @"");
-    [NSError clearError:&error];
+    [NSError sentryClearError:&error];
     XCTAssertNil(error, @"");
 }
 
-- (void)testClearErrorNil
+- (void)testsentryClearErrorNil
 {
-    [NSError clearError:nil];
+    [NSError sentryClearError:nil];
 }
 
 @end
