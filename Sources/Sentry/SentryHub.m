@@ -2,11 +2,14 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
+#import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
+#import "SentrySerialization.h"
 
 @interface
 SentryHub ()
@@ -372,6 +375,48 @@ SentryHub ()
     if (nil != scope) {
         [scope setUser:user];
     }
+}
+
+- (void)captureEnvelope:(SentryEnvelope *)envelope
+{
+    SentryClient *client = _client;
+    if (nil == client) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionState:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
+{
+    if ([self envelopeContainsEventWithErrorOrHigher:envelope.items]) {
+        SentrySession *currentSession = [self incrementSessionErrors];
+
+        if (nil != currentSession) {
+            // Create a new envelope with the session update
+            NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+                [[NSMutableArray alloc] initWithArray:envelope.items];
+            [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+
+            return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+        }
+    }
+
+    return envelope;
+}
+
+- (BOOL)envelopeContainsEventWithErrorOrHigher:(NSArray<SentryEnvelopeItem *> *)items
+{
+    for (SentryEnvelopeItem *item in items) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+            SentryLevel level = [SentrySerialization levelFromData:item.data];
+            if (level >= kSentryLevelError) {
+                return YES;
+            }
+        }
+    }
+
+    return NO;
 }
 
 @end

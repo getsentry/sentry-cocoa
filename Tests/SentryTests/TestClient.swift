@@ -87,6 +87,11 @@ class TestClient: Client {
     override func capture(userFeedback: UserFeedback) {
         capturedUserFeedback.append(userFeedback)
     }
+    
+    var capturedEnvelopes: [SentryEnvelope] = []
+    override func capture(envelope: SentryEnvelope) {
+        capturedEnvelopes.append(envelope)
+    }
 }
 
 class TestFileManager: SentryFileManager {

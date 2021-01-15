@@ -4,6 +4,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryId.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
@@ -269,6 +270,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return session;
+}
+
++ (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData
+{
+    NSError *error = nil;
+    NSDictionary *eventDictionary = [NSJSONSerialization JSONObjectWithData:eventEnvelopeItemData
+                                                                    options:0
+                                                                      error:&error];
+    if (nil != error) {
+        [SentryLog
+            logWithMessage:
+                [NSString
+                    stringWithFormat:@"Failed to retrieve event level from envelope item data: %@",
+                    error]
+                  andLevel:kSentryLogLevelError];
+        return kSentryLevelError;
+    }
+
+    return [SentryLevelMapper levelWithString:eventDictionary[@"level"]];
 }
 
 @end
