@@ -164,6 +164,18 @@ class SentrySerializationTests: XCTestCase {
         
         XCTAssertNil(SentrySerialization.session(with: data))
     }
+    
+    func testLevelFromEventData() {
+        let envelopeItem = SentryEnvelopeItem(event: TestData.event)
+        
+        let level = SentrySerialization.level(from: envelopeItem.data)
+        XCTAssertEqual(TestData.event.level, level)
+    }
+    
+    func testLevelFromEventData_WithGarbage() {
+        let level = SentrySerialization.level(from: "hi".data(using: .utf8)!)
+        XCTAssertEqual(SentryLevel.error, level)
+    }
 
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()

@@ -17,9 +17,9 @@ class TestClient: Client {
         return event.eventId
     }
     
-    var captureEventWithScopeArguments: [Pair<Event, Scope>] = []
+    var captureEventWithScopeArguments: [(event: Event, scope: Scope)] = []
     override func capture(event: Event, scope: Scope) -> SentryId {
-        captureEventWithScopeArguments.append(Pair(event, scope))
+        captureEventWithScopeArguments.append((event, scope))
         return event.eventId
     }
     
@@ -29,9 +29,9 @@ class TestClient: Client {
         return SentryId()
     }
     
-    var captureMessageWithScopeArguments: [Pair<String, Scope>] = []
+    var captureMessageWithScopeArguments: [(message: String, scope: Scope)] = []
     override func capture(message: String, scope: Scope) -> SentryId {
-        captureMessageWithScopeArguments.append(Pair(message, scope))
+        captureMessageWithScopeArguments.append((message, scope))
         return SentryId()
     }
     
@@ -41,9 +41,9 @@ class TestClient: Client {
         return SentryId()
     }
     
-    var captureErrorWithScopeArguments: [Pair<Error, Scope>] = []
+    var captureErrorWithScopeArguments: [(error: Error, scope: Scope)] = []
     override func capture(error: Error, scope: Scope) -> SentryId {
-        captureErrorWithScopeArguments.append(Pair(error, scope))
+        captureErrorWithScopeArguments.append((error, scope))
         return SentryId()
     }
     
@@ -53,39 +53,44 @@ class TestClient: Client {
         return SentryId()
     }
     
-    var captureExceptionWithScopeArguments: [Pair<NSException, Scope>] = []
+    var captureExceptionWithScopeArguments: [(exception: NSException, scope: Scope)] = []
     override func capture(exception: NSException, scope: Scope) -> SentryId {
-        captureExceptionWithScopeArguments.append(Pair(exception, scope))
+        captureExceptionWithScopeArguments.append((exception, scope))
         return SentryId()
     }
     
-    var captureErrorWithSessionArguments: [Triple<Error, SentrySession, Scope>] = []
+    var captureErrorWithSessionArguments: [(error: Error, session: SentrySession, scope: Scope)] = []
     override func captureError(_ error: Error, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureErrorWithSessionArguments.append(Triple(error, session, scope))
+        captureErrorWithSessionArguments.append((error, session, scope))
                return SentryId()
     }
     
-    var captureExceptionWithSessionArguments: [Triple<NSException, SentrySession, Scope>] = []
+    var captureExceptionWithSessionArguments: [(exception: NSException, session: SentrySession, scope: Scope)] = []
     override func capture(_ exception: NSException, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureExceptionWithSessionArguments.append(Triple(exception, session, scope))
+        captureExceptionWithSessionArguments.append((exception, session, scope))
         return SentryId()
     }
     
-    var captureCrashEventArguments: [Pair<Event, Scope>] = []
+    var captureCrashEventArguments: [(event: Event, scope: Scope)] = []
     override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
-        captureCrashEventArguments.append(Pair(event, scope))
+        captureCrashEventArguments.append((event, scope))
         return SentryId()
     }
     
-    var captureCrashEventWithSessionArguments: [Triple<Event, SentrySession, Scope>] = []
+    var captureCrashEventWithSessionArguments: [(event: Event, session: SentrySession, scope: Scope)] = []
     override func captureCrash(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureCrashEventWithSessionArguments.append(Triple(event, session, scope))
+        captureCrashEventWithSessionArguments.append((event, session, scope))
         return SentryId()
     }
     
     var capturedUserFeedback: [UserFeedback] = []
     override func capture(userFeedback: UserFeedback) {
         capturedUserFeedback.append(userFeedback)
+    }
+    
+    var capturedEnvelopes: [SentryEnvelope] = []
+    override func capture(envelope: SentryEnvelope) {
+        capturedEnvelopes.append(envelope)
     }
 }
 

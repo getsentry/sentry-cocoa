@@ -2,6 +2,22 @@
 
 ## unreleased
 
+## 6.1.3
+
+- fix: Capture envelope updates session state #906
+
+## 6.1.2
+
+- fix: Clash with KSCrash functions #905
+
+## 6.1.1
+
+- fix: Duplicate symbol clash with KSCrash #902
+
+## 6.1.0
+
+- perf: Improve locks in SentryScope #888
+
 ## 6.1.0-alpha.1
 
 - fix: Change maxAttachmentSize from MiB to bytes #891

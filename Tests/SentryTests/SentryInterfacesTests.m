@@ -376,12 +376,6 @@
     XCTAssertEqualObjects([exception2 serialize], serialized2);
 }
 
-//- (void)testContext {
-//    SentryContext *context = [[SentryContext alloc] init];
-//    XCTAssertNotNil(context);
-//    XCTAssertEqual([context serialize].count, (unsigned long)3);
-//}
-
 - (void)testBreadcrumb
 {
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo

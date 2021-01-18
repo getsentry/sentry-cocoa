@@ -44,6 +44,7 @@
 #import "SentryHub+TestInit.h"
 #import "SentryId.h"
 #import "SentryInstallation.h"
+#import "SentryLevelMapper.h"
 #import "SentryMeta.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSURLRequest.h"
