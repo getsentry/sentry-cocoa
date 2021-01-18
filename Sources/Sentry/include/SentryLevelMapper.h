@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Maps a string to a SentryLevel. If the passed string doesn't match any level this defaults to
- * error. See https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
+ * the 'error' level. See https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
 + (SentryLevel)levelWithString:(NSString *)string;
 
