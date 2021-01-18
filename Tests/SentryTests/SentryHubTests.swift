@@ -406,6 +406,73 @@ class SentryHubTests: XCTestCase {
         
         assertNoEventsSent()
     }
+    
+    func testCaptureEnvelope_WithEventWithError() {
+        sut.startSession()
+        
+        captureEventEnvelope(level: SentryLevel.error)
+        
+        assertSessionWithIncrementedErrorCountedAdded()
+    }
+    
+    func testCaptureEnvelope_WithEventWithFatal() {
+        sut.startSession()
+        
+        captureEventEnvelope(level: SentryLevel.fatal)
+        
+        assertSessionWithIncrementedErrorCountedAdded()
+    }
+    
+    func testCaptureEnvelope_WithEventWithNoLevel() throws {
+        sut.startSession()
+        
+        let envelope = try givenEnvelopeWithModifiedEvent { eventDict in
+            eventDict.removeValue(forKey: "level")
+        }
+        sut.capture(envelope: envelope)
+        
+        assertSessionWithIncrementedErrorCountedAdded()
+    }
+    
+    func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
+        sut.startSession()
+        
+        let envelope = try givenEnvelopeWithModifiedEvent { eventDict in
+            eventDict["level"] = "Garbage"
+        }
+        sut.capture(envelope: envelope)
+        
+        assertSessionWithIncrementedErrorCountedAdded()
+    }
+    
+    func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
+        captureEventEnvelope(level: SentryLevel.fatal)
+        
+        assertNoSessionAddedToCapturedEnvelope()
+    }
+    
+    func testCaptureEnvelope_WithEventWithWarning() {
+        sut.startSession()
+        
+        captureEventEnvelope(level: SentryLevel.warning)
+        
+        assertNoSessionAddedToCapturedEnvelope()
+    }
+    
+    func testCaptureEnvelope_WithClientNil() {
+        sut.bindClient(nil)
+        captureEventEnvelope(level: SentryLevel.warning)
+        
+        assertNoEnvelopesCaptured()
+    }
+    
+    func testCaptureEnvelope_WithSession() {
+        let envelope = SentryEnvelope(session: SentrySession(releaseName: ""))
+        sut.capture(envelope: envelope)
+        
+        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
+        XCTAssertEqual(envelope, fixture.client.capturedEnvelopes.first)
+    }
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
@@ -437,6 +504,12 @@ class SentryHubTests: XCTestCase {
         group.waitWithTimeout()
     }
     
+    private func captureEventEnvelope(level: SentryLevel) {
+        let event = TestData.event
+        event.level = level
+        sut.capture(envelope: SentryEnvelope(event: event))
+    }
+    
     private func givenCrashedSession() {
         fixture.sentryCrash.internalCrashedLastLaunch = true
         fixture.fileManager.storeCrashedSession(fixture.crashedSession)
@@ -448,6 +521,17 @@ class SentryHubTests: XCTestCase {
         let options = fixture.options
         options.enableAutoSessionTracking = false
         sut = fixture.getSut(options)
+    }
+    
+    private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
+        let event = TestData.event
+        let envelopeItem = SentryEnvelopeItem(event: event)
+        var eventDict = try JSONSerialization.jsonObject(with: envelopeItem.data) as! [String: Any]
+        
+        modifyEventDict(&eventDict)
+        
+        let eventData = try JSONSerialization.data(withJSONObject: eventDict)
+        return SentryEnvelope(header: SentryEnvelopeHeader(id: event.eventId), items: [SentryEnvelopeItem(header: envelopeItem.header, data: eventData)])
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
@@ -501,5 +585,23 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(fixture.options.environment, session?.environment)
 
         XCTAssertEqual(fixture.scope, argument?.scope)
+    }
+    
+    private func assertSessionWithIncrementedErrorCountedAdded() {
+        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
+        let envelope = fixture.client.capturedEnvelopes.first!
+        XCTAssertEqual(2, envelope.items.count)
+        let session = SentrySerialization.session(with: envelope.items[1].data)
+        XCTAssertEqual(1, session?.errors)
+    }
+    
+    private func assertNoSessionAddedToCapturedEnvelope() {
+        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
+        let envelope = fixture.client.capturedEnvelopes.first!
+        XCTAssertEqual(1, envelope.items.count)
+    }
+    
+    private func assertNoEnvelopesCaptured() {
+        XCTAssertEqual(0, fixture.client.capturedEnvelopes.count)
     }
 }
