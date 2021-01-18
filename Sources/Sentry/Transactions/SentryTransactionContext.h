@@ -15,12 +15,16 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(TransactionContext)
 @interface SentryTransactionContext : SentrySpanContext
 
-@property (nonatomic, readonly) NSString* name;
+@property (nonatomic, readonly) NSString *name;
 @property (nonatomic) bool parentSampled;
 
--(instancetype) init;
--(instancetype) initWithName:(NSString*)name;
--(instancetype) initWithName:(NSString*)name traceId:(SentryId*)traceId spanId:(SentrySpanId*)spanId parentSpanId:(SentrySpanId*)parentSpanId andParentSampled:(BOOL)parentSampled;
+- (instancetype)init;
+- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name
+                     traceId:(SentryId *)traceId
+                      spanId:(SentrySpanId *)spanId
+                parentSpanId:(SentrySpanId *)parentSpanId
+            andParentSampled:(BOOL)parentSampled;
 
 @end
 

@@ -10,42 +10,41 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
-#import "SentryId.h"
 #import "SentryHub.h"
+#import "SentryId.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTransactionContext.h"
 
-
-@interface SentryTransaction () {
-    SentrySpanContext* trace;
+@interface
+SentryTransaction () {
+    SentrySpanContext *trace;
 }
 
 @end
 
 @implementation SentryTransaction
 
-
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
         self.timestamp = [SentryCurrentDate date];
     }
-    
+
     NSMutableDictionary *serializedData = @{
         @"event_id" : self.eventId.sentryIdString,
         @"timestamp" : [self.timestamp sentry_toIso8601String],
-        @"spans": @[],
-        @"type":@"transaction"
+        @"spans" : @[],
+        @"type" : @"transaction"
     }
-    .mutableCopy;
-    
+                                              .mutableCopy;
+
     [self addSimpleProperties:serializedData];
-    
+
     // This is important here, since we probably use __sentry internal extras
     // before
     [serializedData setValue:self.tags forKey:@"tags"];
-    
+
     return serializedData;
 }
 
@@ -54,19 +53,18 @@
     [serializedData setValue:self.sdk forKey:@"sdk"];
     [serializedData setValue:self.transaction forKey:@"transaction"];
 
-    
-    NSMutableDictionary* mutableContext = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *mutableContext = [[NSMutableDictionary alloc] init];
     mutableContext[@"trace"] = @{
-        @"name": self.transaction,
-        @"span_id": trace.spanId.sentrySpanIdString,
-        @"tags":@{},
-        @"trace_id": [[SentryId alloc] init].sentryIdString
+        @"name" : self.transaction,
+        @"span_id" : trace.spanId.sentrySpanIdString,
+        @"tags" : @ {},
+        @"trace_id" : [[SentryId alloc] init].sentryIdString
     };
-    
+
     if (self.context != nil) {
         [mutableContext addEntriesFromDictionary:self.context];
     }
-    
+
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     if (nil != self.startTimestamp) {
@@ -74,8 +72,7 @@
                           forKey:@"start_timestamp"];
     } else {
         // start timestamp should never be empty
-        [serializedData setValue:[self.timestamp sentry_toIso8601String]
-                          forKey:@"start_timestamp"];
+        [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"start_timestamp"];
     }
 }
 
@@ -93,25 +90,29 @@
     return ;
 }*/
 
--(instancetype)initWithTransactionContext:(SentryTransactionContext*)context andHub:(SentryHub*)hub {
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
+                                    andHub:(SentryHub *)hub
+{
     return [self initWithName:context.name context:context andHub:hub];
 }
 
--(instancetype)initWithName:(NSString*)name context:(nonnull SentrySpanContext *)context andHub:(nonnull SentryHub *)hub {
+- (instancetype)initWithName:(NSString *)name
+                     context:(nonnull SentrySpanContext *)context
+                      andHub:(nonnull SentryHub *)hub
+{
     if ([self init]) {
         self.transaction = name;
-        //need to set the hub
-        //self.hub = hub;
+        // need to set the hub
+        // self.hub = hub;
         self.startTimestamp = [NSDate date];
-        trace = context ;
+        trace = context;
     }
     return self;
 }
 
-
--(void)finish {
+- (void)finish
+{
     self.timestamp = [NSDate date];
 }
 
 @end
-

@@ -10,23 +10,36 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
-@interface SentrySpanContext () {
-    NSMutableDictionary<NSString*, NSString*>* _tags;
+@interface
+SentrySpanContext () {
+    NSMutableDictionary<NSString *, NSString *> *_tags;
 }
 
 @end
 
 @implementation SentrySpanContext
 
--(instancetype)init{
-    return [self initWithtraceId:[[SentryId alloc] init] spanId:[[SentrySpanId alloc] init] parentId:nil andSampled:false];
+- (instancetype)init
+{
+    return [self initWithtraceId:[[SentryId alloc] init]
+                          spanId:[[SentrySpanId alloc] init]
+                        parentId:nil
+                      andSampled:false];
 }
 
--(instancetype)initWithSampled:(BOOL)sampled {
-    return [self initWithtraceId:[[SentryId alloc] init] spanId:[[SentrySpanId alloc] init] parentId:nil andSampled:sampled];
+- (instancetype)initWithSampled:(BOOL)sampled
+{
+    return [self initWithtraceId:[[SentryId alloc] init]
+                          spanId:[[SentrySpanId alloc] init]
+                        parentId:nil
+                      andSampled:sampled];
 }
 
--(instancetype)initWithtraceId:(SentryId*)traceId spanId:(SentrySpanId*)spanID parentId:(SentrySpanId* _Nullable)parentId andSampled:(BOOL)sampled {
+- (instancetype)initWithtraceId:(SentryId *)traceId
+                         spanId:(SentrySpanId *)spanID
+                       parentId:(SentrySpanId *_Nullable)parentId
+                     andSampled:(BOOL)sampled
+{
     if (self = [super init]) {
         self.traceId = traceId;
         self.spanId = spanID;
@@ -36,8 +49,10 @@
     return self;
 }
 
--(NSMutableDictionary*)tags {
-    if (_tags == nil) _tags = [[NSMutableDictionary alloc] init];
+- (NSMutableDictionary *)tags
+{
+    if (_tags == nil)
+        _tags = [[NSMutableDictionary alloc] init];
     return _tags;
 }
 

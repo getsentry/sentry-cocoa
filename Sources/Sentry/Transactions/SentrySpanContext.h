@@ -13,22 +13,24 @@ NS_SWIFT_NAME(SpanContext)
 
 @property (nonatomic, strong) SentrySpanId *spanId;
 
-@property (nonatomic, strong) SentrySpanId * _Nullable parentSpanId;
+@property (nonatomic, strong) SentrySpanId *_Nullable parentSpanId;
 
 @property (nonatomic) BOOL sampled;
 
-@property (nonatomic, copy) NSString* _Nullable operation;
+@property (nonatomic, copy) NSString *_Nullable operation;
 
-@property (nonatomic, copy) NSString* _Nullable spanDescription;
+@property (nonatomic, copy) NSString *_Nullable spanDescription;
 
-@property (nonatomic, copy) NSString* _Nullable status;
+@property (nonatomic, copy) NSString *_Nullable status;
 
-@property (nonatomic, readonly) NSMutableDictionary<NSString*, NSString*>* tags;
+@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSString *> *tags;
 
-
--(instancetype)init;
--(instancetype)initWithSampled:(BOOL)sampled;
--(instancetype)initWithtraceId:(SentryId*)traceId spanId:(SentrySpanId*)spanID parentId:(SentrySpanId* _Nullable)parentId andSampled:(BOOL)sampled;
+- (instancetype)init;
+- (instancetype)initWithSampled:(BOOL)sampled;
+- (instancetype)initWithtraceId:(SentryId *)traceId
+                         spanId:(SentrySpanId *)spanID
+                       parentId:(SentrySpanId *_Nullable)parentId
+                     andSampled:(BOOL)sampled;
 
 @end
 

@@ -22,11 +22,11 @@
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-#import "SentryTransaction.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -232,7 +232,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return SentryId.empty;
 }
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction {
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+{
     return [self sendTransaction:transaction];
 }
 
@@ -241,7 +242,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transport sendEnvelope:[[SentryEnvelope alloc] initWithTransaction:transaction]];
     return transaction.eventId;
 }
-
 
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(SentrySession *)session

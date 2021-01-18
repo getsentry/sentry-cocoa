@@ -22,7 +22,9 @@ static SentrySpanId *_empty = nil;
 
 - (instancetype)initWithUUID:(NSUUID *)uuid
 {
-    return [self initWithValue:[[uuid.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""] substringToIndex:16]];
+    return [self initWithValue:[[uuid.UUIDString stringByReplacingOccurrencesOfString:@"-"
+                                                                           withString:@""]
+                                   substringToIndex:16]];
 }
 
 - (instancetype)initWithValue:(NSString *)value
@@ -50,9 +52,9 @@ static SentrySpanId *_empty = nil;
     if ([self class] != [object class]) {
         return NO;
     }
-    
+
     SentrySpanId *otherSentryID = (SentrySpanId *)object;
-    
+
     return [self.value isEqual:otherSentryID.value];
 }
 

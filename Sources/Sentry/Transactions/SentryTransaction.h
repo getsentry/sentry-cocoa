@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanContext, SentryTransactionContext, SentryHub;
 
-@interface SentryTransaction : NSObject<SentrySerializable>
+@interface SentryTransaction : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryId *eventId;
@@ -56,12 +56,15 @@ SENTRY_NO_INIT
  * only if you know what you are doing
  */
 @property (nonatomic, strong)
-NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
 
 //-(instancetype)initWithName:(NSString*)name;
--(instancetype)initWithTransactionContext:(SentryTransactionContext*)context andHub:(SentryHub*)hub;
--(instancetype)initWithName:(NSString*)name context:(SentrySpanContext*)context andHub:(SentryHub*)hub;
--(void)finish;
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
+                                    andHub:(SentryHub *)hub;
+- (instancetype)initWithName:(NSString *)name
+                     context:(SentrySpanContext *)context
+                      andHub:(SentryHub *)hub;
+- (void)finish;
 
 @end
 

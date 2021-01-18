@@ -5,11 +5,11 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryMessage.h"
-#import "SentryTransaction.h"
 #import "SentryMeta.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -135,19 +135,18 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSError *error;
     NSData *json = [SentrySerialization dataWithJSONObject:[transaction serialize] error:&error];
-    
+
     if (nil != error) {
         transaction.context = nil;
         transaction.sdk = nil;
         error = nil;
         json = [SentrySerialization dataWithJSONObject:[transaction serialize] error:&error];
     }
-    
-    return [self
-            initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeTransaction
-                                                                   length:json.length
-                                                           ]
-            data:json];
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeTransaction
+                                          length:json.length]
+                           data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session
@@ -273,7 +272,8 @@ NS_ASSUME_NONNULL_BEGIN
                      singleItem:item];
 }
 
-- (instancetype)initWithTransaction:(SentryTransaction *)transaction {
+- (instancetype)initWithTransaction:(SentryTransaction *)transaction
+{
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithTransaction:transaction];
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:transaction.eventId]
                      singleItem:item];
