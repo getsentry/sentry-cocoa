@@ -409,6 +409,7 @@ SentryHub ()
 {
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+            // If there is no level the default is error
             SentryLevel level = [SentrySerialization levelFromData:item.data];
             if (level >= kSentryLevelError) {
                 return YES;
