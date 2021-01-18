@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.3
+
 - fix: Capture envelope updates session state #906
 
 ## 6.1.2
