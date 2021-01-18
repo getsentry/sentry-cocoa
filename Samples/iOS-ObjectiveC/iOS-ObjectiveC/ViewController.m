@@ -1,4 +1,5 @@
 #import "ViewController.h"
+
 @import Sentry;
 
 @interface
@@ -21,14 +22,14 @@ ViewController ()
         user.email = @"tony@example.com";
         [scope setUser:user];
 
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
-        [scope addAttachment:[[SentryAttachment alloc] initWithPath:path
+        /*NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
+         [scope addAttachment:[[SentryAttachment alloc] initWithPath:path
                                                            filename:@"Tongariro.jpg"
                                                         contentType:@"image/jpeg"]];
 
         [scope addAttachment:[[SentryAttachment alloc]
                                  initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
-                                     filename:@"log.txt"]];
+                                     filename:@"log.txt"]];*/
     }];
     // Also works
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
@@ -97,6 +98,19 @@ ViewController ()
     // lot of useful info If you just want to mutate what's in the scope use the
     // callback, see: captureError
     [SentrySDK captureException:exception withScope:scope];
+}
+
+- (IBAction)captureTransaction:(id)sender {
+    NSDate* start = [NSDate dateWithTimeIntervalSinceNow:-20];
+    SentryTransactionContext* context = [[SentryTransactionContext alloc] initWithName:@"Other Transaction"];
+    SentryTransaction* fakeTransaction = [[SentryTransaction alloc] initWithTransactionContext:context andHub:SentrySDK.currentHub];
+    
+    //for test purpose, setter will be removed and startTimestamp will be set at initialization
+    fakeTransaction.startTimestamp = start;
+    fakeTransaction.timestamp = [start dateByAddingTimeInterval:2];
+    [fakeTransaction finish]; //use finish instead of setting timestamp
+    
+    [[SentrySDK.currentHub getClient] captureTransaction:fakeTransaction];
 }
 
 - (IBAction)crash:(id)sender

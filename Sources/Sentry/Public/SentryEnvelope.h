@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,6 +67,7 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 - (instancetype)initWithEvent:(SentryEvent *)event;
+- (instancetype)initWithTransaction:(SentryTransaction *)transaction;
 - (instancetype)initWithSession:(SentrySession *)session;
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 - (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
@@ -118,6 +119,8 @@ SENTRY_NO_INIT
 
 // Convenience init for a single event
 - (instancetype)initWithEvent:(SentryEvent *)event;
+
+- (instancetype)initWithTransaction:(SentryTransaction *)transaction;
 
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 
