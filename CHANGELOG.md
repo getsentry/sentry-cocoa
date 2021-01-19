@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Performance Monitoring API
+
 ## 6.1.3
 
 - fix: Capture envelope updates session state #906
