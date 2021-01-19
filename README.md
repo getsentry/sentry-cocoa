@@ -54,11 +54,6 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 
 Since version 6.0.0 of this SDK, Sentry version >= v20.6.0 is required. This only applies to on-premise Sentry, if you are using [sentry.io](http://sentry.io/) no action is needed.
 
-# Known limitations
-
-* Because of an [open issue in Carthage](https://github.com/Carthage/Carthage/issues/3019)
-this SDK can't be used on Macs with Apple Silicon when importing it via Carthage.
-
 # Resources
 
 * [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/apple/)
