@@ -130,8 +130,8 @@ SentrySessionTracker ()
 }
 
 /**
- * Is called when an app is receiving events / it is in the foreground and when we receive a
- * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee if this method is called once
+ * It is called when an App. is receiving events / It is in the foreground and when we receive a
+ * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
  * or twice. We need to ensure that we execute it only once.
  */
 - (void)didBecomeActive
