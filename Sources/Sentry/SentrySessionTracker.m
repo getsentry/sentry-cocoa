@@ -94,9 +94,9 @@ SentrySessionTracker ()
 }
 
 /**
- * End previously cached sessions. We never can be sure that WillResignActive or WillTerminate
- are called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and
- end them.
+ * End previously cached sessions. We never can be sure that WillResignActive or WillTerminate are
+ * called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and end
+ * them.
  */
 - (void)endCachedSession
 {
