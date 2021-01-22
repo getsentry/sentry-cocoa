@@ -67,6 +67,33 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionStored()
     }
     
+    func testOnlyHybridSdkDidBecomeActive() {
+        sut.start()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
+    func testForeground_And_HybridSdkDidBecomeActive() {
+        sut.start()
+        goToForeground()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
+    func testHybridSdkDidBecomeActive_and_Foreground() {
+        sut.start()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        goToForeground()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
     func testForeground_Background_TrackingIntervalNotReached() {
         sut.start()
         
