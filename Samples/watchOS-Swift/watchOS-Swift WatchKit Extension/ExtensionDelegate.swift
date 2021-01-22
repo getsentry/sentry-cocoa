@@ -7,7 +7,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         // Perform any final initialization of your application.
         
         SentrySDK.start { options in
-            options.dsn = "https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557"
+            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
             options.beforeSend = { event in
                 return event
             }
