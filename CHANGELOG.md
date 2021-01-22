@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix: Sessions for Hybrid SDKs #913
+
 ## 6.1.3
 
 - fix: Capture envelope updates session state #906
