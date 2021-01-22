@@ -74,6 +74,8 @@ To make a header public follow these steps:
 * Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 * Set the target membership to public.
 
+## Releasing
+For releasing a new version, see https://github.com/getsentry/publish#usage. The link is private to Sentry team members.
 
 ## Final Notes
 
