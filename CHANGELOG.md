@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## 6.1.4
+
 - fix: Sessions for Hybrid SDKs #913
 
 ## 6.1.3
