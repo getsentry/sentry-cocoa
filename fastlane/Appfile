@@ -1,0 +1,8 @@
+app_identifier("io.sentry.sample.iOS-Swift") # The bundle identifier of your app
+
+itc_team_id("96157806") # App Store Connect Team ID
+team_id("97JCY7859U") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
+

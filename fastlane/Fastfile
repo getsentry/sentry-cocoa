@@ -1,0 +1,45 @@
+default_platform(:ios)
+
+platform :ios do
+  # Defined in Appfile
+  app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+  team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+
+  desc "Upload iOS-Swift sample to TestFlight"
+  lane :ios_swift_to_testflight do
+    sync_code_signing(
+      type: "appstore", 
+      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
+      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+      readonly: true)
+
+    set_info_plist_value(
+      path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+
+		build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+			include_bitcode: true,
+      include_symbols: true,
+			export_options: {
+				method: "app-store",
+				provisioningProfiles: { 
+					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
+				}
+			}
+    )
+    
+    testflight
+    download_dsyms
+    upload_symbols_to_sentry(
+      auth_token: ENV["SENTRY_AUTH_TOKEN"],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+    )
+    clean_build_artifacts
+  end
+
+end
