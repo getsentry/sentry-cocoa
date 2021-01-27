@@ -16,7 +16,8 @@
 #import "SentrySpanId.h"
 #import "SentryTransactionContext.h"
 
-@interface SentryTransaction () {
+@interface
+SentryTransaction () {
     SentrySpanContext *trace;
 }
 

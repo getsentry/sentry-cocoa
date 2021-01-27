@@ -102,7 +102,7 @@ ViewController ()
 
 - (IBAction)captureTransaction:(id)sender
 {
-    SentryTransaction *fakeTransaction = [SentrySDK startTransactionWithName:@"Other Transaction"];
+    SentryTransaction *fakeTransaction = [SentrySDK startTransactionWithName:@"Some Transaction"];
     [NSThread sleepForTimeInterval:1.0f];
     [fakeTransaction finish];
 }

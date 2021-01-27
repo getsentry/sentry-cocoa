@@ -126,43 +126,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return [self
-        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent
+        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:event.type
                                                                length:json.length]
                   data:json];
-}
-
-- (instancetype)initWithTransaction:(SentryTransaction *)transaction
-{
-    NSError *error;
-    NSData *json = [SentrySerialization dataWithJSONObject:[transaction serialize] error:&error];
-
-    if (nil != error) {
-        transaction.context = nil;
-        transaction.sdk = nil;
-        error = nil;
-        json = [SentrySerialization dataWithJSONObject:[transaction serialize] error:&error];
-        if (error != nil) {
-            // We don't know what caused the serialization to fail.
-            SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
-            
-            // Add some context to the event. We can only set simple properties otherwise we
-            // risk that the conversion fails again.
-            NSString *message =
-            [NSString stringWithFormat:@"JSON conversion error for transaction: '%@'",
-             transaction.transaction];
-            
-            errorEvent.message = [[SentryMessage alloc] initWithFormatted:message];
-            
-            // We accept the risk that this simple serialization fails. Therefore we ignore the
-            // error on purpose.
-            json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
-        }
-    }
-
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
-                                    initWithType:SentryEnvelopeItemTypeTransaction
-                                          length:json.length]
-                           data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session
@@ -285,13 +251,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:event.eventId]
-                     singleItem:item];
-}
-
-- (instancetype)initWithTransaction:(SentryTransaction *)transaction
-{
-    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithTransaction:transaction];
-    return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:transaction.eventId]
                      singleItem:item];
 }
 
