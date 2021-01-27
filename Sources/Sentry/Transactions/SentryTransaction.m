@@ -1,11 +1,3 @@
-//
-//  SentryTransaction.m
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 11/01/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import "SentryTransaction.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"

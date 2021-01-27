@@ -1,11 +1,3 @@
-//
-//  SentryTransaction.h
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 11/01/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN

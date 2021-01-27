@@ -1,11 +1,3 @@
-//
-//  SentryTransactionContext.h
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 18/01/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import "SentrySpanContext.h"
 
 NS_ASSUME_NONNULL_BEGIN

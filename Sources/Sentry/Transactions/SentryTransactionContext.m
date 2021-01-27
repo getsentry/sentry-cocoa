@@ -1,11 +1,3 @@
-//
-//  SentryTransactionContext.m
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 18/01/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import "SentryTransactionContext.h"
 
 @implementation SentryTransactionContext

@@ -1,11 +1,3 @@
-//
-//  SpanContext.m
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 05/01/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import "SentrySpanContext.h"
 #import "SentryId.h"
 #import "SentrySpanId.h"
