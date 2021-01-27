@@ -125,10 +125,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    return [self
-        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:event.type
-                                                               length:json.length]
-                  data:json];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:event.type
+                                                                        length:json.length]
+                           data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session

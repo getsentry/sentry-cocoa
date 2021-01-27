@@ -120,7 +120,6 @@ SENTRY_NO_INIT
 // Convenience init for a single event
 - (instancetype)initWithEvent:(SentryEvent *)event;
 
-
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 
 /**
