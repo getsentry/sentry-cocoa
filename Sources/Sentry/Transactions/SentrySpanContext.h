@@ -1,10 +1,9 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <Sentry/SentrySpanId.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryId;
+@class SentryId, SentrySpanId;
 
 NS_SWIFT_NAME(SpanContext)
 @interface SentrySpanContext : NSObject
