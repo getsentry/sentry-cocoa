@@ -46,6 +46,9 @@ make test
 ```
 
 ## Code Formatting
+Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
+as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
+
 Only PRs with properly formatted code are acccepted. To format all code run:
 
 ```sh
