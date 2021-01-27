@@ -3,16 +3,14 @@ import XCTest
 class SentryTransactionTest: XCTestCase {
     let someTransactionName = "Some Transaction"
     
-    func testInitWithName()
-    {
+    func testInitWithName() {
         let transaction = Transaction(name: someTransactionName)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
     }
     
-    func testInitWithTransactionContext()
-    {
+    func testInitWithTransactionContext() {
         let context = TransactionContext(name: someTransactionName)
         let transaction = Transaction(transactionContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
@@ -20,8 +18,7 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertEqual(transaction.transaction, someTransactionName)
     }
     
-    func testInitWithNameAndContext()
-    {
+    func testInitWithNameAndContext() {
         let context = SpanContext()
         let transaction = Transaction(name: someTransactionName, context: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
@@ -29,8 +26,7 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertEqual(transaction.transaction, someTransactionName)
     }
     
-    func testFinishCapturesTransaction()
-    {
+    func testFinishCapturesTransaction() {
         let fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         let transport = TestTransport()
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
@@ -45,8 +41,7 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertTrue(client.captureEventWithScopeArguments.last!.event === transaction)
     }
     
-    func testSerialization()
-    {
+    func testSerialization() {
         let transaction = Transaction(name: someTransactionName)
         transaction.finish()
         

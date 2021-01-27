@@ -81,14 +81,14 @@ SENTRY_NO_INIT
 + (SentryId *)captureEvent:(SentryEvent *)event
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
-
 /**
  * Creates a Transaction bound to the current hub and returns the instance.
  *
  * @param name the transaction name
  * @return created transaction
  */
-+ (SentryTransaction *)startTransactionWithName:(NSString *)name NS_SWIFT_NAME(startTransaction(name:));
++ (SentryTransaction *)startTransactionWithName:(NSString *)name
+    NS_SWIFT_NAME(startTransaction(name:));
 
 /**
  * Creates a Transaction bound to the current hub and returns the instance.
@@ -96,8 +96,8 @@ SENTRY_NO_INIT
  * @param transactionContext the transaction contexts
  * @return created transaction
  */
-+ (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext NS_SWIFT_NAME(startTransaction(transactionContext:));
-
++ (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

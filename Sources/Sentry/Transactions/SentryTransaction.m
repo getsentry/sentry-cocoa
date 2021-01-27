@@ -35,11 +35,12 @@ SentryTransaction () {
     if (nil == self.timestamp) {
         self.timestamp = [SentryCurrentDate date];
     }
-    
-    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+
+    NSMutableDictionary *serializedData =
+        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
     serializedData[@"spans"] = @[];
 
-    NSMutableDictionary* mutableContext = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *mutableContext = [[NSMutableDictionary alloc] init];
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
@@ -50,7 +51,7 @@ SentryTransaction () {
         @"trace_id" : [[SentryId alloc] init].sentryIdString
     };
     [serializedData setValue:mutableContext forKey:@"contexts"];
-    
+
     return serializedData;
 }
 
@@ -64,7 +65,8 @@ SentryTransaction () {
     return self;
 }
 
--(instancetype)initWithName:(NSString*)name {
+- (instancetype)initWithName:(NSString *)name
+{
     return [self initWithName:name context:[[SentrySpanContext alloc] init] andHub:nil];
 }
 
