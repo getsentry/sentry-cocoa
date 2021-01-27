@@ -36,13 +36,13 @@ SentrySpanContext () {
 }
 
 - (instancetype)initWithtraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanID
+                         spanId:(SentrySpanId *)spanId
                        parentId:(SentrySpanId *_Nullable)parentId
                      andSampled:(BOOL)sampled
 {
     if (self = [super init]) {
         self.traceId = traceId;
-        self.spanId = spanID;
+        self.spanId = spanId;
         self.parentSpanId = parentId;
         self.sampled = sampled;
     }

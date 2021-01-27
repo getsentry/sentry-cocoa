@@ -234,13 +234,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction
 {
-    return [self sendTransaction:transaction];
-}
-
-- (SentryId *)sendTransaction:(SentryTransaction *)transaction
-{
-    [self.transport sendEnvelope:[[SentryEnvelope alloc] initWithTransaction:transaction]];
-    return transaction.eventId;
+    return [self captureEvent:transaction withScope:[[SentryScope alloc] init]];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event

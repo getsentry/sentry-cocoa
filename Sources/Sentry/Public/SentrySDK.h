@@ -3,7 +3,7 @@
 #import "SentryDefines.h"
 
 @class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback;
+    SentryUserFeedback, SentryTransaction, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,6 +80,24 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
+
+
+/**
+ * Creates a Transaction bound to the current hub and returns the instance.
+ *
+ * @param name the transaction name
+ * @return created transaction
+ */
++ (SentryTransaction *)startTransactionWithName:(NSString *)name NS_SWIFT_NAME(startTransaction(name:));
+
+/**
+ * Creates a Transaction bound to the current hub and returns the instance.
+ *
+ * @param transactionContext the transaction contexts
+ * @return created transaction
+ */
++ (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext NS_SWIFT_NAME(startTransaction(transactionContext:));
+
 
 /**
  * Captures an error event and sends it to Sentry.

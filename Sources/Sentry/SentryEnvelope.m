@@ -141,6 +141,22 @@ NS_ASSUME_NONNULL_BEGIN
         transaction.sdk = nil;
         error = nil;
         json = [SentrySerialization dataWithJSONObject:[transaction serialize] error:&error];
+        if (error != nil) {
+            // We don't know what caused the serialization to fail.
+            SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
+            
+            // Add some context to the event. We can only set simple properties otherwise we
+            // risk that the conversion fails again.
+            NSString *message =
+            [NSString stringWithFormat:@"JSON conversion error for transaction: '%@'",
+             transaction.transaction];
+            
+            errorEvent.message = [[SentryMessage alloc] initWithFormatted:message];
+            
+            // We accept the risk that this simple serialization fails. Therefore we ignore the
+            // error on purpose.
+            json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
+        }
     }
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]

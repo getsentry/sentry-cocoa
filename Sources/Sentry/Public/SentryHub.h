@@ -2,7 +2,7 @@
 #import "SentryIntegrationProtocol.h"
 
 @class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryEnvelope;
+    SentryId, SentryUserFeedback, SentryEnvelope, SentryTransactionContext, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -41,6 +41,33 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
+
+/**
+ * Captures a transaction and sends it to Sentry.
+ *
+ * @param transaction The Transaction to send to Sentry.
+ *
+ * @return The SentryId of the transaction or SentryId.empty if the transaction is not sent.
+ */
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction NS_SWIFT_NAME(capture(transaction:));
+
+
+/**
+ * Creates a Transaction bound to the current hub and returns the instance.
+ *
+ * @param name the transaction name
+ * @return created transaction
+ */
+- (SentryTransaction *)startTransactionWithName:(NSString *)name NS_SWIFT_NAME(startTransaction(name:));
+
+/**
+ * Creates a Transaction bound to the current hub and returns the instance.
+ *
+ * @param transactionContext the transaction contexts
+ * @return created transaction
+ */
+- (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext NS_SWIFT_NAME(startTransaction(transactionContext:));
+
 
 /**
  * Captures an error event and sends it to Sentry.
