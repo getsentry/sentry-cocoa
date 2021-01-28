@@ -5,19 +5,21 @@ platform :ios do
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
   team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
-  desc "Upload iOS-Swift sample to TestFlight"
+  lane :bump_bundle_version do
+    set_info_plist_value(
+      path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+  end
+
+  desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
     sync_code_signing(
       type: "appstore", 
       keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
       keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
       readonly: true
-    )
-
-    set_info_plist_value(
-      path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 
-      key: "CFBundleVersion", 
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
 
 		build_app(
