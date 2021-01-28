@@ -14,7 +14,7 @@ SENTRY_NO_INIT
                                     andHub:(SentryHub *_Nullable)hub;
 
 - (instancetype)initWithName:(NSString *)name
-                     spanContext:(SentrySpanContext *)spanContext
+                 spanContext:(SentrySpanContext *)spanContext
                       andHub:(SentryHub *_Nullable)hub;
 
 - (void)finish;

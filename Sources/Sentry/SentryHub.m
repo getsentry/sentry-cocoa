@@ -236,7 +236,7 @@ SentryHub ()
 {
     return
         [[SentryTransaction alloc] initWithName:name
-                                        spanContext:[[SentryTransactionContext alloc] initWithName:name]
+                                    spanContext:[[SentryTransactionContext alloc] initWithName:name]
                                          andHub:self];
 }
 
