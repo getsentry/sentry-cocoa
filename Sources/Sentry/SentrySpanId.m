@@ -34,7 +34,7 @@ static SentrySpanId *_empty = nil;
             return [SentrySpanId empty];
         self.value = value;
     }
-    
+
     return self;
 }
 
