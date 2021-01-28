@@ -10,7 +10,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithName:(NSString *)name;
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                     andHub:(SentryHub *_Nullable)hub;
 
 - (instancetype)initWithName:(NSString *)name
