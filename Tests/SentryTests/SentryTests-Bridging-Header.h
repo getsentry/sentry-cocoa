@@ -2,7 +2,6 @@
 //  Use this file to import your target's public headers that you would like to
 //  expose to Swift.
 //
-
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAttachment.h"
@@ -59,6 +58,7 @@
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 #import "SentrySessionTracker.h"
+#import "SentrySpanId.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryTestIntegration.h"

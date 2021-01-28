@@ -111,6 +111,16 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
++ (SentryTransaction *)startTransactionWithName:(NSString *)name
+{
+    return [SentrySDK.currentHub startTransactionWithName:name];
+}
+
++ (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
+}
+
 + (SentryId *)captureError:(NSError *)error
 {
     return [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
