@@ -18,7 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithUUID:(NSUUID *)uuid;
 
 /**
- * Creates a SentrySpanId from a 16 character string
+ * Creates a SentrySpanId from a 16 character string.
+ * Returns a empty SentrySpanId with the input is invalid.
 */
 - (instancetype)initWithValue:(NSString *)value;
 

@@ -29,8 +29,12 @@ static SentrySpanId *_empty = nil;
 
 - (instancetype)initWithValue:(NSString *)value
 {
-    if (self = [super init])
+    if (self = [super init]) {
+        if (value.length != 16)
+            return [SentrySpanId empty];
         self.value = value;
+    }
+    
     return self;
 }
 
