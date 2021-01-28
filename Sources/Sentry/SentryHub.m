@@ -10,6 +10,7 @@
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
+#import "SentryTransaction.h"
 
 @interface
 SentryHub ()
@@ -224,6 +225,24 @@ SentryHub ()
         return [client captureEvent:event withScope:scope];
     }
     return SentryId.empty;
+}
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+{
+    return [self.client captureTransaction:transaction];
+}
+
+- (SentryTransaction *)startTransactionWithName:(NSString *)name
+{
+    return
+        [[SentryTransaction alloc] initWithName:name
+                                    spanContext:[[SentryTransactionContext alloc] initWithName:name]
+                                         andHub:self];
+}
+
+- (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+{
+    return [[SentryTransaction alloc] initWithTransactionContext:transactionContext andHub:self];
 }
 
 - (SentryId *)captureMessage:(NSString *)message
