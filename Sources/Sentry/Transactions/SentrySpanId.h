@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Creates a SentrySpanId from a 16 character string
-*/
+ */
 - (instancetype)initWithValue:(NSString *)value;
 
 /**

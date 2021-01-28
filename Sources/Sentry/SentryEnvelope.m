@@ -125,12 +125,12 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    // event.type can be nil and the server infers error if there's a stack trace, otherwise default.
-    // In any case in the envelope type it should be event. Except for transactions
-    NSString* envelopeType = [event.type isEqualTo:SentryEnvelopeItemTypeTransaction]
+    // event.type can be nil and the server infers error if there's a stack trace, otherwise
+    // default. In any case in the envelope type it should be event. Except for transactions
+    NSString *envelopeType = [event.type isEqualTo:SentryEnvelopeItemTypeTransaction]
         ? SentryEnvelopeItemTypeTransaction
         : SentryEnvelopeItemTypeEvent;
-    
+
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
                                                                         length:json.length]
                            data:json];

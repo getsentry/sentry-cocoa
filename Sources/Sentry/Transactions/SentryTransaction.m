@@ -28,11 +28,11 @@ SentryTransaction () {
         self.timestamp = [SentryCurrentDate date];
     }
 
-    NSMutableDictionary<NSString*, id> *serializedData =
+    NSMutableDictionary<NSString *, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
     serializedData[@"spans"] = @[];
 
-    NSMutableDictionary<NSString*, id> *mutableContext = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
