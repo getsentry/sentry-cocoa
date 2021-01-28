@@ -11,7 +11,8 @@ platform :ios do
       type: "appstore", 
       keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
       keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
-      readonly: true)
+      readonly: true
+    )
 
     set_info_plist_value(
       path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 

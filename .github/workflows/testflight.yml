@@ -5,7 +5,6 @@ on:
       - master
       - ci/** # Todo remove before merging
 
-
 env:
   FASTLANE_KEYCHAIN_NAME: fastlane.keychain
 
@@ -40,10 +39,8 @@ jobs:
         with:
           ruby-version: '2.7'
 
-      - name: setup fastlane
+      - name: Setup fastlane
         run: bundle install   
-
-    
 
       - name: Run Fastlane
         env:
