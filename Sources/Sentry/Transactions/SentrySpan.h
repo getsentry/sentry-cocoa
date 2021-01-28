@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ISentrySpan <NSObject>
+@protocol SentrySpan <NSObject>
 
 @end
 

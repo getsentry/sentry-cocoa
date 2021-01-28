@@ -1,10 +1,9 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <Sentry/SentrySpanId.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryId;
+@class SentryId, SentrySpanId;
 
 NS_SWIFT_NAME(SpanContext)
 @interface SentrySpanContext : NSObject
@@ -28,7 +27,7 @@ NS_SWIFT_NAME(SpanContext)
 - (instancetype)init;
 - (instancetype)initWithSampled:(BOOL)sampled;
 - (instancetype)initWithtraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanID
+                         spanId:(SentrySpanId *)spanId
                        parentId:(SentrySpanId *_Nullable)parentId
                      andSampled:(BOOL)sampled;
 

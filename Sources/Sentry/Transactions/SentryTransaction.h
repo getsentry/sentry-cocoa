@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanContext, SentryTransactionContext, SentryHub;
 
-NS_SWIFT_NAME(Transaction)
+NS_SWIFT_NAME(SentryTransaction)
 @interface SentryTransaction : SentryEvent <SentrySerializable>
 SENTRY_NO_INIT
 
@@ -14,7 +14,7 @@ SENTRY_NO_INIT
                                     andHub:(SentryHub *_Nullable)hub;
 
 - (instancetype)initWithName:(NSString *)name
-                     context:(SentrySpanContext *)context
+                     spanContext:(SentrySpanContext *)spanContext
                       andHub:(SentryHub *_Nullable)hub;
 
 - (void)finish;

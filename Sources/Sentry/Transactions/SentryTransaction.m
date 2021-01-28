@@ -28,11 +28,11 @@ SentryTransaction () {
         self.timestamp = [SentryCurrentDate date];
     }
 
-    NSMutableDictionary *serializedData =
+    NSMutableDictionary<NSString*, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
     serializedData[@"spans"] = @[];
 
-    NSMutableDictionary *mutableContext = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString*, id> *mutableContext = [[NSMutableDictionary alloc] init];
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
@@ -59,24 +59,24 @@ SentryTransaction () {
 
 - (instancetype)initWithName:(NSString *)name
 {
-    return [self initWithName:name context:[[SentrySpanContext alloc] init] andHub:nil];
+    return [self initWithName:name spanContext:[[SentrySpanContext alloc] init] andHub:nil];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
                                     andHub:(SentryHub *)hub
 {
-    return [self initWithName:context.name context:context andHub:hub];
+    return [self initWithName:context.name spanContext:context andHub:hub];
 }
 
 - (instancetype)initWithName:(NSString *)name
-                     context:(nonnull SentrySpanContext *)context
+                 spanContext:(nonnull SentrySpanContext *)spanContext
                       andHub:(SentryHub *)hub
 {
     if ([self init]) {
         self.transaction = name;
         self.startTimestamp = [SentryCurrentDate date];
         _hub = hub;
-        trace = context;
+        trace = spanContext;
     }
     return self;
 }

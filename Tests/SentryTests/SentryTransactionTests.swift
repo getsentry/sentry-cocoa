@@ -4,7 +4,7 @@ class SentryTransactionTest: XCTestCase {
     let someTransactionName = "Some Transaction"
     
     func testInitWithName() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = SentryTransaction(name: someTransactionName)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -12,7 +12,7 @@ class SentryTransactionTest: XCTestCase {
     
     func testInitWithTransactionContext() {
         let context = TransactionContext(name: someTransactionName)
-        let transaction = Transaction(transactionContext: context, andHub: nil)
+        let transaction = SentryTransaction(transactionContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -20,7 +20,7 @@ class SentryTransactionTest: XCTestCase {
     
     func testInitWithNameAndContext() {
         let context = SpanContext()
-        let transaction = Transaction(name: someTransactionName, context: context, andHub: nil)
+        let transaction = SentryTransaction(name: someTransactionName, spanContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -32,7 +32,7 @@ class SentryTransactionTest: XCTestCase {
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
 
-        let transaction = Transaction(name: someTransactionName, context: SpanContext(), andHub: hub)
+        let transaction = SentryTransaction(name: someTransactionName, spanContext: SpanContext(), andHub: hub)
         transaction.finish()
 
         XCTAssertNotNil(transaction.startTimestamp)
@@ -42,7 +42,7 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testSerialization() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = SentryTransaction(name: someTransactionName)
         transaction.finish()
         
         let serialization = transaction.serialize()

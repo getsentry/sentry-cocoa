@@ -2,21 +2,11 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
-@interface
-SentrySpanContext () {
-    NSMutableDictionary<NSString *, NSString *> *_tags;
-}
-
-@end
-
 @implementation SentrySpanContext
 
 - (instancetype)init
 {
-    return [self initWithtraceId:[[SentryId alloc] init]
-                          spanId:[[SentrySpanId alloc] init]
-                        parentId:nil
-                      andSampled:false];
+    return [self initWithSampled:false];
 }
 
 - (instancetype)initWithSampled:(BOOL)sampled
@@ -39,13 +29,6 @@ SentrySpanContext () {
         self.sampled = sampled;
     }
     return self;
-}
-
-- (NSMutableDictionary *)tags
-{
-    if (_tags == nil)
-        _tags = [[NSMutableDictionary alloc] init];
-    return _tags;
 }
 
 @end
