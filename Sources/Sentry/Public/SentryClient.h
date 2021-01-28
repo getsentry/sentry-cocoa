@@ -3,7 +3,7 @@
 #import "SentryDefines.h"
 
 @class SentryOptions, SentrySession, SentryEvent, SentryEnvelope, SentryScope, SentryFileManager,
-    SentryId, SentryUserFeedback;
+    SentryId, SentryUserFeedback, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,6 +40,9 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+    NS_SWIFT_NAME(capture(transaction:));
 
 /**
  * Captures an error event and sends it to Sentry.

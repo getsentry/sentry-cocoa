@@ -1,4 +1,5 @@
 #import "ViewController.h"
+
 @import Sentry;
 
 @interface
@@ -97,6 +98,13 @@ ViewController ()
     // lot of useful info If you just want to mutate what's in the scope use the
     // callback, see: captureError
     [SentrySDK captureException:exception withScope:scope];
+}
+
+- (IBAction)captureTransaction:(id)sender
+{
+    SentryTransaction *fakeTransaction = [SentrySDK startTransactionWithName:@"Some Transaction"];
+    [NSThread sleepForTimeInterval:1.0f];
+    [fakeTransaction finish];
 }
 
 - (IBAction)crash:(id)sender

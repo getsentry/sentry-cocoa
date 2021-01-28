@@ -22,6 +22,7 @@
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -229,6 +230,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return SentryId.empty;
+}
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+{
+    return [self captureEvent:transaction withScope:[[SentryScope alloc] init]];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
