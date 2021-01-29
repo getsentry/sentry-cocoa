@@ -6,6 +6,7 @@
 ## 6.1.4
 
 - fix: Sessions for Hybrid SDKs #913
+- feat: Performance Monitoring API
 
 ## 6.1.3
 
