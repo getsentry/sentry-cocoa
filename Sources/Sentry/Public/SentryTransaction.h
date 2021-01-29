@@ -8,6 +8,20 @@ NS_SWIFT_NAME(SentryTransaction)
 @interface SentryTransaction : SentryEvent <SentrySerializable>
 SENTRY_NO_INIT
 
+@property (readonly) SentrySpanContext * spanContext;
+
+@property (readonly) SentrySpanId * spanId;
+
+@property (readonly) SentryId * traceId;
+
+@property (readonly) BOOL isSampled;
+
+@property (nonatomic, copy) NSString * _Nullable spanDescription;
+
+@property (nonatomic, copy) NSString * operation;
+
+@property (nonatomic) enum SentrySpanStatus status;
+
 - (instancetype)initWithName:(NSString *)name;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext

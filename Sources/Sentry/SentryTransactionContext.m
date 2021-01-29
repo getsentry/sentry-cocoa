@@ -22,7 +22,7 @@
                 parentSpanId:(SentrySpanId *)parentSpanId
             andParentSampled:(BOOL)parentSampled
 {
-    if ([self initWithtraceId:traceId spanId:spanId parentId:parentSpanId andSampled:false]) {
+    if ([self initWithTraceId:traceId spanId:spanId parentId:parentSpanId andSampled:false]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = parentSampled;
     }

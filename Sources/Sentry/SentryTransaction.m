@@ -10,7 +10,7 @@
 
 @interface
 SentryTransaction () {
-    SentrySpanContext *trace;
+    SentrySpanContext *_spanContext;
 }
 
 /**
@@ -36,12 +36,7 @@ SentryTransaction () {
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
-    mutableContext[@"trace"] = @{
-        @"name" : self.transaction,
-        @"span_id" : trace.spanId.sentrySpanIdString,
-        @"tags" : @ {},
-        @"trace_id" : [[SentryId alloc] init].sentryIdString
-    };
+    mutableContext[@"trace"] = [_spanContext serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     return serializedData;
@@ -53,6 +48,7 @@ SentryTransaction () {
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.type = @"transaction";
+        _spanContext = [[SentrySpanContext alloc] init];
     }
     return self;
 }
@@ -76,7 +72,7 @@ SentryTransaction () {
         self.transaction = name;
         self.startTimestamp = [SentryCurrentDate date];
         _hub = hub;
-        trace = spanContext;
+        _spanContext = spanContext;
     }
     return self;
 }
@@ -85,6 +81,50 @@ SentryTransaction () {
 {
     self.timestamp = [SentryCurrentDate date];
     [self.hub captureTransaction:self];
+}
+
+- (SentrySpanId *) spanId
+{
+    return _spanContext.spanId;
+}
+
+- (SentryId *) traceId
+{
+    return _spanContext.traceId;
+}
+
+- (BOOL) isSampled
+{
+    return _spanContext.sampled;
+}
+
+- (NSString *) spanDescription
+{
+    return _spanContext.spanDescription;
+}
+
+- (void) setSpanDescription:(NSString *)spanDescription
+{
+    [_spanContext setSpanDescription:spanDescription];
+}
+
+- (SentrySpanStatus) status
+{
+    return _spanContext.status;
+}
+
+- (void) setStatus:(SentrySpanStatus)status
+{
+    [_spanContext setStatus:status];
+}
+
+- (NSString *) operation
+{
+    return _spanContext.operation;
+}
+
+- (void) setOperation:(NSString *)operation {
+    [_spanContext setOperation:operation];
 }
 
 @end

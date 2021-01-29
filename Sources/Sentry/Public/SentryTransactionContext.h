@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
 
-NS_SWIFT_NAME(TransactionContext)
+NS_SWIFT_NAME(SentryTransactionContext)
 @interface SentryTransactionContext : SentrySpanContext
 
 @property (nonatomic, readonly) NSString *name;

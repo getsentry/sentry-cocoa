@@ -2,6 +2,7 @@ import XCTest
 
 class SentryTransactionTest: XCTestCase {
     let someTransactionName = "Some Transaction"
+    let someOperation = "Some Operation"
     
     func testInitWithName() {
         let transaction = SentryTransaction(name: someTransactionName)
@@ -11,19 +12,35 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testInitWithTransactionContext() {
-        let context = TransactionContext(name: someTransactionName)
+        let someOperation = "Some Operation"
+        
+        let context = SentryTransactionContext(name: someTransactionName)
+        context.operation = someOperation
+        context.status = .ok
+        
         let transaction = SentryTransaction(transactionContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
+        XCTAssertEqual(transaction.traceId, context.traceId)
+        XCTAssertEqual(transaction.spanId, context.spanId)
+        XCTAssertEqual(transaction.operation, someOperation)
+        XCTAssertEqual(transaction.status, SentrySpanStatus.ok)
     }
     
     func testInitWithNameAndContext() {
-        let context = SpanContext()
+        let context = SentrySpanContext()
+        context.operation = someOperation
+        context.status = .ok
+
         let transaction = SentryTransaction(name: someTransactionName, spanContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
+        XCTAssertEqual(transaction.traceId, context.traceId)
+        XCTAssertEqual(transaction.spanId, context.spanId)
+        XCTAssertEqual(transaction.operation, someOperation)
+        XCTAssertEqual(transaction.status, SentrySpanStatus.ok)
     }
     
     func testFinishCapturesTransaction() {
@@ -32,7 +49,7 @@ class SentryTransactionTest: XCTestCase {
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
 
-        let transaction = SentryTransaction(name: someTransactionName, spanContext: SpanContext(), andHub: hub)
+        let transaction = SentryTransaction(name: someTransactionName, spanContext: SentrySpanContext(), andHub: hub)
         transaction.finish()
 
         XCTAssertNotNil(transaction.startTimestamp)
