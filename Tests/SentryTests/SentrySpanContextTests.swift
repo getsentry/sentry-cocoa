@@ -1,6 +1,6 @@
 import XCTest
 
-class SentrySpanContextTest: XCTestCase {
+class SentrySpanContextTests: XCTestCase {
    
     func testInitWithSampled() {
         let spanContext = SentrySpanContext(sampled: true)
