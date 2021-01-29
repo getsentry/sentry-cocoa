@@ -83,47 +83,48 @@ SentryTransaction () {
     [self.hub captureTransaction:self];
 }
 
-- (SentrySpanId *) spanId
+- (SentrySpanId *)spanId
 {
     return _spanContext.spanId;
 }
 
-- (SentryId *) traceId
+- (SentryId *)traceId
 {
     return _spanContext.traceId;
 }
 
-- (BOOL) isSampled
+- (BOOL)isSampled
 {
     return _spanContext.sampled;
 }
 
-- (NSString *) spanDescription
+- (NSString *)spanDescription
 {
     return _spanContext.spanDescription;
 }
 
-- (void) setSpanDescription:(NSString *)spanDescription
+- (void)setSpanDescription:(NSString *)spanDescription
 {
     [_spanContext setSpanDescription:spanDescription];
 }
 
-- (SentrySpanStatus) status
+- (SentrySpanStatus)status
 {
     return _spanContext.status;
 }
 
-- (void) setStatus:(SentrySpanStatus)status
+- (void)setStatus:(SentrySpanStatus)status
 {
     [_spanContext setStatus:status];
 }
 
-- (NSString *) operation
+- (NSString *)operation
 {
     return _spanContext.operation;
 }
 
-- (void) setOperation:(NSString *)operation {
+- (void)setOperation:(NSString *)operation
+{
     [_spanContext setOperation:operation];
 }
 

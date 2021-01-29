@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryId, SentrySpanId;
 
 NS_SWIFT_NAME(SentrySpanContext)
-@interface SentrySpanContext : NSObject<SentrySerializable>
+@interface SentrySpanContext : NSObject <SentrySerializable>
 
 @property (nonatomic, strong) SentryId *traceId;
 
@@ -17,7 +17,7 @@ NS_SWIFT_NAME(SentrySpanContext)
 
 @property (nonatomic) BOOL sampled;
 
-@property (nonatomic, copy) NSString * operation;
+@property (nonatomic, copy) NSString *operation;
 
 @property (nonatomic, copy) NSString *_Nullable spanDescription;
 

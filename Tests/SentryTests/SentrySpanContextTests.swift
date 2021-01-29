@@ -2,14 +2,12 @@ import XCTest
 
 class SentrySpanContextTest: XCTestCase {
    
-    func testInitWithSampled()
-    {
+    func testInitWithSampled() {
         let spanContext = SentrySpanContext(sampled: true)
         XCTAssertTrue(spanContext.sampled)
     }
     
-    func testInitWithTraceIdSpanIdParentIdSampled()
-    {
+    func testInitWithTraceIdSpanIdParentIdSampled() {
         let id = SentryId()
         let spanId = SentrySpanId()
         let parentId = SentrySpanId()
@@ -22,8 +20,7 @@ class SentrySpanContextTest: XCTestCase {
         XCTAssertTrue(spanContext.sampled)
     }
     
-    func testSerialization()
-    {
+    func testSerialization() {
         let id = SentryId()
         let spanId = SentrySpanId()
         let parentId = SentrySpanId()
