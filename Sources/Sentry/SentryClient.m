@@ -392,6 +392,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
+    if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
+        // Let Sentry infer the IP address from the connection.
+        event.user.ipAddress = @"{{auto}}";
+    }
+
     event = [self callEventProcessors:event];
 
     if (nil != self.options.beforeSend) {
