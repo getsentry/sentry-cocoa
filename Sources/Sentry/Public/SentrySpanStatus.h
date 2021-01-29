@@ -54,7 +54,8 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus) {
     kSentrySpanStatusUnavailable,
 
     /**
-     * Some invariants expected by the underlying system have been broken. This code is reserved for serious errors.
+     * Some invariants expected by the underlying system have been broken. This code is reserved for
+     * serious errors.
      */
     kSentrySpanStatusInternalError,
 

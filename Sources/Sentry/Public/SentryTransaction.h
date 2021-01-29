@@ -29,7 +29,6 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, copy) NSString *_Nullable spanDescription;
 
-
 /**
  * Short code identifying the type of operation the transaction is measuring
  */
@@ -67,7 +66,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithName:(NSString *)name
                  spanContext:(SentrySpanContext *)spanContext
                       andHub:(SentryHub *_Nullable)hub;
-
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.

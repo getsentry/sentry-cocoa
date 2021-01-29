@@ -54,7 +54,7 @@
 
     if (self.operation != nil)
         [mutabledictionary setValue:self.operation forKey:@"op"];
-    
+
     if (self.parentSpanId != nil)
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];
 

@@ -31,7 +31,8 @@ NS_SWIFT_NAME(TransactionContext)
 - (instancetype)initWithName:(NSString *)name;
 
 /**
- * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the parent is sampled.
+ * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the
+ * parent is sampled.
  * @param name Transaction name
  * @param traceId Trace Id
  * @param spanId Span Id
@@ -42,7 +43,7 @@ NS_SWIFT_NAME(TransactionContext)
 - (instancetype)initWithName:(NSString *)name
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
-                parentSpanId:(SentrySpanId * _Nullable)parentSpanId
+                parentSpanId:(SentrySpanId *_Nullable)parentSpanId
             andParentSampled:(BOOL)parentSampled;
 
 @end

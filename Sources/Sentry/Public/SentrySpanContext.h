@@ -73,7 +73,7 @@ NS_SWIFT_NAME(SpanContext)
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                       parentId:(SentrySpanId * _Nullable)parentId
+                       parentId:(SentrySpanId *_Nullable)parentId
                      andSampled:(BOOL)sampled;
 
 + (NSString *)type;
