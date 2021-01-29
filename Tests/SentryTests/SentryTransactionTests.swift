@@ -5,7 +5,7 @@ class SentryTransactionTest: XCTestCase {
     let someOperation = "Some Operation"
     
     func testInitWithName() {
-        let transaction = SentryTransaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -14,11 +14,11 @@ class SentryTransactionTest: XCTestCase {
     func testInitWithTransactionContext() {
         let someOperation = "Some Operation"
         
-        let context = SentryTransactionContext(name: someTransactionName)
+        let context = TransactionContext(name: someTransactionName)
         context.operation = someOperation
         context.status = .ok
         
-        let transaction = SentryTransaction(transactionContext: context, andHub: nil)
+        let transaction = Transaction(transactionContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -29,11 +29,11 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testInitWithNameAndContext() {
-        let context = SentrySpanContext()
+        let context = SpanContext()
         context.operation = someOperation
         context.status = .ok
 
-        let transaction = SentryTransaction(name: someTransactionName, spanContext: context, andHub: nil)
+        let transaction = Transaction(name: someTransactionName, spanContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -49,7 +49,7 @@ class SentryTransactionTest: XCTestCase {
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
 
-        let transaction = SentryTransaction(name: someTransactionName, spanContext: SentrySpanContext(), andHub: hub)
+        let transaction = Transaction(name: someTransactionName, spanContext: SpanContext(), andHub: hub)
         transaction.finish()
 
         XCTAssertNotNil(transaction.startTimestamp)
@@ -59,7 +59,7 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testSerialization() {
-        let transaction = SentryTransaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName)
         transaction.finish()
         
         let serialization = transaction.serialize()

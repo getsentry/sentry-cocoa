@@ -3,16 +3,16 @@ import XCTest
 class SentrySpanContextTests: XCTestCase {
    
     func testInitWithSampled() {
-        let spanContext = SentrySpanContext(sampled: true)
+        let spanContext = SpanContext(sampled: true)
         XCTAssertTrue(spanContext.sampled)
     }
     
     func testInitWithTraceIdSpanIdParentIdSampled() {
         let id = SentryId()
-        let spanId = SentrySpanId()
-        let parentId = SentrySpanId()
+        let spanId = SpanId()
+        let parentId = SpanId()
         
-        let spanContext = SentrySpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
+        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
         
         XCTAssertEqual(id, spanContext.traceId)
         XCTAssertEqual(spanId, spanContext.spanId)
@@ -22,11 +22,11 @@ class SentrySpanContextTests: XCTestCase {
     
     func testSerialization() {
         let id = SentryId()
-        let spanId = SentrySpanId()
-        let parentId = SentrySpanId()
+        let spanId = SpanId()
+        let parentId = SpanId()
         let operation = "Some Operation"
         
-        let spanContext = SentrySpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
+        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
         spanContext.operation = operation
         spanContext.status = .ok
         
@@ -34,7 +34,7 @@ class SentrySpanContextTests: XCTestCase {
         
         XCTAssertEqual(data["span_id"] as? String, spanId.sentrySpanIdString)
         XCTAssertEqual(data["trace_id"] as? String, id.sentryIdString)
-        XCTAssertEqual(data["type"] as? String, SentrySpanContext.type())
+        XCTAssertEqual(data["type"] as? String, SpanContext.type())
         XCTAssertEqual(data["op"] as? String, operation)
         XCTAssertEqual(data["sampled"] as? String, "true")
         XCTAssertEqual(data["parent_span_id"] as? String, parentId.sentrySpanIdString)

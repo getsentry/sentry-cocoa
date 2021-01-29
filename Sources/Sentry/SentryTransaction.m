@@ -9,9 +9,12 @@
 #import "SentryTransactionContext.h"
 
 @interface
-SentryTransaction () {
-    SentrySpanContext *_spanContext;
-}
+SentryTransaction ()
+
+/**
+ * This transaction span context
+ */
+@property (nonatomic, strong) SentrySpanContext *spanContext;
 
 /**
  * A hub this transaction is attached to.
@@ -48,7 +51,7 @@ SentryTransaction () {
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.type = @"transaction";
-        _spanContext = [[SentrySpanContext alloc] init];
+        self.spanContext = [[SentrySpanContext alloc] init];
     }
     return self;
 }
@@ -72,7 +75,7 @@ SentryTransaction () {
         self.transaction = name;
         self.startTimestamp = [SentryCurrentDate date];
         _hub = hub;
-        _spanContext = spanContext;
+        self.spanContext = spanContext;
     }
     return self;
 }
@@ -85,22 +88,22 @@ SentryTransaction () {
 
 - (SentrySpanId *)spanId
 {
-    return _spanContext.spanId;
+    return self.spanContext.spanId;
 }
 
 - (SentryId *)traceId
 {
-    return _spanContext.traceId;
+    return self.spanContext.traceId;
 }
 
 - (BOOL)isSampled
 {
-    return _spanContext.sampled;
+    return self.spanContext.sampled;
 }
 
 - (NSString *)spanDescription
 {
-    return _spanContext.spanDescription;
+    return self.spanContext.spanDescription;
 }
 
 - (void)setSpanDescription:(NSString *)spanDescription
@@ -110,22 +113,22 @@ SentryTransaction () {
 
 - (SentrySpanStatus)status
 {
-    return _spanContext.status;
+    return self.spanContext.status;
 }
 
 - (void)setStatus:(SentrySpanStatus)status
 {
-    [_spanContext setStatus:status];
+    [self.spanContext setStatus:status];
 }
 
 - (NSString *)operation
 {
-    return _spanContext.operation;
+    return self.spanContext.operation;
 }
 
 - (void)setOperation:(NSString *)operation
 {
-    [_spanContext setOperation:operation];
+    [self.spanContext setOperation:operation];
 }
 
 @end

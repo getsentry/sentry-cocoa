@@ -1,91 +1,95 @@
+
+/**
+ *Describes the status of the Span/Transaction.
+ */
 typedef NS_ENUM(NSUInteger, SentrySpanStatus) {
     /**
-     * An undefined status
+     * An undefined status.
      */
     kSentrySpanStatusUndefined,
 
     /**
-     * The operation completed successfully.
+     * Not an error, returned on success.
      */
     kSentrySpanStatusOk,
 
     /**
-     * Deadline expired before operation could complete.
+     * The deadline expired before the operation could succeed.
      */
     kSentrySpanStatusDeadlineExceeded,
 
     /**
-     * 401 Unauthorized (actually does mean unauthenticated according to RFC 7235).
+     * The requester doesn't have valid authentication credentials for the operation.
      */
     kSentrySpanStatusUnauthenticated,
 
     /**
-     * 403 Forbidden
+     * The caller doesn't have permission to execute the specified operation.
      */
     kSentrySpanStatusPermissionDenied,
 
     /**
-     * 404 Not Found. Some requested entity (file or directory) was not found.
+     * Content was not found or request was denied for an entire class of users.
      */
     kSentrySpanStatusNotFound,
 
     /**
-     * 429 Too Many Requests
+     * The resource has been exhausted e.g. per-user quota exhausted, file system out of space.
      */
     kSentrySpanStatusResourceExhausted,
 
     /**
-     * Client specified an invalid argument. 4xx.
+     * The client specified an invalid argument.
      */
     kSentrySpanStatusInvalidArgument,
 
     /**
-     * 501 Not Implemented
+     * 501 Not Implemented.
      */
     kSentrySpanStatusUnimplemented,
 
     /**
-     * 503 Service Unavailable
+     * The operation is not implemented or is not supported/enabled for this operation.
      */
     kSentrySpanStatusUnavailable,
 
     /**
-     * Other/generic 5xx.
+     * Some invariants expected by the underlying system have been broken. This code is reserved for serious errors.
      */
     kSentrySpanStatusInternalError,
 
     /**
-     * Unknown. Any non-standard HTTP status code.
+     * An unknown error raised by APIs that don't return enough error information.
      */
     kSentrySpanStatusUnknownError,
 
     /**
-     * The operation was cancelled (typically by the user).
+     * The operation was cancelled, typically by the caller.
      */
     kSentrySpanStatusCancelled,
 
     /**
-     * Already exists (409).
+     * The entity attempted to be created already exists.
      */
     kSentrySpanStatusAlreadyExists,
 
     /**
-     * Operation was rejected because the system is not in a state required for the operation's
+     * The client shouldn't retry until the system state has been explicitly handled.
      */
     kSentrySpanStatusFailedPrecondition,
 
     /**
-     * The operation was aborted, typically due to a concurrency issue.
+     * The operation was aborted.
      */
     kSentrySpanStatusAborted,
 
     /**
-     * Operation was attempted past the valid range.
+     * The operation was attempted past the valid range e.g. seeking past the end of a file.
      */
     kSentrySpanStatusOutOfRange,
 
     /**
-     * Unrecoverable data loss or corruption
+     * Unrecoverable data loss or corruption.
      */
     kSentrySpanStatusDataLoss,
 };

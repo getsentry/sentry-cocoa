@@ -5,6 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A 16 character Id.
  */
+NS_SWIFT_NAME(SpanId)
 @interface SentrySpanId : NSObject
 
 /**
