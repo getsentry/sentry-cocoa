@@ -78,6 +78,13 @@ class ViewController: UIViewController {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
+    @IBAction func captureTransaction(_ sender: Any) {
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
+            transaction.finish()
+        })
+    }
+    
     @IBAction func crash(_ sender: Any) {
         SentrySDK.crash()
     }

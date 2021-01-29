@@ -41,6 +41,13 @@ struct ContentView: View {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
+    var captureTransactionAction: () -> Void = {
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
+            transaction.finish()
+        })
+    }
+    
     var body: some View {
         VStack {
             Button(action: addBreadcrumbAction) {
@@ -61,6 +68,10 @@ struct ContentView: View {
             
             Button(action: captureNSExceptionAction) {
                 Text("Capture NSException")
+            }
+            
+            Button(action: captureTransactionAction) {
+                Text("Capture Transaction")
             }
             
             Button(action: {
