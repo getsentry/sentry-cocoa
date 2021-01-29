@@ -27,7 +27,6 @@
         self.spanId = spanId;
         self.parentSpanId = parentId;
         self.sampled = sampled;
-        self.operation = @"";
         self.status = kSentrySpanStatusUndefined;
         _tags = [[NSMutableDictionary alloc] init];
     }
@@ -48,12 +47,14 @@
         @"type" : SentrySpanContext.type,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"op" : self.operation,
         @"sampled" : self.sampled ? @"true" : @"false",
         @"tags" : _tags.copy
     }
                                                  .mutableCopy;
 
+    if (self.operation != nil)
+        [mutabledictionary setValue:self.operation forKey:@"op"];
+    
     if (self.parentSpanId != nil)
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];
 

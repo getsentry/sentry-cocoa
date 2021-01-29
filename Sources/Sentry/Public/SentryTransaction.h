@@ -33,7 +33,7 @@ SENTRY_NO_INIT
 /**
  * Short code identifying the type of operation the transaction is measuring
  */
-@property (nonatomic, copy) NSString *operation;
+@property (nonatomic, copy) NSString *_Nullable operation;
 
 /**
  * Describes the status of the Transaction

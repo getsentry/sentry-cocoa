@@ -32,7 +32,7 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * Short code identifying the type of operation the span is measuring.
  */
-@property (nonatomic, copy) NSString *operation;
+@property (nonatomic, copy) NSString *_Nullable operation;
 
 /**
  * Longer description of the span's operation, which uniquely identifies the span but is
