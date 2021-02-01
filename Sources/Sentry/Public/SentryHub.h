@@ -63,7 +63,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(name:));
 
 /**
- * Creates a transaction bound to the and returns the instance.
+ * Creates a transaction bound to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  *
