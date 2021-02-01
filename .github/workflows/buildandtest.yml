@@ -27,7 +27,7 @@ jobs:
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
           - name: tvOS  
-            destination: platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false    
           # Can't run tests on watchOS because XCTest is not available  
 
