@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- feat: Add sendDefaultPii to SentryOptions #923
+
 ## 6.1.4
 
 - fix: Sessions for Hybrid SDKs #913

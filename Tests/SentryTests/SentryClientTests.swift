@@ -36,6 +36,7 @@ class SentryClientTest: XCTestCase {
             
             user = User()
             user.email = "someone@sentry.io"
+            user.ipAddress = "127.0.0.1"
             
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         }
@@ -660,6 +661,40 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(user.userId, actual.user?.userId)
             XCTAssertEqual(fixture.user.email, actual.user?.email)
+        }
+    }
+    
+    func testSendDefaultPiiEnabled_GivenNoIP_AutoIsSet() {
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+        }).capture(message: "any")
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual("{{auto}}", actual.user?.ipAddress)
+        }
+    }
+    
+    func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() {
+        let scope = Scope()
+        scope.setUser(fixture.user)
+        
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+        }).capture(message: "any", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
+        }
+    }
+    
+    func testSendDefaultPiiDisabled_GivenIP_IPAddressNotChanged() {
+        let scope = Scope()
+        scope.setUser(fixture.user)
+        
+        fixture.getSut().capture(message: "any", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
         }
     }
     
