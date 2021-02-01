@@ -30,7 +30,7 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *_Nullable spanDescription;
 
 /**
- * Short code identifying the type of operation the transaction is measuring
+ * Short code identifying the type of operation the transaction is measuring.
  */
 @property (nonatomic, copy) NSString *_Nullable operation;
 

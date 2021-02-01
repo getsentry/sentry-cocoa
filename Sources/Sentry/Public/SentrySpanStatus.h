@@ -1,6 +1,6 @@
 
 /**
- *Describes the status of the Span/Transaction.
+ * Describes the status of the Span/Transaction.
  */
 typedef NS_ENUM(NSUInteger, SentrySpanStatus) {
     /**
