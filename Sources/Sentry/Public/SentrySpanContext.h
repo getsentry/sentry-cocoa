@@ -58,9 +58,9 @@ NS_SWIFT_NAME(SpanContext)
 
 /**
  * Init a SentryContext and mark it as sampled or not, sets the other fields by default.
- * 
+ *
  * @param sampled Determines whether the trace is sampled
- * 
+ *
  * @return SentryContext
  */
 
