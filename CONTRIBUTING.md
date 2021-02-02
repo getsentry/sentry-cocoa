@@ -36,8 +36,12 @@ With that, the repo is fully set up and you are ready to run all commands.
 
 ## Tests
 
-We write our tests mainly in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests. 
-New tests should all be written in Swift.
+Test guidelines:
+
+* We write our tests mainly in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
+* Write all new tests in Swift.
+* Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
+* Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
 
 Test can either be ran inside from Xcode or via 
 
