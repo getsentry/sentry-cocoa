@@ -132,7 +132,7 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
         if threadName != nil {
             strcpy(buffer, threadName)
         } else {
-            _ = [].withUnsafeBufferPointer { bufferPointer in
+            _ = Array(repeating: 0, count: Int(bufLength)).withUnsafeBufferPointer { bufferPointer in
                 strcpy(buffer, bufferPointer.baseAddress)
             }
         }
