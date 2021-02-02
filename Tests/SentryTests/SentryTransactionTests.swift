@@ -6,6 +6,7 @@ class SentryTransactionTest: XCTestCase {
     
     func testInitWithName() {
         let transaction = Transaction(name: someTransactionName)
+      
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
         XCTAssertEqual(transaction.transaction, someTransactionName)
@@ -78,7 +79,7 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertTrue(transaction.timestamp! >= transaction.startTimestamp!)
         XCTAssertTrue(client.captureEventWithScopeArguments.last!.event === transaction)
     }
-    
+
     func testSerializationWithoutContext() {
         let transaction = Transaction(name: someTransactionName)
         
@@ -109,5 +110,4 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
         XCTAssertNotNil(serialization["spans"])
     }
-    
 }

@@ -17,6 +17,7 @@
                       andSampled:sampled];
 }
 
+
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(SentrySpanId *_Nullable)parentId
@@ -63,5 +64,4 @@
 
     return mutabledictionary;
 }
-
 @end

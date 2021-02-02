@@ -4,6 +4,7 @@
 
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API
+- feat: Add sendDefaultPii to SentryOptions #923
 
 ## 6.1.4
 

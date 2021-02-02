@@ -9,6 +9,7 @@
 #import "SentryTransactionContext.h"
 
 @interface
+
 SentryTransaction ()
 
 /**
@@ -126,5 +127,4 @@ SentryTransaction ()
 
     return serializedData;
 }
-
 @end
