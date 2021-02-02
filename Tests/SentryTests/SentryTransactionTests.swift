@@ -13,10 +13,13 @@ class SentryTransactionTest: XCTestCase {
     
     func testInitWithTransactionContext() {
         let someOperation = "Some Operation"
+        let someSpanDescription = "Some Span Description"
         
-        let context = TransactionContext(name: someTransactionName)
+        let context = TransactionContext(name: someTransactionName, trace: SentryId(), spanId: SpanId(), parentSpanId: SpanId(), andParentSampled: true)
         context.operation = someOperation
         context.status = .ok
+        context.sampled = true
+        context.spanDescription = someSpanDescription
         
         let transaction = Transaction(transactionContext: context, andHub: nil)
         XCTAssertNotNil(transaction.startTimestamp)
@@ -26,6 +29,24 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertEqual(transaction.spanId, context.spanId)
         XCTAssertEqual(transaction.operation, someOperation)
         XCTAssertEqual(transaction.status, SentrySpanStatus.ok)
+        XCTAssertTrue(transaction.isSampled)
+        XCTAssertEqual(transaction.spanDescription, someSpanDescription)
+    }
+    
+    func testIndirectManipulationOfContext() {
+        let someOperation = "Some Operation"
+        let spanDescription = "Span Description"
+        
+        let context = TransactionContext(name: someTransactionName)
+        
+        let transaction = Transaction(transactionContext: context, andHub: nil)
+        transaction.spanDescription = spanDescription
+        transaction.operation = someOperation
+        transaction.status = .ok
+        
+        XCTAssertEqual(context.spanDescription, spanDescription)
+        XCTAssertEqual(context.operation, someOperation)
+        XCTAssertEqual(context.status, SentrySpanStatus.ok)
     }
     
     func testInitWithNameAndContext() {
@@ -58,16 +79,35 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertTrue(client.captureEventWithScopeArguments.last!.event === transaction)
     }
     
-    func testSerialization() {
+    func testSerializationWithoutContext() {
         let transaction = Transaction(name: someTransactionName)
-        transaction.finish()
         
         let serialization = transaction.serialize()
+        XCTAssertNotNil(serialization)
         XCTAssertEqual(serialization["type"] as? String, "transaction")
         XCTAssertNotNil(serialization["event_id"])
         XCTAssertNotNil(serialization["start_timestamp"])
         XCTAssertNotNil(serialization["timestamp"])
         XCTAssertEqual(serialization["transaction"] as? String, someTransactionName)
         XCTAssertNotNil(serialization["contexts"])
+        XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
+        XCTAssertNotNil(serialization["spans"])
     }
+    
+    func testSerializationWithContext() {
+        let transaction = Transaction(name: someTransactionName)
+        transaction.context = [String: [String: Any]]()
+        
+        let serialization = transaction.serialize()
+        XCTAssertNotNil(serialization)
+        XCTAssertEqual(serialization["type"] as? String, "transaction")
+        XCTAssertNotNil(serialization["event_id"])
+        XCTAssertNotNil(serialization["start_timestamp"])
+        XCTAssertNotNil(serialization["timestamp"])
+        XCTAssertEqual(serialization["transaction"] as? String, someTransactionName)
+        XCTAssertNotNil(serialization["contexts"])
+        XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
+        XCTAssertNotNil(serialization["spans"])
+    }
+    
 }

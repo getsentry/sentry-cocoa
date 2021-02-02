@@ -25,26 +25,6 @@ SentryTransaction ()
 
 @implementation SentryTransaction
 
-- (NSDictionary<NSString *, id> *)serialize
-{
-    if (nil == self.timestamp) {
-        self.timestamp = [SentryCurrentDate date];
-    }
-
-    NSMutableDictionary<NSString *, id> *serializedData =
-        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
-    serializedData[@"spans"] = @[];
-
-    NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
-    }
-    mutableContext[@"trace"] = [_spanContext serialize];
-    [serializedData setValue:mutableContext forKey:@"contexts"];
-
-    return serializedData;
-}
-
 - (instancetype)init
 {
     self = [super init];
@@ -129,6 +109,22 @@ SentryTransaction ()
 - (void)setOperation:(NSString *)operation
 {
     [self.spanContext setOperation:operation];
+}
+
+- (NSDictionary<NSString *, id> *)serialize
+{
+    NSMutableDictionary<NSString *, id> *serializedData =
+        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+    serializedData[@"spans"] = @[];
+
+    NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
+    if (serializedData[@"contexts"] != nil) {
+        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    }
+    mutableContext[@"trace"] = [_spanContext serialize];
+    [serializedData setValue:mutableContext forKey:@"contexts"];
+
+    return serializedData;
 }
 
 @end

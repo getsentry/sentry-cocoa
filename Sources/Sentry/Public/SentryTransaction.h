@@ -41,15 +41,19 @@ SENTRY_NO_INIT
 
 /**
  * Init a SentryTransaction with given name and set other fields by default
+ *
  * @param name Transaction name
+ *
  * @return SentryTransaction
  */
 - (instancetype)initWithName:(NSString *)name;
 
 /**
  * Init a SentryTransaction with given transaction context and hub and set other fields by default
+ *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
+ *
  * @return SentryTransaction
  */
 
@@ -58,14 +62,16 @@ SENTRY_NO_INIT
 
 /**
  * Init a SentryTransaction with given name, span context and hub and set other fields by default
+ *
  * @param name Transaction name
  * @param spanContext Span context
  * @param hub A hub to bind this transaction
+ *
  * @return SentryTransaction
  */
 - (instancetype)initWithName:(NSString *)name
                  spanContext:(SentrySpanContext *)spanContext
-                      andHub:(SentryHub *_Nullable)hub;
+                      andHub:(nullable SentryHub *)hub;
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.

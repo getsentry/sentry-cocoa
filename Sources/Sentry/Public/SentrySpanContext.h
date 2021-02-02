@@ -22,7 +22,7 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * Id of a parent span.
  */
-@property (nonatomic, strong) SentrySpanId *_Nullable parentSpanId;
+@property (nullable, nonatomic, strong) SentrySpanId *parentSpanId;
 
 /**
  * If trace is sampled.
@@ -32,13 +32,13 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * Short code identifying the type of operation the span is measuring.
  */
-@property (nonatomic, copy) NSString *_Nullable operation;
+@property (nullable, nonatomic, copy) NSString *operation;
 
 /**
  * Longer description of the span's operation, which uniquely identifies the span but is
  * consistent across instances of the span.
  */
-@property (nonatomic, copy) NSString *_Nullable spanDescription;
+@property (nullable, nonatomic, copy) NSString *spanDescription;
 
 /**
  * Describes the status of the Transaction.
@@ -52,6 +52,7 @@ NS_SWIFT_NAME(SpanContext)
 
 /**
  * Init a SentryContext and sets all fields by default.
+ *
  * @return SentryContext
  */
 - (instancetype)init;
@@ -68,17 +69,19 @@ NS_SWIFT_NAME(SpanContext)
 
 /**
  * Init a SentryContext with given traceId, spanId and parentId.
- * @param traceId Trace Id
- * @param spanId Span Id
- * @param parentId Parent n id
+ *
+ * @param traceId Determines which trace the Span belongs to.
+ * @param spanId The Span Id
+ * @param parentId Id of a parent span.
+ *
  * @return SentryContext
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                       parentId:(SentrySpanId *_Nullable)parentId
+                       parentId:(nullable SentrySpanId *)parentId
                      andSampled:(BOOL)sampled;
 
-@property (class, nonatomic, readonly, copy) NSString *empty;
+@property (class, nonatomic, readonly, copy) NSString *type;
 
 @end
 
