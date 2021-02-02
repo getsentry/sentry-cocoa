@@ -1,35 +1,87 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
+#import "SentrySpanStatus.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId, SentrySpanId;
 
 NS_SWIFT_NAME(SpanContext)
-@interface SentrySpanContext : NSObject
+@interface SentrySpanContext : NSObject <SentrySerializable>
 
+/**
+ * Determines which trace the Span belongs to.
+ */
 @property (nonatomic, strong) SentryId *traceId;
 
+/**
+ * Span id.
+ */
 @property (nonatomic, strong) SentrySpanId *spanId;
 
-@property (nonatomic, strong) SentrySpanId *_Nullable parentSpanId;
+/**
+ * Id of a parent span.
+ */
+@property (nullable, nonatomic, strong) SentrySpanId *parentSpanId;
 
+/**
+ * If trace is sampled.
+ */
 @property (nonatomic) BOOL sampled;
 
-@property (nonatomic, copy) NSString *_Nullable operation;
+/**
+ * Short code identifying the type of operation the span is measuring.
+ */
+@property (nullable, nonatomic, copy) NSString *operation;
 
-@property (nonatomic, copy) NSString *_Nullable spanDescription;
+/**
+ * Longer description of the span's operation, which uniquely identifies the span but is
+ * consistent across instances of the span.
+ */
+@property (nullable, nonatomic, copy) NSString *spanDescription;
 
-@property (nonatomic, copy) NSString *_Nullable status;
+/**
+ * Describes the status of the Transaction.
+ */
+@property (nonatomic) SentrySpanStatus status;
 
+/**
+ * A map or list of tags for this event. Each tag must be less than 200 characters.
+ */
 @property (nonatomic, readonly) NSMutableDictionary<NSString *, NSString *> *tags;
 
+/**
+ * Init a SentryContext and sets all fields by default.
+ *
+ * @return SentryContext
+ */
 - (instancetype)init;
+
+/**
+ * Init a SentryContext and mark it as sampled or not, sets the other fields by default.
+ *
+ * @param sampled Determines whether the trace is sampled
+ *
+ * @return SentryContext
+ */
+
 - (instancetype)initWithSampled:(BOOL)sampled;
-- (instancetype)initWithtraceId:(SentryId *)traceId
+
+/**
+ * Init a SentryContext with given traceId, spanId and parentId.
+ *
+ * @param traceId Determines which trace the Span belongs to.
+ * @param spanId The Span Id
+ * @param parentId Id of a parent span.
+ *
+ * @return SentryContext
+ */
+- (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                       parentId:(SentrySpanId *_Nullable)parentId
+                       parentId:(nullable SentrySpanId *)parentId
                      andSampled:(BOOL)sampled;
+
+@property (class, nonatomic, readonly, copy) NSString *type;
 
 @end
 

@@ -9,9 +9,13 @@
 #import "SentryTransactionContext.h"
 
 @interface
-SentryTransaction () {
-    SentrySpanContext *trace;
-}
+
+SentryTransaction ()
+
+/**
+ * This transaction span context
+ */
+@property (nonatomic, strong) SentrySpanContext *spanContext;
 
 /**
  * A hub this transaction is attached to.
@@ -22,37 +26,13 @@ SentryTransaction () {
 
 @implementation SentryTransaction
 
-- (NSDictionary<NSString *, id> *)serialize
-{
-    if (nil == self.timestamp) {
-        self.timestamp = [SentryCurrentDate date];
-    }
-
-    NSMutableDictionary<NSString *, id> *serializedData =
-        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
-    serializedData[@"spans"] = @[];
-
-    NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
-    if (serializedData[@"contexts"] != nil) {
-        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
-    }
-    mutableContext[@"trace"] = @{
-        @"name" : self.transaction,
-        @"span_id" : trace.spanId.sentrySpanIdString,
-        @"tags" : @ {},
-        @"trace_id" : [[SentryId alloc] init].sentryIdString
-    };
-    [serializedData setValue:mutableContext forKey:@"contexts"];
-
-    return serializedData;
-}
-
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.type = @"transaction";
+        self.spanContext = [[SentrySpanContext alloc] init];
     }
     return self;
 }
@@ -76,7 +56,7 @@ SentryTransaction () {
         self.transaction = name;
         self.startTimestamp = [SentryCurrentDate date];
         _hub = hub;
-        trace = spanContext;
+        self.spanContext = spanContext;
     }
     return self;
 }
@@ -87,4 +67,64 @@ SentryTransaction () {
     [self.hub captureTransaction:self];
 }
 
+- (SentrySpanId *)spanId
+{
+    return self.spanContext.spanId;
+}
+
+- (SentryId *)traceId
+{
+    return self.spanContext.traceId;
+}
+
+- (BOOL)isSampled
+{
+    return self.spanContext.sampled;
+}
+
+- (NSString *)spanDescription
+{
+    return self.spanContext.spanDescription;
+}
+
+- (void)setSpanDescription:(NSString *)spanDescription
+{
+    [_spanContext setSpanDescription:spanDescription];
+}
+
+- (SentrySpanStatus)status
+{
+    return self.spanContext.status;
+}
+
+- (void)setStatus:(SentrySpanStatus)status
+{
+    [self.spanContext setStatus:status];
+}
+
+- (NSString *)operation
+{
+    return self.spanContext.operation;
+}
+
+- (void)setOperation:(NSString *)operation
+{
+    [self.spanContext setOperation:operation];
+}
+
+- (NSDictionary<NSString *, id> *)serialize
+{
+    NSMutableDictionary<NSString *, id> *serializedData =
+        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+    serializedData[@"spans"] = @[];
+
+    NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
+    if (serializedData[@"contexts"] != nil) {
+        [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
+    }
+    mutableContext[@"trace"] = [_spanContext serialize];
+    [serializedData setValue:mutableContext forKey:@"contexts"];
+
+    return serializedData;
+}
 @end
