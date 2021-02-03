@@ -13,14 +13,19 @@
 SentryTransaction ()
 
 /**
- * This transaction span context
+ * This transaction span context.
  */
-@property (nonatomic, strong) SentrySpanContext *spanContext;
+@property (nonatomic) SentrySpanContext *spanContext;
 
 /**
  * A hub this transaction is attached to.
  */
-@property (nonatomic, readonly) SentryHub *_Nullable hub;
+@property (nullable, nonatomic) SentryHub * hub;
+
+/**
+ * A list of child spans.
+ */
+@property (nonatomic) NSMutableArray<SentrySpan *> * spans;
 
 @end
 
@@ -55,8 +60,9 @@ SentryTransaction ()
     if ([self init]) {
         self.transaction = name;
         self.startTimestamp = [SentryCurrentDate date];
-        _hub = hub;
+        self.hub = hub;
         self.spanContext = spanContext;
+        self.spans = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -112,11 +118,40 @@ SentryTransaction ()
     [self.spanContext setOperation:operation];
 }
 
+- (SentrySpan *) startChildWithOperation:(NSString *)operation
+{
+    return [self startChildWithOperation:operation andDescription:nil];
+}
+
+- (SentrySpan *) startChildWithOperation:(NSString *)operation
+                          andDescription:(nullable NSString *)description {
+    return [self startChildWithParentId:self.spanId operation:operation andDescription:description];
+}
+
+- (SentrySpan *) startChildWithParentId:(SentrySpanId *)parentId
+                            operation:(NSString *)operation
+                       andDescription:(nullable NSString *)description 
+{
+    SentrySpan* span = [[SentrySpan alloc] initWithTransaction:self traceId:self.traceId andParentId:parentId];
+    span.operation = operation;
+    span.spanDescription = description;
+    span.sampled = self.isSampled;
+    @synchronized (self.spans) {
+        [self.spans addObject:span];
+    }
+    return span;
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary<NSString *, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
-    serializedData[@"spans"] = @[];
+    
+    NSMutableArray* spans = [[NSMutableArray alloc] init];
+    for (SentrySpan * span in self.spans) {
+        [spans addObject:[span serialize]];
+    }
+    serializedData[@"spans"] = spans;
 
     NSMutableDictionary<NSString *, id> *mutableContext = [[NSMutableDictionary alloc] init];
     if (serializedData[@"contexts"] != nil) {

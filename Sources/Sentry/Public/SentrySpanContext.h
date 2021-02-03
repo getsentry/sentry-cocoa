@@ -48,7 +48,7 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * A map or list of tags for this event. Each tag must be less than 200 characters.
  */
-@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSString *> *tags;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *tags;
 
 /**
  * Init a SentryContext and sets all fields by default.
@@ -80,6 +80,17 @@ NS_SWIFT_NAME(SpanContext)
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
                      andSampled:(BOOL)sampled;
+
+/**
+ * Sets a tag with given value.
+ */
+- (void) setTag:(NSString *)tag withValue:(NSString *)value;
+
+/**
+ * Removes a tag.
+ */
+- (void) unsetTag:(NSString *)tag;
+
 
 @property (class, nonatomic, readonly, copy) NSString *type;
 
