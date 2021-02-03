@@ -2,8 +2,9 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
-@interface SentrySpanContext () {
-    NSMutableDictionary<NSString *, NSString *> * _tags;
+@interface
+SentrySpanContext () {
+    NSMutableDictionary<NSString *, NSString *> *_tags;
 }
 
 @end
@@ -47,20 +48,23 @@
     return type;
 }
 
-- (NSDictionary *)tags {
-    @synchronized (_tags) {
+- (NSDictionary *)tags
+{
+    @synchronized(_tags) {
         return _tags.copy;
     }
 }
 
-- (void) setTag:(NSString* )tag withValue:(NSString *)value {
-    @synchronized (_tags) {
+- (void)setTag:(NSString *)tag withValue:(NSString *)value
+{
+    @synchronized(_tags) {
         [_tags setValue:value forKey:tag];
     }
 }
 
-- (void) unsetTag:(NSString* )tag {
-    @synchronized (_tags) {
+- (void)unsetTag:(NSString *)tag
+{
+    @synchronized(_tags) {
         [_tags removeObjectForKey:tag];
     }
 }
