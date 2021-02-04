@@ -27,12 +27,12 @@ SENTRY_NO_INIT
  * Longer description of the span's operation, which uniquely identifies the span but is
  * consistent across instances of the span.
  */
-@property (nullable, nonatomic, copy) NSString * spanDescription;
+@property (nullable, nonatomic, copy) NSString *spanDescription;
 
 /**
  * Short code identifying the type of operation the transaction is measuring.
  */
-@property (nullable, nonatomic, copy) NSString * operation;
+@property (nullable, nonatomic, copy) NSString *operation;
 
 /**
  * Describes the status of the Transaction
@@ -85,8 +85,7 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(operation:));
+- (SentrySpan *)startChildWithOperation:(NSString *)operation NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.
@@ -96,8 +95,8 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
-                          andDescription:(nullable NSString *)description
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                         andDescription:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(operation:description:));
 
 @end

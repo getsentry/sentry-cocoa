@@ -20,12 +20,12 @@ SentryTransaction ()
 /**
  * A hub this transaction is attached to.
  */
-@property (nullable, nonatomic) SentryHub * hub;
+@property (nullable, nonatomic) SentryHub *hub;
 
 /**
  * A list of child spans.
  */
-@property (nonatomic) NSMutableArray<SentrySpan *> * spans;
+@property (nonatomic) NSMutableArray<SentrySpan *> *spans;
 
 @end
 
@@ -118,25 +118,28 @@ SentryTransaction ()
     [self.spanContext setOperation:operation];
 }
 
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
 {
     return [self startChildWithOperation:operation andDescription:nil];
 }
 
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
-                          andDescription:(nullable NSString *)description {
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                         andDescription:(nullable NSString *)description
+{
     return [self startChildWithParentId:self.spanId operation:operation andDescription:description];
 }
 
-- (SentrySpan *) startChildWithParentId:(SentrySpanId *)parentId
-                            operation:(NSString *)operation
-                       andDescription:(nullable NSString *)description 
+- (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
+                             operation:(NSString *)operation
+                        andDescription:(nullable NSString *)description
 {
-    SentrySpan* span = [[SentrySpan alloc] initWithTransaction:self traceId:self.traceId andParentId:parentId];
+    SentrySpan *span = [[SentrySpan alloc] initWithTransaction:self
+                                                       traceId:self.traceId
+                                                   andParentId:parentId];
     span.operation = operation;
     span.spanDescription = description;
     span.sampled = self.isSampled;
-    @synchronized (self.spans) {
+    @synchronized(self.spans) {
         [self.spans addObject:span];
     }
     return span;
@@ -146,9 +149,9 @@ SentryTransaction ()
 {
     NSMutableDictionary<NSString *, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
-    
-    NSMutableArray* spans = [[NSMutableArray alloc] init];
-    for (SentrySpan * span in self.spans) {
+
+    NSMutableArray *spans = [[NSMutableArray alloc] init];
+    for (SentrySpan *span in self.spans) {
         [spans addObject:[span serialize]];
     }
     serializedData[@"spans"] = spans;
