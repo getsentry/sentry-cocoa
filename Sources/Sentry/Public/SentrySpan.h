@@ -10,17 +10,17 @@ NS_SWIFT_NAME(Span)
 SENTRY_NO_INIT
 
 /**
- * NSDate of when the event occured
+ * The timestamp of which the span ended.
  */
 @property (nullable, nonatomic, strong) NSDate *timestamp;
 
 /**
- * NSDate of when the event started, mostly useful if event type transaction
+ * The start time of the span.
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
 /**
- * An arbitrary mapping of additional metadata to store with the event.
+ * An arbitrary mapping of additional metadata of the span.
  */
 @property (nullable, readonly) NSDictionary<NSString *, id> *extras;
 
