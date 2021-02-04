@@ -84,12 +84,12 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * Sets a tag with given value.
  */
-- (void)setTag:(NSString *)tag withValue:(NSString *)value;
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
 /**
  * Removes a tag.
  */
-- (void)unsetTag:(NSString *)tag;
+- (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
 @property (class, nonatomic, readonly, copy) NSString *type;
 

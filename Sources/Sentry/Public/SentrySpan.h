@@ -40,7 +40,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTransaction:(SentryTransaction *)transaction
                             traceId:(SentryId *)traceId
-                        andParentId:(SentrySpanId *)parentId;
+                        parentId:(SentrySpanId *)parentId;
 
 /*
  Removing SpanContext initializers
