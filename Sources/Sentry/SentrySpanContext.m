@@ -48,7 +48,7 @@ SentrySpanContext () {
     return type;
 }
 
-- (NSDictionary <NSString *, NSString *> *)tags
+- (NSDictionary<NSString *, NSString *> *)tags
 {
     @synchronized(_tags) {
         return _tags.copy;
