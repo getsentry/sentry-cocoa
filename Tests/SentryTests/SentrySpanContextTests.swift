@@ -65,7 +65,7 @@ class SentrySpanContextTests: XCTestCase {
     }
     
     func testSetTags() {
-        let tagKey =  "tag_key"
+        let tagKey = "tag_key"
         let tagValue = "tag_value"
         
         let spanContext = SpanContext()
@@ -75,7 +75,7 @@ class SentrySpanContextTests: XCTestCase {
     }
     
     func testUnsetTags() {
-        let tagKey =  "tag_key"
+        let tagKey = "tag_key"
         let tagValue = "tag_value"
         
         let spanContext = SpanContext()

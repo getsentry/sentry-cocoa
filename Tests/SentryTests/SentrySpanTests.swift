@@ -17,7 +17,7 @@ class SentrySpanTests: XCTestCase {
     
     private var fixture: Fixture!
     override func setUp() {
-        fixture = Fixture();
+        fixture = Fixture()
     }
     
     func testInitAndCheckForTimestamps() {

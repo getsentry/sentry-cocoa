@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A list of child spans.
  */
-@property (nonatomic) NSMutableArray<SentrySpan *> * spans;
+@property (nonatomic) NSMutableArray<SentrySpan *> *spans;
 
 @end
 

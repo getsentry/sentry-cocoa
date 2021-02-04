@@ -111,7 +111,7 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertNotNil(serialization["spans"])
     }
     
-    func testAdditionOfChild(){
+    func testAdditionOfChild() {
         let transaction = Transaction(name: someTransactionName)
         transaction.startChild(operation: someOperation)
         XCTAssertEqual(transaction.spans.count, 1)
@@ -122,7 +122,7 @@ class SentryTransactionTest: XCTestCase {
         transaction.startChild(operation: someOperation)
         
         let serialization = transaction.serialize()
-        let spansSerialized = serialization["spans"] as! Array<Dictionary<String, Any>>;
+        let spansSerialized = serialization["spans"] as! [Dictionary[String, Any]>
         XCTAssertEqual(spansSerialized.count, 1)
     }
     

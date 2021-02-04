@@ -63,7 +63,7 @@
 #import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryTestIntegration.h"
 #import "SentryThreadInspector.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUserFeedback.h"
-#import "SentryTransaction+Private.h"

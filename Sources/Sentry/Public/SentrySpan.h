@@ -1,5 +1,5 @@
-#import <Sentry/Sentry.h>
 #import "SentrySpanContext.h"
+#import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,17 +12,17 @@ SENTRY_NO_INIT
 /**
  * NSDate of when the event occured
  */
-@property (nullable, nonatomic, strong) NSDate * timestamp;
+@property (nullable, nonatomic, strong) NSDate *timestamp;
 
 /**
  * NSDate of when the event started, mostly useful if event type transaction
  */
-@property (nullable, nonatomic, strong) NSDate * startTimestamp;
+@property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
 /**
  * An arbitrary mapping of additional metadata to store with the event.
  */
-@property (nullable, readonly) NSDictionary<NSString *, id> * extras;
+@property (nullable, readonly) NSDictionary<NSString *, id> *extras;
 
 /**
  * Whether the span is finished.
@@ -38,15 +38,18 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (instancetype) initWithTransaction:(SentryTransaction *)transaction
-                             traceId:(SentryId *)traceId
-                         andParentId:(SentrySpanId *)parentId;
+- (instancetype)initWithTransaction:(SentryTransaction *)transaction
+                            traceId:(SentryId *)traceId
+                        andParentId:(SentrySpanId *)parentId;
 
 /*
  Removing SpanContext initializers
  */
--(instancetype) initWithSampled:(BOOL)sampled NS_UNAVAILABLE;
--(instancetype) initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId parentId:(nullable SentrySpanId *)parentId andSampled:(BOOL)sampled NS_UNAVAILABLE;
+- (instancetype)initWithSampled:(BOOL)sampled NS_UNAVAILABLE;
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                         spanId:(SentrySpanId *)spanId
+                       parentId:(nullable SentrySpanId *)parentId
+                     andSampled:(BOOL)sampled NS_UNAVAILABLE;
 
 /**
  * Starts a child span.
@@ -55,8 +58,7 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(operation:));
+- (SentrySpan *)startChildWithOperation:(NSString *)operation NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.
@@ -66,14 +68,14 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (SentrySpan *) startChildWithOperation:(NSString *)operation
-                          andDescription:(nullable NSString *)description
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                         andDescription:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
  * Sets an extra.
  */
-- (void) setExtra:(NSString *)extra withValue:(id)value;
+- (void)setExtra:(NSString *)extra withValue:(id)value;
 
 /**
  * Finishes the span by setting the end time.
@@ -85,8 +87,7 @@ SENTRY_NO_INIT
  *
  * @param status The status of this span
  *  */
-- (void)finishWithStatus:(SentrySpanStatus)status
-    NS_SWIFT_NAME(finish(status:));
+- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
 @end
 

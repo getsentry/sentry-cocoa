@@ -26,7 +26,7 @@ class SentrySpanIdTests: XCTestCase {
         XCTAssertEqual(fixture.expectedUUIDV4String, spanId.sentrySpanIdString)
     }
     
-    func testDescriptionEqualsIdString(){
+    func testDescriptionEqualsIdString() {
         let spanId = SpanId()
         XCTAssertEqual(spanId.description, spanId.sentrySpanIdString)
     }
