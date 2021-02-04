@@ -41,13 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [self.transaction startChildWithParentId:[self spanId] operation:operation andDescription:description];
 }
 
-- (void) setExtra:(NSString *)key withValue:(id)value
+- (void) setExtra:(NSString *)extra withValue:(id)value
 {
     if (_extras == nil)
         _extras = [[NSMutableDictionary alloc] init];
     
     @synchronized (_extras) {
-        [_extras setValue:value forKey:key];
+        [_extras setValue:value forKey:extra];
     }
 }
 

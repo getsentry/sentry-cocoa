@@ -63,4 +63,27 @@ class SentrySpanContextTests: XCTestCase {
     func testSpanContextTraceTypeValue() {
         XCTAssertEqual(SpanContext.type, "trace")
     }
+    
+    func testSetTags() {
+        let tagKey =  "tag_key"
+        let tagValue = "tag_value"
+        
+        let spanContext = SpanContext()
+        spanContext.setTag(tagKey, withValue: tagValue)
+        XCTAssertEqual(spanContext.tags.count, 1)
+        XCTAssertEqual(spanContext.tags[tagKey], tagValue)
+    }
+    
+    func testUnsetTags() {
+        let tagKey =  "tag_key"
+        let tagValue = "tag_value"
+        
+        let spanContext = SpanContext()
+        spanContext.setTag(tagKey, withValue: tagValue)
+        XCTAssertEqual(spanContext.tags.count, 1)
+        spanContext.unsetTag(tagKey)
+        XCTAssertEqual(spanContext.tags.count, 0)
+        XCTAssertNil(spanContext.tags[tagKey])
+    }
+    
 }

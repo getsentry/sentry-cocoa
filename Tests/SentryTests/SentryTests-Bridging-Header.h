@@ -66,3 +66,4 @@
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUserFeedback.h"
+#import "SentryTransaction+Private.h"

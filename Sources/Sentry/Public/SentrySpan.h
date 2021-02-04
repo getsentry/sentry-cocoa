@@ -42,6 +42,12 @@ SENTRY_NO_INIT
                              traceId:(SentryId *)traceId
                          andParentId:(SentrySpanId *)parentId;
 
+/*
+ Removing SpanContext initializers
+ */
+-(instancetype) initWithSampled:(BOOL)sampled NS_UNAVAILABLE;
+-(instancetype) initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId parentId:(nullable SentrySpanId *)parentId andSampled:(BOOL)sampled NS_UNAVAILABLE;
+
 /**
  * Starts a child span.
  *
@@ -67,7 +73,7 @@ SENTRY_NO_INIT
 /**
  * Sets an extra.
  */
-- (void) setExtra:(NSString *)key withValue:(id)value;
+- (void) setExtra:(NSString *)extra withValue:(id)value;
 
 /**
  * Finishes the span by setting the end time.

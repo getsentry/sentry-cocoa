@@ -110,4 +110,34 @@ class SentryTransactionTest: XCTestCase {
         XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
         XCTAssertNotNil(serialization["spans"])
     }
+    
+    func testAdditionOfChild(){
+        let transaction = Transaction(name: someTransactionName)
+        transaction.startChild(operation: someOperation)
+        XCTAssertEqual(transaction.spans.count, 1)
+    }
+    
+    func testSerializeWithSpan() {
+        let transaction = Transaction(name: someTransactionName)
+        transaction.startChild(operation: someOperation)
+        
+        let serialization = transaction.serialize()
+        let spansSerialized = serialization["spans"] as! Array<Dictionary<String, Any>>;
+        XCTAssertEqual(spansSerialized.count, 1)
+    }
+    
+    func testAddChildWithOperation() {
+        let transaction = Transaction(name: someTransactionName)
+        let span = transaction.startChild(operation: someOperation)
+        XCTAssertEqual(span.operation, someOperation)
+    }
+    
+    func testAddChildWithOperationAndDescription() {
+        let transaction = Transaction(name: someTransactionName)
+        let someDescription = "Some Description"
+        let span = transaction.startChild(operation: someOperation, description: someDescription)
+        
+        XCTAssertEqual(span.operation, someOperation)
+        XCTAssertEqual(span.spanDescription, someDescription)
+    }
 }
