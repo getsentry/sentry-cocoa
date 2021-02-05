@@ -130,14 +130,17 @@ class SentryTransactionTest: XCTestCase {
         let transaction = Transaction(name: someTransactionName)
         let span = transaction.startChild(operation: someOperation)
         XCTAssertEqual(span.operation, someOperation)
+        XCTAssertNil(span.spanDescription)
+        XCTAssertFalse(span.sampled)
     }
     
     func testAddChildWithOperationAndDescription() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, spanContext: SpanContext(sampled: true), hub: nil)
         let someDescription = "Some Description"
         let span = transaction.startChild(operation: someOperation, description: someDescription)
         
         XCTAssertEqual(span.operation, someOperation)
         XCTAssertEqual(span.spanDescription, someDescription)
+        XCTAssertTrue(span.sampled)
     }
 }
