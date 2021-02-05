@@ -58,7 +58,7 @@ SENTRY_NO_INIT
  */
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                    andHub:(nullable SentryHub *)hub;
+                                       hub:(nullable SentryHub *)hub;
 
 /**
  * Init a SentryTransaction with given name, span context and hub and set other fields by default
@@ -71,7 +71,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithName:(NSString *)name
                  spanContext:(SentrySpanContext *)spanContext
-                      andHub:(nullable SentryHub *)hub;
+                         hub:(nullable SentryHub *)hub;
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.
@@ -96,7 +96,7 @@ SENTRY_NO_INIT
  * @return SentrySpan
  */
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         andDescription:(nullable NSString *)description
+                            description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(operation:description:));
 
 @end

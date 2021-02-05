@@ -15,7 +15,7 @@ NS_SWIFT_NAME(TransactionContext)
 /**
  * Parent sampled
  */
-@property (nonatomic) bool parentSampled;
+@property (nonatomic) BOOL parentSampled;
 
 /**
  * Init a SentryTransactionContext and set all fields by default

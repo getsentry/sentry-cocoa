@@ -79,7 +79,7 @@ NS_SWIFT_NAME(SpanContext)
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
-                     andSampled:(BOOL)sampled;
+                        sampled:(BOOL)sampled;
 
 /**
  * Sets a tag with given value.

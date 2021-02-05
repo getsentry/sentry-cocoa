@@ -29,7 +29,7 @@ class SentrySpanContextTests: XCTestCase {
         let spanId = SpanId()
         let parentId = SpanId()
         
-        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
+        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, sampled: true)
         
         XCTAssertEqual(id, spanContext.traceId)
         XCTAssertEqual(spanId, spanContext.spanId)
@@ -45,7 +45,7 @@ class SentrySpanContextTests: XCTestCase {
         let parentId = SpanId()
         let operation = "Some Operation"
         
-        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, andSampled: true)
+        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, sampled: true)
         spanContext.operation = operation
         spanContext.status = .ok
         
@@ -69,7 +69,7 @@ class SentrySpanContextTests: XCTestCase {
         let tagValue = "tag_value"
         
         let spanContext = SpanContext()
-        spanContext.setTag(tagKey, withValue: tagValue)
+        spanContext.setTag(value: tagValue, key: tagKey)
         XCTAssertEqual(spanContext.tags.count, 1)
         XCTAssertEqual(spanContext.tags[tagKey], tagValue)
     }
@@ -79,9 +79,9 @@ class SentrySpanContextTests: XCTestCase {
         let tagValue = "tag_value"
         
         let spanContext = SpanContext()
-        spanContext.setTag(tagKey, withValue: tagValue)
+        spanContext.setTag(value: tagValue, key: tagKey)
         XCTAssertEqual(spanContext.tags.count, 1)
-        spanContext.unsetTag(tagKey)
+        spanContext.removeTag(key: tagKey)
         XCTAssertEqual(spanContext.tags.count, 0)
         XCTAssertNil(spanContext.tags[tagKey])
     }

@@ -400,8 +400,8 @@
 		8E70B0FD25CB72BE002B3155 /* SentrySpanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E70B0FC25CB72BE002B3155 /* SentrySpanTests.swift */; };
 		8E70B10125CB8695002B3155 /* SentrySpanIdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E70B10025CB8695002B3155 /* SentrySpanIdTests.swift */; };
 		8E80D0C325BB29690029B150 /* SentryTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E80D0C225BB29690029B150 /* SentryTransactionTests.swift */; };
+		8EBAF05A25CCD066006FDD53 /* SentryTransaction+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EC3AE9025CA3B6700E7591A /* SentryTransaction+Private.h */; };
 		8EC3AE7A25CA23B600E7591A /* SentrySpan.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EC3AE7925CA23B600E7591A /* SentrySpan.m */; };
-		8EC3AE9125CA3B6700E7591A /* SentryTransaction+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EC3AE9025CA3B6700E7591A /* SentryTransaction+Private.h */; };
 		8EC4CF4A25C38DAA0093DEE9 /* SentrySpanStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EC4CF4725C38CAF0093DEE9 /* SentrySpanStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8EC4CF5025C3A0070093DEE9 /* SentrySpanContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC4CF4F25C3A0070093DEE9 /* SentrySpanContextTests.swift */; };
 		8ECC673C25C23996000E2BF6 /* SentrySpan.h in Headers */ = {isa = PBXBuildFile; fileRef = 8ECC673725C23995000E2BF6 /* SentrySpan.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1714,7 +1714,6 @@
 				7BAF3DD92440AEC8008A5414 /* SentryRequestManager.h in Headers */,
 				7BE3C77B2446111500A38442 /* SentryRateLimitParser.h in Headers */,
 				7D0637032382B34300B30749 /* SentryScope.h in Headers */,
-				8EC3AE9125CA3B6700E7591A /* SentryTransaction+Private.h in Headers */,
 				63295AF51EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h in Headers */,
 				63FE717920DA4C1100CDBAE8 /* SentryCrashReportStore.h in Headers */,
 				A839D89824864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h in Headers */,
@@ -1822,6 +1821,7 @@
 				63FE710120DA4C1000CDBAE8 /* SentryCrashDate.h in Headers */,
 				7B4E24FC251C97B500060D68 /* SentrySession.h in Headers */,
 				7B7D872C2486480B00D2ECFF /* SentryStacktraceBuilder.h in Headers */,
+				8EBAF05A25CCD066006FDD53 /* SentryTransaction+Private.h in Headers */,
 				6334314120AD9AE40077E581 /* SentryMechanism.h in Headers */,
 				7B610D642512399600B0B5D9 /* SentryHub+Private.h in Headers */,
 				639FCF9C1EBC7F9500778193 /* SentryThread.h in Headers */,

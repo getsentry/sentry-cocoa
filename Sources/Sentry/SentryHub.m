@@ -237,12 +237,12 @@ SentryHub ()
     return
         [[SentryTransaction alloc] initWithName:name
                                     spanContext:[[SentryTransactionContext alloc] initWithName:name]
-                                         andHub:self];
+                                         hub:self];
 }
 
 - (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
-    return [[SentryTransaction alloc] initWithTransactionContext:transactionContext andHub:self];
+    return [[SentryTransaction alloc] initWithTransactionContext:transactionContext hub:self];
 }
 
 - (SentryId *)captureMessage:(NSString *)message

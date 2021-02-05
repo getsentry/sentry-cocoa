@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
                              operation:(NSString *)operation
-                        andDescription:(nullable NSString *)description;
+                           description:(nullable NSString *)description;
 
 @end
 

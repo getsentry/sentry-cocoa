@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- feat: Added SentrySpan 
+- feat: Add SentrySpan #932
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API
 - feat: Add sendDefaultPii to SentryOptions #923

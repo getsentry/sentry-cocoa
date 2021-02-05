@@ -11,7 +11,7 @@ class SentrySpanTests: XCTestCase {
         
         func getSut() -> Span {
             let transaction = Transaction(name: someTransaction)
-            return Span(transaction: transaction, trace: SentryId(), andParentId: transaction.spanId)
+            return Span(transaction: transaction, trace: SentryId(), parentId: transaction.spanId)
         }
     }
     

@@ -44,18 +44,18 @@ SentryTransaction ()
 
 - (instancetype)initWithName:(NSString *)name
 {
-    return [self initWithName:name spanContext:[[SentrySpanContext alloc] init] andHub:nil];
+    return [self initWithName:name spanContext:[[SentrySpanContext alloc] init] hub:nil];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
-                                    andHub:(SentryHub *)hub
+                                       hub:(SentryHub *)hub
 {
-    return [self initWithName:context.name spanContext:context andHub:hub];
+    return [self initWithName:context.name spanContext:context hub:hub];
 }
 
 - (instancetype)initWithName:(NSString *)name
                  spanContext:(nonnull SentrySpanContext *)spanContext
-                      andHub:(SentryHub *)hub
+                         hub:(SentryHub *)hub
 {
     if ([self init]) {
         self.transaction = name;
@@ -120,22 +120,22 @@ SentryTransaction ()
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
 {
-    return [self startChildWithOperation:operation andDescription:nil];
+    return [self startChildWithOperation:operation description:nil];
 }
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         andDescription:(nullable NSString *)description
+                         description:(nullable NSString *)description
 {
-    return [self startChildWithParentId:self.spanId operation:operation andDescription:description];
+    return [self startChildWithParentId:self.spanId operation:operation description:description];
 }
 
 - (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
                              operation:(NSString *)operation
-                        andDescription:(nullable NSString *)description
+                        description:(nullable NSString *)description
 {
     SentrySpan *span = [[SentrySpan alloc] initWithTransaction:self
                                                        traceId:self.traceId
-                                                   andParentId:parentId];
+                                                      parentId:parentId];
     span.operation = operation;
     span.spanDescription = description;
     span.sampled = self.isSampled;

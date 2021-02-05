@@ -21,12 +21,12 @@ SentrySpan () {
 
 - (instancetype)initWithTransaction:(SentryTransaction *)transaction
                             traceId:(SentryId *)traceId
-                        andParentId:(SentrySpanId *)parentId
+                           parentId:(SentrySpanId *)parentId
 {
     if ([super initWithTraceId:traceId
                         spanId:[[SentrySpanId alloc] init]
                       parentId:parentId
-                    andSampled:transaction.isSampled]) {
+                       sampled:transaction.isSampled]) {
         self.transaction = transaction;
         self.startTimestamp = [SentryCurrentDate date];
     }
@@ -36,15 +36,15 @@ SentrySpan () {
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
 {
-    return [self startChildWithOperation:operation andDescription:nil];
+    return [self startChildWithOperation:operation description:nil];
 }
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         andDescription:(nullable NSString *)description
+                            description:(nullable NSString *)description
 {
     return [self.transaction startChildWithParentId:[self spanId]
                                           operation:operation
-                                     andDescription:description];
+                                        description:description];
 }
 
 - (void)setExtra:(NSString *)extra withValue:(id)value
@@ -62,7 +62,7 @@ SentrySpan () {
     return _extras;
 }
 
-- (bool)isFinished
+- (BOOL)isFinished
 {
     return self.timestamp != nil;
 }

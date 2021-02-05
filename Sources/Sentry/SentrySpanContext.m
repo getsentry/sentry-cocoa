@@ -21,13 +21,13 @@ SentrySpanContext () {
     return [self initWithTraceId:[[SentryId alloc] init]
                           spanId:[[SentrySpanId alloc] init]
                         parentId:nil
-                      andSampled:sampled];
+                         sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(SentrySpanId *_Nullable)parentId
-                     andSampled:(BOOL)sampled
+                        sampled:(BOOL)sampled
 {
     if (self = [super init]) {
         self.traceId = traceId;
@@ -54,18 +54,17 @@ SentrySpanContext () {
         return _tags.copy;
     }
 }
-
-- (void)setTag:(NSString *)tag withValue:(NSString *)value
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
     @synchronized(_tags) {
-        [_tags setValue:value forKey:tag];
+        [_tags setValue:value forKey:key];
     }
 }
 
-- (void)unsetTag:(NSString *)tag
+- (void)removeTagForKey:(NSString *)key
 {
     @synchronized(_tags) {
-        [_tags removeObjectForKey:tag];
+        [_tags removeObjectForKey:key];
     }
 }
 

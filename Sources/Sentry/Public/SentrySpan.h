@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 /**
  * Whether the span is finished.
  */
-@property (readonly) bool isFinished;
+@property (readonly) BOOL isFinished;
 
 /**
  * Init a SentrySpan with given transaction, traceId, parentSpanId and hub.
@@ -43,13 +43,17 @@ SENTRY_NO_INIT
                            parentId:(SentrySpanId *)parentId;
 
 /*
- Removing SpanContext initializers
+ Removed because SentrySpan requires a transaction
  */
 - (instancetype)initWithSampled:(BOOL)sampled NS_UNAVAILABLE;
+
+/*
+ Removed because SentrySpan requires a transaction
+ */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
-                     andSampled:(BOOL)sampled NS_UNAVAILABLE;
+                        sampled:(BOOL)sampled NS_UNAVAILABLE;
 
 /**
  * Starts a child span.
@@ -69,7 +73,7 @@ SENTRY_NO_INIT
  * @return SentrySpan
  */
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         andDescription:(nullable NSString *)description
+                            description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
