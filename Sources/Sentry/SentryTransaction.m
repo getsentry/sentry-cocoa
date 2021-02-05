@@ -47,8 +47,7 @@ SentryTransaction ()
     return [self initWithName:name spanContext:[[SentrySpanContext alloc] init] hub:nil];
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
-                                       hub:(SentryHub *)hub
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context hub:(SentryHub *)hub
 {
     return [self initWithName:context.name spanContext:context hub:hub];
 }
@@ -124,14 +123,14 @@ SentryTransaction ()
 }
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         description:(nullable NSString *)description
+                            description:(nullable NSString *)description
 {
     return [self startChildWithParentId:self.spanId operation:operation description:description];
 }
 
 - (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
                              operation:(NSString *)operation
-                        description:(nullable NSString *)description
+                           description:(nullable NSString *)description
 {
     SentrySpan *span = [[SentrySpan alloc] initWithTransaction:self
                                                        traceId:self.traceId

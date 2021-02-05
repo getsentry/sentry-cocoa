@@ -122,7 +122,7 @@ class SentryTransactionTest: XCTestCase {
         transaction.startChild(operation: someOperation)
         
         let serialization = transaction.serialize()
-        let spansSerialized = serialization["spans"] as! Dictionary<String, Any>
+        let spansSerialized = serialization["spans"] as! [String: Any]
         XCTAssertEqual(spansSerialized.count, 1)
     }
     

@@ -237,7 +237,7 @@ SentryHub ()
     return
         [[SentryTransaction alloc] initWithName:name
                                     spanContext:[[SentryTransactionContext alloc] initWithName:name]
-                                         hub:self];
+                                            hub:self];
 }
 
 - (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
