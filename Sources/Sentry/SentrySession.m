@@ -55,7 +55,12 @@ NS_ASSUME_NONNULL_BEGIN
 
         id started = [jsonObject valueForKey:@"started"];
         if ([started isKindOfClass:[NSString class]]) {
-            _started = [NSDate sentry_fromIso8601String:started];
+            NSDate *startedDate = [NSDate sentry_fromIso8601String:started];
+            // When the string can't be converted to a date we don't override the
+            // default value.
+            if (nil != startedDate) {
+                _started = startedDate;
+            }
         }
 
         id status = [jsonObject valueForKey:@"status"];

@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Crash in Session Init with JSON #939
 - feat: Add sendDefaultPii to SentryOptions #923
 
 ## 6.1.4
