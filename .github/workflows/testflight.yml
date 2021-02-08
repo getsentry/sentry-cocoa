@@ -1,0 +1,66 @@
+name: Upload to Testflight
+on:
+  push:
+    branches:
+      - master
+
+env:
+  FASTLANE_KEYCHAIN_NAME: fastlane.keychain
+
+jobs:
+
+  upload_to_testflight:
+    name: Build and Upload iOS-Swift to Testflight
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+
+      # The Github Actions hang when Xcode is trying to sign the app because
+      # a modal window pops up to access the signing key's keychain. This modal
+      # lets the action hang. A workaround is to create a local keychain and
+      # store the signing keys in there.
+      # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
+      
+      # Sometimes the keychain already exists
+      - name: Delete local keychain
+        continue-on-error: true
+        run: security delete-keychain $FASTLANE_KEYCHAIN_NAME
+          
+      - name: Create local keychain
+        run: |
+          security create-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} $FASTLANE_KEYCHAIN_NAME
+          security set-keychain-settings -lut 21600 $FASTLANE_KEYCHAIN_NAME
+          security unlock-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} $FASTLANE_KEYCHAIN_NAME
+          security list-keychain -d user -s $FASTLANE_KEYCHAIN_NAME
+  
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+
+      - name: Setup fastlane
+        run: bundle install   
+
+      # We upload a new version to TestFlight on every commit on Master
+      # So we need to bump the bundle version each time
+      - name: Bump Bundle Version
+        env: 
+          FASTLANE_BUNDLE_VERSION: $GITHUB_RUN_NUMBER
+        run: bundle exec fastlane bump_bundle_version
+        shell: sh
+
+      - name: Run Fastlane
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
+          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: bundle exec fastlane ios_swift_to_testflight
+        shell: sh
+
