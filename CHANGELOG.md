@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Discard Sessions when JSON is faulty #939
 - feat: Add sendDefaultPii to SentryOptions #923
 
 ## 6.1.4
