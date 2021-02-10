@@ -50,7 +50,7 @@ SentrySpan () {
                                         description:description];
 }
 
-- (void)setExtraValue:(NSString *)value forKey:(NSString *)key
+- (void)setExtraValue:(nullable NSString *)value forKey:(NSString *)key
 {
     @synchronized(_extras) {
         [_extras setValue:value forKey:key];
