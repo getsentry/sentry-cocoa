@@ -61,6 +61,19 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual(true, frame2.inApp)
     }
     
+    func testXcodeLibraries() {
+        let frame1 = getFrameWithImageName(imageName: "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
+        XCTAssertEqual(false, frame1.inApp)
+        
+        // If someone has multiple Xcode installations
+        let frame2 = getFrameWithImageName(imageName: "/Applications/Xcode 11.app/Contents/")
+        XCTAssertEqual(false, frame2.inApp)
+        
+        // We don't care if someone installed Xcode in a different location that Applications
+        let frame3 = getFrameWithImageName(imageName: "/Users/sentry/Downloads/Xcode.app/Contents/")
+        XCTAssertEqual(true, frame3.inApp)
+    }
+    
     func testImageAddress () {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.imageAddress = 2_488_998_912
