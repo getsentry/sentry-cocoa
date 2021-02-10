@@ -24,11 +24,14 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         XCTAssertNotNil(span.startTimestamp)
         XCTAssertNil(span.timestamp)
+        XCTAssertFalse(span.isFinished)
     }
     
     func testFinish() {
         let span = fixture.getSut()
+        
         span.finish()
+        
         XCTAssertNotNil(span.timestamp)
         XCTAssertTrue(span.isFinished)
     }
@@ -47,6 +50,7 @@ class SentrySpanTests: XCTestCase {
         let childSpan = span.startChild(operation: fixture.someOperation)
         XCTAssertEqual(childSpan.parentSpanId, span.spanId)
         XCTAssertEqual(childSpan.operation, fixture.someOperation)
+        XCTAssertNil(childSpan.spanDescription)
     }
     
     func testStartChildWithOperationAndDescription() {
