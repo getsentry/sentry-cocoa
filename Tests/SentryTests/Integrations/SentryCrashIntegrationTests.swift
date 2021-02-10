@@ -127,7 +127,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
-        let session = SentrySession(jsonObject: fixture.session.serialize())
+        let session = SentrySession(jsonObject: fixture.session.serialize())!
         fixture.fileManager.storeCurrentSession(session)
         return session
     }
