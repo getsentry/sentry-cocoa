@@ -227,13 +227,13 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let scope = fixture.scope
         
-        for _ in Array(0...20) {
+        for _ in 0...20 {
             group.enter()
             queue.async {
                 
                 // The number is kept small for the CI to not take to long.
                 // If you really want to test this increase to 100_000 or so.
-                for _ in Array(0...1_000) {
+                for _ in 0...1_000 {
                     
                     // Simulate some real world modifications of the user
                     
@@ -241,7 +241,7 @@ class SentryScopeSwiftTests: XCTestCase {
                     
                     _ = Scope(scope: scope)
                     
-                    for _ in Array(0...100) {
+                    for _ in 0...100 {
                         scope.add(self.fixture.breadcrumb)
                     }
                     
@@ -269,7 +269,7 @@ class SentryScopeSwiftTests: XCTestCase {
                     
                     scope.add(TestData.fileAttachment)
                     
-                    for _ in Array(0...10) {
+                    for _ in 0...10 {
                         scope.add(self.fixture.breadcrumb)
                     }
                     scope.serialize()

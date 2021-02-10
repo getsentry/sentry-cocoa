@@ -41,7 +41,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         
         let group = DispatchGroup()
         
-        for i in Array(0...10) {
+        for i in 0...10 {
             
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
             
@@ -75,7 +75,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         queue2.activate()
         group.waitWithTimeout()
         
-        for i in Array(0...10) {
+        for i in 0...10 {
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
             
             let a = i as NSNumber
