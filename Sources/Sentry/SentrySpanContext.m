@@ -11,22 +11,24 @@ SentrySpanContext () {
 
 @implementation SentrySpanContext
 
-- (instancetype)init
+- (instancetype)initWithOperation:(NSString *)operation
 {
-    return [self initWithSampled:false];
+    return [self initWithOperation:operation sampled:false];
 }
 
-- (instancetype)initWithSampled:(BOOL)sampled
+- (instancetype)initWithOperation:(NSString *)operation sampled:(BOOL)sampled
 {
     return [self initWithTraceId:[[SentryId alloc] init]
                           spanId:[[SentrySpanId alloc] init]
                         parentId:nil
+                       operation:operation
                          sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                       parentId:(SentrySpanId *_Nullable)parentId
+                       parentId:(nullable SentrySpanId *)parentId
+                      operation:(NSString *)operation
                         sampled:(BOOL)sampled
 {
     if (self = [super init]) {
@@ -34,6 +36,7 @@ SentrySpanContext () {
         self.spanId = spanId;
         self.parentSpanId = parentId;
         self.sampled = sampled;
+        self.operation = operation;
         self.status = kSentrySpanStatusUndefined;
         _tags = [[NSMutableDictionary alloc] init];
     }

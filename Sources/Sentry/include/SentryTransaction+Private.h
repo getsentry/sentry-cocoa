@@ -4,6 +4,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * SentryTransaction SDK internal methods.
+ * This should not be in the public API.
+ */
 @interface SentryTransaction (Private)
 
 /**

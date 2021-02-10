@@ -111,9 +111,9 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
-+ (SentryTransaction *)startTransactionWithName:(NSString *)name
++ (SentryTransaction *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [SentrySDK.currentHub startTransactionWithName:name];
+    return [SentrySDK.currentHub startTransactionWithName:name operation:operation];
 }
 
 + (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext

@@ -42,11 +42,12 @@ SENTRY_NO_INIT
 /**
  * Init a SentryTransaction with given name and set other fields by default
  *
- * @param name Transaction name
+ * @param name Transaction name.
+ * @param operation Short code identifying the type of operation the transaction is measuring.
  *
  * @return SentryTransaction
  */
-- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Init a SentryTransaction with given transaction context and hub and set other fields by default

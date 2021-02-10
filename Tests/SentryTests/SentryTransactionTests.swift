@@ -5,7 +5,7 @@ class SentryTransactionTest: XCTestCase {
     let someOperation = "Some Operation"
     
     func testInitWithName() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
         
         XCTAssertNotNil(transaction.startTimestamp)
         XCTAssertNil(transaction.timestamp)
@@ -16,7 +16,7 @@ class SentryTransactionTest: XCTestCase {
         let someOperation = "Some Operation"
         let someSpanDescription = "Some Span Description"
         
-        let context = TransactionContext(name: someTransactionName, trace: SentryId(), spanId: SpanId(), parentSpanId: SpanId(), andParentSampled: true)
+        let context = TransactionContext(name: someTransactionName, operation: someOperation, trace: SentryId(), spanId: SpanId(), parentSpanId: SpanId(), parentSampled: true)
         context.operation = someOperation
         context.status = .ok
         context.sampled = true
@@ -38,7 +38,7 @@ class SentryTransactionTest: XCTestCase {
         let someOperation = "Some Operation"
         let spanDescription = "Span Description"
         
-        let context = TransactionContext(name: someTransactionName)
+        let context = TransactionContext(name: someTransactionName, operation: someOperation)
         
         let transaction = Transaction(transactionContext: context, hub: nil)
         transaction.spanDescription = spanDescription
@@ -51,7 +51,7 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testInitWithNameAndContext() {
-        let context = SpanContext()
+        let context = SpanContext(operation: someOperation)
         context.operation = someOperation
         context.status = .ok
 
@@ -71,7 +71,7 @@ class SentryTransactionTest: XCTestCase {
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
 
-        let transaction = Transaction(name: someTransactionName, spanContext: SpanContext(), hub: hub)
+        let transaction = Transaction(name: someTransactionName, spanContext: SpanContext(operation: someOperation), hub: hub)
         transaction.finish()
 
         XCTAssertNotNil(transaction.startTimestamp)
@@ -81,7 +81,7 @@ class SentryTransactionTest: XCTestCase {
     }
 
     func testSerializationWithoutContext() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
         
         let serialization = transaction.serialize()
         XCTAssertNotNil(serialization)
@@ -96,7 +96,7 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testSerializationWithContext() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
         transaction.context = [String: [String: Any]]()
         
         let serialization = transaction.serialize()
@@ -112,32 +112,35 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testAdditionOfChild() {
-        let transaction = Transaction(name: someTransactionName)
-        transaction.startChild(operation: someOperation)
-        XCTAssertEqual(transaction.spans.count, 1)
-    }
-    
-    func testSerializeWithSpan() {
-        let transaction = Transaction(name: someTransactionName)
-        transaction.startChild(operation: someOperation)
-        
-        let serialization = transaction.serialize()
-        let spansSerialized = serialization["spans"] as! Dictionary<String, Any>
-        XCTAssertEqual(spansSerialized.count, 1)
-    }
-    
-    func testAddChildWithOperation() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
         let span = transaction.startChild(operation: someOperation)
+        
+        XCTAssertEqual(transaction.spans.count, 1)
         XCTAssertEqual(span.operation, someOperation)
+        XCTAssertEqual(span.parentSpanId, transaction.spanId)
+        XCTAssertNotNil(span.startTimestamp)
+        XCTAssertNil(span.spanDescription)
+        XCTAssertNil(span.timestamp)
     }
-    
+            
     func testAddChildWithOperationAndDescription() {
-        let transaction = Transaction(name: someTransactionName)
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
         let someDescription = "Some Description"
         let span = transaction.startChild(operation: someOperation, description: someDescription)
         
         XCTAssertEqual(span.operation, someOperation)
         XCTAssertEqual(span.spanDescription, someDescription)
+        XCTAssertEqual(span.parentSpanId, transaction.spanId)
+        XCTAssertNotNil(span.startTimestamp)
+        XCTAssertNil(span.timestamp)
+    }
+    
+    func testSerializeWithSpan() {
+        let transaction = Transaction(name: someTransactionName, operation: someOperation)
+        transaction.startChild(operation: someOperation)
+        
+        let serialization = transaction.serialize()
+        let spansSerialized = serialization["spans"] as! [Any]
+        XCTAssertEqual(spansSerialized.count, 1)
     }
 }

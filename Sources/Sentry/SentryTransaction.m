@@ -42,13 +42,14 @@ SentryTransaction ()
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self initWithName:name spanContext:[[SentrySpanContext alloc] init] hub:nil];
+    return [self initWithName:name
+                  spanContext:[[SentrySpanContext alloc] initWithOperation:operation]
+                          hub:nil];
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context
-                                       hub:(SentryHub *)hub
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)context hub:(SentryHub *)hub
 {
     return [self initWithName:context.name spanContext:context hub:hub];
 }
@@ -124,19 +125,20 @@ SentryTransaction ()
 }
 
 - (SentrySpan *)startChildWithOperation:(NSString *)operation
-                         description:(nullable NSString *)description
+                            description:(nullable NSString *)description
 {
     return [self startChildWithParentId:self.spanId operation:operation description:description];
 }
 
 - (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
                              operation:(NSString *)operation
-                        description:(nullable NSString *)description
+                           description:(nullable NSString *)description
 {
     SentrySpan *span = [[SentrySpan alloc] initWithTransaction:self
+                                                     operation:operation
                                                        traceId:self.traceId
                                                       parentId:parentId];
-    span.operation = operation;
+
     span.spanDescription = description;
     span.sampled = self.isSampled;
     @synchronized(self.spans) {

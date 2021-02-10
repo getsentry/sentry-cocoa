@@ -39,13 +39,14 @@ SENTRY_NO_INIT
  * @return SentrySpan
  */
 - (instancetype)initWithTransaction:(SentryTransaction *)transaction
+                          operation:(NSString *)operation
                             traceId:(SentryId *)traceId
                            parentId:(SentrySpanId *)parentId;
 
 /*
  Removed because SentrySpan requires a transaction
  */
-- (instancetype)initWithSampled:(BOOL)sampled NS_UNAVAILABLE;
+- (instancetype)initWithOperation:(NSString *)operation Sampled:(BOOL)sampled NS_UNAVAILABLE;
 
 /*
  Removed because SentrySpan requires a transaction
@@ -53,12 +54,13 @@ SENTRY_NO_INIT
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
+                      operation:(NSString *)operation
                         sampled:(BOOL)sampled NS_UNAVAILABLE;
 
 /**
  * Starts a child span.
  *
- * @param operation Defines the child span operation.
+ * @param operation Short code identifying the type of operation the span is measuring.
  *
  * @return SentrySpan
  */
@@ -79,7 +81,7 @@ SENTRY_NO_INIT
 /**
  * Sets an extra.
  */
-- (void)setExtra:(NSString *)extra withValue:(id)value;
+- (void)setExtraValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Finishes the span by setting the end time.

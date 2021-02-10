@@ -20,15 +20,18 @@ SentrySpan () {
 @implementation SentrySpan
 
 - (instancetype)initWithTransaction:(SentryTransaction *)transaction
+                          operation:(NSString *)operation
                             traceId:(SentryId *)traceId
                            parentId:(SentrySpanId *)parentId
 {
     if ([super initWithTraceId:traceId
                         spanId:[[SentrySpanId alloc] init]
                       parentId:parentId
+                     operation:operation
                        sampled:transaction.isSampled]) {
         self.transaction = transaction;
         self.startTimestamp = [SentryCurrentDate date];
+        _extras = [[NSMutableDictionary alloc] init];
     }
 
     return self;
@@ -47,13 +50,10 @@ SentrySpan () {
                                         description:description];
 }
 
-- (void)setExtra:(NSString *)extra withValue:(id)value
+- (void)setExtraValue:(NSString *)value forKey:(NSString *)key
 {
-    if (_extras == nil)
-        _extras = [[NSMutableDictionary alloc] init];
-
     @synchronized(_extras) {
-        [_extras setValue:value forKey:extra];
+        [_extras setValue:value forKey:key];
     }
 }
 
