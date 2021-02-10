@@ -325,14 +325,14 @@ class SentrySDKTests: XCTestCase {
             scope.setUser(user)
         }
         
-        for i in Array(0...100) {
+        for i in 0...100 {
             SentrySDK.configureScope { scope in
                 scope.add(buildCrumb(i))
             }
         }
         
         self.measure {
-            for i in Array(0...10) {
+            for i in 0...10 {
                 SentrySDK.configureScope { scope in
                     scope.add(buildCrumb(i))
                 }
@@ -376,7 +376,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         self.measure(metrics: [XCTMemoryMetric()]) {
-            for i in Array(0...1_000) {
+            for i in 0...1_000 {
                 let crumb = TestData.crumb
                 crumb.message = "\(i)"
                 SentrySDK.addBreadcrumb(crumb: crumb)

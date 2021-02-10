@@ -89,13 +89,13 @@ class SentryUserTests: XCTestCase {
         
         let user = TestData.user.copy() as! User
         
-        for i in Array(0...20) {
+        for i in 0...20 {
             group.enter()
             queue.async {
                 
                 // The number is kept small for the CI to not take to long.
                 // If you really want to test this increase to 100_000 or so.
-                for _ in Array (0...1_000) {
+                for _ in 0...1_000 {
                     
                     // Simulate some real world modifications of the user
                     
