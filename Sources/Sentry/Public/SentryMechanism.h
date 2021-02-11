@@ -28,6 +28,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
 /**
+ * Sentry uses the NSErrors domain and code for grouping. Only domain and code are serialized.
+ */
+@property (nonatomic, copy) NSError *_Nullable error;
+
+/**
  * Flag indicating whether the exception has been handled by the user
  * (e.g. via ``try..catch``)
  */

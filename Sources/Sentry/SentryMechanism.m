@@ -23,6 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.data forKey:@"data"];
     [serializedData setValue:self.helpLink forKey:@"help_link"];
 
+    if (nil != self.error) {
+        serializedData[@"ns_error"] =
+            @{ @"domain" : self.error.domain, @"code" : @(self.error.code) };
+    }
+
     return serializedData;
 }
 

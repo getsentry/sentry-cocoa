@@ -89,6 +89,7 @@ class TestData {
         mechanism.handled = true
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = ["meta": "data"]
+        mechanism.error = SampleError.bestDeveloper
         
         return mechanism
     }
@@ -131,5 +132,11 @@ class TestData {
     
     static var dataAttachment: Attachment {
         return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
+    }
+    
+    enum SampleError: Error {
+        case bestDeveloper
+        case happyCustomer
+        case awesomeCentaur
     }
 }

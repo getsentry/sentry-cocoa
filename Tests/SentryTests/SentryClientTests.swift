@@ -797,10 +797,15 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(1, exceptions.count)
         let exception = exceptions[0]
         XCTAssertEqual(error.domain, exception.type)
-        XCTAssertEqual("\(error.code)", exception.value)
+        XCTAssertEqual("Code: \(error.code) LocalizedDescription: \(error.localizedDescription)", exception.value)
         XCTAssertNil(exception.thread)
         
-        XCTAssertEqual([error.domain, String(error.code)], event.fingerprint)
+        guard let mechanism = exception.mechanism else {
+            XCTFail("Exception doesn't contain a mechanism"); return
+        }
+        XCTAssertEqual("NSError", mechanism.type)
+        XCTAssertNotNil(mechanism.error)
+        XCTAssertEqual(error, mechanism.error! as NSError)
         
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)

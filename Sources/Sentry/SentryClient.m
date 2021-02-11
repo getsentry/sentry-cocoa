@@ -14,6 +14,7 @@
 #import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentryMechanism.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryOptions.h"
@@ -168,11 +169,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    NSString *errorCodeAsString = [NSString stringWithFormat:@"%ld", (long)error.code];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:errorCodeAsString
+    NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld LocalizedDescription: %@",
+                                         (long)error.code, error.localizedDescription];
+    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                          type:error.domain];
-    event.exceptions = @[ sentryException ];
-    event.fingerprint = @[ error.domain, [NSString stringWithFormat:@"%ld", (long)error.code] ];
+
+    // Sentry uses the error on the mechanism for gouping
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
+    mechanism.error = error;
+    
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
 
     [self setUserInfo:error.userInfo withEvent:event];
 
