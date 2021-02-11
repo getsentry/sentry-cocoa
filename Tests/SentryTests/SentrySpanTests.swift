@@ -17,6 +17,10 @@ class SentrySpanTests: XCTestCase {
     
     private var fixture: Fixture!
     override func setUp() {
+        let testDataProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(testDataProvider)
+        testDataProvider.setDate(date: TestData.timestamp)
+        
         fixture = Fixture()
     }
     
@@ -32,14 +36,17 @@ class SentrySpanTests: XCTestCase {
         
         span.finish()
         
-        XCTAssertNotNil(span.timestamp)
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertTrue(span.isFinished)
     }
     
     func testFinishWithStatus() {
         let span = fixture.getSut()
         span.finish(status: .ok)
-        XCTAssertNotNil(span.timestamp)
+        
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertEqual(span.status, .ok)
         XCTAssertTrue(span.isFinished)
     }
@@ -79,8 +86,8 @@ class SentrySpanTests: XCTestCase {
         span.finish()
                 
         let serialization = span.serialize()
-        XCTAssertNotNil(serialization["timestamp"])
-        XCTAssertNotNil(serialization["start_timestamp"])
+        XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
         XCTAssertNotNil(serialization["data"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }

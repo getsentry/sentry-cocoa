@@ -66,6 +66,9 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testFinishCapturesTransaction() {
+        let testDataProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(testDataProvider)
+        
         let fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         let transport = TestTransport()
         let client = TestClient(options: Options(), andTransport: transport, andFileManager: fileManager)
@@ -74,21 +77,25 @@ class SentryTransactionTest: XCTestCase {
         let transaction = Transaction(name: someTransactionName, spanContext: SpanContext(operation: someOperation), hub: hub)
         transaction.finish()
 
-        XCTAssertNotNil(transaction.startTimestamp)
-        XCTAssertNotNil(transaction.timestamp)
+        XCTAssertEqual(transaction.startTimestamp, testDataProvider.date())
+        XCTAssertEqual(transaction.timestamp, testDataProvider.date())
         XCTAssertTrue(transaction.timestamp! >= transaction.startTimestamp!)
         XCTAssertTrue(client.captureEventWithScopeArguments.last!.event === transaction)
     }
 
     func testSerializationWithoutContext() {
+        let testDataProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(testDataProvider)
+        testDataProvider.setDate(date: TestData.timestamp)
+        
         let transaction = Transaction(name: someTransactionName, operation: someOperation)
         
         let serialization = transaction.serialize()
         XCTAssertNotNil(serialization)
         XCTAssertEqual(serialization["type"] as? String, "transaction")
-        XCTAssertNotNil(serialization["event_id"])
-        XCTAssertNotNil(serialization["start_timestamp"])
-        XCTAssertNotNil(serialization["timestamp"])
+        XCTAssertEqual(serialization["event_id"] as? String, transaction.eventId.sentryIdString)
+        XCTAssertNotNil(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
         XCTAssertEqual(serialization["transaction"] as? String, someTransactionName)
         XCTAssertNotNil(serialization["contexts"])
         XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
@@ -96,15 +103,19 @@ class SentryTransactionTest: XCTestCase {
     }
     
     func testSerializationWithContext() {
+        let testDataProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(testDataProvider)
+        testDataProvider.setDate(date: TestData.timestamp)
+        
         let transaction = Transaction(name: someTransactionName, operation: someOperation)
         transaction.context = [String: [String: Any]]()
         
         let serialization = transaction.serialize()
         XCTAssertNotNil(serialization)
         XCTAssertEqual(serialization["type"] as? String, "transaction")
-        XCTAssertNotNil(serialization["event_id"])
-        XCTAssertNotNil(serialization["start_timestamp"])
-        XCTAssertNotNil(serialization["timestamp"])
+        XCTAssertEqual(serialization["event_id"] as? String, transaction.eventId.sentryIdString)
+        XCTAssertNotNil(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
         XCTAssertEqual(serialization["transaction"] as? String, someTransactionName)
         XCTAssertNotNil(serialization["contexts"])
         XCTAssertNotNil((serialization["contexts"] as! Dictionary)["trace"])
