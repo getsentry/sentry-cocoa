@@ -2,31 +2,41 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
-@implementation SentrySpanContext
-
-- (instancetype)init
-{
-    return [self initWithSampled:false];
+@interface
+SentrySpanContext () {
+    NSMutableDictionary<NSString *, NSString *> *_tags;
 }
 
-- (instancetype)initWithSampled:(BOOL)sampled
+@end
+
+@implementation SentrySpanContext
+
+- (instancetype)initWithOperation:(NSString *)operation
+{
+    return [self initWithOperation:operation sampled:false];
+}
+
+- (instancetype)initWithOperation:(NSString *)operation sampled:(BOOL)sampled
 {
     return [self initWithTraceId:[[SentryId alloc] init]
                           spanId:[[SentrySpanId alloc] init]
                         parentId:nil
-                      andSampled:sampled];
+                       operation:operation
+                         sampled:sampled];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                       parentId:(SentrySpanId *_Nullable)parentId
-                     andSampled:(BOOL)sampled
+                       parentId:(nullable SentrySpanId *)parentId
+                      operation:(NSString *)operation
+                        sampled:(BOOL)sampled
 {
     if (self = [super init]) {
         self.traceId = traceId;
         self.spanId = spanId;
         self.parentSpanId = parentId;
         self.sampled = sampled;
+        self.operation = operation;
         self.status = kSentrySpanStatusUndefined;
         _tags = [[NSMutableDictionary alloc] init];
     }
@@ -39,6 +49,26 @@
     if (type == nil)
         type = @"trace";
     return type;
+}
+
+- (NSDictionary<NSString *, NSString *> *)tags
+{
+    @synchronized(_tags) {
+        return _tags.copy;
+    }
+}
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
+}
+
+- (void)removeTagForKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)serialize

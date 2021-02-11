@@ -2,14 +2,9 @@
 
 @implementation SentryTransactionContext
 
-- (instancetype)init
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [super init];
-}
-
-- (instancetype)initWithName:(NSString *)name
-{
-    if (self = [self init]) {
+    if (self = [super initWithOperation:operation]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = false;
     }
@@ -17,12 +12,17 @@
 }
 
 - (instancetype)initWithName:(NSString *)name
+                   operation:(nonnull NSString *)operation
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(SentrySpanId *)parentSpanId
-            andParentSampled:(BOOL)parentSampled
+               parentSampled:(BOOL)parentSampled
 {
-    if ([super initWithTraceId:traceId spanId:spanId parentId:parentSpanId andSampled:false]) {
+    if ([super initWithTraceId:traceId
+                        spanId:spanId
+                      parentId:parentSpanId
+                     operation:operation
+                       sampled:false]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = parentSampled;
     }

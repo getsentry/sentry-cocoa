@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanContext, SentryTransactionContext, SentryHub;
+@class SentrySpanContext, SentryTransactionContext, SentryHub, SentrySpan;
 
 NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent <SentrySerializable>
@@ -27,12 +27,12 @@ SENTRY_NO_INIT
  * Longer description of the span's operation, which uniquely identifies the span but is
  * consistent across instances of the span.
  */
-@property (nonatomic, copy) NSString *_Nullable spanDescription;
+@property (nullable, nonatomic, copy) NSString *spanDescription;
 
 /**
  * Short code identifying the type of operation the transaction is measuring.
  */
-@property (nonatomic, copy) NSString *_Nullable operation;
+@property (nullable, nonatomic, copy) NSString *operation;
 
 /**
  * Describes the status of the Transaction
@@ -42,11 +42,12 @@ SENTRY_NO_INIT
 /**
  * Init a SentryTransaction with given name and set other fields by default
  *
- * @param name Transaction name
+ * @param name Transaction name.
+ * @param operation Short code identifying the type of operation the transaction is measuring.
  *
  * @return SentryTransaction
  */
-- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Init a SentryTransaction with given transaction context and hub and set other fields by default
@@ -58,7 +59,7 @@ SENTRY_NO_INIT
  */
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                    andHub:(SentryHub *_Nullable)hub;
+                                       hub:(nullable SentryHub *)hub;
 
 /**
  * Init a SentryTransaction with given name, span context and hub and set other fields by default
@@ -71,12 +72,33 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithName:(NSString *)name
                  spanContext:(SentrySpanContext *)spanContext
-                      andHub:(nullable SentryHub *)hub;
+                         hub:(nullable SentryHub *)hub;
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.
  */
 - (void)finish;
+
+/**
+ * Starts a child span.
+ *
+ * @param operation Defines the child span operation.
+ *
+ * @return SentrySpan
+ */
+- (SentrySpan *)startChildWithOperation:(NSString *)operation NS_SWIFT_NAME(startChild(operation:));
+
+/**
+ * Starts a child span.
+ *
+ * @param operation Defines the child span operation.
+ * @param description Define the child span description.
+ *
+ * @return SentrySpan
+ */
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                            description:(nullable NSString *)description
+    NS_SWIFT_NAME(startChild(operation:description:));
 
 @end
 

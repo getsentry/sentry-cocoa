@@ -159,7 +159,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureTransaction() {
-        let transaction = Transaction(name: "Some Transaction")
+        let transaction = Transaction(name: "Some Transaction", operation: "Some Operation")
         let eventId = fixture.getSut().capture(transaction: transaction)
         
         eventId.assertIsNotEmpty()

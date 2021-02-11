@@ -56,11 +56,13 @@ SENTRY_NO_INIT
  * Creates a transaction bound to the hub and returns the instance.
  *
  * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the span is measuring.
  *
  * @return The created transaction.
  */
 - (SentryTransaction *)startTransactionWithName:(NSString *)name
-    NS_SWIFT_NAME(startTransaction(name:));
+                                      operation:(NSString *)operation
+    NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
  * Creates a transaction bound to the hub and returns the instance.

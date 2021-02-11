@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(TransactionContext)
 @interface SentryTransactionContext : SentrySpanContext
+SENTRY_NO_INIT
 
 /**
  * Transaction name
@@ -15,29 +16,24 @@ NS_SWIFT_NAME(TransactionContext)
 /**
  * Parent sampled
  */
-@property (nonatomic) bool parentSampled;
-
-/**
- * Init a SentryTransactionContext and set all fields by default
- *
- * @return SentryTransactionContext
- */
-- (instancetype)init;
+@property (nonatomic) BOOL parentSampled;
 
 /**
  * Init a SentryTransactionContext with given name and set other fields by default
  *
  * @param name Transaction name
+ * @param operation The operation this span is measuring.
  *
  * @return SentryTransactionContext
  */
-- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the
  * parent is sampled.
  *
  * @param name Transaction name
+ * @param operation The operation this span is measuring.
  * @param traceId Trace Id
  * @param spanId Span Id
  * @param parentSpanId Parent span id
@@ -46,10 +42,11 @@ NS_SWIFT_NAME(TransactionContext)
  * @return SentryTransactionContext
  */
 - (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
-            andParentSampled:(BOOL)parentSampled;
+               parentSampled:(BOOL)parentSampled;
 
 @end
 

@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(SpanContext)
 @interface SentrySpanContext : NSObject <SentrySerializable>
+SENTRY_NO_INIT
 
 /**
  * Determines which trace the Span belongs to.
@@ -32,7 +33,7 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * Short code identifying the type of operation the span is measuring.
  */
-@property (nullable, nonatomic, copy) NSString *operation;
+@property (nonatomic, copy) NSString *operation;
 
 /**
  * Longer description of the span's operation, which uniquely identifies the span but is
@@ -48,30 +49,35 @@ NS_SWIFT_NAME(SpanContext)
 /**
  * A map or list of tags for this event. Each tag must be less than 200 characters.
  */
-@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSString *> *tags;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *tags;
 
 /**
- * Init a SentryContext and sets all fields by default.
+ * Init a SentryContext with an operation code,
+ * traceId and spanId with be randomly created,
+ * sampled by default is false.
  *
  * @return SentryContext
  */
-- (instancetype)init;
+- (instancetype)initWithOperation:(NSString *)operation;
 
 /**
- * Init a SentryContext and mark it as sampled or not, sets the other fields by default.
+ * Init a SentryContext with an operation code and mark it as sampled or not.
+ * TraceId and SpanId with be randomly created.
  *
+ * @param operation The operation this span is measuring.
  * @param sampled Determines whether the trace is sampled
  *
  * @return SentryContext
  */
 
-- (instancetype)initWithSampled:(BOOL)sampled;
+- (instancetype)initWithOperation:(NSString *)operation sampled:(BOOL)sampled;
 
 /**
  * Init a SentryContext with given traceId, spanId and parentId.
  *
  * @param traceId Determines which trace the Span belongs to.
  * @param spanId The Span Id
+ * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
  *
  * @return SentryContext
@@ -79,7 +85,18 @@ NS_SWIFT_NAME(SpanContext)
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
-                     andSampled:(BOOL)sampled;
+                      operation:(NSString *)operation
+                        sampled:(BOOL)sampled;
+
+/**
+ * Sets a tag with given value.
+ */
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
+/**
+ * Removes a tag.
+ */
+- (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
 @property (class, nonatomic, readonly, copy) NSString *type;
 

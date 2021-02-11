@@ -232,17 +232,17 @@ SentryHub ()
     return [self.client captureTransaction:transaction];
 }
 
-- (SentryTransaction *)startTransactionWithName:(NSString *)name
+- (SentryTransaction *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return
-        [[SentryTransaction alloc] initWithName:name
-                                    spanContext:[[SentryTransactionContext alloc] initWithName:name]
-                                         andHub:self];
+    return [[SentryTransaction alloc]
+        initWithName:name
+         spanContext:[[SentryTransactionContext alloc] initWithName:name operation:operation]
+                 hub:self];
 }
 
 - (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
-    return [[SentryTransaction alloc] initWithTransactionContext:transactionContext andHub:self];
+    return [[SentryTransaction alloc] initWithTransactionContext:transactionContext hub:self];
 }
 
 - (SentryId *)captureMessage:(NSString *)message
