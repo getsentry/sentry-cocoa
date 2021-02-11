@@ -167,7 +167,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    SentryEvent *event = [[SentryEvent alloc] initWithError:error];
     NSString *errorCodeAsString = [NSString stringWithFormat:@"%ld", (long)error.code];
     SentryException *sentryException = [[SentryException alloc] initWithValue:errorCodeAsString
                                                                          type:error.domain];

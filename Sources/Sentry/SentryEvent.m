@@ -33,6 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithError:(NSError *)error
+{
+    self = [self initWithLevel:kSentryLevelError];
+    self.error = error;
+    return self;
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
