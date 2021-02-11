@@ -79,4 +79,13 @@ class SentryEventTests: XCTestCase {
         let actual = event.serialize()
         XCTAssertNil(actual["breadcrumbs"])
     }
+    
+    func testSerializeWithoutMessage() {
+        let actual = Event().serialize()
+        XCTAssertNil(actual["message"])
+    }
+    
+    func testMessageIsNil() {
+        XCTAssertNil(Event().message)
+    }
 }

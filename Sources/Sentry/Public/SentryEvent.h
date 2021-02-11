@@ -17,9 +17,9 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) SentryId *eventId;
 
 /**
- * Message of the event
+ * Message of the event.
  */
-@property (nonatomic, strong) SentryMessage *message;
+@property (nonatomic, strong) SentryMessage *_Nullable message;
 
 /**
  * NSDate of when the event occured
