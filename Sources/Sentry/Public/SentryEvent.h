@@ -26,7 +26,7 @@ NS_SWIFT_NAME(Event)
  * beforeSend. This property is not serialized. Instead when preparing the event the SentryClient
  * puts the error into exceptions.
  */
-@property (nonatomic, strong) NSError *_Nullable error;
+@property (nonatomic, copy) NSError *_Nullable error;
 
 /**
  * NSDate of when the event occured
