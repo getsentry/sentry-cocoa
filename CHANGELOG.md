@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Stacktrace inApp marking on Simulators #942
 - feat: Group NSError by domain and code #941
 - fix: Discard Sessions when JSON is faulty #939
 - feat: Add sendDefaultPii to SentryOptions #923
