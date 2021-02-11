@@ -79,4 +79,10 @@ class SentryEventTests: XCTestCase {
         let actual = event.serialize()
         XCTAssertNil(actual["breadcrumbs"])
     }
+    
+    func testInitWithError() {
+        let error = CocoaError(CocoaError.coderInvalidValue)
+        let event = Event(error: error)
+        XCTAssertEqual(error, event.error as? CocoaError)
+    }
 }

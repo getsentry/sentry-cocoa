@@ -790,6 +790,7 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidErrorEvent(_ event: Event, _ error: NSError) {
         XCTAssertEqual(SentryLevel.error, event.level)
+        XCTAssertEqual(error, event.error as NSError?)
         
         guard let exceptions = event.exceptions else {
             XCTFail("Event should contain one exception"); return
