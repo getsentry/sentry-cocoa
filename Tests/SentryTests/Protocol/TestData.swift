@@ -83,8 +83,9 @@ class TestData {
     }
     
     static var mechanism: Mechanism {
+        let currentDateProvider = TestCurrentDateProvider()
         let mechanism = Mechanism(type: "type")
-        mechanism.data = ["data": ["any": "some"]]
+        mechanism.data = ["something": ["date": currentDateProvider.date()]]
         mechanism.desc = "desc"
         mechanism.handled = true
         mechanism.helpLink = "https://www.sentry.io"

@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Sanitize SentryMechanism.data on serialize #947
 - feat: Add error to SentryEvent #944
 - fix: Mark SentryEvent.message as Nullable #943
 - fix: Stacktrace inApp marking on Simulators #942
