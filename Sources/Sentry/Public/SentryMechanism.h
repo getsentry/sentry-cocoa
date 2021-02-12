@@ -16,8 +16,8 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *type;
 
 /**
- * Human readable description of the error mechanism and a possible
- * hint on how to solve this error
+ * Human readable description of the error mechanism and a possible hint on how to solve this error.
+ * We can't use description as it overlaps with NSObject.description.
  */
 @property (nonatomic, copy) NSString *_Nullable desc;
 
