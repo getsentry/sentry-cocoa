@@ -24,7 +24,7 @@ class SentryMechanismTests: XCTestCase {
             XCTFail("The serialization doesn't contain ns_error")
             return
         }
-        let nsError = expected.error! as NSError
+        let nsError = expected.error! as SentryNSError
         XCTAssertEqual(nsError.domain, error["domain"] as? String)
         XCTAssertEqual(nsError.code, error["code"] as? Int)
     }

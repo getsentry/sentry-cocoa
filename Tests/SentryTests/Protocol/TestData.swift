@@ -89,7 +89,9 @@ class TestData {
         mechanism.handled = true
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = ["meta": "data"]
-        mechanism.error = SampleError.bestDeveloper
+        
+        let error = SampleError.bestDeveloper as NSError
+        mechanism.error = SentryNSError(domain: error.domain, code: error.code)
         
         return mechanism
     }

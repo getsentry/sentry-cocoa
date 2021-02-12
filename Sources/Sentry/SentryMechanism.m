@@ -1,4 +1,5 @@
 #import "SentryMechanism.h"
+#import "SentryNSError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,8 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.helpLink forKey:@"help_link"];
 
     if (nil != self.error) {
-        serializedData[@"ns_error"] =
-            @{ @"domain" : self.error.domain, @"code" : @(self.error.code) };
+        serializedData[@"ns_error"] = [self.error serialize];
     }
 
     return serializedData;

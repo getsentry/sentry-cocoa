@@ -17,6 +17,7 @@
 #import "SentryMechanism.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryNSError.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -170,25 +171,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
 
-    NSMutableString *exceptionValue =
-        [NSMutableString stringWithFormat:@"Code: %ld", (long)error.code];
-
-    // We only want to add the NSLocalizedDescription if the error contains one. As
-    // NSError.localizedDescription returns a default string contructed from the domain and code if
-    // the user info dictionary doesn’t contain a value for NSLocalizedDescriptionKey, we don't use
-    // NSError.localizedDescription as it would just again append domain and code, which we already
-    // have in the SentryException.
-    NSString *localizedDescription = error.userInfo[NSLocalizedDescriptionKey];
-    if (nil != localizedDescription) {
-        [exceptionValue appendFormat:@" NSLocalizedDescription: %@", localizedDescription];
-    }
-
+    NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:error.domain];
 
     // Sentry uses the error domain and code on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
-    mechanism.error = error;
+    mechanism.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
     // The description of the error can be especially useful for error from swift that
     // use a simple enum.
     mechanism.desc = error.description;

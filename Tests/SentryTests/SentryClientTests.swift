@@ -799,11 +799,7 @@ class SentryClientTest: XCTestCase {
         let exception = exceptions[0]
         XCTAssertEqual(error.domain, exception.type)
         
-        if nil != error.userInfo[NSLocalizedDescriptionKey] {
-            XCTAssertEqual("Code: \(error.code) NSLocalizedDescription: \(error.localizedDescription)", exception.value)
-        } else {
-            XCTAssertEqual("Code: \(error.code)", exception.value)
-        }
+        XCTAssertEqual("Code: \(error.code)", exception.value)
         
         XCTAssertNil(exception.thread)
         
@@ -812,7 +808,8 @@ class SentryClientTest: XCTestCase {
         }
         XCTAssertEqual("NSError", mechanism.type)
         XCTAssertNotNil(mechanism.error)
-        XCTAssertEqual(error, mechanism.error! as NSError)
+        XCTAssertEqual(error.domain, mechanism.error?.domain)
+        XCTAssertEqual(error.code, mechanism.error?.code)
         
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
