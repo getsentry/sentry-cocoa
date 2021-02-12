@@ -172,7 +172,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld LocalizedDescription: %@",
                                          (long)error.code, error.localizedDescription];
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                         type:error.domain];
+                                                                   type:error.domain];
 
     // Sentry uses the error on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
