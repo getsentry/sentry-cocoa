@@ -3,6 +3,7 @@
 ## unreleased
 
 - fix: Use mechanism for error grouping #946
+- feat: Add error to SentryEvent #944
 - fix: Mark SentryEvent.message as Nullable #943
 - fix: Stacktrace inApp marking on Simulators #942
 - feat: Group NSError by domain and code #941
