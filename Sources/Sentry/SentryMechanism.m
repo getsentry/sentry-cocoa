@@ -21,13 +21,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     [serializedData setValue:self.handled forKey:@"handled"];
     [serializedData setValue:self.desc forKey:@"description"];
-    [serializedData setValue:self.meta forKey:@"meta"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     [serializedData setValue:self.helpLink forKey:@"help_link"];
 
-    if (nil != self.error) {
-        serializedData[@"ns_error"] = [self.error serialize];
+    NSMutableDictionary<NSString *, id> *meta = [NSMutableDictionary new];
+    if (nil != self.meta) {
+        [meta addEntriesFromDictionary:self.meta];
     }
+    if (nil != self.error) {
+        meta[@"ns_error"] = [self.error serialize];
+    }
+    [serializedData setValue:meta forKey:@"meta"];
 
     return serializedData;
 }

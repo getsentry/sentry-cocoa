@@ -17,7 +17,6 @@ class SentryMechanismTests: XCTestCase {
         XCTAssertEqual(expected.desc, actual["description"] as? String)
         XCTAssertEqual(expected.handled, actual["handled"] as? NSNumber)
         XCTAssertEqual(expected.helpLink, actual["help_link"] as? String)
-        XCTAssertEqual(1, (actual["meta"] as! [String: Any]).count)
 
         guard let something = (actual["data"] as? [String: Any])?["something"] as? [String: Any] else {
             XCTFail("Serialized SentryMechanism doesn't contain something.")
@@ -28,7 +27,10 @@ class SentryMechanismTests: XCTestCase {
         let date = currentDateProvider.date() as NSDate
         XCTAssertEqual(date.sentry_toIso8601String(), something["date"] as? String)
 
-        guard let error = actual["ns_error"] as? [String: Any] else {
+        let meta = actual["meta"] as! [String: Any]
+        XCTAssertEqual(2, meta.count)
+        
+        guard let error = meta["ns_error"] as? [String: Any] else {
             XCTFail("The serialization doesn't contain ns_error")
             return
         }
