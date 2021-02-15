@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.desc forKey:@"description"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     [serializedData setValue:self.helpLink forKey:@"help_link"];
-    
+
     if (nil != self.meta || nil != self.error) {
         NSMutableDictionary<NSString *, id> *meta = [NSMutableDictionary new];
         if (nil != self.meta) {
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
         [serializedData setValue:meta forKey:@"meta"];
     }
-    
+
     return serializedData;
 }
 
