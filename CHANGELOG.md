@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- fix: Use mechanism for error grouping #946
+- fix: Use mechanism meta for error grouping #946
 - fix: Sanitize SentryMechanism.data on serialize #947
 - feat: Add error to SentryEvent #944
 - fix: Mark SentryEvent.message as Nullable #943
