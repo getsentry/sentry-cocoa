@@ -158,7 +158,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureTransaction() {
+   /* func testCaptureTransaction() {
         let transaction = Transaction(name: "Some Transaction", operation: "Some Operation")
         let eventId = fixture.getSut().capture(transaction: transaction)
         
@@ -167,7 +167,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(transaction.transaction, actual.transaction)
         }
-    }
+    }*/
       
     func testCaptureEventWithException() {
         let event = Event()
