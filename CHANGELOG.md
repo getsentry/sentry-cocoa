@@ -2,6 +2,18 @@
 
 ## unreleased
 
+## 6.2.0
+
+With this version, Sentry groups errors by domain and code. MyDomain 1 and MyDomain 2
+are going to be two separate issues in Sentry. If you are using self-hosted Sentry,
+it requires Sentry version >= v21.2.0 to work. Staying on Sentry < v21.2.0 and upgrading
+to this version of the SDK won't do any damage. Sentry will group like in previous
+versions, but you will see a new group because we slightly changed the wording. If you
+are using sentry.io no action is needed. In case you are not satisfied with this change,
+you can take a look at
+[SDK fingerprinting](https://docs.sentry.io/platforms/apple/data-management/event-grouping/sdk-fingerprinting/)
+to group by domain only.
+
 - fix: Use mechanism meta for error grouping #946
 - fix: Sanitize SentryMechanism.data on serialize #947
 - feat: Add error to SentryEvent #944
