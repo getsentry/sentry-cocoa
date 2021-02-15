@@ -91,6 +91,9 @@ class TestData {
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = ["meta": "data"]
         
+        let error = SampleError.bestDeveloper as NSError
+        mechanism.error = SentryNSError(domain: error.domain, code: error.code)
+        
         return mechanism
     }
     
@@ -132,5 +135,11 @@ class TestData {
     
     static var dataAttachment: Attachment {
         return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
+    }
+    
+    enum SampleError: Error {
+        case bestDeveloper
+        case happyCustomer
+        case awesomeCentaur
     }
 }
