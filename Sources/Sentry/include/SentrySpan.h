@@ -12,16 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * Determines which trace the Span belongs to.
- */
-@property (nonatomic, readonly) SentryId *traceId;
-
-/**
- * Span id.
- */
-@property (nonatomic, readonly) SentrySpanId *spanId;
-
-/**
  *Span name.
  */
 @property (nonatomic, copy) NSString *name;

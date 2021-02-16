@@ -8,17 +8,23 @@ class SentrySpanTests: XCTestCase {
         let extraKey = "extra_key"
         let extraValue = "extra_value"
         let spanName = "Span Name"
+        let options: Options
+        
+        init() {
+            options = Options()
+            options.dsn = TestConstants.dsnAsString
+            options.environment = "test"
+        }
         
         func getSut() -> Span {
-            let options = Options()
-            options.dsn = TestConstants.dsnAsString
-            options.environment = "debug"
-            
-            let client = TestClient(options: options)
+            return getSut(client: TestClient(options: options)!)
+        }
+        
+        func getSut(client: Client) -> Span {
             let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
-            
             return hub.startTransaction(name: someTransaction, operation:someOperation)
         }
+        
     }
     
     private var fixture: Fixture!
@@ -38,13 +44,22 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish() {
-        let span = fixture.getSut()
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
         
         span.finish()
         
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertTrue(span.isFinished)
+        
+        let lastEvent = client.captureEventWithScopeArguments[0].event
+        XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
+        XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+        
+        
     }
     
     func testFinishWithStatus() {
@@ -57,7 +72,23 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
-    func testStartChildWithOperation() {
+    func testFinishWithChild() {
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
+        
+        span.finish()
+        let lastEvent = client.captureEventWithScopeArguments[0].event
+        let serializedData = lastEvent.serialize()
+        
+        let spans = serializedData["spans"] as! Array<Any>
+        let serializedChild = spans[0] as! Dictionary<String, Any>
+        
+        XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.context.spanId.sentrySpanIdString)
+        XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.context.spanId.sentrySpanIdString)
+    }
+    
+    func testStartChildWithNameOperation() {
         let span = fixture.getSut()
         
         let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
@@ -66,7 +97,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(childSpan.context.spanDescription)
     }
     
-    func testStartChildWithOperationAndDescription() {
+    func testStartChildWithNameOperationAndDescription() {
         let span = fixture.getSut()
         
         let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation, description: fixture.someDescription)
@@ -90,10 +121,14 @@ class SentrySpanTests: XCTestCase {
         
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
-                
+        
         let serialization = span.serialize()
+        XCTAssertEqual(serialization["span_id"] as? String, span.context.spanId.sentrySpanIdString)
+        XCTAssertEqual(serialization["trace_id"] as? String, span.context.traceId.sentryIdString)
         XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
         XCTAssertEqual(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
+        XCTAssertEqual(serialization["sampled"] as? String, "false")
         XCTAssertNotNil(serialization["data"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }

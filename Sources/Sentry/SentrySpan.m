@@ -53,16 +53,6 @@ SentrySpan ()
                                    description:description];
 }
 
-- (SentryId *)traceId
-{
-    return _context.traceId;
-}
-
-- (SentrySpanId *)spanId
-{
-    return _context.spanId;
-}
-
 - (void)setDataValue:(nullable NSString *)value forKey:(NSString *)key
 {
     @synchronized(_extras) {

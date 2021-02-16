@@ -26,17 +26,14 @@
 
 - (id<SentrySpan>)startChildWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self startChildWithName:name operation:operation description:nil];
+    return [_rootSpan startChildWithName:name operation:operation];
 }
 
 - (id<SentrySpan>)startChildWithName:(NSString *)name
                            operation:(NSString *)operation
                          description:(nullable NSString *)description
 {
-    return [self startChildWithParentId:_rootSpan.spanId
-                                   name:name
-                              operation:operation
-                            description:description];
+    return [_rootSpan startChildWithName:name operation:operation description:description];
 }
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
@@ -45,11 +42,13 @@
                              description:(nullable NSString *)description
 {
     SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.traceId
+        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
                                             spanId:[[SentrySpanId alloc] init]
                                           parentId:parentId
                                          operation:operation
                                            sampled:_rootSpan.context.sampled];
+    context.spanDescription = description;
+    
     SentrySpan *span = [[SentrySpan alloc] initWithName:name context:context];
     @synchronized(_spans) {
         [_spans addObject:span];
@@ -127,13 +126,7 @@
 
 - (NSDictionary *)serialize
 {
-    NSMutableDictionary *mutableDictionary =
-        [[NSMutableDictionary alloc] initWithDictionary:[_rootSpan serialize]];
-
-    [mutableDictionary removeObjectForKey:@"timestamp"];
-    [mutableDictionary removeObjectForKey:@"start_timestamp"];
-
-    return mutableDictionary;
+    return [_rootSpan serialize];
 }
 
 @end

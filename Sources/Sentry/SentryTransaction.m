@@ -13,7 +13,7 @@
         _trace = trace;
         _spans = childs;
         self.transaction = trace.name;
-        self.type = @"transaction";
+        self.type = SentryEnvelopeItemTypeTransaction;
     }
     return self;
 }
