@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanId, SentryId, SentryHub;
+@class SentrySpanId, SentryId;
 
 NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>

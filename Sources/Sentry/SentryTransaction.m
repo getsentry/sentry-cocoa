@@ -7,7 +7,6 @@
 
 - (instancetype)initWithTrace:(id<SentrySpan>)trace childs:(NSArray<id<SentrySpan>> *)childs
 {
-
     if ([super init]) {
         self.timestamp = trace.timestamp;
         self.startTimestamp = trace.startTimestamp;

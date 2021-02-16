@@ -1,18 +1,23 @@
 import XCTest
 
 class SentrySpanTests: XCTestCase {
-    /* Need to redo all tests
-     
     private class Fixture {
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
         let someDescription = "Some Description"
         let extraKey = "extra_key"
         let extraValue = "extra_value"
+        let spanName = "Span Name"
         
         func getSut() -> Span {
-            let transaction = Transaction(name: someTransaction, operation: someOperation)
-            return Span(transaction: transaction, operation: someOperation, trace: SentryId(), parentId: transaction.spanId)
+            let options = Options()
+            options.dsn = TestConstants.dsnAsString
+            options.environment = "debug"
+            
+            let client = TestClient(options: options)
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
+            
+            return hub.startTransaction(name: someTransaction, operation:someOperation)
         }
     }
     
@@ -48,27 +53,27 @@ class SentrySpanTests: XCTestCase {
         
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, TestData.timestamp)
-        XCTAssertEqual(span.status, .ok)
+        XCTAssertEqual(span.context.status, .ok)
         XCTAssertTrue(span.isFinished)
     }
     
     func testStartChildWithOperation() {
         let span = fixture.getSut()
         
-        let childSpan = span.startChild(operation: fixture.someOperation)
-        XCTAssertEqual(childSpan.parentSpanId, span.spanId)
-        XCTAssertEqual(childSpan.operation, fixture.someOperation)
-        XCTAssertNil(childSpan.spanDescription)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
+        XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
+        XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
+        XCTAssertNil(childSpan.context.spanDescription)
     }
     
     func testStartChildWithOperationAndDescription() {
         let span = fixture.getSut()
         
-        let childSpan = span.startChild(operation: fixture.someOperation, description: fixture.someDescription)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation, description: fixture.someDescription)
         
-        XCTAssertEqual(childSpan.parentSpanId, span.spanId)
-        XCTAssertEqual(childSpan.operation, fixture.someOperation)
-        XCTAssertEqual(childSpan.spanDescription, fixture.someDescription)
+        XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
+        XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
+        XCTAssertEqual(childSpan.context.spanDescription, fixture.someDescription)
     }
     
     func testSetExtras() {
@@ -76,8 +81,8 @@ class SentrySpanTests: XCTestCase {
 
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.extras!.count, 1)
-        XCTAssertEqual(span.extras![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data!.count, 1)
+        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
     }
     
     func testSerialization() {
@@ -122,7 +127,6 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.extras!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
     }
- */
 }
