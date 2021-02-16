@@ -237,7 +237,7 @@ class SentryEnvelopeTests: XCTestCase {
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
 
-            json.assertContains("JSON conversion error for event with message: '\(event.message)'", "message")
+            json.assertContains("JSON conversion error for event with message: '\(event.message?.description ?? "")'", "message")
             json.assertContains("warning", "level")
             json.assertContains(event.releaseName ?? "", "releaseName")
             json.assertContains(event.environment ?? "", "environment")
