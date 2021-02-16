@@ -48,7 +48,7 @@ platform :ios do
     )
     
     testflight
-    download_dsyms(version: "latest")
+    download_dsyms(wait_for_dsym_processing: true)
     upload_symbols_to_sentry(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
