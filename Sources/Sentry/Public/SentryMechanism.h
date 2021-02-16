@@ -15,7 +15,7 @@ SENTRY_NO_INIT
  * A unique identifier of this mechanism determining rendering and processing
  * of the mechanism data
  */
-@property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy) NSString * type;
 
 /**
  * Human readable description of the error mechanism and a possible hint on how to solve this error.
