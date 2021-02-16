@@ -39,6 +39,9 @@ jobs:
         with:
           ruby-version: '2.7'
 
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
+
       - name: Setup fastlane
         run: bundle install   
 
