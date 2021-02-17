@@ -72,9 +72,9 @@ jobs:
       - name: Archiving
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.sha }}
+          name: dSYMs 
           path: |
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
-            ${{ github.workspace }}/dSYMs/*
+            ${{ github.workspace }}/dSYMs/
 
