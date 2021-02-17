@@ -48,7 +48,7 @@
                                          operation:operation
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
-    
+
     SentrySpan *span = [[SentrySpan alloc] initWithName:name context:context];
     @synchronized(_spans) {
         [_spans addObject:span];

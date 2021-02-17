@@ -22,7 +22,7 @@ class SentrySpanTests: XCTestCase {
         
         func getSut(client: Client) -> Span {
             let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
-            return hub.startTransaction(name: someTransaction, operation:someOperation)
+            return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
     }
@@ -59,7 +59,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
         
-        
     }
     
     func testFinishWithStatus() {
@@ -81,8 +80,8 @@ class SentrySpanTests: XCTestCase {
         let lastEvent = client.captureEventWithScopeArguments[0].event
         let serializedData = lastEvent.serialize()
         
-        let spans = serializedData["spans"] as! Array<Any>
-        let serializedChild = spans[0] as! Dictionary<String, Any>
+        let spans = serializedData["spans"] as! [Any]
+        let serializedChild = spans[0] as! [String: Any]
         
         XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.context.spanId.sentrySpanIdString)
         XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.context.spanId.sentrySpanIdString)
