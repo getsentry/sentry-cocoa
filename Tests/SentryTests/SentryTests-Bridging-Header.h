@@ -46,6 +46,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryMeta.h"
 #import "SentryMigrateSessionInit.h"
+#import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryRateLimitCategoryMapper.h"

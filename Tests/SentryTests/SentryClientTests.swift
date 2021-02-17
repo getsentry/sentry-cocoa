@@ -255,7 +255,7 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsNotEmpty()
         assertLastSentEventWithAttachment { actual in
-            assertValidErrorEvent(actual)
+            assertValidErrorEvent(actual, error)
         }
     }
     
@@ -265,9 +265,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            XCTAssertEqual("\(error.domain) \(error.code)", actual.message.formatted)
-            XCTAssertEqual("\(error.domain) %s", actual.message.message)
-            XCTAssertEqual(["\(error.code)"], actual.message.params)
+            assertValidErrorEvent(actual, error)
         }
     }
 
@@ -289,7 +287,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
-            assertValidErrorEvent(eventWithSessionArguments.event)
+            assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
         }
     }
@@ -801,11 +799,29 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidErrorEvent(_ event: Event) {
+    private func assertValidErrorEvent(_ event: Event, _ error: NSError) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual("\(error.domain) \(error.code)", event.message.formatted)
-        XCTAssertEqual("\(error.domain) %s", event.message.message)
-        XCTAssertEqual(["\(error.code)"], event.message.params)
+        XCTAssertEqual(error, event.error as NSError?)
+        
+        guard let exceptions = event.exceptions else {
+            XCTFail("Event should contain one exception"); return
+        }
+        XCTAssertEqual(1, exceptions.count)
+        let exception = exceptions[0]
+        XCTAssertEqual(error.domain, exception.type)
+        
+        XCTAssertEqual("Code: \(error.code)", exception.value)
+        
+        XCTAssertNil(exception.thread)
+        
+        guard let mechanism = exception.mechanism else {
+            XCTFail("Exception doesn't contain a mechanism"); return
+        }
+        XCTAssertEqual("NSError", mechanism.type)
+        XCTAssertNotNil(mechanism.error)
+        XCTAssertEqual(error.domain, mechanism.error?.domain)
+        XCTAssertEqual(error.code, mechanism.error?.code)
+        
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
@@ -840,22 +856,22 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidThreads(actual: [Sentry.Thread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
-
+        XCTAssertEqual(expected.count, actual?.count)
+        
         // We can only compare the stacktrace up to the test method. Therefore we
         // need to remove a few frames for the stacktraces.
-        removeFrames(threads: expected)
-        removeFrames(threads: actual ?? [])
+        removeFrames(thread: expected[0])
+        removeFrames(thread: actual![0])
         
-        XCTAssertEqual(expected.count, actual?.count)
-        XCTAssertEqual(expected, actual ?? [])
+        XCTAssertEqual(expected, actual)
     }
 
-    private func removeFrames(threads: [Sentry.Thread]) {
-        var actualFrames = threads[0].stacktrace?.frames ?? []
+    private func removeFrames(thread: Sentry.Thread) {
+        var actualFrames = thread.stacktrace?.frames ?? []
         XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
         if actualFrames.count > 1 {
             actualFrames.removeLast(3)
-            threads[0].stacktrace?.frames = actualFrames
+            thread.stacktrace?.frames = actualFrames
         }
     }
 

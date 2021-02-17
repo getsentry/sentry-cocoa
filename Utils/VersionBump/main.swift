@@ -7,7 +7,8 @@ let fromVersionFile = "./Sentry.podspec"
 let files = [
     "./Sentry.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Sources/Configuration/Sentry.xcconfig"
+    "./Sources/Configuration/Sentry.xcconfig",
+    "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
 ]
 
 let args = CommandLine.arguments

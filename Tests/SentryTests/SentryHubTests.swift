@@ -311,7 +311,7 @@ class SentryHubTests: XCTestCase {
         }
         
         XCTAssertEqual(10, fixture.client.captureExceptionWithSessionArguments.count)
-        for i in Array(0...9) {
+        for i in 0...9 {
             let arguments = fixture.client.captureExceptionWithSessionArguments[i]
             XCTAssertEqual(i + 1, Int(arguments.session.errors))
         }
@@ -326,7 +326,7 @@ class SentryHubTests: XCTestCase {
         }
         
         XCTAssertEqual(10, fixture.client.captureErrorWithSessionArguments.count)
-        for i in Array(0...9) {
+        for i in 0...9 {
             let arguments = fixture.client.captureErrorWithSessionArguments[i]
             XCTAssertEqual(i + 1, Int(arguments.session.errors))
         }
@@ -492,7 +492,7 @@ class SentryHubTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
 
         let group = DispatchGroup()
-        for _ in Array(0...count - 1) {
+        for _ in 0...count - 1 {
             group.enter()
             queue.async {
                 capture(sut)

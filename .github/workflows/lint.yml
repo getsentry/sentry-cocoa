@@ -5,8 +5,8 @@ on:
 jobs:
   swift-lint:
     name: Swift Lint
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: GitHub Action for SwiftLint
-        uses: norio-nomura/action-swiftlint@3.1.0
+      - name: Run SwiftLint
+        run: swiftlint

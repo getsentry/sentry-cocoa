@@ -63,12 +63,12 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     
     func getEnvelope() -> SentryEnvelope {
         var envelopeItems = [SentryEnvelopeItem]()
-        for _ in Array(0...2) {
+        for _ in 0...2 {
             let event = Event()
             envelopeItems.append(SentryEnvelopeItem(event: event))
         }
         
-        for _ in Array(0...2) {
+        for _ in 0...2 {
             let session = SentrySession(releaseName: "")
             envelopeItems.append(SentryEnvelopeItem(session: session))
         }
