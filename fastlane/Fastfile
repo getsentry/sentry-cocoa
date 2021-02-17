@@ -49,14 +49,13 @@ platform :ios do
     )
     
     testflight
-    download_dsyms(wait_for_dsym_processing: true)
+    download_dsyms(wait_for_dsym_processing: true, build_number: ENV["FASTLANE_BUNDLE_VERSION"])
     sentry_upload_dsym(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'sentry-cocoa',
       symbol_maps: 'iOS-Swift.xcarchive/BCSymbolMaps/'
     )
-    clean_build_artifacts
   end
 
 end
