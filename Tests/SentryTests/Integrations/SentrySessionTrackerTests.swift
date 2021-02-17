@@ -67,6 +67,33 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionStored()
     }
     
+    func testOnlyHybridSdkDidBecomeActive() {
+        sut.start()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
+    func testForeground_And_HybridSdkDidBecomeActive() {
+        sut.start()
+        goToForeground()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
+    func testHybridSdkDidBecomeActive_and_Foreground() {
+        sut.start()
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        
+        goToForeground()
+        
+        assertInitSessionSent()
+        assertSessionStored()
+    }
+    
     func testForeground_Background_TrackingIntervalNotReached() {
         sut.start()
         
@@ -448,9 +475,9 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertNoInitSessionSent() {
-        let eventWithSessions = fixture.client.captureCrashEventWithSessionArguments.map({ triple in triple.second })
-        let errorWithSessions = fixture.client.captureErrorWithSessionArguments.map({ triple in triple.second })
-        let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.map({ triple in triple.second })
+        let eventWithSessions = fixture.client.captureCrashEventWithSessionArguments.map({ triple in triple.session })
+        let errorWithSessions = fixture.client.captureErrorWithSessionArguments.map({ triple in triple.session })
+        let exceptionWithSessions = fixture.client.captureExceptionWithSessionArguments.map({ triple in triple.session })
         
         var sessions = fixture.client.sessions + eventWithSessions + errorWithSessions + exceptionWithSessions
         
@@ -496,7 +523,7 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.start()
         SentrySDK.captureCrash(Event())
         
-        if let session = fixture.client.captureCrashEventWithSessionArguments.last?.second {
+        if let session = fixture.client.captureCrashEventWithSessionArguments.last?.session {
             assertSession(session: session, started: sessionStartTime, status: SentrySessionStatus.crashed, duration: 5)
         } else {
             XCTFail("No session sent with event.")

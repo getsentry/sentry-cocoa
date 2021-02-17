@@ -197,15 +197,6 @@
     XCTAssertEqualObjects(processName, expected, @"");
 }
 
-// This sysctl always returns true for some reason...
-//- (void) testGetProcessInfoInvalid
-//{
-//    int pid = 1000000;
-//    struct kinfo_proc procInfo = {{{{0}}}};
-//    bool success = sentrycrashsysctl_getProcessInfo(pid, &procInfo);
-//    XCTAssertFalse(success, @"");
-//}
-
 - (void)testGetMacAddress
 {
     unsigned char macAddress[6] = { 0 };

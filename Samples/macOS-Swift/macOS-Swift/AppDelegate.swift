@@ -7,7 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         SentrySDK.start { options in
-            options.dsn = "https://387714a4f3654858a6f0ff63fd551485@o447951.ingest.sentry.io/5428557"
+            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
             options.debug = true
             options.logLevel = SentryLogLevel.verbose
             options.attachStacktrace = true

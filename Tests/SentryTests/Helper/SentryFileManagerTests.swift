@@ -29,7 +29,7 @@ class SentryFileManagerTests: XCTestCase {
             let sessionCopy = session.copy() as! SentrySession
             sessionCopy.incrementErrors()
             // We need to serialize in order to set the timestamp and the duration
-            sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())
+            sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
 
             let event = Event()
             let items = [SentryEnvelopeItem(session: sessionUpdate), SentryEnvelopeItem(event: event)]
@@ -37,7 +37,7 @@ class SentryFileManagerTests: XCTestCase {
 
             let sessionUpdateCopy = sessionUpdate.copy() as! SentrySession
             // We need to serialize in order to set the timestamp and the duration
-            expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())
+            expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
         }

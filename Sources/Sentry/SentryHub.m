@@ -2,11 +2,14 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
+#import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
+#import "SentrySerialization.h"
 
 @interface
 SentryHub ()
@@ -21,17 +24,15 @@ SentryHub ()
     NSObject *_sessionLock;
 }
 
-@synthesize scope;
-
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
 {
     if (self = [super init]) {
-        [self bindClient:client];
-        self.scope = scope;
+        _client = client;
+        _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
+        _crashAdapter = [[SentryCrashAdapter alloc] init];
     }
     return self;
 }
@@ -42,7 +43,7 @@ SentryHub ()
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter
 {
     self = [self initWithClient:client andScope:scope];
-    self.crashAdapter = crashAdapter;
+    _crashAdapter = crashAdapter;
 
     return self;
 }
@@ -50,9 +51,8 @@ SentryHub ()
 - (void)startSession
 {
     SentrySession *lastSession = nil;
-    SentryScope *scope = [self getScope];
-    SentryClient *client = [self getClient];
-    SentryOptions *options = [client options];
+    SentryScope *scope = self.scope;
+    SentryOptions *options = [_client options];
     if (nil == options || nil == options.releaseName) {
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
@@ -101,17 +101,17 @@ SentryHub ()
 
 - (void)storeCurrentSession:(SentrySession *)session
 {
-    [[[self getClient] fileManager] storeCurrentSession:session];
+    [[_client fileManager] storeCurrentSession:session];
 }
 
 - (void)deleteCurrentSession
 {
-    [[[self getClient] fileManager] deleteCurrentSession];
+    [[_client fileManager] deleteCurrentSession];
 }
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp
 {
-    SentryFileManager *fileManager = [[self getClient] fileManager];
+    SentryFileManager *fileManager = [_client fileManager];
     SentrySession *session = [fileManager readCurrentSession];
     if (nil == session) {
         [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLogLevelDebug];
@@ -120,7 +120,7 @@ SentryHub ()
     [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLogLevelDebug];
 
     // Make sure there's a client bound.
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil == client) {
         [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLogLevelDebug];
         return;
@@ -151,7 +151,7 @@ SentryHub ()
 - (void)captureSession:(SentrySession *)session
 {
     if (nil != session) {
-        SentryClient *client = [self getClient];
+        SentryClient *client = _client;
 
         if (SentrySDK.logLevel == kSentryLogLevelVerbose) {
             NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
@@ -191,7 +191,7 @@ SentryHub ()
 - (void)captureCrashEvent:(SentryEvent *)event
               attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil == client) {
         return;
     }
@@ -226,7 +226,7 @@ SentryHub ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
     }
@@ -240,7 +240,7 @@ SentryHub ()
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         return [client captureMessage:message withScope:scope];
     }
@@ -255,7 +255,7 @@ SentryHub ()
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureError:error withSession:currentSession withScope:scope];
@@ -274,8 +274,8 @@ SentryHub ()
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = [self incrementSessionErrors];
-    SentryClient *client = [self getClient];
 
+    SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureException:exception withSession:currentSession withScope:scope];
@@ -288,7 +288,7 @@ SentryHub ()
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
-    SentryClient *client = [self getClient];
+    SentryClient *client = _client;
     if (nil != client) {
         [client captureUserFeedback:userFeedback];
     }
@@ -306,28 +306,12 @@ SentryHub ()
                          andLevel:kSentryLogLevelDebug];
         return;
     }
-    [[self getScope] addBreadcrumb:crumb];
+    [self.scope addBreadcrumb:crumb];
 }
 
 - (SentryClient *_Nullable)getClient
 {
-    return self.client;
-}
-
-- (SentryScope *)getScope
-{
-    @synchronized(self) {
-        if (self.scope == nil) {
-            SentryClient *client = [self getClient];
-            if (nil != client) {
-                self.scope =
-                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
-            } else {
-                self.scope = [[SentryScope alloc] init];
-            }
-        }
-        return self.scope;
-    }
+    return _client;
 }
 
 - (void)bindClient:(SentryClient *_Nullable)client
@@ -335,10 +319,31 @@ SentryHub ()
     self.client = client;
 }
 
+- (SentryScope *)scope
+{
+    @synchronized(self) {
+        if (_scope == nil) {
+            SentryClient *client = _client;
+            if (nil != client) {
+                self.scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+            } else {
+                self.scope = [[SentryScope alloc] init];
+            }
+        }
+        return _scope;
+    }
+}
+
+- (SentryScope *)getScope
+{
+    return self.scope;
+}
+
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
-    SentryScope *scope = [self getScope];
-    SentryClient *client = [self getClient];
+    SentryScope *scope = self.scope;
+    SentryClient *client = _client;
     if (nil != client && nil != scope) {
         callback(scope);
     }
@@ -361,7 +366,7 @@ SentryHub ()
 
 - (id _Nullable)getIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = [self getClient].options.integrations;
+    NSArray *integrations = _client.options.integrations;
     if (![integrations containsObject:integrationName]) {
         return nil;
     }
@@ -373,10 +378,53 @@ SentryHub ()
  */
 - (void)setUser:(SentryUser *_Nullable)user
 {
-    SentryScope *scope = [self getScope];
+    SentryScope *scope = self.scope;
     if (nil != scope) {
         [scope setUser:user];
     }
+}
+
+- (void)captureEnvelope:(SentryEnvelope *)envelope
+{
+    SentryClient *client = _client;
+    if (nil == client) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionState:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
+{
+    if ([self envelopeContainsEventWithErrorOrHigher:envelope.items]) {
+        SentrySession *currentSession = [self incrementSessionErrors];
+
+        if (nil != currentSession) {
+            // Create a new envelope with the session update
+            NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+                [[NSMutableArray alloc] initWithArray:envelope.items];
+            [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+
+            return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+        }
+    }
+
+    return envelope;
+}
+
+- (BOOL)envelopeContainsEventWithErrorOrHigher:(NSArray<SentryEnvelopeItem *> *)items
+{
+    for (SentryEnvelopeItem *item in items) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+            // If there is no level the default is error
+            SentryLevel level = [SentrySerialization levelFromData:item.data];
+            if (level >= kSentryLevelError) {
+                return YES;
+            }
+        }
+    }
+
+    return NO;
 }
 
 @end

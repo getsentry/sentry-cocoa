@@ -146,10 +146,19 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerialization.envelope(with: itemData))
     }
     
+    func testSerializeSession() throws {
+        let dict = SentrySession(releaseName: "1.0.0").serialize()
+        let session = SentrySession(jsonObject: dict)!
+        
+        let data = try SentrySerialization.data(with: session)
+        
+        XCTAssertNotNil(SentrySerialization.session(with: data))
+    }
+    
     func testSerializeSessionWithNoReleaseName() throws {
         var dict = SentrySession(releaseName: "1.0.0").serialize()
         dict["attrs"] = nil // Remove release name
-        let session = SentrySession(jsonObject: dict)
+        let session = SentrySession(jsonObject: dict)!
         
         let data = try SentrySerialization.data(with: session)
         
@@ -158,11 +167,39 @@ class SentrySerializationTests: XCTestCase {
     
     func testSerializeSessionWithEmptyReleaseName() throws {
         let dict = SentrySession(releaseName: "").serialize()
-        let session = SentrySession(jsonObject: dict)
+        let session = SentrySession(jsonObject: dict)!
         
         let data = try SentrySerialization.data(with: session)
         
         XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeSessionWithGarbageInDict() throws {
+        var dict = SentrySession(releaseName: "").serialize()
+        dict["started"] = "20"
+        let data = try SentrySerialization.data(withJSONObject: dict)
+        
+        XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testSerializeSessionWithGarbage() throws {
+        guard let data = "started".data(using: .ascii) else {
+            XCTFail("Failed to create data"); return
+        }
+        
+        XCTAssertNil(SentrySerialization.session(with: data))
+    }
+    
+    func testLevelFromEventData() {
+        let envelopeItem = SentryEnvelopeItem(event: TestData.event)
+        
+        let level = SentrySerialization.level(from: envelopeItem.data)
+        XCTAssertEqual(TestData.event.level, level)
+    }
+    
+    func testLevelFromEventData_WithGarbage() {
+        let level = SentrySerialization.level(from: "hi".data(using: .utf8)!)
+        XCTAssertEqual(SentryLevel.error, level)
     }
 
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {

@@ -2,6 +2,47 @@
 
 ## unreleased
 
+## 6.2.0
+
+With this version, Sentry groups errors by domain and code. MyDomain 1 and MyDomain 2
+are going to be two separate issues in Sentry. If you are using self-hosted Sentry,
+it requires Sentry version >= v21.2.0 to work. Staying on Sentry < v21.2.0 and upgrading
+to this version of the SDK won't do any damage. Sentry will group like in previous
+versions, but you will see a new group because we slightly changed the wording. If you
+are using sentry.io no action is needed. In case you are not satisfied with this change,
+you can take a look at
+[SDK fingerprinting](https://docs.sentry.io/platforms/apple/data-management/event-grouping/sdk-fingerprinting/)
+to group by domain only.
+
+- fix: Use mechanism meta for error grouping #946
+- fix: Sanitize SentryMechanism.data on serialize #947
+- feat: Add error to SentryEvent #944
+- fix: Mark SentryEvent.message as Nullable #943
+- fix: Stacktrace inApp marking on Simulators #942
+- feat: Group NSError by domain and code #941
+- fix: Discard Sessions when JSON is faulty #939
+- feat: Add sendDefaultPii to SentryOptions #923
+
+## 6.1.4
+
+- fix: Sessions for Hybrid SDKs #913
+
+## 6.1.3
+
+- fix: Capture envelope updates session state #906
+
+## 6.1.2
+
+- fix: Clash with KSCrash functions #905
+
+## 6.1.1
+
+- fix: Duplicate symbol clash with KSCrash #902
+
+## 6.1.0
+
+- perf: Improve locks in SentryScope #888
+
 ## 6.1.0-alpha.1
 
 - fix: Change maxAttachmentSize from MiB to bytes #891
@@ -82,7 +123,7 @@
 ## 6.0.0
 
 This is a major bump with lots of internal improvements and a few breaking changes.
-For a detailed explanation  how to updgrade please checkout the [migration guide](MIGRATION.md).
+For a detailed explanation  how to updgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
 
 Breaking changes:
 

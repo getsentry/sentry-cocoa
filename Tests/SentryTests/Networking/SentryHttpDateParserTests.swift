@@ -29,7 +29,7 @@ class SentryHttpDateParserTests: XCTestCase {
         let queue2 = DispatchQueue(label: "SentryHttpDateParserTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         
         let group = DispatchGroup()
-        for i in Array(0...1_000) {
+        for i in 0...1_000 {
             startWorkItemTest(i: i, queue: queue1, group: group)
             startWorkItemTest(i: i, queue: queue2, group: group)
         }

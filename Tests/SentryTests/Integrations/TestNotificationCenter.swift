@@ -47,4 +47,9 @@ class TestNotificationCenter {
         NotificationCenter.default.post(Notification(name: willTerminateNotification))
         #endif
     }
+    
+    static func hybridSdkDidBecomeActive() {
+        NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+        
+    }
 }

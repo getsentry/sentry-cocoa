@@ -377,11 +377,11 @@ class SentryHttpTransportTests: XCTestCase {
     func testPerformanceOfSending() {
         self.measure {
             givenNoInternetConnection()
-            for _ in Array(0...5) {
+            for _ in 0...5 {
                 sendEventAsync()
             }
             givenOkResponse()
-            for _ in Array(0...5) {
+            for _ in 0...5 {
                 sendEventAsync()
             }
         }
@@ -394,7 +394,7 @@ class SentryHttpTransportTests: XCTestCase {
             let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
 
             let group = DispatchGroup()
-            for _ in Array(0...20) {
+            for _ in 0...20 {
                 group.enter()
                 queue.async {
                     self.sendEventAsync()

@@ -394,6 +394,27 @@
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
 }
 
+- (void)testSendDefaultPii
+{
+    SentryOptions *options = [self getValidOptions:@{ @"sendDefaultPii" : @YES }];
+
+    XCTAssertTrue(options.sendDefaultPii);
+}
+
+- (void)testSendDefaultPiiGarbage
+{
+    SentryOptions *options = [self getValidOptions:@{ @"sendDefaultPii" : @"no" }];
+
+    XCTAssertFalse(options.sendDefaultPii);
+}
+
+- (void)testDefaultSendDefaultPii
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertFalse(options.sendDefaultPii);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

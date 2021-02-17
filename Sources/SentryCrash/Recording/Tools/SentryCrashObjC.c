@@ -1842,29 +1842,6 @@ sentrycrashobjc_dictionaryFirstEntry(const void *dict, uintptr_t *key, uintptr_t
     return true;
 }
 
-// bool sentrycrashobjc_dictionaryContents(const void* dict, uintptr_t* keys,
-// uintptr_t* values, CFIndex* count)
-//{
-//    struct CFBasicHash copy;
-//    void* pointers[100];
-//
-//    if(!sentrycrashmem_copySafely(dict, &copy, sizeof(copy)))
-//    {
-//        return false;
-//    }
-//
-//    struct CFBasicHash* ht = (struct CFBasicHash*)dict;
-//    int values_offset = 0;
-//    int keys_offset = copy.bits.keys_offset;
-//    if(!sentrycrashmem_copySafely(&ht->pointers, pointers, sizeof(*pointers) *
-//    keys_offset))
-//    {
-//        return false;
-//    }
-//
-//    return true;
-//}
-
 int
 sentrycrashobjc_dictionaryCount(const void *dict)
 {

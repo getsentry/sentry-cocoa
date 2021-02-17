@@ -325,14 +325,14 @@ class SentrySDKTests: XCTestCase {
             scope.setUser(user)
         }
         
-        for i in Array(0...100) {
+        for i in 0...100 {
             SentrySDK.configureScope { scope in
                 scope.add(buildCrumb(i))
             }
         }
         
         self.measure {
-            for i in Array(0...10) {
+            for i in 0...10 {
                 SentrySDK.configureScope { scope in
                     scope.add(buildCrumb(i))
                 }
@@ -376,7 +376,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         self.measure(metrics: [XCTMemoryMetric()]) {
-            for i in Array(0...1_000) {
+            for i in 0...1_000 {
                 let crumb = TestData.crumb
                 crumb.message = "\(i)"
                 SentrySDK.addBreadcrumb(crumb: crumb)
@@ -401,37 +401,29 @@ class SentrySDKTests: XCTestCase {
     private func assertEventCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureEventWithScopeArguments.count)
-        let actualEvent = client.captureEventWithScopeArguments.first?.first
-        let actualScope = client.captureEventWithScopeArguments.first?.second
-        XCTAssertEqual(fixture.event, actualEvent)
-        XCTAssertEqual(expectedScope, actualScope)
+        XCTAssertEqual(fixture.event, client.captureEventWithScopeArguments.first?.event)
+        XCTAssertEqual(expectedScope, client.captureEventWithScopeArguments.first?.scope)
     }
     
     private func assertErrorCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureErrorWithScopeArguments.count)
-        let actualError = client.captureErrorWithScopeArguments.first?.first
-        let actualScope = client.captureErrorWithScopeArguments.first?.second
-        XCTAssertEqual(fixture.error.localizedDescription, actualError?.localizedDescription)
-        XCTAssertEqual(expectedScope, actualScope)
+        XCTAssertEqual(fixture.error.localizedDescription, client.captureErrorWithScopeArguments.first?.error.localizedDescription)
+        XCTAssertEqual(expectedScope, client.captureErrorWithScopeArguments.first?.scope)
     }
     
     private func assertExceptionCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureExceptionWithScopeArguments.count)
-        let actualException = client.captureExceptionWithScopeArguments.first?.first
-        let actualScope = client.captureExceptionWithScopeArguments.first?.second
-        XCTAssertEqual(fixture.exception, actualException)
-        XCTAssertEqual(expectedScope, actualScope)
+        XCTAssertEqual(fixture.exception, client.captureExceptionWithScopeArguments.first?.exception)
+        XCTAssertEqual(expectedScope, client.captureExceptionWithScopeArguments.first?.scope)
     }
     
     private func assertMessageCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureMessageWithScopeArguments.count)
-        let actualMessage = client.captureMessageWithScopeArguments.first?.first
-        let actualScope = client.captureMessageWithScopeArguments.first?.second
-        XCTAssertEqual(fixture.message, actualMessage)
-        XCTAssertEqual(expectedScope, actualScope)
+        XCTAssertEqual(fixture.message, client.captureMessageWithScopeArguments.first?.message)
+        XCTAssertEqual(expectedScope, client.captureMessageWithScopeArguments.first?.scope)
     }
     
     private func assertHubScopeNotChanged() {

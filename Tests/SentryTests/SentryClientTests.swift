@@ -36,6 +36,7 @@ class SentryClientTest: XCTestCase {
             
             user = User()
             user.email = "someone@sentry.io"
+            user.ipAddress = "127.0.0.1"
             
             fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         }
@@ -243,7 +244,7 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsNotEmpty()
         assertLastSentEventWithAttachment { actual in
-            assertValidErrorEvent(actual)
+            assertValidErrorEvent(actual, error)
         }
     }
     
@@ -253,9 +254,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            XCTAssertEqual("\(error.domain) \(error.code)", actual.message.formatted)
-            XCTAssertEqual("\(error.domain) %s", actual.message.message)
-            XCTAssertEqual(["\(error.code)"], actual.message.params)
+            assertValidErrorEvent(actual, error)
         }
     }
 
@@ -277,8 +276,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
-            assertValidErrorEvent(eventWithSessionArguments.first)
-            XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
+            assertValidErrorEvent(eventWithSessionArguments.event, error)
+            XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
         }
     }
     
@@ -371,9 +370,9 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let eventWithSessionArguments = fixture.transport.sentEventsWithSession.last {
-            assertValidExceptionEvent(eventWithSessionArguments.first)
-            XCTAssertEqual(fixture.session, eventWithSessionArguments.second)
-            XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.third)
+            assertValidExceptionEvent(eventWithSessionArguments.event)
+            XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
+            XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.attachments)
         }
     }
     
@@ -663,6 +662,40 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testSendDefaultPiiEnabled_GivenNoIP_AutoIsSet() {
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+        }).capture(message: "any")
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual("{{auto}}", actual.user?.ipAddress)
+        }
+    }
+    
+    func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() {
+        let scope = Scope()
+        scope.setUser(fixture.user)
+        
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+        }).capture(message: "any", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
+        }
+    }
+    
+    func testSendDefaultPiiDisabled_GivenIP_IPAddressNotChanged() {
+        let scope = Scope()
+        scope.setUser(fixture.user)
+        
+        fixture.getSut().capture(message: "any", scope: scope)
+        
+        assertLastSentEvent { actual in
+            XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
+        }
+    }
+    
     func testStoreEnvelope_StoresEnvelopeToDisk() {
         fixture.getSut().store(SentryEnvelope(event: Event()))
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
@@ -726,43 +759,58 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertEventNotSent(eventId: SentryId?) {
-        let eventWasSent = fixture.transport.sentEvents.contains { event in
-            event.first.eventId == eventId
+        let eventWasSent = fixture.transport.sentEvents.contains { eventArguments in
+            eventArguments.event.eventId == eventId
         }
         XCTAssertFalse(eventWasSent)
     }
 
     private func assertLastSentEvent(assert: (Event) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEvents.last)
-        if let lastSentEvent = fixture.transport.sentEvents.last {
-            let event = lastSentEvent.first
-            assert(event)
+        if let lastSentEventArguments = fixture.transport.sentEvents.last {
+            assert(lastSentEventArguments.event)
         }
     }
     
     private func assertLastSentEventWithAttachment(assert: (Event) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEvents.last)
-        if let lastSentEvent = fixture.transport.sentEvents.last {
-            let event = lastSentEvent.first
-            assert(event)
+        if let lastSentEventArguments = fixture.transport.sentEvents.last {
+            assert(lastSentEventArguments.event)
             
-            let attachments = lastSentEvent.second
-            XCTAssertEqual([TestData.dataAttachment], attachments)
+            XCTAssertEqual([TestData.dataAttachment], lastSentEventArguments.attachments)
         }
     }
     
     private func assertLastSentEventWithSession(assert: (Event, SentrySession) -> Void) {
         XCTAssertNotNil(fixture.transport.sentEventsWithSession.last)
         if let args = fixture.transport.sentEventsWithSession.last {
-            assert(args.first, args.second)
+            assert(args.event, args.session)
         }
     }
     
-    private func assertValidErrorEvent(_ event: Event) {
+    private func assertValidErrorEvent(_ event: Event, _ error: NSError) {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual("\(error.domain) \(error.code)", event.message.formatted)
-        XCTAssertEqual("\(error.domain) %s", event.message.message)
-        XCTAssertEqual(["\(error.code)"], event.message.params)
+        XCTAssertEqual(error, event.error as NSError?)
+        
+        guard let exceptions = event.exceptions else {
+            XCTFail("Event should contain one exception"); return
+        }
+        XCTAssertEqual(1, exceptions.count)
+        let exception = exceptions[0]
+        XCTAssertEqual(error.domain, exception.type)
+        
+        XCTAssertEqual("Code: \(error.code)", exception.value)
+        
+        XCTAssertNil(exception.thread)
+        
+        guard let mechanism = exception.mechanism else {
+            XCTFail("Exception doesn't contain a mechanism"); return
+        }
+        XCTAssertEqual("NSError", mechanism.type)
+        XCTAssertNotNil(mechanism.error)
+        XCTAssertEqual(error.domain, mechanism.error?.domain)
+        XCTAssertEqual(error.code, mechanism.error?.code)
+        
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)
     }
@@ -797,22 +845,22 @@ class SentryClientTest: XCTestCase {
     
     private func assertValidThreads(actual: [Sentry.Thread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
-
+        XCTAssertEqual(expected.count, actual?.count)
+        
         // We can only compare the stacktrace up to the test method. Therefore we
         // need to remove a few frames for the stacktraces.
-        removeFrames(threads: expected)
-        removeFrames(threads: actual ?? [])
+        removeFrames(thread: expected[0])
+        removeFrames(thread: actual![0])
         
-        XCTAssertEqual(expected.count, actual?.count)
-        XCTAssertEqual(expected, actual ?? [])
+        XCTAssertEqual(expected, actual)
     }
 
-    private func removeFrames(threads: [Sentry.Thread]) {
-        var actualFrames = threads[0].stacktrace?.frames ?? []
+    private func removeFrames(thread: Sentry.Thread) {
+        var actualFrames = thread.stacktrace?.frames ?? []
         XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
         if actualFrames.count > 1 {
             actualFrames.removeLast(3)
-            threads[0].stacktrace?.frames = actualFrames
+            thread.stacktrace?.frames = actualFrames
         }
     }
 

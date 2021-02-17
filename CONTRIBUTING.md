@@ -34,7 +34,13 @@ formatting Swift code.
 
 With that, the repo is fully set up and you are ready to run all commands.
 
-## Run Tests
+## Tests
+
+Test guidelines:
+
+* We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
+* Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
+* Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
 
 Test can either be ran inside from Xcode or via 
 
@@ -43,6 +49,9 @@ make test
 ```
 
 ## Code Formatting
+Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
+as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
+
 Only PRs with properly formatted code are acccepted. To format all code run:
 
 ```sh
@@ -67,7 +76,6 @@ To make a header public follow these steps:
 * Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
 * Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 * Set the target membership to public.
-
 
 ## Final Notes
 

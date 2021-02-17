@@ -1,0 +1,60 @@
+default_platform(:ios)
+
+# Download dSYMs does not work with app_store_connect_api_key yet. Therefore
+# We use username and password to authenticate. This feature is blocked by the
+# App Store Connect API team, see https://github.com/fastlane/fastlane/discussions/17485#discussioncomment-125619
+# When this is fixed we can remove SPACESHIP_SKIP_2FA_UPGRADE, FASTLANE_USER and FASTLANE_PASSWORD
+ENV["SPACESHIP_SKIP_2FA_UPGRADE"] = "1"
+
+platform :ios do
+  # Defined in Appfile
+  app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+  team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+
+  lane :bump_bundle_version do
+    set_info_plist_value(
+      path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+  end
+
+  desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
+  lane :ios_swift_to_testflight do
+    sync_code_signing(
+      type: "appstore", 
+      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
+      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+      readonly: true
+    )
+
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_KEY"]
+    )
+
+		build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+			include_bitcode: true,
+      include_symbols: false,
+			export_options: {
+				method: "app-store",
+				provisioningProfiles: { 
+					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
+				}
+			}
+    )
+    
+    testflight
+    download_dsyms(wait_for_dsym_processing: true)
+    upload_symbols_to_sentry(
+      auth_token: ENV["SENTRY_AUTH_TOKEN"],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+    )
+    clean_build_artifacts
+  end
+
+end
