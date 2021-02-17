@@ -56,10 +56,11 @@ platform :ios do
     # https://docs.fastlane.tools/advanced/fastlane/#directory-behavior
     sh("mkdir", "../" + dsym_path) 
 
+    build_number = ENV["FASTLANE_BUNDLE_VERSION"]
     download_dsyms(
       wait_for_dsym_processing: true, 
       output_directory: dsym_path,
-      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
+      build_number: build_number
     )
 
     sentry_upload_dsym(
