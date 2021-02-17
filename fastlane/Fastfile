@@ -51,6 +51,10 @@ platform :ios do
     testflight
 
     dsym_path = 'dSYMs'
+    # This runs in fastlane folder while the actions run in root of the project
+    # Therefore we need to append "../". For more information see: 
+    # https://docs.fastlane.tools/advanced/fastlane/#directory-behavior
+    sh("mkdir", "../" + dsym_path) 
 
     download_dsyms(
       wait_for_dsym_processing: true, 
