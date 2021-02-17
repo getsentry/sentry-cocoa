@@ -56,6 +56,7 @@ platform :ios do
     # https://docs.fastlane.tools/advanced/fastlane/#directory-behavior
     sh("mkdir", "../" + dsym_path) 
 
+    # Directly using it in download_syms doesn't work
     build_number = ENV["FASTLANE_BUNDLE_VERSION"]
     download_dsyms(
       wait_for_dsym_processing: true, 
