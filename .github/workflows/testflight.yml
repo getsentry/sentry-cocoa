@@ -76,4 +76,5 @@ jobs:
           path: |
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
+            ${{ github.workspace }}/dSYMs/*
 
