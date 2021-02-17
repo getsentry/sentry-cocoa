@@ -61,7 +61,7 @@ platform :ios do
     download_dsyms(
       wait_for_dsym_processing: true, 
       output_directory: dsym_path,
-      build_number: build_number
+      build_number: 92
     )
 
     sentry_upload_dsym(
