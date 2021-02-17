@@ -53,8 +53,7 @@ platform :ios do
     # Directly using it in download_syms doesn't work
     build_number = ENV["FASTLANE_BUNDLE_VERSION"]
     download_dsyms(
-      wait_for_dsym_processing: true, 
-      output_directory: dsym_path,
+      wait_for_dsym_processing: true,
       build_number: 93
     )
 
