@@ -50,11 +50,9 @@ platform :ios do
     
     testflight
 
-    # Directly using it in download_syms doesn't work
-    build_number = ENV["FASTLANE_BUNDLE_VERSION"]
     download_dsyms(
       wait_for_dsym_processing: true,
-      build_number: 93
+      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
 
     sentry_upload_dsym(
