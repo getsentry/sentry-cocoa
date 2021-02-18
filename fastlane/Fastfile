@@ -21,48 +21,47 @@ platform :ios do
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
-    sync_code_signing(
-      type: "appstore", 
-      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
-      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
-      readonly: true
-    )
+    # sync_code_signing(
+    #   type: "appstore", 
+    #   keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
+    #   keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+    #   readonly: true
+    # )
 
-    app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-      key_content: ENV["APP_STORE_CONNECT_KEY"]
-    )
+    # app_store_connect_api_key(
+    #   key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+    #   issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+    #   key_content: ENV["APP_STORE_CONNECT_KEY"]
+    # )
 
-		build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift",
-			include_bitcode: true,
-      include_symbols: false,
-			export_options: {
-				method: "app-store",
-				provisioningProfiles: { 
-					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
-				}
-			},
-      archive_path: "iOS-Swift"
-    )
+		# build_app(
+    #   workspace: "Sentry.xcworkspace",
+    #   scheme: "iOS-Swift",
+		# 	include_bitcode: true,
+    #   include_symbols: false,
+		# 	export_options: {
+		# 		method: "app-store",
+		# 		provisioningProfiles: { 
+		# 			app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
+		# 		}
+		# 	},
+    #   archive_path: "iOS-Swift"
+    # )
     
-    testflight
+    # testflight
 
     # Directly using it in download_syms doesn't work
-    build_number = get_build_number(xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj")
     download_dsyms(
       wait_for_dsym_processing: true,
-      build_number: build_number
+      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
 
-    sentry_upload_dsym(
-      auth_token: ENV["SENTRY_AUTH_TOKEN"],
-      org_slug: 'sentry-sdks',
-      project_slug: 'sentry-cocoa',
-      symbol_maps: 'iOS-Swift.xcarchive/BCSymbolMaps/'
-    )
+    # sentry_upload_dsym(
+    #   auth_token: ENV["SENTRY_AUTH_TOKEN"],
+    #   org_slug: 'sentry-sdks',
+    #   project_slug: 'sentry-cocoa',
+    #   symbol_maps: 'iOS-Swift.xcarchive/BCSymbolMaps/'
+    # )
   end
 
 end

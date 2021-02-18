@@ -49,7 +49,7 @@ jobs:
       # So we need to bump the bundle version each time
       - name: Bump Bundle Version
         env: 
-          FASTLANE_BUNDLE_VERSION: $GITHUB_RUN_NUMBER
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
         run: bundle exec fastlane bump_bundle_version
         shell: sh
 
@@ -58,6 +58,7 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
           FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
