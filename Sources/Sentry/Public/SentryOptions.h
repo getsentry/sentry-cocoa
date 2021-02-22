@@ -148,6 +148,22 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
+/**
+ * A list of string suffixes of image names that belong to the app. This option takes precedence
+ * over inAppExcludes. Per default this contains CFBundleExecutable to mark images of the bundle's
+ * executable file as inApp.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *inAppIncludes;
+
+/**
+ * A list of string suffixes of image names that do not belong to the app, but rather to
+ * third-party packages. Modules considered not part of the app will be hidden from stack traces by
+ * default.
+ *
+ * This option can be overridden using inAppIncludes.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *inAppExcludes;
+
 @end
 
 NS_ASSUME_NONNULL_END

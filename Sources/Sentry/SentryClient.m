@@ -2,6 +2,7 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
@@ -9,6 +10,7 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
+#import "SentryFrameInAppLogic.h"
 #import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
@@ -60,9 +62,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.debugMetaBuilder =
             [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
 
+        SentryFrameInAppLogic *frameInAppLogic =
+            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                   inAppExcludes:options.inAppExcludes];
+        SentryCrashStackEntryMapper *crashStackEntryMapper =
+            [[SentryCrashStackEntryMapper alloc] initWithFrameInAppLogic:frameInAppLogic];
         SentryFrameRemover *frameRemover = [[SentryFrameRemover alloc] init];
         SentryStacktraceBuilder *stacktraceBuilder =
-            [[SentryStacktraceBuilder alloc] initWithSentryFrameRemover:frameRemover];
+            [[SentryStacktraceBuilder alloc] initWithSentryFrameRemover:frameRemover
+                                                  crashStackEntryMapper:crashStackEntryMapper];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
             [[SentryCrashDefaultMachineContextWrapper alloc] init];
 

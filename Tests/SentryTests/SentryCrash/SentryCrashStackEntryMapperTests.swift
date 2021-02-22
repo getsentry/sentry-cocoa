@@ -4,12 +4,14 @@ import XCTest
 /** Some of the test parameters are copied during debbuging a working implementation.
  */
 class SentryCrashStackEntryMapperTests: XCTestCase {
+    
+    private let sut = SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))
 
     func testSymbolAddress() {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.symbolAddress = 2_391_813_104
         
-        let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
+        let frame = sut.mapStackEntry(with: cursor)
         
         XCTAssertEqual("0x000000008e902bf0", frame.symbolAddress ?? "")
     }
@@ -18,17 +20,17 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.address = 2_412_813_376
         
-        let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
+        let frame = sut.mapStackEntry(with: cursor)
         
         XCTAssertEqual("0x000000008fd09c40", frame.instructionAddress ?? "")
     }
     
     func testSymbolNameIsNull() {
-        let frame = SentryCrashStackEntryMapper.mapStackEntry(with: SentryCrashStackCursor())
+        let frame = sut.mapStackEntry(with: SentryCrashStackCursor())
         
         XCTAssertEqual("<redacted>", frame.function)
     }
-    
+
     func testSymbolName() {
         let symbolName = "-[SentryCrash symbolName]"
         var cursor = SentryCrashStackCursor()
@@ -36,7 +38,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         let cString = symbolName.cString(using: String.Encoding.utf8)
         cString?.withUnsafeBufferPointer { bufferPointer in
             cursor.stackEntry.symbolName = bufferPointer.baseAddress
-            let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
+            let frame = sut.mapStackEntry(with: cursor)
             XCTAssertEqual(symbolName, frame.function)
         }
     }
@@ -48,9 +50,13 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual(imageName, frame.package)
     }
     
-    func testIsNotInApp() {
-        let frame = getFrameWithImageName(imageName: "a")
-        XCTAssertEqual(false, frame.inApp)
+    func testImageAddress () {
+        var cursor = SentryCrashStackCursor()
+        cursor.stackEntry.imageAddress = 2_488_998_912
+        
+        let frame = sut.mapStackEntry(with: cursor)
+        
+        XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
     }
     
     func testIsInApp() {
@@ -61,28 +67,6 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual(true, frame2.inApp)
     }
     
-    func testXcodeLibraries() {
-        let frame1 = getFrameWithImageName(imageName: "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
-        XCTAssertEqual(false, frame1.inApp)
-        
-        // If someone has multiple Xcode installations
-        let frame2 = getFrameWithImageName(imageName: "/Applications/Xcode 11.app/Contents/")
-        XCTAssertEqual(false, frame2.inApp)
-        
-        // We don't care if someone installed Xcode in a different location that Applications
-        let frame3 = getFrameWithImageName(imageName: "/Users/sentry/Downloads/Xcode.app/Contents/")
-        XCTAssertEqual(true, frame3.inApp)
-    }
-    
-    func testImageAddress () {
-        var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.imageAddress = 2_488_998_912
-        
-        let frame = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
-        
-        XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
-    }
-    
     private func getFrameWithImageName(imageName: String) -> Frame {
         var cursor = SentryCrashStackCursor()
         
@@ -90,7 +74,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         var result: Frame = Frame()
         cString?.withUnsafeBufferPointer { bufferPointer in
             cursor.stackEntry.imageName = bufferPointer.baseAddress
-            result = SentryCrashStackEntryMapper.mapStackEntry(with: cursor)
+            result = sut.mapStackEntry(with: cursor)
         }
         
         return result

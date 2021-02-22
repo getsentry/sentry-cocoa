@@ -415,6 +415,67 @@
     XCTAssertFalse(options.sendDefaultPii);
 }
 
+- (void)testInAppIncludes
+{
+    NSArray<NSString *> *expected = @[ @"iOS-Swift", @"BusinessLogic" ];
+    NSArray *inAppIncludes = @[ @"iOS-Swift", @"BusinessLogic", @1 ];
+    SentryOptions *options = [self getValidOptions:@{ @"inAppIncludes" : inAppIncludes }];
+
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+    if (nil != bundleExecutable) {
+        expected = [expected arrayByAddingObject:bundleExecutable];
+    }
+    XCTAssertEqualObjects(expected, options.inAppIncludes);
+}
+
+- (void)testSetInAppIncludes
+{
+    NSArray<NSString *> *expected = @[ @"App" ];
+    SentryOptions *options = [self getValidOptions:@{}];
+    options.inAppIncludes = @[ @"App" ];
+    XCTAssertEqualObjects(expected, options.inAppIncludes);
+}
+
+- (void)testDefaultInAppIncludes
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+    NSArray<NSString *> *expected;
+    if (nil == bundleExecutable) {
+        expected = @[];
+    } else {
+        expected = @[ bundleExecutable ];
+    }
+    XCTAssertEqualObjects(expected, options.inAppIncludes);
+}
+
+- (void)testInAppExcludes
+{
+    NSArray<NSString *> *expected = @[ @"Sentry" ];
+    NSArray *inAppExcludes = @[ @"Sentry", @2 ];
+
+    SentryOptions *options = [self getValidOptions:@{ @"inAppExcludes" : inAppExcludes }];
+
+    XCTAssertEqualObjects(expected, options.inAppExcludes);
+}
+
+- (void)testSetInAppExcludes
+{
+    NSArray<NSString *> *expected = @[ @"App" ];
+    SentryOptions *options = [self getValidOptions:@{}];
+    options.inAppExcludes = @[ @"App" ];
+    XCTAssertEqualObjects(expected, options.inAppExcludes);
+}
+
+- (void)testDefaultInAppExcludes
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqualObjects(@[], options.inAppExcludes);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

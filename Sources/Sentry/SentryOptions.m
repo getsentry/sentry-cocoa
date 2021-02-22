@@ -30,11 +30,23 @@
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+
+        // Use the name of bundle’s executable file as inAppInclude, so frames coming from there are
+        // marked as inApp. This also marks private frameworks included in the application
+        // statically as inApp. Sentry fixes this with stack trace grouping rules.
+        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+        NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+        if (nil == bundleExecutable) {
+            _inAppIncludes = [NSArray new];
+        } else {
+            _inAppIncludes = @[ bundleExecutable ];
+        }
+
+        _inAppExcludes = [NSArray new];
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                             andVersion:SentryMeta.versionString];
 
         // Set default release name
-        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         if (nil != infoDict) {
             self.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
@@ -162,6 +174,19 @@
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
+        id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
+
+    if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
+        NSArray<NSString *> *inAppIncludes =
+            [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
+        _inAppIncludes = [_inAppIncludes arrayByAddingObjectsFromArray:inAppIncludes];
+    }
+
+    if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
+        _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
     }
 }
 
