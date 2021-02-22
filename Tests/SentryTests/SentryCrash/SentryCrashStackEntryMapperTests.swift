@@ -5,7 +5,12 @@ import XCTest
  */
 class SentryCrashStackEntryMapperTests: XCTestCase {
     
-    private let sut = SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))
+    private let bundleExecutable: String = "iOS-Swift"
+    private var sut: SentryCrashStackEntryMapper!
+    
+    override func setUp() {
+        sut = SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
+    }
 
     func testSymbolAddress() {
         var cursor = SentryCrashStackCursor()
@@ -60,11 +65,8 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     }
     
     func testIsInApp() {
-        let frame1 = getFrameWithImageName(imageName: "a/Bundle/Application/a")
-        XCTAssertEqual(true, frame1.inApp)
-        
-        let frame2 = getFrameWithImageName(imageName: "a.app/")
-        XCTAssertEqual(true, frame2.inApp)
+        let frame = getFrameWithImageName(imageName: "/private/var/containers/Bundle/Application/03D20FB6-852C-4DD3-B69C-3231FB41C2B1/iOS-Swift.app/\(self.bundleExecutable)")
+        XCTAssertEqual(true, frame.inApp)
     }
     
     private func getFrameWithImageName(imageName: String) -> Frame {
