@@ -4,11 +4,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * This class detects whether an image belongs to the app or not. We differentiate between three
- * different types of images.
+ * This class detects whether a framework belongs to the app or not. We differentiate between three
+ * different types of frameworks.
  *
  * First, the main executable of the app, which's name can be retrieved by CFBundleExecutable. To
- * mark this image as inApp the caller needs to pass in the CFBundleExecutable to InAppIncludes.
+ * mark this framework as inApp the caller needs to pass in the CFBundleExecutable to InAppIncludes.
  *
  * Next, there are private frameworks embedded in the application bundle. Both app supporting
  * frameworks as CocoaLumberJack, Sentry, RXSwift, etc., and frameworks written by the user fall
@@ -35,23 +35,24 @@ SENTRY_NO_INIT
  * To work properly for Apple applications the inAppIncludes should contain the CFBundleExecutable,
  * which is the name of the bundle’s executable file.
  *
- * @param inAppIncludes A list of string prefixes of image names that belong to the app. This option
- * takes precedence over inAppExcludes.
- * @param inAppExcludes A list of string prefixes of image names that do not belong to the app, but
- * rather to third-party packages. Modules considered not part of the app will be hidden from stack
- * traces by default.
+ * @param inAppIncludes A list of string prefixes of framework names that belong to the app. This
+ * option takes precedence over inAppExcludes.
+ * @param inAppExcludes A list of string prefixes of framework names that do not belong to the app,
+ * but rather to third-party packages. Modules considered not part of the app will be hidden from
+ * stack traces by default.
  */
 - (instancetype)initWithInAppIncludes:(NSArray<NSString *> *)inAppIncludes
                         inAppExcludes:(NSArray<NSString *> *)inAppExcludes;
 
 /**
- * Determines if the image belongs to the app by using inAppIncludes and inAppExcludes. Before
- * checking this method lowercases the strings and uses only the lastPathComponent of the imageName.
+ * Determines if the framework belongs to the app by using inAppIncludes and inAppExcludes. Before
+ * checking this method lowercases the strings and uses only the lastPathComponent of the imagePath.
  *
- * @param imagePath the full path of the image.
+ * @param imagePath the full path of the binary image.
  *
- * @return YES if the imageName starts with a prefix of inAppIncludes. NO if the imageName doesn't
- * start with a prefix of inAppIncludes or if the imageName ends with a prefix of inAppExcludes.
+ * @return YES if the framework located at the imagePath starts with a prefix of inAppIncludes. NO
+ * if the framework located at the imagePath doesn't start with a prefix of inAppIncludes or start
+ * with a prefix of inAppExcludes.
  */
 - (BOOL)isInApp:(NSString *)imagePath;
 

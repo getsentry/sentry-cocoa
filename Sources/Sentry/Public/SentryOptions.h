@@ -149,22 +149,22 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
 /**
- * A list of string prefixes of image names that belong to the app. This option takes precedence
- * over inAppExcludes. Per default this contains CFBundleExecutable to mark images of the bundle's
- * executable file as inApp.
+ * A list of string prefixes of framework names that belong to the app. This option takes precedence
+ * over inAppExcludes. Per default this contains CFBundleExecutable to mark it as inApp.
  */
 @property (nonatomic, readonly, copy) NSArray<NSString *> *inAppIncludes;
 
 /**
  * Adds an item to the list of inAppIncludes.
  *
- * @param inAppInclude The prefix of the image name.
+ * @param inAppInclude The prefix of the framework name.
  */
 - (void)addInAppInclude:(NSString *)inAppInclude;
 
 /**
- * A list of string prefixes of image names that do not belong to the app, but rather to third-party
- * packages. Images considered not part of the app will be hidden from stack traces by default.
+ * A list of string prefixes of framework names that do not belong to the app, but rather to
+ * third-party frameworks. Frameworks considered not part of the app will be hidden from stack
+ * traces by default.
  *
  * This option can be overridden using inAppIncludes.
  */
@@ -173,7 +173,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Adds an item to the list of inAppExcludes.
  *
- * @param inAppExclude The prefix of the image name.
+ * @param inAppExclude The prefix of the frameworks name.
  */
 - (void)addInAppExclude:(NSString *)inAppExclude;
 
