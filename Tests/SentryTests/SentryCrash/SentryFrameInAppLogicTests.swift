@@ -22,11 +22,26 @@ class SentryFrameInAppLogicTests: XCTestCase {
     
     func testInAppInclude() {
         XCTAssertTrue(
-            fixture.getSut(inAppIncludes: ["PrivateFrameworks", "UIKitCore"])
+            fixture.getSut(inAppIncludes: ["PrivateFrameworks", "UIKitCor"])
                 .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
         )
         
-        XCTAssertFalse(fixture.getSut(inAppIncludes: ["/System", "UIKitCore"]).is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore/"))
+        XCTAssertTrue(
+            fixture.getSut(inAppIncludes: ["U"])
+                .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
+        )
+        
+        XCTAssertTrue(
+            fixture.getSut(inAppIncludes: ["u"])
+                .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
+        )
+        
+        XCTAssertFalse(
+            fixture.getSut(inAppIncludes: ["I"])
+                .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
+        )
+        
+        XCTAssertFalse(fixture.getSut(inAppIncludes: ["/System", "UIKitCora"]).is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore"))
     }
     
     func testInAppExclude() {
@@ -53,7 +68,7 @@ class SentryFrameInAppLogicTests: XCTestCase {
         )
         
         XCTAssertFalse(
-            fixture.getSut(inAppIncludes: ["iOS-Swif"], inAppExcludes: ["iOS-Swift"])
+            fixture.getSut(inAppIncludes: ["iOS-Swifta"], inAppExcludes: ["iOS-Swift"])
                 .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
     }

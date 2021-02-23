@@ -27,12 +27,12 @@ SentryFrameInAppLogic ()
 - (BOOL)isInApp:(NSString *)imageName
 {
     for (NSString *inAppInclude in self.inAppIncludes) {
-        if ([imageName hasSuffix:inAppInclude])
+        if ([imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString])
             return YES;
     }
 
     for (NSString *inAppExlude in self.inAppExcludes) {
-        if ([imageName hasSuffix:inAppExlude])
+        if ([imageName.lastPathComponent.lowercaseString hasPrefix:inAppExlude.lowercaseString])
             return NO;
     }
 

@@ -190,4 +190,14 @@
     }
 }
 
+- (void)addInAppInclude:(NSString *)inAppInclude
+{
+    _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
+}
+
+- (void)addInAppExcludes:(NSString *)inAppExclude
+{
+    _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
+}
+
 @end

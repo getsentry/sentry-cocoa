@@ -429,12 +429,11 @@
     XCTAssertEqualObjects(expected, options.inAppIncludes);
 }
 
-- (void)testSetInAppIncludes
+- (void)testAddInAppIncludes
 {
-    NSArray<NSString *> *expected = @[ @"App" ];
     SentryOptions *options = [self getValidOptions:@{}];
-    options.inAppIncludes = @[ @"App" ];
-    XCTAssertEqualObjects(expected, options.inAppIncludes);
+    [options addInAppInclude:@"App"];
+    XCTAssertEqualObjects(@[ @"App" ], options.inAppIncludes);
 }
 
 - (void)testDefaultInAppIncludes
@@ -462,12 +461,11 @@
     XCTAssertEqualObjects(expected, options.inAppExcludes);
 }
 
-- (void)testSetInAppExcludes
+- (void)testAddInAppExcludes
 {
-    NSArray<NSString *> *expected = @[ @"App" ];
     SentryOptions *options = [self getValidOptions:@{}];
-    options.inAppExcludes = @[ @"App" ];
-    XCTAssertEqualObjects(expected, options.inAppExcludes);
+    [options addInAppExcludes:@"App"];
+    XCTAssertEqualObjects(@[ @"App" ], options.inAppExcludes);
 }
 
 - (void)testDefaultInAppExcludes

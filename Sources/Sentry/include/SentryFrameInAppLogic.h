@@ -35,9 +35,9 @@ SENTRY_NO_INIT
  * To work properly for Apple applications the inAppIncludes should contain the CFBundleExecutable,
  * which is the name of the bundle’s executable file.
  *
- * @param inAppIncludes A list of string suffixes of image names that belong to the app. This option
+ * @param inAppIncludes A list of string prefixes of image names that belong to the app. This option
  * takes precedence over inAppExcludes.
- * @param inAppExcludes A list of string suffixes of image names that do not belong to the app, but
+ * @param inAppExcludes A list of string prefixes of image names that do not belong to the app, but
  * rather to third-party packages. Modules considered not part of the app will be hidden from stack
  * traces by default.
  */
@@ -45,14 +45,15 @@ SENTRY_NO_INIT
                         inAppExcludes:(NSArray<NSString *> *)inAppExcludes;
 
 /**
- * Determines if the image belongs to the app by using inAppIncludes and inAppExcludes.
+ * Determines if the image belongs to the app by using inAppIncludes and inAppExcludes. Before
+ * checking this method lowercases the strings and uses only the lastPathComponent of the imageName.
  *
- * @param imageName the full path of the image.
+ * @param imagePath the full path of the image.
  *
- * @return YES if the imageName ends with a suffix of inAppIncludes. NO if the imageName doesn't end
- * with a suffix of inAppIncludes or if the imageName ends with a suffix of inAppExcludes.
+ * @return YES if the imageName starts with a prefix of inAppIncludes. NO if the imageName doesn't
+ * start with a prefix of inAppIncludes or if the imageName ends with a prefix of inAppExcludes.
  */
-- (BOOL)isInApp:(NSString *)imageName;
+- (BOOL)isInApp:(NSString *)imagePath;
 
 @end
 
