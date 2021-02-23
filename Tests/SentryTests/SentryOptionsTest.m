@@ -464,7 +464,7 @@
 - (void)testAddInAppExcludes
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    [options addInAppExcludes:@"App"];
+    [options addInAppExclude:@"App"];
     XCTAssertEqualObjects(@[ @"App" ], options.inAppExcludes);
 }
 

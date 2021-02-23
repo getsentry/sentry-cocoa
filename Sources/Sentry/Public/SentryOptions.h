@@ -175,7 +175,7 @@ NS_SWIFT_NAME(Options)
  *
  * @param inAppExclude The prefix of the image name.
  */
-- (void)addInAppExcludes:(NSString *)inAppExclude;
+- (void)addInAppExclude:(NSString *)inAppExclude;
 
 @end
 

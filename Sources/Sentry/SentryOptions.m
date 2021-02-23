@@ -195,7 +195,7 @@
     _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
 }
 
-- (void)addInAppExcludes:(NSString *)inAppExclude
+- (void)addInAppExclude:(NSString *)inAppExclude
 {
     _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
 }
