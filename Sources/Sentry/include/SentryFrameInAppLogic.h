@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * frameworks as CocoaLumberJack, Sentry, RXSwift, etc., and frameworks written by the user fall
  * into this category. These frameworks can be both inApp or not. As we expect most frameworks of
  * this category to be supporting frameworks, we mark them not as inApp. If a user wants such a
- * framework to be inApp he needs to pass the name into inAppInclude. For dynamic frameworks, the
+ * framework to be inApp, they need to pass the name into inAppInclude. For dynamic frameworks, the
  * location is usually in the bundle under /Frameworks/FrameworkName.framework/FrameworkName. As for
  * static frameworks, the location is the same as the main executable; this class marks all static
  * frameworks as inApp. To remove static frameworks from being inApp, Sentry uses stack trace
