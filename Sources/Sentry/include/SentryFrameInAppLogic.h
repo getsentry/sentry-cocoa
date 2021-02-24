@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
  * location is usually in the bundle under /Frameworks/FrameworkName.framework/FrameworkName. As for
  * static frameworks, the location is the same as the main executable; this class marks all static
  * frameworks as inApp. To remove static frameworks from being inApp, Sentry uses stack trace
- * grouping rules.
+ * grouping rules on the server.
  *
  * Last, this class marks all public frameworks as not inApp. Such frameworks are bound dynamically
  * and are usually located at /Library/Frameworks or ~/Library/Frameworks. For simulators, the
