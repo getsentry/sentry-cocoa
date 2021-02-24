@@ -15,48 +15,49 @@ class SentryFrameInAppLogicTests: XCTestCase {
     
     private let fixture = Fixture()
     
-    func testNotInApp() {
-        XCTAssertFalse(fixture.getSut().is(inApp: "a/Bundle/Application/a"))
-        XCTAssertFalse(fixture.getSut().is(inApp: "a.app/"))
+    func testInApp_WithoutIncludesOrExcludes() {
+        let sut = fixture.getSut()
+        XCTAssertFalse(sut.is(inApp: "a/Bundle/Application/a"))
+        XCTAssertFalse(sut.is(inApp: "a.app/"))
     }
     
-    func testInAppWithNil() {
+    func testInApp_WithNil_ReturnsFalse() {
         XCTAssertFalse(fixture.getSut().is(inApp: nil))
     }
     
-    func testInAppInclude() {
+    func testInAppInclude_WithSpecifiedFramework() {
         XCTAssertTrue(
-            fixture.getSut(inAppIncludes: ["PrivateFrameworks", "UIKitCor"])
+            fixture.getSut(inAppIncludes: ["PrivateFrameworks", "UIKitCore"])
                 .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
         )
-        
-        XCTAssertTrue(
-            fixture.getSut(inAppIncludes: ["U"])
-                .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
-        )
-        
+    }
+    
+    func testInAppInclude_WithOnlyOneCharLowecase() {
         XCTAssertTrue(
             fixture.getSut(inAppIncludes: ["u"])
                 .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
         )
-        
+    }
+  
+    func testInAppInclude_WithWrongPrefix() {
         XCTAssertFalse(
             fixture.getSut(inAppIncludes: ["I"])
                 .is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore")
         )
-        
         XCTAssertFalse(fixture.getSut(inAppIncludes: ["/System", "UIKitCora"]).is(inApp: "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore"))
     }
     
-    func testInAppExclude() {
+    func testInAppExclude_WithSpecifiedFramework() {
         XCTAssertFalse(
             fixture.getSut(inAppExcludes: ["iOS-Swift"])
                 .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
-        
+    }
+    
+    func testInAppExclude_WithLowercasePrefix() {
         XCTAssertFalse(
-            fixture.getSut(inAppExcludes: ["iOS-Swift.app", "iOS-Swif"])
-                .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swif")
+            fixture.getSut(inAppExcludes: ["i"])
+                .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
     }
     
@@ -65,19 +66,16 @@ class SentryFrameInAppLogicTests: XCTestCase {
             fixture.getSut(inAppIncludes: ["libdyld.dylib"], inAppExcludes: ["libdyld.dylib"])
                 .is(inApp: "/usr/lib/system/libdyld.dylib")
         )
-        
-        XCTAssertTrue(
-            fixture.getSut(inAppIncludes: ["iOS-Swift"], inAppExcludes: ["iOS-Swift"])
-                .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
-        )
-        
+    }
+    
+    func testInApp_WithNotMatchingIncludeButMatchingExclude() {
         XCTAssertFalse(
             fixture.getSut(inAppIncludes: ["iOS-Swifta"], inAppExcludes: ["iOS-Swift"])
                 .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
     }
     
-    func testXcodeLibraries() {
+    func testXcodeLibraries_AreNotInApp() {
         XCTAssertFalse(fixture.getSut().is(inApp: "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore"))
         
         // If someone has multiple Xcode installations
@@ -178,22 +176,12 @@ class SentryFrameInAppLogicTests: XCTestCase {
         testWithImages(images: images, inAppIncludes: ["watchOS-Swift WatchKit Extension"])
     }
     
-    /**
-     Sentry is statically included.
-     */
-    func testSwiftPackageManagerCommandLine() {
-        let path = "/Users/sentry/code/CommandLine/.build/debug/CommandLine"
-        let sut = fixture.getSut(inAppIncludes: ["CommandLine"])
-        XCTAssertTrue(sut.is(inApp: path))
-    }
-    
     func testWithImages(images: Images, inAppIncludes: [String], inAppExcludes: [String] = []) {
         let sut = fixture.getSut(inAppIncludes: inAppIncludes, inAppExcludes: inAppExcludes)
         XCTAssertTrue(sut.is(inApp: images.bundleExecutable))
         images.privateFrameworks.forEach {
             XCTAssertTrue(sut.is(inApp: $0))
         }
-        
         images.publicFrameworks.forEach {
             XCTAssertFalse(sut.is(inApp: $0))
         }
