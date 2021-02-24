@@ -31,9 +31,17 @@
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
 
-        // Use the name of bundle’s executable file as inAppInclude, so frames coming from there are
-        // marked as inApp. This also marks private frameworks included in the application
-        // statically as inApp. Sentry fixes this with stack trace grouping rules.
+        // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
+        // marks frames coming from there as inApp. With this approach, the SDK marks public
+        // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
+        // inApp. For private frameworks, such as Sentry, dynamic and static frameworks differ.
+        // Suppose you use dynamic frameworks inside your app. In that case, the SDK marks these as
+        // not inApp as these frameworks are located in the application bundle, but their location
+        // is different from the main executable.  In case you have a private framework that should
+        // be inApp you can add it to inAppInclude. When using static frameworks, the frameworks end
+        // up in the main executable. Therefore, the SDK currently can't detect if a frame of the
+        // main executable originates from the application or a private framework and marks all of
+        // them as inApp. To fix this, the user can use stack trace rules on Sentry.
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
         if (nil == bundleExecutable) {
