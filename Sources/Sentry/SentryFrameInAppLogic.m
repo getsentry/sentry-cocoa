@@ -29,7 +29,7 @@ SentryFrameInAppLogic ()
     if (nil == imageName) {
         return NO;
     }
-    
+
     for (NSString *inAppInclude in self.inAppIncludes) {
         if ([imageName.lastPathComponent.lowercaseString hasPrefix:inAppInclude.lowercaseString])
             return YES;
