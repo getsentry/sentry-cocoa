@@ -8,18 +8,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (class, nonatomic, readonly) ScreenRecorder *shared;
 
--(instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 @property (readonly) BOOL isRecording;
 
--(bool) startWithTarget:(NSURL *)target;
+- (bool)startWithTarget:(NSURL *)target;
 
--(bool) startWithTarget:(NSURL *)target
-               duration:(NSTimeInterval)duration;
+- (bool)startWithTarget:(NSURL *)target duration:(NSTimeInterval)duration;
 
--(void) finish;
+- (void)finish;
 
--(NSTimeInterval) recordingLength;
+- (NSTimeInterval)recordingLength;
 
 @end
 

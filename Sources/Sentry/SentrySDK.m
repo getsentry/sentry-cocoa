@@ -81,7 +81,6 @@ static BOOL crashedLastRunCalled;
                                         SentryMeta.versionString]
                      andLevel:kSentryLogLevelDebug];
     [SentrySDK installIntegrations];
-    
 
     if (options.recordSession) {
         [SentrySessionRecorder.shared start];

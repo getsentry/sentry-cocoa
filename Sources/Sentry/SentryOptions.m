@@ -170,7 +170,6 @@
     if (nil != options[@"recordSession"]) {
         self.recordSession = [options[@"recordSession"] boolValue];
     }
-
 }
 
 @end

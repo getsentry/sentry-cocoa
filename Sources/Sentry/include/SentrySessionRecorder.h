@@ -6,20 +6,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentrySessionRecorder : NSObject
 @property (class, nonatomic, readonly) SentrySessionRecorder *shared;
 
--(instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 @property (readonly) BOOL isRecording;
 
--(bool) start;
+- (bool)start;
 
--(void) stop;
+- (void)stop;
 
--(nullable NSURL *)fileUrlForRecording:(NSString *)recordName;
+- (nullable NSURL *)fileUrlForRecording:(NSString *)recordName;
 
--(nullable NSURL *)currentRecording;
--(NSArray<NSString *> *)availableRecording;
+- (nullable NSURL *)currentRecording;
+- (NSArray<NSString *> *)availableRecording;
 @end
 
 NS_ASSUME_NONNULL_END
-
-

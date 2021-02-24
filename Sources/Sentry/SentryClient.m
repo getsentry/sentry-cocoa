@@ -1,5 +1,6 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryAttachment.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryDebugMetaBuilder.h"
@@ -22,14 +23,13 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
+#import "SentrySessionRecorder.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-#import "SentrySessionRecorder.h"
-#import "SentryAttachment.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -430,10 +430,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (self.options.recordSession) {
-        NSURL* currentUrl = SentrySessionRecorder.shared.currentRecording;
-        [scope addAttachment: [[SentryAttachment alloc] initWithPath:currentUrl.path
-                                                            filename:@"sessionRecorder.mp4"
-                                                         contentType:@"video/mp4"] ];
+        NSURL *currentUrl = SentrySessionRecorder.shared.currentRecording;
+        [scope addAttachment:[[SentryAttachment alloc] initWithPath:currentUrl.path
+                                                           filename:@"sessionRecorder.mp4"
+                                                        contentType:@"video/mp4"]];
     }
     return event;
 }
