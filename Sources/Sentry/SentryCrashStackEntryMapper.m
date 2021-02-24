@@ -45,7 +45,6 @@ SentryCrashStackEntryMapper ()
         NSString *imageName = [NSString stringWithCString:stackCursor.stackEntry.imageName
                                                  encoding:NSUTF8StringEncoding];
         frame.package = imageName;
-
         frame.inApp = @([self.frameInAppLogic isInApp:imageName]);
     }
 

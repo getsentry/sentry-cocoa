@@ -54,7 +54,7 @@ SENTRY_NO_INIT
  * if the framework located at the imagePath doesn't start with a prefix of inAppIncludes or start
  * with a prefix of inAppExcludes.
  */
-- (BOOL)isInApp:(NSString *)imagePath;
+- (BOOL)isInApp:(nullable NSString *)imagePath;
 
 @end
 

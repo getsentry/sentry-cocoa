@@ -20,6 +20,10 @@ class SentryFrameInAppLogicTests: XCTestCase {
         XCTAssertFalse(fixture.getSut().is(inApp: "a.app/"))
     }
     
+    func testInAppWithNil() {
+        XCTAssertFalse(fixture.getSut().is(inApp: nil))
+    }
+    
     func testInAppInclude() {
         XCTAssertTrue(
             fixture.getSut(inAppIncludes: ["PrivateFrameworks", "UIKitCor"])
