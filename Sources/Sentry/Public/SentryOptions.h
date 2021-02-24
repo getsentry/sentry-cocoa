@@ -148,6 +148,8 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
+@property (nonatomic) BOOL recordSession;
+
 @end
 
 NS_ASSUME_NONNULL_END

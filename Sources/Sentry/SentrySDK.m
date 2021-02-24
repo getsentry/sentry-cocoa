@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
+#import "SentrySessionRecorder.h"
 
 static SentryLogLevel logLevel = kSentryLogLevelError;
 
@@ -80,6 +81,11 @@ static BOOL crashedLastRunCalled;
                                         SentryMeta.versionString]
                      andLevel:kSentryLogLevelDebug];
     [SentrySDK installIntegrations];
+    
+
+    if (options.recordSession) {
+        [SentrySessionRecorder.shared start];
+    }
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions

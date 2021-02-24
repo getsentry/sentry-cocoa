@@ -28,6 +28,8 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentrySessionRecorder.h"
+#import "SentryAttachment.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -427,6 +429,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         SentrySDK.crashedLastRunCalled = YES;
     }
 
+    if (self.options.recordSession) {
+        NSURL* currentUrl = SentrySessionRecorder.shared.currentRecording;
+        [scope addAttachment: [[SentryAttachment alloc] initWithPath:currentUrl.path
+                                                            filename:@"sessionRecorder.mp4"
+                                                         contentType:@"video/mp4"] ];
+    }
     return event;
 }
 
