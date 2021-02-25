@@ -4,7 +4,7 @@
 
 @implementation SentryFrameRemover
 
-- (NSArray<SentryFrame *> *)removeNonSdkFrames:(NSArray<SentryFrame *> *)frames
++ (NSArray<SentryFrame *> *)removeNonSdkFrames:(NSArray<SentryFrame *> *)frames
 {
     // When including Sentry via the Swift Package Manager the package is the same as the
     // application that includes Sentry. Therefore removing frames with a package containing
