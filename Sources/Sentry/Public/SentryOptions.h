@@ -2,7 +2,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo;
+@class SentryDsn, SentrySdkInfo, SentryTransactionSamplingContext;
+
+/** Function pointer for a sampler callback.
+ *
+ * @param samplingContext context of the sampling.
+ *
+ * @return A sample rate between 0.0 and 1.0.
+ */
+typedef double (*SentryTraceSampler)(SentryTransactionSamplingContext *samplingContext);
+
+
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -147,6 +157,22 @@ NS_SWIFT_NAME(Options)
  * address.
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
+
+
+/**
+ * Indicates the percentage of the tracing data that is collected.
+ * Setting this to 0 discards all trace data.
+ * Setting this to 1.0 collects all trace data.
+ * Values outside of this range are threated as the closest valid value.
+ */
+@property (nonatomic) double tracesSampleRate;
+
+/**
+ * A callback to a user defined traces sampler function.
+ * This callback should return a value between 0.0 and 1.0.
+ * Any value outside this range is threated as the closest valid value.
+ */
+@property (nonatomic) SentryTraceSampler tracesSampler;
 
 @end
 
