@@ -1,18 +1,30 @@
 import XCTest
 
 class SentrySpanTests: XCTestCase {
-    
     private class Fixture {
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
         let someDescription = "Some Description"
         let extraKey = "extra_key"
         let extraValue = "extra_value"
+        let spanName = "Span Name"
+        let options: Options
+        
+        init() {
+            options = Options()
+            options.dsn = TestConstants.dsnAsString
+            options.environment = "test"
+        }
         
         func getSut() -> Span {
-            let transaction = Transaction(name: someTransaction, operation: someOperation)
-            return Span(transaction: transaction, operation: someOperation, trace: SentryId(), parentId: transaction.spanId)
+            return getSut(client: TestClient(options: options)!)
         }
+        
+        func getSut(client: Client) -> Span {
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
+            return hub.startTransaction(name: someTransaction, operation: someOperation)
+        }
+        
     }
     
     private var fixture: Fixture!
@@ -32,13 +44,21 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish() {
-        let span = fixture.getSut()
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
         
         span.finish()
         
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertTrue(span.isFinished)
+        
+        let lastEvent = client.captureEventWithScopeArguments[0].event
+        XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
+        XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+        
     }
     
     func testFinishWithStatus() {
@@ -47,27 +67,43 @@ class SentrySpanTests: XCTestCase {
         
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
         XCTAssertEqual(span.timestamp, TestData.timestamp)
-        XCTAssertEqual(span.status, .ok)
+        XCTAssertEqual(span.context.status, .ok)
         XCTAssertTrue(span.isFinished)
     }
     
-    func testStartChildWithOperation() {
-        let span = fixture.getSut()
+    func testFinishWithChild() {
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
         
-        let childSpan = span.startChild(operation: fixture.someOperation)
-        XCTAssertEqual(childSpan.parentSpanId, span.spanId)
-        XCTAssertEqual(childSpan.operation, fixture.someOperation)
-        XCTAssertNil(childSpan.spanDescription)
+        span.finish()
+        let lastEvent = client.captureEventWithScopeArguments[0].event
+        let serializedData = lastEvent.serialize()
+        
+        let spans = serializedData["spans"] as! [Any]
+        let serializedChild = spans[0] as! [String: Any]
+        
+        XCTAssertEqual(serializedChild["span_id"] as? String, childSpan.context.spanId.sentrySpanIdString)
+        XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.context.spanId.sentrySpanIdString)
     }
     
-    func testStartChildWithOperationAndDescription() {
+    func testStartChildWithNameOperation() {
         let span = fixture.getSut()
         
-        let childSpan = span.startChild(operation: fixture.someOperation, description: fixture.someDescription)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
+        XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
+        XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
+        XCTAssertNil(childSpan.context.spanDescription)
+    }
+    
+    func testStartChildWithNameOperationAndDescription() {
+        let span = fixture.getSut()
         
-        XCTAssertEqual(childSpan.parentSpanId, span.spanId)
-        XCTAssertEqual(childSpan.operation, fixture.someOperation)
-        XCTAssertEqual(childSpan.spanDescription, fixture.someDescription)
+        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation, description: fixture.someDescription)
+        
+        XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
+        XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
+        XCTAssertEqual(childSpan.context.spanDescription, fixture.someDescription)
     }
     
     func testSetExtras() {
@@ -75,8 +111,8 @@ class SentrySpanTests: XCTestCase {
 
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.extras!.count, 1)
-        XCTAssertEqual(span.extras![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data!.count, 1)
+        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
     }
     
     func testSerialization() {
@@ -84,10 +120,14 @@ class SentrySpanTests: XCTestCase {
         
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
-                
+        
         let serialization = span.serialize()
+        XCTAssertEqual(serialization["span_id"] as? String, span.context.spanId.sentrySpanIdString)
+        XCTAssertEqual(serialization["trace_id"] as? String, span.context.traceId.sentryIdString)
         XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
         XCTAssertEqual(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
+        XCTAssertEqual(serialization["sampled"] as? String, "false")
         XCTAssertNotNil(serialization["data"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
@@ -121,6 +161,6 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.extras!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
     }
 }

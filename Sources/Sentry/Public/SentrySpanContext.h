@@ -13,17 +13,17 @@ SENTRY_NO_INIT
 /**
  * Determines which trace the Span belongs to.
  */
-@property (nonatomic, strong) SentryId *traceId;
+@property (nonatomic, readonly) SentryId *traceId;
 
 /**
  * Span id.
  */
-@property (nonatomic, strong) SentrySpanId *spanId;
+@property (nonatomic, readonly) SentrySpanId *spanId;
 
 /**
  * Id of a parent span.
  */
-@property (nullable, nonatomic, strong) SentrySpanId *parentSpanId;
+@property (nullable, nonatomic, readonly) SentrySpanId *parentSpanId;
 
 /**
  * If trace is sampled.
