@@ -164,7 +164,7 @@
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
     }
-    
+
     if (nil != options[@"tracesSampleRate"]) {
         self.tracesSampleRate = [options[@"tracesSampleRate"] doubleValue];
     }

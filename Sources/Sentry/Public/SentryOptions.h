@@ -12,8 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef double (*SentryTraceSampler)(SentryTransactionSamplingContext *samplingContext);
 
-
-
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
@@ -157,7 +155,6 @@ NS_SWIFT_NAME(Options)
  * address.
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
-
 
 /**
  * Indicates the percentage of the tracing data that is collected.
