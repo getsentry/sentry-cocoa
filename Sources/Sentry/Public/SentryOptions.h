@@ -4,13 +4,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDsn, SentrySdkInfo, SentryTransactionSamplingContext;
 
-/** Function pointer for a sampler callback.
+/** 
+ * Function pointer for a sampler callback.
  *
  * @param samplingContext context of the sampling.
  *
  * @return A sample rate between 0.0 and 1.0.
  */
-typedef double (*SentryTraceSampler)(SentryTransactionSamplingContext *samplingContext);
+typedef double (*SentryTracesSamplerCallback)(SentryTransactionSamplingContext *samplingContext);
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject

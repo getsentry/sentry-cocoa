@@ -4,8 +4,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryTransactionContext;
 
-NS_SWIFT_NAME(TransactionSamplingContext)
-@interface SentryTransactionSamplingContext : NSObject
+NS_SWIFT_NAME(SamplingContext)
+@interface SentrySamplingContext : NSObject
 
 /**
  * Transaction context.
@@ -18,12 +18,10 @@ NS_SWIFT_NAME(TransactionSamplingContext)
 @property (nonatomic, readonly) NSDictionary<NSString *, id> *customSamplingContext;
 
 /**
- * Init a SentryTransactionSamplingContext
+ * Init a SentryTransactionSamplingContext.
  *
- * @param transactionContext the context of the transaction being sampled.
+ * @param transactionContext The context of the transaction being sampled.
  * @param customSamplingContext Custom data used for sampling.
- *
- * @return SenryTransactionSamplingContext
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
