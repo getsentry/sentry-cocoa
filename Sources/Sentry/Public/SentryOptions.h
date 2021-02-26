@@ -159,6 +159,8 @@ NS_SWIFT_NAME(Options)
 
 /**
  * A callback to a user defined traces sampler function.
+ * Returning 0 from this callback discards all trace data.
+ * Returning 1.0 collects all trace data.
  * This callback should return a value between 0.0 and 1.0.
  * Any value outside this range is threated as the closest valid value.
  */
