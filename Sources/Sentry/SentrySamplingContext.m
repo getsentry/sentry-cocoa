@@ -1,6 +1,6 @@
-#import "SentryTransactionSamplingContext.h"
+#import "SentrySamplingContext.h"
 
-@implementation SentryTransactionSamplingContext
+@implementation SentrySamplingContext
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
