@@ -31,11 +31,6 @@ class SentryFrameRemoverTests: XCTestCase {
     }
     
     private let fixture = Fixture()
-    private var sut: SentryFrameRemover!
-    
-    override func setUp() {
-        sut = SentryFrameRemover()
-    }
     
     func testSdkFramesFirst_OnlyFirstSentryFramesRemoved() {
         let frames = fixture.sentryFrames +
@@ -46,7 +41,7 @@ class SentryFrameRemoverTests: XCTestCase {
         let expected = fixture.nonSentryFrames +
             [fixture.sentryFrame] +
             [fixture.nonSentryFrame]
-        let actual = sut.removeNonSdkFrames(frames)
+        let actual = SentryFrameRemover.removeNonSdkFrames(frames)
         
         XCTAssertEqual(expected, actual)
     }
@@ -56,17 +51,17 @@ class SentryFrameRemoverTests: XCTestCase {
             [fixture.sentryFrame] +
             [fixture.nonSentryFrame]
         
-        let actual = sut.removeNonSdkFrames(frames)
+        let actual = SentryFrameRemover.removeNonSdkFrames(frames)
                 XCTAssertEqual(frames, actual)
     }
     
     func testNoSdkFrames_NoFramesRemoved() {
-        let actual = sut.removeNonSdkFrames(fixture.nonSentryFrames)
+        let actual = SentryFrameRemover.removeNonSdkFrames(fixture.nonSentryFrames)
         XCTAssertEqual(fixture.nonSentryFrames, actual)
     }
     
     func testOnlySdkFrames_AllFramesRemoved() {
-        let actual = sut.removeNonSdkFrames(fixture.sentryFrames)
+        let actual = SentryFrameRemover.removeNonSdkFrames(fixture.sentryFrames)
         XCTAssertEqual(fixture.sentryFrames, actual)
     }
 }
