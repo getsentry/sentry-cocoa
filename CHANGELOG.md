@@ -2,6 +2,14 @@
 
 ## unreleased
 
+## 7.0.0-alpha.0
+
+**Breaking Change**: This version introduces a change to the grouping of issues. The SDK now sets the `inApp`
+flag for frames originating from only the main executable using [CFBundleExecutable](https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleexecutable). 
+In previous versions, all frames originating from the application bundle were marked as `inApp`. This had the
+downside of marking frames of private frameworks inside the bundle as `inApp`. This problem is fixed now.
+Applications using static frameworks shouldn't be affected by this change.
+
 - fix: Mark frames as inApp #956
 
 ## 6.2.1
