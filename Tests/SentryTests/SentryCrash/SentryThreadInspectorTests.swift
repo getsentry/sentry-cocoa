@@ -11,7 +11,7 @@ class SentryThreadInspectorTests: XCTestCase {
             let machineContextWrapper = testWithRealMachineConextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
             
             return SentryThreadInspector(
-                stacktraceBuilder: SentryStacktraceBuilder(),
+                stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))),
                 andMachineContextWrapper: machineContextWrapper
             )
         }

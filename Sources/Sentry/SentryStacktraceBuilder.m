@@ -11,16 +11,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryStacktraceBuilder ()
 
-@property (nonatomic, strong) SentryFrameRemover *frameRemover;
+@property (nonatomic, strong) SentryCrashStackEntryMapper *crashStackEntryMapper;
 
 @end
 
 @implementation SentryStacktraceBuilder
 
-- (id)initWithSentryFrameRemover:(SentryFrameRemover *)frameRemover
+- (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper
 {
     if (self = [super init]) {
-        self.frameRemover = frameRemover;
+        self.crashStackEntryMapper = crashStackEntryMapper;
     }
     return self;
 }
@@ -36,7 +36,7 @@ SentryStacktraceBuilder ()
 
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
-            SentryFrame *frame = [SentryCrashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            SentryFrame *frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
             [frames addObject:frame];
         }
     }
