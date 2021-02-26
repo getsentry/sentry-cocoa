@@ -438,13 +438,13 @@
 {
     SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
         XCTAssertNotNil(context);
-        return 1.0;
+        return @1.0;
     };
 
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : sampler }];
 
     SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
-    XCTAssertEqual(options.tracesSampler(context), 1.0);
+    XCTAssertEqual(options.tracesSampler(context), @1.0);
 }
 
 - (void)testDefaultTracesSampler
