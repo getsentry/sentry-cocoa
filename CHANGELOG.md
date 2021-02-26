@@ -8,7 +8,8 @@
 flag for frames originating from only the main executable using [CFBundleExecutable](https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleexecutable). 
 In previous versions, all frames originating from the application bundle were marked as `inApp`. This had the
 downside of marking frames of private frameworks inside the bundle as `inApp`. This problem is fixed now.
-Applications using static frameworks shouldn't be affected by this change.
+Applications using static frameworks shouldn't be affected by this change. 
+For more information on marking frames as inApp [docs](https://docs.sentry.io/platforms/apple/data-management/event-grouping/stack-trace-rules/#mark-in-app-frames).
 
 - fix: Mark frames as inApp #956
 
