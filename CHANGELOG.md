@@ -4,6 +4,10 @@
 
 - fix: Mark frames as inApp #956
 
+## 6.2.1
+
+- fix: Redundant x29 GP register on arm64 and UBSan crash #964
+
 ## 6.2.0
 
 With this version, Sentry groups errors by domain and code. MyDomain 1 and MyDomain 2
