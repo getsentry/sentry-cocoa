@@ -10,8 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryStacktraceBuilder : NSObject
 SENTRY_NO_INIT
 
-- (id)initWithSentryFrameRemover:(SentryFrameRemover *)frameRemover
-           crashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper;
+- (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper;
 
 /**
  * Builds the stacktrace for the current thread removing frames from the SentrySDK until frames from

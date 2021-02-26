@@ -11,18 +11,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryStacktraceBuilder ()
 
-@property (nonatomic, strong) SentryFrameRemover *frameRemover;
 @property (nonatomic, strong) SentryCrashStackEntryMapper *crashStackEntryMapper;
 
 @end
 
 @implementation SentryStacktraceBuilder
 
-- (id)initWithSentryFrameRemover:(SentryFrameRemover *)frameRemover
-           crashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper
+- (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper
 {
     if (self = [super init]) {
-        self.frameRemover = frameRemover;
         self.crashStackEntryMapper = crashStackEntryMapper;
     }
     return self;
@@ -44,7 +41,7 @@ SentryStacktraceBuilder ()
         }
     }
 
-    NSArray<SentryFrame *> *framesCleared = [self.frameRemover removeNonSdkFrames:frames];
+    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
     // The frames must be ordered from caller to callee, or oldest to youngest
     NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
