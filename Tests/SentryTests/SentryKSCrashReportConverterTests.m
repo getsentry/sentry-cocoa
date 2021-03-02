@@ -1,13 +1,23 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryFrameInAppLogic.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
+@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+
 @end
 
 @implementation SentryCrashReportConverterTests
+
+- (void)setUp
+{
+    [super setUp];
+    self.frameInAppLogic = [[SentryFrameInAppLogic alloc] initWithInAppIncludes:@[]
+                                                                  inAppExcludes:@[]];
+}
 
 - (void)tearDown
 {
@@ -19,7 +29,8 @@
     NSDictionary *report = [self getCrashReport:@"Resources/crash-report-1"];
 
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:report];
+        [[SentryCrashReportConverter alloc] initWithReport:report
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertNotNil(event);
     XCTAssertEqualObjects(
@@ -80,7 +91,8 @@
     NSDictionary *report = [self getCrashReport:@"Resources/recrash-report"];
 
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:report];
+        [[SentryCrashReportConverter alloc] initWithReport:report
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
     // Do only a few basic assertions here. RecrashReport is tested with testUnknownTypeException
@@ -101,7 +113,8 @@
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/raw-crash"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     NSDictionary *serializedEvent = [event serialize];
 
@@ -121,7 +134,8 @@
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/Crash-faulty-report"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
     XCTAssertNil(
@@ -183,7 +197,8 @@
     [self isValidReport:@"Resources/NX-Page"];
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/NX-Page"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
@@ -193,7 +208,8 @@
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/ReactNative"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     //    Error: SentryClient: Test throw error
     XCTAssertEqualObjects(event.exceptions.firstObject.type, @"Error");
@@ -212,7 +228,8 @@
     [self isValidReport:@"Resources/dup-frame"];
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/dup-frame"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
@@ -227,7 +244,8 @@
     NSDictionary *rawCrash =
         [self getCrashReport:@"Resources/sentry-ios-cocoapods-report-0000000053800000"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(exception.value, @"this is the reason");
@@ -238,7 +256,8 @@
     [self isValidReport:@"Resources/fatalError"];
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatalError"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertEqualObjects(
         event.exceptions.firstObject.value, @"crash: > fatal error > hello my crash is here");
@@ -249,7 +268,8 @@
     [self isValidReport:@"Resources/fatalError"];
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatalError"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     reportConverter.userContext = @{
         @"tags" : @ { @"a" : @"b", @"c" : @"d" },
         @"extra" : @ { @"a" : @"b", @"c" : @"d", @"e" : @"f" },
@@ -277,7 +297,8 @@
     [self isValidReport:@"Resources/breadcrumb"];
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/breadcrumb"];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash];
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
     XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
@@ -295,7 +316,8 @@
 {
     NSDictionary *report = [self getCrashReport:path];
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:report];
+        [[SentryCrashReportConverter alloc] initWithReport:report
+                                           frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
 }

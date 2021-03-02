@@ -2,10 +2,28 @@
 
 ## unreleased
 
+### Performance Monitoring
+
 - feat: Add transaction sampling properties to SentryOptions #961
 - feat: Add SentrySpan #932
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API
+
+## 7.0.0-alpha.0
+
+**Breaking Change**: This version introduces a change to the grouping of issues. The SDK now sets the `inApp`
+flag for frames originating from only the main executable using [CFBundleExecutable](https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleexecutable). 
+In previous versions, all frames originating from the application bundle were marked as `inApp`. This had the
+downside of marking frames of private frameworks inside the bundle as `inApp`. This problem is fixed now.
+Applications using static frameworks shouldn't be affected by this change. 
+For more information on marking frames as inApp [docs](https://docs.sentry.io/platforms/apple/data-management/event-grouping/stack-trace-rules/#mark-in-app-frames).
+
+- fix: Mark frames as inApp #956
+
+## 6.2.1
+
+- fix: Redundant x29 GP register on arm64 and UBSan crash #964
+
 ## 6.2.0
 
 With this version, Sentry groups errors by domain and code. MyDomain 1 and MyDomain 2
