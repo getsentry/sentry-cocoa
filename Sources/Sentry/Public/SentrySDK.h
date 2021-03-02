@@ -2,8 +2,10 @@
 
 #import "SentryDefines.h"
 
+@protocol SentrySpan;
+
 @class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback, SentryTransaction, SentryTransactionContext;
+    SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -89,8 +91,8 @@ SENTRY_NO_INIT
  *
  * @return The created transaction.
  */
-+ (SentryTransaction *)startTransactionWithName:(NSString *)name
-                                      operation:(NSString *)operation
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
     NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
@@ -99,7 +101,7 @@ SENTRY_NO_INIT
  * @param transactionContext The transaction context.
  * @return The created transaction.
  */
-+ (SentryTransaction *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
     NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**

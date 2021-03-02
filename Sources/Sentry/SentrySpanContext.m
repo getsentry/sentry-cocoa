@@ -2,6 +2,8 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentrySpanContext () {
     NSMutableDictionary<NSString *, NSString *> *_tags;
@@ -32,9 +34,9 @@ SentrySpanContext () {
                         sampled:(BOOL)sampled
 {
     if (self = [super init]) {
-        self.traceId = traceId;
-        self.spanId = spanId;
-        self.parentSpanId = parentId;
+        _traceId = traceId;
+        _spanId = spanId;
+        _parentSpanId = parentId;
         self.sampled = sampled;
         self.operation = operation;
         self.status = kSentrySpanStatusUndefined;
@@ -94,3 +96,5 @@ SentrySpanContext () {
     return mutabledictionary;
 }
 @end
+
+NS_ASSUME_NONNULL_END

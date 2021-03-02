@@ -1,63 +1,66 @@
+#import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
-#import "SentryTransaction+Private.h"
+#import "SentryTracer.h"
 #import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentrySpan () {
-    NSMutableDictionary<NSString *, id> *_extras;
-}
+SentrySpan ()
 
-/**
- * The transaction associated with this span.
- */
-@property (nonatomic) SentryTransaction *transaction;
+@property (nonatomic) SentryTracer *tracer;
 
 @end
 
-@implementation SentrySpan
+@implementation SentrySpan {
+    NSMutableDictionary<NSString *, id> *_extras;
+}
 
-- (instancetype)initWithTransaction:(SentryTransaction *)transaction
-                          operation:(NSString *)operation
-                            traceId:(SentryId *)traceId
-                           parentId:(SentrySpanId *)parentId
+- (instancetype)initWithTracer:(SentryTracer *)tracer
+                          name:(NSString *)name
+                       context:(SentrySpanContext *)context
 {
-    if ([super initWithTraceId:traceId
-                        spanId:[[SentrySpanId alloc] init]
-                      parentId:parentId
-                     operation:operation
-                       sampled:transaction.isSampled]) {
-        self.transaction = transaction;
-        self.startTimestamp = [SentryCurrentDate date];
-        _extras = [[NSMutableDictionary alloc] init];
+    if ([self initWithName:name context:context]) {
+        self.tracer = tracer;
     }
-
     return self;
 }
 
-- (SentrySpan *)startChildWithOperation:(NSString *)operation
+- (instancetype)initWithName:(NSString *)name context:(SentrySpanContext *)context
 {
-    return [self startChildWithOperation:operation description:nil];
+    if ([super init]) {
+        self.name = name;
+        _context = context;
+        self.startTimestamp = [SentryCurrentDate date];
+        _extras = [[NSMutableDictionary alloc] init];
+    }
+    return self;
 }
 
-- (SentrySpan *)startChildWithOperation:(NSString *)operation
-                            description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self.transaction startChildWithParentId:[self spanId]
-                                          operation:operation
-                                        description:description];
+    return [self startChildWithName:name operation:operation description:nil];
 }
 
-- (void)setExtraValue:(nullable NSString *)value forKey:(NSString *)key
+- (id<SentrySpan>)startChildWithName:(NSString *)name
+                           operation:(NSString *)operation
+                         description:(nullable NSString *)description
+{
+    return [self.tracer startChildWithParentId:[self.context spanId]
+                                          name:name
+                                     operation:operation
+                                   description:description];
+}
+
+- (void)setDataValue:(nullable NSString *)value forKey:(NSString *)key
 {
     @synchronized(_extras) {
         [_extras setValue:value forKey:key];
     }
 }
 
-- (nullable NSDictionary<NSString *, id> *)extras
+- (nullable NSDictionary<NSString *, id> *)data
 {
     return _extras;
 }
@@ -74,20 +77,23 @@ SentrySpan () {
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.status = status;
+    self.context.status = status;
     [self finish];
 }
 
 - (NSDictionary *)serialize
 {
     NSMutableDictionary<NSString *, id> *mutableDictionary =
-        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+        [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
+
     [mutableDictionary setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [mutableDictionary setValue:[self.startTimestamp sentry_toIso8601String]
                          forKey:@"start_timestamp"];
 
     if (_extras != nil) {
-        [mutableDictionary setValue:_extras.copy forKey:@"data"];
+        @synchronized(_extras) {
+            [mutableDictionary setValue:_extras.copy forKey:@"data"];
+        }
     }
 
     return mutableDictionary;

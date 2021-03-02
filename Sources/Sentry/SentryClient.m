@@ -248,11 +248,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return SentryId.empty;
 }
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction
-{
-    return [self captureEvent:transaction withScope:[[SentryScope alloc] init]];
-}
-
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(SentrySession *)session
               withScope:(SentryScope *)scope
