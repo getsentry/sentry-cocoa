@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- feat: Add transaction sampling properties to SentryOptions #961
 - feat: Add SentrySpan #932
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API

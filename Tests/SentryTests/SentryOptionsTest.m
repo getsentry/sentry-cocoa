@@ -415,6 +415,45 @@
     XCTAssertFalse(options.sendDefaultPii);
 }
 
+- (void)testTracesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];
+
+    XCTAssertEqual(options.tracesSampleRate, @0.1);
+}
+
+- (void)testDefaultTracesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual(options.tracesSampleRate, @0);
+}
+
+- (double)tracesSamplerCallback:(NSDictionary *)context
+{
+    return 0.1;
+}
+
+- (void)testTracesSampler
+{
+    SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @1.0;
+    };
+
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : sampler }];
+
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    XCTAssertEqual(options.tracesSampler(context), @1.0);
+}
+
+- (void)testDefaultTracesSampler
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.tracesSampler);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

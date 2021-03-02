@@ -30,6 +30,7 @@
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.tracesSampleRate = 0;
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                             andVersion:SentryMeta.versionString];
 
@@ -162,6 +163,16 @@
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
+    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
+        [tracesSampleRate floatValue] <= 1.0) {
+        self.sampleRate = tracesSampleRate;
+    }
+
+    if (nil != options[@"tracesSampler"]) {
+        self.tracesSampler = options[@"tracesSampler"];
     }
 }
 
