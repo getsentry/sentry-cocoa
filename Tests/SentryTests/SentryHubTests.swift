@@ -2,6 +2,9 @@ import XCTest
 
 class SentryHubTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
+    private static let dsn = TestConstants.dsn(username: "SentryHubTests")
+    
     private class Fixture {
         let options: Options
         let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
@@ -18,7 +21,7 @@ class SentryHubTests: XCTestCase {
         
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentryHubTests.dsnAsString
             options.environment = "debug"
             
             scope.add(crumb)
@@ -26,7 +29,7 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(dsn: SentryHubTests.dsn, andCurrentDateProvider: currentDateProvider)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
@@ -56,6 +59,7 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
+        fixture.fileManager.deleteAllEnvelopes()
         
         sut = fixture.getSut()
     }
@@ -64,6 +68,7 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
+        fixture.fileManager.deleteAllEnvelopes()
     }
 
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {
@@ -137,7 +142,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddBreadcrumb_WithCallbackReturnsNil() {
-        let options = Options()
+        let options = fixture.options
         options.beforeBreadcrumb = { _ in
             return nil
         }
@@ -151,7 +156,7 @@ class SentryHubTests: XCTestCase {
     
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"
-        let options = Options()
+        let options = fixture.options
         options.beforeBreadcrumb = { crumb in
             crumb.message = crumbMessage
             return crumb

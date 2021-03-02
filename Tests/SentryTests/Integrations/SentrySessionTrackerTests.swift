@@ -3,6 +3,9 @@ import XCTest
 
 class SentrySessionTrackerTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
+    private static let dsn = TestConstants.dsn(username: "SentrySessionTrackerTests")
+    
     private class Fixture {
         
         let options: Options
@@ -12,7 +15,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentrySessionTrackerTests.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
@@ -42,7 +45,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         fixture = Fixture()
         
-        fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        fileManager = try! SentryFileManager(dsn: SentrySessionTrackerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
