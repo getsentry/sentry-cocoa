@@ -166,10 +166,11 @@
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
-    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 && [tracesSampleRate floatValue] <= 1.0) {
+    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
+        [tracesSampleRate floatValue] <= 1.0) {
         self.sampleRate = tracesSampleRate;
     }
-    
+
     if (nil != options[@"tracesSampler"]) {
         self.tracesSampler = options[@"tracesSampler"];
     }

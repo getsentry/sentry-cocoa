@@ -69,7 +69,8 @@ typedef BOOL (^SentryShouldQueueEvent)(
  *
  * @return A sample rate between 0.0 and 1.0.
  */
-typedef NSNumber* _Nullable (^SentryTracesSamplerCallback)(SentrySamplingContext *_Nonnull samplingContext);
+typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
+    SentrySamplingContext *_Nonnull samplingContext);
 
 /**
  * Loglevel
