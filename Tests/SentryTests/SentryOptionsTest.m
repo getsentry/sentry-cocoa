@@ -419,14 +419,14 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];
 
-    XCTAssertEqual(options.tracesSampleRate, 0.1);
+    XCTAssertEqual(options.tracesSampleRate, @0.1);
 }
 
 - (void)testDefaultTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(options.tracesSampleRate, 0);
+    XCTAssertEqual(options.tracesSampleRate, @0);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context

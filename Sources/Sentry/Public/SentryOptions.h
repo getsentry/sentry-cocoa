@@ -93,7 +93,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Array of integrations to install.
  */
-@property (nonatomic, copy) NSArray<NSString *> *_Nullable integrations;
+@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
 
 /**
  * Array of default integrations. Will be used if integrations are nil
@@ -150,19 +150,15 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Indicates the percentage of the tracing data that is collected.
- * Setting this to 0 discards all trace data.
- * Setting this to 1.0 collects all trace data.
- * Values outside of this range are threated as the closest valid value.
- * The default value is 0.
+ * Setting this to 0 or NIL discards all trace data, 1.0 collects all trace data,
+ * 0.01 collects 1% of all trace data.
  */
-@property (nonatomic) double tracesSampleRate;
+@property (nullable, nonatomic, strong) NSNumber *tracesSampleRate;
 
 /**
  * A callback to a user defined traces sampler function.
- * Returning 0 from this callback discards all trace data.
- * Returning 1.0 collects all trace data.
- * This callback should return a value between 0.0 and 1.0.
- * Any value outside this range is threated as the closest valid value.
+ * Returning 0 or NIL discards all trace data, 1.0 collects all trace data,
+ * 0.01 collects 1% of all trace data.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
