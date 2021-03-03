@@ -2,6 +2,10 @@
 
 ## unreleased
 
+Breaking Changes:
+
+- fix: Remove SentryException.userReported #974
+
 ## 7.0.0-alpha.0
 
 **Breaking Change**: This version introduces a change to the grouping of issues. The SDK now sets the `inApp`
