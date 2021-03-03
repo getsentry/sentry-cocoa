@@ -308,7 +308,7 @@ class SentrySDKTests: XCTestCase {
         let user = TestData.user
         SentrySDK.setUser(user)
         
-        let actualScope = SentrySDK.currentHub().getScope()
+        let actualScope = SentrySDK.currentHub().scope
         let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
         XCTAssertEqual(event?.user, user)
     }
@@ -432,7 +432,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func assertHubScopeNotChanged() {
-        let hubScope = SentrySDK.currentHub().getScope()
+        let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
     }
 }

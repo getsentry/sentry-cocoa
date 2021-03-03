@@ -78,7 +78,7 @@ class SentryHubTests: XCTestCase {
             level: .error,
             category: "default")
         hub.add(crumb)
-        let scope = hub.getScope()
+        let scope = hub.scope
         let scopeBreadcrumbs = scope.serialize()["breadcrumbs"]
         XCTAssertNotNil(scopeBreadcrumbs)
     }
@@ -93,8 +93,7 @@ class SentryHubTests: XCTestCase {
             level: .error,
             category: "default")
         sut.add(crumb)
-        let scope = sut.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"]
+        let scopeBreadcrumbs = sut.scope.serialize()["breadcrumbs"]
         XCTAssertNil(scopeBreadcrumbs)
     }
     
@@ -150,8 +149,7 @@ class SentryHubTests: XCTestCase {
         
         hub.add(fixture.crumb)
         
-        let scope = hub.getScope()
-        XCTAssertNil(scope.serialize()["breadcrumbs"])
+        XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
     func testAddBreadcrumb_WithCallbackModifies() {
@@ -165,8 +163,7 @@ class SentryHubTests: XCTestCase {
         
         hub.add(fixture.crumb)
         
-        let scope = hub.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [[String: Any]]
+        let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [[String: Any]]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(1, scopeBreadcrumbs?.count)
         XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
@@ -179,10 +176,8 @@ class SentryHubTests: XCTestCase {
         let user = User()
         user.userId = "123"
         hub.setUser(user)
-        
-        let scope = hub.getScope()
 
-        let scopeSerialized = scope.serialize()
+        let scopeSerialized = hub.scope.serialize()
         let scopeUser = scopeSerialized["user"] as? [String: Any?]
         let scopeUserId = scopeUser?["id"] as? String
 
@@ -544,8 +539,7 @@ class SentryHubTests: XCTestCase {
     }
 
     private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHub) {
-        let scope = hub.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [AnyHashable]
+        let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [AnyHashable]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
     }
