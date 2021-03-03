@@ -290,5 +290,6 @@ class SentryScopeSwiftTests: XCTestCase {
         }
         
         queue.activate()
-        group.waitWithTimeout()    }
+        group.waitWithTimeout(timeout: 500)
+    }
 }

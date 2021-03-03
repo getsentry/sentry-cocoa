@@ -17,6 +17,11 @@
 
 @implementation SentryTests
 
+- (void)setUp
+{
+    [SentrySDK.currentHub bindClient:nil];
+}
+
 - (void)testVersion
 {
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
