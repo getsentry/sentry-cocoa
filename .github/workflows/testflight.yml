@@ -53,6 +53,10 @@ jobs:
         run: bundle exec fastlane bump_bundle_version
         shell: sh
 
+      - name: Remove preview version suffixes
+        run: bundle exec fastlane remove_preview_version_suffixes
+        shell: sh
+
       - name: Run Fastlane
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
