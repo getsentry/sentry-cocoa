@@ -4,6 +4,7 @@ import XCTest
 class SentryCurrentDateTests: XCTestCase {
 
     func testSetNoCurrentDateProvider() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider())
         let firstDate = Date()
         let secondDate = CurrentDate.date()
         let thirdDate = Date()

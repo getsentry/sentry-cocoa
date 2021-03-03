@@ -44,9 +44,13 @@ class SentryStacktraceBuilderTests: XCTestCase {
     
     func testFramesOrder() {
         let actual = fixture.getSut().buildStacktraceForCurrentThread()
-        let firstFrame = actual.frames.first
-        let areFramesOrderedCorrect = firstFrame?.function?.contains("start") ?? false
         
-        XCTAssertTrue(areFramesOrderedCorrect, "The frames must be ordered from caller to callee, or oldest to youngest.")
+        // Make sure the first 4 frames contain both start and main
+        let frames = actual.frames[...3]
+        let filteredFrames = frames.filter { frame in
+            return frame.function?.contains("start") ?? false || frame.function?.contains("main") ?? false
+        }
+        
+        XCTAssertTrue(filteredFrames.count == 2, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 }
