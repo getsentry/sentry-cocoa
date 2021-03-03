@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - ci/* # TODO remove before merging
 
 env:
   FASTLANE_KEYCHAIN_NAME: fastlane.keychain
