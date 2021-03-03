@@ -116,13 +116,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NJA-mu-Y6H">
-                                <rect key="frame" x="150" y="749" width="114" height="30"/>
-                                <state key="normal" title="Download Image"/>
-                                <connections>
-                                    <action selector="downloadImage:" destination="cay-7M-Gvd" eventType="touchUpInside" id="nhJ-ea-fa2"/>
-                                </connections>
-                            </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oQQ-QQ-VWP">
                                 <rect key="frame" x="87" y="284" width="240" height="240"/>
                                 <constraints>
@@ -136,8 +129,6 @@
                         <constraints>
                             <constraint firstItem="oQQ-QQ-VWP" firstAttribute="centerX" secondItem="MSB-Vw-wUr" secondAttribute="centerX" id="M7C-iR-4Pj"/>
                             <constraint firstItem="oQQ-QQ-VWP" firstAttribute="centerY" secondItem="MSB-Vw-wUr" secondAttribute="centerY" id="eGm-Ek-ygH"/>
-                            <constraint firstItem="NJA-mu-Y6H" firstAttribute="centerX" secondItem="MSB-Vw-wUr" secondAttribute="centerX" id="nmO-Aq-RMf"/>
-                            <constraint firstItem="MSB-Vw-wUr" firstAttribute="bottom" secondItem="NJA-mu-Y6H" secondAttribute="bottom" constant="29" id="pnh-9j-3Dn"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Afi-mu-igL"/>

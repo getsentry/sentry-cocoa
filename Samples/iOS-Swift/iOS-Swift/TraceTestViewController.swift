@@ -29,7 +29,7 @@ class TraceTestViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        loadSpan?.startChild(name: "Download Image", operation: "network")
+        let child = loadSpan?.startChild(name: "Download Image", operation: "network")
         
         let dataTask = URLSession.shared.dataTask(with: URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj")!) { (data, _, error) in
             DispatchQueue.main.async {
@@ -38,6 +38,7 @@ class TraceTestViewController: UIViewController {
                 } else if let image = data {
                     self.imageView.image = UIImage(data: image)
                 }
+                child?.finish()
                 self.loadSpan?.finish()
             }
         }
