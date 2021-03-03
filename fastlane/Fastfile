@@ -19,6 +19,7 @@ platform :ios do
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
+    
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
@@ -32,9 +33,16 @@ platform :ios do
       key: "CFBundleShortVersionString", 
       value: version
     )
+
+    sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
     set_info_plist_value(
-      path: "./Sources/Sentry/Info.plist", 
+      path: sentryInfoPlistPath, 
       key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: sentryInfoPlistPath, 
+      key: "CFBundleVersion", 
       value: version
     )
   end
