@@ -1,10 +1,10 @@
 import Foundation
-import UIKit
 import Sentry
+import UIKit
 
-class TraceTestViewController : UIViewController {
+class TraceTestViewController: UIViewController {
     
-    var loadSpan : Span?
+    var loadSpan: Span?
     @IBOutlet weak var imageView: UIImageView!
     
     required init?(coder: NSCoder) {
@@ -21,7 +21,7 @@ class TraceTestViewController : UIViewController {
         super.viewDidLoad()
     }
     
-    private func initialize(){
+    private func initialize() {
         //Start a transaction to determine how long it take to display the view.
         loadSpan = SentrySDK.startTransaction(name: "Initialize TraceTestViewController", operation: "UI")
     }
@@ -36,7 +36,7 @@ class TraceTestViewController : UIViewController {
     @IBAction func downloadImage(_ sender: Any) {
         //Start a transaction to determine how long it takes to donwload an image.
         let downloadSpan = SentrySDK.startTransaction(name: "Download Image", operation: "network")
-        let dataTask =  URLSession.shared.dataTask(with: URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj")!) { (data, response, error) in
+        let dataTask = URLSession.shared.dataTask(with: URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj")!) { (data, _, error) in
             DispatchQueue.main.async {
                 if let err = error {
                     SentrySDK.capture(error: err)
