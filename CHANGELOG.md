@@ -4,7 +4,7 @@
 
 Breaking Changes:
 
-- fix: Remove SentryException.userReported #974
+- ref: Remove SentryException.userReported #974
 
 ## 7.0.0-alpha.0
 
