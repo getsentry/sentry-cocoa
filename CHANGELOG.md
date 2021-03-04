@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- feat: Add read-only scope property to Hub #975
+- ref: Add read-only scope property to Hub #975
 
 ## 7.0.0-alpha.0
 
