@@ -1,4 +1,5 @@
 #import "SentrySpanContext.h"
+#import "SentrySampleDecision.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,7 +17,7 @@ SENTRY_NO_INIT
 /**
  * Parent sampled
  */
-@property (nonatomic) BOOL parentSampled;
+@property (nonatomic) SentrySampleDecision parentSampled;
 
 /**
  * Init a SentryTransactionContext with given name and set other fields by default
@@ -26,7 +27,8 @@ SENTRY_NO_INIT
  *
  * @return SentryTransactionContext
  */
-- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation;
 
 /**
  * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the
@@ -46,7 +48,7 @@ SENTRY_NO_INIT
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
-               parentSampled:(BOOL)parentSampled;
+               parentSampled:(SentrySampleDecision)parentSampled;
 
 @end
 

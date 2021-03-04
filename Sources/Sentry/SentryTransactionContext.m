@@ -2,7 +2,8 @@
 
 @implementation SentryTransactionContext
 
-- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
 {
     if (self = [super initWithOperation:operation]) {
         _name = [NSString stringWithString:name];
@@ -16,7 +17,7 @@
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(SentrySpanId *)parentSpanId
-               parentSampled:(BOOL)parentSampled
+               parentSampled:(SentrySampleDecision)parentSampled
 {
     if ([super initWithTraceId:traceId
                         spanId:spanId

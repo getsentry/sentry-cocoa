@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryTracer;
 
+NS_SWIFT_NAME(Span)
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
 
@@ -62,7 +63,8 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (instancetype)initWithName:(NSString *)name context:(SentrySpanContext *)context;
+- (instancetype)initWithName:(NSString *)name
+                     context:(SentrySpanContext *)context;
 
 /**
  * Starts a child span.

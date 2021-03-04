@@ -12,6 +12,8 @@
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
+#import "SentrySamplingContext.h"
+#import "TracesSampler.h"
 
 @interface
 SentryHub ()
@@ -24,6 +26,7 @@ SentryHub ()
 
 @implementation SentryHub {
     NSObject *_sessionLock;
+    TracesSampler *_sampler;
 }
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
@@ -35,6 +38,7 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
+        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
@@ -235,8 +239,17 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext {
+    return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
+}
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:(nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
+    SentrySamplingContext* samplingContext = [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext customSamplingContext:customSamplingContext];
+    
+    transactionContext.sampled = [_sampler sample:samplingContext];
+    
     return [[SentryTracer alloc] initWithTransactionContext:transactionContext hub:self];
 }
 
