@@ -318,10 +318,9 @@ SentryHub ()
         if (_scope == nil) {
             SentryClient *client = _client;
             if (nil != client) {
-                self.scope =
-                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
             } else {
-                self.scope = [[SentryScope alloc] init];
+                _scope = [[SentryScope alloc] init];
             }
         }
         return _scope;

@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- ref: Add read-only scope property to Hub #975
+
 Breaking Changes:
 
 - ref: Remove SentryException.userReported #974
