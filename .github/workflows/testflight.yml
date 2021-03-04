@@ -38,6 +38,9 @@ jobs:
         with:
           ruby-version: '2.7'
 
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
+
       - name: Setup fastlane
         run: bundle install   
 
@@ -45,8 +48,12 @@ jobs:
       # So we need to bump the bundle version each time
       - name: Bump Bundle Version
         env: 
-          FASTLANE_BUNDLE_VERSION: $GITHUB_RUN_NUMBER
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
         run: bundle exec fastlane bump_bundle_version
+        shell: sh
+
+      - name: Remove preview version suffixes
+        run: bundle exec fastlane remove_preview_version_suffixes
         shell: sh
 
       - name: Run Fastlane
@@ -54,6 +61,7 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
           FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
@@ -63,4 +71,13 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: bundle exec fastlane ios_swift_to_testflight
         shell: sh
+
+      - name: Archiving
+        uses: actions/upload-artifact@v2
+        with:
+          name: dSYMs 
+          path: |
+            ${{ github.workspace }}/iOS-Swift.*
+            ${{ github.workspace }}/*.dSYM.zip
+            ${{ github.workspace }}/dSYMs/
 
