@@ -27,11 +27,15 @@ for match in Regex(semver, options: [.dotMatchesLineSeparators]).allMatches(in: 
     let toVersion = args[1]
 
     for file in files {
-        let readFile = try open(file)
-        let contents: String = readFile.read()
-        let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
-        let overwriteFile = try! open(forWriting: file, overwrite: true)
-        overwriteFile.write(newContents)
-        overwriteFile.close()
+        try updateVersion(file, fromVersion, toVersion)
     }
+}
+
+func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) throws {
+    let readFile = try open(file)
+    let contents: String = readFile.read()
+    let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
+    let overwriteFile = try! open(forWriting: file, overwrite: true)
+    overwriteFile.write(newContents)
+    overwriteFile.close()
 }
