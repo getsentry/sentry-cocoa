@@ -17,7 +17,6 @@ AppDelegate ()
         options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
         options.logLevel = kSentryLogLevelVerbose;
-        options.attachStacktrace = YES;
         options.sessionTrackingIntervalMillis = [@5000 unsignedIntegerValue];
     }];
 
