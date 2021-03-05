@@ -1,6 +1,5 @@
 #import "SentryLog.h"
-#import "SentryClient.h"
-#import "SentrySDK.h"
+#import "SentryLogOutput.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static BOOL isDebug = YES;
 static SentryLevel diagnosticLevel = kSentryLevelError;
+static SentryLogOutput *logOutput;
 
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
@@ -20,9 +20,22 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level
 {
-    if (isDebug && level != kSentryLevelNone && level <= diagnosticLevel) {
-        NSLog(@"Sentry - %@:: %@", SentryLevelNames[level], message);
+    if (nil == logOutput) {
+        logOutput = [[SentryLogOutput alloc] init];
     }
+
+    if (isDebug && level != kSentryLevelNone && level >= diagnosticLevel) {
+        [logOutput
+            log:[NSString stringWithFormat:@"Sentry - %@:: %@", SentryLevelNames[level], message]];
+    }
+}
+
+/**
+ * Internal and only needed for testing.
+ */
++ (void)setLogOutput:(nullable SentryLogOutput *)output
+{
+    logOutput = output;
 }
 
 @end
