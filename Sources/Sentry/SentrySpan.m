@@ -17,20 +17,17 @@ SentrySpan ()
     NSMutableDictionary<NSString *, id> *_extras;
 }
 
-- (instancetype)initWithTracer:(SentryTracer *)tracer
-                          name:(NSString *)name
-                       context:(SentrySpanContext *)context
+- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
-    if ([self initWithName:name context:context]) {
+    if ([self initWithContext:context]) {
         self.tracer = tracer;
     }
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name context:(SentrySpanContext *)context
+- (instancetype)initWithContext:(SentrySpanContext *)context
 {
     if ([super init]) {
-        self.name = name;
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _extras = [[NSMutableDictionary alloc] init];
@@ -38,17 +35,15 @@ SentrySpan ()
     return self;
 }
 
-- (id<SentrySpan>)startChildWithName:(NSString *)name operation:(NSString *)operation
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
-    return [self startChildWithName:name operation:operation description:nil];
+    return [self startChildWithOperation:operation description:nil];
 }
 
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-                         description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+                              description:(nullable NSString *)description
 {
     return [self.tracer startChildWithParentId:[self.context spanId]
-                                          name:name
                                      operation:operation
                                    description:description];
 }

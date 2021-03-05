@@ -12,7 +12,6 @@
         self.startTimestamp = trace.startTimestamp;
         _trace = trace;
         _spans = childs;
-        self.transaction = trace.name;
         self.type = SentryEnvelopeItemTypeTransaction;
     }
     return self;

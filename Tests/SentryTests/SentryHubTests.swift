@@ -15,6 +15,8 @@ class SentryHubTests: XCTestCase {
         let sentryCrash = TestSentryCrashWrapper()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
+        let transactionName = "Some Transaction"
+        let transactionOperation = "Some Operation"
         
         init() {
             options = Options()
@@ -202,6 +204,12 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.event.eventId, eventArguments.event.eventId)
             XCTAssertEqual(Scope(), eventArguments.scope)
         }
+    }
+    
+    func testStartTransactionWithNameOperation() {
+        let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+      
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
     }
     
     func testCaptureMessageWithScope() {

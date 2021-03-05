@@ -85,7 +85,6 @@ class SentrySpanContextTests: XCTestCase {
         
         XCTAssertNil(data["sampled"] )
     }
-
     
     func testSpanContextTraceTypeValue() {
         XCTAssertEqual(SpanContext.type, "trace")

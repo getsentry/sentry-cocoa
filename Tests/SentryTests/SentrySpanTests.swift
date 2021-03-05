@@ -7,7 +7,6 @@ class SentrySpanTests: XCTestCase {
         let someDescription = "Some Description"
         let extraKey = "extra_key"
         let extraValue = "extra_value"
-        let spanName = "Span Name"
         let options: Options
         
         init() {
@@ -74,7 +73,7 @@ class SentrySpanTests: XCTestCase {
     func testFinishWithChild() {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
-        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
+        let childSpan = span.startChild(operation: fixture.someOperation)
         
         span.finish()
         let lastEvent = client.captureEventWithScopeArguments[0].event
@@ -90,7 +89,7 @@ class SentrySpanTests: XCTestCase {
     func testStartChildWithNameOperation() {
         let span = fixture.getSut()
         
-        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation)
+        let childSpan = span.startChild(operation: fixture.someOperation)
         XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
         XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
         XCTAssertNil(childSpan.context.spanDescription)
@@ -99,7 +98,7 @@ class SentrySpanTests: XCTestCase {
     func testStartChildWithNameOperationAndDescription() {
         let span = fixture.getSut()
         
-        let childSpan = span.startChild(name: fixture.spanName, operation: fixture.someOperation, description: fixture.someDescription)
+        let childSpan = span.startChild(operation: fixture.someOperation, description: fixture.someDescription)
         
         XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
         XCTAssertEqual(childSpan.context.operation, fixture.someOperation)

@@ -8,11 +8,11 @@
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
-#import "SentrySamplingContext.h"
 #import "TracesSampler.h"
 
 @interface
@@ -232,6 +232,11 @@ SentryHub ()
     return SentryId.empty;
 }
 
+- (void)setSampleRandomValue:(NSNumber *)value
+{
+    _sampler.definedRandom = value;
+}
+
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [self
@@ -239,17 +244,21 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext {
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+{
     return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:(nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
-    SentrySamplingContext* samplingContext = [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext customSamplingContext:customSamplingContext];
-    
+    SentrySamplingContext *samplingContext =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+                                            customSamplingContext:customSamplingContext];
+
     transactionContext.sampled = [_sampler sample:samplingContext];
-    
+
     return [[SentryTracer alloc] initWithTransactionContext:transactionContext hub:self];
 }
 

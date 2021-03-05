@@ -1,6 +1,6 @@
 
-#import <Foundation/Foundation.h>
 #import "SentrySampleDecision.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,14 +9,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TracesSampler : NSObject
 
 /**
+ *  A value than can be used for test purpose.
+ */
+@property (nonatomic, strong) NSNumber *definedRandom;
+
+/**
  * Init a TracesSampler with given options.
  */
-- (instancetype)initWithOptions:(SentryOptions *) options;
+- (instancetype)initWithOptions:(SentryOptions *)options;
 
 /**
  * Determines whether a trace should be sampled based on the context and options.
  */
-- (SentrySampleDecision)sample:(SentrySamplingContext *) context;
+- (SentrySampleDecision)sample:(SentrySamplingContext *)context;
 
 @end
 

@@ -75,8 +75,9 @@ SENTRY_NO_INIT
  */
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:(nullable NSDictionary<NSString *, id> *)customSamplingContext
-NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

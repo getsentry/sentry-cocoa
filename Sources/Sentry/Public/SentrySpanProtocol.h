@@ -10,11 +10,6 @@ NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>
 
 /**
- *Span name.
- */
-@property (nonatomic, copy) NSString *name;
-
-/**
  * The context information of the span.
  */
 @property (nonatomic, readonly) SentrySpanContext *context;
@@ -42,28 +37,24 @@ NS_SWIFT_NAME(Span)
 /**
  * Starts a child span.
  *
- * @param name Child span name.
  * @param operation Short code identifying the type of operation the span is measuring.
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(name:operation:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+    NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.
  *
- * @param name Child span name.
  * @param operation Defines the child span operation.
  * @param description Define the child span description.
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-                         description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(name:operation:description:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+                              description:(nullable NSString *)description
+    NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
  * Sets an extra.

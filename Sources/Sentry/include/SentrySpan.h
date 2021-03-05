@@ -13,11 +13,6 @@ NS_SWIFT_NAME(Span)
 SENTRY_NO_INIT
 
 /**
- *Span name.
- */
-@property (nonatomic, copy) NSString *name;
-
-/**
  * The context information of the span.
  */
 @property (nonatomic, readonly) SentrySpanContext *context;
@@ -43,54 +38,45 @@ SENTRY_NO_INIT
 @property (readonly) BOOL isFinished;
 
 /**
- * Init a SentrySpan with given tracer, name and context.
+ * Init a SentrySpan with given tracer and context.
  *
  * @param tracer The tracer responsable for this span.
- * @param name The name of the span.
  * @param context This span context information.
  *
  * @return SentrySpan
  */
-- (instancetype)initWithTracer:(SentryTracer *)tracer
-                          name:(NSString *)name
-                       context:(SentrySpanContext *)context;
+- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context;
 
 /**
- * Init a SentrySpan with given name and context.
+ * Init a SentrySpan with given context.
  *
- * @param name The name of the span.
  * @param context This span context information.
  *
  * @return SentrySpan
  */
-- (instancetype)initWithName:(NSString *)name
-                     context:(SentrySpanContext *)context;
+- (instancetype)initWithContext:(SentrySpanContext *)context;
 
 /**
  * Starts a child span.
  *
- * @param name Child span name.
  * @param operation Short code identifying the type of operation the span is measuring.
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(name:operation:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+    NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.
  *
- * @param name Child span name.
  * @param operation Defines the child span operation.
  * @param description Define the child span description.
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-                         description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(name:operation:description:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+                              description:(nullable NSString *)description
+    NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
  * Sets an extra.

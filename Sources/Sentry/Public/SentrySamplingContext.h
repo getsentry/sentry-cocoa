@@ -24,7 +24,8 @@ NS_SWIFT_NAME(SamplingContext)
  * @param customSamplingContext Custom data used for sampling.
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                     customSamplingContext:(nullable NSDictionary<NSString *, id> *)customSamplingContext;
+                     customSamplingContext:
+                         (nullable NSDictionary<NSString *, id> *)customSamplingContext;
 
 @end
 

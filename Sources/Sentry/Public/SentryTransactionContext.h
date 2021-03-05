@@ -1,5 +1,5 @@
-#import "SentrySpanContext.h"
 #import "SentrySampleDecision.h"
+#import "SentrySpanContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,8 +27,7 @@ SENTRY_NO_INIT
  *
  * @return SentryTransactionContext
  */
-- (instancetype)initWithName:(NSString *)name
-                   operation:(NSString *)operation;
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the

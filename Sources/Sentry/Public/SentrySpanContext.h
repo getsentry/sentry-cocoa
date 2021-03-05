@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
+#import "SentrySampleDecision.h"
 #import "SentrySerializable.h"
 #import "SentrySpanStatus.h"
-#import "SentrySampleDecision.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,8 +71,7 @@ SENTRY_NO_INIT
  * @return SentryContext
  */
 
-- (instancetype)initWithOperation:(NSString *)operation
-                          sampled:(SentrySampleDecision)sampled;
+- (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
 /**
  * Init a SentryContext with given traceId, spanId and parentId.

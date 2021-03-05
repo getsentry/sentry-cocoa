@@ -18,8 +18,7 @@ SentrySpanContext () {
     return [self initWithOperation:operation sampled:false];
 }
 
-- (instancetype)initWithOperation:(NSString *)operation
-                          sampled:(SentrySampleDecision)sampled
+- (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled
 {
     return [self initWithTraceId:[[SentryId alloc] init]
                           spanId:[[SentrySpanId alloc] init]
@@ -81,11 +80,12 @@ SentrySpanContext () {
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"tags" : _tags.copy
-    }.mutableCopy;
+    }
+                                                 .mutableCopy;
 
     if (self.sampled != kSentrySampleDecisionUndecided)
         [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
-        
+
     if (self.operation != nil)
         [mutabledictionary setValue:self.operation forKey:@"op"];
 
