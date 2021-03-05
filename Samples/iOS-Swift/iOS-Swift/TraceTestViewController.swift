@@ -23,7 +23,7 @@ class TraceTestViewController: UIViewController {
     
     private func initialize() {
         //Start a transaction to determine how long it take to display the view.
-        loadSpan = SentrySDK.startTransaction(name: "TraceTestViewController", operation: "UI")
+        loadSpan = SentrySDK.startTransaction(name: "TraceTestViewController", operation: "navigation")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -33,12 +33,14 @@ class TraceTestViewController: UIViewController {
         
         let dataTask = URLSession.shared.dataTask(with: URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj")!) { (data, _, error) in
             DispatchQueue.main.async {
+                var spanStatus = SentrySpanStatus.ok
                 if let err = error {
                     SentrySDK.capture(error: err)
+                    spanStatus = .unknownError
                 } else if let image = data {
                     self.imageView.image = UIImage(data: image)
                 }
-                child?.finish()
+                child?.finish(status: spanStatus)
                 self.loadSpan?.finish()
             }
         }
