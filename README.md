@@ -7,7 +7,7 @@
 </p>
 
 _Bad software is everywhere, and we're tired of it. Sentry is on a mission to help developers write better software faster, so we can get back to enjoying technology. If you want to join us [<kbd>**Check out our open positions**</kbd>](https://sentry.io/careers/)_
-W
+
 [![Build](https://img.shields.io/github/workflow/status/getsentry/sentry-cocoa/Build%20%26%20Test)](https://github.com/getsentry/sentry-cocoa/actions?query=workflow%3A%22Build+%26+Test%22)
 [![codebeat badge](https://codebeat.co/badges/07f0bc91-9102-4fd8-99a6-30b25dc98037)](https://codebeat.co/projects/github-com-getsentry-sentry-cocoa-master)
 [![codecov.io](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)
