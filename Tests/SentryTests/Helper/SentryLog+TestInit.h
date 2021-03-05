@@ -1,6 +1,9 @@
 #import <Sentry/Sentry.h>
+#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class SentryLogOutput;
 
 @interface SentryLog (TestInit)
 
