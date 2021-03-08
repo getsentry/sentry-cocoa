@@ -13,7 +13,6 @@ platform :ios do
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
-    
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
