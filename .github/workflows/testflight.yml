@@ -26,14 +26,14 @@ jobs:
       # Sometimes the keychain already exists
       - name: Delete local keychain
         continue-on-error: true
-        run: security delete-keychain $FASTLANE_KEYCHAIN_NAME
+        run: security delete-keychain ${{ env.FASTLANE_KEYCHAIN_NAME }}
           
       - name: Create local keychain
         run: |
-          security create-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} $FASTLANE_KEYCHAIN_NAME
-          security set-keychain-settings -lut 21600 $FASTLANE_KEYCHAIN_NAME
-          security unlock-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} $FASTLANE_KEYCHAIN_NAME
-          security list-keychain -d user -s $FASTLANE_KEYCHAIN_NAME
+          security create-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} ${{ env.FASTLANE_KEYCHAIN_NAME }}
+          security set-keychain-settings -lut 21600 ${{ env.FASTLANE_KEYCHAIN_NAME }}
+          security unlock-keychain -p ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }} ${{ env.FASTLANE_KEYCHAIN_NAME }}
+          security list-keychain -d user -s ${{ env.FASTLANE_KEYCHAIN_NAME }}
   
       - uses: actions/setup-ruby@v1
         with:
@@ -65,6 +65,7 @@ jobs:
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
           FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          FASTLANE_KEYCHAIN_NAME: ${{ env.FASTLANE_KEYCHAIN_NAME }}
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
