@@ -69,7 +69,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
-            options.logLevel = SentryLogLevel.verbose
+            options.diagnosticLevel = SentryLevel.debug
             options.attachStacktrace = true
         }
         
@@ -81,7 +81,7 @@ class SentrySDKTests: XCTestCase {
         let options = hub.getClient()?.options
         XCTAssertNotNil(options)
         XCTAssertEqual(SentrySDKTests.dsnAsString, options?.dsn)
-        XCTAssertEqual(SentryLogLevel.verbose, options?.logLevel)
+        XCTAssertEqual(SentryLevel.debug, options?.diagnosticLevel)
         XCTAssertEqual(true, options?.attachStacktrace)
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
         
@@ -124,36 +124,6 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(message: "")
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
-    }
-    
-    func testSetLogLevel_StartWithOptionsDict() {
-        SentrySDK.start(options: [
-            "dsn": SentrySDKTests.dsnAsString,
-            "debug": true,
-            "logLevel": "verbose"
-        ])
-        
-        XCTAssertEqual(SentryLogLevel.verbose, SentrySDK.logLevel)
-    }
-    
-    func testSetLogLevel_StartWithOptionsObject() {
-        let options = Options()
-        options.dsn = SentrySDKTests.dsnAsString
-        options.logLevel = SentryLogLevel.debug
-        
-        SentrySDK.start(options: options)
-        
-        XCTAssertEqual(options.logLevel, SentrySDK.logLevel)
-    }
-    
-    func testSetLogLevel_StartWithConfigureOptions() {
-        let logLevel = SentryLogLevel.verbose
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.logLevel = logLevel
-        }
-        
-        XCTAssertEqual(logLevel, SentrySDK.logLevel)
     }
     
     func testCrashedLastRun() {
@@ -376,7 +346,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
-            options.logLevel = SentryLogLevel.verbose
+            options.diagnosticLevel = SentryLevel.debug
             options.attachStacktrace = true
         }
         
