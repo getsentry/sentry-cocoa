@@ -9,6 +9,9 @@ import XCTest
 @available(tvOS 10.0, *)
 class SentryFileManagerTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryFileManagerTests")
+    private static let dsn = TestConstants.dsn(username: "SentryFileManagerTests")
+    
     private class Fixture {
         let eventIds = (0...110).map { _ in SentryId() }
 
@@ -56,7 +59,7 @@ class SentryFileManagerTests: XCTestCase {
 
             fixture = Fixture()
 
-            sut = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
+            sut = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: currentDateProvider)
 
             sut.deleteAllEnvelopes()
             sut.deleteTimestampLastInForeground()
@@ -77,8 +80,8 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
-        _ = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
-        let fileManager = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
 
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
@@ -88,7 +91,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDeletesEventsFolder() throws {
         storeEvent()
         
-        _ = try SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
         
         assertEventFolderDoesntExist()
     }

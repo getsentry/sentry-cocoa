@@ -3,6 +3,9 @@ import XCTest
 
 class SentrySDKTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
+    private static let dsn = TestConstants.dsn(username: "SentrySDKTests")
+    
     private class Fixture {
     
         let event: Event
@@ -34,7 +37,9 @@ class SentrySDKTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
             
-            client = TestClient(options: Options())!
+            let options = Options()
+            options.dsn = SentrySDKTests.dsnAsString
+            client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope)
             
             userFeedback = UserFeedback(eventId: SentryId())
@@ -62,9 +67,9 @@ class SentrySDKTests: XCTestCase {
     
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
-            options.logLevel = SentryLogLevel.verbose
+            options.diagnosticLevel = SentryLevel.debug
             options.attachStacktrace = true
         }
         
@@ -75,8 +80,8 @@ class SentrySDKTests: XCTestCase {
         
         let options = hub.getClient()?.options
         XCTAssertNotNil(options)
-        XCTAssertEqual(TestConstants.dsnAsString, options?.dsn)
-        XCTAssertEqual(SentryLogLevel.verbose, options?.logLevel)
+        XCTAssertEqual(SentrySDKTests.dsnAsString, options?.dsn)
+        XCTAssertEqual(SentryLevel.debug, options?.diagnosticLevel)
         XCTAssertEqual(true, options?.attachStacktrace)
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
         
@@ -109,7 +114,7 @@ class SentrySDKTests: XCTestCase {
     func testStartWithConfigureOptions_BeforeSend() {
         var wasBeforeSendCalled = false
         SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentrySDKTests.dsnAsString
             options.beforeSend = { event in
                 wasBeforeSendCalled = true
                 return event
@@ -119,36 +124,6 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.capture(message: "")
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
-    }
-    
-    func testSetLogLevel_StartWithOptionsDict() {
-        SentrySDK.start(options: [
-            "dsn": TestConstants.dsn,
-            "debug": true,
-            "logLevel": "verbose"
-        ])
-        
-        XCTAssertEqual(SentryLogLevel.verbose, SentrySDK.logLevel)
-    }
-    
-    func testSetLogLevel_StartWithOptionsObject() {
-        let options = Options()
-        options.dsn = TestConstants.dsnAsString
-        options.logLevel = SentryLogLevel.debug
-        
-        SentrySDK.start(options: options)
-        
-        XCTAssertEqual(options.logLevel, SentrySDK.logLevel)
-    }
-    
-    func testSetLogLevel_StartWithConfigureOptions() {
-        let logLevel = SentryLogLevel.verbose
-        SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString
-            options.logLevel = logLevel
-        }
-        
-        XCTAssertEqual(logLevel, SentrySDK.logLevel)
     }
     
     func testCrashedLastRun() {
@@ -303,7 +278,7 @@ class SentrySDKTests: XCTestCase {
         let user = TestData.user
         SentrySDK.setUser(user)
         
-        let actualScope = SentrySDK.currentHub().getScope()
+        let actualScope = SentrySDK.currentHub().scope
         let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
         XCTAssertEqual(event?.user, user)
     }
@@ -317,7 +292,7 @@ class SentrySDKTests: XCTestCase {
             return crumb
         }
         
-        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString])
+        SentrySDK.start(options: ["dsn": SentrySDKTests.dsnAsString])
         
         SentrySDK.configureScope { scope in
             let user = User()
@@ -369,9 +344,9 @@ class SentrySDKTests: XCTestCase {
     @available(iOS 13.0, *)
     func testMemoryFootprintOfAddingBreadcrumbs() {
         SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
-            options.logLevel = SentryLogLevel.verbose
+            options.diagnosticLevel = SentryLevel.debug
             options.attachStacktrace = true
         }
         
@@ -427,7 +402,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func assertHubScopeNotChanged() {
-        let hubScope = SentrySDK.currentHub().getScope()
+        let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
     }
 }

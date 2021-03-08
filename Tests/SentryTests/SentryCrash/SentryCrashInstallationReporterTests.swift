@@ -4,6 +4,8 @@ import XCTest
 @available(OSX 10.10, *)
 class SentryCrashInstallationReporterTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
+    
     private var testClient: TestClient!
     private var sut: SentryCrashInstallationReporter!
     
@@ -36,9 +38,11 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     private func sdkStarted() {
         SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentryCrashInstallationReporterTests.dsnAsString
         }
-        testClient = TestClient(options: Options())!
+        let options = Options()
+        options.dsn = SentryCrashInstallationReporterTests.dsnAsString
+        testClient = TestClient(options: options)!
         let hub = SentryHub(client: testClient, andScope: nil)
         SentrySDK.setCurrentHub(hub)
     }

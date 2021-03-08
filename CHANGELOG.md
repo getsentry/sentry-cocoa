@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## Unreleased
 
 ### Performance Monitoring
 
@@ -8,6 +8,39 @@
 - feat: Add SentrySpan #932
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API
+
+### Breaking Changes:
+
+- ref: Add read-only scope property to Hub #975
+- ref: Remove SentryException.userReported #974
+- ref: Replace SentryLogLevel with SentryLevel #978
+
+### Migrating from 6.x to 7.x
+
+We replaced the `SentryLogLevel` with `SentryLevel`, renamed `logLevel` to `diagnosticLevel`
+on `SentryOptions` to align with other Sentry SDKs, and set the default `diagnosticLevel` to
+`SentryLevel.debug`. Furthermore, we removed setting the `logLevel` statically on the `SentrySDK`.
+Please use the `SentryOptions` to set the `diagnosticLevel` instead.
+
+6.x
+```swift
+SentrySDK.start { options in
+  options.logLevel = SentryLogLevel.verbose
+}
+
+// Or
+
+SentrySDK.logLevel = SentryLogLevel.verbose
+```
+
+7.x
+```swift
+SentrySDK.start { options in
+  options.diagnosticLevel = SentryLevel.debug
+}
+```
+
+__Internal Note__: Move this migration guide to the docs before GA.
 
 ## 7.0.0-alpha.0
 
