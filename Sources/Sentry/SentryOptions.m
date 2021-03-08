@@ -187,7 +187,7 @@
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
     if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
         [tracesSampleRate floatValue] <= 1.0) {
-        self.sampleRate = tracesSampleRate;
+        self.tracesSampleRate = tracesSampleRate;
     }
 
     if (nil != options[@"tracesSampler"]) {

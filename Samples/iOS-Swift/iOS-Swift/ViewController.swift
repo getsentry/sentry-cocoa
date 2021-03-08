@@ -86,7 +86,7 @@ class ViewController: UIViewController {
             transaction.finish()
         })
     }
-    
+   
     @IBAction func crash(_ sender: Any) {
         SentrySDK.crash()
     }
