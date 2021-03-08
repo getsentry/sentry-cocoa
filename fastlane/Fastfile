@@ -51,7 +51,7 @@ platform :ios do
     # lets the action hang. A workaround is to create a local keychain and
     # store the signing keys in there.
     # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
-    
+    # Doing this with Fastlane makes it easier to debug issues locally.
     sh("security delete-keychain #{keychain_name} || true") # Delete the keychain if it already exists
     sh("security create-keychain -p #{keychain_password}  #{keychain_name}")
     sh("security set-keychain-settings -lut 21600 #{keychain_name}")
