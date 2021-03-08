@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/** 
 
 env:
   FASTLANE_KEYCHAIN_NAME: fastlane.keychain

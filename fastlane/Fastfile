@@ -1,11 +1,5 @@
 default_platform(:ios)
 
-# Download dSYMs does not work with app_store_connect_api_key yet. Therefore
-# We use username and password to authenticate. This feature is blocked by the
-# App Store Connect API team, see https://github.com/fastlane/fastlane/discussions/17485#discussioncomment-125619
-# When this is fixed we can remove SPACESHIP_SKIP_2FA_UPGRADE, FASTLANE_USER and FASTLANE_PASSWORD
-ENV["SPACESHIP_SKIP_2FA_UPGRADE"] = "1"
-
 platform :ios do
   # Defined in Appfile
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
