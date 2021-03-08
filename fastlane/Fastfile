@@ -42,10 +42,26 @@ platform :ios do
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
+
+    keychain_name = "fastlane.keychain"
+    keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
+
+    # CI can hang when Xcode is trying to sign the app because
+    # a modal window pops up to access the signing key's keychain. This modal
+    # lets the action hang. A workaround is to create a local keychain and
+    # store the signing keys in there.
+    # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
+    
+    sh("security delete-keychain #{keychain_name}") # Delete the keychain if it already exists
+    sh("security create-keychain -p #{keychain_password}  #{keychain_name}")
+    sh("security set-keychain-settings -lut 21600 #{keychain_name}")
+    sh("security unlock-keychain -p #{keychain_password} #{keychain_name}")
+    sh("security list-keychain -d user -s #{keychain_name}")
+
     sync_code_signing(
       type: "appstore", 
-      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
-      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+      keychain_name: keychain_name,
+      keychain_password: keychain_password,
       readonly: true
     )
 
