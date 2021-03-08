@@ -88,7 +88,7 @@ platform :ios do
     testflight
 
     download_dsyms(
-      username: ENV["FASTLANE_USER"]
+      username: ENV["FASTLANE_USER"],
       wait_for_dsym_processing: true,
       build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
