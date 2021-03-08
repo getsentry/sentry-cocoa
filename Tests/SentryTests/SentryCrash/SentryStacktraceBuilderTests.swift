@@ -5,7 +5,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
     
     private class Fixture {
         func getSut() -> SentryStacktraceBuilder {
-            SentryStacktraceBuilder(sentryFrameRemover: SentryFrameRemover())
+            SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: [])))
         }
     }
     
