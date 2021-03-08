@@ -43,7 +43,7 @@ platform :ios do
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
 
-    keychain_name = "fastlane.keychain"
+    keychain_name = "ios-swift.keychain"
     keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
 
     # CI can hang when Xcode is trying to sign the app because
