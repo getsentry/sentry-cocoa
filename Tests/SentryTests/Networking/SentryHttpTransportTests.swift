@@ -7,6 +7,9 @@ import XCTest
 @available(iOS 10.0, *)
 class SentryHttpTransportTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")
+    private static let dsn = TestConstants.dsn(username: "SentryHttpTransportTests")
+    
     private class Fixture {
         let event: Event
         let eventRequest: SentryNSURLRequest
@@ -45,10 +48,10 @@ class SentryHttpTransportTests: XCTestCase {
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
-            fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(dsn: SentryHttpTransportTests.dsn, andCurrentDateProvider: currentDateProvider)
 
             options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentryHttpTransportTests.dsnAsString
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
@@ -77,7 +80,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
         let envelopeData = try! SentrySerialization.data(with: envelope)
-        return try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: envelopeData)
+        return try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: envelopeData)
     }
 
     private var fixture: Fixture!
@@ -344,7 +347,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
 
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
-        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: TestConstants.dsn, andData: sessionData)
+        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: sessionData)
 
         XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests[3].httpBody, "Envelope with only session item should be sent.")
     }

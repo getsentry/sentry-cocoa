@@ -84,7 +84,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                             andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
                                   didFailWithError:&error];
         if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLogLevelError];
+            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
             return nil;
         }
 
@@ -260,7 +260,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (nil != event) {
         if (nil == session.releaseName || [session.releaseName length] == 0) {
-            [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+            [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
             [self.transport sendEvent:event attachments:scope.attachments];
             return event.eventId;
         }
@@ -276,7 +276,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)captureSession:(SentrySession *)session
 {
     if (nil == session.releaseName || [session.releaseName length] == 0) {
-        [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -305,7 +305,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     if ([SentryId.empty isEqual:userFeedback.eventId]) {
         [SentryLog logWithMessage:@"Capturing UserFeedback with an empty event id. Won't send it."
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -353,7 +353,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     if (NO == [self checkSampleRate:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return nil;
     }
 
@@ -445,7 +445,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)logDisabledMessage
 {
     [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
@@ -457,7 +457,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (nil == newEvent) {
             [SentryLog logWithMessage:@"SentryScope callEventProcessors: An event "
                                       @"processor decided to remove this event."
-                             andLevel:kSentryLogLevelDebug];
+                             andLevel:kSentryLevelDebug];
             break;
         }
     }

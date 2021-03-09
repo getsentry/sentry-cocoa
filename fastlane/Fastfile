@@ -11,11 +11,39 @@ platform :ios do
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
   team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
+  ioSwiftInfoPlistPath = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
+
   lane :bump_bundle_version do
     set_info_plist_value(
-      path: "./Samples/iOS-Swift/iOS-Swift/Info.plist", 
+      path: ioSwiftInfoPlistPath, 
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+    
+  end
+
+  # The version for all Info.plist must be a period-separated list of at most three non-negative integers
+  # for App Store Connect. If we are on a preview we to remove these suffixes.
+  lane :remove_preview_version_suffixes do
+    version = get_version_number(xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj")
+    version = version.split("-", -1)[0]
+
+    set_info_plist_value(
+      path: ioSwiftInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+
+    sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
+    set_info_plist_value(
+      path: sentryInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: sentryInfoPlistPath, 
+      key: "CFBundleVersion", 
+      value: version
     )
   end
 
@@ -44,17 +72,23 @@ platform :ios do
 				provisioningProfiles: { 
 					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
 				}
-			}
+			},
+      archive_path: "iOS-Swift"
     )
     
     testflight
-    download_dsyms(wait_for_dsym_processing: true)
-    upload_symbols_to_sentry(
+
+    download_dsyms(
+      wait_for_dsym_processing: true,
+      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+
+    sentry_upload_dsym(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'sentry-cocoa',
+      symbol_maps: 'iOS-Swift.xcarchive/BCSymbolMaps/'
     )
-    clean_build_artifacts
   end
 
 end

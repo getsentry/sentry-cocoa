@@ -24,7 +24,7 @@ class ViewController: UIViewController {
         }
         // Also works
         let user = Sentry.User(userId: "1")
-        user.email = "tony@example.com"
+        user.email = "tony1@example.com"
         SentrySDK.setUser(user)
     }
     

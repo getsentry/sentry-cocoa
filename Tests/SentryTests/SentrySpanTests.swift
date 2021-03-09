@@ -11,7 +11,7 @@ class SentrySpanTests: XCTestCase {
         
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = TestConstants.dsnAsString(username: "username")
             options.environment = "test"
         }
         

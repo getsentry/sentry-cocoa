@@ -2,6 +2,9 @@ import XCTest
 
 class SentryCrashIntegrationTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
+    private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
+    
     private class Fixture {
         
         var session: SentrySession {
@@ -16,7 +19,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         var options: Options {
             let options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
             return options
         }
         
@@ -33,7 +36,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         }
         
         var fileManager: SentryFileManager {
-            return try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            return try! SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
         }
         
         func getSut() -> SentryCrashIntegration {
@@ -55,7 +58,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
-        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString,
+        SentrySDK.start(options: ["dsn": SentryCrashIntegrationTests.dsnAsString,
                                   "release": releaseName,
                                   "dist": dist]
         )

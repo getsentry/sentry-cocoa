@@ -1,12 +1,15 @@
 import XCTest
 
 struct TestConstants {
-    static let dsnAsString: String = "https://username:password@app.getsentry.com/12345"
-
-    static var dsn: SentryDsn {
+    
+    static func dsnAsString(username: String) -> String {
+        return "https://\(username):password@app.getsentry.com/12345"
+    }
+    
+    static func dsn(username: String) -> SentryDsn {
         var dsn: SentryDsn?
         do {
-            dsn = try SentryDsn(string: self.dsnAsString)
+            dsn = try SentryDsn(string: self.dsnAsString(username: username))
         } catch {
             XCTFail("SentryDsn could not be created")
         }

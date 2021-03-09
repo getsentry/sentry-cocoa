@@ -12,8 +12,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             options.debug = true
-            options.logLevel = SentryLogLevel.verbose
-            options.attachStacktrace = true
             options.sessionTrackingIntervalMillis = 5_000
         }
         

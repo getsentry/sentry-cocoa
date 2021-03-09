@@ -93,7 +93,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
     kSentryLevelInfo = 2,
     kSentryLevelWarning = 3,
     kSentryLevelError = 4,
-    kSentryLevelFatal = 5,
+    kSentryLevelFatal = 5
 };
 
 /**
