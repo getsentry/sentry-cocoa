@@ -30,8 +30,11 @@ class TraceTestViewController: UIViewController {
         super.viewDidAppear(animated)
         
         let child = loadSpan?.startChild(name: "Download Image", operation: "network")
+        guard let imgUrl = URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj") else {
+            return
+        }
         
-        let dataTask = URLSession.shared.dataTask(with: URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj")!) { (data, _, error) in
+        let dataTask = URLSession.shared.dataTask(with: imgUrl) { (data, _, error) in
             DispatchQueue.main.async {
                 var spanStatus = SentrySpanStatus.ok
                 if let err = error {
