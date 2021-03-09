@@ -1,11 +1,5 @@
 default_platform(:ios)
 
-# Download dSYMs does not work with app_store_connect_api_key yet. Therefore
-# We use username and password to authenticate. This feature is blocked by the
-# App Store Connect API team, see https://github.com/fastlane/fastlane/discussions/17485#discussioncomment-125619
-# When this is fixed we can remove SPACESHIP_SKIP_2FA_UPGRADE, FASTLANE_USER and FASTLANE_PASSWORD
-ENV["SPACESHIP_SKIP_2FA_UPGRADE"] = "1"
-
 platform :ios do
   # Defined in Appfile
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
@@ -19,7 +13,6 @@ platform :ios do
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
-    
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
@@ -49,10 +42,26 @@ platform :ios do
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
+
+    keychain_name = "ios-swift.keychain"
+    keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
+
+    # CI can hang when Xcode is trying to sign the app because
+    # a modal window pops up to access the signing key's keychain. This modal
+    # lets the action hang. A workaround is to create a local keychain and
+    # store the signing keys in there.
+    # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
+    # Doing this with Fastlane makes it easier to debug issues locally.
+    sh("security delete-keychain #{keychain_name} || true") # Delete the keychain if it already exists
+    sh("security create-keychain -p #{keychain_password}  #{keychain_name}")
+    sh("security set-keychain-settings -lut 21600 #{keychain_name}")
+    sh("security unlock-keychain -p #{keychain_password} #{keychain_name}")
+    sh("security list-keychain -d user -s #{keychain_name}")
+
     sync_code_signing(
       type: "appstore", 
-      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
-      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+      keychain_name: keychain_name,
+      keychain_password: keychain_password,
       readonly: true
     )
 
@@ -79,6 +88,7 @@ platform :ios do
     testflight
 
     download_dsyms(
+      username: ENV["FASTLANE_USER"],
       wait_for_dsym_processing: true,
       build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
