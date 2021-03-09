@@ -224,13 +224,13 @@ class SentryHubTests: XCTestCase {
     func testStartTransactionWithContextSamplingContext() {
         var customSamplingContext: [String: Any]?
         
-        let options = Options()
+        let options = fixture.options
         options.tracesSampler = {(context: SamplingContext) -> NSNumber in
             customSamplingContext = context.customSamplingContext
             return 0
         }
         
-        let span = fixture.getSut(options).startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
         
         let tracer = Dynamic(span)
         XCTAssertEqual(tracer.name, fixture.transactionName)
@@ -251,10 +251,10 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionSamplingUsingSampleRate() {
-        let options = Options()
+        let options = fixture.options
         options.tracesSampleRate = 0.5
         
-        let hub = fixture.getSut(options)
+        let hub = fixture.getSut()
         hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
@@ -263,12 +263,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionNotSamplingUsingTracesSampler() {
-        let options = Options()
+        let options = fixture.options
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 0.5
         }
         
-        let hub = fixture.getSut(options)
+        let hub = fixture.getSut()
         hub.setSampleRandomValue(NSNumber(floatLiteral: 1))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
@@ -277,12 +277,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionSamplingUsingTracesSampler() {
-        let options = Options()
+        let options = fixture.options
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 0.5
         }
         
-        let hub = fixture.getSut(options)
+        let hub = fixture.getSut()
         hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
