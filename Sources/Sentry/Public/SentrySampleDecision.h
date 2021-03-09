@@ -7,12 +7,12 @@ typedef NS_ENUM(NSUInteger, SentrySampleDecision) {
      * Used when the decision to sample a trace should be postpone.
      */
     kSentrySampleDecisionUndecided,
-    
+
     /**
      * The trace should be sampled.
      */
     kSentrySampleDecisionYes,
-    
+
     /**
      * The trace should not be sampled.
      */

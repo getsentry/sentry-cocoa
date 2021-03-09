@@ -222,7 +222,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionWithContextSamplingContext() {
-        var customSamplingContext : Dictionary<String, Any>?
+        var customSamplingContext: [String: Any]?
         
         let options = Options()
         options.tracesSampler = {(context: SamplingContext) -> NSNumber in
@@ -242,7 +242,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.5
         
-        let hub = fixture.getSut(options);
+        let hub = fixture.getSut(options)
         hub.setSampleRandomValue(NSNumber(floatLiteral: 1))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
@@ -254,7 +254,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.5
         
-        let hub = fixture.getSut(options);
+        let hub = fixture.getSut(options)
         hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
@@ -264,11 +264,11 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionNotSamplingUsingTracesSampler() {
         let options = Options()
-        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 0.5
         }
         
-        let hub = fixture.getSut(options);
+        let hub = fixture.getSut(options)
         hub.setSampleRandomValue(NSNumber(floatLiteral: 1))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
@@ -278,11 +278,11 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionSamplingUsingTracesSampler() {
         let options = Options()
-        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 0.5
         }
         
-        let hub = fixture.getSut(options);
+        let hub = fixture.getSut(options)
         hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
