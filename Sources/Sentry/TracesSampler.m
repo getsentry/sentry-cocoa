@@ -42,7 +42,7 @@
     if (self.definedRandom != nil)
         r = self.definedRandom.doubleValue;
 
-    return rate < r ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
+    return r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
 }
 
 @end

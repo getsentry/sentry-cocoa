@@ -1,3 +1,4 @@
+#import <Foundation/Foundation.h>
 
 /**
  * Describes the status of the Span/Transaction.

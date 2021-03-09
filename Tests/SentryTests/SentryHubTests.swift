@@ -208,10 +208,88 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionWithNameOperation() {
         let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-      
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
         XCTAssertEqual(span.context.operation, fixture.transactionOperation)
     }
     
+    func testStartTransactionWithContext() {
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation))
+        
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransactionWithContextSamplingContext() {
+        var customSamplingContext : Dictionary<String, Any>?
+        
+        let options = Options()
+        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+            customSamplingContext = context.customSamplingContext
+            return 0
+        }
+        
+        let span = fixture.getSut(options).startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+        
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
+        XCTAssertEqual(customSamplingContext?["customKey"] as? String, "customValue")
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransactionNotSamplingUsingSampleRate() {
+        let options = Options()
+        options.tracesSampleRate = 0.5
+        
+        let hub = fixture.getSut(options);
+        hub.setSampleRandomValue(NSNumber(floatLiteral: 1))
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .no)
+    }
+    
+    func testStartTransactionSamplingUsingSampleRate() {
+        let options = Options()
+        options.tracesSampleRate = 0.5
+        
+        let hub = fixture.getSut(options);
+        hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .yes)
+    }
+    
+    func testStartTransactionNotSamplingUsingTracesSampler() {
+        let options = Options()
+        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+            return 0.5
+        }
+        
+        let hub = fixture.getSut(options);
+        hub.setSampleRandomValue(NSNumber(floatLiteral: 1))
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .no)
+    }
+    
+    func testStartTransactionSamplingUsingTracesSampler() {
+        let options = Options()
+        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+            return 0.5
+        }
+        
+        let hub = fixture.getSut(options);
+        hub.setSampleRandomValue(NSNumber(floatLiteral: 0.4))
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .yes)
+    }
+        
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
         
