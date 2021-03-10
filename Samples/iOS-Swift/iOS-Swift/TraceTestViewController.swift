@@ -30,7 +30,7 @@ class TraceTestViewController: UIViewController {
         super.viewDidAppear(animated)
         
         let child = loadSpan?.startChild(name: "Download Image", operation: "network")
-        guard let imgUrl = URL(string: "https://yt3.ggpht.com/ytc/AAUvwnieYkenrDwzJI8dWcpbC1EetcymN5EZJx4MLsH3=s900-c-k-c0x00ffffff-no-rj") else {
+        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }
         
