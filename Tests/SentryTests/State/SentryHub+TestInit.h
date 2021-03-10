@@ -9,8 +9,6 @@ NS_ASSUME_NONNULL_BEGIN
                       andScope:(SentryScope *_Nullable)scope
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter;
 
-- (id)sampler;
-
 @end
 
 NS_ASSUME_NONNULL_END
