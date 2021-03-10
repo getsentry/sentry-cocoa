@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/*
 
 jobs:
 
@@ -20,8 +21,11 @@ jobs:
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
 
-      - name: Setup fastlane
-        run: bundle install   
+      - name: Setup Fastlane
+        run: ./fastlane/setup.sh ${{ secrets.FASTLANE_ENCRYPTION_KEY }}
+        shell: sh
+
+      - run: bundle install
 
       # We upload a new version to TestFlight on every commit on Master
       # So we need to bump the bundle version each time
@@ -50,6 +54,10 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: bundle exec fastlane ios_swift_to_testflight
+        shell: sh
+
+      - name: Cleanup Fastlane
+        run: ./fastlane/cleanup.sh
         shell: sh
 
       - name: Archiving
