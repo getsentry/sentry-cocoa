@@ -66,7 +66,7 @@ SENTRY_NO_INIT
  * TraceId and SpanId with be randomly created.
  *
  * @param operation The operation this span is measuring.
- * @param sampled Determines whether the trace should be sampled
+ * @param sampled Determines whether the trace should be sampled.
  *
  * @return SentryContext
  */
@@ -80,7 +80,7 @@ SENTRY_NO_INIT
  * @param spanId The Span Id
  * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
- * @param sampled Determines whether the trace should be sampled
+ * @param sampled Determines whether the trace should be sampled.
  *
  * @return SentryContext
  */

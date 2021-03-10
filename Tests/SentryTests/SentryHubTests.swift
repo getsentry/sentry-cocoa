@@ -241,7 +241,7 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionNotSamplingUsingSampleRate() {
         let options = fixture.options
-        options.tracesSampleRate = 0.4
+        options.tracesSampleRate = 0.49
         
         let hub = fixture.getSut(options)
         Dynamic(hub).sampler.random = fixture.random

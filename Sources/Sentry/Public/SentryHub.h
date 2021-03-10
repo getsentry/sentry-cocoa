@@ -69,11 +69,10 @@ SENTRY_NO_INIT
  * Creates a transaction bound to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
- * @param customSamplingContext Adicional information about the sampling context.
+ * @param customSamplingContext Additional information about the sampling context.
  *
  * @return The created transaction.
  */
-
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext

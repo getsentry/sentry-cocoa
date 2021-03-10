@@ -38,7 +38,7 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
-        self.sampler = [[TracesSampler alloc] initWithOptions:client.options];
+        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
