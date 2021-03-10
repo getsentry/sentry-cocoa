@@ -83,6 +83,8 @@ SentrySpanContext () {
     }
                                                  .mutableCopy;
 
+    // Since we guard for 'undecided', we'll
+    // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided)
         [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
 
