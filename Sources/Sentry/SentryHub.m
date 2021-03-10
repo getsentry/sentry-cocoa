@@ -21,12 +21,12 @@ SentryHub ()
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) TracesSampler *sampler;
 
 @end
 
 @implementation SentryHub {
     NSObject *_sessionLock;
-    TracesSampler *_sampler;
 }
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
@@ -38,7 +38,7 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
-        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
+        self.sampler = [[TracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
@@ -230,11 +230,6 @@ SentryHub ()
         return [client captureEvent:event withScope:scope];
     }
     return SentryId.empty;
-}
-
-- (void)setSampleRandomValue:(NSNumber *)value
-{
-    _sampler.definedRandom = value;
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation

@@ -57,7 +57,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
-        
     }
     
     func testFinishWithStatus() {

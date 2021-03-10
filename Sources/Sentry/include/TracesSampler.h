@@ -1,3 +1,4 @@
+#import "Random.h"
 #import "SentrySampleDecision.h"
 #import <Foundation/Foundation.h>
 
@@ -8,12 +9,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TracesSampler : NSObject
 
 /**
- *  A value than can be used for test purpose.
+ *  A random number generator
  */
-@property (nonatomic, strong) NSNumber *definedRandom;
+@property (nonatomic, strong) id<Random> random;
 
 /**
- * Init a TracesSampler with given options.
+ * Init a TracesSampler with given options and random generator.
+ * @param options Sentry options with sampling configuration
+ * @param random A random number generator
+ */
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<Random>)random;
+
+/**
+ * Init a TracesSampler with given options and a default Random generator.
+ * @param options Sentry options with sampling configuration
  */
 - (instancetype)initWithOptions:(SentryOptions *)options;
 

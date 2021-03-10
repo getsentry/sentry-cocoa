@@ -7,13 +7,18 @@
     SentryOptions *_options;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<Random>)random
 {
     if (self = [super init]) {
         _options = options;
-        srand48(time(0));
+        self.random = random;
     }
     return self;
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+{
+    return [self initWithOptions:options random:[[Random alloc] init]];
 }
 
 - (SentrySampleDecision)sample:(SentrySamplingContext *)context
@@ -38,10 +43,7 @@
 
 - (SentrySampleDecision)calcSample:(double)rate
 {
-    double r = drand48();
-    if (self.definedRandom != nil)
-        r = self.definedRandom.doubleValue;
-
+    double r = [self.random nextNumber];
     return r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
 }
 

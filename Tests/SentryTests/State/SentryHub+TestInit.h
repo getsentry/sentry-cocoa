@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
                       andScope:(SentryScope *_Nullable)scope
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter;
 
-- (void)setSampleRandomValue:(NSNumber *)value;
+- (id)sampler;
 
 @end
 
