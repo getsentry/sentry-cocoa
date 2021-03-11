@@ -160,7 +160,7 @@ class SentryClientTest: XCTestCase {
             }
         }
     }
-    
+      
     func testCaptureEventWithException() {
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]

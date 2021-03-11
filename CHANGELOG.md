@@ -1,6 +1,14 @@
 # Changelog
 
-## unreleased
+## Unreleased
+
+### Features
+
+- feat: Performance Monitoring API (#909, #977, #961, #932, #919)
+
+### Breaking Changes
+
+- SentryEvent.timestamp changed to nullable.
 
 ## 7.0.0-alpha.1
 
@@ -8,8 +16,9 @@ Features and fixes:
 
 - ref: Add read-only scope property to Hub #975
 
-Breaking Changes:
+### Breaking Changes
 
+- ref: Add read-only scope property to Hub #975
 - ref: Remove SentryException.userReported #974
 - ref: Replace SentryLogLevel with SentryLevel #978
 

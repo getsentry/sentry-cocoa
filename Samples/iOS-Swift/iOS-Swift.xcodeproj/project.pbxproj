@@ -17,6 +17,7 @@
 		637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		7B3427F825876A5200056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
 		7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
+		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 		7B4AC43F25D16AA00070736A /* RandomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
+		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
 				637AFDB4243B02770034958B /* LaunchScreen.storyboard */,
 				637AFDB7243B02770034958B /* Info.plist */,
+				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
 			);
 			path = "iOS-Swift";
 			sourceTree = "<group>";
@@ -236,6 +239,7 @@
 			files = (
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
+				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				637AFDAC243B02760034958B /* SceneDelegate.swift in Sources */,
 				7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */,
 			);
