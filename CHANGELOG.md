@@ -10,6 +10,12 @@
 - feat: Expand SentrySpanContext through SentryTransaction #919 
 - feat: Performance Monitoring API
 
+## 7.0.0-alpha.1
+
+Features and fixes:
+
+- ref: Add read-only scope property to Hub #975
+
 ### Breaking Changes:
 
 - ref: Add read-only scope property to Hub #975
