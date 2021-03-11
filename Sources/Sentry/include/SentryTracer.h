@@ -55,9 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(name:operation:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+    NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.
@@ -67,26 +66,23 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithName:(NSString *)name
-                           operation:(NSString *)operation
-                         description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(name:operation:description:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+                              description:(nullable NSString *)description
+    NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
  * Starts a child span.
  *
  * @param parentId The child span parent id.
- * @param name Defines the child span name
  * @param operation The child span operation.
  * @param description The child span description.
  *
  * @return SentrySpan
  */
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                                    name:(NSString *)name
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(parentId:name:operation:description:));
+    NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
  * Sets an extra.

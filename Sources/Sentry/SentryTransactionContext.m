@@ -16,7 +16,7 @@
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(SentrySpanId *)parentSpanId
-               parentSampled:(BOOL)parentSampled
+               parentSampled:(SentrySampleDecision)parentSampled
 {
     if ([super initWithTraceId:traceId
                         spanId:spanId

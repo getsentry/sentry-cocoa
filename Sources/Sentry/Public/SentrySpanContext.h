@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentrySampleDecision.h"
 #import "SentrySerializable.h"
 #import "SentrySpanStatus.h"
 
@@ -28,7 +29,7 @@ SENTRY_NO_INIT
 /**
  * If trace is sampled.
  */
-@property (nonatomic) BOOL sampled;
+@property (nonatomic) SentrySampleDecision sampled;
 
 /**
  * Short code identifying the type of operation the span is measuring.
@@ -65,12 +66,12 @@ SENTRY_NO_INIT
  * TraceId and SpanId with be randomly created.
  *
  * @param operation The operation this span is measuring.
- * @param sampled Determines whether the trace is sampled
+ * @param sampled Determines whether the trace should be sampled.
  *
  * @return SentryContext
  */
 
-- (instancetype)initWithOperation:(NSString *)operation sampled:(BOOL)sampled;
+- (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
 /**
  * Init a SentryContext with given traceId, spanId and parentId.
@@ -79,6 +80,7 @@ SENTRY_NO_INIT
  * @param spanId The Span Id
  * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
+ * @param sampled Determines whether the trace should be sampled.
  *
  * @return SentryContext
  */
@@ -86,7 +88,7 @@ SENTRY_NO_INIT
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
                       operation:(NSString *)operation
-                        sampled:(BOOL)sampled;
+                        sampled:(SentrySampleDecision)sampled;
 
 /**
  * Sets a tag with given value.

@@ -19,12 +19,12 @@ NS_SWIFT_NAME(Options)
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
  * not send any events.
  */
-@property (nonatomic, strong) NSString *_Nullable dsn;
+@property (nullable, nonatomic, strong) NSString *dsn;
 
 /**
  * The parsed internal DSN.
  */
-@property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
+@property (nullable, nonatomic, strong) SentryDsn *parsedDsn;
 
 /**
  * Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
@@ -40,17 +40,17 @@ NS_SWIFT_NAME(Options)
 /**
  * This property will be filled before the event is sent.
  */
-@property (nonatomic, copy) NSString *_Nullable releaseName;
+@property (nullable, nonatomic, copy) NSString *releaseName;
 
 /**
  * This property will be filled before the event is sent.
  */
-@property (nonatomic, copy) NSString *_Nullable dist;
+@property (nullable, nonatomic, copy) NSString *dist;
 
 /**
  * The environment used for this event
  */
-@property (nonatomic, copy) NSString *_Nullable environment;
+@property (nullable, nonatomic, copy) NSString *environment;
 
 /**
  * Specifies wether this SDK should send events to Sentry. If set to NO events will be
@@ -68,13 +68,13 @@ NS_SWIFT_NAME(Options)
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
-@property (nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
+@property (nullable, nonatomic, copy) SentryBeforeSendEventCallback beforeSend;
 
 /**
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
-@property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
+@property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
 
 /**
  * This gets called shortly after the initialization of the SDK when the last program execution
@@ -85,7 +85,7 @@ NS_SWIFT_NAME(Options)
  * terminates with a crash before the SDK can send the crash event. You can look into beforeSend if
  * you prefer a callback for every event.
  */
-@property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
+@property (nullable, nonatomic, copy) SentryOnCrashedLastRunCallback onCrashedLastRun;
 
 /**
  * Array of integrations to install.
@@ -101,7 +101,7 @@ NS_SWIFT_NAME(Options)
  * Defines the sample rate of SentryClient, should be a float between 0.0
  * and 1.0. valid settings are 0.0 - 1.0 and nil
  */
-@property (nonatomic, copy) NSNumber *_Nullable sampleRate;
+@property (nullable, nonatomic, copy) NSNumber *sampleRate;
 
 /**
  * Whether to enable automatic session tracking or not. Default is YES.

@@ -66,6 +66,19 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
+ * Creates a transaction bound to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param customSamplingContext Additional information about the sampling context.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
+
+/**
  * Captures an error event and sends it to Sentry.
  *
  * @param error The error to send to Sentry.
