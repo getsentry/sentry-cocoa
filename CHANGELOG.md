@@ -2,13 +2,9 @@
 
 ## Unreleased
 
-### Performance Monitoring
+### Features
 
-- feat: Add transaction sampling rules #977
-- feat: Add transaction sampling properties to SentryOptions #961
-- feat: Add SentrySpan #932
-- feat: Expand SentrySpanContext through SentryTransaction #919
-- feat: Performance Monitoring API
+- feat: Performance Monitoring API (#909, #977, #961, #932, #919)
 
 ### Breaking Changes
 
