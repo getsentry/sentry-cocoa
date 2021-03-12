@@ -42,7 +42,7 @@ struct ContentView: View {
     }
     
     var captureTransactionAction: () -> Void = {
-        let transaction = SentrySDK.startTransaction(name: "Some Transaction")
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
             transaction.finish()
         })
