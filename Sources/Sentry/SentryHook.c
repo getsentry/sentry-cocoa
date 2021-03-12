@@ -4,9 +4,12 @@
 #include <execinfo.h>
 #include <pthread.h>
 
+// TODO: use some kind of hashtable-like structure for the threads maybe?
 static __thread sentry_async_backtrace_t *threadlocal_async_caller = NULL;
 
-sentry_async_backtrace_t* sentry_get_async_caller(void) {
+sentry_async_backtrace_t* sentry_get_async_caller_for_thread(SentryCrashThread thread) {
+    // TODO:
+    (void)thread;
     return threadlocal_async_caller;
 }
 
@@ -43,7 +46,7 @@ sentry_async_backtrace_t* sentry__async_backtrace_capture(void) {
     
     bt->len = backtrace(bt->backtrace, MAX_BACKTRACE_FRAMES);
     
-    sentry_async_backtrace_t *caller = sentry_get_async_caller();
+    sentry_async_backtrace_t *caller = sentry_get_async_caller_for_thread(sentrycrashthread_self());
     sentry__async_backtrace_incref(caller);
     bt->async_caller = caller;
     
@@ -55,6 +58,10 @@ void sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
     sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
     
     return real_dispatch_async(queue, ^{
+        SentryCrashThread thread = sentrycrashthread_self();
+        // TODO: use thread
+        (void)thread;
+        
         // inside the async context, save the backtrace in a thread local for later consumption
         threadlocal_async_caller = bt;
         
