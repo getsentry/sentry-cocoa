@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 7.0.0-alpha.2
+
 ### Features
 
 - feat: Performance Monitoring API (#909, #977, #961, #932, #919)
