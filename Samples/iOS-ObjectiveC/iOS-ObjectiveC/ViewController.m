@@ -103,7 +103,7 @@ ViewController ()
 - (IBAction)captureTransaction:(id)sender
 {
     __block id<SentrySpan> fakeTransaction = [SentrySDK startTransactionWithName:@"Some Transaction"
-                                                                   operation:@"some operation"];
+                                                                       operation:@"some operation"];
 
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(100) + 400 * NSEC_PER_MSEC)),
