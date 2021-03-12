@@ -115,6 +115,7 @@
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self childs:spans];
     transaction.transaction = self.name;
     [_hub captureEvent:transaction];
+    [_hub.scope removeTransaction:self];
 }
 
 - (NSDictionary *)serialize
