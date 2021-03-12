@@ -81,7 +81,7 @@ jobs:
           -scheme ${{matrix.scheme}}
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
-          build | xcpretty
+          build
 
   validate-podspec:
     name: Validate Podspec
