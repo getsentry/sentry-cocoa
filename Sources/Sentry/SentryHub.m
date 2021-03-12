@@ -239,14 +239,42 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                                  scopeKey:(NSString *)key
+{
+    return
+        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                               operation:operation]
+                                 scopeKey:key];
+}
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
-    return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
+    return [self startTransactionWithContext:transactionContext scopeKey:transactionContext.name];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                     scopeKey:(NSString *)key
+{
+    return [self startTransactionWithContext:transactionContext
+                       customSamplingContext:nil
+                                    scopeKey:key];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [self startTransactionWithContext:transactionContext
+                       customSamplingContext:customSamplingContext
+                                    scopeKey:transactionContext.name];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                                     scopeKey:(NSString *)key
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -254,7 +282,11 @@ SentryHub ()
 
     transactionContext.sampled = [_sampler sample:samplingContext];
 
-    return [[SentryTracer alloc] initWithTransactionContext:transactionContext hub:self];
+    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                         hub:self];
+    [_scope setTransaction:tracer forKey:key];
+
+    return tracer;
 }
 
 - (SentryId *)captureMessage:(NSString *)message

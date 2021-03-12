@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryScope+Private.h"
 #import "SentrySession.h"
+#import "SentrySpan.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -63,6 +64,8 @@ SentryScope ()
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id<SentrySpan>> *transactions;
+
 @end
 
 @implementation SentryScope
@@ -80,6 +83,7 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
+        self.transactions = [NSMutableDictionary new];
     }
     return self;
 }
@@ -146,6 +150,9 @@ SentryScope ()
     }
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
+    }
+    @synchronized(_transactions) {
+        [_transactions removeAllObjects];
     }
 
     self.userObject = nil;
@@ -319,6 +326,60 @@ SentryScope ()
     }
 }
 
+- (void)setTransaction:(id<SentrySpan>)transaction forKey:(NSString *)key
+{
+    @synchronized(_transactions) {
+        _transactions[key] = transaction;
+    }
+    [self notifyListeners];
+}
+
+- (nullable id<SentrySpan>)getTransactionForKey:(NSString *)key
+{
+    @synchronized(_transactions) {
+        return _transactions[key];
+    }
+}
+
+- (void)finishTransactionForKey:(NSString *)key
+{
+    id<SentrySpan> transaction;
+    @synchronized(_transactions) {
+        transaction = _transactions[key];
+        [_transactions removeObjectForKey:key];
+    }
+    // the user may pass an invalid key and the transaction does not exists.
+    if (transaction != nil) {
+        [transaction finish];
+        [self notifyListeners];
+    }
+}
+
+- (void)removeTransactionForKey:(NSString *)key
+{
+    bool hasTransaction;
+    @synchronized(_transactions) {
+        hasTransaction = _transactions[key] != nil;
+        [_transactions removeObjectForKey:key];
+    }
+    if (hasTransaction)
+        [self notifyListeners];
+}
+
+- (void)removeTransaction:(id<SentrySpan>)transaction
+{
+    bool hasTransaction;
+    @synchronized(_transactions) {
+        NSArray *keys = [_transactions allKeysForObject:transaction];
+        hasTransaction = keys.count > 0;
+        for (NSString *key in keys) {
+            [_transactions removeObjectForKey:key];
+        }
+    }
+    if (hasTransaction)
+        [self notifyListeners];
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -430,7 +491,7 @@ SentryScope ()
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
         // We always want to set the level from the scope since this has
-        // benn set on purpose
+        // been set on purpose
         event.level = level;
     }
 

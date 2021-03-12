@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
+#import "SentrySpanProtocol.h"
 
 @class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb, SentryAttachment;
 
@@ -112,6 +113,47 @@ NS_SWIFT_NAME(Scope)
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment;
+
+/**
+ * Add a transaction to the Scope with given key.
+ * This key can be used to retrieve the transaction in a later moment.
+ * If a transaction with the same key exists the previous added transaction will be lost.
+ *
+ * @param transaction A transaction to add to the Scope.
+ * @param key A key to identify the transaction
+ */
+- (void)setTransaction:(id<SentrySpan>)transaction
+                forKey:(NSString *)key NS_SWIFT_NAME(addTransaction(transaction:key:));
+
+/**
+ * Retrieve a previous added transaction with given key.
+ *
+ * @param key A key used to previously store a transaction.
+ *
+ * @return A previous added transaction with given key or nil.
+ */
+- (nullable id<SentrySpan>)getTransactionForKey:(NSString *)key NS_SWIFT_NAME(getTransaction(key:));
+
+/**
+ * Finish a transaction with given key and remove it from the scope.
+ *
+ * @param key A key used to previously store a transaction.
+ */
+- (void)finishTransactionForKey:(NSString *)key NS_SWIFT_NAME(finishTransaction(key:));
+;
+
+/**
+ * Removes a transaction from the scope.
+ *
+ * @param key A key used to previously store a transaction.
+ */
+- (void)removeTransactionForKey:(NSString *)key NS_SWIFT_NAME(removeTransaction(key:));
+;
+
+/**
+ * Removes a transaction from the scope.
+ */
+- (void)removeTransaction:(id<SentrySpan>)transaction;
 
 /**
  * Clears the current Scope
