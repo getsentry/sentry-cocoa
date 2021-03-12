@@ -78,7 +78,7 @@ jobs:
       - run: >-
           xcodebuild
           -workspace Sentry.xcworkspace
-          -scheme ${{matrix.scheme}}
+          -scheme '${{matrix.scheme}}'
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build
