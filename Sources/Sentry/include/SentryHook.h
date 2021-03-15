@@ -20,11 +20,6 @@ struct sentry_async_backtrace_s {
 /**
  * Returns the async caller of the current calling context, if any.
  */
-// TODO:
-// SentryCrash uses the `SentryCrashStackCursor` type to interactively walk a stack.
-// We should make sure to attach our async stack traces based on the thread id to that cursor
-// in the various `sentrycrashsc_initXXX` functions and make sure we iterate the chained
-// async stacks after the main stack.
 sentry_async_backtrace_t*
 sentry_get_async_caller_for_thread(SentryCrashThread);
 
