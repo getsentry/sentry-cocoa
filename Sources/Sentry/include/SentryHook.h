@@ -11,7 +11,7 @@
  */
 typedef struct sentry_async_backtrace_s sentry_async_backtrace_t;
 struct sentry_async_backtrace_s {
-    long refcount;
+    size_t refcount;
     sentry_async_backtrace_t* async_caller;
     size_t len;
     void* backtrace[MAX_BACKTRACE_FRAMES];

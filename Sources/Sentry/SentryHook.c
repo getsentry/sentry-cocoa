@@ -4,34 +4,61 @@
 #include <execinfo.h>
 #include <pthread.h>
 
-// TODO: use some kind of hashtable-like structure for the threads maybe?
-static __thread sentry_async_backtrace_t *threadlocal_async_caller = NULL;
+/**
+ * This is a poor-mans concurrent hashtable.
+ * We have N slots, using modulo of the thread ID. Using atomic load / compare-exchange to make sure that the slot indeed
+ * belongs to the thread we want to work with.
+ */
+
+#define SENTRY_MAX_ASYNC_THREADS 32
+
+typedef struct {
+    SentryCrashThread thread;
+    sentry_async_backtrace_t *backtrace;
+} sentry_async_caller_t;
+
+static sentry_async_caller_t sentry_async_callers[SENTRY_MAX_ASYNC_THREADS] = {0};
 
 sentry_async_backtrace_t* sentry_get_async_caller_for_thread(SentryCrashThread thread) {
-    // TODO:
-    (void)thread;
-    return threadlocal_async_caller;
+    size_t idx = thread % SENTRY_MAX_ASYNC_THREADS;
+    sentry_async_caller_t *caller = &sentry_async_callers[idx];
+    if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
+        sentry_async_backtrace_t* backtrace = __atomic_load_n(&caller->backtrace, __ATOMIC_SEQ_CST);
+        // we read the thread id *again*, if it is still the same, the backtrace pointer we
+        // read in between is valid
+        if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
+            return backtrace;
+        }
+    }
+    return NULL;
 }
 
-
-static inline long
-sentry__atomic_fetch_and_add(volatile long *val, long diff)
-{
-    return __atomic_fetch_add(val, diff, __ATOMIC_SEQ_CST);
+static bool sentry__set_async_caller_for_thread(SentryCrashThread old_thread, SentryCrashThread new_thread, sentry_async_backtrace_t *backtrace) {
+    size_t idx = new_thread % SENTRY_MAX_ASYNC_THREADS;
+    sentry_async_caller_t *caller = &sentry_async_callers[idx];
+    
+    SentryCrashThread expected = old_thread;
+    bool success = __atomic_compare_exchange_n(&caller->thread, &expected, new_thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    
+    if (success) {
+        __atomic_store_n(&caller->backtrace, backtrace, __ATOMIC_SEQ_CST);
+    }
+    
+    return success;
 }
 
 void sentry__async_backtrace_incref(sentry_async_backtrace_t* bt) {
     if (!bt) {
         return;
     }
-    sentry__atomic_fetch_and_add(&bt->refcount, 1);
+    __atomic_fetch_add(&bt->refcount, 1, __ATOMIC_SEQ_CST);
 }
 
 void sentry__async_backtrace_decref(sentry_async_backtrace_t* bt) {
     if (!bt) {
         return;
     }
-    if (sentry__atomic_fetch_and_add(&bt->refcount, -1) == 1) {
+    if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
         sentry__async_backtrace_decref(bt->async_caller);
         free(bt);
     }
@@ -59,18 +86,16 @@ void sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
     
     return real_dispatch_async(queue, ^{
         SentryCrashThread thread = sentrycrashthread_self();
-        // TODO: use thread
-        (void)thread;
         
         // inside the async context, save the backtrace in a thread local for later consumption
-        threadlocal_async_caller = bt;
-        
+        sentry__set_async_caller_for_thread((SentryCrashThread)NULL, thread, bt);
+
         // call through to the original block
         block();
         
         // and decref our current backtrace
+        sentry__set_async_caller_for_thread(thread, (SentryCrashThread)NULL, NULL);
         sentry__async_backtrace_decref(bt);
-        threadlocal_async_caller = NULL;
     });
 }
 
