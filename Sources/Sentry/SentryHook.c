@@ -33,12 +33,12 @@ sentry_async_backtrace_t* sentry_get_async_caller_for_thread(SentryCrashThread t
     return NULL;
 }
 
-static bool sentry__set_async_caller_for_thread(SentryCrashThread old_thread, SentryCrashThread new_thread, sentry_async_backtrace_t *backtrace) {
-    size_t idx = new_thread % SENTRY_MAX_ASYNC_THREADS;
+static bool sentry__set_async_caller_for_thread(SentryCrashThread thread_slot, SentryCrashThread old_value, SentryCrashThread new_value, sentry_async_backtrace_t *backtrace) {
+    size_t idx = thread_slot % SENTRY_MAX_ASYNC_THREADS;
     sentry_async_caller_t *caller = &sentry_async_callers[idx];
     
-    SentryCrashThread expected = old_thread;
-    bool success = __atomic_compare_exchange_n(&caller->thread, &expected, new_thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    SentryCrashThread expected = old_value;
+    bool success = __atomic_compare_exchange_n(&caller->thread, &expected, new_value, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
     
     if (success) {
         __atomic_store_n(&caller->backtrace, backtrace, __ATOMIC_SEQ_CST);
@@ -88,13 +88,13 @@ void sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
         SentryCrashThread thread = sentrycrashthread_self();
         
         // inside the async context, save the backtrace in a thread local for later consumption
-        sentry__set_async_caller_for_thread((SentryCrashThread)NULL, thread, bt);
+        sentry__set_async_caller_for_thread(thread, (SentryCrashThread)NULL, thread, bt);
 
         // call through to the original block
         block();
         
         // and decref our current backtrace
-        sentry__set_async_caller_for_thread(thread, (SentryCrashThread)NULL, NULL);
+        sentry__set_async_caller_for_thread(thread, thread, (SentryCrashThread)NULL, NULL);
         sentry__async_backtrace_decref(bt);
     });
 }

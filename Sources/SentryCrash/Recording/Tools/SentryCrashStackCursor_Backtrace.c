@@ -31,6 +31,24 @@
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
+    sentry_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    if (async_caller) {
+        if (cursor->state.currentDepth < async_caller->len) {
+            uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];
+            if (nextAddress > 1) {
+                cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+                cursor->state.currentDepth++;
+                return true;
+            }
+        }
+        if (async_caller->async_caller) {
+            cursor->state.current_async_caller = async_caller->async_caller;
+            cursor->state.currentDepth = 0;
+            return cursor->advanceCursor(cursor);
+        }
+        return false;
+    }
+    
     SentryCrashStackCursor_Backtrace_Context *context
         = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     int endDepth = context->backtraceLength - context->skippedEntries;
@@ -44,6 +62,10 @@ advanceCursor(SentryCrashStackCursor *cursor)
             cursor->state.currentDepth++;
             return true;
         }
+    } else if (cursor->async_caller) {
+        cursor->state.current_async_caller = cursor->async_caller;
+        cursor->state.currentDepth = 0;
+        return cursor->advanceCursor(cursor);
     }
     return false;
 }

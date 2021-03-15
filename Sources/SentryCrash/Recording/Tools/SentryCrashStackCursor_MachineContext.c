@@ -57,6 +57,24 @@ typedef struct {
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
+    sentry_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    if (async_caller) {
+        if (cursor->state.currentDepth < async_caller->len) {
+            uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];
+            if (nextAddress > 1) {
+                cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+                cursor->state.currentDepth++;
+                return true;
+            }
+        }
+        if (async_caller->async_caller) {
+            cursor->state.current_async_caller = async_caller->async_caller;
+            cursor->state.currentDepth = 0;
+            return cursor->advanceCursor(cursor);
+        }
+        return false;
+    }
+    
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;
     uintptr_t nextAddress = 0;
 
@@ -68,7 +86,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
     if (context->instructionAddress == 0) {
         context->instructionAddress = sentrycrashcpu_instructionAddress(context->machineContext);
         if (context->instructionAddress == 0) {
-            return false;
+            goto tryAsyncChain;
         }
         nextAddress = context->instructionAddress;
         goto successfulExit;
@@ -85,7 +103,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
 
     if (context->currentFrame.previous == NULL) {
         if (context->isPastFramePointer) {
-            return false;
+            goto tryAsyncChain;
         }
         context->currentFrame.previous
             = (struct FrameEntry *)sentrycrashcpu_framePointer(context->machineContext);
@@ -97,7 +115,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
         return false;
     }
     if (context->currentFrame.previous == 0 || context->currentFrame.return_address == 0) {
-        return false;
+        goto tryAsyncChain;
     }
 
     nextAddress = context->currentFrame.return_address;
@@ -106,6 +124,14 @@ successfulExit:
     cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
     cursor->state.currentDepth++;
     return true;
+    
+tryAsyncChain:
+    if (cursor->async_caller) {
+        cursor->state.current_async_caller = cursor->async_caller;
+        cursor->state.currentDepth = 0;
+        return cursor->advanceCursor(cursor);
+    }
+    return false;
 }
 
 static void
@@ -129,4 +155,7 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->machineContext = machineContext;
     context->maxStackDepth = maxStackDepth;
     context->instructionAddress = cursor->stackEntry.address;
+    
+    SentryCrashThread thread = sentrycrashmc_getThreadFromContext(machineContext);
+    cursor->async_caller = sentry_get_async_caller_for_thread(thread);
 }

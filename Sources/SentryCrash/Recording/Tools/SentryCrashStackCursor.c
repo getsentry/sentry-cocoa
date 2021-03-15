@@ -43,6 +43,7 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
 {
     cursor->state.currentDepth = 0;
     cursor->state.hasGivenUp = false;
+    cursor->state.current_async_caller = NULL;
     cursor->stackEntry.address = 0;
     cursor->stackEntry.imageAddress = 0;
     cursor->stackEntry.imageName = NULL;
@@ -56,6 +57,7 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
 {
     cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
+    cursor->async_caller = NULL;
     cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);
 }

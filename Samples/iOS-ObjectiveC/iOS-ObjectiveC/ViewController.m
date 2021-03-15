@@ -102,7 +102,11 @@ ViewController ()
 - (IBAction)crash:(id)sender
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [SentrySDK crash];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [SentrySDK crash];
+            });
+        });
     });
 }
 
