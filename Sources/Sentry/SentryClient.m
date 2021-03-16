@@ -21,6 +21,7 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions.h"
+#import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
@@ -405,6 +406,20 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
+
+    // When OOM event remove free memory as it could be misleading, because it states the free
+    // memory on the start after an OOM.
+    if (isCrashEvent && event.exceptions.count == 1 &&
+        [event.exceptions[0].type isEqualToString:SentryOutOfMemoryExceptionType] &&
+        [event.exceptions[0].value isEqualToString:SentryOutOfMemoryExceptionValue]) {
+        NSMutableDictionary *context =
+            [[NSMutableDictionary alloc] initWithDictionary:event.context];
+        NSMutableDictionary *device =
+            [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+        [device removeObjectForKey:@"free_memory"];
+        context[@"device"] = device;
+        event.context = context;
+    }
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {

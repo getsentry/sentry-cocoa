@@ -4,6 +4,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const SentryOutOfMemoryExceptionType = @"Out Of Memory";
+static NSString *const SentryOutOfMemoryExceptionValue
+    = @"The OS most likely terminated your app because it over-used RAM.";
+
 /**
  * Detect OOMs based on heuristics described in a blog post:
  * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a OOM is

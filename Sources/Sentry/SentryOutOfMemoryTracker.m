@@ -114,11 +114,11 @@ SentryOutOfMemoryTracker ()
     // Set to empty list so no breadcrumbs of the current scope are added
     event.breadcrumbs = @[];
 
-    NSString *exceptionType = @"Out Of Memory";
-    SentryException *exception = [[SentryException alloc]
-        initWithValue:@"The OS most likely terminated your app because it over-used RAM."
-                 type:exceptionType];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+    SentryException *exception =
+        [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
+                                          type:SentryOutOfMemoryExceptionType];
+    SentryMechanism *mechanism =
+        [[SentryMechanism alloc] initWithType:SentryOutOfMemoryExceptionType];
     mechanism.handled = @(NO);
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];

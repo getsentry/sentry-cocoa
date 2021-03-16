@@ -332,6 +332,20 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureOOMEvent_RemovesFreeMemoryFromContext() {
+        let oomEvent = Event(level: SentryLevel.fatal)
+        let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
+        oomEvent.exceptions = [exception]
+        let eventId = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
+
+        eventId.assertIsNotEmpty()
+        
+        assertLastSentEventWithAttachment { event in
+            XCTAssertEqual(oomEvent.eventId, event.eventId)
+            XCTAssertNil(event.context?["device"]?["free_memory"])
+        }
+    }
+    
     func testCaptureCrash_DoesntOverideStacktraceFor() {
         let event = TestData.event
         event.threads = nil
