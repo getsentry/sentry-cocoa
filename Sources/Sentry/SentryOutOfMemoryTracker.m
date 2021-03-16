@@ -116,8 +116,7 @@ SentryOutOfMemoryTracker ()
 
     NSString *exceptionType = @"Out Of Memory";
     SentryException *exception = [[SentryException alloc]
-        initWithValue:
-            @"The OS most likely terminated your app because it over-used RAM."
+        initWithValue:@"The OS most likely terminated your app because it over-used RAM."
                  type:exceptionType];
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
     mechanism.handled = @(NO);
