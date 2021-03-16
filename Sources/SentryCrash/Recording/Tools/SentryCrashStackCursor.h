@@ -109,6 +109,9 @@ void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
  */
 void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor);
 
+/** Advance the cursor to the next stack entry in a chained async stacktrace. */
+bool sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor);
+
 #ifdef __cplusplus
 }
 #endif
