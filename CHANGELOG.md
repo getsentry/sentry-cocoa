@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Out Of Memory Tracking #999
+
 ## 7.0.0-alpha.2
 
 ### Features

@@ -142,4 +142,8 @@ class TestData {
         case happyCustomer
         case awesomeCentaur
     }
+    
+    static var appState: SentryAppState {
+        return SentryAppState(appVersion: "1.0.0", osVersion: "14.4.1", isDebugging: false)
+    }
 }
