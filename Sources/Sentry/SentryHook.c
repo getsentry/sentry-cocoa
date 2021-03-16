@@ -64,9 +64,6 @@ void sentry__async_backtrace_decref(sentry_async_backtrace_t* bt) {
     }
 }
 
-static void
-(*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
-
 sentry_async_backtrace_t* sentry__async_backtrace_capture(void) {
     sentry_async_backtrace_t *bt = malloc(sizeof(sentry_async_backtrace_t));
     bt->refcount = 1;
@@ -79,6 +76,9 @@ sentry_async_backtrace_t* sentry__async_backtrace_capture(void) {
     
     return bt;
 }
+
+static void
+(*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 
 void sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block) {
     // create a backtrace, capturing the async callsite
@@ -99,13 +99,31 @@ void sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
     });
 }
 
+static void
+(*real_dispatch_async_f)(dispatch_queue_t queue,
+                         void *_Nullable context, dispatch_function_t work);
+
+void sentry__hook_dispatch_async_f(dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work) {
+    sentry__hook_dispatch_async(queue, ^{
+        work(context);
+    });
+}
+
 void sentry_install_async_hooks(void)
 {
     rebind_symbols((struct rebinding[1]){
         {"dispatch_async", sentry__hook_dispatch_async, (void *)&real_dispatch_async},
     }, 1);
+    rebind_symbols((struct rebinding[1]){
+        {"dispatch_async_f", sentry__hook_dispatch_async_f, (void *)&real_dispatch_async_f},
+    }, 1);
     // TODO:
-    //dispatch_async_f
     //dispatch_after
     //dispatch_after_f
+    //dispatch_barrier_async
+    //dispatch_barrier_async_f
+    //dispatch_async_and_wait
+    //dispatch_async_and_wait_f
+    //dispatch_barrier_async_and_wait
+    //dispatch_barrier_async_and_wait_f
 }
