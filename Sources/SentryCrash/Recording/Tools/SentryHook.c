@@ -122,6 +122,39 @@ sentry__hook_dispatch_async_f(
     sentry__hook_dispatch_async(queue, ^{ work(context); });
 }
 
+static void (*real_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
+
+void
+sentry__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
+{
+    // create a backtrace, capturing the async callsite
+    sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
+
+    return real_dispatch_after(when, queue, ^{
+        SentryCrashThread thread = sentrycrashthread_self();
+
+        // inside the async context, save the backtrace in a thread local for later consumption
+        sentry__set_async_caller_for_thread(thread, (SentryCrashThread)NULL, thread, bt);
+
+        // call through to the original block
+        block();
+
+        // and decref our current backtrace
+        sentry__set_async_caller_for_thread(thread, thread, (SentryCrashThread)NULL, NULL);
+        sentry__async_backtrace_decref(bt);
+    });
+}
+
+static void (*real_dispatch_after_f)(dispatch_time_t when, dispatch_queue_t queue,
+                                     void *_Nullable context, dispatch_function_t work);
+
+void
+sentry__hook_dispatch_after_f(dispatch_time_t when, dispatch_queue_t queue,
+                              void *_Nullable context, dispatch_function_t work)
+{
+    sentry__hook_dispatch_after(when, queue, ^{ work(context); });
+}
+
 void
 sentry_install_async_hooks(void)
 {
@@ -135,9 +168,17 @@ sentry_install_async_hooks(void)
             { "dispatch_async_f", sentry__hook_dispatch_async_f, (void *)&real_dispatch_async_f },
         },
         1);
+    rebind_symbols(
+        (struct rebinding[1]) {
+            { "dispatch_after", sentry__hook_dispatch_after, (void *)&real_dispatch_after },
+        },
+        1);
+    rebind_symbols(
+        (struct rebinding[1]) {
+            { "dispatch_after_f", sentry__hook_dispatch_after_f, (void *)&real_dispatch_after_f },
+        },
+        1);
     // TODO:
-    // dispatch_after
-    // dispatch_after_f
     // dispatch_barrier_async
     // dispatch_barrier_async_f
     // dispatch_async_and_wait
