@@ -29,7 +29,7 @@ class TraceTestViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let child = loadSpan?.startChild(name: "Download Image", operation: "network")
+        let child = loadSpan?.startChild(operation: "network", description: "Download Image")
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }

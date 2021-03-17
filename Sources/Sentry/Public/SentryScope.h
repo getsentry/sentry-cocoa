@@ -120,35 +120,31 @@ NS_SWIFT_NAME(Scope)
  * If a transaction with the same key exists the previous added transaction will be lost.
  *
  * @param transaction A transaction to add to the Scope.
- * @param key A key to identify the transaction
  */
-- (void)setTransaction:(id<SentrySpan>)transaction
-                forKey:(NSString *)key NS_SWIFT_NAME(addTransaction(transaction:key:));
+- (void)setTransaction:(id<SentrySpan>)transaction;
 
 /**
  * Retrieve a previous added transaction with given key.
  *
- * @param key A key used to previously store a transaction.
+ * @param name Transaction name used to previously store a transaction.
  *
  * @return A previous added transaction with given key or nil.
  */
-- (nullable id<SentrySpan>)getTransactionForKey:(NSString *)key NS_SWIFT_NAME(getTransaction(key:));
+- (nullable id<SentrySpan>)getTransactionWithName:(NSString *)name NS_SWIFT_NAME(getTransaction(name:));
 
 /**
  * Finish a transaction with given key and remove it from the scope.
  *
- * @param key A key used to previously store a transaction.
+ * @param name Transaction name used to previously store a transaction.
  */
-- (void)finishTransactionForKey:(NSString *)key NS_SWIFT_NAME(finishTransaction(key:));
-;
+- (void)finishTransactionWithName:(NSString *)name NS_SWIFT_NAME(finishTransaction(name:));
 
 /**
  * Removes a transaction from the scope.
  *
- * @param key A key used to previously store a transaction.
+ * @param name Transaction name used to previously store a transaction.
  */
-- (void)removeTransactionForKey:(NSString *)key NS_SWIFT_NAME(removeTransaction(key:));
-;
+- (void)removeTransactionWithName:(NSString *)name NS_SWIFT_NAME(removeTransaction(name:));
 
 /**
  * Removes a transaction from the scope.

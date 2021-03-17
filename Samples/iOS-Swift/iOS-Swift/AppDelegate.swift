@@ -12,6 +12,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             options.debug = true
+            options.tracesSampleRate = 1.0
+            options.tracesSampler = { context in
+                return 1.0
+            }
             options.sessionTrackingIntervalMillis = 5_000
         }
         

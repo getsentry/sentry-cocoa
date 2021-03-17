@@ -116,6 +116,12 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
 }
 
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+(nullable NSDictionary<NSString *, id> *)customSamplingContext {
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext customSamplingContext:customSamplingContext];
+}
+
 + (SentryId *)captureError:(NSError *)error
 {
     return [SentrySDK captureError:error withScope:SentrySDK.currentHub.scope];

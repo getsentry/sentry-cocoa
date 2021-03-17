@@ -8,6 +8,7 @@
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentryUser.h"
+#import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -326,41 +327,44 @@ SentryScope ()
     }
 }
 
-- (void)setTransaction:(id<SentrySpan>)transaction forKey:(NSString *)key
+- (void)setTransaction:(id<SentrySpan>)transaction
 {
+    if (![transaction isKindOfClass:[SentryTracer class]]) return;
+    
+    SentryTracer* tracer = transaction;
     @synchronized(_transactions) {
-        _transactions[key] = transaction;
+        _transactions[tracer.name] = transaction;
     }
     [self notifyListeners];
 }
 
-- (nullable id<SentrySpan>)getTransactionForKey:(NSString *)key
+- (nullable id<SentrySpan>)getTransactionWithName:(NSString *)name
 {
     @synchronized(_transactions) {
-        return _transactions[key];
+        return _transactions[name];
     }
 }
 
-- (void)finishTransactionForKey:(NSString *)key
+- (void)finishTransactionWithName:(NSString *)name
 {
     id<SentrySpan> transaction;
     @synchronized(_transactions) {
-        transaction = _transactions[key];
-        [_transactions removeObjectForKey:key];
+        transaction = _transactions[name];
+        [_transactions removeObjectForKey:name];
     }
-    // the user may pass an invalid key and the transaction does not exists.
+    // the user may pass an invalid name and the transaction does not exists.
     if (transaction != nil) {
         [transaction finish];
         [self notifyListeners];
     }
 }
 
-- (void)removeTransactionForKey:(NSString *)key
+- (void)removeTransactionWithName:(NSString *)name
 {
     bool hasTransaction;
     @synchronized(_transactions) {
-        hasTransaction = _transactions[key] != nil;
-        [_transactions removeObjectForKey:key];
+        hasTransaction = _transactions[name] != nil;
+        [_transactions removeObjectForKey:name];
     }
     if (hasTransaction)
         [self notifyListeners];
