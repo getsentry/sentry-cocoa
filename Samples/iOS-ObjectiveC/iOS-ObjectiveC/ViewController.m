@@ -101,13 +101,22 @@ ViewController ()
 
 - (IBAction)crash:(id)sender
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [SentrySDK crash];
-            });
-        });
-    });
+    [SentrySDK crash];
+}
+
+- (IBAction)asyncCrash:(id)sender
+{
+    dispatch_async(dispatch_get_main_queue(), ^{ [self asyncCrash1]; });
+}
+
+- (void)asyncCrash1
+{
+    dispatch_async(dispatch_get_main_queue(), ^{ [self asyncCrash2]; });
+}
+
+- (void)asyncCrash2
+{
+    dispatch_async(dispatch_get_main_queue(), ^{ [SentrySDK crash]; });
 }
 
 @end
