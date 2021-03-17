@@ -408,18 +408,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    // When OOM event remove free memory as it could be misleading, because it states the free
-    // memory on the start after an OOM.
-    if (isCrashEvent && event.exceptions.count == 1 &&
-        [event.exceptions[0].type isEqualToString:SentryOutOfMemoryExceptionType] &&
-        [event.exceptions[0].value isEqualToString:SentryOutOfMemoryExceptionValue]) {
-        NSMutableDictionary *context =
-            [[NSMutableDictionary alloc] initWithDictionary:event.context];
-        NSMutableDictionary *device =
-            [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-        [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
-        context[@"device"] = device;
-        event.context = context;
+    // Remove free_memory if OOM as free_memory stems from the current run and not of the time of
+    // the OOM.
+    if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+        [self removeFreeMemoryFromDeviceContext:event];
     }
 
     // With scope applied, before running callbacks run:
@@ -504,6 +496,28 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         user.userId = [SentryInstallation id];
         event.user = user;
     }
+}
+
+- (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
+{
+    return isCrashEvent && event.exceptions != nil && event.exceptions.count == 1 &&
+        [event.exceptions[0].type isEqualToString:SentryOutOfMemoryExceptionType] &&
+        [event.exceptions[0].value isEqualToString:SentryOutOfMemoryExceptionValue];
+}
+
+- (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+{
+    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
+        return;
+    }
+
+    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
+    NSMutableDictionary *device =
+        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+    [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+    context[@"device"] = device;
+
+    event.context = context;
 }
 
 @end
