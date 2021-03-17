@@ -435,9 +435,9 @@
 		8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674525C23A20000E2BF6 /* SentrySpanId.m */; };
 		8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674625C23A20000E2BF6 /* SentryTransactionContext.m */; };
 		A2475E1325FB63A3007D9080 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = A2475E1225FB63A3007D9080 /* fishhook.h */; };
-        		A2475E1725FB63AF007D9080 /* SentryHook.h in Headers */ = {isa = PBXBuildFile; fileRef = A2475E1625FB63AF007D9080 /* SentryHook.h */; };
-        		A2475E1B25FB63D7007D9080 /* SentryHook.c in Sources */ = {isa = PBXBuildFile; fileRef = A2475E1A25FB63D7007D9080 /* SentryHook.c */; };
-        		A2475E1F25FB648B007D9080 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = A2475E1E25FB648B007D9080 /* fishhook.c */; };
+		A2475E1725FB63AF007D9080 /* SentryHook.h in Headers */ = {isa = PBXBuildFile; fileRef = A2475E1625FB63AF007D9080 /* SentryHook.h */; };
+		A2475E1B25FB63D7007D9080 /* SentryHook.c in Sources */ = {isa = PBXBuildFile; fileRef = A2475E1A25FB63D7007D9080 /* SentryHook.c */; };
+		A2475E1F25FB648B007D9080 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = A2475E1E25FB648B007D9080 /* fishhook.c */; };
 		A811D867248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */; };
 		A839D89824864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h in Headers */ = {isa = PBXBuildFile; fileRef = A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */; };
 		A839D89A24864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m in Sources */ = {isa = PBXBuildFile; fileRef = A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */; };
@@ -922,10 +922,10 @@
 		8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryTransaction.m; sourceTree = "<group>"; };
 		8ECC674525C23A20000E2BF6 /* SentrySpanId.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySpanId.m; sourceTree = "<group>"; };
 		8ECC674625C23A20000E2BF6 /* SentryTransactionContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryTransactionContext.m; sourceTree = "<group>"; };
-		A2475E1225FB63A3007D9080 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = include/fishhook.h; sourceTree = "<group>"; };
-        		A2475E1625FB63AF007D9080 /* SentryHook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryHook.h; path = include/SentryHook.h; sourceTree = "<group>"; };
-        		A2475E1A25FB63D7007D9080 /* SentryHook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryHook.c; sourceTree = "<group>"; };
-        		A2475E1E25FB648B007D9080 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
+		A2475E1225FB63A3007D9080 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
+		A2475E1625FB63AF007D9080 /* SentryHook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryHook.h; sourceTree = "<group>"; };
+		A2475E1A25FB63D7007D9080 /* SentryHook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryHook.c; sourceTree = "<group>"; };
+		A2475E1E25FB648B007D9080 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
 		A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySystemEventsBreadcrumbsTest.swift; sourceTree = "<group>"; };
 		A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySystemEventsBreadcrumbs.h; path = include/SentrySystemEventsBreadcrumbs.h; sourceTree = "<group>"; };
 		A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySystemEventsBreadcrumbs.m; sourceTree = "<group>"; };
@@ -1155,8 +1155,6 @@
 				7DC831092398283C0043DD9A /* SentryCrashIntegration.m */,
 				7D7F0A5E23DF3D2C00A4629C /* SentryGlobalEventProcessor.h */,
 				7DAC588E23D8B2E0001CF26B /* SentryGlobalEventProcessor.m */,
-				A2475E1A25FB63D7007D9080 /* SentryHook.c */,
-				A2475E1625FB63AF007D9080 /* SentryHook.h */,
 				7B4E23BD251A2BD500060D68 /* SentrySessionCrashedHandler.h */,
 				7B4E23C1251A2C2B00060D68 /* SentrySessionCrashedHandler.m */,
 				15360CD12432779F00112302 /* SentrySessionTracker.h */,
@@ -1170,8 +1168,6 @@
 		639889D51EDF10BE00EA7442 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				A2475E1E25FB648B007D9080 /* fishhook.c */,
-				A2475E1225FB63A3007D9080 /* fishhook.h */,
 				632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */,
 				632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */,
 				7BE3C7662445C0CA00A38442 /* SentryCurrentDate.h */,
@@ -1428,61 +1424,65 @@
 		63FE700520DA4C1000CDBAE8 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
-				63FE700720DA4C1000CDBAE8 /* SentryCrashDate.h */,
-				63FE700820DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h */,
-				63FE700920DA4C1000CDBAE8 /* SentryCrashLogger.c */,
-				63FE700A20DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.c */,
-				63FE700B20DA4C1000CDBAE8 /* SentryCrashFileUtils.h */,
-				63FE700C20DA4C1000CDBAE8 /* SentryCrashMach.c */,
-				63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */,
-				63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */,
-				63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */,
-				63FE701120DA4C1000CDBAE8 /* SentryCrashJSONCodec.c */,
-				63FE701220DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c */,
-				63FE701320DA4C1000CDBAE8 /* SentryCrashMachineContext.c */,
-				63FE701420DA4C1000CDBAE8 /* SentryCrashString.c */,
-				63FE701520DA4C1000CDBAE8 /* SentryCrashCPU_arm64.c */,
-				63FE701620DA4C1000CDBAE8 /* SentryCrashObjC.h */,
-				63FE701720DA4C1000CDBAE8 /* SentryCrashSymbolicator.c */,
-				63FE701820DA4C1000CDBAE8 /* SentryCrashID.h */,
-				63FE701920DA4C1000CDBAE8 /* SentryCrashSignalInfo.c */,
-				63FE701A20DA4C1000CDBAE8 /* SentryCrashThread.c */,
-				63FE701B20DA4C1000CDBAE8 /* SentryCrashCPU_arm.c */,
-				63FE701C20DA4C1000CDBAE8 /* SentryCrashStackCursor.h */,
-				63FE701D20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.m */,
-				63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */,
-				63FE701F20DA4C1000CDBAE8 /* SentryCrashDynamicLinker.c */,
-				63FE702020DA4C1000CDBAE8 /* SentryCrashCPU.h */,
-				63FE702120DA4C1000CDBAE8 /* SentryCrashMemory.c */,
-				63FE702220DA4C1000CDBAE8 /* SentryCrashCPU_x86_64.c */,
-				63FE702320DA4C1000CDBAE8 /* SentryCrashMach.h */,
-				63FE702420DA4C1000CDBAE8 /* SentryCrashFileUtils.c */,
-				63FE702520DA4C1000CDBAE8 /* SentryCrashLogger.h */,
-				63FE702620DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.h */,
-				63FE702720DA4C1000CDBAE8 /* SentryCrashDate.c */,
-				63FE702920DA4C1000CDBAE8 /* SentryCrashObjC.c */,
-				63FE702A20DA4C1000CDBAE8 /* SentryCrashMachineContext.h */,
-				63FE702B20DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.h */,
-				63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */,
-				63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */,
+				A2475E1E25FB648B007D9080 /* fishhook.c */,
+				A2475E1225FB63A3007D9080 /* fishhook.h */,
 				63FE702E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.h */,
-				63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */,
-				63FE703020DA4C1000CDBAE8 /* SentryCrashObjCApple.h */,
-				63FE703120DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.h */,
-				63FE703220DA4C1000CDBAE8 /* SentryCrashThread.h */,
-				63FE703320DA4C1000CDBAE8 /* SentryCrashCPU_x86_32.c */,
-				63FE703420DA4C1000CDBAE8 /* SentryCrashSignalInfo.h */,
-				63FE703520DA4C1000CDBAE8 /* SentryCrashSymbolicator.h */,
-				63FE703620DA4C1000CDBAE8 /* SentryCrashID.c */,
-				63FE703820DA4C1000CDBAE8 /* SentryCrashDynamicLinker.h */,
-				71F11CDEF5952DF5CC69AC74 /* SentryCrashUUIDConversion.h */,
-				7B883F48253D714C00879E62 /* SentryCrashUUIDConversion.c */,
-				63FE703920DA4C1000CDBAE8 /* SentryCrashMemory.h */,
-				63FE703A20DA4C1000CDBAE8 /* SentryCrashCPU.c */,
-				63FE703B20DA4C1000CDBAE8 /* SentryCrashStackCursor.c */,
-				63FE703C20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.h */,
-				63FE703D20DA4C1000CDBAE8 /* SentryCrashSysCtl.h */,
+				63FE700E20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m */,
 				63FE703E20DA4C1000CDBAE8 /* SentryCrashCPU_Apple.h */,
+				63FE701B20DA4C1000CDBAE8 /* SentryCrashCPU_arm.c */,
+				63FE701520DA4C1000CDBAE8 /* SentryCrashCPU_arm64.c */,
+				63FE703320DA4C1000CDBAE8 /* SentryCrashCPU_x86_32.c */,
+				63FE702220DA4C1000CDBAE8 /* SentryCrashCPU_x86_64.c */,
+				63FE703A20DA4C1000CDBAE8 /* SentryCrashCPU.c */,
+				63FE702020DA4C1000CDBAE8 /* SentryCrashCPU.h */,
+				63FE702720DA4C1000CDBAE8 /* SentryCrashDate.c */,
+				63FE700720DA4C1000CDBAE8 /* SentryCrashDate.h */,
+				63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */,
+				63FE702F20DA4C1000CDBAE8 /* SentryCrashDebug.h */,
+				63FE701F20DA4C1000CDBAE8 /* SentryCrashDynamicLinker.c */,
+				63FE703820DA4C1000CDBAE8 /* SentryCrashDynamicLinker.h */,
+				63FE702420DA4C1000CDBAE8 /* SentryCrashFileUtils.c */,
+				63FE700B20DA4C1000CDBAE8 /* SentryCrashFileUtils.h */,
+				63FE703620DA4C1000CDBAE8 /* SentryCrashID.c */,
+				63FE701820DA4C1000CDBAE8 /* SentryCrashID.h */,
+				63FE701120DA4C1000CDBAE8 /* SentryCrashJSONCodec.c */,
+				63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */,
+				63FE703C20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.h */,
+				63FE701D20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.m */,
+				63FE700920DA4C1000CDBAE8 /* SentryCrashLogger.c */,
+				63FE702520DA4C1000CDBAE8 /* SentryCrashLogger.h */,
+				63FE700C20DA4C1000CDBAE8 /* SentryCrashMach.c */,
+				63FE702320DA4C1000CDBAE8 /* SentryCrashMach.h */,
+				63FE700820DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h */,
+				63FE701320DA4C1000CDBAE8 /* SentryCrashMachineContext.c */,
+				63FE702A20DA4C1000CDBAE8 /* SentryCrashMachineContext.h */,
+				63FE702120DA4C1000CDBAE8 /* SentryCrashMemory.c */,
+				63FE703920DA4C1000CDBAE8 /* SentryCrashMemory.h */,
+				63FE702920DA4C1000CDBAE8 /* SentryCrashObjC.c */,
+				63FE701620DA4C1000CDBAE8 /* SentryCrashObjC.h */,
+				63FE703020DA4C1000CDBAE8 /* SentryCrashObjCApple.h */,
+				63FE701920DA4C1000CDBAE8 /* SentryCrashSignalInfo.c */,
+				63FE703420DA4C1000CDBAE8 /* SentryCrashSignalInfo.h */,
+				63FE701220DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c */,
+				63FE702B20DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.h */,
+				63FE700D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c */,
+				63FE703120DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.h */,
+				63FE700A20DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.c */,
+				63FE702620DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.h */,
+				63FE703B20DA4C1000CDBAE8 /* SentryCrashStackCursor.c */,
+				63FE701C20DA4C1000CDBAE8 /* SentryCrashStackCursor.h */,
+				63FE701420DA4C1000CDBAE8 /* SentryCrashString.c */,
+				63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */,
+				63FE701720DA4C1000CDBAE8 /* SentryCrashSymbolicator.c */,
+				63FE703520DA4C1000CDBAE8 /* SentryCrashSymbolicator.h */,
+				63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */,
+				63FE703D20DA4C1000CDBAE8 /* SentryCrashSysCtl.h */,
+				63FE701A20DA4C1000CDBAE8 /* SentryCrashThread.c */,
+				63FE703220DA4C1000CDBAE8 /* SentryCrashThread.h */,
+				7B883F48253D714C00879E62 /* SentryCrashUUIDConversion.c */,
+				71F11CDEF5952DF5CC69AC74 /* SentryCrashUUIDConversion.h */,
+				A2475E1A25FB63D7007D9080 /* SentryHook.c */,
+				A2475E1625FB63AF007D9080 /* SentryHook.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
