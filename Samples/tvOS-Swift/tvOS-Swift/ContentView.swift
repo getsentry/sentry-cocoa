@@ -41,6 +41,18 @@ struct ContentView: View {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
+    func asyncCrash1() {
+        DispatchQueue.main.async {
+            self.asyncCrash2()
+        }
+    }
+    
+    func asyncCrash2() {
+        DispatchQueue.main.async {
+            SentrySDK.crash()
+        }
+    }
+    
     var body: some View {
         VStack {
             Button(action: addBreadcrumbAction) {
@@ -69,8 +81,14 @@ struct ContentView: View {
                 Text("Crash")
             }
             
+            Button(action: {
+                DispatchQueue.main.async {
+                    self.asyncCrash1()
+                }
+            }) {
+                Text("Async Crash")
+            }
         }
-        
     }
 }
 

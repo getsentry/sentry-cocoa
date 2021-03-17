@@ -83,4 +83,22 @@ class ViewController: UIViewController {
     @IBAction func crash(_ sender: Any) {
         SentrySDK.crash()
     }
+    
+    @IBAction func asyncCrash(_ sender: Any) {
+        DispatchQueue.main.async {
+            self.asyncCrash1()
+        }
+    }
+    
+    func asyncCrash1() {
+        DispatchQueue.main.async {
+            self.asyncCrash2()
+        }
+    }
+    
+    func asyncCrash2() {
+        DispatchQueue.main.async {
+            SentrySDK.crash()
+        }
+    }
 }
