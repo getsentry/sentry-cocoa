@@ -151,7 +151,7 @@ SentryCrashIntegration ()
             [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
             [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
             [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-            [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+            [deviceData setValue:systemInfo[@"freeMemory"] forKey:SentryDeviceContextFreeMemoryKey];
             [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
             [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
             [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];

@@ -2,6 +2,7 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
@@ -416,7 +417,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             [[NSMutableDictionary alloc] initWithDictionary:event.context];
         NSMutableDictionary *device =
             [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-        [device removeObjectForKey:@"free_memory"];
+        [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
         context[@"device"] = device;
         event.context = context;
     }
