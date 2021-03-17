@@ -96,6 +96,7 @@ class SentryClientTest: XCTestCase {
         var eventWithOOM: Event {
             let event = Event(level: SentryLevel.fatal)
             let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
+            exception.mechanism = Mechanism(type: SentryOutOfMemoryExceptionType)
             event.exceptions = [exception]
             return event
         }

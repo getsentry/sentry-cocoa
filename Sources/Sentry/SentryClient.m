@@ -500,9 +500,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
 {
-    return isCrashEvent && event.exceptions != nil && event.exceptions.count == 1 &&
-        [event.exceptions[0].type isEqualToString:SentryOutOfMemoryExceptionType] &&
-        [event.exceptions[0].value isEqualToString:SentryOutOfMemoryExceptionValue];
+    if (!isCrashEvent) {
+        return NO;
+    }
+
+    if (nil == event.exceptions || event.exceptions.count != 1) {
+        return NO;
+    }
+
+    return nil != event.exceptions[0].mechanism &&
+        [event.exceptions[0].mechanism.type isEqualToString:SentryOutOfMemoryExceptionType];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
