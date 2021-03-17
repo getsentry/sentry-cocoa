@@ -41,18 +41,25 @@ struct ContentView: View {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
+    var captureTransactionAction: () -> Void = {
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
+            transaction.finish()
+        })
+    }
+
     func asyncCrash1() {
         DispatchQueue.main.async {
             self.asyncCrash2()
         }
     }
-    
+
     func asyncCrash2() {
         DispatchQueue.main.async {
             SentrySDK.crash()
         }
     }
-    
+
     var body: some View {
         VStack {
             Button(action: addBreadcrumbAction) {
@@ -75,6 +82,10 @@ struct ContentView: View {
                 Text("Capture NSException")
             }
             
+            Button(action: captureTransactionAction) {
+                Text("Capture Transaction")
+            }
+
             Button(action: {
                 SentrySDK.crash()
             }) {

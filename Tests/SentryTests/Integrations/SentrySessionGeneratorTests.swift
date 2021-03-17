@@ -104,7 +104,6 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         options.releaseName = "Release Health"
         options.debug = true
-        options.logLevel = SentryLogLevel.debug
         
         options.sessionTrackingIntervalMillis = 1
         

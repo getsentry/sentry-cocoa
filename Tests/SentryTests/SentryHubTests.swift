@@ -2,6 +2,9 @@ import XCTest
 
 class SentryHubTests: XCTestCase {
     
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
+    private static let dsn = TestConstants.dsn(username: "SentryHubTests")
+        
     private class Fixture {
         let options: Options
         let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
@@ -15,10 +18,13 @@ class SentryHubTests: XCTestCase {
         let sentryCrash = TestSentryCrashWrapper()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
+        let transactionName = "Some Transaction"
+        let transactionOperation = "Some Operation"
+        let random = TestRandom(value: 0.5)
         
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString
+            options.dsn = SentryHubTests.dsnAsString
             options.environment = "debug"
             
             scope.add(crumb)
@@ -26,7 +32,7 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(dsn: TestConstants.dsn, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(dsn: SentryHubTests.dsn, andCurrentDateProvider: currentDateProvider)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
@@ -56,6 +62,7 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
+        fixture.fileManager.deleteAllEnvelopes()
         
         sut = fixture.getSut()
     }
@@ -64,6 +71,7 @@ class SentryHubTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteTimestampLastInForeground()
+        fixture.fileManager.deleteAllEnvelopes()
     }
 
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {
@@ -73,7 +81,7 @@ class SentryHubTests: XCTestCase {
             level: .error,
             category: "default")
         hub.add(crumb)
-        let scope = hub.getScope()
+        let scope = hub.scope
         let scopeBreadcrumbs = scope.serialize()["breadcrumbs"]
         XCTAssertNotNil(scopeBreadcrumbs)
     }
@@ -88,8 +96,7 @@ class SentryHubTests: XCTestCase {
             level: .error,
             category: "default")
         sut.add(crumb)
-        let scope = sut.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"]
+        let scopeBreadcrumbs = sut.scope.serialize()["breadcrumbs"]
         XCTAssertNil(scopeBreadcrumbs)
     }
     
@@ -137,7 +144,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddBreadcrumb_WithCallbackReturnsNil() {
-        let options = Options()
+        let options = fixture.options
         options.beforeBreadcrumb = { _ in
             return nil
         }
@@ -145,13 +152,12 @@ class SentryHubTests: XCTestCase {
         
         hub.add(fixture.crumb)
         
-        let scope = hub.getScope()
-        XCTAssertNil(scope.serialize()["breadcrumbs"])
+        XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"
-        let options = Options()
+        let options = fixture.options
         options.beforeBreadcrumb = { crumb in
             crumb.message = crumbMessage
             return crumb
@@ -160,8 +166,7 @@ class SentryHubTests: XCTestCase {
         
         hub.add(fixture.crumb)
         
-        let scope = hub.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [[String: Any]]
+        let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [[String: Any]]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(1, scopeBreadcrumbs?.count)
         XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
@@ -174,10 +179,8 @@ class SentryHubTests: XCTestCase {
         let user = User()
         user.userId = "123"
         hub.setUser(user)
-        
-        let scope = hub.getScope()
 
-        let scopeSerialized = scope.serialize()
+        let scopeSerialized = hub.scope.serialize()
         let scopeUser = scopeSerialized["user"] as? [String: Any?]
         let scopeUserId = scopeUser?["id"] as? String
 
@@ -204,6 +207,90 @@ class SentryHubTests: XCTestCase {
         }
     }
     
+    func testStartTransactionWithNameOperation() {
+        let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransactionWithContext() {
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation))
+        
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransactionWithContextSamplingContext() {
+        var customSamplingContext: [String: Any]?
+        
+        let options = fixture.options
+        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+            customSamplingContext = context.customSamplingContext
+            return 0
+        }
+        
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+        
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.name, fixture.transactionName)
+        XCTAssertEqual(customSamplingContext?["customKey"] as? String, "customValue")
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransactionNotSamplingUsingSampleRate() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.49
+        
+        let hub = fixture.getSut(options)
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .no)
+    }
+    
+    func testStartTransactionSamplingUsingSampleRate() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.5
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .yes)
+    }
+    
+    func testStartTransactionNotSamplingUsingTracesSampler() {
+        let options = fixture.options
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 0.4
+        }
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .no)
+    }
+    
+    func testStartTransactionSamplingUsingTracesSampler() {
+        let options = fixture.options
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 0.6
+        }
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(span.context.sampled, .yes)
+    }
+        
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
         
@@ -539,8 +626,7 @@ class SentryHubTests: XCTestCase {
     }
 
     private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHub) {
-        let scope = hub.getScope()
-        let scopeBreadcrumbs = scope.serialize()["breadcrumbs"] as? [AnyHashable]
+        let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [AnyHashable]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
     }

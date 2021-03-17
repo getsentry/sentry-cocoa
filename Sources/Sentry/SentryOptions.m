@@ -20,7 +20,7 @@
 {
     if (self = [super init]) {
         self.enabled = YES;
-        self.logLevel = kSentryLogLevelError;
+        self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.integrations = SentryOptions.defaultIntegrations;
@@ -30,6 +30,7 @@
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.tracesSampleRate = 0;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -72,7 +73,7 @@
         if (nil != error && nil != *error) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
-                      andLevel:kSentryLogLevelError];
+                      andLevel:kSentryLevelError];
             return nil;
         }
     }
@@ -88,7 +89,7 @@
         _dsn = dsn;
     } else {
         NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
     }
 }
 
@@ -102,14 +103,12 @@
         self.debug = [options[@"debug"] boolValue];
     }
 
-    if (self.debug) {
-        // In other SDKs there's debug=true + diagnosticLevel where we can
-        // control how chatty the SDK is. Ideally we'd support all the levels
-        // here, and perhaps name it `diagnosticLevel` to align more.
-        if ([@"verbose" isEqual:options[@"logLevel"]]) {
-            _logLevel = kSentryLogLevelVerbose;
-        } else {
-            _logLevel = kSentryLogLevelDebug;
+    if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
+        for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
+            if ([SentryLevelNames[level] isEqualToString:options[@"diagnosticLevel"]]) {
+                self.diagnosticLevel = level;
+                break;
+            }
         }
     }
 
@@ -181,6 +180,16 @@
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
+    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
+        [tracesSampleRate floatValue] <= 1.0) {
+        self.tracesSampleRate = tracesSampleRate;
+    }
+
+    if (nil != options[@"tracesSampler"]) {
+        self.tracesSampler = options[@"tracesSampler"];
     }
 
     NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(

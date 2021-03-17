@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="95.5" width="398" height="240"/>
+                                <rect key="frame" x="8" y="95.5" width="398" height="270"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -68,8 +68,22 @@
                                             <action selector="captureNSException:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BT7-dZ-MrB"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lgF-Uq-3Bb">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
                                         <rect key="frame" x="0.0" y="180" width="398" height="30"/>
+                                        <state key="normal" title="Capture Transaction"/>
+                                        <connections>
+                                            <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kff-pT-Uf4"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
+                                        <rect key="frame" x="0.0" y="210" width="398" height="30"/>
+                                        <state key="normal" title="Test Navigation Transaction"/>
+                                        <connections>
+                                            <segue destination="cay-7M-Gvd" kind="show" id="boD-GG-VVF"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lgF-Uq-3Bb">
+                                        <rect key="frame" x="0.0" y="240" width="398" height="30"/>
                                         <state key="normal" title="crash"/>
                                         <connections>
                                             <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="imm-ZO-4Af"/>
@@ -101,6 +115,38 @@
             </objects>
             <point key="canvasLocation" x="132" y="139"/>
         </scene>
+        <!--Trace Test View Controller-->
+        <scene sceneID="nC1-NO-4uj">
+            <objects>
+                <viewController id="cay-7M-Gvd" customClass="TraceTestViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="i9I-wJ-Z2B">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oQQ-QQ-VWP">
+                                <rect key="frame" x="87" y="284" width="240" height="240"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="240" id="iMc-sb-nxg"/>
+                                    <constraint firstAttribute="width" constant="240" id="uUA-q8-18d"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="MSB-Vw-wUr"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="oQQ-QQ-VWP" firstAttribute="centerX" secondItem="MSB-Vw-wUr" secondAttribute="centerX" id="M7C-iR-4Pj"/>
+                            <constraint firstItem="oQQ-QQ-VWP" firstAttribute="centerY" secondItem="MSB-Vw-wUr" secondAttribute="centerY" id="eGm-Ek-ygH"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="Afi-mu-igL"/>
+                    <connections>
+                        <outlet property="imageView" destination="oQQ-QQ-VWP" id="ePP-uk-wGM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JzG-vp-oCD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1224.6376811594205" y="503.57142857142856"/>
+        </scene>
         <!--View Controller-->
         <scene sceneID="HP6-1Y-hca">
             <objects>
@@ -131,7 +177,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1053.6231884057972" y="137.94642857142856"/>
+            <point key="canvasLocation" x="1226" y="-148"/>
         </scene>
     </scenes>
     <resources>

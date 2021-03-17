@@ -49,6 +49,13 @@ class ViewController: NSViewController {
         NSApp.perform("_crashOnException:", with: exception)
     }
     
+    @IBAction func captureTransaction(_ sender: Any) {
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
+            transaction.finish()
+        })
+    }
+    
     @IBAction func sentryCrash(_ sender: Any) {
         SentrySDK.crash()
     }

@@ -95,21 +95,19 @@
 
 - (void)testValidDebug
 {
-    [self testDebugWith:@YES expected:YES expectedLogLevel:kSentryLogLevelDebug];
-    [self testDebugWith:@"YES" expected:YES expectedLogLevel:kSentryLogLevelDebug];
-    [self testDebugWith:@(YES) expected:YES expectedLogLevel:kSentryLogLevelDebug];
+    [self testDebugWith:@YES expected:YES];
+    [self testDebugWith:@"YES" expected:YES];
+    [self testDebugWith:@(YES) expected:YES];
 }
 
 - (void)testInvalidDebug
 {
-    [self testDebugWith:@"Invalid" expected:NO expectedLogLevel:kSentryLogLevelError];
-    [self testDebugWith:@NO expected:NO expectedLogLevel:kSentryLogLevelError];
-    [self testDebugWith:@(NO) expected:NO expectedLogLevel:kSentryLogLevelError];
+    [self testDebugWith:@"Invalid" expected:NO];
+    [self testDebugWith:@NO expected:NO];
+    [self testDebugWith:@(NO) expected:NO];
 }
 
-- (void)testDebugWith:(NSObject *)debugValue
-             expected:(BOOL)expectedDebugValue
-     expectedLogLevel:(SentryLogLevel)expectedLogLevel
+- (void)testDebugWith:(NSObject *)debugValue expected:(BOOL)expectedDebugValue
 {
     NSError *error = nil;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
@@ -122,18 +120,27 @@
     XCTAssertEqual(expectedDebugValue, options.debug);
 }
 
-- (void)testDebugWithVerbose
+- (void)testValidDiagnosticLevel
 {
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
-        @"dsn" : @"https://username:password@sentry.io/1",
-        @"debug" : @YES,
-        @"logLevel" : @"verbose"
-    }
-                                                didFailWithError:&error];
+    [self testDiagnosticlevelWith:@"none" expected:kSentryLevelNone];
+    [self testDiagnosticlevelWith:@"debug" expected:kSentryLevelDebug];
+    [self testDiagnosticlevelWith:@"info" expected:kSentryLevelInfo];
+    [self testDiagnosticlevelWith:@"warning" expected:kSentryLevelWarning];
+    [self testDiagnosticlevelWith:@"error" expected:kSentryLevelError];
+    [self testDiagnosticlevelWith:@"fatal" expected:kSentryLevelFatal];
+}
 
-    XCTAssertNil(error);
-    XCTAssertEqual(YES, options.debug);
+- (void)testInvalidDiagnosticLevel
+{
+    [self testDiagnosticlevelWith:@"fatala" expected:kSentryLevelDebug];
+    [self testDiagnosticlevelWith:@(YES) expected:kSentryLevelDebug];
+}
+
+- (void)testDiagnosticlevelWith:(NSObject *)level expected:(SentryLevel)expected
+{
+    SentryOptions *options = [self getValidOptions:@{ @"diagnosticLevel" : level }];
+
+    XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
 - (void)testValidEnabled
@@ -325,7 +332,7 @@
 
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(NO, options.debug);
-    XCTAssertEqual(kSentryLogLevelError, options.logLevel);
+    XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
@@ -413,6 +420,45 @@
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertFalse(options.sendDefaultPii);
+}
+
+- (void)testTracesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];
+
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.1);
+}
+
+- (void)testDefaultTracesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
+}
+
+- (double)tracesSamplerCallback:(NSDictionary *)context
+{
+    return 0.1;
+}
+
+- (void)testTracesSampler
+{
+    SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @1.0;
+    };
+
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : sampler }];
+
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    XCTAssertEqual(options.tracesSampler(context), @1.0);
+}
+
+- (void)testDefaultTracesSampler
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.tracesSampler);
 }
 
 - (void)testInAppIncludes

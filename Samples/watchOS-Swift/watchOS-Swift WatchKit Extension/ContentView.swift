@@ -27,6 +27,13 @@ struct ContentView: View {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
+    var captureTransaction: () -> Void = {
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
+            transaction.finish()
+        })
+    }
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -44,6 +51,10 @@ struct ContentView: View {
                 
                 Button(action: captureNSExceptionAction) {
                     Text("Capture NSException")
+                }
+                
+                Button(action: captureTransaction) {
+                    Text("Capture Transaction")
                 }
             }
         }
