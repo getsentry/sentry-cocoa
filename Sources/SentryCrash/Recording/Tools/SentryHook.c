@@ -122,7 +122,8 @@ sentry__hook_dispatch_async_f(
     sentry__hook_dispatch_async(queue, ^{ work(context); });
 }
 
-static void (*real_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
+static void (*real_dispatch_after)(
+    dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
 
 void
 sentry__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
@@ -146,11 +147,11 @@ sentry__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispat
 }
 
 static void (*real_dispatch_after_f)(dispatch_time_t when, dispatch_queue_t queue,
-                                     void *_Nullable context, dispatch_function_t work);
+    void *_Nullable context, dispatch_function_t work);
 
 void
-sentry__hook_dispatch_after_f(dispatch_time_t when, dispatch_queue_t queue,
-                              void *_Nullable context, dispatch_function_t work)
+sentry__hook_dispatch_after_f(
+    dispatch_time_t when, dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
     sentry__hook_dispatch_after(when, queue, ^{ work(context); });
 }
