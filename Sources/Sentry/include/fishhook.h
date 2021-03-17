@@ -28,9 +28,9 @@
 #include <stdint.h>
 
 #if !defined(FISHHOOK_EXPORT)
-#define FISHHOOK_VISIBILITY __attribute__((visibility("hidden")))
+#    define FISHHOOK_VISIBILITY __attribute__((visibility("hidden")))
 #else
-#define FISHHOOK_VISIBILITY __attribute__((visibility("default")))
+#    define FISHHOOK_VISIBILITY __attribute__((visibility("default")))
 #endif
 
 #ifdef __cplusplus
@@ -42,9 +42,9 @@ extern "C" {
  * name to its replacement
  */
 struct rebinding {
-  const char *name;
-  void *replacement;
-  void **replaced;
+    const char *name;
+    void *replacement;
+    void **replaced;
 };
 
 /*
@@ -63,13 +63,11 @@ int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
  * to the mach-o header, the slide should be the slide offset. Others as above.
  */
 FISHHOOK_VISIBILITY
-int rebind_symbols_image(void *header,
-                         intptr_t slide,
-                         struct rebinding rebindings[],
-                         size_t rebindings_nel);
+int rebind_symbols_image(
+    void *header, intptr_t slide, struct rebinding rebindings[], size_t rebindings_nel);
 
 #ifdef __cplusplus
 }
 #endif //__cplusplus
 
-#endif //fishhook_h
+#endif // fishhook_h

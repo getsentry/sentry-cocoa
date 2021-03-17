@@ -61,7 +61,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
     if (async_caller) {
         return sentrycrashsc_advanceAsyncCursor(cursor);
     }
-    
+
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;
     uintptr_t nextAddress = 0;
 
@@ -111,7 +111,7 @@ successfulExit:
     cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
     cursor->state.currentDepth++;
     return true;
-    
+
 tryAsyncChain:
     if (cursor->async_caller) {
         cursor->state.current_async_caller = cursor->async_caller;
@@ -142,7 +142,7 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->machineContext = machineContext;
     context->maxStackDepth = maxStackDepth;
     context->instructionAddress = cursor->stackEntry.address;
-    
+
     SentryCrashThread thread = sentrycrashmc_getThreadFromContext(machineContext);
     cursor->async_caller = sentry_get_async_caller_for_thread(thread);
 }

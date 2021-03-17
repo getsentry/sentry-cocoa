@@ -35,7 +35,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
     if (async_caller) {
         return sentrycrashsc_advanceAsyncCursor(cursor);
     }
-    
+
     SentryCrashStackCursor_Backtrace_Context *context
         = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     int endDepth = context->backtraceLength - context->skippedEntries;
