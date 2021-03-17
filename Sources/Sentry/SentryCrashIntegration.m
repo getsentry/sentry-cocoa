@@ -4,6 +4,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryFrameInAppLogic.h"
+#import "SentryHook.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
@@ -66,6 +67,7 @@ SentryCrashIntegration ()
 {
     self.options = options;
     [self startCrashHandler];
+    sentry_install_async_hooks();
     [self configureScope];
 }
 

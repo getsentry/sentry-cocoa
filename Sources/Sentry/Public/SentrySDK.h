@@ -24,11 +24,6 @@ SENTRY_NO_INIT
 + (SentryHub *)currentHub;
 
 /**
- * Installs global Sentry hooks.
- */
-+ (void)installHooks;
-
-/**
  * This forces a crash, useful to test the SentryCrash integration
  */
 + (void)crash;

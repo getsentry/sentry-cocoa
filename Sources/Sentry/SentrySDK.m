@@ -2,7 +2,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
-#import "SentryHook.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -200,11 +199,6 @@ static BOOL crashedLastRunCalled;
     *p = 0;
 }
 #endif
-
-+ (void)installHooks
-{
-    sentry_install_async_hooks();
-}
 
 + (BOOL)crashedLastRun
 {
