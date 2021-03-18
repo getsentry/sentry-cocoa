@@ -80,10 +80,11 @@ SentryOutOfMemoryTracker ()
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
 
+            // We don't need to upate the releaseName of the event to the previous app state as we
+            // assume it's not an OOM when the releaseName changed between app starts.
             [SentrySDK captureCrashEvent:event];
         }
 
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
         [fileManager storeAppState:[self.outOfMemoryLogic buildCurrentAppState]];
     }];
 
