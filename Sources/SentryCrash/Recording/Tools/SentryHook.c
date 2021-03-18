@@ -156,9 +156,14 @@ sentry__hook_dispatch_after_f(
     sentry__hook_dispatch_after(when, queue, ^{ work(context); });
 }
 
+static bool hooks_installed = false;
+
 void
 sentry_install_async_hooks(void)
 {
+    if (__atomic_exchange_n(&hooks_installed, true, __ATOMIC_SEQ_CST)) {
+        true;
+    }
     rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_async", sentry__hook_dispatch_async, (void *)&real_dispatch_async },
@@ -187,3 +192,5 @@ sentry_install_async_hooks(void)
     // dispatch_barrier_async_and_wait
     // dispatch_barrier_async_and_wait_f
 }
+
+// TODO: uninstall hooks
