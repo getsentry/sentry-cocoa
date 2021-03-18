@@ -45,8 +45,8 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
-    // If the app version is different we assume it's an upgrade
-    if (![currentAppState.appVersion isEqualToString:previousAppState.appVersion]) {
+    // If the release name is different we assume it's an upgrade
+    if (![currentAppState.releaseName isEqualToString:previousAppState.releaseName]) {
         return NO;
     }
 
@@ -91,9 +91,9 @@ SentryOutOfMemoryLogic ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashAdapter.isBeingTraced;
 
-    return [[SentryAppState alloc] initWithAppVersion:self.options.releaseName
-                                            osVersion:UIDevice.currentDevice.systemVersion
-                                          isDebugging:isDebugging];
+    return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
+                                             osVersion:UIDevice.currentDevice.systemVersion
+                                           isDebugging:isDebugging];
 }
 #endif
 

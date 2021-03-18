@@ -3,12 +3,12 @@
 
 @implementation SentryAppState
 
-- (instancetype)initWithAppVersion:(NSString *)appVersion
-                         osVersion:(NSString *)osVersion
-                       isDebugging:(BOOL)isDebugging
+- (instancetype)initWithReleaseName:(NSString *)releaseName
+                          osVersion:(NSString *)osVersion
+                        isDebugging:(BOOL)isDebugging
 {
     if (self = [super init]) {
-        _appVersion = appVersion;
+        _releaseName = releaseName;
         _osVersion = osVersion;
         _isDebugging = isDebugging;
         _isActive = NO;
@@ -20,11 +20,11 @@
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
 {
     if (self = [super init]) {
-        id appVersion = [jsonObject valueForKey:@"app_version"];
-        if (appVersion == nil || ![appVersion isKindOfClass:[NSString class]]) {
+        id releaseName = [jsonObject valueForKey:@"release_name"];
+        if (releaseName == nil || ![releaseName isKindOfClass:[NSString class]]) {
             return nil;
         } else {
-            _appVersion = appVersion;
+            _releaseName = releaseName;
         }
 
         id osVersion = [jsonObject valueForKey:@"os_version"];
@@ -62,7 +62,7 @@
 {
     NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
 
-    [data setValue:self.appVersion forKey:@"app_version"];
+    [data setValue:self.releaseName forKey:@"release_name"];
     [data setValue:self.osVersion forKey:@"os_version"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
     [data setValue:@(self.isActive) forKey:@"is_active"];

@@ -17,7 +17,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = SentryOutOfMemoryTrackerTests.dsnAsString
-            options.releaseName = TestData.appState.appVersion
+            options.releaseName = TestData.appState.releaseName
             
             client = TestClient(options: options)
             
@@ -54,7 +54,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let actual = fixture.fileManager.readAppState()
         
-        let appState = SentryAppState(appVersion: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false)
         
         XCTAssertEqual(appState, actual)
     }
@@ -80,7 +80,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
 
     func testDifferentAppVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(appVersion: "0.9.0", osVersion: UIDevice.current.systemVersion, isDebugging: false))
+        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, isDebugging: false))
         
         sut.start()
         
@@ -88,7 +88,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testDifferentOSVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(appVersion: fixture.options.releaseName ?? "", osVersion: "1.0.0", isDebugging: false))
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", isDebugging: false))
         
         sut.start()
         
@@ -120,7 +120,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testCrashReport_NoOOM() {
-        let appState = SentryAppState(appVersion: TestData.appState.appVersion, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
         givenPreviousAppState(appState: appState)
         fixture.crashWrapper.internalCrashedLastLaunch = true
         

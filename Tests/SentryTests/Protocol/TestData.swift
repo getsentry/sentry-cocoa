@@ -144,7 +144,7 @@ class TestData {
     }
     
     static var appState: SentryAppState {
-        return SentryAppState(appVersion: "1.0.0", osVersion: "14.4.1", isDebugging: false)
+        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", isDebugging: false)
     }
     
     static var oomEvent: Event {

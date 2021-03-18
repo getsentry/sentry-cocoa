@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
         return YES;
     if (appState == nil)
         return NO;
-    if (self.appVersion != appState.appVersion
-        && ![self.appVersion isEqualToString:appState.appVersion])
+    if (self.releaseName != appState.releaseName
+        && ![self.releaseName isEqualToString:appState.releaseName])
         return NO;
     if (self.osVersion != appState.osVersion
         && ![self.osVersion isEqualToString:appState.osVersion])
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSUInteger hash = 17;
 
-    hash = hash * 23 + [self.appVersion hash];
+    hash = hash * 23 + [self.releaseName hash];
     hash = hash * 23 + [self.osVersion hash];
     hash = hash * 23 + [@(self.isDebugging) hash];
     hash = hash * 23 + [@(self.isActive) hash];

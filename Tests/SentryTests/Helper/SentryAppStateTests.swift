@@ -7,7 +7,7 @@ class SentryAppStateTests: XCTestCase {
         
         let actual = appState.serialize()
         
-        XCTAssertEqual(appState.appVersion, actual["app_version"] as? String)
+        XCTAssertEqual(appState.releaseName, actual["release_name"] as? String)
         XCTAssertEqual(appState.osVersion, actual["os_version"] as? String)
         XCTAssertEqual(appState.isDebugging, actual["is_debugging"] as? Bool)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
@@ -17,7 +17,7 @@ class SentryAppStateTests: XCTestCase {
     func testInitWithJSON_AllFields() {
         let appState = TestData.appState
         let dict = [
-            "app_version": appState.appVersion,
+            "release_name": appState.releaseName,
             "os_version": appState.osVersion,
             "is_debugging": appState.isDebugging,
             "is_active": appState.isActive,
@@ -30,7 +30,7 @@ class SentryAppStateTests: XCTestCase {
     }
     
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
-        withValue { $0["app_version"] = nil }
+        withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
         withValue { $0["is_debugging"] = nil }
         withValue { $0["is_active"] = nil }
@@ -38,7 +38,7 @@ class SentryAppStateTests: XCTestCase {
     }
     
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
-        withValue { $0["app_version"] = 0 }
+        withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
         withValue { $0["is_debugging"] = "" }
         withValue { $0["is_active"] = "" }

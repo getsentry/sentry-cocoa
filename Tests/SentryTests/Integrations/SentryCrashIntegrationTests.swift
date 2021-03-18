@@ -20,7 +20,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         var options: Options {
             let options = Options()
             options.dsn = SentryCrashIntegrationTests.dsnAsString
-            options.releaseName = TestData.appState.appVersion
+            options.releaseName = TestData.appState.releaseName
             return options
         }
         
@@ -91,7 +91,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() {
-        let appState = SentryAppState(appVersion: TestData.appState.appVersion, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
         appState.isActive = true
         givenPreviousAppState(appState: appState)
         

@@ -85,6 +85,7 @@ SentryOutOfMemoryTracker ()
             [SentrySDK captureCrashEvent:event];
         }
 
+        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
         [fileManager storeAppState:[self.outOfMemoryLogic buildCurrentAppState]];
     }];
 

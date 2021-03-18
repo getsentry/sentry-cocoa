@@ -6,9 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryAppState : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
-- (instancetype)initWithAppVersion:(NSString *)appVersion
-                         osVersion:(NSString *)osVersion
-                       isDebugging:(BOOL)isDebugging;
+- (instancetype)initWithReleaseName:(NSString *)releaseName
+                          osVersion:(NSString *)osVersion
+                        isDebugging:(BOOL)isDebugging;
 
 /**
  * Initializes SentryAppState from a JSON object.
@@ -19,7 +19,7 @@ SENTRY_NO_INIT
  */
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
-@property (readonly, nonatomic, copy) NSString *appVersion;
+@property (readonly, nonatomic, copy) NSString *releaseName;
 
 @property (readonly, nonatomic, copy) NSString *osVersion;
 

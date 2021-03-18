@@ -86,7 +86,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         }
         sentryCrash.internalCrashedLastLaunch = false
         
-        let appState = SentryAppState(appVersion: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false)
         appState.isActive = true
         fileManager.store(appState)
         
