@@ -11,6 +11,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         var healthy = 0
         var errored = 0
         var crashed = 0
+        var oom = 0
         var abnormal = 0
     }
     
@@ -39,8 +40,8 @@ class SentrySessionGeneratorTests: XCTestCase {
     /**
      * Disabled on purpose. This test just sends sessions to Sentry, but doesn't verify that they arrive there properly.
      */
-    func tesSendSessions() {
-        sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 3, abnormal: 1))
+    func testSendSessions() {
+        sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 3, oom: 1, abnormal: 1))
     }
     
     private func sendSessions(amount: Sessions ) {
@@ -84,6 +85,23 @@ class SentrySessionGeneratorTests: XCTestCase {
             SentrySDK.captureCrash(crashEvent)
         }
         sentryCrash.internalCrashedLastLaunch = false
+        
+        
+        let appState = SentryAppState(appVersion: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        appState.isActive = true
+        fileManager.store(appState)
+        
+        for _ in Array(1...amount.oom) {
+            // send crashed session
+            crashIntegration.install(with: options)
+            
+            autoSessionTrackingIntegration.stop()
+            autoSessionTrackingIntegration.install(with: options)
+            goToForeground()
+            
+            SentrySDK.captureCrash(TestData.oomEvent)
+        }
+        fileManager.deleteAppState()
         
         for _ in Array(1...amount.abnormal) {
             autoSessionTrackingIntegration.stop()

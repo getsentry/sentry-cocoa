@@ -92,14 +92,6 @@ class SentryClientTest: XCTestCase {
             event.exceptions = [exception]
             return event
         }
-        
-        var eventWithOOM: Event {
-            let event = Event(level: SentryLevel.fatal)
-            let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
-            exception.mechanism = Mechanism(type: SentryOutOfMemoryExceptionType)
-            event.exceptions = [exception]
-            return event
-        }
     }
 
     private let error = NSError(domain: "domain", code: -20, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
@@ -342,7 +334,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureOOMEvent_RemovesFreeMemoryFromContext() {
-        let oomEvent = fixture.eventWithOOM
+        let oomEvent = TestData.oomEvent
         
         _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
 
@@ -353,7 +345,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureOOMEvent_WithNoContext_ContextNotModified() {
-        let oomEvent = fixture.eventWithOOM
+        let oomEvent = TestData.oomEvent
         
         _ = fixture.getSut().captureCrash(oomEvent, with: Scope())
 
@@ -364,7 +356,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureOOMEvent_WithNoDeviceContext_ContextNotModified() {
-        let oomEvent = fixture.eventWithOOM
+        let oomEvent = TestData.oomEvent
         let scope = Scope()
         scope.setContext(value: ["some": "thing"], key: "any")
         
