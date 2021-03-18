@@ -53,4 +53,44 @@ class SentryStacktraceBuilderTests: XCTestCase {
         
         XCTAssertTrue(filteredFrames.count == 2, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
+    
+    func testAsyncStacktraces() {
+        let expectation = XCTestExpectation(description: "async stack generated")
+
+        DispatchQueue.main.async {
+            // XXX: now this is a bit strange, starting the SDK / hooking async calls in
+            // the context of the test function does not work correctly, however doing so
+            // in this async callback does work as expected.
+            SentrySDK.start(options: ["dsn": TestConstants.dsnAsString(username: "SentrySDKTests")])
+
+            self.asyncFrame1(expectation: expectation)
+        }
+
+        wait(for: [expectation], timeout: 5)
+    }
+    
+    func asyncFrame1(expectation: XCTestExpectation) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
+            self.asyncFrame2(expectation: expectation)
+        }
+    }
+    func asyncFrame2(expectation: XCTestExpectation) {
+        DispatchQueue.main.async {
+            self.asyncAssertion(expectation: expectation)
+        }
+    }
+    func asyncAssertion(expectation: XCTestExpectation) {
+        let actual = self.fixture.getSut().buildStacktraceForCurrentThread()
+
+        let filteredFrames = actual.frames.filter { frame in
+            return frame.function?.contains("testAsyncStacktraces") ?? false ||
+                frame.function?.contains("asyncFrame1") ?? false ||
+                frame.function?.contains("asyncFrame2") ?? false ||
+                frame.function?.contains("asyncAssertion") ?? false
+        }
+
+        XCTAssertTrue(filteredFrames.count >= 4, "The Stacktrace must include the async callers.")
+
+        expectation.fulfill()
+    }
 }
