@@ -34,6 +34,10 @@ SentryOutOfMemoryLogic ()
 
 - (BOOL)isOOM
 {
+    if (!self.options.enableOutOfMemoryTracking) {
+        return NO;
+    }
+
 #if SENTRY_HAS_UIKIT
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
     SentryAppState *previousAppState = [fileManager readAppState];

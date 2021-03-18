@@ -43,6 +43,12 @@ class SentryCrashIntegrationTests: XCTestCase {
         func getSut() -> SentryCrashIntegration {
             return SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
+        
+        var sutWithoutCrash: SentryCrashIntegration {
+            let crash = sentryCrash
+            crash.internalCrashedLastLaunch = false
+            return SentryCrashIntegration(crashWrapper: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
+        }
     }
     
     private let fixture = Fixture()
@@ -52,6 +58,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteAppState()
     }
     
     // Test for GH-581
@@ -91,22 +98,34 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
-        appState.isActive = true
-        givenPreviousAppState(appState: appState)
+        givenOOMAppState()
         
         let expectedCrashedSession = givenCrashedSession()
         
         SentrySDK.setCurrentHub(fixture.hub)
         advanceTime(bySeconds: 10)
         
-        let sentryCrash = fixture.sentryCrash
-        sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = fixture.sutWithoutCrash
         sut.install(with: fixture.options)
         
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
+    
+    func testOutOfMemoryTrackingDisabled() {
+        givenOOMAppState()
+        
+        let session = givenCurrentSession()
+        
+        let sut = fixture.sutWithoutCrash
+        let options = fixture.options
+        options.enableOutOfMemoryTracking = false
+        sut.install(with: options)
+        
+        let fileManager = fixture.fileManager
+        XCTAssertEqual(session, fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
+    }
+    
     #endif
     
     func testEndSessionAsCrashed_NoClientSet() {
@@ -159,9 +178,13 @@ class SentryCrashIntegrationTests: XCTestCase {
         return session
     }
     
-    private func givenPreviousAppState(appState: SentryAppState) {
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    private func givenOOMAppState() {
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        appState.isActive = true
         fixture.fileManager.store(appState)
     }
+    #endif
     
     private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
         if let actual = userInfo[key] as? String {
