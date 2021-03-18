@@ -10,7 +10,7 @@
  * that the slot indeed belongs to the thread we want to work with.
  */
 
-#define SENTRY_MAX_ASYNC_THREADS 32
+#define SENTRY_MAX_ASYNC_THREADS 64
 
 typedef struct {
     SentryCrashThread thread;
