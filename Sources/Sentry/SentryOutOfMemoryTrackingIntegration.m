@@ -18,20 +18,22 @@ SentryOutOfMemoryTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-    SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
-                                              attributes:attributes];
+    if (options.enableOutOfMemoryTracking) {
+        dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+            DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        SentryDispatchQueueWrapper *dispatchQueueWrapper =
+            [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
+                                                  attributes:attributes];
 
-    SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:[[SentryCrashAdapter alloc] init]];
+        SentryOutOfMemoryLogic *logic =
+            [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                               crashAdapter:[[SentryCrashAdapter alloc] init]];
 
-    self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options
-                                                    outOfMemoryLogic:logic
-                                                dispatchQueueWrapper:dispatchQueueWrapper];
-    [self.tracker start];
+        self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options
+                                                        outOfMemoryLogic:logic
+                                                    dispatchQueueWrapper:dispatchQueueWrapper];
+        [self.tracker start];
+    }
 }
 
 - (void)stop
