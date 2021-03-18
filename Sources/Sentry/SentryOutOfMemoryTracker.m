@@ -3,6 +3,7 @@
 #import <SentryAppState.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashAdapter.h>
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryEvent.h>
 #import <SentryException.h>
 #import <SentryHub.h>
@@ -23,6 +24,7 @@ SentryOutOfMemoryTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
 
@@ -30,10 +32,12 @@ SentryOutOfMemoryTracker ()
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashAdapter *)crashAdatper
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.options = options;
         self.crashAdapter = crashAdatper;
+        self.dispatchQueue = dispatchQueueWrapper;
     }
     return self;
 }
@@ -61,69 +65,71 @@ SentryOutOfMemoryTracker ()
                                                name:UIApplicationWillTerminateNotification
                                              object:nil];
 
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppState *previousAppState = [fileManager readAppState];
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+        SentryAppState *previousAppState = [fileManager readAppState];
 
-    // Is the current process being traced or not? If it is a debugger is attached.
-    bool isDebugging = self.crashAdapter.isBeingTraced;
+        // Is the current process being traced or not? If it is a debugger is attached.
+        bool isDebugging = self.crashAdapter.isBeingTraced;
 
-    SentryAppState *currentAppState =
-        [[SentryAppState alloc] initWithAppVersion:self.options.releaseName
-                                         osVersion:UIDevice.currentDevice.systemVersion
-                                       isDebugging:isDebugging];
-    [fileManager storeAppState:currentAppState];
+        SentryAppState *currentAppState =
+            [[SentryAppState alloc] initWithAppVersion:self.options.releaseName
+                                             osVersion:UIDevice.currentDevice.systemVersion
+                                           isDebugging:isDebugging];
+        [fileManager storeAppState:currentAppState];
 
-    // If there is no previous app state, we can't do anything.
-    if (nil == previousAppState) {
-        return;
-    }
+        // If there is no previous app state, we can't do anything.
+        if (nil == previousAppState) {
+            return;
+        }
 
-    // If the app version is different we assume it's an upgrade
-    if (![currentAppState.appVersion isEqualToString:previousAppState.appVersion]) {
-        return;
-    }
+        // If the app version is different we assume it's an upgrade
+        if (![currentAppState.appVersion isEqualToString:previousAppState.appVersion]) {
+            return;
+        }
 
-    // The OS was upgraded
-    if (![currentAppState.osVersion isEqualToString:previousAppState.osVersion]) {
-        return;
-    }
+        // The OS was upgraded
+        if (![currentAppState.osVersion isEqualToString:previousAppState.osVersion]) {
+            return;
+        }
 
-    // Restarting the app in development is a termination we can't catch and would falsely report
-    // OOMs.
-    if (previousAppState.isDebugging) {
-        return;
-    }
+        // Restarting the app in development is a termination we can't catch and would falsely
+        // report OOMs.
+        if (previousAppState.isDebugging) {
+            return;
+        }
 
-    // The app was terminated normally
-    if (previousAppState.wasTerminated) {
-        return;
-    }
+        // The app was terminated normally
+        if (previousAppState.wasTerminated) {
+            return;
+        }
 
-    // The app crashed on the previous run. No OOM.
-    if (self.crashAdapter.crashedLastLaunch) {
-        return;
-    }
+        // The app crashed on the previous run. No OOM.
+        if (self.crashAdapter.crashedLastLaunch) {
+            return;
+        }
 
-    // Was the app in foreground/active ?
-    // If the app was in background we can't reliably tell if it was an OOM or not.
-    if (!previousAppState.isActive) {
-        return;
-    }
+        // Was the app in foreground/active ?
+        // If the app was in background we can't reliably tell if it was an OOM or not.
+        if (!previousAppState.isActive) {
+            return;
+        }
 
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-    // Set to empty list so no breadcrumbs of the current scope are added
-    event.breadcrumbs = @[];
+        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+        // Set to empty list so no breadcrumbs of the current scope are added
+        event.breadcrumbs = @[];
 
-    SentryException *exception =
-        [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
-                                          type:SentryOutOfMemoryExceptionType];
-    SentryMechanism *mechanism =
-        [[SentryMechanism alloc] initWithType:SentryOutOfMemoryExceptionType];
-    mechanism.handled = @(NO);
-    exception.mechanism = mechanism;
-    event.exceptions = @[ exception ];
+        SentryException *exception =
+            [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
+                                              type:SentryOutOfMemoryExceptionType];
+        SentryMechanism *mechanism =
+            [[SentryMechanism alloc] initWithType:SentryOutOfMemoryExceptionType];
+        mechanism.handled = @(NO);
+        exception.mechanism = mechanism;
+        event.exceptions = @[ exception ];
 
-    [SentrySDK captureCrashEvent:event];
+        [SentrySDK captureCrashEvent:event];
+    }];
 
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM."
@@ -145,11 +151,7 @@ SentryOutOfMemoryTracker ()
  */
 - (void)didBecomeActive
 {
-    // We don't know if the hybrid SDKs post the notification from a background thread, so we
-    // synchronize to be safe.
-    @synchronized(self) {
-        [self updateAppState:^(SentryAppState *appState) { appState.isActive = YES; }];
-    }
+    [self updateAppState:^(SentryAppState *appState) { appState.isActive = YES; }];
 }
 
 /**
@@ -168,12 +170,16 @@ SentryOutOfMemoryTracker ()
 
 - (void)updateAppState:(void (^)(SentryAppState *))block
 {
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppState *appState = [fileManager readAppState];
-    if (nil != appState) {
-        block(appState);
-        [fileManager storeAppState:appState];
-    }
+    // We accept the tradeoff that the app state might not be 100% up to date over blocking the main
+    // thread.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+        SentryAppState *appState = [fileManager readAppState];
+        if (nil != appState) {
+            block(appState);
+            [fileManager storeAppState:appState];
+        }
+    }];
 }
 
 @end

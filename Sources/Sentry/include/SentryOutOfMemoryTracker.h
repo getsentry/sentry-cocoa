@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCurrentDateProvider, SentryCrashAdapter;
+@class SentryOptions, SentryCurrentDateProvider, SentryCrashAdapter, SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,7 +17,8 @@ static NSString *const SentryOutOfMemoryExceptionValue
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashAdapter *)crashAdatper;
+                   crashAdapter:(SentryCrashAdapter *)crashAdatper
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (void)start;
 - (void)stop;
