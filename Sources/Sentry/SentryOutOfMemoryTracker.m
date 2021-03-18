@@ -36,6 +36,7 @@ SentryOutOfMemoryTracker ()
 {
     if (self = [super init]) {
         self.options = options;
+        self.outOfMemoryLogic = outOfMemoryLogic;
         self.dispatchQueue = dispatchQueueWrapper;
     }
     return self;
