@@ -86,6 +86,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         }
         sentryCrash.internalCrashedLastLaunch = false
         
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false)
         appState.isActive = true
         fileManager.store(appState)
@@ -101,6 +102,7 @@ class SentrySessionGeneratorTests: XCTestCase {
             SentrySDK.captureCrash(TestData.oomEvent)
         }
         fileManager.deleteAppState()
+        #endif
         
         for _ in Array(1...amount.abnormal) {
             autoSessionTrackingIntegration.stop()
