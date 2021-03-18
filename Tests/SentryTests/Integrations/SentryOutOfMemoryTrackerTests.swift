@@ -30,7 +30,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut() -> SentryOutOfMemoryTracker {
-            return SentryOutOfMemoryTracker(options: options, crashAdapter: crashWrapper, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: SentryOutOfMemoryLogic(options: options, crashAdapter: self.crashWrapper), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         }
     }
     

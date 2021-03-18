@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryCrashAdapter.h>
 #import <SentryDispatchQueueWrapper.h>
+#import <SentryOutOfMemoryLogic.h>
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 
@@ -23,10 +24,13 @@ SentryOutOfMemoryTrackingIntegration ()
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
                                               attributes:attributes];
 
-    self.tracker =
-        [[SentryOutOfMemoryTracker alloc] initWithOptions:options
-                                             crashAdapter:[[SentryCrashAdapter alloc] init]
-                                     dispatchQueueWrapper:dispatchQueueWrapper];
+    SentryOutOfMemoryLogic *logic =
+        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                           crashAdapter:[[SentryCrashAdapter alloc] init]];
+
+    self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options
+                                                    outOfMemoryLogic:logic
+                                                dispatchQueueWrapper:dispatchQueueWrapper];
     [self.tracker start];
 }
 

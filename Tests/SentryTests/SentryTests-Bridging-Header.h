@@ -55,6 +55,7 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
+#import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryRateLimitCategoryMapper.h"
