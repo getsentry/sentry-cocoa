@@ -64,6 +64,8 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAppState()
     }
     
