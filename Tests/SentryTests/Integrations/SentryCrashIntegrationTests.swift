@@ -54,10 +54,16 @@ class SentryCrashIntegrationTests: XCTestCase {
     private let fixture = Fixture()
     
     override func setUp() {
+        super.setUp()
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
         
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteAppState()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
         fixture.fileManager.deleteAppState()
     }
     

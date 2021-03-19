@@ -32,6 +32,7 @@ class SentrySessionGeneratorTests: XCTestCase {
             
             fileManager.deleteCurrentSession()
             fileManager.deleteTimestampLastInForeground()
+            fileManager.deleteAppState()
         } catch {
             XCTFail("Could not delete session data")
         }
