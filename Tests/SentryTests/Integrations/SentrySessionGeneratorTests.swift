@@ -30,10 +30,20 @@ class SentrySessionGeneratorTests: XCTestCase {
             fileManager = try SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
             
             fileManager.deleteCurrentSession()
+            fileManager.deleteCrashedSession()
             fileManager.deleteTimestampLastInForeground()
         } catch {
             XCTFail("Could not delete session data")
         }
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        
+        fileManager.deleteCurrentSession()
+        fileManager.deleteCrashedSession()
+        fileManager.deleteTimestampLastInForeground()
+        autoSessionTrackingIntegration.stop()
     }
     
     /**
