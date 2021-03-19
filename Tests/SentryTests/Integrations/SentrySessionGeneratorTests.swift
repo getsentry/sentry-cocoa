@@ -139,7 +139,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
         SentrySDK.setCurrentHub(hub)
         
-        crashIntegration = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
         
         autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration()

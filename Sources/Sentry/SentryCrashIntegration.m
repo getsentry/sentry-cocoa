@@ -38,11 +38,11 @@ SentryCrashIntegration ()
 }
 
 /** Internal constructor for testing */
-- (instancetype)initWithCrashWrapper:(SentryCrashAdapter *)crashWrapper
+- (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     self = [self init];
-    self.crashAdapter = crashWrapper;
+    self.crashAdapter = crashAdapter;
     self.dispatchQueueWrapper = dispatchQueueWrapper;
 
     return self;
