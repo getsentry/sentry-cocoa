@@ -55,33 +55,31 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
     
     func testAsyncStacktraces() throws {
-        throw XCTSkip("Test runs locally but fails on CI.")
+        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString(username: "SentrySDKTests")])
         
-        /*let expectation = XCTestExpectation(description: "async stack generated")
+        let group = DispatchGroup()
 
         DispatchQueue.main.async {
-            // XXX: now this is a bit strange, starting the SDK / hooking async calls in
-            // the context of the test function does not work correctly, however doing so
-            // in this async callback does work as expected.
-            SentrySDK.start(options: ["dsn": TestConstants.dsnAsString(username: "SentrySDKTests")])
-
-            self.asyncFrame1(expectation: expectation)
+            group.enter()
+            self.asyncFrame1(group: group)
         }
-
-        wait(for: [expectation], timeout: 5)*/
+        
+        group.waitWithTimeout()
     }
     
-    func asyncFrame1(expectation: XCTestExpectation) {
+    func asyncFrame1(group: DispatchGroup) {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
-            self.asyncFrame2(expectation: expectation)
+            self.asyncFrame2(group: group)
         }
     }
-    func asyncFrame2(expectation: XCTestExpectation) {
+    
+    func asyncFrame2(group: DispatchGroup) {
         DispatchQueue.main.async {
-            self.asyncAssertion(expectation: expectation)
+            self.asyncAssertion(group: group)
         }
     }
-    func asyncAssertion(expectation: XCTestExpectation) {
+    
+    func asyncAssertion(group: DispatchGroup) {
         let actual = self.fixture.getSut().buildStacktraceForCurrentThread()
 
         let filteredFrames = actual.frames.filter { frame in
@@ -93,6 +91,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
         XCTAssertTrue(filteredFrames.count >= 4, "The Stacktrace must include the async callers.")
 
-        expectation.fulfill()
+        group.leave()
     }
 }
