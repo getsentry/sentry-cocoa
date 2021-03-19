@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryCrashIntegration (TestInit)
 
-- (instancetype)initWithCrashWrapper:(SentryCrashAdapter *)crashWrapper
+- (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashWrapper
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
