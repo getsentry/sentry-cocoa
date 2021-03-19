@@ -156,6 +156,39 @@ sentry__hook_dispatch_after_f(
     sentry__hook_dispatch_after(when, queue, ^{ work(context); });
 }
 
+static void (*real_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_block_t block);
+
+void
+sentry__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block)
+{
+    // create a backtrace, capturing the async callsite
+    sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
+
+    return real_dispatch_barrier_async(queue, ^{
+        SentryCrashThread thread = sentrycrashthread_self();
+
+        // inside the async context, save the backtrace in a thread local for later consumption
+        sentry__set_async_caller_for_thread(thread, (SentryCrashThread)NULL, thread, bt);
+
+        // call through to the original block
+        block();
+
+        // and decref our current backtrace
+        sentry__set_async_caller_for_thread(thread, thread, (SentryCrashThread)NULL, NULL);
+        sentry__async_backtrace_decref(bt);
+    });
+}
+
+static void (*real_dispatch_barrier_async_f)(
+    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
+
+void
+sentry__hook_dispatch_barrier_async_f(
+    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
+{
+    sentry__hook_dispatch_barrier_async(queue, ^{ work(context); });
+}
+
 static bool hooks_installed = false;
 
 void
@@ -184,13 +217,31 @@ sentry_install_async_hooks(void)
             { "dispatch_after_f", sentry__hook_dispatch_after_f, (void *)&real_dispatch_after_f },
         },
         1);
-    // TODO:
-    // dispatch_barrier_async
-    // dispatch_barrier_async_f
-    // dispatch_async_and_wait
-    // dispatch_async_and_wait_f
-    // dispatch_barrier_async_and_wait
-    // dispatch_barrier_async_and_wait_f
+    rebind_symbols(
+        (struct rebinding[1]) {
+            { "dispatch_barrier_async", sentry__hook_dispatch_barrier_async,
+                (void *)&real_dispatch_barrier_async },
+        },
+        1);
+    rebind_symbols(
+        (struct rebinding[1]) {
+            { "dispatch_barrier_async_f", sentry__hook_dispatch_barrier_async_f,
+                (void *)&real_dispatch_barrier_async_f },
+        },
+        1);
+
+    // NOTE: We will *not* hook the following functions:
+    //
+    // - dispatch_async_and_wait
+    // - dispatch_async_and_wait_f
+    // - dispatch_barrier_async_and_wait
+    // - dispatch_barrier_async_and_wait_f
+    //
+    // Because these functions `will use the stack of the submitting thread` in some cases
+    // and our thread tracking logic would do the wrong thing in that case.
+    //
+    // See:
+    // https://github.com/apple/swift-corelibs-libdispatch/blob/f13ea5dcc055e5d2d7c02e90d8c9907ca9dc72e1/private/workloop_private.h#L321-L326
 }
 
 // TODO: uninstall hooks
