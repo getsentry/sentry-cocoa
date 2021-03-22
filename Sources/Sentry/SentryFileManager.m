@@ -1,5 +1,6 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryAppState.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
@@ -26,6 +27,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
+@property (nonatomic, copy) NSString *appStateFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 
 @end
@@ -60,6 +62,8 @@ SentryFileManager ()
 
         self.lastInForegroundFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
+
+        self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
 
         // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
@@ -356,6 +360,58 @@ SentryFileManager ()
     return nil != saveData ? [self storeData:saveData toPath:path]
                            : path; // TODO: Should we return null instead? Whoever is using this
                                    // return value is being tricked.
+}
+
+- (void)storeAppState:(SentryAppState *)appState
+{
+    NSError *error = nil;
+    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize] error:&error];
+
+    if (nil != error) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to store app state, because "
+                                                             @"of an error in serialization: %@",
+                                            error]
+                         andLevel:kSentryLevelError];
+        return;
+    }
+
+    @synchronized(self.appStateFilePath) {
+        [data writeToFile:self.appStateFilePath options:NSDataWritingAtomic error:&error];
+        if (nil != error) {
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"Failed to store app state %@", error]
+                      andLevel:kSentryLevelError];
+        }
+    }
+}
+
+- (SentryAppState *_Nullable)readAppState
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *currentData = nil;
+    @synchronized(self.appStateFilePath) {
+        currentData = [fileManager contentsAtPath:self.appStateFilePath];
+        if (nil == currentData) {
+            return nil;
+        }
+    }
+    return [SentrySerialization appStateWithData:currentData];
+}
+
+- (void)deleteAppState
+{
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    @synchronized(self.appStateFilePath) {
+        [fileManager removeItemAtPath:self.appStateFilePath error:&error];
+
+        // We don't want to log an error if the file doesn't exist.
+        if (nil != error && error.code != NSFileNoSuchFileError) {
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"Failed to delete app state %@", error]
+                      andLevel:kSentryLevelError];
+        }
+    }
 }
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error
