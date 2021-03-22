@@ -2,8 +2,8 @@
 #include "fishhook.h"
 #include <dispatch/dispatch.h>
 #include <execinfo.h>
-#include <pthread.h>
 #include <mach/mach.h>
+#include <pthread.h>
 
 // NOTE on accessing thread-locals across threads:
 // We save the async stacktrace as a thread local when dispatching async calls,
@@ -11,12 +11,13 @@
 // sometimes, which we do here:
 // While `pthread_t` is an opaque type, the offset of `thread specific data` (tsd)
 // is fixed due to backwards compatibility.
-// See: https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/types_internal.h#L409-L432
+// See:
+// https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/types_internal.h#L409-L432
 
 #if __LP64__
-#define TSD_OFFSET 224
+#    define TSD_OFFSET 224
 #else
-#define TSD_OFFSET 176
+#    define TSD_OFFSET 176
 #endif
 
 static pthread_key_t async_caller_key = 0;
@@ -25,7 +26,7 @@ sentry_async_backtrace_t *
 sentry_get_async_caller_for_thread(SentryCrashThread thread)
 {
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
-    void **tsd_slots = (void*)((uint8_t*)pthread + TSD_OFFSET);
+    void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
     return (sentry_async_backtrace_t *)tsd_slots[async_caller_key];
 }
 
@@ -58,8 +59,7 @@ sentry__async_backtrace_capture(void)
 
     bt->len = backtrace(bt->backtrace, MAX_BACKTRACE_FRAMES);
 
-    sentry_async_backtrace_t *caller =
-        pthread_getspecific(async_caller_key);
+    sentry_async_backtrace_t *caller = pthread_getspecific(async_caller_key);
     sentry__async_backtrace_incref(caller);
     bt->async_caller = caller;
 
@@ -168,7 +168,7 @@ sentry_install_async_hooks(void)
     if (__atomic_exchange_n(&hooks_installed, true, __ATOMIC_SEQ_CST)) {
         return;
     }
-    if (pthread_key_create(&async_caller_key, NULL) != 0)    {
+    if (pthread_key_create(&async_caller_key, NULL) != 0) {
         return;
     }
 
