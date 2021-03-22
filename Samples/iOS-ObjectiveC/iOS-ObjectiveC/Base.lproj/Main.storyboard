@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AVC-4r-eVc">
-                                <rect key="frame" x="8" y="116.5" width="398" height="210"/>
+                                <rect key="frame" x="8" y="116.5" width="398" height="240"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rUC-at-hwU">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -74,6 +74,13 @@
                                         <state key="normal" title="crash"/>
                                         <connections>
                                             <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6xT-zA-EZI"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7cg-k4-wJ5" userLabel="oomCrash">
+                                        <rect key="frame" x="0.0" y="210" width="398" height="30"/>
+                                        <state key="normal" title="OOM Crash"/>
+                                        <connections>
+                                            <action selector="oomCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Eb-uS-ljp"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lr8-6E-lN6">

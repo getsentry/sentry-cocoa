@@ -142,4 +142,16 @@ class TestData {
         case happyCustomer
         case awesomeCentaur
     }
+    
+    static var appState: SentryAppState {
+        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", isDebugging: false)
+    }
+    
+    static var oomEvent: Event {
+        let event = Event(level: SentryLevel.fatal)
+        let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
+        exception.mechanism = Mechanism(type: SentryOutOfMemoryExceptionType)
+        event.exceptions = [exception]
+        return event
+    }
 }

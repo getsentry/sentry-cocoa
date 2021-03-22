@@ -6,6 +6,7 @@
 #import "SentryFrameInAppLogic.h"
 #import "SentryHook.h"
 #import "SentryHub.h"
+#import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
@@ -21,6 +22,7 @@ SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 
 @end
@@ -30,10 +32,8 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        SentryCrashAdapter *crashWrapper = [[SentryCrashAdapter alloc] init];
+        self.crashAdapter = [[SentryCrashAdapter alloc] init];
         self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-        self.crashedSessionHandler =
-            [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashWrapper];
     }
     return self;
 }
@@ -43,9 +43,8 @@ SentryCrashIntegration ()
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     self = [self init];
+    self.crashAdapter = crashAdapter;
     self.dispatchQueueWrapper = dispatchQueueWrapper;
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashAdapter];
 
     return self;
 }
@@ -66,6 +65,13 @@ SentryCrashIntegration ()
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
+
+    SentryOutOfMemoryLogic *logic =
+        [[SentryOutOfMemoryLogic alloc] initWithOptions:options crashAdapter:self.crashAdapter];
+    self.crashedSessionHandler =
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                 outOfMemoryLogic:logic];
+
     [self startCrashHandler];
     sentry_install_async_hooks();
     [self configureScope];
@@ -95,7 +101,7 @@ SentryCrashIntegration ()
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashed];
+        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrOOM];
 
         [installation sendAllReports];
     };
@@ -153,7 +159,7 @@ SentryCrashIntegration ()
             [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
             [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
             [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-            [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+            [deviceData setValue:systemInfo[@"freeMemory"] forKey:SentryDeviceContextFreeMemoryKey];
             [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
             [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
             [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];

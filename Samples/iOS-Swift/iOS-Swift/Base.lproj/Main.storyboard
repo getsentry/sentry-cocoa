@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="95.5" width="398" height="270"/>
+                                <rect key="frame" x="8" y="95.5" width="398" height="300"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -87,6 +87,13 @@
                                         <state key="normal" title="crash"/>
                                         <connections>
                                             <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="imm-ZO-4Af"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Au-jS-aRl">
+                                        <rect key="frame" x="0.0" y="270" width="398" height="30"/>
+                                        <state key="normal" title="OOM crash"/>
+                                        <connections>
+                                            <action selector="oomCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oju-om-O6e"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xur-X2-ih4">
