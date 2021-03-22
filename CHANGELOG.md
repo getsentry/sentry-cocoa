@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: macOS version for Mac Catalyst #1011
+- feat: Out Of Memory Tracking #1001
 
 ## 7.0.0-alpha.2
 
