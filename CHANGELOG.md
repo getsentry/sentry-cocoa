@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- fix: macOS version for Mac Catalyst #1011
+
 ## 7.0.0-alpha.2
 
 ### Features
