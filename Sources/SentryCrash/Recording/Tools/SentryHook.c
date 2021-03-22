@@ -27,7 +27,9 @@ sentry_get_async_caller_for_thread(SentryCrashThread thread)
 {
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
     void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
-    return (sentry_async_backtrace_t *)tsd_slots[async_caller_key];
+
+    return (sentry_async_backtrace_t *)__atomic_load_n(
+        &tsd_slots[async_caller_key], __ATOMIC_SEQ_CST);
 }
 
 void
