@@ -209,7 +209,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let exception = crashEvent?.exceptions?.first
         XCTAssertEqual("The OS most likely terminated your app because it overused RAM.", exception?.value)
-        XCTAssertEqual("Out Of Memory", exception?.type)
+        XCTAssertEqual("OutOfMemory", exception?.type)
         
         XCTAssertNotNil(exception?.mechanism)
         XCTAssertEqual(false, exception?.mechanism?.handled)
