@@ -75,7 +75,7 @@ SentryOutOfMemoryTracker ()
                 [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
                                                   type:SentryOutOfMemoryExceptionType];
             SentryMechanism *mechanism =
-                [[SentryMechanism alloc] initWithType:SentryOutOfMemoryExceptionType];
+                [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
             mechanism.handled = @(NO);
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];

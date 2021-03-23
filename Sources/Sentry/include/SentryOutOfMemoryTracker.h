@@ -4,9 +4,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SentryOutOfMemoryExceptionType = @"Out Of Memory";
+static NSString *const SentryOutOfMemoryExceptionType = @"OutOfMemory";
 static NSString *const SentryOutOfMemoryExceptionValue
-    = @"The OS most likely terminated your app because it over-used RAM.";
+    = @"The OS most likely terminated your app because it overused RAM.";
+static NSString *const SentryOutOfMemoryMechanismType = @"out_of_memory";
 
 /**
  * Detect OOMs based on heuristics described in a blog post:
