@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- fix: OutOfMemory exception type #1015
+
 ## 7.0.0-alpha.3
 
 - feat: Out Of Memory Tracking #1001
