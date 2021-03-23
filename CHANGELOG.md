@@ -2,15 +2,23 @@
 
 ## Unreleased
 
-### Performance Monitoring
+## 7.0.0-alpha.2
 
-- feat: Add transaction sampling rules #977
-- feat: Add transaction sampling properties to SentryOptions #961
-- feat: Add SentrySpan #932
-- feat: Expand SentrySpanContext through SentryTransaction #919 
-- feat: Performance Monitoring API
+### Features
 
-### Breaking Changes:
+- feat: Performance Monitoring API (#909, #977, #961, #932, #919)
+
+### Breaking Changes
+
+- SentryEvent.timestamp changed to nullable.
+
+## 7.0.0-alpha.1
+
+Features and fixes:
+
+- ref: Add read-only scope property to Hub #975
+
+### Breaking Changes
 
 - ref: Add read-only scope property to Hub #975
 - ref: Remove SentryException.userReported #974
