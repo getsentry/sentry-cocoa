@@ -126,12 +126,17 @@ SentryCrashIntegration ()
             [osData setValue:@"watchOS" forKey:@"name"];
 #endif
 
-#if SENTRY_HAS_UIDEVICE
+            // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
+            // macOSVersion. Therefore we have to use NSProcessInfo.
+#if SENTRY_HAS_UIDEVICE && !TARGET_OS_MACCATALYST
             [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
             NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-            NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int) version.majorVersion, (int) version.minorVersion, (int) version.patchVersion];
+            NSString *systemVersion =
+                [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
+                          (int)version.minorVersion, (int)version.patchVersion];
             [osData setValue:systemVersion forKey:@"version"];
+
 #endif
 
             NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
@@ -152,6 +157,11 @@ SentryCrashIntegration ()
             NSString *family = [[systemInfo[@"systemName"]
                 componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
                 firstObject];
+
+#if TARGET_OS_MACCATALYST
+            // This would be iOS. Set it to macOS instead.
+            family = @"macOS";
+#endif
 
             [deviceData setValue:family forKey:@"family"];
             [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
