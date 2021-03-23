@@ -172,6 +172,42 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertNil(fileManager.readCrashedSession())
     }
     
+    func testOSCorrectlySetToScopeContext() {
+        let hub = fixture.hub
+        SentrySDK.setCurrentHub(hub)
+        
+        let sut = fixture.getSut()
+        sut.install(with: Options())
+        
+        let context = hub.scope.serialize()["context"]as? [String: Any] ?? ["": ""]
+        
+        guard let os = context["os"] as? [String: Any] else {
+            XCTFail("No OS found on context.")
+            return
+        }
+        
+        guard let device = context["device"] as? [String: Any] else {
+            XCTFail("No device found on context.")
+            return
+        }
+        
+        #if targetEnvironment(macCatalyst) || os(macOS)
+        XCTAssertEqual("macOS", device["family"] as? String)
+        XCTAssertEqual("macOS", os["name"] as? String)
+        
+        let osVersion = ProcessInfo().operatingSystemVersion
+        XCTAssertEqual("\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)", os["version"] as? String)
+        #elseif os(iOS)
+        XCTAssertEqual("iOS", device["family"] as? String)
+        XCTAssertEqual("iOS", os["name"] as? String)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+        #elseif os(tvOS)
+        XCTAssertEqual("tvOS", device["family"] as? String)
+        XCTAssertEqual("tvOS", os["name"] as? String)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+        #endif
+    }
+    
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!
