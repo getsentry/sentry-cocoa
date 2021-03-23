@@ -6,6 +6,10 @@
 
 - feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
 
+### Fixes
+
+- fix: macOS version for Mac Catalyst #1011
+
 ## 7.0.0-alpha.3
 
 - feat: Out Of Memory Tracking #1001
