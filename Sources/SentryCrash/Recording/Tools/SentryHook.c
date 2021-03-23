@@ -22,18 +22,18 @@
 
 static pthread_key_t async_caller_key = 0;
 
-sentry_async_backtrace_t *
-sentry_get_async_caller_for_thread(SentryCrashThread thread)
+sentrycrash_async_backtrace_t *
+sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
 {
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
     void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
 
-    return (sentry_async_backtrace_t *)__atomic_load_n(
+    return (sentrycrash_async_backtrace_t *)__atomic_load_n(
         &tsd_slots[async_caller_key], __ATOMIC_SEQ_CST);
 }
 
 void
-sentry__async_backtrace_incref(sentry_async_backtrace_t *bt)
+sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
 {
     if (!bt) {
         return;
@@ -42,27 +42,27 @@ sentry__async_backtrace_incref(sentry_async_backtrace_t *bt)
 }
 
 void
-sentry__async_backtrace_decref(sentry_async_backtrace_t *bt)
+sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
 {
     if (!bt) {
         return;
     }
     if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
-        sentry__async_backtrace_decref(bt->async_caller);
+        sentrycrash__async_backtrace_decref(bt->async_caller);
         free(bt);
     }
 }
 
-sentry_async_backtrace_t *
-sentry__async_backtrace_capture(void)
+sentrycrash_async_backtrace_t *
+sentrycrash__async_backtrace_capture(void)
 {
-    sentry_async_backtrace_t *bt = malloc(sizeof(sentry_async_backtrace_t));
+    sentrycrash_async_backtrace_t *bt = malloc(sizeof(sentrycrash_async_backtrace_t));
     bt->refcount = 1;
 
     bt->len = backtrace(bt->backtrace, MAX_BACKTRACE_FRAMES);
 
-    sentry_async_backtrace_t *caller = pthread_getspecific(async_caller_key);
-    sentry__async_backtrace_incref(caller);
+    sentrycrash_async_backtrace_t *caller = pthread_getspecific(async_caller_key);
+    sentrycrash__async_backtrace_incref(caller);
     bt->async_caller = caller;
 
     return bt;
@@ -71,10 +71,10 @@ sentry__async_backtrace_capture(void)
 static void (*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 
 void
-sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
+sentrycrash__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 {
     // create a backtrace, capturing the async callsite
-    sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
+    sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
     return real_dispatch_async(queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
@@ -85,7 +85,7 @@ sentry__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentry__async_backtrace_decref(bt);
+        sentrycrash__async_backtrace_decref(bt);
     });
 }
 
@@ -93,20 +93,21 @@ static void (*real_dispatch_async_f)(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
 
 void
-sentry__hook_dispatch_async_f(
+sentrycrash__hook_dispatch_async_f(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
-    sentry__hook_dispatch_async(queue, ^{ work(context); });
+    sentrycrash__hook_dispatch_async(queue, ^{ work(context); });
 }
 
 static void (*real_dispatch_after)(
     dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
 
 void
-sentry__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
+sentrycrash__hook_dispatch_after(
+    dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
 {
     // create a backtrace, capturing the async callsite
-    sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
+    sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
     return real_dispatch_after(when, queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
@@ -117,7 +118,7 @@ sentry__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispat
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentry__async_backtrace_decref(bt);
+        sentrycrash__async_backtrace_decref(bt);
     });
 }
 
@@ -125,19 +126,19 @@ static void (*real_dispatch_after_f)(dispatch_time_t when, dispatch_queue_t queu
     void *_Nullable context, dispatch_function_t work);
 
 void
-sentry__hook_dispatch_after_f(
+sentrycrash__hook_dispatch_after_f(
     dispatch_time_t when, dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
-    sentry__hook_dispatch_after(when, queue, ^{ work(context); });
+    sentrycrash__hook_dispatch_after(when, queue, ^{ work(context); });
 }
 
 static void (*real_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_block_t block);
 
 void
-sentry__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block)
+sentrycrash__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block)
 {
     // create a backtrace, capturing the async callsite
-    sentry_async_backtrace_t *bt = sentry__async_backtrace_capture();
+    sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
     return real_dispatch_barrier_async(queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
@@ -148,7 +149,7 @@ sentry__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t blo
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentry__async_backtrace_decref(bt);
+        sentrycrash__async_backtrace_decref(bt);
     });
 }
 
@@ -156,16 +157,16 @@ static void (*real_dispatch_barrier_async_f)(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
 
 void
-sentry__hook_dispatch_barrier_async_f(
+sentrycrash__hook_dispatch_barrier_async_f(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
-    sentry__hook_dispatch_barrier_async(queue, ^{ work(context); });
+    sentrycrash__hook_dispatch_barrier_async(queue, ^{ work(context); });
 }
 
 static bool hooks_installed = false;
 
 void
-sentry_install_async_hooks(void)
+sentrycrash_install_async_hooks(void)
 {
     if (__atomic_exchange_n(&hooks_installed, true, __ATOMIC_SEQ_CST)) {
         return;
@@ -176,33 +177,35 @@ sentry_install_async_hooks(void)
 
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_async", sentry__hook_dispatch_async, (void *)&real_dispatch_async },
+            { "dispatch_async", sentrycrash__hook_dispatch_async, (void *)&real_dispatch_async },
         },
         1);
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_async_f", sentry__hook_dispatch_async_f, (void *)&real_dispatch_async_f },
+            { "dispatch_async_f", sentrycrash__hook_dispatch_async_f,
+                (void *)&real_dispatch_async_f },
         },
         1);
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_after", sentry__hook_dispatch_after, (void *)&real_dispatch_after },
+            { "dispatch_after", sentrycrash__hook_dispatch_after, (void *)&real_dispatch_after },
         },
         1);
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_after_f", sentry__hook_dispatch_after_f, (void *)&real_dispatch_after_f },
+            { "dispatch_after_f", sentrycrash__hook_dispatch_after_f,
+                (void *)&real_dispatch_after_f },
         },
         1);
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_barrier_async", sentry__hook_dispatch_barrier_async,
+            { "dispatch_barrier_async", sentrycrash__hook_dispatch_barrier_async,
                 (void *)&real_dispatch_barrier_async },
         },
         1);
     rebind_symbols(
         (struct rebinding[1]) {
-            { "dispatch_barrier_async_f", sentry__hook_dispatch_barrier_async_f,
+            { "dispatch_barrier_async_f", sentrycrash__hook_dispatch_barrier_async_f,
                 (void *)&real_dispatch_barrier_async_f },
         },
         1);

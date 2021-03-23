@@ -57,7 +57,7 @@ typedef struct {
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
-    sentry_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
     if (async_caller) {
         return sentrycrashsc_advanceAsyncCursor(cursor);
     }
@@ -144,5 +144,5 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->instructionAddress = cursor->stackEntry.address;
 
     SentryCrashThread thread = sentrycrashmc_getThreadFromContext(machineContext);
-    cursor->async_caller = sentry_get_async_caller_for_thread(thread);
+    cursor->async_caller = sentrycrash_get_async_caller_for_thread(thread);
 }

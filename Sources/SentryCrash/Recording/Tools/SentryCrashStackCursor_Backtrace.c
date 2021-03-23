@@ -31,7 +31,7 @@
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
-    sentry_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
     if (async_caller) {
         return sentrycrashsc_advanceAsyncCursor(cursor);
     }

@@ -1,8 +1,6 @@
 #import "AppDelegate.h"
 #import <UIKit/UIKit.h>
 
-@import Sentry;
-
 int
 main(int argc, char *argv[])
 {

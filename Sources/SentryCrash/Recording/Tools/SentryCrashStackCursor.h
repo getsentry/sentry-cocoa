@@ -68,7 +68,7 @@ typedef struct SentryCrashStackCursor {
         bool hasGivenUp;
 
         /** The current async caller we are chaining to. */
-        sentry_async_backtrace_t *current_async_caller;
+        sentrycrash_async_backtrace_t *current_async_caller;
     } state;
 
     /** Reset the cursor back to the beginning. */
@@ -82,7 +82,7 @@ typedef struct SentryCrashStackCursor {
     bool (*symbolicate)(struct SentryCrashStackCursor *);
 
     /** Pointer to an optional async stacktrace. */
-    sentry_async_backtrace_t *async_caller;
+    sentrycrash_async_backtrace_t *async_caller;
 
     /** Internal context-specific information. */
     void *context[SentryCrashSC_CONTEXT_SIZE];

@@ -66,7 +66,7 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
 bool
 sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor)
 {
-    sentry_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
     if (async_caller) {
         if (cursor->state.currentDepth < async_caller->len) {
             uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];

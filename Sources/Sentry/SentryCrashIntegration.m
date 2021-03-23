@@ -73,7 +73,7 @@ SentryCrashIntegration ()
                                                  outOfMemoryLogic:logic];
 
     [self startCrashHandler];
-    sentry_install_async_hooks();
+    sentrycrash_install_async_hooks();
     [self configureScope];
 }
 
