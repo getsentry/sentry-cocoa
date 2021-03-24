@@ -137,7 +137,7 @@
         self.enabled = [options[@"enabled"] boolValue];
     }
 
-    if (nil != options[@"maxBreadcrumbs"]) {
+    if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
 
