@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryEvent, SentryOptions, SentryEnvelope, SentryFileContents;
+@class SentryEvent, SentryOptions, SentryEnvelope, SentryFileContents, SentryAppState;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -53,6 +53,10 @@ SENTRY_NO_INIT
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
+
+- (void)storeAppState:(SentryAppState *)appState;
+- (SentryAppState *_Nullable)readAppState;
+- (void)deleteAppState;
 
 @end
 

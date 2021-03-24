@@ -12,7 +12,7 @@
 {
     return @[
         @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration"
+        @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration"
     ];
 }
 
@@ -27,6 +27,7 @@
         self.integrations = SentryOptions.defaultIntegrations;
         self.sampleRate = @1;
         self.enableAutoSessionTracking = YES;
+        self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
@@ -168,6 +169,10 @@
 
     if (nil != options[@"enableAutoSessionTracking"]) {
         self.enableAutoSessionTracking = [options[@"enableAutoSessionTracking"] boolValue];
+    }
+
+    if (nil != options[@"enableOutOfMemoryTracking"]) {
+        self.enableOutOfMemoryTracking = [options[@"enableOutOfMemoryTracking"] boolValue];
     }
 
     if (nil != options[@"sessionTrackingIntervalMillis"]) {

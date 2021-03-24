@@ -79,6 +79,7 @@ class SentryClientTest: XCTestCase {
                 scope.setEnvironment(environment)
                 scope.setTag(value: "value", key: "key")
                 scope.add(TestData.dataAttachment)
+                scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
                 return scope
             }
         }
@@ -330,6 +331,41 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(fixture.event.eventId, event.eventId)
             XCTAssertEqual(fixture.event.message, event.message)
             XCTAssertEqual("value", event.tags?["key"] ?? "")
+        }
+    }
+    
+    func testCaptureOOMEvent_RemovesFreeMemoryFromContext() {
+        let oomEvent = TestData.oomEvent
+        
+        _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { event in
+            XCTAssertEqual(oomEvent.eventId, event.eventId)
+            XCTAssertNil(event.context?["device"]?["free_memory"])
+        }
+    }
+    
+    func testCaptureOOMEvent_WithNoContext_ContextNotModified() {
+        let oomEvent = TestData.oomEvent
+        
+        _ = fixture.getSut().captureCrash(oomEvent, with: Scope())
+
+        assertLastSentEvent { event in
+            XCTAssertEqual(oomEvent.eventId, event.eventId)
+            XCTAssertEqual(oomEvent.context?.count, event.context?.count)
+        }
+    }
+    
+    func testCaptureOOMEvent_WithNoDeviceContext_ContextNotModified() {
+        let oomEvent = TestData.oomEvent
+        let scope = Scope()
+        scope.setContext(value: ["some": "thing"], key: "any")
+        
+        _ = fixture.getSut().captureCrash(oomEvent, with: scope)
+
+        assertLastSentEvent { event in
+            XCTAssertEqual(oomEvent.eventId, event.eventId)
+            XCTAssertEqual(oomEvent.context?.count, event.context?.count)
         }
     }
     

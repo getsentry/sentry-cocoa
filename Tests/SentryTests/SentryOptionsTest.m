@@ -315,6 +315,27 @@
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
 }
 
+- (void)testEnableOutOfMemoryTracking
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @YES }];
+
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+}
+
+- (void)testDefaultOutOfMemoryTracking
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+}
+
+- (void)testSetOutOfMemoryTrackingGargabe
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @"" }];
+
+    XCTAssertEqual(NO, options.enableOutOfMemoryTracking);
+}
+
 - (void)testSessionTrackingIntervalMillis
 {
     NSNumber *sessionTracking = @2000;
@@ -363,6 +384,7 @@
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);

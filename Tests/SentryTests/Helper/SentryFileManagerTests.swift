@@ -86,9 +86,11 @@ class SentryFileManagerTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        setImmutableForAppState(immutable: false)
         sut.deleteAllEnvelopes()
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
+        sut.deleteAppState()
     }
     
     func testInitDoesNotOverrideDirectories() throws {
@@ -381,6 +383,46 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(0, sut.getAllEnvelopes().count)
     }
+    
+    func testReadStoreDeleteAppState() {
+        sut.store(TestData.appState)
+        
+        assertValidAppStateStored()
+        
+        sut.deleteAppState()
+        XCTAssertNil(sut.readAppState())
+    }
+    
+    func testStore_WhenFileImmutable_AppStateIsNotOverwritten() {
+        sut.store(TestData.appState)
+        
+        setImmutableForAppState(immutable: true)
+        
+        sut.store(SentryAppState(releaseName: "", osVersion: "", isDebugging: false))
+        
+        assertValidAppStateStored()
+    }
+    
+    func testStoreFaultyAppState_AppStateIsNotOverwritten() {
+        sut.store(TestData.appState)
+        
+        sut.store(AppStateWithFaultySerialization(releaseName: "", osVersion: "", isDebugging: false))
+        
+        assertValidAppStateStored()
+    }
+    
+    func testReadWhenNoAppState_ReturnsNil() {
+        XCTAssertNil(sut.readAppState())
+    }
+    
+    func testDeleteAppState_WhenFileLocked_DontCrash() throws {
+        sut.store(TestData.appState)
+        
+        setImmutableForAppState(immutable: true)
+        
+        sut.deleteAppState()
+        XCTAssertNotNil(sut.readAppState())
+    }
 
     private func storeAsync(envelope: SentryEnvelope) {
         fixture.group.enter()
@@ -414,6 +456,21 @@ class SentryFileManagerTests: XCTestCase {
             try "fake event".write(to: URL(fileURLWithPath: "\(sut.eventsPath)/event.json"), atomically: true, encoding: .utf8)
         } catch {
             XCTFail("Failed to store fake event.")
+        }
+    }
+    
+    private func setImmutableForAppState(immutable: Bool) {
+        let appStateFilePath = Dynamic(sut).appStateFilePath.asString ?? ""
+        let fileManager = FileManager.default
+        
+        if !fileManager.fileExists(atPath: appStateFilePath) {
+            return
+        }
+        
+        do {
+            try fileManager.setAttributes([FileAttributeKey.immutable: immutable], ofItemAtPath: appStateFilePath)
+        } catch {
+            XCTFail("Couldn't change immutable state of app state file.")
         }
     }
 
@@ -450,8 +507,19 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(count, fileContentsWithSession.count)
     }
+    
+    private func assertValidAppStateStored() {
+        let actual = sut.readAppState()
+        XCTAssertEqual(TestData.appState, actual)
+    }
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
+    }
+    
+    private class AppStateWithFaultySerialization: SentryAppState {
+        override func serialize() -> [String: Any] {
+            return ["app": self]
+        }
     }
 }
