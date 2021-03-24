@@ -15,8 +15,6 @@ class SentrySessionGeneratorTests: XCTestCase {
         var abnormal = 0
     }
     
-    private let dsnAsString = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-    
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
     private var crashIntegration: SentryCrashIntegration!
@@ -26,9 +24,21 @@ class SentrySessionGeneratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
+        options = Options()
+        options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+        
+        options.releaseName = "Release Health"
+        options.debug = true
+        
+        options.sessionTrackingIntervalMillis = 1
+        
+        // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
+        options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
+            return name != "SentryAutoSessionTrackingIntegration"
+        }
+        
         do {
-            let dsn = try SentryDsn(string: dsnAsString)
-            fileManager = try SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
             
             fileManager.deleteCurrentSession()
             fileManager.deleteCrashedSession()
@@ -130,18 +140,6 @@ class SentrySessionGeneratorTests: XCTestCase {
     }
     
     private func startSdk() {
-        options = Options()
-        options.dsn = self.dsnAsString
-        
-        options.releaseName = "Release Health"
-        options.debug = true
-        
-        options.sessionTrackingIntervalMillis = 1
-        
-        // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
-        options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
-            return name != "SentryAutoSessionTrackingIntegration"
-        }
         
         SentrySDK.start(options: options)
         

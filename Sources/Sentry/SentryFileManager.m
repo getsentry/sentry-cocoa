@@ -10,12 +10,11 @@
 #import "SentryFileContents.h"
 #import "SentryLog.h"
 #import "SentryMigrateSessionInit.h"
+#import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-NSInteger const defaultMaxEnvelopes = 100;
 
 @interface
 SentryFileManager ()
@@ -29,14 +28,15 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
+@property (nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end
 
 @implementation SentryFileManager
 
-- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
-               andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                     didFailWithError:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                                   error:(NSError **)error
 {
     self = [super init];
     if (self) {
@@ -48,7 +48,8 @@ SentryFileManager ()
                   .firstObject;
 
         self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
-        self.sentryPath = [self.sentryPath stringByAppendingPathComponent:[dsn getHash]];
+        self.sentryPath =
+            [self.sentryPath stringByAppendingPathComponent:[options.parsedDsn getHash]];
 
         if (![fileManager fileExistsAtPath:self.sentryPath]) {
             [self.class createDirectoryAtPath:self.sentryPath withError:error];
@@ -73,7 +74,7 @@ SentryFileManager ()
         [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
 
         self.currentFileCounter = 0;
-        self.maxEnvelopes = defaultMaxEnvelopes;
+        self.maxEnvelopes = options.maxCacheItems;
     }
     return self;
 }

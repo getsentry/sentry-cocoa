@@ -4,8 +4,7 @@ import XCTest
 
 class SentryClientTest: XCTestCase {
     
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryClientTest")
-    private static let dsn = TestConstants.dsn(username: "SentryClientTest")
+    private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
 
     private class Fixture {
         let transport = TestTransport()
@@ -41,14 +40,16 @@ class SentryClientTest: XCTestCase {
             user.email = "someone@sentry.io"
             user.ipAddress = "127.0.0.1"
             
-            fileManager = try! SentryFileManager(dsn: SentryClientTest.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            let options = Options()
+            options.dsn = SentryClientTest.dsn
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
             var client: Client!
             do {
                 let options = try Options(dict: [
-                    "dsn": SentryClientTest.dsnAsString
+                    "dsn": SentryClientTest.dsn
                 ])
                 configureOptions(options)
 
@@ -191,7 +192,7 @@ class SentryClientTest: XCTestCase {
             options.dsn = nil
         })
         
-        sut.options.dsn = SentryClientTest.dsnAsString
+        sut.options.dsn = SentryClientTest.dsn
         
         let eventId = sut.capture(event: event)
         eventId.assertIsNotEmpty()
@@ -661,7 +662,7 @@ class SentryClientTest: XCTestCase {
         SentryFileManager.prepareInitError()
         
         let options = Options()
-        options.dsn = SentryClientTest.dsnAsString
+        options.dsn = SentryClientTest.dsn
         let client = Client(options: options)
         
         XCTAssertNil(client)

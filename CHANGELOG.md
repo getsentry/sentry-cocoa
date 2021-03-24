@@ -2,12 +2,13 @@
 
 ## Unreleased
 
-### Features
+### Breaking Changes
+
+- feat: Add maxCacheItems #1017: This changes the maximum number of cached envelopes from 100 to 30. You can configure this number with `SentryOptions.maxCacheItems`.
+
+### Features and Fixes
 
 - feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
-
-### Fixes
-
 - fix: Crash when passing garbage to maxBreadcrumbs #1018
 - fix: OutOfMemory exception type #1015
 - fix: macOS version for Mac Catalyst #1011

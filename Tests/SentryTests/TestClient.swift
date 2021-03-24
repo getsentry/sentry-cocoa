@@ -5,11 +5,7 @@ class TestClient: Client {
     let sentryFileManager: SentryFileManager
     
     override init?(options: Options) {
-        guard let dsnAsString = options.dsn  else {
-            return nil
-        }
-        let dsn = try! SentryDsn(string: dsnAsString) 
-        sentryFileManager = try! SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         super.init(options: options)
     }
     

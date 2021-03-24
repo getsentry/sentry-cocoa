@@ -6,12 +6,12 @@ class SentrySwiftTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let fileManager = try! SentryFileManager(dsn: SentryDsn(string: "https://username:password@app.getsentry.com/12345"), andCurrentDateProvider: TestCurrentDateProvider())
+        let options = Options()
+        options.dsn = "https://username:password@app.getsentry.com/12345"
+        let fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         fileManager.deleteAllEnvelopes()
         fileManager.deleteAllFolders()
-        SentrySDK.start { options in
-            options.dsn = "https://username:password@app.getsentry.com/12345"
-        }
+        SentrySDK.start(options: options)
     }
     
     func testWrongDsn() {
