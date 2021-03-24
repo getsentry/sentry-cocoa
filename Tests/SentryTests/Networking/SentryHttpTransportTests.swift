@@ -48,10 +48,9 @@ class SentryHttpTransportTests: XCTestCase {
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
-            fileManager = try! SentryFileManager(dsn: SentryHttpTransportTests.dsn, andCurrentDateProvider: currentDateProvider)
-
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())

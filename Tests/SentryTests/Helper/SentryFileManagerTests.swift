@@ -9,11 +9,14 @@ import XCTest
 @available(tvOS 10.0, *)
 class SentryFileManagerTests: XCTestCase {
     
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryFileManagerTests")
-    private static let dsn = TestConstants.dsn(username: "SentryFileManagerTests")
-    
     private class Fixture {
-        let eventIds = (0...110).map { _ in SentryId() }
+        
+        let maxCacheItems = 30
+        let eventIds: [SentryId]
+        
+        let currentDateProvider: TestCurrentDateProvider!
+        
+        let options: Options
 
         let session = SentrySession(releaseName: "1.0.0")
         let sessionEnvelope: SentryEnvelope
@@ -25,8 +28,15 @@ class SentryFileManagerTests: XCTestCase {
 
         let queue = DispatchQueue(label: "SentryFileManagerTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
-
+        
         init() {
+            currentDateProvider = TestCurrentDateProvider()
+            
+            eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
+            
+            options = Options()
+            options.dsn = TestConstants.dsnAsString(username: "SentryFileManagerTests")
+            
             sessionEnvelope = SentryEnvelope(session: session)
 
             let sessionCopy = session.copy() as! SentrySession
@@ -44,22 +54,28 @@ class SentryFileManagerTests: XCTestCase {
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
         }
+        
+        func getSut() throws -> SentryFileManager {
+            return try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+        }
+        
+        func getSut(maxCacheItems: UInt) throws -> SentryFileManager {
+            options.maxCacheItems = maxCacheItems
+            return try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+        }
 
     }
 
     private var fixture: Fixture!
     private var sut: SentryFileManager!
-    private var currentDateProvider: TestCurrentDateProvider!
 
     override func setUp() {
         super.setUp()
         do {
-            currentDateProvider = TestCurrentDateProvider()
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
-
             fixture = Fixture()
+            CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
 
-            sut = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: currentDateProvider)
+            sut = try fixture.getSut()
 
             sut.deleteAllEnvelopes()
             sut.deleteTimestampLastInForeground()
@@ -80,8 +96,8 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
-        _ = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
-        let fileManager = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
 
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
@@ -91,7 +107,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDeletesEventsFolder() throws {
         storeEvent()
         
-        _ = try SentryFileManager(dsn: SentryFileManagerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
         
         assertEventFolderDoesntExist()
     }
@@ -133,12 +149,12 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDefaultMaxEnvelopes() {
-        for _ in 0...100 {
+        for _ in 0...(fixture.maxCacheItems + 1) {
             sut.store(TestConstants.envelope)
         }
 
         let events = sut.getAllEnvelopes()
-        XCTAssertEqual(events.count, 100)
+        XCTAssertEqual(fixture.maxCacheItems, events.count)
     }
 
     func testDefaultMaxEnvelopesConcurrent() {
@@ -149,23 +165,24 @@ class SentryFileManagerTests: XCTestCase {
         fixture.group.waitWithTimeout()
 
         let events = sut.getAllEnvelopes()
-        XCTAssertEqual(events.count, 100)
+        XCTAssertEqual(fixture.maxCacheItems, events.count)
     }
     
-    func testMaxEnvelopesSet() {
-        sut.maxEnvelopes = 15
-        for _ in 0...15 {
+    func testMaxEnvelopesSet() throws {
+        let maxCacheItems: UInt = 15
+        sut = try fixture.getSut(maxCacheItems: maxCacheItems)
+        for _ in 0...maxCacheItems {
             sut.store(TestConstants.envelope)
         }
         let events = sut.getAllEnvelopes()
-        XCTAssertEqual(events.count, 15)
+        XCTAssertEqual(maxCacheItems, UInt(events.count))
     }
 
     func testMigrateSessionInit_SessionUpdateIsLast() {
         sut.store(fixture.sessionEnvelope)
         // just some other session
         sut.store(SentryEnvelope(session: SentrySession(releaseName: "1.0.0")))
-        for _ in 0...97 {
+        for _ in 0...(fixture.maxCacheItems - 3) {
             sut.store(TestConstants.envelope)
         }
         sut.store(fixture.sessionUpdateEnvelope)
@@ -177,7 +194,7 @@ class SentryFileManagerTests: XCTestCase {
     func testMigrateSessionInit_SessionUpdateIsSecond() {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...98 {
+        for _ in 0...(fixture.maxCacheItems - 2) {
             sut.store(TestConstants.envelope)
         }
 
@@ -187,40 +204,40 @@ class SentryFileManagerTests: XCTestCase {
 
     func testMigrateSessionInit_IsInMiddle() {
         sut.store(fixture.sessionEnvelope)
-        for _ in 0...50 {
+        for _ in 0...10 {
             sut.store(TestConstants.envelope)
         }
         sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...48 {
+        for _ in 0...18 {
             sut.store(TestConstants.envelope)
         }
 
-        assertSessionInitMoved(sut.getAllEnvelopes()[50])
+        assertSessionInitMoved(sut.getAllEnvelopes()[10])
         assertSessionEnvelopesStored(count: 1)
     }
     
     func testMigrateSessionInit_MovesInitFlagOnlyToFirstSessionUpdate() {
         sut.store(fixture.sessionEnvelope)
-        for _ in 0...50 {
+        for _ in 0...10 {
             sut.store(TestConstants.envelope)
         }
         sut.store(fixture.sessionUpdateEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...46 {
+        for _ in 0...16 {
             sut.store(TestConstants.envelope)
         }
 
-        assertSessionInitMoved(sut.getAllEnvelopes()[50])
-        assertSessionInitNotMoved(sut.getAllEnvelopes()[51])
-        assertSessionInitNotMoved(sut.getAllEnvelopes()[52])
+        assertSessionInitMoved(sut.getAllEnvelopes()[10])
+        assertSessionInitNotMoved(sut.getAllEnvelopes()[11])
+        assertSessionInitNotMoved(sut.getAllEnvelopes()[12])
         assertSessionEnvelopesStored(count: 3)
     }
 
     func testMigrateSessionInit_NoOtherSessionUpdate() {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...99 {
+        for _ in 0...(fixture.maxCacheItems - 1) {
             sut.store(TestConstants.envelope)
         }
 
@@ -230,7 +247,7 @@ class SentryFileManagerTests: XCTestCase {
     func testMigrateSessionInit_FailToLoadEnvelope() {
         sut.store(fixture.sessionEnvelope)
         
-        for _ in 0...97 {
+        for _ in 0...(fixture.maxCacheItems - 3) {
             sut.store(TestConstants.envelope)
         }
         
@@ -251,7 +268,7 @@ class SentryFileManagerTests: XCTestCase {
     func testMigrateSessionInit_WorstCasePerformance() {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...97 {
+        for _ in 0...(fixture.maxCacheItems - 3) {
             sut.store(TestConstants.envelope)
         }
 
@@ -261,15 +278,15 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testGetAllEnvelopesAreSortedByDateAscending() {
-        given100Envelopes()
+        givenMaximumEnvelopes()
 
         let envelopes = sut.getAllEnvelopes()
 
-        // Envelopes are sorted ascending by date and only the latest 100 are kept
-        let expectedEventIds = Array(fixture.eventIds[11...110])
+        // Envelopes are sorted ascending by date and only the latest amount of maxCacheItems are kept
+        let expectedEventIds = Array(fixture.eventIds[11..<fixture.eventIds.count])
 
-        XCTAssertEqual(100, envelopes.count)
-        for i in 0...99 {
+        XCTAssertEqual(fixture.maxCacheItems, envelopes.count)
+        for i in 0..<fixture.maxCacheItems {
             let envelope = SentrySerialization.envelope(with: envelopes[i].contents)
             let actualEventId = envelope?.header.eventId
             XCTAssertEqual(expectedEventIds[i], actualEventId)
@@ -277,7 +294,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testGetOldestEnvelope() {
-        given100Envelopes()
+        givenMaximumEnvelopes()
 
         let actualEnvelope = SentrySerialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
 
@@ -373,7 +390,7 @@ class SentryFileManagerTests: XCTestCase {
         }
     }
 
-    private func given100Envelopes() {
+    private func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in
             let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
 
@@ -435,6 +452,6 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     private func advanceTime(bySeconds: TimeInterval) {
-        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(bySeconds))
+        fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
 }

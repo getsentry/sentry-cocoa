@@ -23,6 +23,7 @@
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
+        self.maxCacheItems = 30;
         self.integrations = SentryOptions.defaultIntegrations;
         self.sampleRate = @1;
         self.enableAutoSessionTracking = YES;
@@ -138,6 +139,10 @@
 
     if (nil != options[@"maxBreadcrumbs"]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
+    }
+
+    if (nil != options[@"maxCacheItems"]) {
+        self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
     }
 
     if (nil != options[@"beforeSend"]) {

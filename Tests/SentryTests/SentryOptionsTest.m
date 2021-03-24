@@ -180,6 +180,29 @@
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
 }
 
+- (void)testMaxCacheItems
+{
+    NSNumber *maxCacheItems = @20;
+
+    SentryOptions *options = [self getValidOptions:@{ @"maxCacheItems" : maxCacheItems }];
+
+    XCTAssertEqual([maxCacheItems unsignedIntValue], options.maxCacheItems);
+}
+
+- (void)testMaxCacheItemsGarbage
+{
+    SentryOptions *options = [self getValidOptions:@{ @"maxCacheItems" : @"b" }];
+
+    XCTAssertEqual(0, options.maxCacheItems);
+}
+
+- (void)testDefaultMaxCacheItems
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual([@30 unsignedIntValue], options.maxCacheItems);
+}
+
 - (void)testBeforeSend
 {
     SentryEvent * (^callback)(SentryEvent *event) = ^(SentryEvent *event) { return event; };
@@ -335,6 +358,7 @@
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
+    XCTAssertEqual(30, options.maxCacheItems);
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
