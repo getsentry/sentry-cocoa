@@ -164,20 +164,27 @@
     XCTAssertEqual(expectedValue, options.enabled);
 }
 
-- (void)testMaxBreadCrumbs
+- (void)testMaxBreadcrumbs
 {
-    NSNumber *maxBreadCrumbs = @20;
+    NSNumber *maxBreadcrumbs = @20;
 
-    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : maxBreadCrumbs }];
+    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : maxBreadcrumbs }];
 
-    XCTAssertEqual([maxBreadCrumbs unsignedIntValue], options.maxBreadcrumbs);
+    XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
-- (void)testDefaultMaxBreadCrumbs
+- (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
+}
+
+- (void)testMaxBreadcrumbsGarbage
+{
+    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : self }];
+
+    XCTAssertEqual(100, options.maxBreadcrumbs);
 }
 
 - (void)testMaxCacheItems
