@@ -105,6 +105,18 @@
     [self captureTransaction];
 }
 
+- (nullable id<SentrySpan>) getLatestActiveSpan {
+    NSArray<id<SentrySpan>> *spans = [_spans copy];
+    if (spans.count > 0) {
+        for (int i = (int)spans.count - 1; i >= 0; i--) {
+            if (!spans[i].isFinished) {
+                return spans[i];
+            }
+        }
+    }
+    return nil;
+}
+
 - (void)captureTransaction
 {
     NSArray *spans;
@@ -112,10 +124,9 @@
         spans = [[NSArray alloc] initWithArray:_spans];
     }
 
-    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self childs:spans];
+    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
-    [_hub captureEvent:transaction];
-    [_hub.scope removeTransaction:self];
+    [_hub captureEvent:transaction withScope:_hub.scope];
 }
 
 - (NSDictionary *)serialize

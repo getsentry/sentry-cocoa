@@ -65,7 +65,9 @@ SentryScope ()
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, id<SentrySpan>> *transactions;
+@property (nullable, atomic, strong) id<SentrySpan> currentTransaction;
+
+@property (nullable, atomic, strong) NSString *fallbackTransactionName;
 
 @end
 
@@ -84,7 +86,6 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
-        self.transactions = [NSMutableDictionary new];
     }
     return self;
 }
@@ -152,10 +153,8 @@ SentryScope ()
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
     }
-    @synchronized(_transactions) {
-        [_transactions removeAllObjects];
-    }
-
+    
+    self.currentTransaction = nil;
     self.userObject = nil;
     self.distString = nil;
     self.environmentString = nil;
@@ -329,59 +328,24 @@ SentryScope ()
 
 - (void)setTransaction:(id<SentrySpan>)transaction
 {
-    if (![transaction isKindOfClass:[SentryTracer class]]) return;
-    
-    SentryTracer* tracer = transaction;
-    @synchronized(_transactions) {
-        _transactions[tracer.name] = transaction;
-    }
+    self.currentTransaction = transaction;
     [self notifyListeners];
 }
 
-- (nullable id<SentrySpan>)getTransactionWithName:(NSString *)name
-{
-    @synchronized(_transactions) {
-        return _transactions[name];
+- (void)setTransactionName:(NSString *)transactionName {
+    if(self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
+        [(SentryTracer *)self.currentTransaction setName:transactionName];
     }
+    self.fallbackTransactionName = transactionName;
+    [self notifyListeners];
 }
 
-- (void)finishTransactionWithName:(NSString *)name
-{
-    id<SentrySpan> transaction;
-    @synchronized(_transactions) {
-        transaction = _transactions[name];
-        [_transactions removeObjectForKey:name];
+-(nullable id<SentrySpan>)span {
+    if(self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
+        id latestSpan = [(SentryTracer *)self.currentTransaction getLatestActiveSpan];
+        if (latestSpan != nil) return latestSpan;
     }
-    // the user may pass an invalid name and the transaction does not exists.
-    if (transaction != nil) {
-        [transaction finish];
-        [self notifyListeners];
-    }
-}
-
-- (void)removeTransactionWithName:(NSString *)name
-{
-    bool hasTransaction;
-    @synchronized(_transactions) {
-        hasTransaction = _transactions[name] != nil;
-        [_transactions removeObjectForKey:name];
-    }
-    if (hasTransaction)
-        [self notifyListeners];
-}
-
-- (void)removeTransaction:(id<SentrySpan>)transaction
-{
-    bool hasTransaction;
-    @synchronized(_transactions) {
-        NSArray *keys = [_transactions allKeysForObject:transaction];
-        hasTransaction = keys.count > 0;
-        for (NSString *key in keys) {
-            [_transactions removeObjectForKey:key];
-        }
-    }
-    if (hasTransaction)
-        [self notifyListeners];
+    return self.currentTransaction;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -394,6 +358,11 @@ SentryScope ()
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+    
+    if (self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]])
+        [serializedData setValue:[(SentryTracer*)self.currentTransaction name] forKey:@"transaction"];
+    else if (self.fallbackTransactionName != nil)
+        [serializedData setValue:self.fallbackTransactionName forKey:@"transaction"];
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {

@@ -9,6 +9,13 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
+/**
+ * Returns current active Span or Transaction.
+ *
+ * @return current active Span or Transaction or null if transaction has not been set.
+ */
+@property (nullable, readonly) id<SentrySpan> span;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
@@ -115,41 +122,18 @@ NS_SWIFT_NAME(Scope)
 - (void)addAttachment:(SentryAttachment *)attachment;
 
 /**
- * Add a transaction to the Scope with given key.
- * This key can be used to retrieve the transaction in a later moment.
- * If a transaction with the same key exists the previous added transaction will be lost.
+ * Sets the Scope's transaction.
  *
  * @param transaction A transaction to add to the Scope.
  */
 - (void)setTransaction:(id<SentrySpan>)transaction;
 
 /**
- * Retrieve a previous added transaction with given key.
+ * Sets the Scope's transaction name.
  *
- * @param name Transaction name used to previously store a transaction.
- *
- * @return A previous added transaction with given key or nil.
+ * @param transactionName The name of the transaction.
  */
-- (nullable id<SentrySpan>)getTransactionWithName:(NSString *)name NS_SWIFT_NAME(getTransaction(name:));
-
-/**
- * Finish a transaction with given key and remove it from the scope.
- *
- * @param name Transaction name used to previously store a transaction.
- */
-- (void)finishTransactionWithName:(NSString *)name NS_SWIFT_NAME(finishTransaction(name:));
-
-/**
- * Removes a transaction from the scope.
- *
- * @param name Transaction name used to previously store a transaction.
- */
-- (void)removeTransactionWithName:(NSString *)name NS_SWIFT_NAME(removeTransaction(name:));
-
-/**
- * Removes a transaction from the scope.
- */
-- (void)removeTransaction:(id<SentrySpan>)transaction;
+- (void)setTransactionName:(NSString *)transactionName;
 
 /**
  * Clears the current Scope
