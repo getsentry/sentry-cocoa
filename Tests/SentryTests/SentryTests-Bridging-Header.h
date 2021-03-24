@@ -69,7 +69,7 @@
 #import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryTestIntegration.h"
 #import "SentryThreadInspector.h"
+#import "SentryTracer.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUserFeedback.h"
-#import "SentryTracer.h"

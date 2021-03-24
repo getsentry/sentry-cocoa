@@ -7,8 +7,8 @@
 #import "SentryScope+Private.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
-#import "SentryUser.h"
 #import "SentryTracer.h"
+#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -153,7 +153,7 @@ SentryScope ()
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
     }
-    
+
     self.currentTransaction = nil;
     self.userObject = nil;
     self.distString = nil;
@@ -332,18 +332,23 @@ SentryScope ()
     [self notifyListeners];
 }
 
-- (void)setTransactionName:(NSString *)transactionName {
-    if(self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
+- (void)setTransactionName:(NSString *)transactionName
+{
+    if (self.currentTransaction != nil &&
+        [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
         [(SentryTracer *)self.currentTransaction setName:transactionName];
     }
     self.fallbackTransactionName = transactionName;
     [self notifyListeners];
 }
 
--(nullable id<SentrySpan>)span {
-    if(self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
+- (nullable id<SentrySpan>)span
+{
+    if (self.currentTransaction != nil &&
+        [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
         id latestSpan = [(SentryTracer *)self.currentTransaction getLatestActiveSpan];
-        if (latestSpan != nil) return latestSpan;
+        if (latestSpan != nil)
+            return latestSpan;
     }
     return self.currentTransaction;
 }
@@ -358,9 +363,11 @@ SentryScope ()
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
-    
-    if (self.currentTransaction != nil && [self.currentTransaction isKindOfClass:[SentryTracer class]])
-        [serializedData setValue:[(SentryTracer*)self.currentTransaction name] forKey:@"transaction"];
+
+    if (self.currentTransaction != nil &&
+        [self.currentTransaction isKindOfClass:[SentryTracer class]])
+        [serializedData setValue:[(SentryTracer *)self.currentTransaction name]
+                          forKey:@"transaction"];
     else if (self.fallbackTransactionName != nil)
         [serializedData setValue:self.fallbackTransactionName forKey:@"transaction"];
 

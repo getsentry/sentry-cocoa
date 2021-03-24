@@ -13,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             options.debug = true
             options.tracesSampleRate = 1.0
-            options.tracesSampler = { context in
+            options.tracesSampler = { _ in
                 return 1.0
             }
             options.sessionTrackingIntervalMillis = 5_000

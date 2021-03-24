@@ -95,7 +95,7 @@ SENTRY_NO_INIT
  */
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
-NS_SWIFT_NAME(startTransaction(name:operation:));
+    NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
  * Creates a transaction bound to the hub and returns the instance.
@@ -107,7 +107,7 @@ NS_SWIFT_NAME(startTransaction(name:operation:));
  * @return The created transaction.
  */
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-NS_SWIFT_NAME(startTransaction(transactionContext:));
+    NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
  * Creates a transaction bound to the hub and returns the instance.
@@ -121,8 +121,8 @@ NS_SWIFT_NAME(startTransaction(transactionContext:));
  */
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                         customSamplingContext:
-(nullable NSDictionary<NSString *, id> *)customSamplingContext
-NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

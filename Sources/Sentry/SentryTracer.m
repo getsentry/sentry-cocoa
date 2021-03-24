@@ -105,7 +105,8 @@
     [self captureTransaction];
 }
 
-- (nullable id<SentrySpan>) getLatestActiveSpan {
+- (nullable id<SentrySpan>)getLatestActiveSpan
+{
     NSArray<id<SentrySpan>> *spans = [_spans copy];
     if (spans.count > 0) {
         for (int i = (int)spans.count - 1; i >= 0; i--) {

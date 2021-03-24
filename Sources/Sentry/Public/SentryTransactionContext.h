@@ -38,7 +38,9 @@ SENTRY_NO_INIT
  *
  * @return SentryTransactionContext
  */
-- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
+                     sampled:(SentrySampleDecision)sampled;
 
 /**
  * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the

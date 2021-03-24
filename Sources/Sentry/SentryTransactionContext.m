@@ -13,7 +13,8 @@
 
 - (instancetype)initWithName:(NSString *)name
                    operation:(NSString *)operation
-                     sampled:(SentrySampleDecision)sampled {
+                     sampled:(SentrySampleDecision)sampled
+{
     if (self = [super initWithOperation:operation sampled:sampled]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = false;

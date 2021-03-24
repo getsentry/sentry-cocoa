@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return span or null if not found.
  */
-- (nullable id<SentrySpan>) getLatestActiveSpan;
+- (nullable id<SentrySpan>)getLatestActiveSpan;
 
 @end
 
