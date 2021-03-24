@@ -193,7 +193,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"maxCacheItems" : @"b" }];
 
-    XCTAssertEqual(0, options.maxCacheItems);
+    XCTAssertEqual(30, options.maxCacheItems);
 }
 
 - (void)testDefaultMaxCacheItems
