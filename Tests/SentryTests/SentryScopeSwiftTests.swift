@@ -95,7 +95,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.environment, actual["environment"] as? String)
         XCTAssertEqual(fixture.fingerprint, actual["fingerprint"] as? [String])
         XCTAssertEqual("info", actual["level"] as? String)
-        XCTAssertEqual(fixture.transactionName, actual["transaction"] as? String)
+        XCTAssertNil(actual["transaction"])
         XCTAssertNotNil(actual["breadcrumbs"])
     }
     
