@@ -37,7 +37,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         }
         
         var fileManager: SentryFileManager {
-            return try! SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            return try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         }
         
         func getSut() -> SentryCrashIntegration {

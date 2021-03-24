@@ -45,7 +45,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         fixture = Fixture()
         
-        fileManager = try! SentryFileManager(dsn: SentrySessionTrackerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
