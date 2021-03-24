@@ -8,6 +8,8 @@
 
 ### Fixes
 
+- fix: Crash when passing garbage to maxBreadcrumbs #1018
+- fix: OutOfMemory exception type #1015
 - fix: macOS version for Mac Catalyst #1011
 
 ## 7.0.0-alpha.3

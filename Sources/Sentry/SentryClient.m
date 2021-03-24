@@ -510,7 +510,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return nil != exception.mechanism &&
-        [exception.mechanism.type isEqualToString:SentryOutOfMemoryExceptionType];
+        [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
