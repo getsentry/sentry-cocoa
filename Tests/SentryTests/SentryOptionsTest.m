@@ -164,20 +164,27 @@
     XCTAssertEqual(expectedValue, options.enabled);
 }
 
-- (void)testMaxBreadCrumbs
+- (void)testMaxBreadcrumbs
 {
-    NSNumber *maxBreadCrumbs = @20;
+    NSNumber *maxBreadcrumbs = @20;
 
-    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : maxBreadCrumbs }];
+    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : maxBreadcrumbs }];
 
-    XCTAssertEqual([maxBreadCrumbs unsignedIntValue], options.maxBreadcrumbs);
+    XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
-- (void)testDefaultMaxBreadCrumbs
+- (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
+}
+
+- (void)testMaxBreadcrumbsGarbage
+{
+    SentryOptions *options = [self getValidOptions:@{ @"maxBreadcrumbs" : self }];
+
+    XCTAssertEqual(100, options.maxBreadcrumbs);
 }
 
 - (void)testBeforeSend
@@ -292,6 +299,27 @@
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
 }
 
+- (void)testEnableOutOfMemoryTracking
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @YES }];
+
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+}
+
+- (void)testDefaultOutOfMemoryTracking
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+}
+
+- (void)testSetOutOfMemoryTrackingGargabe
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @"" }];
+
+    XCTAssertEqual(NO, options.enableOutOfMemoryTracking);
+}
+
 - (void)testSessionTrackingIntervalMillis
 {
     NSNumber *sessionTracking = @2000;
@@ -339,6 +367,7 @@
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
+    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);

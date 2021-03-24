@@ -11,4 +11,9 @@ class TestSentryCrashWrapper: SentryCrashAdapter {
     override func activeDurationSinceLastCrash() -> TimeInterval {
         return internalActiveDurationSinceLastCrash
     }
+    
+    var internalIsBeingTraced = false
+    override func isBeingTraced() -> Bool {
+        return internalIsBeingTraced
+    }
 }

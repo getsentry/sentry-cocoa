@@ -115,4 +115,21 @@ ViewController ()
     [SentrySDK crash];
 }
 
+- (IBAction)oomCrash:(id)sender
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger megaByte = 1024 * 1024;
+        NSUInteger memoryPageSize = NSPageSize();
+        NSUInteger memoryPages = megaByte / memoryPageSize;
+
+        while (1) {
+            // Allocate one MB and set one element of each memory page to something.
+            volatile char *ptr = malloc(megaByte);
+            for (int i = 0; i < memoryPages; i++) {
+                ptr[i * memoryPageSize] = 'b';
+            }
+        }
+    });
+}
+
 @end

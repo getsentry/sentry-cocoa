@@ -1,6 +1,10 @@
 import XCTest
 
 class SentrySerializationTests: XCTestCase {
+    
+    private class Fixture {
+        static var invalidData = "hi".data(using: .utf8)!
+    }
 
     func testSentryEnvelopeSerializer_WithSingleEvent() {
         // Arrange
@@ -198,8 +202,23 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testLevelFromEventData_WithGarbage() {
-        let level = SentrySerialization.level(from: "hi".data(using: .utf8)!)
+        let level = SentrySerialization.level(from: Fixture.invalidData)
         XCTAssertEqual(SentryLevel.error, level)
+    }
+    
+    func testAppStateWithValidData_ReturnsValidAppState() throws {
+        let appState = TestData.appState
+        let appStateData = try SentrySerialization.data(withJSONObject: appState.serialize())
+        
+        let actual = SentrySerialization.appState(with: appStateData)
+        
+        XCTAssertEqual(appState, actual)
+    }
+    
+    func testAppStateWithInvalidData_ReturnsNil() throws {
+        let actual = SentrySerialization.appState(with: Fixture.invalidData)
+        
+        XCTAssertNil(actual)
     }
 
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
