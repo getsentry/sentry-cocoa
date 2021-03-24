@@ -84,12 +84,10 @@ SENTRY_NO_INIT
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
- * Creates a transaction bound it to the hub and returns the instance.
- * The created transaction is added to the scope using the name as key.
- * A transaction already in the scope with the same name is replaced.
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param name The transaction name.
- * @param operation Short code identifying the type of operation the span is measuring.
+ * @param operation Short code identifying the type of operation that the span is measuring.
  *
  * @return The created transaction.
  */
@@ -98,9 +96,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
- * Creates a transaction bound to the hub and returns the instance.
- * The created transaction is added to the scope with its name as key.
- * A transaction already in the scope with the same name is replaced.
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  *
@@ -110,9 +106,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
- * Creates a transaction bound to the hub and returns the instance.
- * The created transaction is added to the scope with its name as key.
- * A transaction already in the scope with the same name is replaced.
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  * @param customSamplingContext Additional information about the sampling context.

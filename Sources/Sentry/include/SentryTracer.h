@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the latest span that is not finished.
  *
- * @return span or null if not found.
+ * @return span or null if none.
  */
 - (nullable id<SentrySpan>)getLatestActiveSpan;
 
