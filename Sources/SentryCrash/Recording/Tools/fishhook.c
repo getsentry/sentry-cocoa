@@ -234,7 +234,7 @@ _rebind_symbols_for_image(const struct mach_header *header, intptr_t slide)
 }
 
 int
-rebind_symbols_image(
+sentrycrash__hook_rebind_symbols_image(
     void *header, intptr_t slide, struct rebinding rebindings[], size_t rebindings_nel)
 {
     struct rebindings_entry *rebindings_head = NULL;
@@ -248,7 +248,7 @@ rebind_symbols_image(
 }
 
 int
-rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel)
+sentrycrash__hook_rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel)
 {
     int retval = prepend_rebindings(&_rebindings_head, rebindings, rebindings_nel);
     if (retval < 0) {

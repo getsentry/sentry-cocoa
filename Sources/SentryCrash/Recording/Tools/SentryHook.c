@@ -175,35 +175,35 @@ sentrycrash_install_async_hooks(void)
         return;
     }
 
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_async", sentrycrash__hook_dispatch_async, (void *)&real_dispatch_async },
         },
         1);
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_async_f", sentrycrash__hook_dispatch_async_f,
                 (void *)&real_dispatch_async_f },
         },
         1);
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_after", sentrycrash__hook_dispatch_after, (void *)&real_dispatch_after },
         },
         1);
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_after_f", sentrycrash__hook_dispatch_after_f,
                 (void *)&real_dispatch_after_f },
         },
         1);
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_barrier_async", sentrycrash__hook_dispatch_barrier_async,
                 (void *)&real_dispatch_barrier_async },
         },
         1);
-    rebind_symbols(
+    sentrycrash__hook_rebind_symbols(
         (struct rebinding[1]) {
             { "dispatch_barrier_async_f", sentrycrash__hook_dispatch_barrier_async_f,
                 (void *)&real_dispatch_barrier_async_f },
