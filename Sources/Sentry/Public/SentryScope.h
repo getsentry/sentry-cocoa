@@ -129,13 +129,6 @@ NS_SWIFT_NAME(Scope)
 - (void)setTransaction:(id<SentrySpan>)transaction;
 
 /**
- * Sets the Scope's transaction name.
- *
- * @param transactionName The name of the transaction.
- */
-- (void)setTransactionName:(NSString *)transactionName;
-
-/**
  * Clears the current Scope
  */
 - (void)clear;

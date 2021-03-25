@@ -65,9 +65,7 @@ SentryScope ()
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
-@property (nullable, atomic, strong) id<SentrySpan> currentTransaction;
-
-@property (nullable, atomic, strong) NSString *fallbackTransactionName;
+@property (nullable, atomic, strong) id<SentrySpan> currentSpan;
 
 @end
 
@@ -154,7 +152,7 @@ SentryScope ()
         [_attachmentArray removeAllObjects];
     }
 
-    self.currentTransaction = nil;
+    self.currentSpan = nil;
     self.userObject = nil;
     self.distString = nil;
     self.environmentString = nil;
@@ -328,29 +326,17 @@ SentryScope ()
 
 - (void)setTransaction:(id<SentrySpan>)transaction
 {
-    self.currentTransaction = transaction;
-    [self notifyListeners];
-}
-
-- (void)setTransactionName:(NSString *)transactionName
-{
-    if (self.currentTransaction != nil &&
-        [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
-        [(SentryTracer *)self.currentTransaction setName:transactionName];
-    }
-    self.fallbackTransactionName = transactionName;
-    [self notifyListeners];
+    self.currentSpan = transaction;
 }
 
 - (nullable id<SentrySpan>)span
 {
-    if (self.currentTransaction != nil &&
-        [self.currentTransaction isKindOfClass:[SentryTracer class]]) {
-        id latestSpan = [(SentryTracer *)self.currentTransaction getLatestActiveSpan];
+    if ([self.currentSpan isKindOfClass:[SentryTracer class]]) {
+        id latestSpan = [(SentryTracer *)self.currentSpan getLatestActiveSpan];
         if (latestSpan != nil)
             return latestSpan;
     }
-    return self.currentTransaction;
+    return self.currentSpan;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -364,12 +350,8 @@ SentryScope ()
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
 
-    if (self.currentTransaction != nil &&
-        [self.currentTransaction isKindOfClass:[SentryTracer class]])
-        [serializedData setValue:[(SentryTracer *)self.currentTransaction name]
-                          forKey:@"transaction"];
-    else if (self.fallbackTransactionName != nil)
-        [serializedData setValue:self.fallbackTransactionName forKey:@"transaction"];
+    if ([self.currentSpan isKindOfClass:[SentryTracer class]])
+        [serializedData setValue:[(SentryTracer *)self.currentSpan name] forKey:@"transaction"];
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
@@ -473,6 +455,11 @@ SentryScope ()
         // We always want to set the level from the scope since this has
         // been set on purpose
         event.level = level;
+    }
+
+    if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
+        [self.currentSpan isKindOfClass:[SentryTracer class]]) {
+        event.transaction = [(SentryTracer *)self.currentSpan name];
     }
 
     return event;

@@ -82,7 +82,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setLevel(SentryLevel.debug)
         scope.clearBreadcrumbs()
         scope.add(TestData.fileAttachment)
-        scope.setTransactionName(fixture.transactionName)
+        scope.setTransaction(fixture.transaction)
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])

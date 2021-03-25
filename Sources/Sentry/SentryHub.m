@@ -239,12 +239,40 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bind
+{
+    return
+        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                               operation:operation]
+                              bindToScope:bind];
+}
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bind
+{
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:bind
+                       customSamplingContext:nil];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:true
+                       customSamplingContext:customSamplingContext];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bind
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -256,7 +284,8 @@ SentryHub ()
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self];
-    [_scope setTransaction:tracer];
+    if (bind && _scope.span == nil)
+        [_scope setTransaction:tracer];
 
     return tracer;
 }
