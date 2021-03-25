@@ -1,6 +1,6 @@
 #import "SentrySDK.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClient.h"
+#import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -167,6 +167,24 @@ static BOOL crashedLastRunCalled;
 + (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
+}
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
+ */
++ (void)captureEnvelope:(SentryEnvelope *)envelope
+{
+    [SentrySDK.currentHub captureEnvelope:envelope];
+}
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
++ (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    if (nil != [SentrySDK.currentHub getClient]) {
+        [[SentrySDK.currentHub getClient] storeEnvelope:envelope];
+    }
 }
 
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
