@@ -224,6 +224,16 @@ static BOOL crashedLastRunCalled;
     return SentryCrash.sharedInstance.crashedLastLaunch;
 }
 
++ (void)startSession
+{
+    [SentrySDK.currentHub startSession];
+}
+
++ (void)endSession
+{
+    [SentrySDK.currentHub endSession];
+}
+
 /**
  * Install integrations and keeps ref in `SentryHub.integrations`
  */

@@ -86,6 +86,11 @@ SentryHub ()
     [self captureSession:lastSession];
 }
 
+- (void)endSession
+{
+    [self endSessionWithTimestamp:[SentryCurrentDate date]];
+}
+
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
 {
     SentrySession *currentSession = nil;
