@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- ref: Remove currentHub from SentrySDK #1019: We removed `SentrySDK.currentHub` and `SentrySDK.setCurrentHub`. In case you need this methods, please open up an issue.
 - feat: Add maxCacheItems #1017: This changes the maximum number of cached envelopes from 100 to 30. You can configure this number with `SentryOptions.maxCacheItems`.
 
 ### Features and Fixes

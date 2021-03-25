@@ -19,19 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * Returns current hub
- */
-+ (SentryHub *)currentHub;
-
-/**
  * This forces a crash, useful to test the SentryCrash integration
  */
 + (void)crash;
-
-/**
- * Sets current hub
- */
-+ (void)setCurrentHub:(SentryHub *)hub;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.

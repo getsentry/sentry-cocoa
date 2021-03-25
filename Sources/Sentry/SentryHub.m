@@ -7,7 +7,7 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"

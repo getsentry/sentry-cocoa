@@ -33,6 +33,7 @@ static BOOL crashedLastRunCalled;
     }
 }
 
+/** Internal, only needed for testing. */
 + (void)setCurrentHub:(SentryHub *)hub
 {
     @synchronized(self) {
