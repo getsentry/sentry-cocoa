@@ -6,6 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setCurrentHub:(SentryHub *)hub;
 
++ (void)captureEnvelope:(SentryEnvelope *)envelope;
+
++ (void)storeEnvelope:(SentryEnvelope *)envelope;
+
 @end
 
 NS_ASSUME_NONNULL_END

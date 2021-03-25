@@ -99,6 +99,11 @@ class TestClient: Client {
     override func capture(envelope: SentryEnvelope) {
         capturedEnvelopes.append(envelope)
     }
+    
+    var storedEnvelopes: [SentryEnvelope] = []
+    override func store(_ envelope: SentryEnvelope) {
+        storedEnvelopes.append(envelope)
+    }
 }
 
 class TestFileManager: SentryFileManager {

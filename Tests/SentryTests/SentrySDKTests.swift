@@ -58,6 +58,8 @@ class SentrySDKTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         
+        givenSdkWithHubButNoClient()
+        
         if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations.first(where: { it in
             it is SentryAutoSessionTrackingIntegration
         }) as? SentryAutoSessionTrackingIntegration {
@@ -257,6 +259,32 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
     
+    func testCaptureEnvelope() {
+        givenSdkWithHub()
+        
+        let envelope = SentryEnvelope(event: TestData.event)
+        SentrySDK.capture(envelope)
+        
+        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.capturedEnvelopes.first?.header.eventId)
+    }
+    
+    func testStoreEnvelope() {
+        givenSdkWithHub()
+        
+        let envelope = SentryEnvelope(event: TestData.event)
+        SentrySDK.store(envelope)
+        
+        XCTAssertEqual(1, fixture.client.storedEnvelopes.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopes.first?.header.eventId)
+    }
+    
+    func testStoreEnvelope_WhenNoClient_NoCrash() {
+        SentrySDK.store(SentryEnvelope(event: TestData.event))
+        
+        XCTAssertEqual(0, fixture.client.storedEnvelopes.count)
+    }
+    
     func testCaptureUserFeedback() {
         givenSdkWithHub()
         
@@ -361,6 +389,10 @@ class SentrySDKTests: XCTestCase {
     
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
+    }
+    
+    private func givenSdkWithHubButNoClient() {
+        SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
