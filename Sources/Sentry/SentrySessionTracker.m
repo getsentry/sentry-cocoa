@@ -2,7 +2,7 @@
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryFileManager.h"
-#import "SentryHub.h"
+#import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
