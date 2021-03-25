@@ -225,6 +225,16 @@ SENTRY_NO_INIT
  */
 + (void)setUser:(SentryUser *_Nullable)user;
 
+/**
+ * Starts a new session. If there's a running session, it ends it before starting the new one.
+ */
++ (void)startSession;
+
+/**
+ * Ends the current session.
+ */
++ (void)endSession;
+
 @end
 
 NS_ASSUME_NONNULL_END

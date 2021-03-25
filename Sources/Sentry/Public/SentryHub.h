@@ -16,7 +16,21 @@ SENTRY_NO_INIT
 // session here.
 @property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
+/**
+ * Starts a new session. If there's a running session, it ends it before starting the new one.
+ */
 - (void)startSession;
+
+/**
+ * Ends the current session.
+ */
+- (void)endSession;
+
+/**
+ * Ends the current session with the given timestamp.
+ *
+ * @param timestamp The timestamp to end the session with.
+ */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
 
 @property (nonatomic, strong)

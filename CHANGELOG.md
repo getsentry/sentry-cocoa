@@ -11,6 +11,7 @@
 
 ### Features and Fixes
 
+- feat: Add start and endSession to SentrySDK #1021
 - fix: Crash when passing garbage to maxBreadcrumbs #1018
 - fix: OutOfMemory exception type #1015
 - fix: macOS version for Mac Catalyst #1011
