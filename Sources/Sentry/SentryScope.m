@@ -329,7 +329,6 @@ SentryScope ()
 - (void)setTransaction:(id<SentrySpan>)transaction
 {
     self.currentTransaction = transaction;
-    [self notifyListeners];
 }
 
 - (void)setTransactionName:(NSString *)transactionName
