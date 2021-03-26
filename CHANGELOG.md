@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- ref: Remove deprecated SentryHub.getScope #1025: Use `SentryHub.scope` instead.
 - ref: Make closeCachedSessionWithTimestamp private #1022
 - ref: Improve envelope API for Hybrid SDKs #1020: We removed `SentryClient.storeEnvelope`, which is reserved for Hybrid SDKs.
 - ref: Remove currentHub from SentrySDK #1019: We removed `SentrySDK.currentHub` and `SentrySDK.setCurrentHub`. In case you need this methods, please open up an issue.

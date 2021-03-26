@@ -363,11 +363,6 @@ SentryHub ()
     }
 }
 
-- (SentryScope *)getScope
-{
-    return self.scope;
-}
-
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
     SentryScope *scope = self.scope;
