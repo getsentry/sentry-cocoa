@@ -204,15 +204,6 @@ static BOOL crashedLastRunCalled;
     [SentrySDK.currentHub setUser:user];
 }
 
-#ifndef __clang_analyzer__
-// Code not to be analyzed
-+ (void)crash
-{
-    int *p = 0;
-    *p = 0;
-}
-#endif
-
 + (BOOL)crashedLastRun
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
@@ -262,6 +253,15 @@ static BOOL crashedLastRunCalled;
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }
+
+#ifndef __clang_analyzer__
+// Code not to be analyzed
++ (void)crash
+{
+    int *p = 0;
+    *p = 0;
+}
+#endif
 
 @end
 
