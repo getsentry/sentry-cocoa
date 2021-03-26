@@ -841,7 +841,8 @@ class SentryClientTest: XCTestCase {
         
         XCTAssertEqual("Code: \(error.code)", exception.value)
         
-        XCTAssertNil(exception.thread)
+        XCTAssertNil(exception.threadId)
+        XCTAssertNil(exception.stacktrace)
         
         guard let mechanism = exception.mechanism else {
             XCTFail("Exception doesn't contain a mechanism"); return
