@@ -82,7 +82,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setLevel(SentryLevel.debug)
         scope.clearBreadcrumbs()
         scope.add(TestData.fileAttachment)
-        scope.setTransaction(fixture.transaction)
+        scope.span = fixture.transaction
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
@@ -203,7 +203,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testGetSpan() {
         let scope = fixture.scope
-        scope.setTransaction(fixture.transaction)
+        scope.span = fixture.transaction
         
         let span = fixture.transaction.startChild(operation: "child op")
         XCTAssert(scope.span === span)
