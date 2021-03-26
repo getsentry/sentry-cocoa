@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- ref: Align SentryException with unified API #1026: Replaced `SentryException.thread` with `SentryException.threadId` and `SentryException.stacktrace`.
 - ref: Make closeCachedSessionWithTimestamp private #1022
 - ref: Improve envelope API for Hybrid SDKs #1020: We removed `SentryClient.storeEnvelope`, which is reserved for Hybrid SDKs.
 - ref: Remove currentHub from SentrySDK #1019: We removed `SentrySDK.currentHub` and `SentrySDK.setCurrentHub`. In case you need this methods, please open up an issue.
