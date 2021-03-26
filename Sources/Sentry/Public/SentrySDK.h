@@ -9,11 +9,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// NS_SWIFT_NAME(SDK)
 /**
- "static api" for easy access to most common sentry sdk features
-
- try `SentryHub` for advanced features
+ * The main entry point for the SentrySDK.
+ *
+ * We recommend using `[Sentry startWithConfigureOptions]` to initialize Sentry.
  */
 @interface SentrySDK : NSObject
 SENTRY_NO_INIT
@@ -35,7 +34,7 @@ SENTRY_NO_INIT
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
- * set a valid DSN otherwise.
+ * set a valid DSN.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));
@@ -204,15 +203,19 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
- * Adds a SentryBreadcrumb to the current Scope on the `currentHub`.
- * If the total number of breadcrumbs exceeds the `max_breadcrumbs` setting, the
- * oldest breadcrumb is removed.
+ * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
+ * exceeds the `SentryOptions.maxBreadcrumbs`, the SDK removes the oldest breadcrumb.
+ *
+ * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
 
-//- `configure_scope(callback)`: Calls a callback with a scope object that can
-// be reconfigured. This is used to attach contextual data for future events in
-// the same scope.
+/**
+ * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
+ * contextual data to events.
+ *
+ * @param callback The callback for configuring the current Scope of the current Hub.
+ */
 + (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
@@ -221,7 +224,10 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
- * Set global user -> thus will be sent with every event
+ * Set user to the current Scope of the current Hub. Thus, the SDK is going to send them with every
+ * event.
+ *
+ * @param user The user to set to the current Scope.
  */
 + (void)setUser:(SentryUser *_Nullable)user;
 
