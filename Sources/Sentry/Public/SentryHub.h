@@ -208,7 +208,7 @@ SENTRY_NO_INIT
 - (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
 /**
- * Set user to the Scope of the Hub. Thus, the Hub is going to send them with every event.
+ * Set user to the Scope of the Hub.
  *
  * @param user The user to set to the Scope.
  */
