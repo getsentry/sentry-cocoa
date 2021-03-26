@@ -10,11 +10,11 @@ NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
 
 /**
- * Returns current active Span or Transaction.
+ * Returns current Span or Transaction.
  *
- * @return current active Span or Transaction or null if transaction has not been set.
+ * @return current Span or Transaction or null if transaction has not been set.
  */
-@property (nullable, readonly) id<SentrySpan> span;
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
@@ -122,11 +122,21 @@ NS_SWIFT_NAME(Scope)
 - (void)addAttachment:(SentryAttachment *)attachment;
 
 /**
- * Sets the Scope's transaction.
- *
- * @param transaction A transaction to add to the Scope.
+ * Sets the scope span with given span only if the scope has no span already.
  */
-- (void)setTransaction:(id<SentrySpan>)transaction;
+- (void)setSpanIfEmpty:(id<SentrySpan>)span;
+
+/**
+ * Removes the span from scope atomically.
+ */
+- (void)clearSpan;
+
+/**
+ * Removes the span from scope atomically if it is the given span.
+ *
+ * @param span The span that should be removed from scope.
+ */
+- (void)clearSpan:(id<SentrySpan>)span;
 
 /**
  * Clears the current Scope

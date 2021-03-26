@@ -65,11 +65,11 @@ SentryScope ()
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
-@property (nullable, atomic, strong) id<SentrySpan> currentSpan;
-
 @end
 
-@implementation SentryScope
+@implementation SentryScope {
+    NSLock *_spanLock;
+}
 
 #pragma mark Initializer
 
@@ -84,6 +84,7 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
+        _spanLock = [[NSLock alloc] init];
     }
     return self;
 }
@@ -127,6 +128,36 @@ SentryScope ()
     [self notifyListeners];
 }
 
+- (void)setSpan:(nullable id<SentrySpan>)span
+{
+    [_spanLock lock];
+    _span = span;
+    [_spanLock unlock];
+}
+
+- (void)setSpanIfEmpty:(id<SentrySpan>)span
+{
+    [_spanLock lock];
+    if (self.span == nil)
+        self.span = span;
+    [_spanLock unlock];
+}
+
+- (void)clearSpan
+{
+    [_spanLock lock];
+    self.span = nil;
+    [_spanLock unlock];
+}
+
+- (void)clearSpan:(id<SentrySpan>)span
+{
+    [_spanLock lock];
+    if (span == self.span)
+        self.span = nil;
+    [_spanLock unlock];
+}
+
 - (void)clear
 {
     // As we need to synchronize the accesses of the arrays and dictionaries and we use the
@@ -152,7 +183,8 @@ SentryScope ()
         [_attachmentArray removeAllObjects];
     }
 
-    self.currentSpan = nil;
+    [self clearSpan];
+
     self.userObject = nil;
     self.distString = nil;
     self.environmentString = nil;
@@ -324,21 +356,6 @@ SentryScope ()
     }
 }
 
-- (void)setTransaction:(id<SentrySpan>)transaction
-{
-    self.currentSpan = transaction;
-}
-
-- (nullable id<SentrySpan>)span
-{
-    if ([self.currentSpan isKindOfClass:[SentryTracer class]]) {
-        id latestSpan = [(SentryTracer *)self.currentSpan getLatestActiveSpan];
-        if (latestSpan != nil)
-            return latestSpan;
-    }
-    return self.currentSpan;
-}
-
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -350,8 +367,12 @@ SentryScope ()
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
 
-    if ([self.currentSpan isKindOfClass:[SentryTracer class]])
-        [serializedData setValue:[(SentryTracer *)self.currentSpan name] forKey:@"transaction"];
+    [_spanLock lock];
+    id<SentrySpan> span = self.span;
+    [_spanLock unlock];
+
+    if ([span isKindOfClass:[SentryTracer class]])
+        [serializedData setValue:[(SentryTracer *)span name] forKey:@"transaction"];
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
@@ -457,9 +478,13 @@ SentryScope ()
         event.level = level;
     }
 
+    [_spanLock lock];
+    id<SentrySpan> span = self.span;
+    [_spanLock unlock];
+
     if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
-        [self.currentSpan isKindOfClass:[SentryTracer class]]) {
-        event.transaction = [(SentryTracer *)self.currentSpan name];
+        [span isKindOfClass:[SentryTracer class]]) {
+        event.transaction = [(SentryTracer *)span name];
     }
 
     return event;

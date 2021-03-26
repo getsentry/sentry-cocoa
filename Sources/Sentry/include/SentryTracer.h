@@ -101,13 +101,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
-/**
- * Returns the latest span that is not finished.
- *
- * @return span or null if none.
- */
-- (nullable id<SentrySpan>)getLatestActiveSpan;
-
 @end
 
 NS_ASSUME_NONNULL_END

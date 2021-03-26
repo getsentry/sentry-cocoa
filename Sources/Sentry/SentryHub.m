@@ -241,12 +241,12 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
-                               bindToScope:(BOOL)bind
+                               bindToScope:(BOOL)bindToScope
 {
     return
         [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
                                                                                operation:operation]
-                              bindToScope:bind];
+                              bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -255,10 +255,10 @@ SentryHub ()
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bind
+                                  bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:transactionContext
-                                 bindToScope:bind
+                                 bindToScope:bindToScope
                        customSamplingContext:nil];
 }
 
@@ -272,7 +272,7 @@ SentryHub ()
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bind
+                                  bindToScope:(BOOL)bindToScope
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -284,8 +284,8 @@ SentryHub ()
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self];
-    if (bind && _scope.span == nil)
-        [_scope setTransaction:tracer];
+    if (bindToScope)
+        [_scope setSpanIfEmpty:tracer];
 
     return tracer;
 }

@@ -60,14 +60,14 @@ SENTRY_NO_INIT
  *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
- * @param bind Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
  *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
-                               bindToScope:(BOOL)bind NS_SWIFT_NAME(startTransaction(name:operation:
-                                               bindToScope:));
+                               bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
 
 /**
  * Creates a transaction, bound it to the hub and returns the instance.
@@ -83,25 +83,25 @@ SENTRY_NO_INIT
  * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
- * @param bind Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
  *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bind
+                                  bindToScope:(BOOL)bindToScope
     NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:));
 
 /**
  * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
- * @param bind Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
  * @param customSamplingContext Additional information about the sampling context.
  *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bind
+                                  bindToScope:(BOOL)bindToScope
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
     NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
