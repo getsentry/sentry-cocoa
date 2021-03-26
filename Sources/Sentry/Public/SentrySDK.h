@@ -19,11 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * This forces a crash, useful to test the SentryCrash integration
- */
-+ (void)crash;
-
-/**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
@@ -234,6 +229,11 @@ SENTRY_NO_INIT
  * Ends the current session.
  */
 + (void)endSession;
+
+/**
+ * This forces a crash, useful to test the SentryCrash integration
+ */
++ (void)crash;
 
 @end
 
