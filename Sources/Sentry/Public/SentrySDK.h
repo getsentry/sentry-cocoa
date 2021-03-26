@@ -219,8 +219,7 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
- * Set user to the current Scope of the current Hub. Thus, the SDK is going to send them with every
- * event.
+ * Set user to the current Scope of the current Hub.
  *
  * @param user The user to set to the current Scope.
  */
