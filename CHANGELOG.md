@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- perf: Avoid allocating dict in BreadcrumbTracker #1027
 - ref: Align SentryException with unified API #1026: Replaced `SentryException.thread` with `SentryException.threadId` and `SentryException.stacktrace`.
 - ref: Remove deprecated SentryHub.getScope #1025: Use `SentryHub.scope` instead.
 - ref: Make closeCachedSessionWithTimestamp private #1022
