@@ -4,11 +4,18 @@
 
 ### Breaking Changes
 
+- ref: Align SentryException with unified API #1026: Replaced `SentryException.thread` with `SentryException.threadId` and `SentryException.stacktrace`.
+- ref: Remove deprecated SentryHub.getScope #1025: Use `SentryHub.scope` instead.
+- ref: Make closeCachedSessionWithTimestamp private #1022
+- ref: Improve envelope API for Hybrid SDKs #1020: We removed `SentryClient.storeEnvelope`, which is reserved for Hybrid SDKs.
+- ref: Remove currentHub from SentrySDK #1019: We removed `SentrySDK.currentHub` and `SentrySDK.setCurrentHub`. In case you need this methods, please open up an issue.
 - feat: Add maxCacheItems #1017: This changes the maximum number of cached envelopes from 100 to 30. You can configure this number with `SentryOptions.maxCacheItems`.
 
 ### Features and Fixes
 
 - feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
+- perf: Avoid allocating dict in BreadcrumbTracker #1027
+- feat: Add start and endSession to SentrySDK #1021
 - fix: Crash when passing garbage to maxBreadcrumbs #1018
 - fix: OutOfMemory exception type #1015
 - fix: macOS version for Mac Catalyst #1011

@@ -358,7 +358,9 @@
     thread2.stacktrace = [[SentryStacktrace alloc] initWithFrames:@[ frame ]
                                                         registers:@{ @"a" : @"1" }];
 
-    exception2.thread = thread2;
+    exception2.threadId = thread2.threadId;
+    exception2.stacktrace = thread2.stacktrace;
+
     exception2.mechanism = [[SentryMechanism alloc] initWithType:@"test"];
     exception2.module = @"module";
     NSDictionary *serialized2 = @{

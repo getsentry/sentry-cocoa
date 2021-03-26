@@ -8,6 +8,7 @@ class SentrySDKTests: XCTestCase {
     
     private class Fixture {
     
+        let options: Options
         let event: Event
         let scope: Scope
         let client: TestClient
@@ -15,6 +16,7 @@ class SentrySDKTests: XCTestCase {
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let userFeedback: UserFeedback
+        let currentDate = TestCurrentDateProvider()
         
         let scopeBlock: (Scope) -> Void = { scope in
             scope.setTag(value: "tag", key: "tag")
@@ -31,14 +33,17 @@ class SentrySDKTests: XCTestCase {
         let message = "message"
         
         init() {
+            CurrentDate.setCurrentDateProvider(currentDate)
+            
             event = Event()
             event.message = SentryMessage(formatted: message)
             
             scope = Scope()
             scope.setTag(value: "value", key: "key")
             
-            let options = Options()
+            options = Options()
             options.dsn = SentrySDKTests.dsnAsString
+            options.releaseName = "1.0.0"
             client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope)
             
@@ -57,6 +62,8 @@ class SentrySDKTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        
+        givenSdkWithHubButNoClient()
         
         if let autoSessionTracking = SentrySDK.currentHub().installedIntegrations.first(where: { it in
             it is SentryAutoSessionTrackingIntegration
@@ -257,6 +264,32 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
     
+    func testCaptureEnvelope() {
+        givenSdkWithHub()
+        
+        let envelope = SentryEnvelope(event: TestData.event)
+        SentrySDK.capture(envelope)
+        
+        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.capturedEnvelopes.first?.header.eventId)
+    }
+    
+    func testStoreEnvelope() {
+        givenSdkWithHub()
+        
+        let envelope = SentryEnvelope(event: TestData.event)
+        SentrySDK.store(envelope)
+        
+        XCTAssertEqual(1, fixture.client.storedEnvelopes.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopes.first?.header.eventId)
+    }
+    
+    func testStoreEnvelope_WhenNoClient_NoCrash() {
+        SentrySDK.store(SentryEnvelope(event: TestData.event))
+        
+        XCTAssertEqual(0, fixture.client.storedEnvelopes.count)
+    }
+    
     func testCaptureUserFeedback() {
         givenSdkWithHub()
         
@@ -359,8 +392,52 @@ class SentrySDKTests: XCTestCase {
         }
     }
     
+    func testStartSession() {
+        givenSdkWithHub()
+        
+        SentrySDK.startSession()
+        
+        XCTAssertEqual(1, fixture.client.sessions.count)
+        
+        let actual = fixture.client.sessions.first
+        let expected = SentrySession(releaseName: fixture.options.releaseName ?? "")
+        
+        XCTAssertEqual(expected.flagInit, actual?.flagInit)
+        XCTAssertEqual(expected.errors, actual?.errors)
+        XCTAssertEqual(expected.sequence, actual?.sequence)
+        XCTAssertEqual(expected.releaseName, actual?.releaseName)
+        XCTAssertEqual(fixture.currentDate.date(), actual?.started)
+        XCTAssertEqual(SentrySessionStatus.ok, actual?.status)
+        XCTAssertNil(actual?.timestamp)
+        XCTAssertNil(actual?.duration)
+    }
+    
+    func testEndSession() {
+        givenSdkWithHub()
+        
+        SentrySDK.startSession()
+        advanceTime(bySeconds: 1)
+        SentrySDK.endSession()
+        
+        XCTAssertEqual(2, fixture.client.sessions.count)
+        
+        let actual = fixture.client.sessions[1]
+        
+        XCTAssertNil(actual.flagInit)
+        XCTAssertEqual(0, actual.errors)
+        XCTAssertEqual(2, actual.sequence)
+        XCTAssertEqual(SentrySessionStatus.exited, actual.status)
+        XCTAssertEqual(fixture.options.releaseName ?? "", actual.releaseName)
+        XCTAssertEqual(1, actual.duration)
+        XCTAssertEqual(fixture.currentDate.date(), actual.timestamp)
+    }
+    
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
+    }
+    
+    private func givenSdkWithHubButNoClient() {
+        SentrySDK.setCurrentHub(SentryHub(client: nil, andScope: nil))
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
@@ -404,5 +481,9 @@ class SentrySDKTests: XCTestCase {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
+    }
+    
+    private func advanceTime(bySeconds: TimeInterval) {
+        fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
     }
 }

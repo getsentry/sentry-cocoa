@@ -7,7 +7,7 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -84,6 +84,11 @@ SentryHub ()
     }
     [lastSession endSessionExitedWithTimestamp:[SentryCurrentDate date]];
     [self captureSession:lastSession];
+}
+
+- (void)endSession
+{
+    [self endSessionWithTimestamp:[SentryCurrentDate date]];
 }
 
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
@@ -358,11 +363,6 @@ SentryHub ()
     }
 }
 
-- (SentryScope *)getScope
-{
-    return self.scope;
-}
-
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
     SentryScope *scope = self.scope;
@@ -396,9 +396,6 @@ SentryHub ()
     return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
-/**
- * Set global user -> thus will be sent with every event
- */
 - (void)setUser:(SentryUser *_Nullable)user
 {
     SentryScope *scope = self.scope;

@@ -2,6 +2,7 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentrySDK+Private.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 

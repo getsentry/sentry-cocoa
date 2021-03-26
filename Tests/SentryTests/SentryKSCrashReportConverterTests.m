@@ -47,22 +47,19 @@
 
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(
-        exception.thread.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
+        exception.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
     XCTAssertEqualObjects(
-        exception.thread.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
+        exception.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
     XCTAssertEqualObjects(
-        exception.thread.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
-    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x4"], @"0x0000000102468000");
-    XCTAssertEqualObjects(exception.thread.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
+        exception.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");
+    XCTAssertEqualObjects(exception.stacktrace.registers[@"x4"], @"0x0000000102468000");
+    XCTAssertEqualObjects(exception.stacktrace.registers[@"x9"], @"0x32a77e172fd70062");
 
-    XCTAssertEqualObjects(exception.thread.crashed, @(YES));
-    XCTAssertEqualObjects(exception.thread.current, @(NO));
-    XCTAssertEqualObjects(exception.thread.name, @"com.apple.main-thread");
     XCTAssertEqual(event.threads.count, (unsigned long)9);
 
     XCTAssertEqual(event.exceptions.count, (unsigned long)1);
     SentryThread *firstThread = event.threads.firstObject;
-    XCTAssertEqualObjects(exception.thread.threadId, firstThread.threadId);
+    XCTAssertEqualObjects(exception.threadId, firstThread.threadId);
     NSString *code = [NSString
         stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
     NSString *number = [NSString
@@ -201,7 +198,7 @@
                                            frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(exception.thread.stacktrace.frames.lastObject.function, @"<redacted>");
+    XCTAssertEqualObjects(exception.stacktrace.frames.lastObject.function, @"<redacted>");
 }
 
 - (void)testReactNative
@@ -232,7 +229,7 @@
                                            frameInAppLogic:self.frameInAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqual(exception.thread.stacktrace.frames.count, (unsigned long)22);
+    XCTAssertEqual(exception.stacktrace.frames.count, (unsigned long)22);
     XCTAssertEqualObjects(exception.value,
         @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance "
         @"0x1e59bc50");
