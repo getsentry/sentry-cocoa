@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- perf: Avoid allocating dict in BreadcrumbTracker #1027
 - ref: Remove deprecated SentryHub.getScope #1025: Use `SentryHub.scope` instead.
 - ref: Make closeCachedSessionWithTimestamp private #1022
 - ref: Improve envelope API for Hybrid SDKs #1020: We removed `SentryClient.storeEnvelope`, which is reserved for Hybrid SDKs.
