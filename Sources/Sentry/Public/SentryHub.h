@@ -177,11 +177,6 @@ SENTRY_NO_INIT
 /**
  * Returns either the current scope and if nil a new one.
  */
-- (SentryScope *)getScope __deprecated_msg("Use SentryHub.scope instead.");
-
-/**
- * Returns either the current scope and if nil a new one.
- */
 @property (nonatomic, readonly, strong) SentryScope *scope;
 
 /**
