@@ -10,9 +10,6 @@
 @interface
 SentrySDK ()
 
-/**
- holds the current hub instance
- */
 @property (class) SentryHub *currentHub;
 
 @end
@@ -202,9 +199,6 @@ static BOOL crashedLastRunCalled;
     [SentrySDK.currentHub configureScope:callback];
 }
 
-/**
- * Set global user -> thus will be sent with every event
- */
 + (void)setUser:(SentryUser *_Nullable)user
 {
     [SentrySDK.currentHub setUser:user];
