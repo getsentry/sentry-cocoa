@@ -243,7 +243,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRateLimitUpdated(response: response)
     }
     
-    func testSendEventWithRateLimitResponse() {
+    func ignoredTestSendEventWithRateLimitResponse() {
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
         
         sendEvent()
