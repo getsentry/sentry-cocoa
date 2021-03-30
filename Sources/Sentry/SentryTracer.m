@@ -116,7 +116,10 @@
     transaction.transaction = self.name;
     [_hub captureEvent:transaction withScope:_hub.scope];
 
-    [_hub.scope clearSpan:self];
+    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span == self)
+            [self->_hub.scope setSpan:nil];
+    }];
 }
 
 - (NSDictionary *)serialize

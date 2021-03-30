@@ -103,7 +103,7 @@ NS_SWIFT_NAME(Scope)
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
- * "enrichted" with scope before sending event.
+ * "enriched" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value
                  forKey:(NSString *)key NS_SWIFT_NAME(setContext(value:key:));
@@ -122,26 +122,16 @@ NS_SWIFT_NAME(Scope)
 - (void)addAttachment:(SentryAttachment *)attachment;
 
 /**
- * Sets the scope span with given span only if the scope has no span already.
- */
-- (void)setSpanIfEmpty:(id<SentrySpan>)span;
-
-/**
- * Removes the span from scope atomically.
- */
-- (void)clearSpan;
-
-/**
- * Removes the span from scope atomically if it is the given span.
- *
- * @param span The span that should be removed from scope.
- */
-- (void)clearSpan:(id<SentrySpan>)span;
-
-/**
  * Clears the current Scope
  */
 - (void)clear;
+
+/**
+ * Mutates the current transaction atomically.
+ *
+ * @param callback the SentrySpanCallback.
+ */
+- (void)useSpan:(SentrySpanCallback)callback;
 
 @end
 

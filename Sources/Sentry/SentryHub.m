@@ -267,7 +267,7 @@ SentryHub ()
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
-                                 bindToScope:true
+                                 bindToScope:false
                        customSamplingContext:customSamplingContext];
 }
 
@@ -285,7 +285,7 @@ SentryHub ()
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self];
     if (bindToScope)
-        [_scope setSpanIfEmpty:tracer];
+        _scope.span = tracer;
 
     return tracer;
 }

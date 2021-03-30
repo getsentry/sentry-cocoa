@@ -189,6 +189,21 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.environment, actual?.environment)
     }
     
+    func testUseSpan() {
+        fixture.scope.span = fixture.transaction
+        fixture.scope.useSpan { (span) in
+            XCTAssert(span === self.fixture.transaction)
+        }
+    }
+    
+    func testUseSpanForClear() {
+        fixture.scope.span = fixture.transaction
+        fixture.scope.useSpan { (span) in
+            self.fixture.scope.span = nil
+        }
+        XCTAssertNil(fixture.scope.span)
+    }
+    
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"]])
         let event = fixture.event
@@ -200,15 +215,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
     }
-    
-    func testGetSpan() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
         
-        let span = fixture.transaction.startChild(operation: "child op")
-        XCTAssert(scope.span === span)
-    }
-    
     func testClear() {
         let scope = fixture.scope
         scope.clear()

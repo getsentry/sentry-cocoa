@@ -68,7 +68,7 @@ SentryScope ()
 @end
 
 @implementation SentryScope {
-    NSLock *_spanLock;
+    NSObject *_spanLock;
 }
 
 #pragma mark Initializer
@@ -84,7 +84,7 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
-        _spanLock = [[NSLock alloc] init];
+        _spanLock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -130,32 +130,16 @@ SentryScope ()
 
 - (void)setSpan:(nullable id<SentrySpan>)span
 {
-    [_spanLock lock];
-    _span = span;
-    [_spanLock unlock];
+    @synchronized(_spanLock) {
+        _span = span;
+    }
 }
 
-- (void)setSpanIfEmpty:(id<SentrySpan>)span
+- (void)useSpan:(SentrySpanCallback)callback
 {
-    [_spanLock lock];
-    if (self.span == nil)
-        self.span = span;
-    [_spanLock unlock];
-}
-
-- (void)clearSpan
-{
-    [_spanLock lock];
-    self.span = nil;
-    [_spanLock unlock];
-}
-
-- (void)clearSpan:(id<SentrySpan>)span
-{
-    [_spanLock lock];
-    if (span == self.span)
-        self.span = nil;
-    [_spanLock unlock];
+    @synchronized(_spanLock) {
+        callback(_span);
+    }
 }
 
 - (void)clear
@@ -182,8 +166,9 @@ SentryScope ()
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
     }
-
-    [self clearSpan];
+    @synchronized(_spanLock) {
+        _span = nil;
+    }
 
     self.userObject = nil;
     self.distString = nil;
@@ -367,13 +352,6 @@ SentryScope ()
     [serializedData setValue:self.environmentString forKey:@"environment"];
     [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
 
-    [_spanLock lock];
-    id<SentrySpan> span = self.span;
-    [_spanLock unlock];
-
-    if ([span isKindOfClass:[SentryTracer class]])
-        [serializedData setValue:[(SentryTracer *)span name] forKey:@"transaction"];
-
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
         [serializedData setValue:SentryLevelNames[level] forKey:@"level"];
@@ -478,9 +456,10 @@ SentryScope ()
         event.level = level;
     }
 
-    [_spanLock lock];
-    id<SentrySpan> span = self.span;
-    [_spanLock unlock];
+    id<SentrySpan> span;
+    @synchronized(_spanLock) {
+        span = self.span;
+    }
 
     if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
         [span isKindOfClass:[SentryTracer class]]) {
