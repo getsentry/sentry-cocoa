@@ -49,10 +49,6 @@ public class TestRequestManager: NSObject, RequestManager {
         group.waitWithTimeout()
     }
     
-    public func cancelAllOperations() {
-        
-    }
-    
     func returnResponse(response: HTTPURLResponse?) {
         nextResponse = { return response }
     }
