@@ -77,7 +77,8 @@ class TestData {
         let exception = Exception(value: "value", type: "type")
         exception.mechanism = mechanism
         exception.module = "module"
-        exception.thread = thread
+        exception.threadId = thread.threadId
+        exception.stacktrace = thread.stacktrace
         
         return exception
     }

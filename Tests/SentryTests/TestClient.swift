@@ -5,11 +5,7 @@ class TestClient: Client {
     let sentryFileManager: SentryFileManager
     
     override init?(options: Options) {
-        guard let dsnAsString = options.dsn  else {
-            return nil
-        }
-        let dsn = try! SentryDsn(string: dsnAsString) 
-        sentryFileManager = try! SentryFileManager(dsn: dsn, andCurrentDateProvider: TestCurrentDateProvider())
+        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         super.init(options: options)
     }
     
@@ -102,6 +98,11 @@ class TestClient: Client {
     var capturedEnvelopes: [SentryEnvelope] = []
     override func capture(envelope: SentryEnvelope) {
         capturedEnvelopes.append(envelope)
+    }
+    
+    var storedEnvelopes: [SentryEnvelope] = []
+    override func store(_ envelope: SentryEnvelope) {
+        storedEnvelopes.append(envelope)
     }
 }
 

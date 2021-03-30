@@ -63,6 +63,7 @@
 #import "SentryRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
+#import "SentrySDK+Tests.h"
 #import "SentryScope+Private.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"

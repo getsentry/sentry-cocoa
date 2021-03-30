@@ -26,7 +26,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
             SentrySDK.setCurrentHub(hub)
             
-            fileManager = try! SentryFileManager(dsn: SentryOutOfMemoryTrackerTests.dsn, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         }
         
         func getSut() -> SentryOutOfMemoryTracker {

@@ -2,7 +2,7 @@ minVersion: '0.9.3'
 github:
   owner: getsentry
   repo: sentry-cocoa
-changelogPolicy: simple
+changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
 statusProvider:
   name: github

@@ -9,7 +9,7 @@ class SentryExceptionTests: XCTestCase {
         
         // Changing the original doesn't modify the serialized
         exception.mechanism?.desc = ""
-        exception.thread?.stacktrace?.registers = [:]
+        exception.stacktrace?.registers = [:]
 
         let expected = TestData.exception
         XCTAssertEqual(expected.type, actual["type"] as! String)
@@ -19,7 +19,7 @@ class SentryExceptionTests: XCTestCase {
         XCTAssertEqual(TestData.mechanism.desc, mechanism["description"] as? String)
         
         XCTAssertEqual(expected.module, actual["module"] as? String)
-        XCTAssertEqual(expected.thread?.threadId, actual["thread_id"] as? NSNumber)
+        XCTAssertEqual(expected.threadId, actual["thread_id"] as? NSNumber)
         
         let stacktrace = actual["stacktrace"] as! [String: Any]
         XCTAssertEqual(TestData.stacktrace.registers, stacktrace["registers"] as? [String: String])

@@ -357,7 +357,11 @@ SentryCrashReportConverter ()
 
     [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanismOfType:exceptionType];
-    exception.thread = [self crashedThread];
+
+    SentryThread *crashedThread = [self crashedThread];
+    exception.threadId = crashedThread.threadId;
+    exception.stacktrace = crashedThread.stacktrace;
+
     if (nil != self.diagnosis && self.diagnosis.length > 0
         && ![self.diagnosis containsString:exception.value]) {
         exception.value = [exception.value

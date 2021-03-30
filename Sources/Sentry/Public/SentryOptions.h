@@ -65,6 +65,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
+ * The maximum number of envelopes to keep in cache. Default is 30.
+ */
+@property (nonatomic, assign) NSUInteger maxCacheItems;
+
+/**
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
