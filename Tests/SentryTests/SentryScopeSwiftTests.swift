@@ -8,7 +8,8 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope: Scope
         let date: Date
         let event: Event
-
+        let transaction: Span
+        
         let dist = "dist"
         let environment = "environment"
         let fingerprint = ["fingerprint"]
@@ -17,7 +18,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let extra = ["key": "value"]
         let level = SentryLevel.info
         let ipAddress = "127.0.0.1"
-        
+        let transactionName = "Some Transaction"
         let maxBreadcrumbs = 5
 
         init() {
@@ -53,6 +54,8 @@ class SentryScopeSwiftTests: XCTestCase {
             
             event = Event()
             event.message = SentryMessage(formatted: "message")
+            
+            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: "op"), hub: nil)
         }
         
         var dateAs8601String: String {
@@ -79,6 +82,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setLevel(SentryLevel.debug)
         scope.clearBreadcrumbs()
         scope.add(TestData.fileAttachment)
+        scope.span = fixture.transaction
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
         XCTAssertEqual(["key": "value"], actual["extra"] as? [String: String])
@@ -91,7 +95,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.environment, actual["environment"] as? String)
         XCTAssertEqual(fixture.fingerprint, actual["fingerprint"] as? [String])
         XCTAssertEqual("info", actual["level"] as? String)
-        
+        XCTAssertNil(actual["transaction"])
         XCTAssertNotNil(actual["breadcrumbs"])
     }
     
@@ -185,6 +189,21 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.environment, actual?.environment)
     }
     
+    func testUseSpan() {
+        fixture.scope.span = fixture.transaction
+        fixture.scope.useSpan { (span) in
+            XCTAssert(span === self.fixture.transaction)
+        }
+    }
+    
+    func testUseSpanForClear() {
+        fixture.scope.span = fixture.transaction
+        fixture.scope.useSpan { (span) in
+            self.fixture.scope.span = nil
+        }
+        XCTAssertNil(fixture.scope.span)
+    }
+    
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"]])
         let event = fixture.event
@@ -196,7 +215,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
     }
-    
+        
     func testClear() {
         let scope = fixture.scope
         scope.clear()
