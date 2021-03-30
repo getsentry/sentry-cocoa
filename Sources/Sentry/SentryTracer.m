@@ -117,8 +117,9 @@
     [_hub captureEvent:transaction withScope:_hub.scope];
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span == self)
+        if (span == self) {
             [self->_hub.scope setSpan:nil];
+        }
     }];
 }
 
