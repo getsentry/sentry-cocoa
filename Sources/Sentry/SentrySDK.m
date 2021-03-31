@@ -109,9 +109,43 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub startTransactionWithName:name operation:operation];
 }
 
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
+    return [SentrySDK.currentHub startTransactionWithName:name
+                                                operation:operation
+                                              bindToScope:bindToScope];
+}
+
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                                 bindToScope:bindToScope];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                                 bindToScope:bindToScope
+                                       customSamplingContext:customSamplingContext];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                       customSamplingContext:customSamplingContext];
 }
 
 + (SentryId *)captureError:(NSError *)error
