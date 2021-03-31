@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- ref: Add SentryMechanismMeta #1048: Replaced dict `SentryMechanism.meta` with new class `SentryMechanismMeta`. Moved `SenryNSError` to `SentryMechanismMeta`.
+
 ### Features and Fixes
 
 - feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
