@@ -1,6 +1,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryFrameInAppLogic.h"
+#import "SentryMechanismMeta.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
@@ -61,11 +62,11 @@
     SentryThread *firstThread = event.threads.firstObject;
     XCTAssertEqualObjects(exception.threadId, firstThread.threadId);
     NSString *code = [NSString
-        stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.code"]];
+        stringWithFormat:@"%@", [exception.mechanism.meta.signal valueForKeyPath:@"code"]];
     NSString *number = [NSString
-        stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"signal.number"]];
+        stringWithFormat:@"%@", [exception.mechanism.meta.signal valueForKeyPath:@"number"]];
     NSString *exc = [NSString
-        stringWithFormat:@"%@", [exception.mechanism.meta valueForKeyPath:@"mach_exception.name"]];
+        stringWithFormat:@"%@", [exception.mechanism.meta.machException valueForKeyPath:@"name"]];
     XCTAssertEqualObjects(code, @"0");
     XCTAssertEqualObjects(number, @"10");
     XCTAssertEqualObjects(exc, @"EXC_BAD_ACCESS");

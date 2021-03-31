@@ -848,9 +848,9 @@ class SentryClientTest: XCTestCase {
             XCTFail("Exception doesn't contain a mechanism"); return
         }
         XCTAssertEqual("NSError", mechanism.type)
-        XCTAssertNotNil(mechanism.error)
-        XCTAssertEqual(error.domain, mechanism.error?.domain)
-        XCTAssertEqual(error.code, mechanism.error?.code)
+        XCTAssertNotNil(mechanism.meta?.error)
+        XCTAssertEqual(error.domain, mechanism.meta?.error?.domain)
+        XCTAssertEqual(error.code, mechanism.meta?.error?.code)
         
         assertValidDebugMeta(actual: event.debugMeta)
         assertValidThreads(actual: event.threads)

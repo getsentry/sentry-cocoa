@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- ref: Add SentryMechanismMeta #1048: Replaced dict `SentryMechanism.meta` with new class `SentryMechanismMeta`. Moved `SenryNSError` to `SentryMechanismMeta`.
+
 ## 7.0.0-alpha.4
 
 ### Breaking Changes
