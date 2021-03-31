@@ -4,6 +4,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryFrameInAppLogic.h"
+#import "SentryHook.h"
 #import "SentryHub.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
@@ -72,6 +73,7 @@ SentryCrashIntegration ()
                                                  outOfMemoryLogic:logic];
 
     [self startCrashHandler];
+    sentrycrash_install_async_hooks();
     [self configureScope];
 }
 

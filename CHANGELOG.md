@@ -13,6 +13,7 @@
 
 ### Features and Fixes
 
+- feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
 - perf: Avoid allocating dict in BreadcrumbTracker #1027
 - feat: Add start and endSession to SentrySDK #1021
 - fix: Crash when passing garbage to maxBreadcrumbs #1018
