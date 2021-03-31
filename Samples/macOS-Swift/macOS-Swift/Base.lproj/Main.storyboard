@@ -776,6 +776,17 @@
                                     <action selector="sentryCrash:" target="XfG-lQ-9wD" id="8gG-2n-QOP"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="onh-qf-HCq" userLabel="asyncCrash">
+                                <rect key="frame" x="180" y="25" width="126" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="async crash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3ec-oQ-wXv">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="asyncCrash:" target="XfG-lQ-9wD" id="8L4-eE-eEw"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                 </viewController>

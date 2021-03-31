@@ -83,6 +83,13 @@
                                             <action selector="oomCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Eb-uS-ljp"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lr8-6E-lN6">
+                                        <rect key="frame" x="0.0" y="180" width="398" height="30"/>
+                                        <state key="normal" title="async crash"/>
+                                        <connections>
+                                            <action selector="asyncCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="c9v-X0-ZOl"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>

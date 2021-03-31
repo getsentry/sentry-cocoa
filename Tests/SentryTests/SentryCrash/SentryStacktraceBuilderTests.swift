@@ -53,4 +53,44 @@ class SentryStacktraceBuilderTests: XCTestCase {
         
         XCTAssertTrue(filteredFrames.count == 2, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
+    
+    func testAsyncStacktraces() throws {
+        SentrySDK.start(options: ["dsn": TestConstants.dsnAsString(username: "SentrySDKTests")])
+        
+        let group = DispatchGroup()
+
+        DispatchQueue.main.async {
+            group.enter()
+            self.asyncFrame1(group: group)
+        }
+        
+        group.waitWithTimeout()
+    }
+    
+    func asyncFrame1(group: DispatchGroup) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
+            self.asyncFrame2(group: group)
+        }
+    }
+    
+    func asyncFrame2(group: DispatchGroup) {
+        DispatchQueue.main.async {
+            self.asyncAssertion(group: group)
+        }
+    }
+    
+    func asyncAssertion(group: DispatchGroup) {
+        let actual = self.fixture.getSut().buildStacktraceForCurrentThread()
+
+        let filteredFrames = actual.frames.filter { frame in
+            return frame.function?.contains("testAsyncStacktraces") ?? false ||
+                frame.function?.contains("asyncFrame1") ?? false ||
+                frame.function?.contains("asyncFrame2") ?? false ||
+                frame.function?.contains("asyncAssertion") ?? false
+        }
+
+        XCTAssertTrue(filteredFrames.count >= 4, "The Stacktrace must include the async callers.")
+
+        group.leave()
+    }
 }

@@ -91,12 +91,30 @@ class ViewController: UIViewController {
         SentrySDK.crash()
     }
     
+    @IBAction func asyncCrash(_ sender: Any) {
+        DispatchQueue.main.async {
+            self.asyncCrash1()
+        }
+    }
+    
+    func asyncCrash1() {
+        DispatchQueue.main.async {
+            self.asyncCrash2()
+        }
+    }
+    
+    func asyncCrash2() {
+        DispatchQueue.main.async {
+            SentrySDK.crash()
+        }
+    }
+
     @IBAction func oomCrash(_ sender: Any) {
         DispatchQueue.main.async {
             let megaByte = 1_024 * 1_024
             let memoryPageSize = NSPageSize()
             let memoryPages = megaByte / memoryPageSize
-            
+
             while true {
                 // Allocate one MB and set one element of each memory page to something.
                 let ptr = UnsafeMutablePointer<Int8>.allocate(capacity: megaByte)
