@@ -316,6 +316,14 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
+    func testStartTransaction() {
+        givenSdkWithHub()
+        
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation:"some operation")
+        
+        XCTAssert(fixture.hub.scope.span === transaction)
+    }
+    
     func testPerformanceOfConfigureScope() {
         func buildCrumb(_ i: Int) -> Breadcrumb {
             let crumb = Breadcrumb()
