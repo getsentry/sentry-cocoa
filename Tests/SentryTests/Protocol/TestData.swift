@@ -90,12 +90,29 @@ class TestData {
         mechanism.desc = "desc"
         mechanism.handled = true
         mechanism.helpLink = "https://www.sentry.io"
-        mechanism.meta = ["meta": "data"]
-        
-        let error = SampleError.bestDeveloper as NSError
-        mechanism.error = SentryNSError(domain: error.domain, code: error.code)
+        mechanism.meta = mechanismMeta
         
         return mechanism
+    }
+    
+    static var mechanismMeta: MechanismMeta {
+        let mechanismMeta = MechanismMeta()
+        mechanismMeta.machException = [
+            "name": "EXC_BAD_ACCESS",
+            "exception": 1,
+            "subcode": 8,
+            "code": 0
+        ]
+        mechanismMeta.signal = [
+            "number": 10,
+            "code": 0,
+            "name": "SIGBUS",
+            "code_name": "BUS_NOOP"
+        ]
+        
+        mechanismMeta.error = SentryNSError(domain: "SentrySampleDomain", code: 1)
+        
+        return mechanismMeta
     }
     
     static var thread: Sentry.Thread {

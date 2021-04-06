@@ -51,6 +51,8 @@
 #import "SentryLog+TestInit.h"
 #import "SentryLog.h"
 #import "SentryLogOutput.h"
+#import "SentryMechanism.h"
+#import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSError.h"
