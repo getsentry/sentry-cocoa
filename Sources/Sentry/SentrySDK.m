@@ -38,6 +38,11 @@ static BOOL crashedLastRunCalled;
     }
 }
 
++ (nullable id<SentrySpan>) span
+{
+    return currentHub.scope.span;
+}
+
 + (BOOL)crashedLastRunCalled
 {
     return crashedLastRunCalled;

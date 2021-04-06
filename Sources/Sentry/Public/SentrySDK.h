@@ -18,6 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
+ * Current active transaction or span.
+ */
+@property (nullable, class, nonatomic, readonly) id<SentrySpan> span;
+
+/**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));

@@ -10,6 +10,8 @@
 
 - feat: Async callstacks are being tracked by wrapping the `dispatch_async` and related APIs. #998
 - feat: Add transaction to the scope #992
+- fix: Pass SentryTracer to span child #1040
+- feat: Add span to SentrySDK
 
 ## 7.0.0-alpha.4
 
