@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * Current active transaction or span.
+ * The current active transaction or span bound to the scope.
  */
 @property (nullable, class, nonatomic, readonly) id<SentrySpan> span;
 
