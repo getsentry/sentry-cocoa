@@ -9,10 +9,10 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-
 @implementation SentryPerformanceTracker
 
-- (void)start {
+- (void)start
+{
     [self swizzleViewDidLoad];
 }
 
@@ -23,21 +23,24 @@
     // fine and we accept this warning.
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
-    
+
     static const void *swizzleViewDidLoadKey = &swizzleViewDidLoadKey;
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-                                SentrySWArguments(), SentrySWReplacement({
-        if (nil != [SentrySDK.currentHub getClient]) {
-            [SentrySDK startTransactionWithName:[SentryPerformanceTracker sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]] operation:@"app.lifecycle"];
-        }
-        SentrySWCallOriginal();
-    }),
-                                SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidLoadKey);
+        SentrySWArguments(), SentrySWReplacement({
+            if (nil != [SentrySDK.currentHub getClient]) {
+                [SentrySDK startTransactionWithName:[SentryPerformanceTracker
+                                                        sanitizeViewControllerName:
+                                                            [NSString stringWithFormat:@"%@", self]]
+                                          operation:@"app.lifecycle"];
+            }
+            SentrySWCallOriginal();
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidLoadKey);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-     @"swizzleViewDidAppear] does nothing."
+                              @"swizzleViewDidAppear] does nothing."
                      andLevel:kSentryLevelDebug];
 #endif
 }

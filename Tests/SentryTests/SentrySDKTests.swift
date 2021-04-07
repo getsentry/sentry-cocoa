@@ -328,7 +328,7 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
-        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation:"some operation")
+        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
         
         XCTAssert(fixture.hub.scope.span === transaction)
     }
