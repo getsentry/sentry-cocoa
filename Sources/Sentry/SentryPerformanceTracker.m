@@ -1,75 +1,144 @@
 #import "SentryPerformanceTracker.h"
-#import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
-#import "SentryScope.h"
-#import "SentrySwizzle.h"
+#import "SentrySpan.h"
+#import "SentrySpanProtocol.h"
+#import "SentryTracer.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
+static NSString *const SENTRY_PERFORMANCE_TRACKER_SPANS = @"SENTRY_PERFORMANCE_TRACKER_SPANS";
+static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
+    = @"SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK";
+
+@interface SentrySpanTracker : NSObject
+
+@property (nonatomic) id<SentrySpan> span;
+@property (nonatomic) BOOL finished;
+@property (nonatomic) SentrySpanStatus finishedStatus;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SentrySpanTracker *> *children;
+
+- (instancetype)initWithSpan:(id<SentrySpan>)span;
+- (void)markFinishedWithStatus:(SentrySpanStatus)status;
+
+@end
+
+@implementation SentrySpanTracker
+- (instancetype)initWithSpan:(id<SentrySpan>)span
+{
+    if (self = [super init]) {
+        self.span = span;
+        self.finished = false;
+        self.children = [[NSMutableDictionary alloc] init];
+    }
+    return self;
+}
+- (void)markFinishedWithStatus:(SentrySpanStatus)status
+{
+    self.finishedStatus = status;
+    self.finished = YES;
+}
+@end
 
 @implementation SentryPerformanceTracker
 
-- (void)start
+- (NSMutableDictionary *)spansForThread
 {
-    [self swizzleViewDidLoad];
-}
-
-- (void)swizzleViewDidLoad
-{
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
-    static const void *swizzleViewDidLoadKey = &swizzleViewDidLoadKey;
-    SEL selector = NSSelectorFromString(@"viewDidLoad");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
-            if (nil != [SentrySDK.currentHub getClient]) {
-                [SentrySDK startTransactionWithName:[SentryPerformanceTracker
-                                                        sanitizeViewControllerName:
-                                                            [NSString stringWithFormat:@"%@", self]]
-                                          operation:@"app.lifecycle"];
-            }
-            SentrySWCallOriginal();
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidLoadKey);
-#    pragma clang diagnostic pop
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
-#endif
-}
-
-+ (NSRegularExpression *)viewControllerRegex
-{
-    static dispatch_once_t onceTokenRegex;
-    static NSRegularExpression *regex = nil;
-    dispatch_once(&onceTokenRegex, ^{
-        NSString *pattern = @"[<.](\\w+)";
-        regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
-    });
-    return regex;
-}
-
-+ (NSString *)sanitizeViewControllerName:(NSString *)controller
-{
-    NSRange searchedRange = NSMakeRange(0, [controller length]);
-    NSArray *matches = [[self.class viewControllerRegex] matchesInString:controller
-                                                                 options:0
-                                                                   range:searchedRange];
-    NSMutableArray *strings = [NSMutableArray array];
-    for (NSTextCheckingResult *match in matches) {
-        [strings addObject:[controller substringWithRange:[match rangeAtIndex:1]]];
+    NSMutableDictionary *res =
+        [NSThread.currentThread.threadDictionary objectForKey:SENTRY_PERFORMANCE_TRACKER_SPANS];
+    if (res == nil) {
+        res = [[NSMutableDictionary alloc] init];
+        [NSThread.currentThread.threadDictionary setObject:res
+                                                    forKey:SENTRY_PERFORMANCE_TRACKER_SPANS];
     }
-    if ([strings count] > 0) {
-        return [strings componentsJoinedByString:@"."];
+    return res;
+}
+
+- (NSMutableArray *)activeStackForThread
+{
+    NSMutableArray *res = [NSThread.currentThread.threadDictionary
+        objectForKey:SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK];
+    if (res == nil) {
+        res = [[NSMutableArray alloc] init];
+        [NSThread.currentThread.threadDictionary setObject:res
+                                                    forKey:SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK];
     }
-    return controller;
+    return res;
+}
+
+- (NSString *)startSpanWithName:(NSString *)name
+{
+    return [self startSpanWithName:name operation:nil];
+}
+
+- (NSString *)startSpanWithName:(NSString *)name operation:(nullable NSString *)operation
+{
+    NSMutableDictionary *spans = [self spansForThread];
+    NSMutableArray *activeStack = [self activeStackForThread];
+
+    SentrySpanTracker *activeSpanTracker = [activeStack lastObject];
+    SentrySpanTracker *newSpan;
+    if (activeSpanTracker != nil) {
+        newSpan = [[SentrySpanTracker alloc]
+            initWithSpan:[activeSpanTracker.span startChildWithOperation:name]];
+    } else {
+        newSpan = [[SentrySpanTracker alloc]
+            initWithSpan:[SentrySDK startTransactionWithName:name operation:operation]];
+    }
+
+    NSString *spanId = newSpan.span.context.spanId.sentrySpanIdString;
+    activeSpanTracker.children[spanId] = newSpan;
+    spans[spanId] = newSpan;
+
+    return newSpan.span.context.spanId.sentrySpanIdString;
+}
+
+- (void)pushActiveSpan:(NSString *)spanId
+{
+    NSMutableDictionary *spans = [self spansForThread];
+    NSMutableArray *activeStack = [self activeStackForThread];
+
+    SentrySpanTracker *toActiveSpan = spans[spanId];
+    if (toActiveSpan != nil) {
+        [activeStack addObject:toActiveSpan];
+    }
+}
+
+- (void)popActiveSpan
+{
+    NSMutableArray *activeStack = [self activeStackForThread];
+    [activeStack removeLastObject];
+}
+
+- (void)finishSpan:(NSString *)spanId
+{
+    [self finishSpan:spanId withStatus:-1];
+}
+
+- (void)finishSpan:(NSString *)spanId withStatus:(SentrySpanStatus)status
+{
+    NSMutableDictionary *spans = [self spansForThread];
+
+    SentrySpanTracker *spanTracker = spans[spanId];
+    [spanTracker markFinishedWithStatus:status];
+    [self propagateFinishForSpan:spanId];
+}
+
+- (void)propagateFinishForSpan:(NSString *)spanId
+{
+    NSMutableDictionary *spans = [self spansForThread];
+    SentrySpanTracker *spanTracker = spans[spanId];
+
+    if (spanTracker.children.count == 0) {
+        spanTracker.finishedStatus != -1
+            ? [spanTracker.span finishWithStatus:spanTracker.finishedStatus]
+            : [spanTracker.span finish];
+
+        if (spanTracker.span.context.parentSpanId != nil) {
+            SentrySpanTracker *parent
+                = spans[spanTracker.span.context.parentSpanId.sentrySpanIdString];
+            [parent.children removeObjectForKey:spanId];
+            [self propagateFinishForSpan:parent.span.context.spanId.sentrySpanIdString];
+        }
+    }
 }
 
 @end

@@ -2,10 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryPerformanceTracker : NSObject
+@interface SentryUIPerformanceTracker : NSObject
 
-- (void)start;
-
++ (void)start;
 @end
 
 NS_ASSUME_NONNULL_END
