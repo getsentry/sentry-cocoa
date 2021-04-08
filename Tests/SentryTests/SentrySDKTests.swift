@@ -165,16 +165,7 @@ class SentrySDKTests: XCTestCase {
     
         assertEventCaptured(expectedScope: scope)
     }
-    
-    func testSpan() {
-        givenSdkWithHub()
-        
-        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
-        let newSpan = SentrySDK.span
-        
-        XCTAssert(span === newSpan)
-    }
-    
+       
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
         
@@ -328,9 +319,10 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
-        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
+        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
+        let newSpan = SentrySDK.span
         
-        XCTAssert(fixture.hub.scope.span === transaction)
+        XCTAssert(span === newSpan)
     }
     
     func testPerformanceOfConfigureScope() {
