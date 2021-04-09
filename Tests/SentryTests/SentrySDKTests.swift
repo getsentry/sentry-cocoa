@@ -137,7 +137,7 @@ class SentrySDKTests: XCTestCase {
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
 
         let predicate = NSPredicate { (_, _) -> Bool in
-            urlSessionDelegateSpy.urlSession_didReceive_completionHandler_called
+            urlSessionDelegateSpy.delegateCalled
         }
         let expectation = self.expectation(for: predicate, evaluatedWith: nil)
         expectation.expectationDescription = "urlSession_didReceive_completionHandler will be called on UrlSessionDelegateSpy"

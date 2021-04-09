@@ -215,7 +215,7 @@
         _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
     }
 
-    if ([options[@"urlSessionDelegate"] conformsToProtocol: @protocol(NSURLSessionDelegate)]) {
+    if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
 }
