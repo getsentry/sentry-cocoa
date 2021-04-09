@@ -13,7 +13,7 @@
     return @[
         @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryURLProtocolTrackingIntegration"
+        @"SentryPerformanceTrackingIntegration"
     ];
 }
 

@@ -1,14 +1,13 @@
 #import "SentryURLProtocolTracker.h"
-#import "SentryHub.h"
-#import "SentrySDK+Private.h"
-#import "SentrySpan.h"
+#import "SentryPerformanceTracker.h"
 
 @interface
 SentryURLProtocolTracker () <NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSession *session;
 
-@property (nonatomic) id<SentrySpan> requestSpan;
+@property (nonatomic, strong) NSString *spanId;
+@property (nonatomic, strong) NSString *parentSpanId;
 @end
 
 @implementation SentryURLProtocolTracker
@@ -31,8 +30,9 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
     self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
     [[self.session dataTaskWithRequest:self.request] resume];
 
-    id<SentrySpan> span = SentrySDK.span;
-    self.requestSpan = [span startChildWithOperation:self.request.URL.absoluteString];
+    self.spanId = [SentryPerformanceTracker.shared startSpanWithName:self.request.URL.absoluteString
+                                                           operation:@"http.request"];
+    self.parentSpanId = [SentryPerformanceTracker.shared activeSpan];
 }
 
 - (void)stopLoading
@@ -47,13 +47,20 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error
 {
+    if (self.parentSpanId != nil)
+        [SentryPerformanceTracker.shared pushActiveSpan:self.parentSpanId];
+
     if (error) {
-        [self.requestSpan finishWithStatus:kSentrySpanStatusUnknownError];
+        [SentryPerformanceTracker.shared finishSpan:self.spanId
+                                         withStatus:kSentrySpanStatusUnknownError];
         [self.client URLProtocol:self didFailWithError:error];
     } else {
-        [self.requestSpan finishWithStatus:kSentrySpanStatusOk];
+        [SentryPerformanceTracker.shared finishSpan:self.spanId withStatus:kSentrySpanStatusOk];
         [self.client URLProtocolDidFinishLoading:self];
     }
+
+    if (self.parentSpanId != nil)
+        [SentryPerformanceTracker.shared popActiveSpan];
 }
 
 - (void)URLSession:(NSURLSession *)session

@@ -5,6 +5,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryPerformanceTracker : NSObject
 
++ (instancetype)shared;
+
 - (NSMutableDictionary *)spansForThread;
 
 - (NSMutableArray *)activeStackForThread;
@@ -12,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)startSpanWithName:(NSString *)name;
 
 - (NSString *)startSpanWithName:(NSString *)name operation:(nullable NSString *)operation;
+
+- (NSString *)activeSpan;
 
 - (void)pushActiveSpan:(NSString *)spanId;
 

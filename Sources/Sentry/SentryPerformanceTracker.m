@@ -22,6 +22,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 @end
 
 @implementation SentrySpanTracker
+
 - (instancetype)initWithSpan:(id<SentrySpan>)span
 {
     if (self = [super init]) {
@@ -39,6 +40,14 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 @end
 
 @implementation SentryPerformanceTracker
+
++ (instancetype)shared
+{
+    static SentryPerformanceTracker *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    return instance;
+}
 
 - (NSMutableDictionary *)spansForThread
 {
@@ -89,6 +98,13 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     spans[spanId] = newSpan;
 
     return newSpan.span.context.spanId.sentrySpanIdString;
+}
+
+- (NSString *)activeSpan
+{
+    NSMutableArray *activeStack = [self activeStackForThread];
+    SentrySpanTracker *activeSpan = activeStack.lastObject;
+    return activeSpan.span.context.spanId.sentrySpanIdString;
 }
 
 - (void)pushActiveSpan:(NSString *)spanId

@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * This automatically intercepts http requests for performance tracking.
  */
-@interface SentryURLProtocolTrackingIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryPerformanceTrackingIntegration : NSObject <SentryIntegrationProtocol>
 
 @end
 
