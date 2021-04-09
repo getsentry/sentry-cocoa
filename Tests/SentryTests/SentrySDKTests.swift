@@ -132,6 +132,25 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
+
+    func testStartWithConfigureOptions_UrlSessionDelegate() {
+        let urlSessionDelegateSpy = UrlSessionDelegateSpy()
+
+        let predicate = NSPredicate { (_, _) -> Bool in
+            urlSessionDelegateSpy.urlSession_didReceive_completionHandler_called
+        }
+        let expectation = self.expectation(for: predicate, evaluatedWith: nil)
+        expectation.expectationDescription = "urlSession_didReceive_completionHandler will be called on UrlSessionDelegateSpy"
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.urlSessionDelegate = urlSessionDelegateSpy
+        }
+
+        SentrySDK.capture(message: "")
+
+        wait(for: [expectation], timeout: 10)
+    }
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
@@ -494,5 +513,13 @@ class SentrySDKTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
+    }
+}
+
+fileprivate class UrlSessionDelegateSpy: NSObject, URLSessionDelegate {
+    var urlSession_didReceive_completionHandler_called = false
+
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        urlSession_didReceive_completionHandler_called = true
     }
 }

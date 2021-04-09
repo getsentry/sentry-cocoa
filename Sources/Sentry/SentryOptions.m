@@ -214,6 +214,10 @@
     if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
         _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
     }
+
+    if ([options[@"urlSessionDelegate"] conformsToProtocol: @protocol(NSURLSessionDelegate)]) {
+        self.urlSessionDelegate = options[@"urlSessionDelegate"];
+    }
 }
 
 - (void)addInAppInclude:(NSString *)inAppInclude
