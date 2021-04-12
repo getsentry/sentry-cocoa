@@ -46,7 +46,7 @@
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentrySpan *span = [[SentrySpan alloc] initWithContext:context];
+    SentrySpan *span = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_spans) {
         [_spans addObject:span];
     }
