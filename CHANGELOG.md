@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add close method to SDK #1046
+
 ## 7.0.0-alpha.5
 
 ### Breaking Changes
