@@ -21,6 +21,14 @@
 #endif
 }
 
+- (void)stop
+{
+#if TARGET_OS_IOS
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter removeObserver:self];
+#endif
+}
+
 #if TARGET_OS_IOS
 /**
  * Only used for testing, call start() instead.

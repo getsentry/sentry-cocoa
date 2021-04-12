@@ -68,11 +68,17 @@ sentrycrash__async_backtrace_capture(void)
     return bt;
 }
 
+static bool hooks_active = true;
+
 static void (*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 
 void
 sentrycrash__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_async(queue, block);
+    }
+
     // create a backtrace, capturing the async callsite
     sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
@@ -96,6 +102,9 @@ void
 sentrycrash__hook_dispatch_async_f(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_async_f(queue, context, work);
+    }
     sentrycrash__hook_dispatch_async(queue, ^{ work(context); });
 }
 
@@ -106,6 +115,10 @@ void
 sentrycrash__hook_dispatch_after(
     dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_after(when, queue, block);
+    }
+
     // create a backtrace, capturing the async callsite
     sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
@@ -129,6 +142,9 @@ void
 sentrycrash__hook_dispatch_after_f(
     dispatch_time_t when, dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_after_f(when, queue, context, work);
+    }
     sentrycrash__hook_dispatch_after(when, queue, ^{ work(context); });
 }
 
@@ -137,6 +153,10 @@ static void (*real_dispatch_barrier_async)(dispatch_queue_t queue, dispatch_bloc
 void
 sentrycrash__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_t block)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_barrier_async(queue, block);
+    }
+
     // create a backtrace, capturing the async callsite
     sentrycrash_async_backtrace_t *bt = sentrycrash__async_backtrace_capture();
 
@@ -160,6 +180,9 @@ void
 sentrycrash__hook_dispatch_barrier_async_f(
     dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return real_dispatch_barrier_async_f(queue, context, work);
+    }
     sentrycrash__hook_dispatch_barrier_async(queue, ^{ work(context); });
 }
 
@@ -168,6 +191,8 @@ static bool hooks_installed = false;
 void
 sentrycrash_install_async_hooks(void)
 {
+    __atomic_store_n(&hooks_active, true, __ATOMIC_RELAXED);
+
     if (__atomic_exchange_n(&hooks_installed, true, __ATOMIC_SEQ_CST)) {
         return;
     }
@@ -176,39 +201,19 @@ sentrycrash_install_async_hooks(void)
     }
 
     sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
+        (struct rebinding[6]) {
             { "dispatch_async", sentrycrash__hook_dispatch_async, (void *)&real_dispatch_async },
-        },
-        1);
-    sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
             { "dispatch_async_f", sentrycrash__hook_dispatch_async_f,
                 (void *)&real_dispatch_async_f },
-        },
-        1);
-    sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
             { "dispatch_after", sentrycrash__hook_dispatch_after, (void *)&real_dispatch_after },
-        },
-        1);
-    sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
             { "dispatch_after_f", sentrycrash__hook_dispatch_after_f,
                 (void *)&real_dispatch_after_f },
-        },
-        1);
-    sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
             { "dispatch_barrier_async", sentrycrash__hook_dispatch_barrier_async,
                 (void *)&real_dispatch_barrier_async },
-        },
-        1);
-    sentrycrash__hook_rebind_symbols(
-        (struct rebinding[1]) {
             { "dispatch_barrier_async_f", sentrycrash__hook_dispatch_barrier_async_f,
                 (void *)&real_dispatch_barrier_async_f },
         },
-        1);
+        6);
 
     // NOTE: We will *not* hook the following functions:
     //
@@ -224,4 +229,11 @@ sentrycrash_install_async_hooks(void)
     // https://github.com/apple/swift-corelibs-libdispatch/blob/f13ea5dcc055e5d2d7c02e90d8c9907ca9dc72e1/private/workloop_private.h#L321-L326
 }
 
-// TODO: uninstall hooks
+void
+sentrycrash_deactivate_async_hooks()
+{
+    // Instead of reverting the rebinding (which is not really possible), we rather
+    // deactivate the hooks. They still exist, and still get called, but they will just
+    // call through to the real libdispatch functions immediately.
+    __atomic_store_n(&hooks_active, false, __ATOMIC_RELAXED);
+}
