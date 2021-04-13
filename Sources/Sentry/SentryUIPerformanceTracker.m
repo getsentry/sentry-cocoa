@@ -45,7 +45,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 
             [SentryPerformanceTracker.shared pushActiveSpan:spanId];
             SentrySWCallOriginal();
-            [SentryPerformanceTracker.shared popActiveSpan];
+            dispatch_async(
+                dispatch_get_main_queue(), ^{ [SentryPerformanceTracker.shared popActiveSpan]; });
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleLoadViewKey);
 #    pragma clang diagnostic pop
@@ -76,8 +77,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 SentrySWCallOriginal();
-                [SentryPerformanceTracker.shared popActiveSpan];
-                [SentryPerformanceTracker.shared finishSpan:spanId];
+                dispatch_async(dispatch_get_main_queue(),
+                    ^{ [SentryPerformanceTracker.shared popActiveSpan]; });
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidLoadKey);
@@ -109,8 +110,11 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 SentrySWCallOriginal(animated);
-                [SentryPerformanceTracker.shared popActiveSpan];
-                [SentryPerformanceTracker.shared finishSpan:spanId];
+
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [SentryPerformanceTracker.shared popActiveSpan];
+                    [SentryPerformanceTracker.shared finishSpan:spanId];
+                });
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);

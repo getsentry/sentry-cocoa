@@ -14,9 +14,8 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    return ![request.URL.host.lowercaseString containsString:@"sentry"]
-        && ([request.URL.scheme isEqualToString:@"http"] ||
-            [request.URL.scheme isEqualToString:@"https"]);
+    return ([request.URL.scheme isEqualToString:@"http"] ||
+        [request.URL.scheme isEqualToString:@"https"]);
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
@@ -30,9 +29,12 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
     self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
     [[self.session dataTaskWithRequest:self.request] resume];
 
-    self.spanId = [SentryPerformanceTracker.shared startSpanWithName:self.request.URL.absoluteString
-                                                           operation:@"http.request"];
-    self.parentSpanId = [SentryPerformanceTracker.shared activeSpan];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.spanId =
+            [SentryPerformanceTracker.shared startSpanWithName:self.request.URL.absoluteString
+                                                     operation:@"http.request"];
+        self.parentSpanId = [SentryPerformanceTracker.shared activeSpan];
+    });
 }
 
 - (void)stopLoading
@@ -47,20 +49,20 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error
 {
-    if (self.parentSpanId != nil)
-        [SentryPerformanceTracker.shared pushActiveSpan:self.parentSpanId];
+
+    SentrySpanStatus status;
 
     if (error) {
-        [SentryPerformanceTracker.shared finishSpan:self.spanId
-                                         withStatus:kSentrySpanStatusUnknownError];
+        status = kSentrySpanStatusUnknownError;
         [self.client URLProtocol:self didFailWithError:error];
     } else {
+        status = kSentrySpanStatusOk;
         [SentryPerformanceTracker.shared finishSpan:self.spanId withStatus:kSentrySpanStatusOk];
         [self.client URLProtocolDidFinishLoading:self];
     }
 
-    if (self.parentSpanId != nil)
-        [SentryPerformanceTracker.shared popActiveSpan];
+    dispatch_async(dispatch_get_main_queue(),
+        ^{ [SentryPerformanceTracker.shared finishSpan:self.spanId withStatus:status]; });
 }
 
 - (void)URLSession:(NSURLSession *)session

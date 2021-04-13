@@ -97,6 +97,8 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     activeSpanTracker.children[spanId] = newSpan;
     spans[spanId] = newSpan;
 
+    NSLog(@"==> START SPAN:  %@ = %@", name, spanId);
+
     return newSpan.span.context.spanId.sentrySpanIdString;
 }
 
@@ -135,6 +137,8 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 
     SentrySpanTracker *spanTracker = spans[spanId];
     [spanTracker markFinishedWithStatus:status];
+
+    NSLog(@"==> END SPAN: %@", spanId);
     [self propagateFinishForSpan:spanId];
 }
 
