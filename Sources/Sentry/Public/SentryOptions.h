@@ -198,6 +198,11 @@ NS_SWIFT_NAME(Options)
  */
 - (void)addInAppExclude:(NSString *)inAppExclude;
 
+/**
+ * Set as delegate on the NSURLSession used for all network data-transfer tasks performed by Sentry.
+ */
+@property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -588,4 +588,13 @@
     return sentryOptions;
 }
 
+- (void)testUrlSessionDelegate
+{
+    id<NSURLSessionDelegate> urlSessionDelegate = [[UrlSessionDelegateSpy alloc] init];
+
+    SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
+
+    XCTAssertNotNil(options.urlSessionDelegate);
+}
+
 @end
