@@ -24,6 +24,14 @@
     [self trackApplicationUIKitNotifications];
 }
 
+- (void)stop
+{
+    // This is a noop because the notifications are registered via blocks and monkey patching
+    // which are both super hard to clean up.
+    // Either way, all these are guarded by checking the client of the current hub, which
+    // we remove when uninstalling the SDK.
+}
+
 - (void)trackApplicationUIKitNotifications
 {
 #if SENTRY_HAS_UIKIT

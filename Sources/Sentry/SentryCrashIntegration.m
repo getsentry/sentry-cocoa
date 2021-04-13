@@ -15,6 +15,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
 @interface
@@ -79,7 +80,6 @@ SentryCrashIntegration ()
 
 - (void)startCrashHandler
 {
-    static dispatch_once_t onceToken = 0;
     void (^block)(void) = ^{
         SentryFrameInAppLogic *frameInAppLogic =
             [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
@@ -105,7 +105,23 @@ SentryCrashIntegration ()
 
         [installation sendAllReports];
     };
-    [self.dispatchQueueWrapper dispatchOnce:&onceToken block:block];
+    [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
+}
+
+- (void)uninstall
+{
+    if (nil != installation) {
+        // Its not really possible to uninstall SentryCrash. Best we can do is to deactivate
+        // all the monitors and clear the `onCrash` callback installed on the global handler.
+        SentryCrash *handler = [SentryCrash sharedInstance];
+        @synchronized(handler) {
+            [handler setMonitoring:SentryCrashMonitorTypeNone];
+            handler.onCrash = NULL;
+        }
+        installation = nil;
+        installationToken = 0;
+    }
+    sentrycrash_deactivate_async_hooks();
 }
 
 - (void)configureScope
