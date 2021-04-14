@@ -16,10 +16,6 @@ class TraceTestViewController: UIViewController {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         initialize()
     }
-    
-    override func loadView() {
-        super.loadView()
-    }
         
     override func viewDidLoad() {
         super.viewDidLoad()
