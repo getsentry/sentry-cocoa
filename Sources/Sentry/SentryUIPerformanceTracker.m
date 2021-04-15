@@ -84,7 +84,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             SentrySWCallOriginal();
             [SentryPerformanceTracker.shared popActiveSpan];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
@@ -115,7 +115,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
@@ -147,7 +147,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
                 [SentryPerformanceTracker.shared finishSpan:spanId];
             }
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
