@@ -24,7 +24,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 
 + (void)swizzleViewControllerInits
 {
-  #if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
     // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
     // fine and we accept this warning.
 #    pragma clang diagnostic push
@@ -33,7 +33,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
     static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
     SEL selector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(id),
-        SentrySWArguments(NSCoder* coder), SentrySWReplacement({
+        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
             [SentryUIPerformanceTracker swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(coder);
         }),
@@ -42,24 +42,24 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
     static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithInib;
     SEL selector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(id),
-        SentrySWArguments(NSString* nibName, NSBundle* bundle), SentrySWReplacement({
+        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
             [SentryUIPerformanceTracker swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(nibName, bundle);
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);  
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."
                      andLevel:kSentryLevelDebug];
-#endif  
+#endif
 }
 
-+ (void)swizzleViewControllerSubClass:(Class) class
++ (void)swizzleViewControllerSubClass:(Class)class
 {
-   [SentryUIPerformanceTracker swizzleLoadView:class];
-   [SentryUIPerformanceTracker swizzleViewDidLoad:class];
-   [SentryUIPerformanceTracker swizzleViewDidAppear:class]; 
+    [SentryUIPerformanceTracker swizzleLoadView:class];
+    [SentryUIPerformanceTracker swizzleViewDidLoad:class];
+    [SentryUIPerformanceTracker swizzleViewDidAppear:class];
 }
 
 + (void)swizzleLoadView:(Class)class
@@ -71,8 +71,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 #    pragma clang diagnostic ignored "-Wshadow"
 
     SEL selector = NSSelectorFromString(@"loadView");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
             NSString *name = [UIViewControllerHelper sanitizeViewControllerName:self];
             NSString *spanId = [SentryPerformanceTracker.shared startSpanWithName:name
                                                                         operation:@"ui.lifecycle"];
@@ -103,8 +103,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 
     static const void *swizzleViewDidLoadKey = &swizzleViewDidLoadKey;
     SEL selector = NSSelectorFromString(@"viewDidLoad");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
             NSString *spanId
                 = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
