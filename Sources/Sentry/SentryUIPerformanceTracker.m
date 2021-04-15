@@ -19,7 +19,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 
 + (void)start
 {
-    
+
 #if SENTRY_HAS_UIKIT
     [SentryUIPerformanceTracker swizzleViewControllerInits];
 #else
@@ -38,7 +38,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 #    pragma clang diagnostic ignored "-Wshadow"
 
     static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-    
+
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
@@ -62,15 +62,16 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 + (void)swizzleViewControllerSubClass:(Class)class
 {
 #if SENTRY_HAS_UIKIT
-    static const char* appImage = nil;
+    static const char *appImage = nil;
     if (appImage == nil) {
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
-            UIApplication* app = [UIApplication performSelector:@selector(sharedApplication)];
+            UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
             appImage = class_getImageName(app.delegate.class);
         }
     }
-    if (strcmp(appImage, class_getImageName(class)) != 0) return;
-    
+    if (strcmp(appImage, class_getImageName(class)) != 0)
+        return;
+
     [SentryUIPerformanceTracker swizzleLoadView:class];
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
     [SentryUIPerformanceTracker swizzleViewDidAppear:class];
