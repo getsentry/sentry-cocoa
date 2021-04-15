@@ -47,6 +47,7 @@ class TraceTestViewController: UIViewController {
                 self.loadSpan?.finish()
             }
         }
+        
         dataTask.resume()
     }
     

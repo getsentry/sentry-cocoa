@@ -19,7 +19,14 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 
 + (void)start
 {
+    
+#if SENTRY_HAS_UIKIT
     [SentryUIPerformanceTracker swizzleViewControllerInits];
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryUIPerformanceTracker "
+                              @"start] does nothing."
+                     andLevel:kSentryLevelDebug];
+#endif
 }
 
 + (void)swizzleViewControllerInits
@@ -31,8 +38,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 #    pragma clang diagnostic ignored "-Wshadow"
 
     static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-    SEL selector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(id),
+    
+    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
+    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
             [SentryUIPerformanceTracker swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(coder);
@@ -40,26 +48,33 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
 
     static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
-    SEL selector = NSSelectorFromString(@"initWithNibName:bundle:");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(id),
+    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
+    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
             [SentryUIPerformanceTracker swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(nibName, bundle);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
 #    pragma clang diagnostic pop
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
 #endif
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
 {
+#if SENTRY_HAS_UIKIT
+    static const char* appImage = nil;
+    if (appImage == nil) {
+        if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
+            UIApplication* app = [UIApplication performSelector:@selector(sharedApplication)];
+            appImage = class_getImageName(app.delegate.class);
+        }
+    }
+    if (strcmp(appImage, class_getImageName(class)) != 0) return;
+    
     [SentryUIPerformanceTracker swizzleLoadView:class];
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
     [SentryUIPerformanceTracker swizzleViewDidAppear:class];
+#endif
 }
 
 + (void)swizzleLoadView:(Class)class
@@ -86,10 +101,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
 #endif
 }
 
@@ -117,10 +128,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
 #endif
 }
 
@@ -149,10 +156,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
 #endif
 }
 

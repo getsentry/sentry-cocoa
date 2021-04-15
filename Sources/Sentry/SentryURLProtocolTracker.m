@@ -25,10 +25,11 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
 
 - (void)startLoading
 {
+ 
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
     self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
     [[self.session dataTaskWithRequest:self.request] resume];
-
+    NSLog(@"URL ADDRESS: %p", self.request.URL );
     dispatch_async(dispatch_get_main_queue(), ^{
         self.spanId =
             [SentryPerformanceTracker.shared startSpanWithName:self.request.URL.absoluteString
@@ -57,7 +58,6 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
         [self.client URLProtocol:self didFailWithError:error];
     } else {
         status = kSentrySpanStatusOk;
-        [SentryPerformanceTracker.shared finishSpan:self.spanId withStatus:kSentrySpanStatusOk];
         [self.client URLProtocolDidFinishLoading:self];
     }
 
