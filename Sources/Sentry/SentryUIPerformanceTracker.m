@@ -39,7 +39,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
 
-    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithInib;
+    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
     SEL selector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
@@ -84,7 +84,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             SentrySWCallOriginal();
             [SentryPerformanceTracker.shared popActiveSpan];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, class);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
@@ -101,7 +101,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
 
-    static const void *swizzleViewDidLoadKey = &swizzleViewDidLoadKey;
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
@@ -116,7 +115,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, class);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
@@ -133,7 +132,6 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
 
-    static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -149,7 +147,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
                 [SentryPerformanceTracker.shared finishSpan:spanId];
             }
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, class);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void*)selector);
 #    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
