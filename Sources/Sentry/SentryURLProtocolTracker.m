@@ -14,8 +14,9 @@ SentryURLProtocolTracker () <NSURLSessionDelegate>
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    return ([request.URL.scheme isEqualToString:@"http"] ||
-        [request.URL.scheme isEqualToString:@"https"]);
+    return ![request.URL.host.lowercaseString containsString:@"sentry"]
+        && ([request.URL.scheme isEqualToString:@"http"] ||
+            [request.URL.scheme isEqualToString:@"https"]);
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
