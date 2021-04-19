@@ -3,6 +3,7 @@
 ## 7.0.0-beta.0
 
 - feat: Add close method to SDK #1046
+- feat: Add automatic performance instrumentation for ui lifecycle and http requests. #1043
 
 ## 7.0.0-alpha.5
 
