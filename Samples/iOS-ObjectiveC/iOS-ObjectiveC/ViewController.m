@@ -36,7 +36,6 @@ ViewController ()
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
     user.email = @"tony@example.com";
     [SentrySDK setUser:user];
-    self viewWillLayoutSubviews
 }
 
 - (IBAction)addBreadcrumb:(id)sender
