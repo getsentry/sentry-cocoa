@@ -89,15 +89,15 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
         newSpan = [[SentrySpanTracker alloc]
             initWithSpan:[activeSpanTracker.span startChildWithOperation:name]];
     } else {
+        BOOL hasBindScope = SentrySDK.currentHub.scope.span != nil;
+        
         newSpan = [[SentrySpanTracker alloc]
-            initWithSpan:[SentrySDK startTransactionWithName:name operation:operation]];
+            initWithSpan:[SentrySDK startTransactionWithName:name operation:operation bindToScope:!hasBindScope]];
     }
 
     NSString *spanId = newSpan.span.context.spanId.sentrySpanIdString;
     activeSpanTracker.children[spanId] = newSpan;
     spans[spanId] = newSpan;
-
-    NSLog(@"==> START SPAN:  %@ = %@", name, spanId);
 
     return newSpan.span.context.spanId.sentrySpanIdString;
 }
@@ -138,7 +138,6 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     SentrySpanTracker *spanTracker = spans[spanId];
     [spanTracker markFinishedWithStatus:status];
 
-    NSLog(@"==> END SPAN: %@", spanId);
     [self propagateFinishForSpan:spanId];
 }
 
@@ -147,7 +146,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     NSMutableDictionary *spans = [self spansForThread];
     SentrySpanTracker *spanTracker = spans[spanId];
 
-    if (spanTracker.children.count == 0) {
+    if (spanTracker.finished && spanTracker.children.count == 0) {
         spanTracker.finishedStatus != -1
             ? [spanTracker.span finishWithStatus:spanTracker.finishedStatus]
             : [spanTracker.span finish];
@@ -158,7 +157,14 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
             [parent.children removeObjectForKey:spanId];
             [self propagateFinishForSpan:parent.span.context.spanId.sentrySpanIdString];
         }
+        
+        [spans removeObjectForKey:spanId];
     }
+}
+
+- (BOOL)isSpanAlive:(NSString *)spanId {
+    NSMutableDictionary *spans = [self spansForThread];
+    return spans[spanId] != nil;
 }
 
 @end

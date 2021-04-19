@@ -7,10 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)shared;
 
-- (NSMutableDictionary *)spansForThread;
-
-- (NSMutableArray *)activeStackForThread;
-
 - (NSString *)startSpanWithName:(NSString *)name;
 
 - (NSString *)startSpanWithName:(NSString *)name operation:(nullable NSString *)operation;
@@ -24,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finishSpan:(NSString *)spanId;
 
 - (void)finishSpan:(NSString *)spanId withStatus:(SentrySpanStatus)status;
+
+- (BOOL)isSpanAlive:(NSString *)spanId;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -15,6 +15,9 @@
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
     = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
 
+static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
+    = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
+
 @implementation SentryUIPerformanceTracker
 
 + (void)start
@@ -69,9 +72,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             appImage = class_getImageName(app.delegate.class);
         }
     }
-    if (strcmp(appImage, class_getImageName(class)) != 0)
+    if (appImage == nil || strcmp(appImage, class_getImageName(class)) != 0)
         return;
 
+    [SentryUIPerformanceTracker swizzleViewLayoutSubViews:class];
     [SentryUIPerformanceTracker swizzleLoadView:class];
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
     [SentryUIPerformanceTracker swizzleViewDidAppear:class];
@@ -156,6 +160,56 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+#    pragma clang diagnostic pop
+#endif
+}
+
++ (void)swizzleViewLayoutSubViews:(Class)class
+{
+#if SENTRY_HAS_UIKIT
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+    
+    SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
+    SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void),
+        SentrySWArguments(), SentrySWReplacement({
+            NSString *spanId
+                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+            if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
+                SentrySWCallOriginal();
+            } else {
+                [SentryPerformanceTracker.shared pushActiveSpan:spanId];
+                NSString * layoutSubViewId = [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"];
+                
+                objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                
+                SentrySWCallOriginal();
+                [SentryPerformanceTracker.shared popActiveSpan];
+            }
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)willSelector);
+        
+    SEL didSelector = NSSelectorFromString(@"viewDidLayoutSubviews");
+    SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void),
+        SentrySWArguments(), SentrySWReplacement({
+            NSString *spanId
+                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+            if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
+                SentrySWCallOriginal();
+            } else {
+                [SentryPerformanceTracker.shared pushActiveSpan:spanId];
+                SentrySWCallOriginal();
+                
+                NSString *layoutSubViewId = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
+                [SentryPerformanceTracker.shared finishSpan:layoutSubViewId];
+                [SentryPerformanceTracker.shared popActiveSpan];
+            }
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)didSelector);
 #    pragma clang diagnostic pop
 #endif
 }
