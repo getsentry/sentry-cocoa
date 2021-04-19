@@ -300,6 +300,11 @@ SENTRY_NO_INIT
  */
 + (void)crash;
 
+/**
+ * Closes the SDK and uninstalls all the integrations.
+ */
++ (void)close;
+
 @end
 
 NS_ASSUME_NONNULL_END
