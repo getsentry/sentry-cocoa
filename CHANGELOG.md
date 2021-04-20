@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+- ref: Make description in SpanProtocol nonnull #1059
+
 ## 7.0.0-beta.0
 
 - feat: Add close method to SDK #1046

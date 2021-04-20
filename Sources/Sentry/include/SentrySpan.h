@@ -67,18 +67,6 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startChild(operation:));
 
 /**
- * Starts a child span.
- *
- * @param operation Defines the child span operation.
- * @param description Define the child span description.
- *
- * @return SentrySpan
- */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(operation:description:));
-
-/**
  * Sets an extra.
  */
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));

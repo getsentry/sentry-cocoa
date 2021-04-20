@@ -37,11 +37,16 @@ SentrySpan ()
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
-    return [self startChildWithOperation:operation description:nil];
+    return [self startChildWithOperationInternal:operation description:nil];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(NSString *)description
+{
+    return [self startChildWithOperationInternal:operation description:description];
+}
+
+- (id<SentrySpan>)startChildWithOperationInternal:(NSString *)operation
+                                      description:(nullable NSString *)description
 {
     return [self.tracer startChildWithParentId:[self.context spanId]
                                      operation:operation

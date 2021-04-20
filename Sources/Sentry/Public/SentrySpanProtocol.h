@@ -53,7 +53,7 @@ NS_SWIFT_NAME(Span)
  * @return SentrySpan
  */
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+                              description:(NSString *)description
     NS_SWIFT_NAME(startChild(operation:description:));
 
 /**
