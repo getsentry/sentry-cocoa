@@ -148,8 +148,9 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 }
 
 /**
- * Tries to finish a span if it is marked to be finished and has no children, 
- * then if it has a parent span, remove it from the parent and checks if the parent needs to be finished.
+ * Tries to finish a span if it is marked to be finished and has no children,
+ * then if it has a parent span, remove it from the parent and checks if the parent needs to be
+ * finished.
  */
 - (void)propagateFinishForSpan:(NSString *)spanId
 {

@@ -13,14 +13,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A static instance of performance tracker.
- */ 
+ */
 + (instancetype)shared;
 
 /**
  * Starts a new span in the current thread if no span is active,
  * then bind it to the scope if no span is binded.
  * If there`s an active span, starts a child of the active span.
- * 
+ *
  * @param name Span name.
  * @param operation Span operation.
  *
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Marks a span to be finished.
  * If the given span has no child it is finished immediately,
  * otherwise it waits until all children are finished.
- * 
+ *
  * @param spanId Id of the span to finish.
  */
 - (void)finishSpan:(NSString *)spanId;
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Marks a span to be finished with given status.
  * If the given span has no child it is finished immediately,
  * otherwise it waits until all children are finished.
- * 
+ *
  * @param spanId Id of the span to finish.
  * @param status Span finish status.
  */

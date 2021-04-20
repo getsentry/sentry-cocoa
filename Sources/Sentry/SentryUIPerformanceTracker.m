@@ -32,9 +32,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 #endif
 }
 
-
 /**
- * Swizzle the some init methods of the view controller, 
+ * Swizzle the some init methods of the view controller,
  * so we can swizzle user view controller subclass on demand.
  */
 + (void)swizzleViewControllerInits
@@ -70,7 +69,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 + (void)swizzleViewControllerSubClass:(Class)class
 {
 #if SENTRY_HAS_UIKIT
-    // Swizzling only classes from the user app module to avoid track every UIKit view controller interaction.
+    // Swizzling only classes from the user app module to avoid track every UIKit view controller
+    // interaction.
     static const char *appImage = nil;
     if (appImage == nil) {
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
@@ -81,8 +81,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     if (appImage == nil || strcmp(appImage, class_getImageName(class)) != 0)
         return;
 
-    //This are the five main functions related to UI creation in a view controller.
-    //We are swizzling it to track anything that happens inside one of this functions.
+    // This are the five main functions related to UI creation in a view controller.
+    // We are swizzling it to track anything that happens inside one of this functions.
     [SentryUIPerformanceTracker swizzleViewLayoutSubViews:class];
     [SentryUIPerformanceTracker swizzleLoadView:class];
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
@@ -106,7 +106,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             NSString *spanId = [SentryPerformanceTracker.shared startSpanWithName:name
                                                                         operation:@"ui.lifecycle"];
 
-            //use the viewcontroller itself to store the spanId to avoid using a global mapper.
+            // use the viewcontroller itself to store the spanId to avoid using a global mapper.
             objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
@@ -220,7 +220,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 NSString *layoutSubViewId =
-                    [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews" operation: @"ui.lifecycle"];
+                    [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"
+                                                             operation:@"ui.lifecycle"];
 
                 objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                     layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

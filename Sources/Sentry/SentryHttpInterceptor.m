@@ -30,7 +30,8 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
     [[self.session dataTaskWithRequest:self.request] resume];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.spanId = [PerformanceTracker.instance addSpanWithOperation:self.request.URL.path
-                                                              setActive:false];});
+                                                              setActive:false];
+    });
 }
 
 - (void)stopLoading
