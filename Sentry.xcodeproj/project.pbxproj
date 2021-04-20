@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		044F78E8262EE80C00F5CDBC /* SentryHttpInterceptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 044F78E7262EE80C00F5CDBC /* SentryHttpInterceptor.h */; };
 		15360CCF2432777500112302 /* SentrySessionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CCE2432777400112302 /* SentrySessionTracker.m */; };
 		15360CD2243277A000112302 /* SentrySessionTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 15360CD12432779F00112302 /* SentrySessionTracker.h */; };
 		15360CD62432832400112302 /* SentryAutoSessionTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CD52432832400112302 /* SentryAutoSessionTrackingIntegration.m */; };
@@ -480,6 +481,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		044F78E7262EE80C00F5CDBC /* SentryHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryHttpInterceptor.h; path = Public/SentryHttpInterceptor.h; sourceTree = "<group>"; };
 		15360CCE2432777400112302 /* SentrySessionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySessionTracker.m; sourceTree = "<group>"; };
 		15360CD12432779F00112302 /* SentrySessionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySessionTracker.h; path = include/SentrySessionTracker.h; sourceTree = "<group>"; };
 		15360CD52432832400112302 /* SentryAutoSessionTrackingIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAutoSessionTrackingIntegration.m; sourceTree = "<group>"; };
@@ -964,7 +966,6 @@
 		8EAE980A261E9F530073B6B3 /* SentryUIPerformanceTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryUIPerformanceTracker.h; path = include/SentryUIPerformanceTracker.h; sourceTree = "<group>"; };
 		8EAE9815261E9F750073B6B3 /* SentryURLProtocolTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryURLProtocolTracker.h; path = Public/SentryURLProtocolTracker.h; sourceTree = "<group>"; };
 		8EBF86EC2613FF43001A6853 /* SentryHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryHttpInterceptor.m; sourceTree = "<group>"; };
-		8EBF86F526140011001A6853 /* SentryHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryHttpInterceptor.h; path = include/SentryHttpInterceptor.h; sourceTree = "<group>"; };
 		8EBF870726140D37001A6853 /* SentryPerformanceTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryPerformanceTracker.m; sourceTree = "<group>"; };
 		8EC3AE7925CA23B600E7591A /* SentrySpan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySpan.m; sourceTree = "<group>"; };
 		8EC4CF4725C38CAF0093DEE9 /* SentrySpanStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySpanStatus.h; path = Public/SentrySpanStatus.h; sourceTree = "<group>"; };
@@ -1010,6 +1011,7 @@
 		630436001EBCB87500C4D3FA /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				044F78E7262EE80C00F5CDBC /* SentryHttpInterceptor.h */,
 				7BBD18AE24517DF600427C76 /* RateLimits */,
 				7BAF3DB8243C9777008A5414 /* SentryTransport.h */,
 				6383953523ABA42C000C1594 /* SentryHttpTransport.h */,
@@ -1031,7 +1033,6 @@
 				638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */,
 				7BDB03B6251364F800BAE198 /* SentryDispatchQueueWrapper.h */,
 				7BDB03BA2513652900BAE198 /* SentryDispatchQueueWrapper.m */,
-				8EBF86F526140011001A6853 /* SentryHttpInterceptor.h */,
 				8EBF86EC2613FF43001A6853 /* SentryHttpInterceptor.m */,
 			);
 			name = Networking;
@@ -1958,6 +1959,7 @@
 				63FE712B20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */,
 				8EAE9816261E9F750073B6B3 /* SentryURLProtocolTracker.h in Headers */,
 				637533582243A0100002F77F /* NSString+SentryUnsignedLongLongValue.h in Headers */,
+				044F78E8262EE80C00F5CDBC /* SentryHttpInterceptor.h in Headers */,
 				7BA61CBF247CEA8100C130A8 /* SentryHexAddressFormatter.h in Headers */,
 				63FE70EB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h in Headers */,
 				7BC8522F24581096005A70F0 /* SentryFileContents.h in Headers */,
