@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.0.0-beta.0
+
+- feat: Add close method to SDK #1046
+
 ## 7.0.0-alpha.5
 
 ### Breaking Changes
@@ -12,6 +16,7 @@
 - feat: Add transaction to the scope #992
 - fix: Pass SentryTracer to span child #1040
 - feat: Add span to SentrySDK #1042
+- feat: Add urlSessionDelegate option to SentryOptions #965
 
 ## 7.0.0-alpha.4
 

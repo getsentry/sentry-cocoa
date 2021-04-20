@@ -293,6 +293,31 @@ static BOOL crashedLastRunCalled;
     }
 }
 
+/**
+ * Closes the SDK and uninstalls all the integrations.
+ */
++ (void)close
+{
+    // pop the hub and unset
+    SentryHub *hub = SentrySDK.currentHub;
+    [SentrySDK setCurrentHub:nil];
+
+    // uninstall all the integrations
+    for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
+        if ([integration respondsToSelector:@selector(uninstall)]) {
+            [integration uninstall];
+        }
+    }
+    [hub.installedIntegrations removeAllObjects];
+
+    // close the client
+    SentryClient *client = [hub getClient];
+    client.options.enabled = NO;
+    [hub bindClient:nil];
+
+    [SentryLog logWithMessage:@"SDK closed!" andLevel:kSentryLevelDebug];
+}
+
 #ifndef __clang_analyzer__
 // Code not to be analyzed
 + (void)crash
