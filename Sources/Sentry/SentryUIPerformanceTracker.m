@@ -220,7 +220,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 NSString *layoutSubViewId =
-                    [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"];
+                    [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews" operation: @"ui.lifecycle"];
 
                 objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                     layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
