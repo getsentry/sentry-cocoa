@@ -9,6 +9,9 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_SPANS = @"SENTRY_PERFORMANCE_T
 static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     = @"SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK";
 
+/*
+ * Auxiliary class to store tracking information.
+ */
 @interface SentrySpanTracker : NSObject
 
 @property (nonatomic) id<SentrySpan> span;
@@ -49,6 +52,9 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     return instance;
 }
 
+/**
+ * A dictionary of created spans in this thread using id as Key.
+ */
 - (NSMutableDictionary *)spansForThread
 {
     NSMutableDictionary *res =
@@ -61,6 +67,9 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     return res;
 }
 
+/**
+ * A stack of active spans in this thread.
+ */
 - (NSMutableArray *)activeStackForThread
 {
     NSMutableArray *res = [NSThread.currentThread.threadDictionary
@@ -73,12 +82,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     return res;
 }
 
-- (NSString *)startSpanWithName:(NSString *)name
-{
-    return [self startSpanWithName:name operation:nil];
-}
-
-- (NSString *)startSpanWithName:(NSString *)name operation:(nullable NSString *)operation
+- (NSString *)startSpanWithName:(NSString *)name operation:(NSString *)operation
 {
     NSMutableDictionary *spans = [self spansForThread];
     NSMutableArray *activeStack = [self activeStackForThread];
@@ -104,7 +108,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     return newSpan.span.context.spanId.sentrySpanIdString;
 }
 
-- (NSString *)activeSpan
+- (nullable NSString *)activeSpan
 {
     NSMutableArray *activeStack = [self activeStackForThread];
     SentrySpanTracker *activeSpan = activeStack.lastObject;
@@ -143,6 +147,10 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     [self propagateFinishForSpan:spanId];
 }
 
+/**
+ * Tries to finish a span if it is marked to be finished and has no children, 
+ * then if it has a parent span, remove it from the parent and checks if the parent needs to be finished.
+ */
 - (void)propagateFinishForSpan:(NSString *)spanId
 {
     NSMutableDictionary *spans = [self spansForThread];

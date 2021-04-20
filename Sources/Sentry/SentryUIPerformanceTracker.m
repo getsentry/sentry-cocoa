@@ -22,7 +22,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 
 + (void)start
 {
-
+// If there`s no UIKIT don`t need to try the swizzling.
 #if SENTRY_HAS_UIKIT
     [SentryUIPerformanceTracker swizzleViewControllerInits];
 #else
@@ -32,6 +32,11 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 #endif
 }
 
+
+/**
+ * Swizzle the some init methods of the view controller, 
+ * so we can swizzle user view controller subclass on demand.
+ */
 + (void)swizzleViewControllerInits
 {
 #if SENTRY_HAS_UIKIT
@@ -65,6 +70,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 + (void)swizzleViewControllerSubClass:(Class)class
 {
 #if SENTRY_HAS_UIKIT
+    // Swizzling only classes from the user app module to avoid track every UIKit view controller interaction.
     static const char *appImage = nil;
     if (appImage == nil) {
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
@@ -75,9 +81,12 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     if (appImage == nil || strcmp(appImage, class_getImageName(class)) != 0)
         return;
 
+    //This are the five main functions related to UI creation in a view controller.
+    //We are swizzling it to track anything that happens inside one of this functions.
     [SentryUIPerformanceTracker swizzleViewLayoutSubViews:class];
     [SentryUIPerformanceTracker swizzleLoadView:class];
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
+    [SentryUIPerformanceTracker swizzleViewWillAppear:class];
     [SentryUIPerformanceTracker swizzleViewDidAppear:class];
 #endif
 }
@@ -97,6 +106,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             NSString *spanId = [SentryPerformanceTracker.shared startSpanWithName:name
                                                                         operation:@"ui.lifecycle"];
 
+            //use the viewcontroller itself to store the spanId to avoid using a global mapper.
             objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
@@ -128,6 +138,33 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 SentrySWCallOriginal();
+                [SentryPerformanceTracker.shared popActiveSpan];
+            }
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+#    pragma clang diagnostic pop
+#endif
+}
+
++ (void)swizzleViewWillAppear:(Class)class
+{
+#if SENTRY_HAS_UIKIT
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
+    SEL selector = NSSelectorFromString(@"viewWillAppear:");
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
+        SentrySWArguments(BOOL animated), SentrySWReplacement({
+            NSString *spanId
+                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+            if (spanId == nil) {
+                SentrySWCallOriginal(animated);
+            } else {
+                [SentryPerformanceTracker.shared pushActiveSpan:spanId];
+                SentrySWCallOriginal(animated);
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
         }),

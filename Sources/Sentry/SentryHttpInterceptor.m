@@ -1,5 +1,4 @@
 #import "SentryHttpInterceptor.h"
-#import "Feliz7Play-Swift.h"
 #import <Sentry/Sentry.h>
 
 @interface
@@ -14,8 +13,8 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    return [request.URL.host.lowercaseString containsString:@"feliz7play"]
-        && ([request.URL.scheme isEqualToString:@"http"] |
+    return ![request.URL.host.lowercaseString containsString:@"sentry"]
+        && ([request.URL.scheme isEqualToString:@"http"] ||
             [request.URL.scheme isEqualToString:@"https"]);
 }
 
@@ -29,9 +28,9 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
     self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
     [[self.session dataTaskWithRequest:self.request] resume];
-
-    self.spanId = [PerformanceTracker.instance addSpanWithOperation:self.request.URL.path
-                                                          setActive:false];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.spanId = [PerformanceTracker.instance addSpanWithOperation:self.request.URL.path
+                                                              setActive:false];});
 }
 
 - (void)stopLoading
@@ -46,14 +45,16 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error
 {
+    SentrySpanStatus status;
     if (error) {
-        [PerformanceTracker.instance finishSpanWithId:self.spanId
-                                               status:kSentrySpanStatusUnknownError];
+        status = kSentrySpanStatusUnknownError;
         [self.client URLProtocol:self didFailWithError:error];
     } else {
-        [PerformanceTracker.instance finishSpanWithId:self.spanId status:kSentrySpanStatusOk];
+        status = kSentrySpanStatusOk;
         [self.client URLProtocolDidFinishLoading:self];
     }
+    dispatch_async(dispatch_get_main_queue(),
+        ^{ [SentryPerformanceTracker.shared finishSpan:self.spanId withStatus:status]; });
 }
 
 - (void)URLSession:(NSURLSession *)session
