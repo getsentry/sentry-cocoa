@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+ref: Make calls to customSamplingContext nonnull #1061
+
 ## 7.0.0-beta.0
 
 - feat: Add close method to SDK #1046

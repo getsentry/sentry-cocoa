@@ -131,8 +131,7 @@ SENTRY_NO_INIT
  */
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
     NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
 
 /**
@@ -144,8 +143,7 @@ SENTRY_NO_INIT
  * @return The created transaction.
  */
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
     NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**
