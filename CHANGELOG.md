@@ -2,7 +2,7 @@
 
 ## unrelease
 
-- feat: Add trace information from scope to event capture 
+- feat: Add trace information from scope to event capture #1065
 
 ## 7.0.0-beta.0
 
