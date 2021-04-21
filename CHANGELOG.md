@@ -1,5 +1,9 @@
 # Changelog
 
+## unrelease
+
+- feat: Add trace information from scope to event capture 
+
 ## 7.0.0-beta.0
 
 - feat: Add close method to SDK #1046
