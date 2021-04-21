@@ -422,15 +422,6 @@ SentryScope ()
             subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
-    NSMutableDictionary *newContext;
-    if (nil == event.context) {
-        newContext = [self context].mutableCopy;
-    } else {
-        newContext = [NSMutableDictionary new];
-        [newContext addEntriesFromDictionary:[self context]];
-        [newContext addEntriesFromDictionary:event.context];
-    }
-
     SentryUser *user = self.userObject.copy;
     if (nil != user) {
         event.user = user;
@@ -456,22 +447,31 @@ SentryScope ()
         event.level = level;
     }
 
-    id<SentrySpan> span;
-    @synchronized(_spanLock) {
-        span = self.span;
-    }
-    if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
-        [span isKindOfClass:[SentryTracer class]]) {
-        event.transaction = [(SentryTracer *)span name];
-    }
-    if (newContext == nil) {
+    NSMutableDictionary *newContext;
+    if (nil == event.context) {
+        newContext = [self context].mutableCopy;
+    } else {
         newContext = [NSMutableDictionary new];
+        [newContext addEntriesFromDictionary:[self context]];
+        [newContext addEntriesFromDictionary:event.context];
     }
-    newContext[@"trace"] = [span serialize];
-}
 
-event.context = newContext;
-return event;
+    if (self.span != nil) {
+        id<SentrySpan> span;
+        @synchronized(_spanLock) {
+            span = self.span;
+        }
+        if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
+            [span isKindOfClass:[SentryTracer class]]) {
+            event.transaction = [(SentryTracer *)span name];
+        }
+        if (newContext == nil) {
+            newContext = [NSMutableDictionary new];
+        }
+        newContext[@"trace"] = [span serialize];
+    }
+    event.context = newContext;
+    return event;
 }
 
 @end
