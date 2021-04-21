@@ -119,7 +119,7 @@ class TransactionGeneratorTests: XCTestCase {
             let transaction = SentrySDK.startTransaction(name: "Performance Test", operation: "Load Test")
             for _ in 0...10 {
                 let child = transaction.startChild(operation: "Child")
-                delayNonBlocking(timeout: 0.0001)
+                delayNonBlocking(timeout: 0.000_1)
                 child.finish()
             }
             delayNonBlocking(timeout: 0.001)
