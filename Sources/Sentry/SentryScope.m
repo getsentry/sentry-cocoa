@@ -463,13 +463,13 @@ SentryScope ()
     if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction])
         if ([span isKindOfClass:[SentryTracer class]])
             event.transaction = [(SentryTracer *)span name];
-        if (newContext == nil) newContext = [NSMutableDictionary new];
-        newContext[@"trace"] = [span serialize];
-        
-    }
-    
-    event.context = newContext;
-    return event;
+    if (newContext == nil)
+        newContext = [NSMutableDictionary new];
+    newContext[@"trace"] = [span serialize];
+}
+
+event.context = newContext;
+return event;
 }
 
 @end
