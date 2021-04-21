@@ -1,6 +1,6 @@
 # Changelog
 
-## unrelease
+## unreleased
 
 - feat: Add trace information from scope to event capture #1065
 
