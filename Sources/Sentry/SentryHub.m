@@ -256,7 +256,7 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
-    return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
+    return [self startTransactionWithContext:transactionContext customSamplingContext:@{}];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -264,12 +264,11 @@ SentryHub ()
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
-                       customSamplingContext:nil];
+                       customSamplingContext:@{}];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:false
@@ -278,8 +277,7 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
