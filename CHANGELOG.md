@@ -2,7 +2,7 @@
 
 ## unreleased
 
-- ref: Discard unfinished spans when capturing transaction
+- ref: Discard unfinished spans when capturing transaction #1066
 
 ## 7.0.0-beta.0
 
