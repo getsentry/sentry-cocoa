@@ -422,13 +422,13 @@ SentryScope ()
             subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
+    NSMutableDictionary *newContext;
     if (nil == event.context) {
-        event.context = [self context];
+        newContext = [self context].mutableCopy;
     } else {
-        NSMutableDictionary *newContext = [NSMutableDictionary new];
+        newContext = [NSMutableDictionary new];
         [newContext addEntriesFromDictionary:[self context]];
         [newContext addEntriesFromDictionary:event.context];
-        event.context = newContext;
     }
 
     SentryUser *user = self.userObject.copy;
@@ -463,9 +463,13 @@ SentryScope ()
 
     if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
         [span isKindOfClass:[SentryTracer class]]) {
-        event.transaction = [(SentryTracer *)span name];
+        @synchronized (_spanLock) {
+            event.transaction = [(SentryTracer *)span name];
+            if (newContext == nil) newContext = [NSMutableDictionary new];
+            newContext[@"trace"] = [span serialize];
+        }
     }
-
+    event.context = newContext;
     return event;
 }
 
