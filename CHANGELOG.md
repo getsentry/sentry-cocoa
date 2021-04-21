@@ -1,5 +1,9 @@
 # Changelog
 
+## unreleased
+
+- ref: Discard unfinished spans when capturing transaction
+
 ## 7.0.0-beta.0
 
 - feat: Add close method to SDK #1046
