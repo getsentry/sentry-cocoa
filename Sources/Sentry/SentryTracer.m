@@ -109,11 +109,14 @@
 {
     NSArray *spans;
     @synchronized(_spans) {
-        spans = [_spans filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id<SentrySpan>  _Nullable span, NSDictionary<NSString *,id> * _Nullable bindings) {
-            return span.isFinished;
-        }]];
+        spans = [_spans
+            filteredArrayUsingPredicate:[NSPredicate
+                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
+                                                NSDictionary<NSString *, id> *_Nullable bindings) {
+                                                return span.isFinished;
+                                            }]];
     }
-       
+
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
     [_hub captureEvent:transaction withScope:_hub.scope];
