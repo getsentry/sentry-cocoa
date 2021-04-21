@@ -109,7 +109,8 @@
 {
     NSArray *spans;
     @synchronized(_spans) {
-        //Make a new array with all finished child spans because if any of the transactions children is not finished the transaction is ignored by Sentry. 
+        // Make a new array with all finished child spans because if any of the transactions
+        // children is not finished the transaction is ignored by Sentry.
         spans = [_spans
             filteredArrayUsingPredicate:[NSPredicate
                                             predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
