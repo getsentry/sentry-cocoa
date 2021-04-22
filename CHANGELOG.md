@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- feat: Add automatic performance instrumentation for ui lifecycle and http requests. #1043
+- feat: Add automatic performance instrumentation for ui lifecycle and http requests. (#1043)
+- ref: Make calls to customSamplingContext nonnull (#1061)
 
 ## 7.0.0-beta.0
 
