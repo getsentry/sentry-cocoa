@@ -4,7 +4,6 @@
 //
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
-#import "Random.h"
 #import "SentryAppState.h"
 #import "SentryAttachment.h"
 #import "SentryAutoSessionTrackingIntegration.h"
@@ -59,6 +58,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryRandom.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimitParser.h"

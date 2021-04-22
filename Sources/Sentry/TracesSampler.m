@@ -7,7 +7,7 @@
     SentryOptions *_options;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options random:(id<Random>)random
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random
 {
     if (self = [super init]) {
         _options = options;
@@ -18,7 +18,7 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options random:[[Random alloc] init]];
+    return [self initWithOptions:options random:[[SentryRandom alloc] init]];
 }
 
 - (SentrySampleDecision)sample:(SentrySamplingContext *)context
