@@ -3,7 +3,8 @@
 ## unreleased
 
 - fix: SentryOptions.tracesSampleRate default value (#1069)
-ref: Make calls to customSamplingContext nonnull #1061
+- ref: Discard unfinished spans when capturing transaction (#1066)
+- ref: Make calls to customSamplingContext nonnull (#1061)
 
 ## 7.0.0-beta.0
 
