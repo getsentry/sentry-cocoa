@@ -87,7 +87,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serializedChild["parent_span_id"] as? String, span.context.spanId.sentrySpanIdString)
     }
     
-    func testFinishWithUnfinishedChild() {
+    func testFinishWithUnfinishedSpanDropsSpan() {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
         span.startChild(operation: fixture.someOperation)
