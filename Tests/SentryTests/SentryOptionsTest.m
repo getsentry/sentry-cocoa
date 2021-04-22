@@ -510,8 +510,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNotNil(options.tracesSampleRate);
-    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
+    XCTAssertNil(options.tracesSampleRate);
 }
 
 - (void)testTracesSampleRate_SetToNil
@@ -534,7 +533,7 @@
 
     NSNumber *tooLow = @-0.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertEqual(@0, options.tracesSampleRate);
+    XCTAssertNil(options.tracesSampleRate);
 }
 
 - (void)testTracesSampleRateUpperBound
@@ -550,7 +549,7 @@
 
     NSNumber *tooLow = @1.01;
     options.tracesSampleRate = tooLow;
-    XCTAssertEqual(@0, options.tracesSampleRate);
+    XCTAssertNil(options.tracesSampleRate);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context

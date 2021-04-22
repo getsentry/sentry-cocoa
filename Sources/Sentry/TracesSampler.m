@@ -29,11 +29,14 @@
 
     if (_options.tracesSampler != nil) {
         NSNumber *callbackDecision = _options.tracesSampler(context);
-        if (callbackDecision != nil)
+        if (callbackDecision != nil) {
             if ([callbackDecision doubleValue] < 0 || [callbackDecision doubleValue] > 1.0) {
-                callbackDecision = @0;
+                callbackDecision = nil;
             }
-        return [self calcSample:callbackDecision.doubleValue];
+        }
+        if (callbackDecision != nil) {
+            return [self calcSample:callbackDecision.doubleValue];
+        }
     }
 
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided)

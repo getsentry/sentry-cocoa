@@ -6,14 +6,6 @@
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
 
-@interface
-SentryOptions ()
-
-@property (readonly, nonatomic, copy) NSNumber *defaultSampleRate;
-@property (readonly, nonatomic, copy) NSNumber *defaultTracesSampleRate;
-
-@end
-
 @implementation SentryOptions
 
 + (NSArray<NSString *> *)defaultIntegrations
@@ -33,16 +25,14 @@ SentryOptions ()
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
         self.integrations = SentryOptions.defaultIntegrations;
-        _defaultSampleRate = @1;
-        self.sampleRate = _defaultSampleRate;
+        self.sampleRate = @1;
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
-        _defaultTracesSampleRate = @0;
-        self.tracesSampleRate = self.defaultTracesSampleRate;
+        self.tracesSampleRate = nil;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -246,7 +236,7 @@ SentryOptions ()
     } else if ([sampleRate doubleValue] >= 0 && [sampleRate doubleValue] <= 1.0) {
         _sampleRate = sampleRate;
     } else {
-        _sampleRate = _defaultSampleRate;
+        _sampleRate = @1;
     }
 }
 
@@ -257,7 +247,7 @@ SentryOptions ()
     } else if ([tracesSampleRate doubleValue] >= 0 && [tracesSampleRate doubleValue] <= 1.0) {
         _tracesSampleRate = tracesSampleRate;
     } else {
-        _tracesSampleRate = _defaultTracesSampleRate;
+        _tracesSampleRate = nil;
     }
 }
 
