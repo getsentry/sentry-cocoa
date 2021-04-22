@@ -32,7 +32,7 @@
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
-        self.tracesSampleRate = 0;
+        self.tracesSampleRate = @0;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
