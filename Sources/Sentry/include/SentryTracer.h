@@ -87,7 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sets an extra.
  */
-- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setDataValue:(nullable id)value
+              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.
