@@ -1,4 +1,5 @@
 #import "SentryTransaction.h"
+#import "SentryEnvelopeItemType.h"
 
 @implementation SentryTransaction {
     id<SentrySpan> _trace;

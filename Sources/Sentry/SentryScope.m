@@ -9,6 +9,7 @@
 #import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
+#import "SentryEnvelopeItemType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
