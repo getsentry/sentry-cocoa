@@ -34,9 +34,17 @@ SentryStacktraceBuilder ()
     NSInteger framesToSkip = 0;
     sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
 
+    SentryFrame *frame;
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
-            SentryFrame *frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+                if (frame) {
+                    frame.stackStart = @(YES);
+                }
+                // skip the marker frame
+                continue;
+            }
+            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
             [frames addObject:frame];
         }
     }
