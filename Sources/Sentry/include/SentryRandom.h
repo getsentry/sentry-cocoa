@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol Random
+@protocol SentryRandom
 
 /**
  * Returns a random number uniformly distributed over the interval [0.0 , 1.0].
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface Random : NSObject <Random>
+@interface SentryRandom : NSObject <SentryRandom>
 
 - (double)nextNumber;
 
