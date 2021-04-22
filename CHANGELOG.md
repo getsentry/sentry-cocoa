@@ -2,6 +2,12 @@
 
 ## unreleased
 
+### Breaking Changes
+
+- ref: Set sample rates to default if out of range (#1074): When setting a value `SentryOptions.sampleRate` that is not >= 0.0 and <= 1.0 the SDK sets it to the default of 1.0.
+
+### Fixes
+
 - fix: SentryOptions.tracesSampleRate default value (#1069)
 - ref: Discard unfinished spans when capturing transaction (#1066)
 - ref: Make calls to customSamplingContext nonnull (#1061)

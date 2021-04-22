@@ -23,13 +23,17 @@
 
 - (SentrySampleDecision)sample:(SentrySamplingContext *)context
 {
-    if (context.transactionContext.sampled != kSentrySampleDecisionUndecided)
+    if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
         return context.transactionContext.sampled;
+    }
 
     if (_options.tracesSampler != nil) {
         NSNumber *callbackDecision = _options.tracesSampler(context);
         if (callbackDecision != nil)
-            return [self calcSample:callbackDecision.doubleValue];
+            if ([callbackDecision doubleValue] < 0 || [callbackDecision doubleValue] > 1.0) {
+                callbackDecision = @0;
+            }
+        return [self calcSample:callbackDecision.doubleValue];
     }
 
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided)
