@@ -269,14 +269,14 @@ SentryCrashReportConverter ()
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
-    SentryFrame *lastFrame = NULL;
+    SentryFrame *lastFrame = nil;
 
     for (NSInteger i = 0; i < frameCount; i++) {
         NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
         uintptr_t instructionAddress
             = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
         if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
-            if (lastFrame) {
+            if (lastFrame != nil) {
                 lastFrame.stackStart = @(YES);
             }
             // skip the marker frame

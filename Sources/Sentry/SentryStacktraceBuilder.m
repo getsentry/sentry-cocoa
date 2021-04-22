@@ -34,11 +34,11 @@ SentryStacktraceBuilder ()
     NSInteger framesToSkip = 0;
     sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
 
-    SentryFrame *frame;
+    SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
             if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-                if (frame) {
+                if (frame != nil) {
                     frame.stackStart = @(YES);
                 }
                 // skip the marker frame
