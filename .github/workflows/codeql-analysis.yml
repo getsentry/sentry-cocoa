@@ -27,7 +27,7 @@ jobs:
         languages: ${{ matrix.language }}
 
     - run: >-
-      xcodebuild 
+        xcodebuild 
         -workspace Sentry.xcworkspace 
         -scheme Sentry 
         -configuration Release 
