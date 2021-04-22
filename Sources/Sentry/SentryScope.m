@@ -1,6 +1,7 @@
 #import "SentryScope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
@@ -9,7 +10,6 @@
 #import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
-#import "SentryEnvelopeItemType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
