@@ -461,14 +461,15 @@ SentryScope ()
         @synchronized(_spanLock) {
             span = self.span;
         }
-        if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
-            [span isKindOfClass:[SentryTracer class]]) {
-            event.transaction = [(SentryTracer *)span name];
+
+        // Span could be nil as we do the first check outside the synchronize
+        if (span != nil) {
+            if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
+                [span isKindOfClass:[SentryTracer class]]) {
+                event.transaction = [(SentryTracer *)span name];
+            }
+            newContext[@"trace"] = [span serialize];
         }
-        if (newContext == nil) {
-            newContext = [NSMutableDictionary new];
-        }
-        newContext[@"trace"] = [span serialize];
     }
     event.context = newContext;
     return event;
