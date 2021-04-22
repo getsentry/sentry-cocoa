@@ -109,7 +109,14 @@
 {
     NSArray *spans;
     @synchronized(_spans) {
-        spans = [_spans copy];
+        // Make a new array with all finished child spans because if any of the transactions
+        // children is not finished the transaction is ignored by Sentry.
+        spans = [_spans
+            filteredArrayUsingPredicate:[NSPredicate
+                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
+                                                NSDictionary<NSString *, id> *_Nullable bindings) {
+                                                return span.isFinished;
+                                            }]];
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
