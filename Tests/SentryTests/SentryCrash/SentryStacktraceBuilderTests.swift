@@ -89,7 +89,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
                 frame.function?.contains("asyncAssertion") ?? false
         }
         let startFrames = actual.frames.filter { frame in
-            return frame.stackStart
+            return frame.stackStart?.boolValue ?? false
         }
 
         XCTAssertTrue(filteredFrames.count >= 4, "The Stacktrace must include the async callers.")

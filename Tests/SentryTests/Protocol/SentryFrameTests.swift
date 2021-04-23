@@ -18,6 +18,6 @@ class SentryFrameTests: XCTestCase {
         XCTAssertEqual(frame.instructionAddress, actual["instruction_addr"] as? String)
         XCTAssertEqual(frame.platform, actual["platform"] as? String)
         XCTAssertEqual(frame.inApp, actual["in_app"] as? NSNumber)
-        XCTAssertEqual(frame.stackStart, actual["stack_start"] as? Bool)
+        XCTAssertEqual(frame.stackStart, actual["stack_start"] as? NSNumber)
     }
 }
