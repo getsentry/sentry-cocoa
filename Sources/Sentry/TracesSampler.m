@@ -31,7 +31,7 @@
     if (_options.tracesSampler != nil) {
         NSNumber *callbackDecision = _options.tracesSampler(context);
         if (callbackDecision != nil) {
-            if ([callbackDecision doubleValue] < 0 || [callbackDecision doubleValue] > 1.0) {
+            if ([_options isValidTracesSampleRate:callbackDecision]) {
                 callbackDecision = _options.defaultTracesSampleRate;
             }
         }

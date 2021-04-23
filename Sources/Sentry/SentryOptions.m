@@ -254,11 +254,16 @@ SentryOptions ()
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
-    } else if ([tracesSampleRate doubleValue] >= 0 && [tracesSampleRate doubleValue] <= 1.0) {
+    } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
         _tracesSampleRate = tracesSampleRate;
     } else {
         _tracesSampleRate = _defaultTracesSampleRate;
     }
+}
+
+- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
+{
+    return [tracesSampleRate doubleValue] >= 0 && [tracesSampleRate doubleValue] <= 1.0;
 }
 
 @end
