@@ -103,8 +103,10 @@ NS_SWIFT_NAME(Options)
 + (NSArray<NSString *> *)defaultIntegrations;
 
 /**
- * Defines the sample rate of SentryClient, should be a float between 0.0
- * and 1.0. valid settings are 0.0 - 1.0 and nil
+ * Indicates the percentage of events being sent to Sentry. Setting this to 0 or NIL discards all
+ * events, 1.0 sends all events, 0.01 collects 1% of all events. The default is 1. The value needs
+ * to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to the default
+ * of 1.0.
  */
 @property (nullable, nonatomic, copy) NSNumber *sampleRate;
 
@@ -156,16 +158,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
 /**
- * Indicates the percentage of the tracing data that is collected.
- * Setting this to 0 or NIL discards all trace data, 1.0 collects all trace data,
- * 0.01 collects 1% of all trace data.
+ * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
+ * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
+ * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
+ * the default of 0.
  */
 @property (nullable, nonatomic, strong) NSNumber *tracesSampleRate;
 
 /**
- * A callback to a user defined traces sampler function.
- * Returning 0 or NIL discards all trace data, 1.0 collects all trace data,
- * 0.01 collects 1% of all trace data.
+ * A callback to a user defined traces sampler function. Returning 0 or NIL discards all trace
+ * data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The sample rate needs to
+ * be >= 0.0 and <= 1.0 or NIL. When returning a value out of range the SDK uses the default of 0.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 

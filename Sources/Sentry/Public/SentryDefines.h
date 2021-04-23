@@ -68,7 +68,8 @@ typedef BOOL (^SentryShouldQueueEvent)(
  *
  * @param samplingContext context of the sampling.
  *
- * @return A sample rate between 0.0 and 1.0.
+ * @return A sample rate that is >= 0.0 and <= 1.0 or NIL if no sampling decision has been taken..
+ * When returning a value out of range the SDK uses the default of 0.
  */
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
