@@ -143,6 +143,7 @@ class TestData {
         frame.package = "sentry"
         frame.platform = "iOS"
         frame.symbolAddress = "0x000000008e902bf0"
+        frame.stackStart = true
         
         return frame
     }

@@ -64,24 +64,33 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
 }
 
 bool
+sentrycrashsc_tryAsyncChain(
+    SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller)
+{
+    if (!async_caller) {
+        return false;
+    }
+    cursor->state.current_async_caller = async_caller;
+    cursor->state.currentDepth = 0;
+
+    cursor->stackEntry.address = SentryCrashSC_ASYNC_MARKER;
+    return true;
+}
+
+bool
 sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor)
 {
     sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
-    if (async_caller) {
-        if (cursor->state.currentDepth < async_caller->len) {
-            uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];
-            if (nextAddress > 1) {
-                cursor->stackEntry.address
-                    = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
-                cursor->state.currentDepth++;
-                return true;
-            }
-        }
-        if (async_caller->async_caller) {
-            cursor->state.current_async_caller = async_caller->async_caller;
-            cursor->state.currentDepth = 0;
-            return sentrycrashsc_advanceAsyncCursor(cursor);
+    if (!async_caller) {
+        return false;
+    }
+    if (cursor->state.currentDepth < async_caller->len) {
+        uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];
+        if (nextAddress > 1) {
+            cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
+            cursor->state.currentDepth++;
+            return true;
         }
     }
-    return false;
+    return sentrycrashsc_tryAsyncChain(cursor, async_caller->async_caller);
 }

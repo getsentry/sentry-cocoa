@@ -1,6 +1,7 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCrashStackCursor.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -268,10 +269,24 @@ SentryCrashReportConverter ()
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
-    for (NSInteger i = frameCount - 1; i >= 0; i--) {
-        [frames addObject:[self stackFrameAtIndex:i inThreadIndex:threadIndex]];
+    SentryFrame *lastFrame = nil;
+
+    for (NSInteger i = 0; i < frameCount; i++) {
+        NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
+        uintptr_t instructionAddress
+            = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
+        if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
+            if (lastFrame != nil) {
+                lastFrame.stackStart = @(YES);
+            }
+            // skip the marker frame
+            continue;
+        }
+        lastFrame = [self stackFrameAtIndex:i inThreadIndex:threadIndex];
+        [frames addObject:lastFrame];
     }
-    return frames;
+
+    return [[frames reverseObjectEnumerator] allObjects];
 }
 
 - (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex
