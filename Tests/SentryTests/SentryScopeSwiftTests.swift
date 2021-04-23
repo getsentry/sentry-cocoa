@@ -19,6 +19,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let level = SentryLevel.info
         let ipAddress = "127.0.0.1"
         let transactionName = "Some Transaction"
+        let transactionOperation = "Some Operation"
         let maxBreadcrumbs = 5
 
         init() {
@@ -55,7 +56,7 @@ class SentryScopeSwiftTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: "message")
             
-            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: "op"), hub: nil)
+            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
         }
         
         var dateAs8601String: String {
@@ -157,6 +158,19 @@ class SentryScopeSwiftTests: XCTestCase {
         let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
         
         XCTAssertEqual(event.dist, actual?.dist)
+    }
+    
+    func testApplyToEvent_ScopeWithSpan() {
+        let scope = fixture.scope
+        scope.span = fixture.transaction
+        
+        let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let trace = fixture.event.context?["trace"]
+              
+        XCTAssertEqual(actual?.transaction, fixture.transactionName)
+        XCTAssertEqual(trace?["op"] as? String, fixture.transactionOperation)
+        XCTAssertEqual(trace?["trace_id"] as? String, fixture.transaction.context.traceId.sentryIdString)
+        XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.context.spanId.sentrySpanIdString)
     }
     
     func testApplyToEvent_EventWithDist() {
