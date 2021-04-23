@@ -8,6 +8,7 @@
 - ref: Make calls to customSamplingContext nonnull (#1061)
 - ref: Mark async call chains explicitly as such (#1071)
 - fix: fix: performance headers (#1079)
+- fix: performance headers (#1079)
 - fix: Release builds in CI (#1076)
 
 ## 7.0.0-beta.0
