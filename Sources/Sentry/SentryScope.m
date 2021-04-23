@@ -1,6 +1,7 @@
 #import "SentryScope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
