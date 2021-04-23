@@ -2,7 +2,6 @@
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanProtocol.h"
-#import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
