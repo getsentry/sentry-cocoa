@@ -2,6 +2,7 @@
 #import "SentryOptions.h"
 #import "SentrySamplingContext.h"
 #import "SentryTransactionContext.h"
+#import <SentryOptions+Private.h>
 
 @implementation TracesSampler {
     SentryOptions *_options;
@@ -31,7 +32,7 @@
         NSNumber *callbackDecision = _options.tracesSampler(context);
         if (callbackDecision != nil) {
             if ([callbackDecision doubleValue] < 0 || [callbackDecision doubleValue] > 1.0) {
-                callbackDecision = nil;
+                callbackDecision = _options.defaultTracesSampleRate;
             }
         }
         if (callbackDecision != nil) {
