@@ -486,7 +486,30 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
+    XCTAssertNotNil(options.tracesSampleRate);
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
+}
+
+- (void)testTracesSampleRateLowerBound
+{
+    NSNumber *sampleRateLowerBound = @0;
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : sampleRateLowerBound }];
+    XCTAssertEqual(sampleRateLowerBound, options.tracesSampleRate);
+
+    NSNumber *sampleRateTooLow = @-0.01;
+    options = [self getValidOptions:@{ @"tracesSampleRate" : sampleRateTooLow }];
+    XCTAssertEqual(@0, options.tracesSampleRate);
+}
+
+- (void)testTracesSampleRateUpperBound
+{
+    NSNumber *sampleRateUpperBound = @1;
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : sampleRateUpperBound }];
+    XCTAssertEqual(sampleRateUpperBound, options.tracesSampleRate);
+
+    NSNumber *sampleRateTooHigh = @1.01;
+    options = [self getValidOptions:@{ @"tracesSampleRate" : sampleRateTooHigh }];
+    XCTAssertEqual(@0, options.tracesSampleRate);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context

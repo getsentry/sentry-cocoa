@@ -3,13 +3,18 @@
 @implementation SentrySamplingContext
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                     customSamplingContext:
-                         (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
     if (self = [super init]) {
         _transactionContext = transactionContext;
-        _customSamplingContext = customSamplingContext;
     }
+    return self;
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                     customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+{
+    self = [self initWithTransactionContext:transactionContext];
+    _customSamplingContext = customSamplingContext;
     return self;
 }
 
