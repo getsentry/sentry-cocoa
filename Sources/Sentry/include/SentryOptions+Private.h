@@ -6,6 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
 
+- (BOOL)isValidSampleRate:(NSNumber *)sampleRate;
+
 - (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate;
 
 @end

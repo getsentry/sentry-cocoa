@@ -22,6 +22,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
+#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
@@ -329,7 +330,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
  */
 - (BOOL)checkSampleRate:(NSNumber *)sampleRate
 {
-    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
+    if (nil == sampleRate || ![self.options isValidSampleRate:sampleRate]) {
         return YES;
     }
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
