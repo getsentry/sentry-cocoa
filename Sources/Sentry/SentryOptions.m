@@ -6,6 +6,14 @@
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
 
+@interface
+SentryOptions ()
+
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+
+@end
+
 @implementation SentryOptions
 
 + (NSArray<NSString *> *)defaultIntegrations
@@ -25,14 +33,16 @@
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
         self.integrations = SentryOptions.defaultIntegrations;
-        self.sampleRate = @1;
+        _defaultSampleRate = @1;
+        self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
-        self.tracesSampleRate = @0;
+        _defaultTracesSampleRate = nil;
+        self.tracesSampleRate = _defaultTracesSampleRate;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -163,7 +173,7 @@
     }
 
     NSNumber *sampleRate = options[@"sampleRate"];
-    if (nil != sampleRate && [sampleRate floatValue] >= 0 && [sampleRate floatValue] <= 1.0) {
+    if (nil != sampleRate) {
         self.sampleRate = sampleRate;
     }
 
@@ -193,8 +203,7 @@
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
-    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
-        [tracesSampleRate floatValue] <= 1.0) {
+    if (nil != tracesSampleRate) {
         self.tracesSampleRate = tracesSampleRate;
     }
 
@@ -228,6 +237,40 @@
 - (void)addInAppExclude:(NSString *)inAppExclude
 {
     _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
+}
+
+- (void)setSampleRate:(NSNumber *)sampleRate
+{
+    if (sampleRate == nil) {
+        _sampleRate = nil;
+    } else if ([self isValidSampleRate:sampleRate]) {
+        _sampleRate = sampleRate;
+    } else {
+        _sampleRate = _defaultSampleRate;
+    }
+}
+
+- (BOOL)isValidSampleRate:(NSNumber *)sampleRate
+{
+    // Same valid range, so we can reuse the logic.
+    return [self isValidTracesSampleRate:sampleRate];
+}
+
+- (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
+{
+    if (tracesSampleRate == nil) {
+        _tracesSampleRate = nil;
+    } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
+        _tracesSampleRate = tracesSampleRate;
+    } else {
+        _tracesSampleRate = _defaultTracesSampleRate;
+    }
+}
+
+- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
+{
+    double rate = [tracesSampleRate doubleValue];
+    return rate >= 0 && rate <= 1.0;
 }
 
 @end
