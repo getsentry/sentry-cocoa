@@ -60,7 +60,6 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
         // we read the thread id *again*, if it is still the same, the backtrace pointer we
         // read in between is valid
         if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == pthread) {
-            sentrycrash__async_backtrace_incref(backtrace);
             return backtrace;
         }
     }
