@@ -1,9 +1,18 @@
 # Changelog
 
-## unreleased
+## 7.0.0-beta.1
 
+### Features and Fixes
+
+- ref: Set sample rates to default if out of range (#1074): When setting a value `SentryOptions.sampleRate` that is not >= 0.0 and <= 1.0 the SDK sets it to the default of 1.0.
+- feat: Add trace information from scope to event capture (#1065)
+- fix: SentryOptions.tracesSampleRate default value (#1069)
 - ref: Discard unfinished spans when capturing transaction (#1066)
 - ref: Make calls to customSamplingContext nonnull (#1061)
+- ref: Mark async call chains explicitly as such (#1071)
+- fix: fix: performance headers (#1079)
+- fix: performance headers (#1079)
+- fix: Release builds in CI (#1076)
 
 ## 7.0.0-beta.0
 

@@ -25,7 +25,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         super.setUp()
         
         options = Options()
-        options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+        options.dsn = TestConstants.realDSN
         
         options.releaseName = "Release Health"
         options.debug = true

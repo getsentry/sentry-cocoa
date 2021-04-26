@@ -242,55 +242,46 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionNotSamplingUsingSampleRate() {
-        let options = fixture.options
-        options.tracesSampleRate = 0.49
-        
-        let hub = fixture.getSut(options)
-        Dynamic(hub).sampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(span.context.sampled, .no)
+        testSampler(expected: .no) { options in
+            options.tracesSampler = { _ in return 0.49 }
+        }
     }
     
     func testStartTransactionSamplingUsingSampleRate() {
-        let options = fixture.options
-        options.tracesSampleRate = 0.5
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(span.context.sampled, .yes)
+        testSampler(expected: .yes) { options in
+            options.tracesSampler = { _ in return 0.5 }
+        }
     }
     
     func testStartTransactionNotSamplingUsingTracesSampler() {
-        let options = fixture.options
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 0.4
+        testSampler(expected: .no) { options in
+            options.tracesSampler = { _ in return 0.4 }
         }
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(span.context.sampled, .no)
     }
     
     func testStartTransactionSamplingUsingTracesSampler() {
-        let options = fixture.options
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 0.6
+        testSampler(expected: .yes) { options in
+            options.tracesSampler = { _ in return 0.6 }
         }
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(span.context.sampled, .yes)
+    }
+    
+    func testStartTransaction_WhenSampleRateAndSamplerNil() {
+        testSampler(expected: SentrySampleDecision.no) { options in
+            options.tracesSampleRate = nil
+            options.tracesSampler = { _ in return nil }
+        }
+    }
+    
+    func testStartTransaction_WhenTracesSamplerOutOfRange_TooBig() {
+        testSampler(expected: .no) { options in
+            options.tracesSampler = { _ in return 1.01 }
+        }
+    }
+    
+    func testStartTransaction_WhenTracesSamplersOutOfRange_TooSmall() {
+        testSampler(expected: .no) { options in
+            options.tracesSampler = { _ in return -0.01 }
+        }
     }
         
     func testCaptureMessageWithScope() {
@@ -691,5 +682,16 @@ class SentryHubTests: XCTestCase {
     
     private func assertNoEnvelopesCaptured() {
         XCTAssertEqual(0, fixture.client.capturedEnvelopes.count)
+    }
+    
+    private func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+        options(fixture.options)
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(expected, span.context.sampled)
     }
 }

@@ -49,12 +49,8 @@ advanceCursor(SentryCrashStackCursor *cursor)
             cursor->state.currentDepth++;
             return true;
         }
-    } else if (cursor->async_caller) {
-        cursor->state.current_async_caller = cursor->async_caller;
-        cursor->state.currentDepth = 0;
-        return cursor->advanceCursor(cursor);
     }
-    return false;
+    return sentrycrashsc_tryAsyncChain(cursor, cursor->async_caller);
 }
 
 void
