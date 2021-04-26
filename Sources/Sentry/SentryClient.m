@@ -60,38 +60,38 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (self = [super init]) {
         self.options = options;
-        
+
         SentryCrashDefaultBinaryImageProvider *provider =
-        [[SentryCrashDefaultBinaryImageProvider alloc] init];
-        
+            [[SentryCrashDefaultBinaryImageProvider alloc] init];
+
         self.debugMetaBuilder =
-        [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
-        
+            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+
         SentryFrameInAppLogic *frameInAppLogic =
-        [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                               inAppExcludes:options.inAppExcludes];
+            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                   inAppExcludes:options.inAppExcludes];
         SentryCrashStackEntryMapper *crashStackEntryMapper =
-        [[SentryCrashStackEntryMapper alloc] initWithFrameInAppLogic:frameInAppLogic];
+            [[SentryCrashStackEntryMapper alloc] initWithFrameInAppLogic:frameInAppLogic];
         SentryStacktraceBuilder *stacktraceBuilder =
-        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+            [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
-        [[SentryCrashDefaultMachineContextWrapper alloc] init];
-        
+            [[SentryCrashDefaultMachineContextWrapper alloc] init];
+
         self.threadInspector =
-        [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
-                                        andMachineContextWrapper:machineContextWrapper];
-        
+            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                            andMachineContextWrapper:machineContextWrapper];
+
         NSError *error = nil;
-        
+
         self.fileManager = [[SentryFileManager alloc]
-                            initWithOptions:self.options
-                            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
-                            error:&error];
+                   initWithOptions:self.options
+            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+                             error:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
             return nil;
         }
-        
+
         self.transport = [SentryTransportFactory initTransport:self.options
                                              sentryFileManager:self.fileManager];
     }
@@ -104,10 +104,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  andFileManager:(SentryFileManager *)fileManager
 {
     self = [self initWithOptions:options];
-    
+
     self.transport = transport;
     self.fileManager = fileManager;
-    
+
     return self;
 }
 
@@ -181,11 +181,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
-    
+
     NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:error.domain];
-    
+
     // Sentry uses the error domain and code on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
     SentryMechanismMeta *mechanismMeta = [[SentryMechanismMeta alloc] init];
@@ -194,15 +194,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // The description of the error can be especially useful for error from swift that
     // use a simple enum.
     mechanism.desc = error.description;
-    
+
     NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
     mechanism.data = userInfo;
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];
-    
+
     // Once the UI displays the mechanism data we can the userInfo from the event.context.
     [self setUserInfo:userInfo withEvent:event];
-    
+
     return event;
 }
 
@@ -233,30 +233,30 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-              withScope:(SentryScope *)scope
- alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     return [self sendEvent:event
-                 withScope:scope
-    alwaysAttachStacktrace:alwaysAttachStacktrace
-              isCrashEvent:NO];
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isCrashEvent:NO];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-              withScope:(SentryScope *)scope
- alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-           isCrashEvent:(BOOL)isCrashEvent
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isCrashEvent:(BOOL)isCrashEvent
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isCrashEvent:isCrashEvent];
-    
+
     if (nil != preparedEvent) {
         [self.transport sendEvent:preparedEvent attachments:scope.attachments];
         return preparedEvent.eventId;
     }
-    
+
     return SentryId.empty;
 }
 
@@ -270,7 +270,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             [self.transport sendEvent:event attachments:scope.attachments];
             return event.eventId;
         }
-        
+
         [self.transport sendEvent:event withSession:session attachments:scope.attachments];
         return event.eventId;
     } else {
@@ -285,7 +285,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
     [self captureEnvelope:envelope];
 }
@@ -293,12 +293,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     // TODO: What is about beforeSend
-    
+
     if ([self isDisabled]) {
         [self logDisabledMessage];
         return;
     }
-    
+
     [self.transport sendEnvelope:envelope];
 }
 
@@ -308,13 +308,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self logDisabledMessage];
         return;
     }
-    
+
     if ([SentryId.empty isEqual:userFeedback.eventId]) {
         [SentryLog logWithMessage:@"Capturing UserFeedback with an empty event id. Won't send it."
                          andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     [self.transport sendUserFeedback:userFeedback];
 }
 
@@ -341,9 +341,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     return [self prepareEvent:event
-                    withScope:scope
-       alwaysAttachStacktrace:alwaysAttachStacktrace
-                 isCrashEvent:NO];
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isCrashEvent:NO];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
@@ -356,18 +356,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self logDisabledMessage];
         return nil;
     }
-    
+
     if (NO == [self checkSampleRate:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
                          andLevel:kSentryLevelDebug];
         return nil;
     }
-    
+
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     if (nil != infoDict && nil == event.dist) {
         event.dist = infoDict[@"CFBundleVersion"];
     }
-    
+
     // Use the values from SentryOptions as a fallback,
     // in case not yet set directly in the event nor in the scope:
     NSString *releaseName = self.options.releaseName;
@@ -376,78 +376,78 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // current release name
         event.releaseName = releaseName;
     }
-    
+
     NSString *dist = self.options.dist;
     if (nil != dist) {
         event.dist = dist;
     }
-    
+
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         // Set the environment from option to the event before Scope is applied
         event.environment = environment;
     }
-    
+
     NSMutableDictionary *sdk =
-    @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
+        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
     if (nil != sdk && nil == event.sdk) {
         if (event.extra[@"__sentry_sdk_integrations"]) {
             [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
         }
         event.sdk = sdk;
     }
-    
+
     if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
-        || (nil != event.exceptions && [event.exceptions count] > 0);
-        
+            || (nil != event.exceptions && [event.exceptions count] > 0);
+
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
             event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
         }
-        
+
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
         }
     }
-    
+
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
-    
+
     // Remove free_memory if OOM as free_memory stems from the current run and not of the time of
     // the OOM.
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
         [self removeFreeMemoryFromDeviceContext:event];
     }
-    
+
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
         event.environment = @"production";
     }
-    
+
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
-    
+
     // User can't be nil as setUserIdIfNoUserSet sets it.
     if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
         // Let Sentry infer the IP address from the connection.
         event.user.ipAddress = @"{{auto}}";
     }
-    
+
     event = [self callEventProcessors:event];
-    
+
     if (nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
     }
-    
+
     if (isCrashEvent && nil != self.options.onCrashedLastRun && !SentrySDK.crashedLastRunCalled) {
         // We only want to call the callback once. It can occur that multiple crash events are
         // about to be sent.
         self.options.onCrashedLastRun(event);
         SentrySDK.crashedLastRunCalled = YES;
     }
-    
+
     return event;
 }
 
@@ -465,12 +465,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
 {
     SentryEvent *newEvent = event;
-    
+
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
         if (nil == newEvent) {
             [SentryLog logWithMessage:@"SentryScope callEventProcessors: An event "
-             @"processor decided to remove this event."
+                                      @"processor decided to remove this event."
                              andLevel:kSentryLevelDebug];
             break;
         }
@@ -488,7 +488,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         } else {
             context = [event.context mutableCopy];
         }
-        
+
         [context setValue:[userInfo sentry_sanitize] forKey:@"user info"];
     }
 }
@@ -509,14 +509,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (!isCrashEvent) {
         return NO;
     }
-    
+
     if (nil == event.exceptions || event.exceptions.count != 1) {
         return NO;
     }
-    
+
     SentryException *exception = event.exceptions[0];
     return nil != exception.mechanism &&
-    [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
+        [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
@@ -524,13 +524,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
         return;
     }
-    
+
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
     NSMutableDictionary *device =
-    [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
     [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
     context[@"device"] = device;
-    
+
     event.context = context;
 }
 
