@@ -162,6 +162,30 @@ class SentryClientTest: XCTestCase {
             }
         }
     }
+    
+    func testCaptureEventTypeTransaction() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        event.type = SentryEnvelopeItemTypeTransaction
+        let scope = Scope()
+        let expectedTags = ["tagKey": "tagValue"]
+        scope.setTags(expectedTags)
+        
+        let eventId = fixture.getSut().capture(event: event, scope: scope)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(event.level, actual.level)
+            XCTAssertEqual(event.message, actual.message)
+            XCTAssertNil(actual.debugMeta)
+            XCTAssertNil(actual.threads)
+            
+            XCTAssertNotNil(actual.tags)
+            if let actualTags = actual.tags {
+                XCTAssertEqual(expectedTags, actualTags)
+            }
+        }
+    }
       
     func testCaptureEventWithException() {
         let event = Event()
