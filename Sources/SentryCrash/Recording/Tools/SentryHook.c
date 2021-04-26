@@ -1,6 +1,6 @@
+#include "SentryHook.h"
 #include "SentryCrashMemory.h"
 #include "SentryCrashStackCursor.h"
-#include "SentryHook.h"
 #include "fishhook.h"
 #include <dispatch/dispatch.h>
 #include <execinfo.h>
@@ -13,7 +13,8 @@
 // sometimes, which we do here:
 // While `pthread_t` is an opaque type, internally the `set/getspecific` calls are
 // just treating `thread specific data` (tsd) as an array indexed by the key.
-// See: https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/pthread_tsd.c#L259-L268
+// See:
+// https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/pthread_tsd.c#L259-L268
 //
 // This `tsd` seems to be at a fixed offset due to backwards compatibility.
 // See:
@@ -27,8 +28,7 @@
 
 static pthread_key_t async_caller_key = 0;
 
-void
-sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt);
+void sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt);
 
 sentrycrash_async_backtrace_t *
 sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
@@ -37,9 +37,9 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
     if (!pthread) {
         return NULL;
     }
-    
+
     void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
-    
+
     sentrycrash_async_backtrace_t *bt = NULL;
     if (!sentrycrashmem_copySafely(tsd_slots + async_caller_key, &bt, sizeof(bt))) {
         return NULL;
@@ -215,14 +215,15 @@ sentrycrash_install_async_hooks(void)
     if (pthread_key_create(&async_caller_key, NULL) != 0) {
         return;
     }
-    
-    // try to set/receive the thread specific backtrace once, if it fails, we don't support async stacktraces at all.
-    
+
+    // try to set/receive the thread specific backtrace once, if it fails, we don't support async
+    // stacktraces at all.
+
     sentrycrash_async_backtrace_t bt;
     bt.refcount = 0;
-    pthread_setspecific(async_caller_key, (void*)&bt);
-    if (
-        sentrycrash_get_async_caller_for_thread(sentrycrashthread_self()) != (void*)&bt || bt.refcount != 1) {
+    pthread_setspecific(async_caller_key, (void *)&bt);
+    if (sentrycrash_get_async_caller_for_thread(sentrycrashthread_self()) != (void *)&bt
+        || bt.refcount != 1) {
         return;
     }
     pthread_setspecific(async_caller_key, NULL);
