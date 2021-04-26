@@ -2,7 +2,7 @@
 
 ## 7.0.0-beta.1
 
-### Fixes
+### Features and Fixes
 
 - ref: Set sample rates to default if out of range (#1074): When setting a value `SentryOptions.sampleRate` that is not >= 0.0 and <= 1.0 the SDK sets it to the default of 1.0.
 - feat: Add trace information from scope to event capture (#1065)
