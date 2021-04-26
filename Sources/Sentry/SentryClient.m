@@ -8,6 +8,7 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
@@ -35,7 +36,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-#import "SentryEnvelopeItemType.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
