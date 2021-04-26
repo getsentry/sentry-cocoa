@@ -35,6 +35,7 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryEnvelopeItemType.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
