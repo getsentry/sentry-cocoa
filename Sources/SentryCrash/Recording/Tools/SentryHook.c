@@ -89,8 +89,8 @@ sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
 
-    __atomic_compare_exchange_n(
-        &caller->thread, &thread, (SentryCrashThread)NULL, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    __atomic_compare_exchange_n(&caller->thread, &thread, (SentryCrashThread)NULL, false,
+        __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
     sentrycrash__async_backtrace_decref(backtrace);
 }
