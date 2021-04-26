@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- ref: Remove stacktrace and debug meta from transaction (#1084)
+
 ## 7.0.0-beta.1
 
 ### Features and Fixes
