@@ -1,3 +1,5 @@
+#include "SentryCrashMemory.h"
+#include "SentryCrashStackCursor.h"
 #include "SentryHook.h"
 #include "fishhook.h"
 #include <dispatch/dispatch.h>
@@ -9,8 +11,11 @@
 // We save the async stacktrace as a thread local when dispatching async calls,
 // but the various crash handlers need to access these thread-locals across threads
 // sometimes, which we do here:
-// While `pthread_t` is an opaque type, the offset of `thread specific data` (tsd)
-// is fixed due to backwards compatibility.
+// While `pthread_t` is an opaque type, internally the `set/getspecific` calls are
+// just treating `thread specific data` (tsd) as an array indexed by the key.
+// See: https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/pthread_tsd.c#L259-L268
+//
+// This `tsd` seems to be at a fixed offset due to backwards compatibility.
 // See:
 // https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/types_internal.h#L409-L432
 
@@ -22,14 +27,25 @@
 
 static pthread_key_t async_caller_key = 0;
 
+void
+sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt);
+
 sentrycrash_async_backtrace_t *
 sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
 {
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
+    if (!pthread) {
+        return NULL;
+    }
+    
     void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
-
-    return (sentrycrash_async_backtrace_t *)__atomic_load_n(
-        &tsd_slots[async_caller_key], __ATOMIC_SEQ_CST);
+    
+    sentrycrash_async_backtrace_t *bt = NULL;
+    if (!sentrycrashmem_copySafely(tsd_slots + async_caller_key, &bt, sizeof(bt))) {
+        return NULL;
+    }
+    sentrycrash__async_backtrace_incref(bt);
+    return bt;
 }
 
 void
@@ -42,13 +58,13 @@ sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
 }
 
 void
-sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
+sentrycrash_async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
 {
     if (!bt) {
         return;
     }
     if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
-        sentrycrash__async_backtrace_decref(bt->async_caller);
+        sentrycrash_async_backtrace_decref(bt->async_caller);
         free(bt);
     }
 }
@@ -91,7 +107,7 @@ sentrycrash__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash_async_backtrace_decref(bt);
     });
 }
 
@@ -131,7 +147,7 @@ sentrycrash__hook_dispatch_after(
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash_async_backtrace_decref(bt);
     });
 }
 
@@ -169,7 +185,7 @@ sentrycrash__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_
 
         // and decref our current backtrace
         pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash_async_backtrace_decref(bt);
     });
 }
 
@@ -199,6 +215,17 @@ sentrycrash_install_async_hooks(void)
     if (pthread_key_create(&async_caller_key, NULL) != 0) {
         return;
     }
+    
+    // try to set/receive the thread specific backtrace once, if it fails, we don't support async stacktraces at all.
+    
+    sentrycrash_async_backtrace_t bt;
+    bt.refcount = 0;
+    pthread_setspecific(async_caller_key, (void*)&bt);
+    if (
+        sentrycrash_get_async_caller_for_thread(sentrycrashthread_self()) != (void*)&bt || bt.refcount != 1) {
+        return;
+    }
+    pthread_setspecific(async_caller_key, NULL);
 
     sentrycrash__hook_rebind_symbols(
         (struct rebinding[6]) {
