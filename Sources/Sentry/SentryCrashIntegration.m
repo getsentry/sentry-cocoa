@@ -74,7 +74,8 @@ SentryCrashIntegration ()
                                                  outOfMemoryLogic:logic];
 
     [self startCrashHandler];
-    sentrycrash_install_async_hooks();
+    // TODO: enable with feature flag from SentryOptions because this is still experimental
+    //    sentrycrash_install_async_hooks();
     [self configureScope];
 }
 
