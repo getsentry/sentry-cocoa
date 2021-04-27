@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- ref: Disable Async Stacktraces (#1087)
+
 ## 7.0.0-beta.1
 
 ### Features and Fixes
