@@ -163,7 +163,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureEventTypeTransaction() {
+    func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         event.type = SentryEnvelopeItemTypeTransaction
