@@ -22,7 +22,7 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 
 ### Features
 
-- feat: Performance Monitoring API (#909, #977, #961, #932, #919, #992, #1065, #1042, #1079, #1061, #1069, #1066, #1040)
+- feat: Performance Monitoring API (#909, #977, #961, #932, #919, #992, #1065, #1042, #1079, #1061, #1069, #1066, #1040, #1084)
 - feat: Out Of Memory Tracking (#1001, #1015)
 - feat: Add close method to SDK (#1046)
 - feat: Add start and endSession to SentrySDK (#1021)
