@@ -398,7 +398,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.sdk = sdk;
     }
 
-    if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction]) {
+    // We don't want to attach debug meta and stacktraces for transactions
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    if (eventIsNotATransaction) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
