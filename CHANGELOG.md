@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Expose SentryDebugImageProvider (#1094)
+
 ## 7.0.1
 
 ref: Prefix TracesSampler with Sentry (#1091)

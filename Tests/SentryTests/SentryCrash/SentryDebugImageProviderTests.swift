@@ -5,14 +5,14 @@ import XCTest
  * Some of the test parameters are copied from debugging
  * SentryCrashReportConverter.convertDebugMeta.
  */
-class SentryDebugMetaBuilderTests: XCTestCase {
+class SentryDebugImageProviderTests: XCTestCase {
     
     private class Fixture {
-        func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugMetaBuilder {
+        func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {
             let imageProvider = TestSentryCrashBinaryImageProvider()
             imageProvider.imageCount = images.count
             imageProvider.binaryImage = images
-            return SentryDebugMetaBuilder(binaryImageProvider: imageProvider)
+            return SentryDebugImageProvider(binaryImageProvider: imageProvider)
         }
     }
     
@@ -31,7 +31,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         )
         
         let sut = fixture.getSut(images: [image, image, image])
-        let actual = sut.buildDebugMeta()
+        let actual = sut.getDebugImages()
         
         XCTAssertEqual(3, actual.count)
         for i in 0...(actual.count - 1) {
@@ -51,7 +51,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         let image = createSentryCrashBinaryImage(vmAddress: 0)
         
         let sut = fixture.getSut(images: [image])
-        let actual = sut.buildDebugMeta()
+        let actual = sut.getDebugImages()
         
         XCTAssertNil(actual[0].imageVmAddress)
     }
@@ -60,7 +60,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         func testWith(value: UInt64) {
             let image = createSentryCrashBinaryImage(size: value)
             let sut = fixture.getSut(images: [image])
-            let actual = sut.buildDebugMeta()
+            let actual = sut.getDebugImages()
             XCTAssertEqual(NSNumber(value: value), actual[0].imageSize)
         }
         
@@ -73,7 +73,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
         func testWith(value: UInt64, expected: String) {
             let image = createSentryCrashBinaryImage(address: value)
             let sut = fixture.getSut(images: [image])
-            let actual = sut.buildDebugMeta()
+            let actual = sut.getDebugImages()
             
             XCTAssertEqual(1, actual.count)
             
@@ -88,7 +88,7 @@ class SentryDebugMetaBuilderTests: XCTestCase {
     }
     
     func testNoImages() {
-        let actual = fixture.getSut().buildDebugMeta()
+        let actual = fixture.getSut().getDebugImages()
         
         XCTAssertEqual(0, actual.count)
     }
