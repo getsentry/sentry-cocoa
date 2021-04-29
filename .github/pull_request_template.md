@@ -15,7 +15,6 @@
 
 - [ ] I reviewed the submitted code
 - [ ] I added tests to verify the changes
-- [ ] I updated the CHANGELOG if needed
 - [ ] I updated the docs if needed
 - [ ] Review from the native team if needed
 - [ ] No breaking changes
