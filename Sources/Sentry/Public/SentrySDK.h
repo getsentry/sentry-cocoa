@@ -25,8 +25,7 @@ SENTRY_NO_INIT
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-    NS_SWIFT_NAME(start(options:));
++ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
@@ -71,8 +70,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(event:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -179,8 +177,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureError:(NSError *)error
-            withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(error:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -287,12 +284,16 @@ SENTRY_NO_INIT
 + (void)setUser:(SentryUser *_Nullable)user;
 
 /**
- * Starts a new session. If there's a running session, it ends it before starting the new one.
+ * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
+ * new one. You can use this method in combination with endSession to manually track SentrySessions.
+ * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
 + (void)startSession;
 
 /**
- * Ends the current session.
+ * Ends the current SentrySession. You can use this method in combination with endSession to
+ * manually track SentrySessions. The SDK uses SentrySession to inform Sentry about release and
+ * project associated project health.
  */
 + (void)endSession;
 
