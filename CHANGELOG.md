@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.0.1
+
+ref: Prefix TracesSampler with Sentry (#1091)
+
 ## 7.0.0
 
 This is a major bump with the [Performance Monitoring API](https://docs.sentry.io/platforms/apple/performance/) and [Out of Memory Tracking](https://docs.sentry.io/platforms/apple/configuration/out-of-memory/), many improvements and a few breaking changes.
