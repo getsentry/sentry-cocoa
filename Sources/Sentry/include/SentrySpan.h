@@ -80,8 +80,7 @@ SENTRY_NO_INIT
 /**
  * Sets an extra.
  */
-- (void)setDataValue:(nullable id)value
-              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Finishes the span by setting the end time.
