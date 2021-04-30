@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.0.2
+
+- No documented changes.
+
 ## 7.0.1
 
 ref: Prefix TracesSampler with Sentry (#1091)
