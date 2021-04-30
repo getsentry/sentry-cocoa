@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Add SentryMechanismMeta to Sentry.h (#1102)
+
 ## 7.0.1
 
 ref: Prefix TracesSampler with Sentry (#1091)
