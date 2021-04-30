@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.0.2
 
 - fix: Add SentryMechanismMeta to Sentry.h (#1102)
 
