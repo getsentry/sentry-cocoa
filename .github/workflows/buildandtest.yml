@@ -109,11 +109,11 @@ jobs:
           
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
-        run: sed -i 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+        run: sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
