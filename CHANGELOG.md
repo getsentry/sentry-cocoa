@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.0.3
+
+- fix: Add SentryMechanismMeta to Sentry.h (#1102)
+
+## 7.0.2
+
+- No documented changes. This is the same as 7.0.1. Ignore this release and please use 7.0.3 instead.
+
 ## 7.0.1
 
 ref: Prefix TracesSampler with Sentry (#1091)
