@@ -93,7 +93,7 @@ sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
 
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
-    
+
     if (__atomic_load_n(&caller->thread, __ATOMIC_ACQUIRE) == thread) {
         __atomic_store_n(&caller->backtrace, NULL, __ATOMIC_RELAXED);
         __atomic_store_n(&caller->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
