@@ -58,7 +58,7 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
 
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
-    if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
+    if (__atomic_load_n(&caller->thread, __ATOMIC_ACQUIRE) == thread) {
         sentrycrash_async_backtrace_t *backtrace = caller->backtrace;
         // we read the thread id *again*, if it is still the same, the backtrace pointer we
         // read in between is valid
@@ -82,7 +82,7 @@ sentrycrash__set_async_caller(sentrycrash_async_backtrace_t *backtrace)
         &caller->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
     if (success) {
-        __atomic_store_n(&caller->backtrace, backtrace, __ATOMIC_SEQ_CST);
+        __atomic_store_n(&caller->backtrace, backtrace, __ATOMIC_RELEASE);
     }
 }
 
@@ -93,9 +93,11 @@ sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
 
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
-
-    __atomic_compare_exchange_n(&caller->thread, &thread, (SentryCrashThread)NULL, false,
-        __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    
+    if (__atomic_load_n(&caller->thread, __ATOMIC_ACQUIRE) == thread) {
+        __atomic_store_n(&caller->backtrace, NULL, __ATOMIC_RELAXED);
+        __atomic_store_n(&caller->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
+    }
 
     sentrycrash__async_backtrace_decref(backtrace);
 }
