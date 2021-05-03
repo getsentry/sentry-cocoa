@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+docs: Improve code doc on start and endSession (#1098)
+
 ## 7.0.3
 
 - fix: Add SentryMechanismMeta to Sentry.h (#1102)

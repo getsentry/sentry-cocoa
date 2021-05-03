@@ -287,12 +287,16 @@ SENTRY_NO_INIT
 + (void)setUser:(SentryUser *_Nullable)user;
 
 /**
- * Starts a new session. If there's a running session, it ends it before starting the new one.
+ * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
+ * new one. You can use this method in combination with endSession to manually track SentrySessions.
+ * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
 + (void)startSession;
 
 /**
- * Ends the current session.
+ * Ends the current SentrySession. You can use this method in combination with endSession to
+ * manually track SentrySessions. The SDK uses SentrySession to inform Sentry about release and
+ * project associated project health.
  */
 + (void)endSession;
 
