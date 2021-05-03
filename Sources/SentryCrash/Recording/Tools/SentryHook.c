@@ -55,7 +55,7 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
     if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
         return NULL;
     }
-    
+
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
     if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
