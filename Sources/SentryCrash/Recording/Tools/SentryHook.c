@@ -5,6 +5,8 @@
 #include <mach/mach.h>
 #include <pthread.h>
 
+static bool hooks_active = true;
+
 void
 sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
 {
@@ -44,13 +46,16 @@ static sentrycrash_async_caller_t sentry_async_callers[SENTRY_MAX_ASYNC_THREADS]
 static size_t
 sentrycrash__thread_idx(SentryCrashThread thread)
 {
-    // `pthread_t` is an aligned pointer, so lets shift it first then "hash" it.
-    return (thread * 19) % SENTRY_MAX_ASYNC_THREADS;
+    return (thread * 0x100000001b3 + 0xcbf29ce484222325) % SENTRY_MAX_ASYNC_THREADS;
 }
 
 sentrycrash_async_backtrace_t *
 sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
 {
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return NULL;
+    }
+    
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
     if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
@@ -115,8 +120,6 @@ sentrycrash__async_backtrace_capture(void)
 
     return bt;
 }
-
-static bool hooks_active = true;
 
 static void (*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 

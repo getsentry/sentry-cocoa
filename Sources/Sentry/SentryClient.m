@@ -8,6 +8,7 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
@@ -397,17 +398,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.sdk = sdk;
     }
 
-    BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
-        || (nil != event.exceptions && [event.exceptions count] > 0);
+    // We don't want to attach debug meta and stacktraces for transactions
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    if (eventIsNotATransaction) {
+        BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
+            || (nil != event.exceptions && [event.exceptions count] > 0);
 
-    BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-    if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-    }
+        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
+            event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+        }
 
-    BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
-    if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
-        event.threads = [self.threadInspector getCurrentThreads];
+        BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
+            event.threads = [self.threadInspector getCurrentThreads];
+        }
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
