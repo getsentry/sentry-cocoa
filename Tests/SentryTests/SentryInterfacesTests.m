@@ -30,7 +30,6 @@
     debugMeta2.name = @"name";
     NSDictionary *serialized2 = @{
         @"image_addr" : @"0x0000000100034000",
-        @"image_addr" : @"0x02",
         @"image_size" : @(4),
         @"type" : @"1",
         @"name" : @"name",

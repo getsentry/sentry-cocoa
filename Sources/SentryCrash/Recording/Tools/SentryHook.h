@@ -35,4 +35,12 @@ sentrycrash_async_backtrace_t *sentrycrash_get_async_caller_for_thread(SentryCra
  */
 void sentrycrash_install_async_hooks(void);
 
+/**
+ * Deactivates the previously installed hooks.
+ *
+ * It is not really possible to uninstall the previously installed hooks, so we rather just
+ * deactivate them.
+ */
+void sentrycrash_deactivate_async_hooks(void);
+
 #endif /* SENRTY_HOOK_h */

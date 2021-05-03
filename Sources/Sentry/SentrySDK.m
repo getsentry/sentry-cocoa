@@ -137,8 +137,7 @@ static BOOL crashedLastRunCalled;
 
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext
                                                  bindToScope:bindToScope
@@ -146,8 +145,7 @@ static BOOL crashedLastRunCalled;
 }
 
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext
                                        customSamplingContext:customSamplingContext];
@@ -291,6 +289,31 @@ static BOOL crashedLastRunCalled;
                   andLevel:kSentryLevelDebug];
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
+}
+
+/**
+ * Closes the SDK and uninstalls all the integrations.
+ */
++ (void)close
+{
+    // pop the hub and unset
+    SentryHub *hub = SentrySDK.currentHub;
+    [SentrySDK setCurrentHub:nil];
+
+    // uninstall all the integrations
+    for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
+        if ([integration respondsToSelector:@selector(uninstall)]) {
+            [integration uninstall];
+        }
+    }
+    [hub.installedIntegrations removeAllObjects];
+
+    // close the client
+    SentryClient *client = [hub getClient];
+    client.options.enabled = NO;
+    [hub bindClient:nil];
+
+    [SentryLog logWithMessage:@"SDK closed!" andLevel:kSentryLevelDebug];
 }
 
 #ifndef __clang_analyzer__

@@ -41,6 +41,9 @@ extern "C" {
  */
 #define SentryCrashSC_STACK_OVERFLOW_THRESHOLD 150
 
+/** A special marker frame being yielded as `address` to denote a chained async stacktrace. */
+#define SentryCrashSC_ASYNC_MARKER (UINTPTR_MAX - 1234)
+
 typedef struct SentryCrashStackCursor {
     struct {
         /** Current address in the stack trace. */
@@ -108,6 +111,12 @@ void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
  * @param cursor The cursor to reset.
  */
 void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor);
+
+/** Chain the optional `async_caller` to the current `cursor`.
+ * In case of a valid `async_caller`, this will yield a special marker frame.
+ */
+bool sentrycrashsc_tryAsyncChain(
+    SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller);
 
 /** Advance the cursor to the next stack entry in a chained async stacktrace. */
 bool sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor);

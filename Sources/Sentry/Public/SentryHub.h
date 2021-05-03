@@ -18,12 +18,16 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
 /**
- * Starts a new session. If there's a running session, it ends it before starting the new one.
+ * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
+ * new one. You can use this method in combination with endSession to manually track SentrySessions.
+ * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
 - (void)startSession;
 
 /**
- * Ends the current session.
+ * Ends the current SentrySession. You can use this method in combination with endSession to
+ * manually track SentrySessions. The SDK uses SentrySession to inform Sentry about release and
+ * project associated project health.
  */
 - (void)endSession;
 
@@ -58,7 +62,7 @@ SENTRY_NO_INIT
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
@@ -70,7 +74,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
@@ -84,7 +88,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  *
@@ -94,7 +98,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  * @param bindToScope Indicates whether the new transaction should be bind to the scope.
@@ -106,7 +110,7 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  * @param bindToScope Indicates whether the new transaction should be bind to the scope.
@@ -116,12 +120,11 @@ SENTRY_NO_INIT
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
     NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
 
 /**
- * Creates a transaction, bound it to the hub and returns the instance.
+ * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  * @param customSamplingContext Additional information about the sampling context.
@@ -129,8 +132,7 @@ SENTRY_NO_INIT
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
     NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**

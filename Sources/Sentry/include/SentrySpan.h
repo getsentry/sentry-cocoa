@@ -2,7 +2,6 @@
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanProtocol.h"
-#import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,8 +80,8 @@ SENTRY_NO_INIT
 /**
  * Sets an extra.
  */
-
-- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setDataValue:(nullable id)value
+              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Finishes the span by setting the end time.
@@ -93,7 +92,7 @@ SENTRY_NO_INIT
  * Finishes the span by setting the end time and span status.
  *
  * @param status The status of this span
- *  */
+ */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
 @end

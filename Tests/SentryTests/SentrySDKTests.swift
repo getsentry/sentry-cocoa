@@ -132,6 +132,25 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
+
+    func testStartWithConfigureOptions_UrlSessionDelegate() {
+        let urlSessionDelegateSpy = UrlSessionDelegateSpy()
+
+        let predicate = NSPredicate { (_, _) -> Bool in
+            urlSessionDelegateSpy.delegateCalled
+        }
+        let expectation = self.expectation(for: predicate, evaluatedWith: nil)
+        expectation.expectationDescription = "urlSession_didReceive_completionHandler will be called on UrlSessionDelegateSpy"
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.urlSessionDelegate = urlSessionDelegateSpy
+        }
+
+        SentrySDK.capture(message: "")
+
+        wait(for: [expectation], timeout: 10)
+    }
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 

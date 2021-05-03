@@ -1,13 +1,14 @@
-#import "TracesSampler.h"
+#import "SentryTracesSampler.h"
 #import "SentryOptions.h"
 #import "SentrySamplingContext.h"
 #import "SentryTransactionContext.h"
+#import <SentryOptions+Private.h>
 
-@implementation TracesSampler {
+@implementation SentryTracesSampler {
     SentryOptions *_options;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options random:(id<Random>)random
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random
 {
     if (self = [super init]) {
         _options = options;
@@ -18,18 +19,25 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options random:[[Random alloc] init]];
+    return [self initWithOptions:options random:[[SentryRandom alloc] init]];
 }
 
 - (SentrySampleDecision)sample:(SentrySamplingContext *)context
 {
-    if (context.transactionContext.sampled != kSentrySampleDecisionUndecided)
+    if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
         return context.transactionContext.sampled;
+    }
 
     if (_options.tracesSampler != nil) {
         NSNumber *callbackDecision = _options.tracesSampler(context);
-        if (callbackDecision != nil)
+        if (callbackDecision != nil) {
+            if (![_options isValidTracesSampleRate:callbackDecision]) {
+                callbackDecision = _options.defaultTracesSampleRate;
+            }
+        }
+        if (callbackDecision != nil) {
             return [self calcSample:callbackDecision.doubleValue];
+        }
     }
 
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided)
