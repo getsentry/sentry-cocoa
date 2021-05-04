@@ -1,10 +1,9 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
-#import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugMetaBuilder.h"
+#import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
@@ -48,7 +47,7 @@ SentryClient ()
 
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
+@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
@@ -62,11 +61,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self = [super init]) {
         self.options = options;
 
-        SentryCrashDefaultBinaryImageProvider *provider =
-            [[SentryCrashDefaultBinaryImageProvider alloc] init];
-
-        self.debugMetaBuilder =
-            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+        self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
 
         SentryFrameInAppLogic *frameInAppLogic =
             [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -407,7 +402,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-            event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+            event.debugMeta = [self.debugImageProvider getDebugImages];
         }
 
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
