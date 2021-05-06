@@ -1,13 +1,13 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
-#import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugMetaBuilder.h"
+#import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
@@ -22,6 +22,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
+#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
@@ -46,7 +47,7 @@ SentryClient ()
 
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
+@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
@@ -60,11 +61,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self = [super init]) {
         self.options = options;
 
-        SentryCrashDefaultBinaryImageProvider *provider =
-            [[SentryCrashDefaultBinaryImageProvider alloc] init];
-
-        self.debugMetaBuilder =
-            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+        self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
 
         SentryFrameInAppLogic *frameInAppLogic =
             [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -329,7 +326,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
  */
 - (BOOL)checkSampleRate:(NSNumber *)sampleRate
 {
-    if (nil == sampleRate || [sampleRate floatValue] < 0 || [sampleRate floatValue] > 1) {
+    if (nil == sampleRate || ![self.options isValidSampleRate:sampleRate]) {
         return YES;
     }
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
@@ -396,17 +393,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.sdk = sdk;
     }
 
-    BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
-        || (nil != event.exceptions && [event.exceptions count] > 0);
+    // We don't want to attach debug meta and stacktraces for transactions
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    if (eventIsNotATransaction) {
+        BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
+            || (nil != event.exceptions && [event.exceptions count] > 0);
 
-    BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-    if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
-    }
+        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
+            event.debugMeta = [self.debugImageProvider getDebugImages];
+        }
 
-    BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
-    if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
-        event.threads = [self.threadInspector getCurrentThreads];
+        BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
+            event.threads = [self.threadInspector getCurrentThreads];
+        }
     }
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];

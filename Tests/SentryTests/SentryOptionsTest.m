@@ -279,25 +279,49 @@
         @"Default integrations are not set correctly");
 }
 
+- (void)testSampleRateWithDict
+{
+    NSNumber *sampleRate = @0.1;
+    SentryOptions *options = [self getValidOptions:@{ @"sampleRate" : sampleRate }];
+    XCTAssertEqual(sampleRate, options.sampleRate);
+}
+
+- (void)testSampleRate_SetToNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.sampleRate = nil;
+    XCTAssertNil(options.sampleRate);
+}
+
 - (void)testSampleRateLowerBound
 {
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.sampleRate = @0.5;
+
     NSNumber *sampleRateLowerBound = @0;
-    SentryOptions *options = [self getValidOptions:@{ @"sampleRate" : sampleRateLowerBound }];
+    options.sampleRate = sampleRateLowerBound;
     XCTAssertEqual(sampleRateLowerBound, options.sampleRate);
 
+    options.sampleRate = @0.5;
+
     NSNumber *sampleRateTooLow = @-0.01;
-    options = [self getValidOptions:@{ @"sampleRate" : sampleRateTooLow }];
+    options.sampleRate = sampleRateTooLow;
     XCTAssertEqual(@1, options.sampleRate);
 }
 
 - (void)testSampleRateUpperBound
 {
-    NSNumber *sampleRateUpperBound = @1;
-    SentryOptions *options = [self getValidOptions:@{ @"sampleRate" : sampleRateUpperBound }];
-    XCTAssertEqual(sampleRateUpperBound, options.sampleRate);
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.sampleRate = @0.5;
 
-    NSNumber *sampleRateTooHigh = @1.01;
-    options = [self getValidOptions:@{ @"sampleRate" : sampleRateTooHigh }];
+    NSNumber *upperBound = @1;
+    options.sampleRate = upperBound;
+    XCTAssertEqual(upperBound, options.sampleRate);
+
+    options.sampleRate = @0.5;
+
+    NSNumber *tooHigh = @1.01;
+    options.sampleRate = tooHigh;
     XCTAssertEqual(@1, options.sampleRate);
 }
 
@@ -486,7 +510,46 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
+    XCTAssertNil(options.tracesSampleRate);
+}
+
+- (void)testTracesSampleRate_SetToNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampleRate = nil;
+    XCTAssertNil(options.tracesSampleRate);
+}
+
+- (void)testTracesSampleRateLowerBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @0;
+    options.tracesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.tracesSampleRate);
+
+    options.tracesSampleRate = @0.5;
+
+    NSNumber *tooLow = @-0.01;
+    options.tracesSampleRate = tooLow;
+    XCTAssertNil(options.tracesSampleRate);
+}
+
+- (void)testTracesSampleRateUpperBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @1;
+    options.tracesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.tracesSampleRate);
+
+    options.tracesSampleRate = @0.5;
+
+    NSNumber *tooLow = @1.01;
+    options.tracesSampleRate = tooLow;
+    XCTAssertNil(options.tracesSampleRate);
 }
 
 - (double)tracesSamplerCallback:(NSDictionary *)context

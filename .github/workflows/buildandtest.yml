@@ -39,7 +39,7 @@ jobs:
           xcodebuild 
           -workspace Sentry.xcworkspace 
           -scheme Sentry 
-          -configuration Debug 
+          -configuration Release 
           GCC_GENERATE_TEST_COVERAGE_FILES=YES 
           -destination "${{matrix.destination}}" 
           test | xcpretty -t && exit ${PIPESTATUS[0]}
@@ -106,3 +106,14 @@ jobs:
           name: ${{ github.sha }}
           path: |
             ${{ github.workspace }}/*.zip
+          
+  validate-spm:
+    name: Validate Swift Package Manager
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set SPM revision to current git commit
+        run: sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+      - run: swift build
+        working-directory: Samples/macOS-SPM-CommandLine
+        shell: sh

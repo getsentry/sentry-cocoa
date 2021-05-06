@@ -4,6 +4,70 @@
 
 - feat: Add automatic performance instrumentation for ui lifecycle and http requests. (#1043)
 - ref: Make calls to customSamplingContext nonnull (#1061)
+- feat: Expose SentryDebugImageProvider (#1094)
+- docs: Improve code doc on start and endSession (#1098)
+
+## 7.0.3
+
+- fix: Add SentryMechanismMeta to Sentry.h (#1102)
+
+## 7.0.2
+
+- No documented changes. This is the same as 7.0.1. Ignore this release and please use 7.0.3 instead.
+
+## 7.0.1
+
+ref: Prefix TracesSampler with Sentry (#1091)
+
+## 7.0.0
+
+This is a major bump with the [Performance Monitoring API](https://docs.sentry.io/platforms/apple/performance/) and [Out of Memory Tracking](https://docs.sentry.io/platforms/apple/configuration/out-of-memory/), many improvements and a few breaking changes.
+For a detailed explanation  how to upgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
+
+### Breaking Changes
+
+- ref: Add SentryMechanismMeta (#1048)
+- ref: Align SentryException with unified API (#1026)
+- ref: Remove deprecated SentryHub.getScope (#1025)
+- ref: Make closeCachedSessionWithTimestamp private (#1022)
+- ref: Improve envelope API for Hybrid SDKs (#1020)
+- ref: Remove currentHub from SentrySDK (#1019)
+- feat: Add maxCacheItems (#1017)
+- ref: SentryEvent.timestamp changed to nullable.
+- ref: Add read-only scope property to Hub (#975)
+- ref: Remove SentryException.userReported (#974)
+- ref: Replace SentryLogLevel with SentryLevel (#978)
+- fix: Mark frames as inApp (#956)
+
+### Features
+
+- feat: Performance Monitoring API (#909, #977, #961, #932, #919, #992, #1065, #1042, #1079, #1061, #1069, #1066, #1040, #1084)
+- feat: Out Of Memory Tracking (#1001, #1015)
+- feat: Add close method to SDK (#1046)
+- feat: Add start and endSession to SentrySDK (#1021)
+- feat: Add urlSessionDelegate option to SentryOptions (#965)
+
+### Fixes
+
+- ref: Set sample rates to default if out of range (#1074): When setting a value `SentryOptions.sampleRate` that is not >= 0.0 and <= 1.0 the SDK sets it to the default of 1.0.
+- fix: Release builds in CI (#1076)
+- perf: Avoid allocating dict in BreadcrumbTracker (#1027)
+- fix: Crash when passing garbage to maxBreadcrumbs (#1018)
+- fix: macOS version for Mac Catalyst (#1011)
+
+## 7.0.0-beta.1
+
+### Features and Fixes
+
+- ref: Set sample rates to default if out of range (#1074): When setting a value `SentryOptions.sampleRate` that is not >= 0.0 and <= 1.0 the SDK sets it to the default of 1.0.
+- feat: Add trace information from scope to event capture (#1065)
+- fix: SentryOptions.tracesSampleRate default value (#1069)
+- ref: Discard unfinished spans when capturing transaction (#1066)
+- ref: Make calls to customSamplingContext nonnull (#1061)
+- ref: Mark async call chains explicitly as such (#1071)
+- fix: fix: performance headers (#1079)
+- fix: performance headers (#1079)
+- fix: Release builds in CI (#1076)
 
 ## 7.0.0-beta.0
 
@@ -67,34 +131,6 @@ Features and fixes:
 - ref: Add read-only scope property to Hub #975
 - ref: Remove SentryException.userReported #974
 - ref: Replace SentryLogLevel with SentryLevel #978
-
-### Migrating from 6.x to 7.x
-
-We replaced the `SentryLogLevel` with `SentryLevel`, renamed `logLevel` to `diagnosticLevel`
-on `SentryOptions` to align with other Sentry SDKs, and set the default `diagnosticLevel` to
-`SentryLevel.debug`. Furthermore, we removed setting the `logLevel` statically on the `SentrySDK`.
-Please use the `SentryOptions` to set the `diagnosticLevel` instead.
-
-6.x
-```swift
-SentrySDK.start { options in
-  options.logLevel = SentryLogLevel.verbose
-}
-
-// Or
-
-SentrySDK.logLevel = SentryLogLevel.verbose
-```
-
-7.x
-```swift
-SentrySDK.start { options in
-  options.diagnosticLevel = SentryLevel.debug
-}
-```
-
-__Internal Note__: Move this migration guide to the docs before GA.
-
 ## 7.0.0-alpha.0
 
 **Breaking Change**: This version introduces a change to the grouping of issues. The SDK now sets the `inApp`

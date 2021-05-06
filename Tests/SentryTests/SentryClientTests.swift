@@ -9,9 +9,7 @@ class SentryClientTest: XCTestCase {
     private class Fixture {
         let transport = TestTransport()
         
-        let debugMetaBuilder = SentryDebugMetaBuilder(
-            binaryImageProvider: SentryCrashDefaultBinaryImageProvider()
-        )
+        let debugImageBuilder = SentryDebugImageProvider()
         
         let threadInspector = SentryThreadInspector(
             stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))),
@@ -155,6 +153,30 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(event.message, actual.message)
             XCTAssertNotNil(actual.debugMeta)
             XCTAssertNotNil(actual.threads)
+            
+            XCTAssertNotNil(actual.tags)
+            if let actualTags = actual.tags {
+                XCTAssertEqual(expectedTags, actualTags)
+            }
+        }
+    }
+    
+    func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        event.type = SentryEnvelopeItemTypeTransaction
+        let scope = Scope()
+        let expectedTags = ["tagKey": "tagValue"]
+        scope.setTags(expectedTags)
+        
+        let eventId = fixture.getSut().capture(event: event, scope: scope)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(event.level, actual.level)
+            XCTAssertEqual(event.message, actual.message)
+            XCTAssertNil(actual.debugMeta)
+            XCTAssertNil(actual.threads)
             
             XCTAssertNotNil(actual.tags)
             if let actualTags = actual.tags {
@@ -879,7 +901,7 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?) {
-        let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
+        let debugMetas = fixture.debugImageBuilder.getDebugImages()
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
