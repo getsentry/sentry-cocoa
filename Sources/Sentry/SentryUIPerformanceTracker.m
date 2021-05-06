@@ -104,7 +104,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
         SentrySWReplacement({
             NSString *name = [UIViewControllerHelper sanitizeViewControllerName:self];
             NSString *spanId = [SentryPerformanceTracker.shared startSpanWithName:name
-                                                                        operation:@"ui.lifecycle"];
+                                                                        operation:@"navigation"];
 
             // use the viewcontroller itself to store the spanId to avoid using a global mapper.
             objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
@@ -221,7 +221,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 NSString *layoutSubViewId =
                     [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"
-                                                             operation:@"ui.lifecycle"];
+                                                             operation:@"navigation"];
 
                 objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                     layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

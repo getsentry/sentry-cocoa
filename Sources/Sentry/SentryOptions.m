@@ -11,8 +11,10 @@
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryCrashIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration",
+        @"SentryOutOfMemoryTrackingIntegration",
         @"SentryPerformanceTrackingIntegration"
     ];
 }
