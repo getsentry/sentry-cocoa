@@ -68,6 +68,7 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 - fix: fix: performance headers (#1079)
 - fix: performance headers (#1079)
 - fix: Release builds in CI (#1076)
+- feat: Add UI auto instrumentation (#1105)
 
 ## 7.0.0-beta.0
 
