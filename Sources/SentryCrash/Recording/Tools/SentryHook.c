@@ -111,7 +111,7 @@ sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
         __atomic_store_n(&slot->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
     }
 
-    sentrycrash__async_backtrace_decref(backtrace);
+    sentrycrash_async_backtrace_decref(backtrace);
 }
 
 sentrycrash_async_backtrace_t *
