@@ -1098,7 +1098,7 @@ writeThread(const SentryCrashReportWriter *const writer, const char *const key,
 
     SentryCrashStackCursor stackCursor;
     stackCursor.async_caller = NULL;
-    
+
     bool hasBacktrace = getStackCursor(crash, machineContext, &stackCursor);
 
     writer->beginObject(writer, key);
