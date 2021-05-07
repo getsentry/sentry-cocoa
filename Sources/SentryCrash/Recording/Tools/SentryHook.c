@@ -72,6 +72,10 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
         // This call can happen across threads, and the thread that "owns" the
         // slot can decref and free the backtrace before *this* thread gets a
         // chance to incref.
+        // The only codepath where this happens across threads is as part of
+        // `sentrycrashsc_initWithMachineContext` which is always done after a
+        // `sentrycrashmc_suspendEnvironment` or as part of
+        // `sentrycrashreport_writeStandardReport` which does lack such a guard.
         sentrycrash__async_backtrace_incref(backtrace);
         return backtrace;
     }
