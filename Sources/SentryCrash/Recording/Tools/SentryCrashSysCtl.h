@@ -168,17 +168,6 @@ struct timeval sentrycrashsysctl_timevalForName(const char *name);
  */
 bool sentrycrashsysctl_getProcessInfo(int pid, struct kinfo_proc *procInfo);
 
-/** Get the MAC address of the specified interface.
- * Note: As of iOS 7 this will always return a fixed value of 02:00:00:00:00:00.
- *
- * @param name Interface name (e.g. "en1").
- *
- * @param macAddressBuffer 6 bytes of storage to hold the MAC address.
- *
- * @return true if the address was successfully retrieved.
- */
-bool sentrycrashsysctl_getMacAddress(const char *name, char *macAddressBuffer);
-
 #ifdef __cplusplus
 }
 #endif

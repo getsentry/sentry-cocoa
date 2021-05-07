@@ -197,23 +197,4 @@
     XCTAssertEqualObjects(processName, expected, @"");
 }
 
-- (void)testGetMacAddress
-{
-    unsigned char macAddress[6] = { 0 };
-    bool success = sentrycrashsysctl_getMacAddress("en0", (char *)macAddress);
-    XCTAssertTrue(success, @"");
-    unsigned int result = 0;
-    for (unsigned i = 0; i < sizeof(macAddress); i++) {
-        result |= macAddress[i];
-    }
-    XCTAssertTrue(result != 0, @"");
-}
-
-- (void)testGetMacAddressInvalid
-{
-    unsigned char macAddress[6] = { 0 };
-    bool success = sentrycrashsysctl_getMacAddress("blah blah", (char *)macAddress);
-    XCTAssertFalse(success, @"");
-}
-
 @end

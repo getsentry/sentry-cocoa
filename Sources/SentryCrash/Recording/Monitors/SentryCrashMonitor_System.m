@@ -29,6 +29,7 @@
 #import "SentryCrashCPU.h"
 #import "SentryCrashDate.h"
 #import "SentryCrashDynamicLinker.h"
+#import "SentryCrashIOKit.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashSysCtl.h"
 #import "SentryCrashSystemCapabilities.h"
@@ -394,7 +395,7 @@ getDeviceAndAppHash()
 #endif
     {
         data = [NSMutableData dataWithLength:6];
-        sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
+        sentrycrashiokit_getPrimaryInterfaceMacAddress([data mutableBytes]);
     }
 
     // Append some device-specific data.
