@@ -1,4 +1,6 @@
 #include "SentryHook.h"
+#include "SentryCrashMemory.h"
+#include "SentryCrashStackCursor.h"
 #include "fishhook.h"
 #include <dispatch/dispatch.h>
 #include <execinfo.h>
@@ -17,21 +19,26 @@ sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
 }
 
 void
-sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
+sentrycrash_async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
 {
     if (!bt) {
         return;
     }
     if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
-        sentrycrash__async_backtrace_decref(bt->async_caller);
+        sentrycrash_async_backtrace_decref(bt->async_caller);
         free(bt);
     }
 }
 
 /**
  * This is a poor-mans concurrent hashtable.
- * We have N slots, using modulo of the thread ID. Using atomic load / compare-exchange to make sure
- * that the slot indeed belongs to the thread we want to work with.
+ * We have N slots, using a simple FNV-like hashing function on the mach-thread id.
+ *
+ * *Writes* to a slot will only ever happen using the *current* thread. See
+ * the `set`/`unset` functions for SAFETY descriptions.
+ * *Reads* will mostly happen on the *current* thread as well, but might happen
+ * across threads through `sentrycrashsc_initWithMachineContext`. See the `get`
+ * function for possible UNSAFETY.
  */
 
 #define SENTRY_MAX_ASYNC_THREADS (128 - 1)
@@ -39,9 +46,9 @@ sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
 typedef struct {
     SentryCrashThread thread;
     sentrycrash_async_backtrace_t *backtrace;
-} sentrycrash_async_caller_t;
+} sentrycrash_async_caller_slot_t;
 
-static sentrycrash_async_caller_t sentry_async_callers[SENTRY_MAX_ASYNC_THREADS] = { 0 };
+static sentrycrash_async_caller_slot_t sentry_async_callers[SENTRY_MAX_ASYNC_THREADS] = { 0 };
 
 static size_t
 sentrycrash__thread_idx(SentryCrashThread thread)
@@ -57,14 +64,16 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
     }
 
     size_t idx = sentrycrash__thread_idx(thread);
-    sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
-    if (__atomic_load_n(&caller->thread, __ATOMIC_ACQUIRE) == thread) {
-        sentrycrash_async_backtrace_t *backtrace = caller->backtrace;
-        // we read the thread id *again*, if it is still the same, the backtrace pointer we
-        // read in between is valid
-        if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
-            return backtrace;
-        }
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
+    if (__atomic_load_n(&slot->thread, __ATOMIC_ACQUIRE) == thread) {
+        sentrycrash_async_backtrace_t *backtrace
+            = __atomic_load_n(&slot->backtrace, __ATOMIC_RELAXED);
+        // UNSAFETY WARNING: There is a tiny chance of use-after-free here.
+        // This call can happen across threads, and the thread that "owns" the
+        // slot can decref and free the backtrace before *this* thread gets a
+        // chance to incref.
+        sentrycrash__async_backtrace_incref(backtrace);
+        return backtrace;
     }
     return NULL;
 }
@@ -75,14 +84,16 @@ sentrycrash__set_async_caller(sentrycrash_async_backtrace_t *backtrace)
     SentryCrashThread thread = sentrycrashthread_self();
 
     size_t idx = sentrycrash__thread_idx(thread);
-    sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
 
     SentryCrashThread expected = (SentryCrashThread)NULL;
     bool success = __atomic_compare_exchange_n(
-        &caller->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+        &slot->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
+    // SAFETY: While multiple threads can race on a "set" call to the same slot,
+    // the cmpxchg makes sure that only one thread succeeds
     if (success) {
-        __atomic_store_n(&caller->backtrace, backtrace, __ATOMIC_RELEASE);
+        __atomic_store_n(&slot->backtrace, backtrace, __ATOMIC_RELEASE);
     }
 }
 
@@ -92,11 +103,12 @@ sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
     SentryCrashThread thread = sentrycrashthread_self();
 
     size_t idx = sentrycrash__thread_idx(thread);
-    sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
 
-    if (__atomic_load_n(&caller->thread, __ATOMIC_ACQUIRE) == thread) {
-        __atomic_store_n(&caller->backtrace, NULL, __ATOMIC_RELAXED);
-        __atomic_store_n(&caller->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
+    // SAFETY: The condition makes sure that the current thread *owns* this slot.
+    if (__atomic_load_n(&slot->thread, __ATOMIC_ACQUIRE) == thread) {
+        __atomic_store_n(&slot->backtrace, NULL, __ATOMIC_RELAXED);
+        __atomic_store_n(&slot->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
     }
 
     sentrycrash__async_backtrace_decref(backtrace);
@@ -111,14 +123,7 @@ sentrycrash__async_backtrace_capture(void)
     bt->len = backtrace(bt->backtrace, MAX_BACKTRACE_FRAMES);
 
     SentryCrashThread thread = sentrycrashthread_self();
-    size_t idx = sentrycrash__thread_idx(thread);
-    sentrycrash_async_caller_t *caller = &sentry_async_callers[idx];
-    if (__atomic_load_n(&caller->thread, __ATOMIC_SEQ_CST) == thread) {
-        sentrycrash__async_backtrace_incref(caller->backtrace);
-        bt->async_caller = caller->backtrace;
-    } else {
-        bt->async_caller = NULL;
-    }
+    bt->async_caller = sentrycrash_get_async_caller_for_thread(thread);
 
     return bt;
 }
