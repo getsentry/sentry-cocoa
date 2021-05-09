@@ -922,7 +922,6 @@
 		7D826E47239084F100EED93D /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		7D826E4C239084F100EED93D /* .oclint */ = {isa = PBXFileReference; lastKnownFileType = text; path = .oclint; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.yaml; };
 		7D826E4D239084F100EED93D /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
-		7D826E4E239084F100EED93D /* .slather.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .slather.yml; sourceTree = "<group>"; };
 		7D9B079F23D1E89800C5FC8E /* SentryMeta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMeta.h; path = include/SentryMeta.h; sourceTree = "<group>"; };
 		7DAC588E23D8B2E0001CF26B /* SentryGlobalEventProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryGlobalEventProcessor.m; sourceTree = "<group>"; };
 		7DB3A684238EA75E00A2D442 /* SentryHttpTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpTransport.m; sourceTree = "<group>"; };
@@ -1113,7 +1112,6 @@
 				7D826E47239084F100EED93D /* .gitignore */,
 				7D826E4D239084F100EED93D /* .gitmodules */,
 				7D826E4C239084F100EED93D /* .oclint */,
-				7D826E4E239084F100EED93D /* .slather.yml */,
 				7D826E44239084F100EED93D /* .swiftlint.yml */,
 			);
 			sourceTree = "<group>";
