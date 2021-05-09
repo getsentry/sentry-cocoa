@@ -490,7 +490,6 @@
 		630435FD1EBCA9D900C4D3FA /* SentryNSURLRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLRequest.m; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* NSData+SentryCompression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+SentryCompression.h"; path = "include/NSData+SentryCompression.h"; sourceTree = "<group>"; };
 		630436091EC0595B00C4D3FA /* NSData+SentryCompression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+SentryCompression.m"; sourceTree = "<group>"; };
-		6304360D1EC05CEF00C4D3FA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6304360F1EC0600A00C4D3FA /* SentrySerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySerializable.h; path = Public/SentrySerializable.h; sourceTree = "<group>"; };
 		630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataCompressionTests.m; sourceTree = "<group>"; };
 		630C01931EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashReportConverterTests.m; sourceTree = "<group>"; };
@@ -523,7 +522,6 @@
 		637533562243A0100002F77F /* NSString+SentryUnsignedLongLongValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+SentryUnsignedLongLongValue.h"; path = "include/NSString+SentryUnsignedLongLongValue.h"; sourceTree = "<group>"; };
 		637533572243A0100002F77F /* NSString+SentryUnsignedLongLongValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SentryUnsignedLongLongValue.m"; sourceTree = "<group>"; };
 		6383953523ABA42C000C1594 /* SentryHttpTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryHttpTransport.h; path = include/SentryHttpTransport.h; sourceTree = "<group>"; };
-		6387B82F1ED851970045A84C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		638DC99E1EBC6B6400A66E41 /* SentryRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryRequestOperation.h; path = include/SentryRequestOperation.h; sourceTree = "<group>"; };
 		638DC99F1EBC6B6400A66E41 /* SentryRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryRequestOperation.m; sourceTree = "<group>"; };
 		639889B51EDECFA800EA7442 /* SentryBreadcrumbTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryBreadcrumbTracker.h; path = include/SentryBreadcrumbTracker.h; sourceTree = "<group>"; };
@@ -1085,8 +1083,6 @@
 		6304360C1EC05CEF00C4D3FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6387B82F1ED851970045A84C /* libz.tbd */,
-				6304360D1EC05CEF00C4D3FA /* libz.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
