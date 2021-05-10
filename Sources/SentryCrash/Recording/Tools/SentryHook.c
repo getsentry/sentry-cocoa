@@ -39,6 +39,9 @@ sentrycrash_async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
  * *Reads* will mostly happen on the *current* thread as well, but might happen
  * across threads through `sentrycrashsc_initWithMachineContext`. See the `get`
  * function for possible UNSAFETY.
+ *
+ * We use a fixed number of slots and do not account for collisions, so a high
+ * number of threads might lead to loss of async caller information.
  */
 
 #define SENTRY_MAX_ASYNC_THREADS (128 - 1)
@@ -53,6 +56,10 @@ static sentrycrash_async_caller_slot_t sentry_async_callers[SENTRY_MAX_ASYNC_THR
 static size_t
 sentrycrash__thread_idx(SentryCrashThread thread)
 {
+    // This uses the same magic numbers as FNV, but rather follows the simpler
+    // `(x * b + c) mod n` hashing scheme. Also note that `SentryCrashThread`
+    // is a typedef for a mach thread id, which is different from a `pthread_t`
+    // and should have a better distribution itself.
     return (thread * 0x100000001b3 + 0xcbf29ce484222325) % SENTRY_MAX_ASYNC_THREADS;
 }
 
