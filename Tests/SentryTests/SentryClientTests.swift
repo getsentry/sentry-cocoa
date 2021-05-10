@@ -9,9 +9,7 @@ class SentryClientTest: XCTestCase {
     private class Fixture {
         let transport = TestTransport()
         
-        let debugMetaBuilder = SentryDebugMetaBuilder(
-            binaryImageProvider: SentryCrashDefaultBinaryImageProvider()
-        )
+        let debugImageBuilder = SentryDebugImageProvider()
         
         let threadInspector = SentryThreadInspector(
             stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))),
@@ -903,7 +901,7 @@ class SentryClientTest: XCTestCase {
     }
     
     private func assertValidDebugMeta(actual: [DebugMeta]?) {
-        let debugMetas = fixture.debugMetaBuilder.buildDebugMeta()
+        let debugMetas = fixture.debugImageBuilder.getDebugImages()
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
