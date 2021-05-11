@@ -419,6 +419,7 @@
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertTrue(options.automaticallyTrackUIPerformance);
 }
 
 - (void)testSetValidDsn
@@ -497,6 +498,18 @@
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertFalse(options.sendDefaultPii);
+}
+
+- (void)testAutomaticallyTrackUIPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertTrue(options.automaticallyTrackUIPerformance);
+}
+
+- (void)testDontAutomaticallyTrackUIPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{ @"automaticallyTrackUIPerformance" : @NO }];
+    XCTAssertFalse(options.automaticallyTrackUIPerformance);
 }
 
 - (void)testTracesSampleRate

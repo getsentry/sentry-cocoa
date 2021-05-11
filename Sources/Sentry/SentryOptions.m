@@ -42,6 +42,7 @@ SentryOptions ()
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.automaticallyTrackUIPerformance = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
 
@@ -201,6 +202,11 @@ SentryOptions ()
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    if (nil != options[@"automaticallyTrackUIPerformance"]) {
+        self.automaticallyTrackUIPerformance =
+            [options[@"automaticallyTrackUIPerformance"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];

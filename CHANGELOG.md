@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add automatic performance instrumentation for ui lifecycle and http requests. (#1043)
+- feat: Add UI auto instrumentation (#1105)
 - ref: Make calls to customSamplingContext nonnull (#1061)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)

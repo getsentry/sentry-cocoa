@@ -4,7 +4,7 @@
 @interface
 SentryPerformanceTrackingIntegration ()
 
-@property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, strong) SentryOptions *options;
 @end
 
 @implementation SentryPerformanceTrackingIntegration
@@ -12,7 +12,9 @@ SentryPerformanceTrackingIntegration ()
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
-    [self enableUIAutomaticPerformanceTracking];
+    if (options.automaticallyTrackUIPerformance) {
+        [self enableUIAutomaticPerformanceTracking];
+    }
 }
 
 - (void)enableUIAutomaticPerformanceTracking

@@ -3,6 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentrySpanId;
+
 /**
  * Tracks performance synchronizing span with its childs.
  * A span will be finished only when all its children are finished.
@@ -26,17 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The span id.
  */
-- (NSString *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
+- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Gets the active span id.
  */
-- (nullable NSString *)activeSpan;
+- (nullable SentrySpanId *)activeSpan;
 
 /**
  * Push active span to the span stack.
  */
-- (void)pushActiveSpan:(NSString *)spanId;
+- (void)pushActiveSpan:(SentrySpanId *)spanId;
 
 /**
  * Removes the top most span from span stack.
@@ -50,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param spanId Id of the span to finish.
  */
-- (void)finishSpan:(NSString *)spanId;
+- (void)finishSpan:(SentrySpanId *)spanId;
 
 /**
  * Marks a span to be finished with given status.
@@ -60,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param spanId Id of the span to finish.
  * @param status Span finish status.
  */
-- (void)finishSpan:(NSString *)spanId withStatus:(SentrySpanStatus)status;
+- (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status;
 
 /**
  * Checks if given span is waiting to be finished.
@@ -69,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return A boolean value indicating whether the span still waiting to be finished.
  */
-- (BOOL)isSpanAlive:(NSString *)spanId;
+- (BOOL)isSpanAlive:(SentrySpanId *)spanId;
 @end
 
 NS_ASSUME_NONNULL_END
