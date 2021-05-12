@@ -10,6 +10,11 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
+#import <SentryAppStateManager.h>
+#import <SentryClient+Private.h>
+#import <SentryDefaultCurrentDateProvider.h>
+#import <SentrySDK+Private.h>
+#import <SentrySystemInfo.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -67,8 +72,17 @@ SentryCrashIntegration ()
 {
     self.options = options;
 
+    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
+            initWithOptions:options
+               crashAdapter:self.crashAdapter
+                fileManager:fileManager
+        currentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+                 systemInfo:[[SentrySystemInfo alloc] init]];
     SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options crashAdapter:self.crashAdapter];
+        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                           crashAdapter:self.crashAdapter
+                                        appStateManager:appStateManager];
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                                  outOfMemoryLogic:logic];

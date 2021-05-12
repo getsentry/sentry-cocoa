@@ -1,11 +1,17 @@
 #import "SentrySDK.h"
+#import "SentryAppStartMeasurement.h"
+#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
+#import "SentryCrashAdapter.h"
+#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
+#import "SentrySystemInfo.h"
 
 @interface
 SentrySDK ()
@@ -19,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
+static SentryAppStartMeasurement *appStartMeasurement;
 
 + (SentryHub *)currentHub
 {
@@ -51,6 +58,16 @@ static BOOL crashedLastRunCalled;
 + (void)setCrashedLastRunCalled:(BOOL)value
 {
     crashedLastRunCalled = value;
+}
+
++ (SentryAppStartMeasurement *)appStartMeasurement
+{
+    return appStartMeasurement;
+}
+
++ (void)setAppStartMeasurement:(SentryAppStartMeasurement *)value
+{
+    appStartMeasurement = value;
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

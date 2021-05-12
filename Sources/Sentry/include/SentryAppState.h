@@ -8,7 +8,8 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName
                           osVersion:(NSString *)osVersion
-                        isDebugging:(BOOL)isDebugging;
+                        isDebugging:(BOOL)isDebugging
+                systemBootTimestamp:(NSDate *)systemBootTimestamp;
 
 /**
  * Initializes SentryAppState from a JSON object.
@@ -24,6 +25,8 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, copy) NSString *osVersion;
 
 @property (readonly, nonatomic, assign) BOOL isDebugging;
+
+@property (readonly, nonatomic, copy) NSDate *systemBootTimestamp;
 
 @property (nonatomic, assign) BOOL isActive;
 

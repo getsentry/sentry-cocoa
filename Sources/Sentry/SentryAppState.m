@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <NSDate+SentryExtras.h>
 #import <SentryAppState.h>
 
 @implementation SentryAppState
@@ -6,11 +7,13 @@
 - (instancetype)initWithReleaseName:(NSString *)releaseName
                           osVersion:(NSString *)osVersion
                         isDebugging:(BOOL)isDebugging
+                systemBootTimestamp:(NSDate *)systemBootTimestamp
 {
     if (self = [super init]) {
         _releaseName = releaseName;
         _osVersion = osVersion;
         _isDebugging = isDebugging;
+        _systemBootTimestamp = systemBootTimestamp;
         _isActive = NO;
         _wasTerminated = NO;
     }
@@ -41,6 +44,15 @@
             _isDebugging = [isDebugging boolValue];
         }
 
+        id systemBoot = [jsonObject valueForKey:@"system_boot_timestamp"];
+        if (systemBoot == nil || ![systemBoot isKindOfClass:[NSString class]])
+            return nil;
+        NSDate *systemBootTimestamp = [NSDate sentry_fromIso8601String:systemBoot];
+        if (nil == systemBootTimestamp) {
+            return nil;
+        }
+        _systemBootTimestamp = systemBootTimestamp;
+
         id isActive = [jsonObject valueForKey:@"is_active"];
         if (isActive == nil || ![isActive isKindOfClass:[NSNumber class]]) {
             return nil;
@@ -65,6 +77,8 @@
     [data setValue:self.releaseName forKey:@"release_name"];
     [data setValue:self.osVersion forKey:@"os_version"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
+    [data setValue:[self.systemBootTimestamp sentry_toIso8601String]
+            forKey:@"system_boot_timestamp"];
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
 
