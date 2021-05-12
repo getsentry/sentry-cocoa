@@ -19,6 +19,36 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
 
+/**
+ *Auxiliary class to store UIViewController performance monitoring spanid.
+ */
+@interface SentryViewControllerPerformanceSpans : NSObject
+
+@property (nonatomic, strong) SentrySpanId *mainSpan;
+
+@property (nonatomic, strong) SentrySpanId *layoutSubViewsSpan;
+
+- (instancetype)initWithMainSpan:(SentrySpanId *)mainSpan;
+
+@end
+
+@implementation SentryViewControllerPerformanceSpans
+
+- (instancetype)initWithMainSpan:(SentrySpanId *)mainSpan
+{
+    if (self = [super init]) {
+        self.mainSpan = mainSpan;
+    }
+    return self;
+}
+
+@end
+
+@interface
+SentryUIPerformanceTracker ()
++ (NSMutableDictionary *)swizzeledViewControllers;
+@end
+
 @implementation SentryUIPerformanceTracker
 
 + (void)start
@@ -31,6 +61,18 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                               @"start] does nothing."
                      andLevel:kSentryLevelDebug];
 #endif
+}
+
+/**
+ *Global dictionary to store monitored UIViewControllers span ids.
+ */
++ (NSMutableDictionary *)swizzeledViewControllers
+{
+    static NSMutableDictionary *_swizzeledViewControllers;
+    if (_swizzeledViewControllers == nil)
+        _swizzeledViewControllers = [[NSMutableDictionary alloc] init];
+
+    return _swizzeledViewControllers;
 }
 
 /**
@@ -107,9 +149,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             SentrySpanId *spanId =
                 [SentryPerformanceTracker.shared startSpanWithName:name operation:@"navigation"];
 
-            // use the viewcontroller itself to store the spanId to avoid using a global mapper.
-            objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
-                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            [SentryUIPerformanceTracker.swizzeledViewControllers
+                setValue:[[SentryViewControllerPerformanceSpans alloc] initWithMainSpan:spanId]
+                  forKey:self];
 
             [SentryPerformanceTracker.shared pushActiveSpan:spanId];
             SentrySWCallOriginal();
@@ -131,8 +173,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            SentrySpanId *spanId
-                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+            SentryViewControllerPerformanceSpans *vcSpans =
+                [SentryUIPerformanceTracker.swizzeledViewControllers objectForKey:self];
+            SentrySpanId *spanId = vcSpans.mainSpan;
 
             if (spanId == nil) {
                 SentrySWCallOriginal();
@@ -158,8 +201,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            SentrySpanId *spanId
-                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+            SentryViewControllerPerformanceSpans *vcSpans =
+                [SentryUIPerformanceTracker.swizzeledViewControllers objectForKey:self];
+            SentrySpanId *spanId = vcSpans.mainSpan;
 
             if (spanId == nil) {
                 SentrySWCallOriginal(animated);
@@ -185,8 +229,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
-            SentrySpanId *spanId
-                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+            SentryViewControllerPerformanceSpans *vcSpans =
+                [SentryUIPerformanceTracker.swizzeledViewControllers objectForKey:self];
+            SentrySpanId *spanId = vcSpans.mainSpan;
 
             if (spanId == nil) {
                 SentrySWCallOriginal(animated);
@@ -196,6 +241,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:spanId];
             }
+
+            // End of the UIViewControlker creation cycle. Remove the UIViewController from the
+            // global dictionary.
+            [SentryUIPerformanceTracker.swizzeledViewControllers removeObjectForKey:self];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
@@ -213,8 +262,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
     SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            SentrySpanId *spanId
-                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+            SentryViewControllerPerformanceSpans *vcSpans =
+                [SentryUIPerformanceTracker.swizzeledViewControllers objectForKey:self];
+            SentrySpanId *spanId = vcSpans.mainSpan;
 
             if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
                 SentrySWCallOriginal();
@@ -224,8 +274,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                     [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"
                                                              operation:@"navigation"];
 
-                objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
-                    layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                vcSpans.layoutSubViewsSpan = layoutSubViewId;
 
                 SentrySWCallOriginal();
                 [SentryPerformanceTracker.shared popActiveSpan];
@@ -236,8 +285,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SEL didSelector = NSSelectorFromString(@"viewDidLayoutSubviews");
     SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            SentrySpanId *spanId
-                = objc_getAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+            SentryViewControllerPerformanceSpans *vcSpans =
+                [SentryUIPerformanceTracker.swizzeledViewControllers objectForKey:self];
+            SentrySpanId *spanId = vcSpans.mainSpan;
 
             if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
                 SentrySWCallOriginal();
@@ -245,8 +295,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 SentrySWCallOriginal();
 
-                SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
-                    self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
+                SentrySpanId *layoutSubViewId = vcSpans.layoutSubViewsSpan;
                 [SentryPerformanceTracker.shared finishSpan:layoutSubViewId];
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
