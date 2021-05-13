@@ -58,7 +58,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 /**
  * A dictionary of created spans in this thread using id as Key.
  */
-- (NSMutableDictionary *)spansForThread
+- (NSMutableDictionary<SentrySpanId *, SentrySpanTracker *> *)spansForThread
 {
     NSMutableDictionary *result =
         [NSThread.currentThread.threadDictionary objectForKey:SENTRY_PERFORMANCE_TRACKER_SPANS];
@@ -73,7 +73,7 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 /**
  * A stack of active spans in this thread.
  */
-- (NSMutableArray *)activeStackForThread
+- (NSMutableArray<SentrySpanTracker *> *)activeStackForThread
 {
     NSMutableArray *res = [NSThread.currentThread.threadDictionary
         objectForKey:SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK];
@@ -110,6 +110,15 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     spans[spanId] = newSpan;
 
     return newSpan.span.context.spanId;
+}
+
+- (void)measureSpanWithName:(NSString *)name
+                  operation:(NSString *)operation
+                    inBlock:(void (^)(void))block
+{
+    SentrySpanId *spanId = [self startSpanWithName:name operation:operation];
+    block();
+    [self finishSpan:spanId];
 }
 
 - (nullable SentrySpanId *)activeSpan

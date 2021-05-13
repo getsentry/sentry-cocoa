@@ -4,7 +4,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * This automatically intercepts http requests for performance tracking.
+ * Integration to setup automatic performance tracking.
+ *
+ * Automatic UI performance setup can be avoided by setting
+ * enableAutoUIPerformanceTracking to NO
+ * in SentryOptions during SentrySDK initialization.
  */
 @interface SentryPerformanceTrackingIntegration : NSObject <SentryIntegrationProtocol>
 

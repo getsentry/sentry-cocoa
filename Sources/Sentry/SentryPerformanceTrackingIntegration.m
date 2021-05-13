@@ -9,10 +9,10 @@ SentryPerformanceTrackingIntegration ()
 
 @implementation SentryPerformanceTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (void)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
-    if (options.automaticallyTrackUIPerformance) {
+    if (options.enableAutoUIPerformanceTracking) {
         [self enableUIAutomaticPerformanceTracking];
     }
 }

@@ -31,6 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
+ * Measure the given block execution.
+ *
+ * @param name Span name.
+ * @param operation Span operation.
+ * @param block Block to be measured.
+ */
+- (void)measureSpanWithName:(NSString *)name
+                  operation:(NSString *)operation
+                    inBlock:(void (^)(void))block;
+
+/**
  * Gets the active span id.
  */
 - (nullable SentrySpanId *)activeSpan;
