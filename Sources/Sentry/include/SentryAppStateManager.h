@@ -1,7 +1,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashAdapter, SentryAppState, SentryFileManager, SentrySystemInfo;
+@class SentryOptions, SentryCrashAdapter, SentryAppState, SentryFileManager, SentrySysctl;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ SENTRY_NO_INIT
                    crashAdapter:(SentryCrashAdapter *)crashAdatper
                     fileManager:(SentryFileManager *)fileManager
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                     systemInfo:(SentrySystemInfo *)systemInfo;
+                         sysctl:(SentrySysctl *)sysctl;
 
 #if SENTRY_HAS_UIKIT
 

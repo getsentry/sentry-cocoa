@@ -3,9 +3,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A wrapper around NSProcessInfo for testability.
+ * A wrapper around sysctl for testability.
  */
-@interface SentrySystemInfo : NSObject
+@interface SentrySysctl : NSObject
 
 /**
  * Returns the time the system was booted with a precision of microseconds.

@@ -42,4 +42,16 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(["app_start_time_warm": ["value": 500.0]], measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
+    
+    func testAddGarbageAppStartMeasurement_GetsNotPutOnNextTransaction() {
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "b", duration: 0.5)
+        
+        fixture.sut.finish()
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        XCTAssertNil(serializedTransaction["measurements"])
+        
+        XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
 }

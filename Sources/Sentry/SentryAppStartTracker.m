@@ -13,17 +13,13 @@
 #import <SentryLog.h>
 #import <SentrySDK+Private.h>
 #import <SentrySpan.h>
-#import <SentrySystemInfo.h>
+#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
 static NSDate *appStart = nil;
-
-static NSString *const startTypeCold = @"cold";
-static NSString *const startTypeWarm = @"warm";
-static NSString *const startTypeUnkown = @"unknown";
 
 @interface
 SentryAppStartTracker ()
@@ -33,7 +29,8 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentrySystemInfo *processInfo;
+@property (nonatomic, strong) SentrySysctl *sysctl;
+@property (nonatomic, assign) BOOL wasInBackground;
 
 @end
 
@@ -41,6 +38,8 @@ SentryAppStartTracker ()
 
 + (void)load
 {
+    // Invoked whenever this class is added to the Objective-C runtime. That's the best
+    // approximation of the app start time we can get.
     appStart = [NSDate date];
 }
 
@@ -48,17 +47,18 @@ SentryAppStartTracker ()
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                 appStateManager:(SentryAppStateManager *)appStateManager
-                    processInfo:(SentrySystemInfo *)processInfo
+                         sysctl:(SentrySysctl *)sysctl
 {
     if (self = [super init]) {
         self.options = options;
         self.currentDate = currentDateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
-        self.processInfo = processInfo;
+        self.sysctl = sysctl;
 #if SENTRY_HAS_UIKIT
         self.previousAppState = [self.appStateManager loadCurrentAppState];
 #endif
+        self.wasInBackground = NO;
     }
     return self;
 }
@@ -67,16 +67,19 @@ SentryAppStartTracker ()
 {
 
 #if SENTRY_HAS_UIKIT
-    NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
-
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:didBecomeActiveNotificationName
+                                               name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:SentryHybridSdkDidBecomeActiveNotificationName
+                                             object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didEnterBackground)
+                                               name:UIApplicationDidEnterBackgroundNotification
                                              object:nil];
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
@@ -98,9 +101,14 @@ SentryAppStartTracker ()
                block:^{
                    NSString *appStartType = [self getStartType];
 
-                   if ([appStartType isEqualToString:startTypeUnkown]) {
+                   if ([appStartType isEqualToString:SentryAppStartTypeUnkown]) {
                        [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
                                         andLevel:kSentryLevelWarning];
+                   } else if (self.wasInBackground) {
+                       // If the app was already running in the background it's not a cold or warm
+                       // start.
+                       [SentryLog logWithMessage:@"App was in background. Not measuring app start."
+                                        andLevel:kSentryLevelInfo];
                    } else {
                        NSTimeInterval appStartTime =
                            [[self.currentDate date] timeIntervalSinceDate:appStart];
@@ -118,17 +126,16 @@ SentryAppStartTracker ()
 #if SENTRY_HAS_UIKIT
 - (NSString *)getStartType
 {
-
     // App launched the first time
     if (self.previousAppState == nil) {
-        return startTypeCold;
+        return SentryAppStartTypeCold;
     }
 
     SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
-    // If the release name is different we assume it's an upgrade
+    // If the release name is different we assume it's an app upgrade
     if (![currentAppState.releaseName isEqualToString:self.previousAppState.releaseName]) {
-        return startTypeCold;
+        return SentryAppStartTypeCold;
     }
 
     NSTimeInterval intervalSincePreviousBootTime = [self.previousAppState.systemBootTimestamp
@@ -136,20 +143,25 @@ SentryAppStartTracker ()
 
     // System rebooted, because the previous boot time is in the past.
     if (intervalSincePreviousBootTime < 0) {
-        return startTypeCold;
+        return SentryAppStartTypeCold;
     }
 
     // System didn't reboot, previous and current boot time are the same.
     if (intervalSincePreviousBootTime == 0) {
-        return startTypeWarm;
+        return SentryAppStartTypeWarm;
     }
 
     // This should never be reached as we unsubscribe to didBecomeActive after it is called the
     // first time. If the previous boot time is in the future most likely the system time changed
     // and we can't to anything.
-    return startTypeUnkown;
+    return SentryAppStartTypeUnkown;
 }
 #endif
+
+- (void)didEnterBackground
+{
+    self.wasInBackground = YES;
+}
 
 - (void)stop
 {

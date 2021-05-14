@@ -49,6 +49,16 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["was_terminated"] = "" }
     }
     
+    func testBootTimeRoundedDownToSeconds() {
+        
+        let date = Date(timeIntervalSince1970: 0.1)
+        let expectedDate = Date(timeIntervalSince1970: 0)
+        
+        let sut = SentryAppState(releaseName: "", osVersion: "", isDebugging: false, systemBootTimestamp: date)
+        
+        XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
+    }
+    
     func withValue(setValue: (inout [String: Any]) -> Void) {
         let expected = TestData.appState
         var serialized = expected.serialize()

@@ -1,6 +1,6 @@
 import Foundation
 
-class TestSystemInfo: SentrySystemInfo {
+class TestSysctl: SentrySysctl {
     
     private var internalSystemBootTimestamp: Date = Date(timeIntervalSinceReferenceDate: 0)
     

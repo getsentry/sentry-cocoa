@@ -1,7 +1,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentryAppStateManager, SentrySystemInfo;
+@class SentryOptions, SentryDispatchQueueWrapper, SentryAppStateManager, SentrySysctl;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ SENTRY_NO_INIT
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                 appStateManager:(SentryAppStateManager *)appStateManager
-                    processInfo:(SentrySystemInfo *)processInfo;
+                         sysctl:(SentrySysctl *)sysctl;
 
 - (void)start;
 - (void)stop;

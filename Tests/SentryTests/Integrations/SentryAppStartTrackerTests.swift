@@ -10,7 +10,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         
         let options: Options
         let currentDate = TestCurrentDateProvider()
-        let processInfo = TestSystemInfo()
+        let sysctl = TestSysctl()
         let fileManager: SentryFileManager
         let crashAdapter = TestSentryCrashWrapper()
         let appStateManager: SentryAppStateManager
@@ -24,13 +24,12 @@ class SentryAppStartTrackerTests: XCTestCase {
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
             
-            appStateManager = SentryAppStateManager(options: options, crashAdapter: crashAdapter, fileManager: fileManager, currentDateProvider: currentDate, systemInfo: processInfo)
+            appStateManager = SentryAppStateManager(options: options, crashAdapter: crashAdapter, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
         }
         
         var sut: SentryAppStartTracker {
-            return SentryAppStartTracker(options: options, currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, processInfo: processInfo)
+            return SentryAppStartTracker(options: options, currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl)
         }
-        
     }
     
     private var fixture: Fixture!
@@ -60,7 +59,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     }
     
     func testSecondStart_AfterSystemReboot_IsColdStart() {
-        let previousBootTime = fixture.currentDate.date().addingTimeInterval(-0.01)
+        let previousBootTime = fixture.currentDate.date().addingTimeInterval(-1)
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: previousBootTime)
         givenPreviousAppState(appState: appState)
         
@@ -116,10 +115,29 @@ class SentryAppStartTrackerTests: XCTestCase {
      * Test if the user changes the time of his phone and the previous boot time is in the future.
      */
     func testAppLaunches_PreviousBootTimeInFuture_NoAppStartUp() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(0.01))
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(1))
         givenPreviousAppState(appState: appState)
         
         startApp()
+        
+        assertNoAppStartUp()
+    }
+    
+    func testAppLaunchesBackgroundTask_NoAppStartUp() {
+        sut = fixture.sut
+        sut.start()
+        
+        TestNotificationCenter.didEnterBackground()
+        
+        assertNoAppStartUp()
+    }
+    
+    func testAppLaunchesBackgroundTask_GoesToForeground_NoAppStartUp() {
+        sut = fixture.sut
+        sut.start()
+        TestNotificationCenter.didEnterBackground()
+        
+        goToForeground()
         
         assertNoAppStartUp()
     }

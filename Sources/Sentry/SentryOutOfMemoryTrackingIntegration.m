@@ -9,7 +9,7 @@
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
-#import <SentrySystemInfo.h>
+#import <SentrySysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +38,7 @@ SentryOutOfMemoryTrackingIntegration ()
                    crashAdapter:crashAdapter
                     fileManager:fileManager
             currentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
-                     systemInfo:[[SentrySystemInfo alloc] init]];
+                         sysctl:[[SentrySysctl alloc] init]];
         SentryOutOfMemoryLogic *logic =
             [[SentryOutOfMemoryLogic alloc] initWithOptions:options
                                                crashAdapter:crashAdapter

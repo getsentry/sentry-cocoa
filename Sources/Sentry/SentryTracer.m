@@ -143,15 +143,17 @@
     if (SentrySDK.appStartMeasurement != nil) {
         NSString *appStartMeasurementType = nil;
 
-        if ([SentrySDK.appStartMeasurement.type isEqualToString:@"cold"]) {
+        if ([SentrySDK.appStartMeasurement.type isEqualToString:SentryAppStartTypeCold]) {
             appStartMeasurementType = @"app_start_time_cold";
-        } else if ([SentrySDK.appStartMeasurement.type isEqualToString:@"warm"]) {
+        } else if ([SentrySDK.appStartMeasurement.type isEqualToString:SentryAppStartTypeWarm]) {
             appStartMeasurementType = @"app_start_time_warm";
         }
 
-        [transaction
-            setMeasurementValue:@{ @"value" : @(SentrySDK.appStartMeasurement.duration * 1000) }
-                         forKey:appStartMeasurementType];
+        if (appStartMeasurementType != nil) {
+            [transaction
+                setMeasurementValue:@{ @"value" : @(SentrySDK.appStartMeasurement.duration * 1000) }
+                             forKey:appStartMeasurementType];
+        }
 
         SentrySDK.appStartMeasurement = nil;
     }

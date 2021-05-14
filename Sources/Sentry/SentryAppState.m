@@ -2,6 +2,8 @@
 #import <NSDate+SentryExtras.h>
 #import <SentryAppState.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryAppState
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName
@@ -13,7 +15,12 @@
         _releaseName = releaseName;
         _osVersion = osVersion;
         _isDebugging = isDebugging;
-        _systemBootTimestamp = systemBootTimestamp;
+
+        // Round down to seconds as the precision of the serialization of the date is only
+        // milliseconds. With this we avoid getting different dates before and after serialization.
+        NSTimeInterval interval = round(systemBootTimestamp.timeIntervalSince1970);
+        _systemBootTimestamp = [[NSDate alloc] initWithTimeIntervalSince1970:interval];
+
         _isActive = NO;
         _wasTerminated = NO;
     }
@@ -86,3 +93,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

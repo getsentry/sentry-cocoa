@@ -8,7 +8,7 @@
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
-#import <SentrySystemInfo.h>
+#import <SentrySysctl.h>
 
 @interface
 SentryAppStartTrackingIntegration ()
@@ -24,21 +24,21 @@ SentryAppStartTrackingIntegration ()
     SentryDefaultCurrentDateProvider *currentDateProvider =
         [[SentryDefaultCurrentDateProvider alloc] init];
     SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
-    SentrySystemInfo *systemInfo = [[SentrySystemInfo alloc] init];
+    SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
     SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
             initWithOptions:options
                crashAdapter:crashAdapter
                 fileManager:[[[SentrySDK currentHub] getClient] fileManager]
         currentDateProvider:currentDateProvider
-                 systemInfo:systemInfo];
+                     sysctl:sysctl];
 
     self.tracker =
         [[SentryAppStartTracker alloc] initWithOptions:options
                                    currentDateProvider:currentDateProvider
                                   dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                                        appStateManager:appStateManager
-                                           processInfo:systemInfo];
+                                                sysctl:sysctl];
     [self.tracker start];
 }
 

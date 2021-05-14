@@ -14,7 +14,7 @@
 #import <SentryClient+Private.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentrySDK+Private.h>
-#import <SentrySystemInfo.h>
+#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -78,7 +78,7 @@ SentryCrashIntegration ()
                crashAdapter:self.crashAdapter
                 fileManager:fileManager
         currentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
-                 systemInfo:[[SentrySystemInfo alloc] init]];
+                     sysctl:[[SentrySysctl alloc] init]];
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options
                                            crashAdapter:self.crashAdapter

@@ -1,5 +1,5 @@
 #import "SentryCrashSysCtl.h"
-#import "SentrySystemInfo.h"
+#import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
@@ -19,7 +19,7 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
-@property (nonatomic, strong) SentrySystemInfo *systemInfo;
+@property (nonatomic, strong) SentrySysctl *sysctl;
 
 @end
 
@@ -29,14 +29,14 @@ SentryAppStateManager ()
                    crashAdapter:(SentryCrashAdapter *)crashAdatper
                     fileManager:(SentryFileManager *)fileManager
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                     systemInfo:(SentrySystemInfo *)systemInfo
+                         sysctl:(SentrySysctl *)sysctl
 {
     if (self = [super init]) {
         self.options = options;
         self.crashAdapter = crashAdatper;
         self.fileManager = fileManager;
         self.currentDate = currentDateProvider;
-        self.systemInfo = systemInfo;
+        self.sysctl = sysctl;
     }
     return self;
 }
@@ -48,16 +48,10 @@ SentryAppStateManager ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashAdapter.isBeingTraced;
 
-    NSDate *systemBootTimeStamp = self.systemInfo.systemBootTimestamp;
-    // Round down to seconds as the precision of the serialization of the date is only milliseconds.
-    // With this we avoid getting different dates before and after serialization.
-    NSTimeInterval interval = round(systemBootTimeStamp.timeIntervalSince1970);
-    systemBootTimeStamp = [[NSDate alloc] initWithTimeIntervalSince1970:interval];
-
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
                                              osVersion:UIDevice.currentDevice.systemVersion
                                            isDebugging:isDebugging
-                                   systemBootTimestamp:systemBootTimeStamp];
+                                   systemBootTimestamp:self.sysctl.systemBootTimestamp];
 }
 
 - (SentryAppState *)loadCurrentAppState

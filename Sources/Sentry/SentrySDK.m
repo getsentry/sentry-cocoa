@@ -1,17 +1,12 @@
 #import "SentrySDK.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryCrashAdapter.h"
-#import "SentryDefaultCurrentDateProvider.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
-#import "SentrySystemInfo.h"
 
 @interface
 SentrySDK ()

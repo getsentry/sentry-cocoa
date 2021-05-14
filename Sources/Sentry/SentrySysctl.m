@@ -1,8 +1,8 @@
-#import "SentrySystemInfo.h"
+#import "SentrySysctl.h"
 #import "SentryCrashSysCtl.h"
 #import <Foundation/Foundation.h>
 
-@implementation SentrySystemInfo
+@implementation SentrySysctl
 
 - (NSDate *)systemBootTimestamp
 {

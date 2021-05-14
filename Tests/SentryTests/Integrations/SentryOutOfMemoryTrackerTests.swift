@@ -13,7 +13,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
-        let systemInfo = TestSystemInfo()
+        let sysctl = TestSysctl()
         
         init() {
             options = Options()
@@ -31,7 +31,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut() -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, systemInfo: systemInfo)
+            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
             return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
         }
@@ -58,7 +58,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let actual = fixture.fileManager.readAppState()
         
-        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.systemInfo.systemBootTimestamp)
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
     }
