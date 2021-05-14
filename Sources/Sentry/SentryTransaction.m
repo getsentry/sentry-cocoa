@@ -1,9 +1,11 @@
 #import "SentryTransaction.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
 
 @implementation SentryTransaction {
     id<SentrySpan> _trace;
     NSArray<id<SentrySpan>> *_spans;
+    NSMutableDictionary<NSString *, id> *measurements;
 }
 
 - (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
@@ -14,8 +16,16 @@
         _trace = trace;
         _spans = children;
         self.type = SentryEnvelopeItemTypeTransaction;
+        measurements = [NSMutableDictionary new];
     }
     return self;
+}
+
+- (void)setMeasurementValue:(id)value forKey:(NSString *)key
+{
+    @synchronized(measurements) {
+        measurements[key] = value;
+    }
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -35,6 +45,12 @@
     }
     mutableContext[@"trace"] = [_trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
+
+    @synchronized(measurements) {
+        if (measurements.count > 0) {
+            serializedData[@"measurements"] = [measurements.copy sentry_sanitize];
+        }
+    }
 
     return serializedData;
 }
