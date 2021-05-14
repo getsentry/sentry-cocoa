@@ -460,6 +460,7 @@
 		8ECC674825C23A20000E2BF6 /* SentryTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */; };
 		8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674525C23A20000E2BF6 /* SentrySpanId.m */; };
 		8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674625C23A20000E2BF6 /* SentryTransactionContext.m */; };
+		8ED3D306264DFE700049393B /* UIViewControllerHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ED3D305264DFE700049393B /* UIViewControllerHelperTests.swift */; };
 		8EE32518261FE27B00DC3FF2 /* UIViewControllerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE32516261FE27B00DC3FF2 /* UIViewControllerHelper.m */; };
 		8EE3251C261FE33B00DC3FF2 /* UIViewControllerHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EE3251B261FE33B00DC3FF2 /* UIViewControllerHelper.h */; };
 		A2475E1325FB63A3007D9080 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = A2475E1225FB63A3007D9080 /* fishhook.h */; };
@@ -980,6 +981,7 @@
 		8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryTransaction.m; sourceTree = "<group>"; };
 		8ECC674525C23A20000E2BF6 /* SentrySpanId.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySpanId.m; sourceTree = "<group>"; };
 		8ECC674625C23A20000E2BF6 /* SentryTransactionContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryTransactionContext.m; sourceTree = "<group>"; };
+		8ED3D305264DFE700049393B /* UIViewControllerHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerHelperTests.swift; sourceTree = "<group>"; };
 		8EE32516261FE27B00DC3FF2 /* UIViewControllerHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIViewControllerHelper.m; sourceTree = "<group>"; };
 		8EE3251B261FE33B00DC3FF2 /* UIViewControllerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIViewControllerHelper.h; path = include/UIViewControllerHelper.h; sourceTree = "<group>"; };
 		A2475E1225FB63A3007D9080 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
@@ -1340,6 +1342,7 @@
 				8E70B0FC25CB72BE002B3155 /* SentrySpanTests.swift */,
 				8E70B10025CB8695002B3155 /* SentrySpanIdTests.swift */,
 				7B4260332630315C00B36EDD /* SampleError.swift */,
+				8ED3D305264DFE700049393B /* UIViewControllerHelperTests.swift */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -2306,6 +2309,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8ED3D306264DFE700049393B /* UIViewControllerHelperTests.swift in Sources */,
 				7BFC16AD2524BCE700FF6266 /* SentryMessageTests.swift in Sources */,
 				7BA61CC6247CFC5F00C130A8 /* SentryCrashDefaultBinaryImageProviderTests.swift in Sources */,
 				7BBC827925DFD7D7005F1ED8 /* SentryFrameInAppLogicTests.swift in Sources */,
