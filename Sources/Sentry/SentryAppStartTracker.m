@@ -108,18 +108,6 @@ SentryAppStartTracker ()
                            [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                                   duration:appStartTime];
                        SentrySDK.appStartMeasurement = appStartMeasurement;
-
-                       // TODO: remove this. Is just here for testing
-                       SentrySpan *appStartSpan = [SentrySDK
-                           startTransactionWithName:[NSString stringWithFormat:@"App Start %@",
-                                                              appStartType]
-                                          operation:@"App Start"];
-
-                       [SentryLog logWithMessage:[NSString stringWithFormat:@"App Start %@ took %f",
-                                                           appStartType, appStartTime]
-                                        andLevel:kSentryLevelInfo];
-                       [appStartSpan setStartTimestamp:appStart];
-                       [appStartSpan finish];
                    }
                }];
 
