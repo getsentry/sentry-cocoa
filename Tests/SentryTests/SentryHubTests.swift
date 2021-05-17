@@ -287,7 +287,7 @@ class SentryHubTests: XCTestCase {
         Dynamic(hub).sampler.random = fixture.random
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        XCTAssertEqual(span.context.sampled, .yes)
+        XCTAssertEqual(span.context.sampled, .no)
     }
         
     func testCaptureMessageWithScope() {
