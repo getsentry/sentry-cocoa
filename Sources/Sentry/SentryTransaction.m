@@ -23,9 +23,7 @@
 
 - (void)setMeasurementValue:(id)value forKey:(NSString *)key
 {
-    @synchronized(measurements) {
-        measurements[key] = value;
-    }
+    measurements[key] = value;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -46,10 +44,8 @@
     mutableContext[@"trace"] = [_trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
-    @synchronized(measurements) {
-        if (measurements.count > 0) {
-            serializedData[@"measurements"] = [measurements.copy sentry_sanitize];
-        }
+    if (measurements.count > 0) {
+        serializedData[@"measurements"] = [measurements.copy sentry_sanitize];
     }
 
     return serializedData;
