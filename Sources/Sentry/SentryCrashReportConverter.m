@@ -14,6 +14,8 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
+#import "NSString+SentryUnsignedLongLongValue.h"
+#import "NSNumber+SentryUnsignedLongLongValue.h"
 
 @interface
 SentryCrashReportConverter ()
@@ -206,9 +208,9 @@ SentryCrashReportConverter ()
 {
     NSDictionary *result = nil;
     for (NSDictionary *binaryImage in self.binaryImages) {
-        uintptr_t imageStart = (uintptr_t)[binaryImage[@"image_addr"] unsignedLongLongValue];
+        uintptr_t imageStart = (uintptr_t)[binaryImage[@"image_addr"] sentry_unsignedLongLongValue];
         uintptr_t imageEnd
-            = imageStart + (uintptr_t)[binaryImage[@"image_size"] unsignedLongLongValue];
+            = imageStart + (uintptr_t)[binaryImage[@"image_size"] sentry_unsignedLongLongValue];
         if (address >= imageStart && address < imageEnd) {
             result = binaryImage;
             break;
@@ -245,7 +247,7 @@ SentryCrashReportConverter ()
 {
     NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
     uintptr_t instructionAddress
-        = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
+        = (uintptr_t)[frameDictionary[@"instruction_addr"] sentry_unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
@@ -274,7 +276,7 @@ SentryCrashReportConverter ()
     for (NSInteger i = 0; i < frameCount; i++) {
         NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
         uintptr_t instructionAddress
-            = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
+            = (uintptr_t)[frameDictionary[@"instruction_addr"] sentry_unsignedLongLongValue];
         if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
             if (lastFrame != nil) {
                 lastFrame.stackStart = @(YES);

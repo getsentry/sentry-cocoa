@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSString (SentryUnsignedLongLongValue)
+@interface NSNumber (SentryUnsignedLongLongValue)
 - (unsigned long long)sentry_unsignedLongLongValue;
 @end
 

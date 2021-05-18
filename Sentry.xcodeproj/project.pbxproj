@@ -460,6 +460,8 @@
 		A811D867248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */; };
 		A839D89824864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h in Headers */ = {isa = PBXBuildFile; fileRef = A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */; };
 		A839D89A24864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m in Sources */ = {isa = PBXBuildFile; fileRef = A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */; };
+		DF72D6FC2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.h in Headers */ = {isa = PBXBuildFile; fileRef = DF72D6FA2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.h */; };
+		DF72D6FD2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.m in Sources */ = {isa = PBXBuildFile; fileRef = DF72D6FB2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -969,6 +971,8 @@
 		A811D866248E2770008A41EA /* SentrySystemEventsBreadcrumbsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySystemEventsBreadcrumbsTest.swift; sourceTree = "<group>"; };
 		A839D89724864B80003B7AFD /* SentrySystemEventsBreadcrumbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySystemEventsBreadcrumbs.h; path = include/SentrySystemEventsBreadcrumbs.h; sourceTree = "<group>"; };
 		A839D89924864BA8003B7AFD /* SentrySystemEventsBreadcrumbs.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySystemEventsBreadcrumbs.m; sourceTree = "<group>"; };
+		DF72D6FA2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNumber+SentryUnsignedLongLongValue.h"; sourceTree = "<group>"; };
+		DF72D6FB2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+SentryUnsignedLongLongValue.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1069,6 +1073,8 @@
 		630436031EC058FA00C4D3FA /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				DF72D6FA2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.h */,
+				DF72D6FB2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.m */,
 				637533562243A0100002F77F /* NSString+SentryUnsignedLongLongValue.h */,
 				637533572243A0100002F77F /* NSString+SentryUnsignedLongLongValue.m */,
 				630436081EC0595B00C4D3FA /* NSData+SentryCompression.h */,
@@ -1954,6 +1960,7 @@
 				63FE713920DA4C1100CDBAE8 /* SentryCrashMach.h in Headers */,
 				63EED6BE2237923600E02400 /* SentryOptions.h in Headers */,
 				63BE85701ECEC6DE00DC44F5 /* NSDate+SentryExtras.h in Headers */,
+				DF72D6FC2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.h in Headers */,
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
 				63FE70A120DA4C1000CDBAE8 /* SentryCrashCString.h in Headers */,
 				7B7D873424864C6600D2ECFF /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
@@ -2210,6 +2217,7 @@
 				7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */,
 				635B3F391EBC6E2500A6176D /* SentryAsynchronousOperation.m in Sources */,
 				63FE717520DA4C1100CDBAE8 /* SentryCrash.m in Sources */,
+				DF72D6FD2653AB8200853598 /* NSNumber+SentryUnsignedLongLongValue.m in Sources */,
 				7BE3C7712445C30D00A38442 /* SentryDefaultCurrentDateProvider.m in Sources */,
 				6344DDB11EC308E400D9160D /* SentryCrashInstallationReporter.m in Sources */,
 				7BAF3DCE243DCBFE008A5414 /* SentryTransportFactory.m in Sources */,

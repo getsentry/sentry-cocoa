@@ -9,6 +9,8 @@
 #import "SentryCrashDoctor.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashReportFields.h"
+#import "NSString+SentryUnsignedLongLongValue.h"
+#import "NSNumber+SentryUnsignedLongLongValue.h"
 
 typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } CPUFamily;
 
@@ -368,7 +370,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
     NSMutableArray *params = [NSMutableArray arrayWithCapacity:4];
     for (NSString *regName in regNames) {
         SentryCrashDoctorParam *param = [[SentryCrashDoctorParam alloc] init];
-        param.address = (uintptr_t)[[registers objectForKey:regName] unsignedLongLongValue];
+        param.address = (uintptr_t)[[registers objectForKey:regName] sentry_unsignedLongLongValue];
         NSDictionary *notableAddress = [notableAddresses objectForKey:regName];
         if (notableAddress == nil) {
             param.value = [NSString stringWithFormat:@"%p", (void *)param.address];
@@ -465,7 +467,7 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 
         if ([self isInvalidAddress:errorReport]) {
             uintptr_t address = (uintptr_t)[
-                [errorReport objectForKey:@SentryCrashField_Address] unsignedLongLongValue];
+                [errorReport objectForKey:@SentryCrashField_Address] sentry_unsignedLongLongValue];
             if (address == 0) {
                 return @"Attempted to dereference null pointer.";
             }

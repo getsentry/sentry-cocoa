@@ -30,6 +30,8 @@
 #include "SentryCrashMonitorContext.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashThread.h"
+#import "NSString+SentryUnsignedLongLongValue.h"
+#import "NSNumber+SentryUnsignedLongLongValue.h"
 #import <Foundation/Foundation.h>
 
 //#define SentryCrashLogger_LocalLevel TRACE
@@ -71,7 +73,7 @@ handleException(NSException *exception, BOOL currentSnapshotUserReported)
         assert(callstack != NULL);
 
         for (NSUInteger i = 0; i < numFrames; i++) {
-            callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
+            callstack[i] = (uintptr_t)[addresses[i] sentry_unsignedLongLongValue];
         }
 
         char eventID[37];

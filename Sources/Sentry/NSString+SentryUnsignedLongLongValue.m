@@ -2,7 +2,7 @@
 
 @implementation NSString (SentryUnsignedLongLongValue)
 
-- (unsigned long long)unsignedLongLongValue
+- (unsigned long long)sentry_unsignedLongLongValue
 {
     return strtoull([self UTF8String], NULL, 0);
 }
