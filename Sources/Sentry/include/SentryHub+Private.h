@@ -1,6 +1,6 @@
 #import "SentryHub.h"
 
-@class SentryId, SentryScope;
+@class SentryId, SentryScope, SentryClient;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
+- (SentryClient *)client;
 @end
 
 NS_ASSUME_NONNULL_END

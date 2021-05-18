@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
+#import <Foundation/Foundation.h>
 
 @interface
 SentrySDK ()
@@ -19,6 +20,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
+
++ (void)load
+{
+    NSString *sentryPlistPath = [[NSBundle mainBundle] pathForResource:@"Sentry" ofType:@"plist"];
+    if (sentryPlistPath == NULL)
+        return;
+
+    NSDictionary *sentryPlist = [NSDictionary dictionaryWithContentsOfFile:sentryPlistPath];
+    [self startWithOptions:sentryPlist];
+}
 
 + (SentryHub *)currentHub
 {
@@ -85,6 +96,11 @@ static BOOL crashedLastRunCalled;
     SentryOptions *options = [[SentryOptions alloc] init];
     configureOptions(options);
     [SentrySDK startWithOptionsObject:options];
+}
+
++ (void)configureOptions:(void (^)(SentryOptions *options))configureOptions
+{
+    configureOptions(currentHub.client.options);
 }
 
 + (void)captureCrashEvent:(SentryEvent *)event

@@ -132,6 +132,18 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
+    
+    func testConfigureOptions() {
+        let options = Options()
+        options.tracesSampleRate = 0.5
+        SentrySDK.start(options: options)
+        
+        SentrySDK.configureOptions { (opt) in
+            opt.tracesSampleRate = 0.1
+        }
+        
+        XCTAssertEqual(0.1, options.tracesSampleRate)
+    }
 
     func testStartWithConfigureOptions_UrlSessionDelegate() {
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()

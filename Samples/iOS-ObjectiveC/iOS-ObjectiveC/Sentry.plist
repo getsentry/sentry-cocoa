@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>dsn</key>
+	<string>https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557</string>
+	<key>debug</key>
+	<true/>
+	<key>sessionTrackingIntervalMillis</key>
+	<integer>5000</integer>
+</dict>
+</plist>

@@ -16,6 +16,7 @@
 		637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDD7243B036D0034958B /* LaunchScreen.storyboard */; };
 		637AFDDC243B036D0034958B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDDB243B036D0034958B /* main.m */; };
 		7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F925876DDB00056519 /* Tongariro.jpg */; };
+		8E1EEC032653392C008AE851 /* Sentry.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8E1EEC022653392C008AE851 /* Sentry.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		637AFDDA243B036D0034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		637AFDDB243B036D0034958B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		7B3427F925876DDB00056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
+		8E1EEC022653392C008AE851 /* Sentry.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Sentry.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				637AFDD7243B036D0034958B /* LaunchScreen.storyboard */,
 				637AFDDA243B036D0034958B /* Info.plist */,
 				637AFDDB243B036D0034958B /* main.m */,
+				8E1EEC022653392C008AE851 /* Sentry.plist */,
 			);
 			path = "iOS-ObjectiveC";
 			sourceTree = "<group>";
@@ -218,6 +221,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E1EEC032653392C008AE851 /* Sentry.plist in Resources */,
 				637AFDD9243B036D0034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427FB25876DDC00056519 /* Tongariro.jpg in Resources */,
 				637AFDD6243B036D0034958B /* Assets.xcassets in Resources */,
