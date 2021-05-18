@@ -1,6 +1,7 @@
 #import "SentryAppStartTrackingIntegration.h"
 #import "SentryAppStartTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryLog.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -13,7 +14,9 @@
 @interface
 SentryAppStartTrackingIntegration ()
 
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryAppStartTracker *tracker;
+#endif
 
 @end
 
@@ -21,6 +24,7 @@ SentryAppStartTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
+#if SENTRY_HAS_UIKIT
     SentryDefaultCurrentDateProvider *currentDateProvider =
         [[SentryDefaultCurrentDateProvider alloc] init];
     SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
@@ -40,6 +44,11 @@ SentryAppStartTrackingIntegration ()
                                        appStateManager:appStateManager
                                                 sysctl:sysctl];
     [self.tracker start];
+
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
+                     andLevel:kSentryLevelDebug];
+#endif
 }
 
 - (void)uninstall
@@ -49,9 +58,11 @@ SentryAppStartTrackingIntegration ()
 
 - (void)stop
 {
+#if SENTRY_HAS_UIKIT
     if (nil != self.tracker) {
         [self.tracker stop];
     }
+#endif
 }
 
 @end

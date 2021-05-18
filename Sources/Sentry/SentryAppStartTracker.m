@@ -16,8 +16,8 @@
 #import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
-#endif
 
 static NSDate *appStart = nil;
 
@@ -55,9 +55,9 @@ SentryAppStartTracker ()
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
         self.sysctl = sysctl;
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
         self.previousAppState = [self.appStateManager loadCurrentAppState];
-#endif
+#    endif
         self.wasInBackground = NO;
     }
     return self;
@@ -65,8 +65,6 @@ SentryAppStartTracker ()
 
 - (void)start
 {
-
-#if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:UIApplicationDidBecomeActiveNotification
@@ -81,10 +79,6 @@ SentryAppStartTracker ()
                                            selector:@selector(didEnterBackground)
                                                name:UIApplicationDidEnterBackgroundNotification
                                              object:nil];
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
-                     andLevel:kSentryLevelDebug];
-#endif
 }
 
 /**
@@ -93,8 +87,8 @@ SentryAppStartTracker ()
  */
 - (void)didBecomeActive
 {
-#if SENTRY_HAS_UIKIT
-    // Process is when we only run this once
+    // With only running this once we know that the process is a new one when the following code is
+    // executed.
     static dispatch_once_t once;
     [self.dispatchQueue
         dispatchOnce:&once
@@ -120,10 +114,8 @@ SentryAppStartTracker ()
                }];
 
     [self stop];
-#endif
 }
 
-#if SENTRY_HAS_UIKIT
 - (NSString *)getStartType
 {
     // App launched the first time
@@ -156,7 +148,6 @@ SentryAppStartTracker ()
     // and we can't to anything.
     return SentryAppStartTypeUnkown;
 }
-#endif
 
 - (void)didEnterBackground
 {
@@ -165,9 +156,7 @@ SentryAppStartTracker ()
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter removeObserver:self];
-#endif
 }
 
 /**
@@ -179,3 +168,5 @@ SentryAppStartTracker ()
 }
 
 @end
+
+#endif
