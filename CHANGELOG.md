@@ -4,6 +4,7 @@
 
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
+- feat: Add an option to automatically start SentrySDK with a plist file (#1115)
 
 ## 7.0.3
 

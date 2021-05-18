@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
 
+/*
+ * This method is automatically called when the library is loaded.
+ */
 + (void)load
 {
     NSString *sentryPlistPath = [[NSBundle mainBundle] pathForResource:@"Sentry" ofType:@"plist"];
