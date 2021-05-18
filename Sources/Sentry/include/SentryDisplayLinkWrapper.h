@@ -2,6 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
+
 @interface SentryDisplayLinkWrapper : NSObject
 
 @property (readonly, nonatomic) CFTimeInterval timestamp;
@@ -11,5 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)invalidate;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

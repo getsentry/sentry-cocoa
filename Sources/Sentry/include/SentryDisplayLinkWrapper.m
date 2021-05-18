@@ -3,7 +3,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif
 
 @implementation SentryDisplayLinkWrapper {
     CADisplayLink *displayLink;
@@ -26,3 +25,5 @@
 }
 
 @end
+
+#endif

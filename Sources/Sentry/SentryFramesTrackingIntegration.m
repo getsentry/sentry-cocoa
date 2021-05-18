@@ -16,10 +16,10 @@ SentryFramesTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    self.tracker =
-        [[SentryFramesTracker alloc] initWithOptions:options
-                                  displayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+#if SENTRY_HAS_UIKIT
+    self.tracker = [SentryFramesTracker sharedInstance];
     [self.tracker start];
+#endif
 }
 
 - (void)uninstall

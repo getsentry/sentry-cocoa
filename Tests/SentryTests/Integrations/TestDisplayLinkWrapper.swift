@@ -1,5 +1,6 @@
 import Foundation
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class TestDiplayLinkWrapper: SentryDisplayLinkWrapper {
     
     private var target: AnyObject!
@@ -21,6 +22,9 @@ class TestDiplayLinkWrapper: SentryDisplayLinkWrapper {
     }
     
     override func invalidate() {
-        
+        target = nil
+        selector = nil
     }
 }
+
+#endif
