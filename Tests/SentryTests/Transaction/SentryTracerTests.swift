@@ -54,4 +54,41 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
+    
+    // Altough we only run this test above the below specified versions, we exped the
+    // implementation to be thread safe
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testConcurrentTransactions_OnlyOneGetsMeasurement() {
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "warm", duration: 0.5)
+        
+        let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
+        let group = DispatchGroup()
+        
+        let transactions = 10_000
+        for _ in 0..<transactions {
+            group.enter()
+            queue.async {
+                self.fixture.sut.finish()
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+        
+        fixture.hub.group.wait()
+        
+        XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
+        
+        let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
+            let serializedTransaction = pair.event.serialize()
+            let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
+            return measurements == ["app_start_time_warm": ["value": 500.0]]
+        }.count
+        
+        XCTAssertEqual(1, transactionsWithAppStartMeasrurement)
+        XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
 }

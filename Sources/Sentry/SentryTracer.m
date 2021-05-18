@@ -140,22 +140,30 @@
 
 - (void)addMeasurements:(SentryTransaction *)transaction
 {
+    SentryAppStartMeasurement *appStartMeasurement = nil;
+
+    // Double-Checked Locking to avoid acquiring unnecessary locks
     if (SentrySDK.appStartMeasurement != nil) {
-        NSString *appStartMeasurementType = nil;
+        @synchronized(SentrySDK.appStartMeasurement) {
+            if (SentrySDK.appStartMeasurement != nil) {
+                appStartMeasurement = SentrySDK.appStartMeasurement;
+                SentrySDK.appStartMeasurement = nil;
+            }
+        }
+    }
 
-        if ([SentrySDK.appStartMeasurement.type isEqualToString:SentryAppStartTypeCold]) {
-            appStartMeasurementType = @"app_start_time_cold";
-        } else if ([SentrySDK.appStartMeasurement.type isEqualToString:SentryAppStartTypeWarm]) {
-            appStartMeasurementType = @"app_start_time_warm";
+    if (appStartMeasurement != nil) {
+        NSString *type = nil;
+        if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeCold]) {
+            type = @"app_start_time_cold";
+        } else if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeWarm]) {
+            type = @"app_start_time_warm";
         }
 
-        if (appStartMeasurementType != nil) {
-            [transaction
-                setMeasurementValue:@{ @"value" : @(SentrySDK.appStartMeasurement.duration * 1000) }
-                             forKey:appStartMeasurementType];
+        if (type != nil) {
+            [transaction setMeasurementValue:@{ @"value" : @(appStartMeasurement.duration * 1000) }
+                                      forKey:type];
         }
-
-        SentrySDK.appStartMeasurement = nil;
     }
 }
 
