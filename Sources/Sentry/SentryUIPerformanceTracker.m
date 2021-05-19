@@ -33,18 +33,19 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 #endif
 }
 
+// Every swizzle is used in UIKit classes.
+#if SENTRY_HAS_UIKIT
+// SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+// fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
 /**
  * Swizzle the some init methods of the view controller,
  * so we can swizzle user view controller subclass on demand.
  */
 + (void)swizzleViewControllerInits
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
@@ -62,14 +63,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             return SentrySWCallOriginal(nibName, bundle);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
-
-#    pragma clang diagnostic pop
-#endif
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
 {
-#if SENTRY_HAS_UIKIT
     // Swizzling only classes from the user app module to avoid track every UIKit view controller
     // interaction.
     static const char *appImage = nil;
@@ -89,17 +86,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     [SentryUIPerformanceTracker swizzleViewDidLoad:class];
     [SentryUIPerformanceTracker swizzleViewWillAppear:class];
     [SentryUIPerformanceTracker swizzleViewDidAppear:class];
-#endif
 }
 
 + (void)swizzleLoadView:(Class)class
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
@@ -118,18 +108,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             [SentryPerformanceTracker.shared popActiveSpan];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#    pragma clang diagnostic pop
-#endif
 }
 
 + (void)swizzleViewDidLoad:(Class)class
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
@@ -147,18 +129,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#    pragma clang diagnostic pop
-#endif
 }
 
 + (void)swizzleViewWillAppear:(Class)class
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -177,18 +151,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#    pragma clang diagnostic pop
-#endif
 }
 
 + (void)swizzleViewDidAppear:(Class)class
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -208,18 +174,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#    pragma clang diagnostic pop
-#endif
 }
 
 + (void)swizzleViewLayoutSubViews:(Class)class
 {
-#if SENTRY_HAS_UIKIT
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
     SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
     SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
@@ -262,8 +220,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)didSelector);
-#    pragma clang diagnostic pop
-#endif
 }
 
+#    pragma clang diagnostic pop
+#endif
 @end
