@@ -195,13 +195,13 @@ sentrycrashsysctl_currentProcessStartTime()
 {
     size_t len = 4;
     int mib[len];
-    struct kinfo_proc kp;
 
     sysctlnametomib("kern.proc.pid", mib, &len);
     mib[3] = getpid();
-    len = sizeof(kp);
 
-    if (0 != sysctl(mib, 4, &kp, &len, NULL, 0)) {
+    struct kinfo_proc kp;
+    size_t kpSize = sizeof(kp);
+    if (0 != sysctl(mib, 4, &kp, &kpSize, NULL, 0)) {
         SentryCrashLOG_ERROR("Could not get current process start time: %s", strerror(errno));
     }
 
