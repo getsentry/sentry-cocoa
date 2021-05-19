@@ -95,6 +95,16 @@ SentryAppStartTracker ()
                        [SentryLog logWithMessage:@"App was in background. Not measuring app start."
                                         andLevel:kSentryLevelInfo];
                    } else {
+                       // According to a talk at WWDC about optimizing app launch (
+                       // https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
+                       // slide 17) no process exists for cold and warm launches. Therefore it is
+                       // fine to use the process start timestamp. Instead on Android the process
+                       // can be forked before the app is launched and this would give wrong values.
+                       // Using the proess start time returned valid values when testing with real
+                       // devices.
+                       // It could be that we have to switch back to setting a appStart-timestamp in
+                       // the load method of this class to get a close approximation of when the
+                       // process was started.
                        NSTimeInterval appStartTime = [[self.currentDate date]
                            timeIntervalSinceDate:self.sysctl.processStartTimestamp];
 
