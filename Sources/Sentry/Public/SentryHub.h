@@ -25,7 +25,7 @@ SENTRY_NO_INIT
 - (void)startSession;
 
 /**
- * Ends the current SentrySession. You can use this method in combination with endSession to
+ * Ends the current SentrySession. You can use this method in combination with startSession to
  * manually track SentrySessions. The SDK uses SentrySession to inform Sentry about release and
  * project associated project health.
  */
