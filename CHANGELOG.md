@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.1.0
 
 - feat: Measure app start time (#1111)
 - fix: Remove SentryUnsignedLongLongValue (#1118)
