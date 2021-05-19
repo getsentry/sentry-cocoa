@@ -1,6 +1,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
 #import "SentryLog.h"
+#import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppStartTracker.h>
 #import <SentryAppState.h>
@@ -13,13 +14,10 @@
 #import <SentryLog.h>
 #import <SentrySDK+Private.h>
 #import <SentrySpan.h>
-#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 
 #    import <UIKit/UIKit.h>
-
-static NSDate *appStart = nil;
 
 @interface
 SentryAppStartTracker ()
@@ -35,13 +33,6 @@ SentryAppStartTracker ()
 @end
 
 @implementation SentryAppStartTracker
-
-+ (void)load
-{
-    // Invoked whenever this class is added to the Objective-C runtime. That's the best
-    // approximation of the app start time we can get.
-    appStart = [NSDate date];
-}
 
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -104,8 +95,13 @@ SentryAppStartTracker ()
                        [SentryLog logWithMessage:@"App was in background. Not measuring app start."
                                         andLevel:kSentryLevelInfo];
                    } else {
-                       NSTimeInterval appStartTime =
-                           [[self.currentDate date] timeIntervalSinceDate:appStart];
+                       NSTimeInterval appStartTime = [[self.currentDate date]
+                           timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+
+                       [SentryLog logWithMessage:[NSString stringWithFormat:@"AppStart: sys:%f",
+                                                           appStartTime]
+                                        andLevel:kSentryLevelInfo];
+
                        SentryAppStartMeasurement *appStartMeasurement =
                            [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                                   duration:appStartTime];
@@ -157,14 +153,6 @@ SentryAppStartTracker ()
 - (void)stop
 {
     [NSNotificationCenter.defaultCenter removeObserver:self];
-}
-
-/**
- * Needed for testing, not public.
- */
-+ (void)setAppStart:(nullable NSDate *)value
-{
-    appStart = value;
 }
 
 @end

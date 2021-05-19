@@ -41,7 +41,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         fixture = Fixture()
         
         let appStart = fixture.currentDate.date().addingTimeInterval(-fixture.appStartDuration)
-        SentryAppStartTracker.setAppStart(appStart)
+        fixture.sysctl.setProcessStartTimestamp(value: appStart)
     }
     
     override func tearDown() {
@@ -49,7 +49,6 @@ class SentryAppStartTrackerTests: XCTestCase {
         sut.stop()
         fixture.fileManager.deleteAllFolders()
         SentrySDK.appStartMeasurement = nil
-        SentryAppStartTracker.setAppStart(nil)
     }
     
     func testFirstStart_IsColdStart() {

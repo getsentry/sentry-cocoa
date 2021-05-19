@@ -887,7 +887,6 @@
 		7BD86ECC264A78A6005439DB /* SentryAppStartTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAppStartTrackerTests.swift; sourceTree = "<group>"; };
 		7BD86ECE264A7C77005439DB /* SentryAppStartMeasurement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryAppStartMeasurement.h; path = include/SentryAppStartMeasurement.h; sourceTree = "<group>"; };
 		7BD86ED0264A7CF6005439DB /* SentryAppStartMeasurement.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAppStartMeasurement.m; sourceTree = "<group>"; };
-		7BD86ED2264A8211005439DB /* SentryAppStartTracker+TestPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryAppStartTracker+TestPrivate.h"; sourceTree = "<group>"; };
 		7BDB03B6251364F800BAE198 /* SentryDispatchQueueWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDispatchQueueWrapper.h; path = include/SentryDispatchQueueWrapper.h; sourceTree = "<group>"; };
 		7BDB03BA2513652900BAE198 /* SentryDispatchQueueWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDispatchQueueWrapper.m; sourceTree = "<group>"; };
 		7BDB03BE25136A7D00BAE198 /* TestSentryDispatchQueueWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryDispatchQueueWrapper.swift; sourceTree = "<group>"; };
@@ -1701,7 +1700,6 @@
 				7BE2C7F72570009F003B66C7 /* SentryTestIntegration.m */,
 				7B98D7DF25FB73B900C5A389 /* SentryOutOfMemoryTrackerTests.swift */,
 				7BD86ECC264A78A6005439DB /* SentryAppStartTrackerTests.swift */,
-				7BD86ED2264A8211005439DB /* SentryAppStartTracker+TestPrivate.h */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
