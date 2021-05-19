@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
 
