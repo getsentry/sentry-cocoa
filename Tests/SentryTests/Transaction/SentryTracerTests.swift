@@ -15,12 +15,18 @@ class SentryTracerTests: XCTestCase {
     
     override func setUp() {
         fixture = Fixture()
+        SentrySDK.appStartMeasurement = nil
+    }
+    
+    override func tearDown() {
+        SentrySDK.appStartMeasurement = nil
     }
 
     func testAddColdAppStartMeasurement_GetsPutOnNextTransaction() {
         SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "cold", duration: 0.5)
         
         fixture.sut.finish()
+        fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
@@ -34,6 +40,7 @@ class SentryTracerTests: XCTestCase {
         SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "warm", duration: 0.5)
         
         fixture.sut.finish()
+        fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
@@ -47,6 +54,7 @@ class SentryTracerTests: XCTestCase {
         SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "b", duration: 0.5)
         
         fixture.sut.finish()
+        fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
