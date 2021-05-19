@@ -3,7 +3,11 @@
 ## Unreleased
 
 - feat: Add UI auto instrumentation (#1105)
+
+## 7.1.0
+
 - ref: Make calls to customSamplingContext nonnull (#1061)
+- fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
 
