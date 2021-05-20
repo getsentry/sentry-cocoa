@@ -1,9 +1,12 @@
 #import "SentryTracer.h"
+#import "SentryAppStartMeasurement.h"
 #import "SentryHub.h"
+#import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
@@ -124,6 +127,8 @@
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
+    [self addMeasurements:transaction];
+
     [_hub captureEvent:transaction withScope:_hub.scope];
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
@@ -131,6 +136,35 @@
             [self->_hub.scope setSpan:nil];
         }
     }];
+}
+
+- (void)addMeasurements:(SentryTransaction *)transaction
+{
+    SentryAppStartMeasurement *appStartMeasurement = nil;
+
+    // Double-Checked Locking to avoid acquiring unnecessary locks
+    if (SentrySDK.appStartMeasurement != nil) {
+        @synchronized(SentrySDK.appStartMeasurement) {
+            if (SentrySDK.appStartMeasurement != nil) {
+                appStartMeasurement = SentrySDK.appStartMeasurement;
+                SentrySDK.appStartMeasurement = nil;
+            }
+        }
+    }
+
+    if (appStartMeasurement != nil) {
+        NSString *type = nil;
+        if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeCold]) {
+            type = @"app_start_time_cold";
+        } else if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeWarm]) {
+            type = @"app_start_time_warm";
+        }
+
+        if (type != nil) {
+            [transaction setMeasurementValue:@{ @"value" : @(appStartMeasurement.duration * 1000) }
+                                      forKey:type];
+        }
+    }
 }
 
 - (NSDictionary *)serialize

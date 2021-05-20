@@ -190,6 +190,24 @@ sentrycrashsysctl_timevalForName(const char *const name)
     return value;
 }
 
+struct timeval
+sentrycrashsysctl_currentProcessStartTime()
+{
+    size_t len = 4;
+    int mib[len];
+
+    sysctlnametomib("kern.proc.pid", mib, &len);
+    mib[3] = getpid();
+
+    struct kinfo_proc kp;
+    size_t kpSize = sizeof(kp);
+    if (0 != sysctl(mib, 4, &kp, &kpSize, NULL, 0)) {
+        SentryCrashLOG_ERROR("Could not get current process start time: %s", strerror(errno));
+    }
+
+    return kp.kp_proc.p_un.__p_starttime;
+}
+
 bool
 sentrycrashsysctl_getProcessInfo(const int pid, struct kinfo_proc *const procInfo)
 {

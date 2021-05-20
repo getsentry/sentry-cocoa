@@ -10,9 +10,10 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let options: Options
         let client: TestClient!
-        let sentryCrash: TestSentryCrashWrapper
+        let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
-        let crashWrapper = TestSentryCrashWrapper()
+        let currentDate = TestCurrentDateProvider()
+        let sysctl = TestSysctl()
         
         init() {
             options = Options()
@@ -21,16 +22,18 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            sentryCrash = TestSentryCrashWrapper()
+            crashWrapper = TestSentryCrashWrapper()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper)
             SentrySDK.setCurrentHub(hub)
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
         }
         
         func getSut() -> SentryOutOfMemoryTracker {
-            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: SentryOutOfMemoryLogic(options: options, crashAdapter: self.crashWrapper), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
+            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
         }
     }
     
@@ -55,7 +58,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let actual = fixture.fileManager.readAppState()
         
-        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
     }
@@ -81,7 +84,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
 
     func testDifferentAppVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, isDebugging: false))
+        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
         
         sut.start()
         
@@ -89,7 +92,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testDifferentOSVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", isDebugging: false))
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
         
         sut.start()
         
@@ -121,7 +124,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testCrashReport_NoOOM() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
         givenPreviousAppState(appState: appState)
         fixture.crashWrapper.internalCrashedLastLaunch = true
         
