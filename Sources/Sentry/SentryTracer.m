@@ -183,6 +183,7 @@
                                       forKey:type];
         }
     }
+
 #if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];

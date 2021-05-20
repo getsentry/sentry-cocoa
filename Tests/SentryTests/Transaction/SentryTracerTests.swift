@@ -45,7 +45,7 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
+        XCTAssertEqual(addZeroFrames(measurements: ["app_start_cold": ["value": 500]]), measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
@@ -59,7 +59,7 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
+        XCTAssertEqual(addZeroFrames(measurements: ["app_start_warm": ["value": 500]]), measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
@@ -71,7 +71,12 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        XCTAssertEqual(addZeroFrames(measurements: [:]), serializedTransaction["measurements"]  as? [String: [String: Int]])
+        #else
         XCTAssertNil(serializedTransaction["measurements"])
+        #endif
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
@@ -106,7 +111,7 @@ class SentryTracerTests: XCTestCase {
         let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
-            return measurements == ["app_start_warm": ["value": 500]]
+            return measurements == addZeroFrames(measurements: ["app_start_warm": ["value": 500]])
         }.count
         
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement)
@@ -164,4 +169,21 @@ class SentryTracerTests: XCTestCase {
         }
     }
     #endif
+    
+    private func addZeroFrames(measurements: [String: [String: Int]]) -> [String: [String: Int]] {
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        var noFrames = [
+            "frames_total": ["value": 0],
+            "frames_slow": ["value": 0],
+            "frames_frozen": ["value": 0]
+        ]
+        #else
+        var noFrames: [String: [String: Int]] = [:]
+        #endif
+        
+        // Merge two dicts
+        measurements.forEach { (key, value) in noFrames[key] = value }
+        
+        return noFrames
+    }
 }
