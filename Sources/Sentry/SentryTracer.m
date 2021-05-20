@@ -31,6 +31,8 @@
         _spans = [[NSMutableArray alloc] init];
         _hub = hub;
 
+        // Store current amount of frames at the beginning to be able to calculate the amount of
+        // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
         initTotalFrames = framesTracker.currentTotalFrames;
         initSlowFrames = framesTracker.currentSlowFrames;
