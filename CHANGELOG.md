@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add Frame Measurements to transactions (#1123)
+feat: Measure slow and frozen frames (#1123)
 
 ## 7.1.0
 
