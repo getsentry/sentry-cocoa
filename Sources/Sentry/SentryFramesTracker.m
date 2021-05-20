@@ -72,6 +72,12 @@ SentryFramesTracker ()
     return self;
 }
 
+/** Internal for testing */
+- (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
+{
+    _displayLinkWrapper = displayLinkWrapper;
+}
+
 - (void)start
 {
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];

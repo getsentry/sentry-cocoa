@@ -6,6 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
+- (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
+
 @end
 
 NS_ASSUME_NONNULL_END

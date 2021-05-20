@@ -1,6 +1,8 @@
 #import "SentryTracer.h"
 #import "SentryAppStartMeasurement.h"
+#import "SentryFramesTracker.h"
 #import "SentryHub.h"
+#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
@@ -14,6 +16,10 @@
     SentrySpan *_rootSpan;
     NSMutableArray<id<SentrySpan>> *_spans;
     SentryHub *_hub;
+
+    NSUInteger initTotalFrames;
+    NSUInteger initSlowFrames;
+    NSUInteger initFrozenFrames;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -24,6 +30,11 @@
         self.name = transactionContext.name;
         _spans = [[NSMutableArray alloc] init];
         _hub = hub;
+
+        SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+        initTotalFrames = framesTracker.currentTotalFrames;
+        initSlowFrames = framesTracker.currentSlowFrames;
+        initFrozenFrames = framesTracker.currentFrozenFrames;
     }
 
     return self;
@@ -141,6 +152,7 @@
 - (void)addMeasurements:(SentryTransaction *)transaction
 {
     SentryAppStartMeasurement *appStartMeasurement = nil;
+    NSString *valueKey = @"value";
 
     // Double-Checked Locking to avoid acquiring unnecessary locks
     if (SentrySDK.appStartMeasurement != nil) {
@@ -161,10 +173,20 @@
         }
 
         if (type != nil) {
-            [transaction setMeasurementValue:@{ @"value" : @(appStartMeasurement.duration * 1000) }
+            [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
                                       forKey:type];
         }
     }
+
+    // Frames
+    SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+    NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
+    NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
+    NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
+
+    [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
+    [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
+    [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
 }
 
 - (NSDictionary *)serialize

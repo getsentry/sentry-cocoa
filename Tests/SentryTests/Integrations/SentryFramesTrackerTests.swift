@@ -8,20 +8,6 @@ class SentryFramesTrackerTests: XCTestCase {
         var displayLinkWrapper: TestDiplayLinkWrapper
         var queue: DispatchQueue
         
-        private var maximumFramesPerSecond: Int {
-            if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
-                return UIScreen.main.maximumFramesPerSecond
-            } else {
-                return 60
-            }
-        }
-        
-        var slowFrameThreshold: Double {
-            return 1 / (Double(maximumFramesPerSecond) - 1.0)
-        }
-        
-        let frozenFrameThreshold = 0.7
-        
         init() {
             displayLinkWrapper = TestDiplayLinkWrapper()
             queue = DispatchQueue(label: "SentryFramesTrackerTests", qos: .background, attributes: [.concurrent])
@@ -43,9 +29,9 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += fixture.slowFrameThreshold + 0.001
+        fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += fixture.slowFrameThreshold
+        fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold
         fixture.displayLinkWrapper.call()
         
         XCTAssertEqual(1, sut.currentSlowFrames)
@@ -58,9 +44,9 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += fixture.frozenFrameThreshold + 0.001
+        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += fixture.frozenFrameThreshold
+        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
         fixture.displayLinkWrapper.call()
         
         XCTAssertEqual(1, sut.currentSlowFrames)
@@ -82,10 +68,10 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let frames: UInt = 600_000
         for _ in 0 ..< frames {
-            fixture.displayLinkWrapper.internalTimestamp += fixture.slowFrameThreshold + 0.001
+            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
             fixture.displayLinkWrapper.call()
             
-            fixture.displayLinkWrapper.internalTimestamp += fixture.frozenFrameThreshold + 0.001
+            fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
             fixture.displayLinkWrapper.call()
         }
         
@@ -103,7 +89,7 @@ class SentryFramesTrackerTests: XCTestCase {
         self.measure {
             for _ in 0 ..< frames {
                 fixture.displayLinkWrapper.call()
-                fixture.displayLinkWrapper.internalTimestamp += fixture.slowFrameThreshold
+                fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold
             }
         }
     }

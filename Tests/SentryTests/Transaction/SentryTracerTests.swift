@@ -4,6 +4,13 @@ class SentryTracerTests: XCTestCase {
     
     private class Fixture {
         let hub = TestHub(client: nil, andScope: nil)
+        var displayLinkWrapper: TestDiplayLinkWrapper
+        
+        init() {
+            displayLinkWrapper = TestDiplayLinkWrapper()
+            
+            SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
+        }
         
         var sut: SentryTracer {
             let context = TransactionContext(name: "name", operation: "operation")
@@ -20,6 +27,7 @@ class SentryTracerTests: XCTestCase {
     
     override func tearDown() {
         SentrySDK.appStartMeasurement = nil
+        SentryFramesTracker.sharedInstance().stop()
     }
 
     func testAddColdAppStartMeasurement_GetsPutOnNextTransaction() {
@@ -98,5 +106,55 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement)
         XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
+    
+    func testAddFramesMeasurement() {
+        SentryFramesTracker.sharedInstance().start()
+        let sut = fixture.sut
+        
+        let slowFrames = 4
+        let frozenFrames = 1
+        let totalFrames = 100
+        givenFrames(slowFrames, frozenFrames, totalFrames)
+        
+        sut.finish()
+        
+        fixture.hub.group.wait()
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
+        
+        XCTAssertEqual([
+            "frames_total": ["value": totalFrames],
+            "frames_slow": ["value": slowFrames],
+            "frames_frozen": ["value": frozenFrames]
+        ], measurements)
+        XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
+    
+    private func givenFrames(_ slow: Int, _ frozen: Int, _ total: Int) {
+        
+        fixture.displayLinkWrapper.call()
+        
+        //Slow frames
+        for _ in 0..<slow {
+            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
+            fixture.displayLinkWrapper.call()
+        }
+        
+        // Frozen frames
+        for _ in 0..<frozen {
+            fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
+            fixture.displayLinkWrapper.call()
+        }
+        
+        // Normal frames
+        for _ in 0..<(total - slow - frozen) {
+            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold - 1
+            fixture.displayLinkWrapper.call()
+        }
     }
 }
