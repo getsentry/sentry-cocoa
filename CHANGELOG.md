@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add Frame Measurements to transactions (#1123)
+
 ## 7.1.0
 
 - feat: Measure app start time (#1111)
