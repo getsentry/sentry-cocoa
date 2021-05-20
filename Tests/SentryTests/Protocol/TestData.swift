@@ -1,3 +1,5 @@
+import UIKit
+
 class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
