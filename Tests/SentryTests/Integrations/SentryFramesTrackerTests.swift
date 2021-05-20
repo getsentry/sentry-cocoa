@@ -33,9 +33,11 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.call()
         fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold
         fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
+        fixture.displayLinkWrapper.call()
         
-        XCTAssertEqual(1, sut.currentSlowFrames)
-        XCTAssertEqual(2, sut.currentTotalFrames)
+        XCTAssertEqual(2, sut.currentSlowFrames)
+        XCTAssertEqual(3, sut.currentTotalFrames)
         XCTAssertEqual(0, sut.currentFrozenFrames)
     }
     
