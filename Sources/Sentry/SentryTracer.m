@@ -17,9 +17,11 @@
     NSMutableArray<id<SentrySpan>> *_spans;
     SentryHub *_hub;
 
+#if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
+#endif
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -31,12 +33,14 @@
         _spans = [[NSMutableArray alloc] init];
         _hub = hub;
 
+#if SENTRY_HAS_UIKIT
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
         initTotalFrames = framesTracker.currentTotalFrames;
         initSlowFrames = framesTracker.currentSlowFrames;
         initFrozenFrames = framesTracker.currentFrozenFrames;
+#endif
     }
 
     return self;
@@ -179,7 +183,7 @@
                                       forKey:type];
         }
     }
-
+#if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
     NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
@@ -189,6 +193,7 @@
     [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
     [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
     [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
+#endif
 }
 
 - (NSDictionary *)serialize

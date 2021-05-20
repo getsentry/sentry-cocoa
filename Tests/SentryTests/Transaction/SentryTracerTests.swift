@@ -4,6 +4,8 @@ class SentryTracerTests: XCTestCase {
     
     private class Fixture {
         let hub = TestHub(client: nil, andScope: nil)
+        
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDiplayLinkWrapper
         
         init() {
@@ -11,6 +13,7 @@ class SentryTracerTests: XCTestCase {
             
             SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
         }
+        #endif
         
         var sut: SentryTracer {
             let context = TransactionContext(name: "name", operation: "operation")
@@ -27,7 +30,9 @@ class SentryTracerTests: XCTestCase {
     
     override func tearDown() {
         SentrySDK.appStartMeasurement = nil
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().stop()
+        #endif
     }
 
     func testAddColdAppStartMeasurement_GetsPutOnNextTransaction() {
@@ -108,6 +113,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testAddFramesMeasurement() {
         SentryFramesTracker.sharedInstance().start()
         let sut = fixture.sut
@@ -157,4 +163,5 @@ class SentryTracerTests: XCTestCase {
             fixture.displayLinkWrapper.call()
         }
     }
+    #endif
 }

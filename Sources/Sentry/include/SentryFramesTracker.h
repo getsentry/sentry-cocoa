@@ -4,6 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
+
 /**
  * Tracks total, frozen and slow frames for iOS, tvOS, and Mac Catalyst.
  */
@@ -20,5 +22,7 @@ SENTRY_NO_INIT
 - (void)stop;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

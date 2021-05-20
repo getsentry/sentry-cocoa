@@ -8,7 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryFramesTrackingIntegration ()
 
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *tracker;
+#endif
 
 @end
 
@@ -29,9 +31,11 @@ SentryFramesTrackingIntegration ()
 
 - (void)stop
 {
+#if SENTRY_HAS_UIKIT
     if (nil != self.tracker) {
         [self.tracker stop];
     }
+#endif
 }
 
 @end

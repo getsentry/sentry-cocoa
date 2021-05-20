@@ -172,6 +172,7 @@ class TestData {
         return event
     }
     
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private static var maximumFramesPerSecond: Int {
         if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
             return UIScreen.main.maximumFramesPerSecond
@@ -185,4 +186,5 @@ class TestData {
     }
     
     static let frozenFrameThreshold = 0.7
+    #endif
 }
