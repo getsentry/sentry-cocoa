@@ -155,9 +155,9 @@
     if (appStartMeasurement != nil) {
         NSString *type = nil;
         if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeCold]) {
-            type = @"app_start_time_cold";
+            type = @"app_start_cold";
         } else if ([appStartMeasurement.type isEqualToString:SentryAppStartTypeWarm]) {
-            type = @"app_start_time_warm";
+            type = @"app_start_warm";
         }
 
         if (type != nil) {

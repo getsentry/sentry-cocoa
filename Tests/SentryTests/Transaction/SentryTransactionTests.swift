@@ -19,21 +19,21 @@ class SentryTransactionTests: XCTestCase {
         let transaction = Fixture.transaction
         
         let appStart = ["value": 15_000.0]
-        transaction.setMeasurementValue(appStart, forKey: "app_start_time_cold")
+        transaction.setMeasurementValue(appStart, forKey: "app_start_cold")
         let actual = transaction.serialize()
         
         let actualMeasurements = actual["measurements"] as? [String: [String: Double]]
-        XCTAssertEqual(appStart, actualMeasurements?["app_start_time_cold"] )
+        XCTAssertEqual(appStart, actualMeasurements?["app_start_cold"] )
     }
     
     func testSerializeMeasurements_GarbageInMeasurements_GarbageSanitized() {
         let transaction = Fixture.transaction
         
         let appStart = ["value": self]
-        transaction.setMeasurementValue(appStart, forKey: "app_start_time_cold")
+        transaction.setMeasurementValue(appStart, forKey: "app_start_cold")
         let actual = transaction.serialize()
         
         let actualMeasurements = actual["measurements"] as? [String: [String: String]]
-        XCTAssertEqual(["value": self.description], actualMeasurements?["app_start_time_cold"] )
+        XCTAssertEqual(["value": self.description], actualMeasurements?["app_start_cold"] )
     }
 }

@@ -30,9 +30,9 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        XCTAssertEqual(["app_start_time_cold": ["value": 500.0]], measurements)
+        XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
@@ -44,9 +44,9 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        XCTAssertEqual(["app_start_time_warm": ["value": 500.0]], measurements)
+        XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
@@ -92,8 +92,8 @@ class SentryTracerTests: XCTestCase {
         
         let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
             let serializedTransaction = pair.event.serialize()
-            let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
-            return measurements == ["app_start_time_warm": ["value": 500.0]]
+            let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
+            return measurements == ["app_start_warm": ["value": 500]]
         }.count
         
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement)
