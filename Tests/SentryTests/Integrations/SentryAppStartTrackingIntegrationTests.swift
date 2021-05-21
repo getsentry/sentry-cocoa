@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryAppStartTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
@@ -56,3 +57,4 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
 }
+#endif
