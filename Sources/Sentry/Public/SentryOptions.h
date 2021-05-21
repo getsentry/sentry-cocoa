@@ -116,9 +116,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable to enable out of memory tracking or not. Default is YES.
+ * Whether to enable out of memory tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
+
+/**
+ * Whether to enable measuring app start or not. Default is YES.
+ */
+@property (nonatomic, assign) BOOL enableAppStartMeasuring;
 
 /**
  * The interval to end a session if the App goes to the background.
