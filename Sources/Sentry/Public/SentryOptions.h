@@ -116,7 +116,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable to enable out of memory tracking or not. Default is YES.
+ * Whether to enable out of memory tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
