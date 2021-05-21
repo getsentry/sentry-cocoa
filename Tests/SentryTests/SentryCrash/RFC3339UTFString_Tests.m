@@ -55,7 +55,7 @@ stringFromDate(NSDate *date)
     components.second = second;
     NSCalendar *calendar =
         [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    [calendar setTimeZone:(NSTimeZone * _Nonnull)[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+    [calendar setTimeZone:(NSTimeZone *_Nonnull)[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
     return [calendar dateFromComponents:components];
 }
 
