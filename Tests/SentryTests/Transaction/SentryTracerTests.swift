@@ -12,6 +12,8 @@ class SentryTracerTests: XCTestCase {
             displayLinkWrapper = TestDiplayLinkWrapper()
             
             SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
+            SentryFramesTracker.sharedInstance().start()
+            displayLinkWrapper.call()
         }
         #endif
         
@@ -86,7 +88,7 @@ class SentryTracerTests: XCTestCase {
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testConcurrentTransactions_OnlyOneGetsMeasurement() {
+    func testConcurrentTransactions_OnlyOneGetsAppStartMeasurement() {
         SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "warm", duration: 0.5)
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
@@ -120,13 +122,13 @@ class SentryTracerTests: XCTestCase {
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testAddFramesMeasurement() {
-        SentryFramesTracker.sharedInstance().start()
         let sut = fixture.sut
         
         let slowFrames = 4
         let frozenFrames = 1
-        let totalFrames = 100
-        givenFrames(slowFrames, frozenFrames, totalFrames)
+        let normalFrames = 100
+        let totalFrames = slowFrames + frozenFrames + normalFrames
+        givenFrames(slowFrames, frozenFrames, normalFrames)
         
         sut.finish()
         
@@ -146,11 +148,11 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
-    private func givenFrames(_ slow: Int, _ frozen: Int, _ total: Int) {
+    private func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
         
         fixture.displayLinkWrapper.call()
         
-        //Slow frames
+        // Slow frames
         for _ in 0..<slow {
             fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
             fixture.displayLinkWrapper.call()
@@ -162,9 +164,9 @@ class SentryTracerTests: XCTestCase {
             fixture.displayLinkWrapper.call()
         }
         
-        // Normal frames
-        for _ in 0..<(total - slow - frozen) {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold - 1
+        // Normal frames. 
+        for _ in 0..<(normal - 1) {
+            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold - 0.01
             fixture.displayLinkWrapper.call()
         }
     }
