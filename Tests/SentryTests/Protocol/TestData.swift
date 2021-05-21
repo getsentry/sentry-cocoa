@@ -1,4 +1,6 @@
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import UIKit
+#endif
 
 class TestData {
     
