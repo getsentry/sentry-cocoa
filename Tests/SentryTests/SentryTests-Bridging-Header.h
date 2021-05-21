@@ -6,6 +6,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"
+#import "SentryAppStartTrackingIntegration.h"
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
 #import "SentryAttachment.h"

@@ -25,25 +25,27 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    SentryDefaultCurrentDateProvider *currentDateProvider =
-        [[SentryDefaultCurrentDateProvider alloc] init];
-    SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
-    SentrySysctl *sysctl = [[SentrySysctl alloc] init];
+    if (options.enableAppStartMeasuring) {
+        SentryDefaultCurrentDateProvider *currentDateProvider =
+            [[SentryDefaultCurrentDateProvider alloc] init];
+        SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
+        SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
-    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
-            initWithOptions:options
-               crashAdapter:crashAdapter
-                fileManager:[[[SentrySDK currentHub] getClient] fileManager]
-        currentDateProvider:currentDateProvider
-                     sysctl:sysctl];
+        SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
+                initWithOptions:options
+                   crashAdapter:crashAdapter
+                    fileManager:[[[SentrySDK currentHub] getClient] fileManager]
+            currentDateProvider:currentDateProvider
+                         sysctl:sysctl];
 
-    self.tracker =
-        [[SentryAppStartTracker alloc] initWithOptions:options
-                                   currentDateProvider:currentDateProvider
-                                  dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                                       appStateManager:appStateManager
-                                                sysctl:sysctl];
-    [self.tracker start];
+        self.tracker =
+            [[SentryAppStartTracker alloc] initWithOptions:options
+                                       currentDateProvider:currentDateProvider
+                                      dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                                           appStateManager:appStateManager
+                                                    sysctl:sysctl];
+        [self.tracker start];
+    }
 
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
