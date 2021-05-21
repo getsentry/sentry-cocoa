@@ -158,7 +158,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
 /**
- * When enabled, the SDK tracks UI performance automatically for UIViewControllers subclasses.
+ * When enabled, the SDK tracks UI performance automatically for UIViewController subclasses.
  * The default is <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableAutoUIPerformanceTracking;
