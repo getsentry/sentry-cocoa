@@ -49,6 +49,7 @@
 #import "SentryFrameRemover.h"
 #import "SentryFramesTracker+TestInit.h"
 #import "SentryFramesTracker.h"
+#import "SentryFramesTrackingIntegration.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"

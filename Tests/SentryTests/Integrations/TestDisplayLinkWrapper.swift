@@ -3,8 +3,8 @@ import Foundation
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class TestDiplayLinkWrapper: SentryDisplayLinkWrapper {
     
-    private var target: AnyObject!
-    private var selector: Selector!
+    var target: AnyObject!
+    var selector: Selector!
     
     override func link(withTarget target: Any, selector sel: Selector) {
         self.target = target as AnyObject
