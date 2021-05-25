@@ -55,11 +55,17 @@ static SentryAppStartMeasurement *appStartMeasurement;
     crashedLastRunCalled = value;
 }
 
+/**
+ * Not public, only for internal use.
+ */
 + (SentryAppStartMeasurement *)appStartMeasurement
 {
     return appStartMeasurement;
 }
 
+/**
+ * Not public, only for internal use.
+ */
 + (void)setAppStartMeasurement:(SentryAppStartMeasurement *)value
 {
     appStartMeasurement = value;
