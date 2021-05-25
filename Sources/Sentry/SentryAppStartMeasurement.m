@@ -3,7 +3,7 @@
 
 @implementation SentryAppStartMeasurement
 
-- (instancetype)initWithType:(NSString *)type duration:(NSTimeInterval)duration
+- (instancetype)initWithType:(SentryAppStartType)type duration:(NSTimeInterval)duration
 {
     if (self = [super init]) {
         _type = type;

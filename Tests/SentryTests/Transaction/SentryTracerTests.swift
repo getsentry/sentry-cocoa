@@ -23,7 +23,7 @@ class SentryTracerTests: XCTestCase {
     }
 
     func testAddColdAppStartMeasurement_GetsPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "cold", duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.cold, duration: 0.5)
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -37,7 +37,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testAddWarmAppStartMeasurement_GetsPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "warm", duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, duration: 0.5)
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -50,8 +50,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
-    func testAddGarbageAppStartMeasurement_GetsNotPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "b", duration: 0.5)
+    func testAddUnknownAppStartMeasurement_GetsNotPutOnNextTransaction() {
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.unknown, duration: 0.5)
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -69,7 +69,7 @@ class SentryTracerTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: "warm", duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, duration: 0.5)
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()

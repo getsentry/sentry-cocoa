@@ -84,9 +84,9 @@ SentryAppStartTracker ()
     [self.dispatchQueue
         dispatchOnce:&once
                block:^{
-                   NSString *appStartType = [self getStartType];
+                   SentryAppStartType appStartType = [self getStartType];
 
-                   if ([appStartType isEqualToString:SentryAppStartTypeUnkown]) {
+                   if (appStartType == SentryAppStartTypeUnknown) {
                        [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
                                         andLevel:kSentryLevelWarning];
                    } else if (self.wasInBackground) {
@@ -122,7 +122,7 @@ SentryAppStartTracker ()
     [self stop];
 }
 
-- (NSString *)getStartType
+- (SentryAppStartType)getStartType
 {
     // App launched the first time
     if (self.previousAppState == nil) {
@@ -152,7 +152,7 @@ SentryAppStartTracker ()
     // This should never be reached as we unsubscribe to didBecomeActive after it is called the
     // first time. If the previous boot time is in the future most likely the system time changed
     // and we can't to anything.
-    return SentryAppStartTypeUnkown;
+    return SentryAppStartTypeUnknown;
 }
 
 - (void)didEnterBackground

@@ -182,13 +182,13 @@ class SentryAppStartTrackerTests: XCTestCase {
     private func assertIsColdStart() {
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
         XCTAssertEqual(fixture.appStartDuration, SentrySDK.appStartMeasurement?.duration)
-        XCTAssertEqual("cold", SentrySDK.appStartMeasurement?.type)
+        XCTAssertEqual(SentryAppStartType.cold, SentrySDK.appStartMeasurement?.type)
     }
     
     private func assertIsWarmStart() {
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
         XCTAssertEqual(fixture.appStartDuration, SentrySDK.appStartMeasurement?.duration)
-        XCTAssertEqual("warm", SentrySDK.appStartMeasurement?.type)
+        XCTAssertEqual(SentryAppStartType.warm, SentrySDK.appStartMeasurement?.type)
     }
     
     private func assertNoAppStartUp() {
