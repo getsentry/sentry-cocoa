@@ -8,6 +8,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         
         init() {
+            options.enableAppStartMeasuring = true
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
