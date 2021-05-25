@@ -28,12 +28,15 @@ class SentryTracerTests: XCTestCase {
         let child = tracer.startChild(operation: fixture.transactionOperation)
         let grandChild = child.startChild(operation: fixture.transactionOperation)
         
-        let tracerChildren = Dynamic(tracer).spans.asArray!
-        let childChildren = Dynamic(child).spans.asArray!
+        let tracerSpans = Dynamic(tracer).spans.asArray!
+        let childSpan = Dynamic(child).spans.asArray!
         
-        XCTAssertTrue(tracerChildren.contains(child))
-        XCTAssertTrue(childChildren.contains(grandChild))
-        XCTAssertFalse(tracerChildren.contains(grandChild))
+        XCTAssertTrue(tracerSpans.contains(child))
+        XCTAssertTrue(childSpan.contains(grandChild))
+        XCTAssertFalse(tracerSpans.contains(grandChild))
+        
+        XCTAssertEqual(tracerSpans.count, 1)
+        XCTAssertEqual(childSpan.count, 1)
     }
     
     func testSpanFlatList() {

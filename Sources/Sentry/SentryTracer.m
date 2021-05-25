@@ -32,7 +32,7 @@ SentryTracer ()
 /**
  * List of children. For testing purpose.
  */
-- (NSArray *)spans;
+- (NSArray<id<SentrySpan>> *)spans;
 @end
 
 @implementation SentryTracer {
