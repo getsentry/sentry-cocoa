@@ -144,7 +144,7 @@
 
     // Double-Checked Locking to avoid acquiring unnecessary locks
     if (SentrySDK.appStartMeasurement != nil) {
-        @synchronized(SentrySDK.appStartMeasurement) {
+        @synchronized(SentrySDK.appStartMeasurementLock) {
             if (SentrySDK.appStartMeasurement != nil) {
                 appStartMeasurement = SentrySDK.appStartMeasurement;
                 SentrySDK.appStartMeasurement = nil;

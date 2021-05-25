@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *appStartMeasurement;
+static NSObject *appStartMeasurementLock;
 
 + (SentryHub *)currentHub
 {
@@ -53,6 +54,17 @@ static SentryAppStartMeasurement *appStartMeasurement;
 + (void)setCrashedLastRunCalled:(BOOL)value
 {
     crashedLastRunCalled = value;
+}
+
+/**
+ * Not public, only for internal use.
+ */
++ (NSObject *)appStartMeasurementLock
+{
+    if (appStartMeasurementLock == nil) {
+        appStartMeasurementLock = [[NSObject alloc] init];
+    }
+    return appStartMeasurementLock;
 }
 
 /**

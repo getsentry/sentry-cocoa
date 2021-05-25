@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, class) SentryAppStartMeasurement *appStartMeasurement;
 
+@property (nonatomic, class) NSObject *appStartMeasurementLock;
+
 + (SentryHub *)currentHub;
 
 @end
