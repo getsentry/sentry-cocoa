@@ -28,6 +28,11 @@ SentryTracer ()
  * A lock to coordinate child manipulation.
  */
 - (NSLock *)childrenLock;
+
+/**
+ * List of children. For testing purpose.
+ */
+- (NSArray *)spans;
 @end
 
 @implementation SentryTracer {
@@ -73,7 +78,6 @@ SentryTracer ()
         _spans = [[NSMutableArray alloc] init];
     }
     return self;
-    ;
 }
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
@@ -202,8 +206,16 @@ SentryTracer ()
     return result;
 }
 
+- (NSArray *)spans
+{
+    return _spans;
+}
+
 - (void)captureTransaction
 {
+    if (_hub == nil)
+        return;
+
     NSArray *spans = [self.children
         filteredArrayUsingPredicate:[NSPredicate
                                         predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
