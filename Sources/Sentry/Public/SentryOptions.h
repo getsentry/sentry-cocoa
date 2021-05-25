@@ -121,7 +121,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
 /**
- * Whether to enable measuring app start or not. Default is YES.
+ * Whether to enable measuring app start or not. Default is NO.
  */
 @property (nonatomic, assign) BOOL enableAppStartMeasuring;
 

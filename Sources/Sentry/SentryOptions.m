@@ -38,7 +38,7 @@ SentryOptions ()
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
-        self.enableAppStartMeasuring = YES;
+        self.enableAppStartMeasuring = NO;
         self.enableRenderFrameMeasuring = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
