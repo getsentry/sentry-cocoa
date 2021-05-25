@@ -39,7 +39,7 @@ SentryOptions ()
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
         self.enableAppStartMeasuring = NO;
-        self.enableRenderFrameMeasuring = YES;
+        self.enableRenderFrameMeasuring = NO;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;

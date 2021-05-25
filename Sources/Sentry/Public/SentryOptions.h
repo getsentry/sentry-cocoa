@@ -126,7 +126,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAppStartMeasuring;
 
 /**
- * Whether to enable measuring the rendering of frames of the UI or not. Default is YES.
+ * Whether to enable measuring the rendering of frames of the UI or not. Default is NO.
  */
 @property (nonatomic, assign) BOOL enableRenderFrameMeasuring;
 
