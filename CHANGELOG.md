@@ -6,7 +6,6 @@
 
 ## 7.1.0
 
-- ref: Make calls to customSamplingContext nonnull (#1061)
 - fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
@@ -72,7 +71,6 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 - fix: fix: performance headers (#1079)
 - fix: performance headers (#1079)
 - fix: Release builds in CI (#1076)
-- feat: Add UI auto instrumentation (#1105)
 
 ## 7.0.0-beta.0
 
