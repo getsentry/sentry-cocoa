@@ -1,19 +1,18 @@
 import XCTest
 
-class UIViewControllerHelperTests: XCTestCase {
+class SentryUIViewControllerSanitizerTests: XCTestCase {
     
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
-        let name = UIViewControllerHelper.sanitizeViewControllerName(object)
+        let name = SentryUIViewControllerSanitizer.sanitizeViewControllerName(object)
         
         XCTAssertEqual(name, "NSObject")
     }
     
     func testSanitizeViewControllerNameWithSentryObject() {
         let object = Options()
-        let name = UIViewControllerHelper.sanitizeViewControllerName(object)
+        let name = SentryUIViewControllerSanitizer.sanitizeViewControllerName(object)
         
         XCTAssertEqual(name, "SentryOptions")
     }
-    
 }
