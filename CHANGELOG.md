@@ -3,6 +3,9 @@
 ## Unreleased
 
 - fix: Serialization of span description (#1128)
+## 7.1.1
+
+- No documented changes.
 
 ## 7.1.0
 
