@@ -11,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
+            options.enableAppStartMeasuring = true
             options.debug = true
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0

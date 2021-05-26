@@ -19,6 +19,8 @@
 
 #    import <UIKit/UIKit.h>
 
+static NSDate * runtimeInit = nil;
+
 @interface
 SentryAppStartTracker ()
 
@@ -29,10 +31,18 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, assign) BOOL wasInBackground;
+@property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 
 @end
 
 @implementation SentryAppStartTracker
+
++ (void)load
+{
+    // Invoked whenever this class is added to the Objective-C runtime. That's the best
+    // approximation of the app start time we can get.
+    runtimeInit = [NSDate date];
+}
 
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -46,9 +56,7 @@ SentryAppStartTracker ()
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
         self.sysctl = sysctl;
-#    if SENTRY_HAS_UIKIT
         self.previousAppState = [self.appStateManager loadCurrentAppState];
-#    endif
         self.wasInBackground = NO;
     }
     return self;
@@ -56,6 +64,11 @@ SentryAppStartTracker ()
 
 - (void)start
 {
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didFinishLaunching)
+                                               name:UIApplicationDidFinishLaunchingNotification
+                                             object:nil];
+
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:UIApplicationDidBecomeActiveNotification
@@ -113,8 +126,13 @@ SentryAppStartTracker ()
                                         andLevel:kSentryLevelInfo];
 
                        SentryAppStartMeasurement *appStartMeasurement =
-                           [[SentryAppStartMeasurement alloc] initWithType:appStartType
-                                                                  duration:appStartTime];
+                           [[SentryAppStartMeasurement alloc]
+                               initWithType:appStartType
+                               appStartDate:self.sysctl.processStartTimestamp
+                                   duration:appStartTime
+                                runtimeInit:runtimeInit
+                            didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+                       
                        SentrySDK.appStartMeasurement = appStartMeasurement;
                    }
                }];
@@ -155,6 +173,11 @@ SentryAppStartTracker ()
     return SentryAppStartTypeUnknown;
 }
 
+- (void)didFinishLaunching
+{
+    self.didFinishLaunchingTimestamp = [self.currentDate date];
+}
+
 - (void)didEnterBackground
 {
     self.wasInBackground = YES;
@@ -163,6 +186,14 @@ SentryAppStartTracker ()
 - (void)stop
 {
     [NSNotificationCenter.defaultCenter removeObserver:self];
+}
+
+/**
+ * Needed for testing, not public.
+ */
++ (void)setAppStart:(nullable NSDate *)value
+{
+    runtimeInit = value;
 }
 
 @end

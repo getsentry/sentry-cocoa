@@ -113,6 +113,28 @@
 
 - (void)captureTransaction
 {
+    if (SentrySDK.appStartMeasurement != nil) {
+        SentryAppStartMeasurement *appStartMeasurement = SentrySDK.appStartMeasurement;
+        
+        [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        
+        NSString * operation = @"app launch";
+        
+        SentrySpan *runtimeInitSpan = [self startChildWithOperation:operation description:@"Pre main"];
+        [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInit];
+        
+        SentrySpan *appInitSpan = [self startChildWithOperation:operation description:@"UIKit and Application Init"];
+        [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInit];
+        [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+        
+        SentrySpan *frameRenderSpan = [self startChildWithOperation:operation description:@"Initial Frame Render"];
+        [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+        NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
+            dateByAddingTimeInterval:appStartMeasurement.duration];
+        [frameRenderSpan setTimestamp:appStartEndTimestamp];
+    }
+
     NSArray *spans;
     @synchronized(_spans) {
         // Make a new array with all finished child spans because if any of the transactions
