@@ -1,6 +1,6 @@
-#import "UIViewControllerHelper.h"
+#import "SentryUIViewControllerSanitizer.h"
 
-@implementation UIViewControllerHelper
+@implementation SentryUIViewControllerSanitizer
 
 + (NSRegularExpression *)viewControllerRegex
 {

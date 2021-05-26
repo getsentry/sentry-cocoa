@@ -6,7 +6,7 @@
 #import "SentryScope.h"
 #import "SentrySpanId.h"
 #import "SentrySwizzle.h"
-#import "UIViewControllerHelper.h"
+#import "SentryUIViewControllerSanitizer.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -95,7 +95,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
     SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
-            NSString *name = [UIViewControllerHelper sanitizeViewControllerName:self];
+            NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:self];
             SentrySpanId *spanId = [SentryPerformanceTracker.shared
                 startSpanWithName:name
                         operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];

@@ -7,7 +7,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwizzle.h"
-#import "UIViewControllerHelper.h"
+#import "SentryUIViewControllerSanitizer.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -171,7 +171,7 @@
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"ui.lifecycle"];
                 crumb.type = @"navigation";
-                NSString *viewControllerName = [UIViewControllerHelper
+                NSString *viewControllerName = [SentryUIViewControllerSanitizer
                     sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                 crumb.data = @ { @"screen" : viewControllerName };
 
