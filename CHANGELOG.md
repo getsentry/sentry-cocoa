@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.1.1
+
+- No documented changes.
+
 ## 7.1.0
 
 - fix: Remove SentryUnsignedLongLongValue (#1118)
