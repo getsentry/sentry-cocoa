@@ -13,9 +13,8 @@ SentryTracer ()
 /**
  * Perform a check whether this trace can be finished, if so, finishes the trace.
  *
- * The tracer can be finished when _waitForChildren is NO or
- * all children are finished and the finish function was called at least once.
- *
+ * The tracer can be finished when _waitForChildren is NO or all children are finished and the
+ * finish function was called at least once.
  */
 - (void)canBeFinished;
 
@@ -27,7 +26,7 @@ SentryTracer ()
 /**
  * A lock to coordinate child manipulation.
  */
-- (NSLock *)childrenLock;
+- (NSObject *)childrenLock;
 
 /**
  * List of children. For testing purpose.
@@ -44,7 +43,7 @@ SentryTracer ()
     BOOL _shouldBeFinished;
     BOOL _waitForChildren;
     SentryTracer *_parentTracer;
-    NSLock *_childrenLock;
+    NSObject *_childrenLock;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -64,7 +63,7 @@ SentryTracer ()
         _hub = hub;
         _waitForChildren = waitChildren;
         _finishStatus = kSentrySpanStatusUndefined;
-        _childrenLock = [[NSLock alloc] init];
+        _childrenLock = [[NSObject alloc] init];
     }
 
     return self;
@@ -163,7 +162,7 @@ SentryTracer ()
     [self canBeFinished];
 }
 
-- (NSLock *)childrenLock
+- (NSObject *)childrenLock
 {
     return _parentTracer == nil ? _childrenLock : [_parentTracer childrenLock];
 }
