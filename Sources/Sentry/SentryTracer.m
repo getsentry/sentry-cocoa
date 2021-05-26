@@ -152,14 +152,14 @@ SentryTracer ()
 
 - (void)finish
 {
-    _canBeFinished = true;
-    [self checkFinish];
+    [self finishWithStatus:kSentrySpanStatusUndefined];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
+    _canBeFinished = true;
     _finishStatus = status;
-    [self finish];
+    [self checkFinish];
 }
 
 - (NSLock *)childrenLock

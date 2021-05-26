@@ -75,7 +75,9 @@ SentryPerformanceTracker ()
                     inBlock:(void (^)(void))block
 {
     SentrySpanId *spanId = [self startSpanWithName:name operation:operation];
+    [self pushActiveSpan:spanId];
     block();
+    [self popActiveSpan];
     [self finishSpan:spanId];
 }
 
