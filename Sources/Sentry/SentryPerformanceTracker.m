@@ -9,9 +9,14 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 
-static NSString *const SENTRY_PERFORMANCE_TRACKER_SPANS = @"SENTRY_PERFORMANCE_TRACKER_SPANS";
-static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
-    = @"SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK";
+@interface
+SentryPerformanceTracker ()
+
+@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, SentryTracer *> *spans;
+
+@property (nonatomic, strong) NSMutableArray<SentryTracer *> *activeStack;
+
+@end
 
 @implementation SentryPerformanceTracker
 
@@ -23,42 +28,22 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     return instance;
 }
 
-/**
- * A dictionary of created spans in this thread using id as Key.
- */
-- (NSMutableDictionary<SentrySpanId *, SentryTracer *> *)spansForThread
+- (instancetype)init
 {
-    NSMutableDictionary *result =
-        [NSThread.currentThread.threadDictionary objectForKey:SENTRY_PERFORMANCE_TRACKER_SPANS];
-    if (result == nil) {
-        result = [[NSMutableDictionary alloc] init];
-        [NSThread.currentThread.threadDictionary setObject:result
-                                                    forKey:SENTRY_PERFORMANCE_TRACKER_SPANS];
+    if (self = [super init]) {
+        self.spans = [[NSMutableDictionary alloc] init];
+        self.activeStack = [[NSMutableArray alloc] init];
     }
-    return result;
-}
-
-/**
- * A stack of active spans in this thread.
- */
-- (NSMutableArray<SentryTracer *> *)activeStackForThread
-{
-    NSMutableArray *res = [NSThread.currentThread.threadDictionary
-        objectForKey:SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK];
-    if (res == nil) {
-        res = [[NSMutableArray alloc] init];
-        [NSThread.currentThread.threadDictionary setObject:res
-                                                    forKey:SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK];
-    }
-    return res;
+    return self;
 }
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation
 {
-    NSMutableDictionary *spans = [self spansForThread];
-    NSMutableArray *activeStack = [self activeStackForThread];
+    SentryTracer *activeSpanTracker;
+    @synchronized(self.activeStack) {
+        activeSpanTracker = [self.activeStack lastObject];
+    }
 
-    SentryTracer *activeSpanTracker = [activeStack lastObject];
     SentryTracer *newSpan;
     if (activeSpanTracker != nil) {
         newSpan = [activeSpanTracker startChildWithOperation:name];
@@ -77,7 +62,10 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
     }
 
     SentrySpanId *spanId = newSpan.context.spanId;
-    spans[spanId] = newSpan;
+
+    @synchronized(self.spans) {
+        self.spans[spanId] = newSpan;
+    }
 
     return newSpan.context.spanId;
 }
@@ -87,32 +75,38 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
                     inBlock:(void (^)(void))block
 {
     SentrySpanId *spanId = [self startSpanWithName:name operation:operation];
+    [self pushActiveSpan:spanId];
     block();
+    [self popActiveSpan];
     [self finishSpan:spanId];
 }
 
 - (nullable SentrySpanId *)activeSpan
 {
-    NSMutableArray *activeStack = [self activeStackForThread];
-    SentryTracer *activeSpan = activeStack.lastObject;
-    return activeSpan.context.spanId;
+    @synchronized(self.activeStack) {
+        return [self.activeStack lastObject].context.spanId;
+    }
 }
 
 - (void)pushActiveSpan:(SentrySpanId *)spanId
 {
-    NSMutableDictionary *spans = [self spansForThread];
-    NSMutableArray *activeStack = [self activeStackForThread];
+    SentryTracer *toActiveSpan;
+    @synchronized(self.spans) {
+        toActiveSpan = self.spans[spanId];
+    }
 
-    SentryTracer *toActiveSpan = spans[spanId];
     if (toActiveSpan != nil) {
-        [activeStack addObject:toActiveSpan];
+        @synchronized(self.activeStack) {
+            [self.activeStack addObject:toActiveSpan];
+        }
     }
 }
 
 - (void)popActiveSpan
 {
-    NSMutableArray *activeStack = [self activeStackForThread];
-    [activeStack removeLastObject];
+    @synchronized(self.activeStack) {
+        [self.activeStack removeLastObject];
+    }
 }
 
 - (void)finishSpan:(SentrySpanId *)spanId
@@ -122,17 +116,20 @@ static NSString *const SENTRY_PERFORMANCE_TRACKER_ACTIVE_STACK
 
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status
 {
-    NSMutableDictionary *spans = [self spansForThread];
+    SentryTracer *spanTracker;
+    @synchronized(self.spans) {
+        spanTracker = self.spans[spanId];
+        [self.spans removeObjectForKey:spanId];
+    }
 
-    SentryTracer *spanTracker = spans[spanId];
     [spanTracker finishWithStatus:status];
-    [spans removeObjectForKey:spanId];
 }
 
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId
 {
-    NSMutableDictionary *spans = [self spansForThread];
-    return spans[spanId] != nil;
+    @synchronized(self.spans) {
+        return self.spans[spanId] != nil;
+    }
 }
 
 @end

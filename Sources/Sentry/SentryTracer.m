@@ -29,6 +29,11 @@ SentryTracer ()
  */
 - (NSLock *)childrenLock;
 
+/**
+ * List of children. For testing purpose.
+ */
+- (NSArray<id<SentrySpan>> *)spans;
+
 @end
 
 @implementation SentryTracer {
@@ -74,7 +79,6 @@ SentryTracer ()
         _spans = [[NSMutableArray alloc] init];
     }
     return self;
-    ;
 }
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
@@ -149,14 +153,14 @@ SentryTracer ()
 
 - (void)finish
 {
-    _shouldBeFinished = true;
-    [self canBeFinished];
+    [self finishWithStatus:kSentrySpanStatusUndefined];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
+    _shouldBeFinished = true;
     _finishStatus = status;
-    [self finish];
+    [self canBeFinished];
 }
 
 - (NSLock *)childrenLock
@@ -203,8 +207,16 @@ SentryTracer ()
     return result;
 }
 
+- (NSArray *)spans
+{
+    return _spans;
+}
+
 - (void)captureTransaction
 {
+    if (_hub == nil)
+        return;
+
     NSArray *spans = [self.children
         filteredArrayUsingPredicate:[NSPredicate
                                         predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,

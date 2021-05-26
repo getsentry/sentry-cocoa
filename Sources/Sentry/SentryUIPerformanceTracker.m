@@ -19,6 +19,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
 
+static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.rendering";
+
 @implementation SentryUIPerformanceTracker
 
 + (void)start
@@ -94,17 +96,19 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
             NSString *name = [UIViewControllerHelper sanitizeViewControllerName:self];
-            SentrySpanId *spanId =
-                [SentryPerformanceTracker.shared startSpanWithName:name operation:@"navigation"];
+            SentrySpanId *spanId = [SentryPerformanceTracker.shared
+                startSpanWithName:name
+                        operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
 
             // use the viewcontroller itself to store the spanId to avoid using a global mapper.
             objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
             [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-            [SentryPerformanceTracker.shared measureSpanWithName:@"loadView"
-                                                       operation:@"navigation"
-                                                         inBlock:^{ SentrySWCallOriginal(); }];
+            [SentryPerformanceTracker.shared
+                measureSpanWithName:@"loadView"
+                          operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                            inBlock:^{ SentrySWCallOriginal(); }];
             [SentryPerformanceTracker.shared popActiveSpan];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
@@ -122,9 +126,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 SentrySWCallOriginal();
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-                [SentryPerformanceTracker.shared measureSpanWithName:@"viewDidLoad"
-                                                           operation:@"navigation"
-                                                             inBlock:^{ SentrySWCallOriginal(); }];
+                [SentryPerformanceTracker.shared
+                    measureSpanWithName:@"viewDidLoad"
+                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
         }),
@@ -145,7 +150,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
                     measureSpanWithName:@"viewWillAppear"
-                              operation:@"navigation"
+                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
@@ -167,7 +172,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
                     measureSpanWithName:@"viewDidAppear"
-                              operation:@"navigation"
+                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:spanId];
@@ -188,15 +193,19 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
                 SentrySWCallOriginal();
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-                SentrySpanId *layoutSubViewId =
-                    [SentryPerformanceTracker.shared startSpanWithName:@"layoutSubViews"
-                                                             operation:@"navigation"];
+                [SentryPerformanceTracker.shared
+                    measureSpanWithName:@"viewWillLayoutSubviews"
+                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                inBlock:^{ SentrySWCallOriginal(); }];
+
+                SentrySpanId *layoutSubViewId = [SentryPerformanceTracker.shared
+                    startSpanWithName:@"layoutSubViews"
+                            operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
 
                 objc_setAssociatedObject(self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                     layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-                SentrySWCallOriginal();
-                [SentryPerformanceTracker.shared popActiveSpan];
+                [SentryPerformanceTracker.shared pushActiveSpan:layoutSubViewId];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)willSelector);
@@ -210,12 +219,15 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
             if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
                 SentrySWCallOriginal();
             } else {
-                [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-                SentrySWCallOriginal();
-
                 SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
                     self, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
+                [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:layoutSubViewId];
+
+                [SentryPerformanceTracker.shared
+                    measureSpanWithName:@"viewDidLayoutSubviews"
+                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
             }
         }),
