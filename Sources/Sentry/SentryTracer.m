@@ -13,11 +13,11 @@ SentryTracer ()
 /**
  * Perform a check whether this trace can be finished, if so, finishes the trace.
  *
- * The tracer can be finished when _waitChildren is NO or
+ * The tracer can be finished when _waitForChildren is NO or
  * all children are finished and the finish function was called at least once.
  *
  */
-- (void)checkFinish;
+- (void)canBeFinished;
 
 /**
  * Returns a flat list of all children recursively.
@@ -33,6 +33,7 @@ SentryTracer ()
  * List of children. For testing purpose.
  */
 - (NSArray<id<SentrySpan>> *)spans;
+
 @end
 
 @implementation SentryTracer {
@@ -40,8 +41,8 @@ SentryTracer ()
     NSMutableArray<id<SentrySpan>> *_spans;
     SentryHub *_hub;
     SentrySpanStatus _finishStatus;
-    BOOL _canBeFinished;
-    BOOL _waitChildren;
+    BOOL _shouldBeFinished;
+    BOOL _waitForChildren;
     SentryTracer *_parentTracer;
     NSLock *_childrenLock;
 }
@@ -61,7 +62,7 @@ SentryTracer ()
         self.name = transactionContext.name;
         _spans = [[NSMutableArray alloc] init];
         _hub = hub;
-        _waitChildren = waitChildren;
+        _waitForChildren = waitChildren;
         _finishStatus = kSentrySpanStatusUndefined;
         _childrenLock = [[NSLock alloc] init];
     }
@@ -74,7 +75,7 @@ SentryTracer ()
     if ([super init]) {
         _rootSpan = [[SentrySpan alloc] initWithTracer:self context:context];
         _parentTracer = parent;
-        _waitChildren = parent.waitForChildren;
+        _waitForChildren = parent.waitForChildren;
         _spans = [[NSMutableArray alloc] init];
     }
     return self;
@@ -157,9 +158,9 @@ SentryTracer ()
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    _canBeFinished = true;
+    _shouldBeFinished = true;
     _finishStatus = status;
-    [self checkFinish];
+    [self canBeFinished];
 }
 
 - (NSLock *)childrenLock
@@ -167,7 +168,7 @@ SentryTracer ()
     return _parentTracer == nil ? _childrenLock : [_parentTracer childrenLock];
 }
 
-- (BOOL)hasOpenChild
+- (BOOL)hasUnfinishedChildren
 {
     @synchronized([self childrenLock]) {
         for (id<SentrySpan> span in _spans) {
@@ -178,16 +179,16 @@ SentryTracer ()
     }
 }
 
-- (void)checkFinish
+- (void)canBeFinished
 {
-    if (_waitChildren && (!_canBeFinished || [self hasOpenChild]))
+    if (_waitForChildren && (!_shouldBeFinished || [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
     if (_parentTracer == nil) {
         [self captureTransaction];
     } else {
-        [_parentTracer checkFinish];
+        [_parentTracer canBeFinished];
     }
 }
 
