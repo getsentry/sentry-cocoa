@@ -21,7 +21,7 @@ SentryTracer ()
 /**
  * Returns a flat list of all children recursively.
  */
-- (NSArray *)children;
+- (NSArray<id<SentrySpan>> *)children;
 
 /**
  * A lock to coordinate child manipulation.
@@ -191,9 +191,9 @@ SentryTracer ()
     }
 }
 
-- (NSArray *)children
+- (NSArray<id<SentrySpan>> *)children
 {
-    NSMutableArray *result = [[NSMutableArray alloc] init];
+    NSMutableArray<id<SentrySpan>> *result = [[NSMutableArray alloc] init];
     @synchronized([self childrenLock]) {
         for (id<SentrySpan> child in _spans) {
             [result addObject:child];
@@ -206,7 +206,7 @@ SentryTracer ()
     return result;
 }
 
-- (NSArray *)spans
+- (NSArray<id<SentrySpan>> *)spans
 {
     return _spans;
 }
@@ -216,7 +216,7 @@ SentryTracer ()
     if (_hub == nil)
         return;
 
-    NSArray *spans = [self.children
+    NSArray<id<SentrySpan>> *spans = [self.children
         filteredArrayUsingPredicate:[NSPredicate
                                         predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
                                             NSDictionary<NSString *, id> *_Nullable bindings) {
