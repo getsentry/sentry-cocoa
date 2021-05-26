@@ -48,6 +48,7 @@ class SentrySpanContextTests: XCTestCase {
         
         let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, operation: someOperation, sampled: .yes)
         spanContext.status = .ok
+        spanContext.spanDescription = "description"
         
         let data = spanContext.serialize()
         
@@ -55,6 +56,7 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(data["trace_id"] as? String, id.sentryIdString)
         XCTAssertEqual(data["type"] as? String, SpanContext.type)
         XCTAssertEqual(data["op"] as? String, someOperation)
+        XCTAssertEqual(data["description"] as? String, spanContext.spanDescription)
         XCTAssertEqual(data["sampled"] as? String, "true")
         XCTAssertEqual(data["parent_span_id"] as? String, parentId.sentrySpanIdString)
         XCTAssertEqual(data["status"] as? String, "ok")

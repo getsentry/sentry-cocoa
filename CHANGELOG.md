@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Serialization of span description (#1128)
+
 ## 7.1.0
 
 - fix: Remove SentryUnsignedLongLongValue (#1118)
