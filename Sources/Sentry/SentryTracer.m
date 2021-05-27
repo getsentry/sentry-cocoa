@@ -223,28 +223,34 @@ SentryTracer ()
         SentryAppStartMeasurement *appStartMeasurement = SentrySDK.appStartMeasurement;
 
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
+            dateByAddingTimeInterval:appStartMeasurement.duration];
 
         NSString *operation = @"app launch";
 
-        SentrySpan *runtimeInitSpan = [self startChildWithOperation:operation
+        SentrySpan *appLaunch = [self startChildWithOperation:@"app.launch"
+                                                        description:@"App Launch"];
+        [appLaunch setStartTimestamp:appStartMeasurement.appStartTimestamp];
+
+        SentrySpan *runtimeInitSpan = [appLaunch startChildWithOperation:operation
                                                         description:@"Pre main"];
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInit];
 
-        SentrySpan *appInitSpan = [self startChildWithOperation:operation
+        SentrySpan *appInitSpan = [appLaunch startChildWithOperation:operation
                                                     description:@"UIKit and Application Init"];
         [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInit];
         [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
-        SentrySpan *frameRenderSpan = [self startChildWithOperation:operation
+        SentrySpan *frameRenderSpan = [appLaunch startChildWithOperation:operation
                                                         description:@"Initial Frame Render"];
         [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-        NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
-            dateByAddingTimeInterval:appStartMeasurement.duration];
         [frameRenderSpan setTimestamp:appStartEndTimestamp];
+
+        [appLaunch setTimestamp:appStartEndTimestamp];
     }
 
-    NSArray<id<SentrySpan>> *spans = [self.children
+    NSArray<id<SentrySpan>> *spans = [_spans
         filteredArrayUsingPredicate:[NSPredicate
                                         predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
                                             NSDictionary<NSString *, id> *_Nullable bindings) {

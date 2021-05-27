@@ -5,8 +5,11 @@ class SentryTracerTests: XCTestCase {
     private class Fixture {
         let hub = TestHub(client: nil, andScope: nil)
         
+        let transactionName = "Some Transaction"
+        let transactionOperation = "Some Operation"
+        
         var sut: SentryTracer {
-            let context = TransactionContext(name: "name", operation: "operation")
+            let context = TransactionContext(name: transactionName, operation: transactionOperation)
             return SentryTracer(transactionContext: context, hub: hub)
         }
     }
@@ -21,9 +24,42 @@ class SentryTracerTests: XCTestCase {
     override func tearDown() {
         SentrySDK.appStartMeasurement = nil
     }
+    
+    func testSpanHierarchy() {
+        let tracer = fixture.sut
+        let child = tracer.startChild(operation: fixture.transactionOperation)
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        
+        let tracerSpans = Dynamic(tracer).spans.asArray!
+        let childSpan = Dynamic(child).spans.asArray!
+        
+        XCTAssertTrue(tracerSpans.contains(child))
+        XCTAssertTrue(childSpan.contains(grandChild))
+        XCTAssertFalse(tracerSpans.contains(grandChild))
+        
+        XCTAssertEqual(tracerSpans.count, 1)
+        XCTAssertEqual(childSpan.count, 1)
+    }
+    
+    func testSpanFlatList() {
+        let tracer = fixture.sut
+        let child = tracer.startChild(operation: fixture.transactionOperation)
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        
+        let tracerChildren = Dynamic(tracer).children.asArray!
+        let childChildren = Dynamic(child).children.asArray!
+        
+        XCTAssertTrue(tracerChildren.contains(child))
+        XCTAssertTrue(tracerChildren.contains(grandChild))
+        XCTAssertFalse(childChildren.contains(child))
+        
+        XCTAssertEqual(tracerChildren.count, 2)
+        XCTAssertEqual(childChildren.count, 1)
+        
+    }
 
     func testAddColdAppStartMeasurement_GetsPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.cold, duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.cold, appStart: Date(), duration: 0.5, runtimeInit: Date(), didFinishLaunchingTimestamp: Date())
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -37,7 +73,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testAddWarmAppStartMeasurement_GetsPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, appStart: Date(), duration: 0.5, runtimeInit: Date(), didFinishLaunchingTimestamp: Date())
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -51,7 +87,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testAddUnknownAppStartMeasurement_GetsNotPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.unknown, duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.unknown, appStart: Date(), duration: 0.5, runtimeInit: Date(), didFinishLaunchingTimestamp: Date())
         
         fixture.sut.finish()
         fixture.hub.group.wait()
@@ -69,7 +105,7 @@ class SentryTracerTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, duration: 0.5)
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.warm, appStart: Date(), duration: 0.5, runtimeInit: Date(), didFinishLaunchingTimestamp: Date())
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()
