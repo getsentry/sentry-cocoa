@@ -4,6 +4,7 @@
 //
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppState.h"
 #import "SentryAttachment.h"
 #import "SentryAutoSessionTrackingIntegration.h"
