@@ -3,6 +3,7 @@
 ## Unreleased
 
 - feat: Add UI auto instrumentation (#1105)
+
 ## 7.1.2
 
 - fix: Serialization of span description (#1128)
