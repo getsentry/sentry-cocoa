@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)storeEnvelope:(SentryEnvelope *)envelope;
 
++ (void)captureEnvelope:(SentryEnvelope *)envelope;
+
 /**
  * Create an envelope from NSData. Needed for example by Flutter.
  */

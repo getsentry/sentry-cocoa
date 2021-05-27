@@ -26,6 +26,11 @@ PrivateSentrySDKOnly ()
     [SentrySDK storeEnvelope:envelope];
 }
 
++ (void)captureEnvelope:(SentryEnvelope *)envelope
+{
+    [SentrySDK captureEnvelope:envelope];
+}
+
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data
 {
     return [SentrySerialization envelopeWithData:data];

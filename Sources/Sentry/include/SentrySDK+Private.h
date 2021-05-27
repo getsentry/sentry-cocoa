@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)storeEnvelope:(SentryEnvelope *)envelope;
 
+/**
+ * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
+ */
++ (void)captureEnvelope:(SentryEnvelope *)envelope;
+
 @end
 
 NS_ASSUME_NONNULL_END
