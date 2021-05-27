@@ -19,7 +19,7 @@
 
 #    import <UIKit/UIKit.h>
 
-static NSDate * runtimeInit = nil;
+static NSDate *runtimeInit = nil;
 
 @interface
 SentryAppStartTracker ()
@@ -127,12 +127,12 @@ SentryAppStartTracker ()
 
                        SentryAppStartMeasurement *appStartMeasurement =
                            [[SentryAppStartMeasurement alloc]
-                               initWithType:appStartType
-                               appStartDate:self.sysctl.processStartTimestamp
-                                   duration:appStartTime
-                                runtimeInit:runtimeInit
-                            didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
-                       
+                                              initWithType:appStartType
+                                              appStartDate:self.sysctl.processStartTimestamp
+                                                  duration:appStartTime
+                                               runtimeInit:runtimeInit
+                               didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+
                        SentrySDK.appStartMeasurement = appStartMeasurement;
                    }
                }];

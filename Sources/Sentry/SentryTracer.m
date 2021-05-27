@@ -224,17 +224,20 @@ SentryTracer ()
 
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
-        NSString * operation = @"app launch";
+        NSString *operation = @"app launch";
 
-        SentrySpan *runtimeInitSpan = [self startChildWithOperation:operation description:@"Pre main"];
+        SentrySpan *runtimeInitSpan = [self startChildWithOperation:operation
+                                                        description:@"Pre main"];
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInit];
 
-        SentrySpan *appInitSpan = [self startChildWithOperation:operation description:@"UIKit and Application Init"];
+        SentrySpan *appInitSpan = [self startChildWithOperation:operation
+                                                    description:@"UIKit and Application Init"];
         [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInit];
         [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
-        SentrySpan *frameRenderSpan = [self startChildWithOperation:operation description:@"Initial Frame Render"];
+        SentrySpan *frameRenderSpan = [self startChildWithOperation:operation
+                                                        description:@"Initial Frame Render"];
         [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
         NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
             dateByAddingTimeInterval:appStartMeasurement.duration];

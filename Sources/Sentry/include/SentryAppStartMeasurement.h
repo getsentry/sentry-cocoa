@@ -18,10 +18,10 @@ SENTRY_NO_INIT
  * @param duration The duration of the app start.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-                appStartDate:(NSDate *)appStartTimestamp
-                    duration:(NSTimeInterval)duration
-                 runtimeInit:(NSDate *)runtimeInit
- didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
+                   appStartDate:(NSDate *)appStartTimestamp
+                       duration:(NSTimeInterval)duration
+                    runtimeInit:(NSDate *)runtimeInit
+    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
  * The type of the app start. Either cold or warm.
