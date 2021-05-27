@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add UI auto instrumentation (#1105)
+feat: Auto UI Performance Instrumentation (#1105)
 
 ## 7.1.2
 
