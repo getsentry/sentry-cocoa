@@ -1,8 +1,6 @@
 import XCTest
 
 class SentryHybridSDKsOnlyTests: XCTestCase {
-    
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHybridSDKsOnlyTests")
 
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
