@@ -80,4 +80,5 @@
 #import "SentryTracer.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"
