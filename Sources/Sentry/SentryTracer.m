@@ -54,14 +54,14 @@ SentryTracer ()
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitChildren
+                           waitForChildren:(BOOL)waitForChildren
 {
     if ([super init]) {
         _rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.name = transactionContext.name;
         _spans = [[NSMutableArray alloc] init];
         _hub = hub;
-        _waitForChildren = waitChildren;
+        _waitForChildren = waitForChildren;
         _finishStatus = kSentrySpanStatusUndefined;
         _childrenLock = [[NSObject alloc] init];
     }
