@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add SentryHybridSDKsOnly (#1131)
+- feat: Add PrivateSentrySDKOnly (#1131)
 
 ## 7.1.2
 

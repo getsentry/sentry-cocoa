@@ -1,17 +1,17 @@
+#import "PrivateSentrySDKOnly.h"
 #import "SentryDebugImageProvider.h"
-#import "SentryHybridSDKsOnly.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
 
 @interface
-SentryHybridSDKsOnly ()
+PrivateSentrySDKOnly ()
 
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 @end
 
-@implementation SentryHybridSDKsOnly
+@implementation PrivateSentrySDKOnly
 
 - (instancetype)init
 {
