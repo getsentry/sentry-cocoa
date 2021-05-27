@@ -1,6 +1,6 @@
 #import "SentrySDK.h"
 
-@class SentryId;
+@class SentryId, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class) BOOL crashedLastRunCalled;
 
 + (SentryHub *)currentHub;
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
++ (void)storeEnvelope:(SentryEnvelope *)envelope;
 
 @end
 
