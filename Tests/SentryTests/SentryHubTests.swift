@@ -282,6 +282,12 @@ class SentryHubTests: XCTestCase {
         testSampler(expected: .no) { options in
             options.tracesSampler = { _ in return -0.01 }
         }
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).sampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        XCTAssertEqual(span.context.sampled, .no)
     }
         
     func testCaptureMessageWithScope() {

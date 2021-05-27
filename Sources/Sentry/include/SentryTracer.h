@@ -38,15 +38,45 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL isFinished;
 
 /**
- * Init a SentryTransaction with given transaction context and hub and set other fields by default
+ * Sets this tracer to only finish if all children have been finished.
+ * If this property is YES and a finish function is called before all children are finished
+ * the tracer will automatically finish when the last child finish.
+ */
+@property (readonly) BOOL waitForChildren;
+
+/**
+ * Init a SentryTracer with given transaction context and hub and set other fields by default
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  *
- * @return SentryTransaction
+ * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub;
+/**
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
+ *
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param waitChildren Whether this tracer should wait all children to finish.
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitChildren;
+
+/**
+ * Init a SentryTracer as a child for given parent and with given context.
+ *
+ * @param parent A parent SentryTracer
+ * @param context Span context
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithParentTracer:(SentryTracer *)parent context:(SentrySpanContext *)context;
 
 /**
  * Starts a child span.
