@@ -45,6 +45,7 @@
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+TestInit.h"
+#import "SentryHybridSDKsOnly.h"
 #import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLevelMapper.h"
@@ -81,4 +82,3 @@
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUserFeedback.h"
-#import "SentryHybridSDKsOnly.h"
