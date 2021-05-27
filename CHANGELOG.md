@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- feat: Auto UI Performance Instrumentation (#1105)
+- feat: Measure app start time (#1111)
+
 ## 7.1.2
 
 - fix: Serialization of span description (#1128)
@@ -10,7 +15,6 @@
 
 ## 7.1.0
 
-- feat: Measure app start time (#1111)
 - fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)

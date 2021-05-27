@@ -79,7 +79,7 @@ SentrySpanContext () {
         @"type" : SentrySpanContext.type,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"tags" : _tags.copy
+        @"tags" : self.tags
     }
                                                  .mutableCopy;
 
