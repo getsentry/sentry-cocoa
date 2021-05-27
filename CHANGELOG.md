@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.1.3
 
 - feat: Add PrivateSentrySDKOnly (#1131)
 
