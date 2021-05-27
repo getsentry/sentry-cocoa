@@ -67,7 +67,7 @@ SentryPerformanceTracker ()
         self.spans[spanId] = newSpan;
     }
 
-    return newSpan.context.spanId;
+    return spanId;
 }
 
 - (void)measureSpanWithName:(NSString *)name
