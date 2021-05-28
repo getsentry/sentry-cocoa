@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Capturing Child Spans (#1139)
 - feat: Auto UI Performance Instrumentation (#1105)
 
 ## 7.1.3
