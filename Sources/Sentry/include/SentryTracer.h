@@ -69,16 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
- * Init a SentryTracer as a child for given parent and with given context.
- *
- * @param parent A parent SentryTracer
- * @param context Span context
- *
- * @return SentryTracer
- */
-- (instancetype)initWithParentTracer:(SentryTracer *)parent context:(SentrySpanContext *)context;
-
-/**
  * Starts a child span.
  *
  * @param operation Short code identifying the type of operation the span is measuring.

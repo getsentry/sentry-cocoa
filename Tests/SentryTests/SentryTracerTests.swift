@@ -23,37 +23,32 @@ class SentryTracerTests: XCTestCase {
         fixture = Fixture()
     }
     
-    func testSpanHierarchy() {
+    func testTracerWaitingForChildren() {
         let tracer = fixture.getSut()
         let child = tracer.startChild(operation: fixture.transactionOperation)
+        tracer.finish()
+        XCTAssertFalse(tracer.isFinished)
+
         let grandChild = child.startChild(operation: fixture.transactionOperation)
+        child.finish()
         
-        let tracerSpans = Dynamic(tracer).spans.asArray!
-        let childSpan = Dynamic(child).spans.asArray!
+        XCTAssertFalse(tracer.isFinished)
+
+        let granGrandChild = grandChild.startChild(operation: fixture.transactionOperation)
         
-        XCTAssertTrue(tracerSpans.contains(child))
-        XCTAssertTrue(childSpan.contains(grandChild))
-        XCTAssertFalse(tracerSpans.contains(grandChild))
+        granGrandChild.finish()
+        grandChild.finish()
         
-        XCTAssertEqual(tracerSpans.count, 1)
-        XCTAssertEqual(childSpan.count, 1)
-    }
-    
-    func testSpanFlatList() {
-        let tracer = fixture.getSut()
-        let child = tracer.startChild(operation: fixture.transactionOperation)
-        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        XCTAssertTrue(tracer.isFinished)
         
-        let tracerChildren = Dynamic(tracer).children.asArray!
-        let childChildren = Dynamic(child).children.asArray!
+        let transaction : Transaction? = Dynamic(tracer).toTransaction()
+        let serialization : [String: Any] = transaction!.serialize()
+        let spans = serialization["spans"]! as! Array<[String: Any]>
         
-        XCTAssertTrue(tracerChildren.contains(child))
-        XCTAssertTrue(tracerChildren.contains(grandChild))
-        XCTAssertFalse(childChildren.contains(child))
+        let tracerTimestamp :NSDate = tracer.timestamp! as NSDate
         
-        XCTAssertEqual(tracerChildren.count, 2)
-        XCTAssertEqual(childChildren.count, 1)
-        
+        XCTAssertEqual(spans.count, 3)
+        XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), serialization["timestamp"]! as! String)
     }
     
 }
