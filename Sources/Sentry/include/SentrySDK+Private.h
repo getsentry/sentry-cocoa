@@ -1,6 +1,6 @@
 #import "SentrySDK.h"
 
-@class SentryId, SentryAppStartMeasurement;
+@class SentryId, SentryAppStartMeasurement, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +18,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class) NSObject *appStartMeasurementLock;
 
 + (SentryHub *)currentHub;
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
++ (void)storeEnvelope:(SentryEnvelope *)envelope;
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
+ */
++ (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 @end
 

@@ -60,23 +60,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
- * @param waitChildren Whether this tracer should wait all children to finish.
+ * @param waitForChildren Whether this tracer should wait all children to finish.
  *
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitChildren;
-
-/**
- * Init a SentryTracer as a child for given parent and with given context.
- *
- * @param parent A parent SentryTracer
- * @param context Span context
- *
- * @return SentryTracer
- */
-- (instancetype)initWithParentTracer:(SentryTracer *)parent context:(SentrySpanContext *)context;
+                           waitForChildren:(BOOL)waitForChildren;
 
 /**
  * Starts a child span.

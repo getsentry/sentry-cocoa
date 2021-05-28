@@ -4,6 +4,12 @@
 
 - feat: Auto UI Performance Instrumentation (#1105)
 - feat: Measure app start time (#1111)
+- fix: Capturing Child Spans (#1139)
+- feat: Auto UI Performance Instrumentation (#1105)
+
+## 7.1.3
+
+- feat: Add PrivateSentrySDKOnly (#1131)
 
 ## 7.1.2
 

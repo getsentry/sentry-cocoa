@@ -10,43 +10,15 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
-@interface
-SentryTracer ()
-
-/**
- * Perform a check whether this trace can be finished, if so, finishes the trace.
- *
- * The tracer can be finished when _waitForChildren is NO or all children are finished and the
- * finish function was called at least once.
- */
-- (void)canBeFinished;
-
-/**
- * Returns a flat list of all children recursively.
- */
-- (NSArray<id<SentrySpan>> *)children;
-
-/**
- * A lock to coordinate child manipulation.
- */
-- (NSObject *)childrenLock;
-
-/**
- * List of children. For testing purpose.
- */
-- (NSArray<id<SentrySpan>> *)spans;
-
-@end
+static const void *spanTimestampObserver = &spanTimestampObserver;
 
 @implementation SentryTracer {
     SentrySpan *_rootSpan;
-    NSMutableArray<id<SentrySpan>> *_spans;
+    NSMutableArray<id<SentrySpan>> *_children;
     SentryHub *_hub;
     SentrySpanStatus _finishStatus;
-    BOOL _shouldBeFinished;
+    BOOL _isFinished;
     BOOL _waitForChildren;
-    SentryTracer *_parentTracer;
-    NSObject *_childrenLock;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -57,29 +29,18 @@ SentryTracer ()
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitChildren
+                           waitForChildren:(BOOL)waitForChildren
 {
     if ([super init]) {
         _rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.name = transactionContext.name;
-        _spans = [[NSMutableArray alloc] init];
+        _children = [[NSMutableArray alloc] init];
         _hub = hub;
-        _waitForChildren = waitChildren;
+        _isFinished = YES;
+        _waitForChildren = waitForChildren;
         _finishStatus = kSentrySpanStatusUndefined;
-        _childrenLock = [[NSObject alloc] init];
     }
 
-    return self;
-}
-
-- (instancetype)initWithParentTracer:(SentryTracer *)parent context:(SentrySpanContext *)context
-{
-    if ([super init]) {
-        _rootSpan = [[SentrySpan alloc] initWithTracer:self context:context];
-        _parentTracer = parent;
-        _waitForChildren = parent.waitForChildren;
-        _spans = [[NSMutableArray alloc] init];
-    }
     return self;
 }
 
@@ -106,11 +67,41 @@ SentryTracer ()
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentryTracer *child = [[SentryTracer alloc] initWithParentTracer:self context:context];
-    @synchronized([self childrenLock]) {
-        [_spans addObject:child];
+    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+
+    if (_waitForChildren) {
+        // Observe when the child finishes
+        [child addObserver:self
+                forKeyPath:NSStringFromSelector(@selector(timestamp))
+                   options:NSKeyValueObservingOptionNew
+                   context:&spanTimestampObserver];
     }
+
+    @synchronized(_children) {
+        [_children addObject:child];
+    }
+
     return child;
+}
+
+/**
+ * Is called when a span finishes and checks if we can finish.
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
+                       context:(void *)context
+{
+    if (context == spanTimestampObserver &&
+        [keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
+        SentrySpan *finishedSpan = object;
+        if (finishedSpan.timestamp != nil) {
+            [finishedSpan removeObserver:self
+                              forKeyPath:NSStringFromSelector(@selector(timestamp))
+                                 context:&spanTimestampObserver];
+            [self canBeFinished];
+        }
+    }
 }
 
 - (SentrySpanContext *)context
@@ -160,20 +151,15 @@ SentryTracer ()
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    _shouldBeFinished = true;
+    _isFinished = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
 
-- (NSObject *)childrenLock
-{
-    return _parentTracer == nil ? _childrenLock : [_parentTracer childrenLock];
-}
-
 - (BOOL)hasUnfinishedChildren
 {
-    @synchronized([self childrenLock]) {
-        for (id<SentrySpan> span in _spans) {
+    @synchronized(_children) {
+        for (id<SentrySpan> span in _children) {
             if (![span isFinished])
                 return YES;
         }
@@ -183,35 +169,11 @@ SentryTracer ()
 
 - (void)canBeFinished
 {
-    if (_waitForChildren && (!_shouldBeFinished || [self hasUnfinishedChildren]))
+    if (!_isFinished || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
-    if (_parentTracer == nil) {
-        [self captureTransaction];
-    } else {
-        [_parentTracer canBeFinished];
-    }
-}
-
-- (NSArray<id<SentrySpan>> *)children
-{
-    NSMutableArray<id<SentrySpan>> *result = [[NSMutableArray alloc] init];
-    @synchronized([self childrenLock]) {
-        for (id<SentrySpan> child in _spans) {
-            [result addObject:child];
-            if ([child isKindOfClass:[SentryTracer class]]) {
-                SentryTracer *childTracer = child;
-                [result addObjectsFromArray:[childTracer children]];
-            }
-        }
-    }
-    return result;
-}
-
-- (NSArray<id<SentrySpan>> *)spans
-{
-    return _spans;
+    [self captureTransaction];
 }
 
 - (void)captureTransaction
@@ -219,6 +181,17 @@ SentryTracer ()
     if (_hub == nil)
         return;
 
+    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span == self) {
+            [self->_hub.scope setSpan:nil];
+        }
+    }];
+
+    [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
+}
+
+- (SentryTransaction *)toTransaction
+{
     if (SentrySDK.appStartMeasurement != nil) {
         SentryAppStartMeasurement *appStartMeasurement = SentrySDK.appStartMeasurement;
 
@@ -250,24 +223,20 @@ SentryTracer ()
         [appLaunch setTimestamp:appStartEndTimestamp];
     }
 
-    NSArray<id<SentrySpan>> *spans = [_spans
-        filteredArrayUsingPredicate:[NSPredicate
-                                        predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
-                                            NSDictionary<NSString *, id> *_Nullable bindings) {
-                                            return span.isFinished;
-                                        }]];
+    NSArray<id<SentrySpan>> *spans;
+    @synchronized(_children) {
+        spans = [_children
+            filteredArrayUsingPredicate:[NSPredicate
+                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
+                                                NSDictionary<NSString *, id> *_Nullable bindings) {
+                                                return span.isFinished;
+                                            }]];
+    }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
     [self addMeasurements:transaction];
-
-    [_hub captureEvent:transaction withScope:_hub.scope];
-
-    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span == self) {
-            [self->_hub.scope setSpan:nil];
-        }
-    }];
+    return transaction;
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
