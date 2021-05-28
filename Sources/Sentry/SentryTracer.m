@@ -180,7 +180,7 @@ SentryTracer ()
 
 - (void)canBeFinished
 {
-    if (_waitForChildren && (!_shouldBeFinished || [self hasUnfinishedChildren]))
+    if (!_shouldBeFinished || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
