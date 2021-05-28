@@ -41,11 +41,11 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertTrue(tracer.isFinished)
         
-        let transaction : Transaction? = Dynamic(tracer).toTransaction()
-        let serialization : [String: Any] = transaction!.serialize()
-        let spans = serialization["spans"]! as! Array<[String: Any]>
+        let transaction: Transaction? = Dynamic(tracer).toTransaction()
+        let serialization: [String: Any] = transaction!.serialize()
+        let spans = serialization["spans"]! as! [[String: Any]]
         
-        let tracerTimestamp :NSDate = tracer.timestamp! as NSDate
+        let tracerTimestamp: NSDate = tracer.timestamp! as NSDate
         
         XCTAssertEqual(spans.count, 3)
         XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), serialization["timestamp"]! as! String)

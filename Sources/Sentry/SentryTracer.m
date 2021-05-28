@@ -7,7 +7,6 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
-
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
 @implementation SentryTracer {
@@ -65,25 +64,28 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
     context.spanDescription = description;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    
-    if(_waitForChildren)
-    {
+
+    if (_waitForChildren) {
         [child addObserver:self
                 forKeyPath:@"timestamp"
                    options:NSKeyValueObservingOptionNew
                    context:&spanTimestampObserver];
     }
-    
+
     @synchronized(_spans) {
         [_spans addObject:child];
     }
-    
+
     return child;
 }
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
+                       context:(void *)context
+{
     if (context == spanTimestampObserver) {
-        SentrySpan* finishedSpan = object;
+        SentrySpan *finishedSpan = object;
         if (finishedSpan.timestamp != nil) {
             [finishedSpan removeObserver:self
                               forKeyPath:@"timestamp"
@@ -172,7 +174,8 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 
 - (void)captureTransaction
 {
-    if (_hub == nil) return;
+    if (_hub == nil)
+        return;
 
     [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
 
@@ -183,18 +186,18 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
     }];
 }
 
-- (SentryTransaction*)toTransaction
+- (SentryTransaction *)toTransaction
 {
     NSArray<id<SentrySpan>> *spans;
-    @synchronized (_spans) {
+    @synchronized(_spans) {
         spans = [_spans
-                 filteredArrayUsingPredicate:[NSPredicate
-                                              predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
-                                                                       NSDictionary<NSString *, id> *_Nullable bindings) {
-            return span.isFinished;
-        }]];
+            filteredArrayUsingPredicate:[NSPredicate
+                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
+                                                NSDictionary<NSString *, id> *_Nullable bindings) {
+                                                return span.isFinished;
+                                            }]];
     }
-    
+
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
     return transaction;
