@@ -1341,7 +1341,6 @@
 				7B4260332630315C00B36EDD /* SampleError.swift */,
 				7B6D1262265F7CC600C9BE4B /* PrivateSentrySDKOnlyTests.swift */,
 				8ED3D305264DFE700049393B /* SentryUIViewControllerSanitizerTests.swift */,
-				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
 			);
 			path = SentryTests;
 			sourceTree = "<group>";
@@ -1675,6 +1674,7 @@
 			isa = PBXGroup;
 			children = (
 				7B42602D26302E0B00B36EDD /* TransactionGeneratorTests.swift */,
+				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
 			);
 			path = Performance;
 			sourceTree = "<group>";
