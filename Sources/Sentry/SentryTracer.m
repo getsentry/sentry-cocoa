@@ -209,22 +209,26 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
             type = @"Warm Start";
         }
 
-        SentrySpan *appLaunch = [self measurement:_rootSpan.context.spanId operation:operation
-                                                  description:type];
+        SentrySpan *appLaunch = [self measurement:_rootSpan.context.spanId
+                                        operation:operation
+                                      description:type];
         [appLaunch setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
-        SentrySpan *runtimeInitSpan = [self measurement:appLaunch.context.spanId operation:operation
-                                                             description:@"Pre main"];
+        SentrySpan *runtimeInitSpan = [self measurement:appLaunch.context.spanId
+                                              operation:operation
+                                            description:@"Pre main"];
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInit];
 
-        SentrySpan *appInitSpan = [self measurement:appLaunch.context.spanId operation:operation
-                                                         description:@"UIKit and Application Init"];
+        SentrySpan *appInitSpan = [self measurement:appLaunch.context.spanId
+                                          operation:operation
+                                        description:@"UIKit and Application Init"];
         [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInit];
         [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
-        SentrySpan *frameRenderSpan = [self measurement:appLaunch.context.spanId operation:operation
-                                                             description:@"Initial Frame Render"];
+        SentrySpan *frameRenderSpan = [self measurement:appLaunch.context.spanId
+                                              operation:operation
+                                            description:@"Initial Frame Render"];
         [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
         [frameRenderSpan setTimestamp:appStartEndTimestamp];
 
@@ -248,21 +252,21 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 }
 
 - (id<SentrySpan>)measurement:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
+                    operation:(NSString *)operation
                   description:(nullable NSString *)description
 {
     SentrySpanContext *context =
-    [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
-                                        spanId:[[SentrySpanId alloc] init]
-                                      parentId:parentId
-                                     operation:operation
-                                       sampled:_rootSpan.context.sampled];
+        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
+                                            spanId:[[SentrySpanId alloc] init]
+                                          parentId:parentId
+                                         operation:operation
+                                           sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
-    
+
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    
+
     [_children addObject:child];
-    
+
     return child;
 }
 

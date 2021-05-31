@@ -110,8 +110,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                           operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                             inBlock:^{ SentrySWCallOriginal(); }];
             [SentryPerformanceTracker.shared popActiveSpan];
-        [SentryLog logWithMessage:@"UIPerformance: loadView"
-                         andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:@"UIPerformance: loadView" andLevel:kSentryLevelDebug];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
@@ -133,8 +132,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                               operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
-                [SentryLog logWithMessage:@"UIPerformance: viewDidLoad"
-                                 andLevel:kSentryLevelDebug];
+                [SentryLog logWithMessage:@"UIPerformance: viewDidLoad" andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
@@ -182,7 +180,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                                 inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:spanId];
-                
+
                 [SentryLog logWithMessage:@"UIPerformance: viewDidAppear"
                                  andLevel:kSentryLevelDebug];
             }

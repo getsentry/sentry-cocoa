@@ -129,7 +129,7 @@ SentryAppStartTracker ()
                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
                        SentrySDK.appStartMeasurement = appStartMeasurement;
-                       
+
                        [SentryLog logWithMessage:@"UIPerformance: Set Measurement"
                                         andLevel:kSentryLevelDebug];
                    }
