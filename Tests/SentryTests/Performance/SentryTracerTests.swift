@@ -26,7 +26,6 @@ class SentryTracerTests: XCTestCase {
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
             return SentryTracer(transactionContext: transactionContext, hub: hub, waitForChildren: waitForChildren)
         }
-        
     }
     
     private var fixture: Fixture!
@@ -203,11 +202,13 @@ class SentryTracerTests: XCTestCase {
     }
     
     private func assertTransactionNotCaptured(_ tracer: SentryTracer) {
+        fixture.hub.group.wait()
         XCTAssertFalse(tracer.isFinished)
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
     private func assertOneTransactionCaptured(_ tracer: SentryTracer) {
+        fixture.hub.group.wait()
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
     }
