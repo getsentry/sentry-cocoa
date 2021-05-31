@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Set description for performance tracker spans (#1041)
 - fix: Capturing Child Spans (#1139)
 - feat: Auto UI Performance Instrumentation (#1105)
 

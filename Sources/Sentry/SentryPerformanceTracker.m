@@ -46,7 +46,7 @@ SentryPerformanceTracker ()
 
     SentryTracer *newSpan;
     if (activeSpanTracker != nil) {
-        newSpan = [activeSpanTracker startChildWithOperation:name];
+        newSpan = [activeSpanTracker startChildWithOperation:operation description:name];
     } else {
         newSpan = [[SentryTracer alloc]
             initWithTransactionContext:[[SentryTransactionContext alloc] initWithName:name
@@ -70,11 +70,11 @@ SentryPerformanceTracker ()
     return spanId;
 }
 
-- (void)measureSpanWithName:(NSString *)name
-                  operation:(NSString *)operation
-                    inBlock:(void (^)(void))block
+- (void)measureSpanWithDescription:(NSString *)description
+                         operation:(NSString *)operation
+                           inBlock:(void (^)(void))block
 {
-    SentrySpanId *spanId = [self startSpanWithName:name operation:operation];
+    SentrySpanId *spanId = [self startSpanWithName:description operation:operation];
     [self pushActiveSpan:spanId];
     block();
     [self popActiveSpan];

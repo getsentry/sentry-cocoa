@@ -33,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Measure the given block execution.
  *
- * @param name Span name.
+ * @param description The description of the span.
  * @param operation Span operation.
  * @param block Block to be measured.
  */
-- (void)measureSpanWithName:(NSString *)name
-                  operation:(NSString *)operation
-                    inBlock:(void (^)(void))block;
+- (void)measureSpanWithDescription:(NSString *)description
+                         operation:(NSString *)operation
+                           inBlock:(void (^)(void))block;
 
 /**
  * Gets the active span id.
