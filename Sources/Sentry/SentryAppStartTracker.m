@@ -71,12 +71,7 @@ SentryAppStartTracker ()
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:UIApplicationDidBecomeActiveNotification
-                                             object:nil];
-
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeActive)
-                                               name:SentryHybridSdkDidBecomeActiveNotificationName
+                                               name:UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -134,6 +129,9 @@ SentryAppStartTracker ()
                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
                        SentrySDK.appStartMeasurement = appStartMeasurement;
+                       
+                       [SentryLog logWithMessage:@"UIPerformance: Set Measurement"
+                                        andLevel:kSentryLevelDebug];
                    }
                }];
 

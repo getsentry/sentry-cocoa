@@ -50,6 +50,11 @@ class TestNotificationCenter {
     
     static func hybridSdkDidBecomeActive() {
         NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
-        
+    }
+    
+    static func uiWindowDidBecomeVisible() {
+        #if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
+        NotificationCenter.default.post(Notification(name: UIWindow.didBecomeVisibleNotification))
+        #endif
     }
 }

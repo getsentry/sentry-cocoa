@@ -193,29 +193,37 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 - (SentryTransaction *)toTransaction
 {
     if (SentrySDK.appStartMeasurement != nil) {
+
         SentryAppStartMeasurement *appStartMeasurement = SentrySDK.appStartMeasurement;
 
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
         NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
             dateByAddingTimeInterval:appStartMeasurement.duration];
 
-        NSString *operation = @"app launch";
+        NSString *operation = @"app start";
 
-        SentrySpan *appLaunch = [self startChildWithOperation:@"app.launch"
-                                                  description:@"App Launch"];
+        NSString *type;
+        if (appStartMeasurement.type == SentryAppStartTypeCold) {
+            type = @"Cold Start";
+        } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
+            type = @"Warm Start";
+        }
+
+        SentrySpan *appLaunch = [self measurement:_rootSpan.context.spanId operation:operation
+                                                  description:type];
         [appLaunch setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
-        SentrySpan *runtimeInitSpan = [appLaunch startChildWithOperation:operation
+        SentrySpan *runtimeInitSpan = [self measurement:appLaunch.context.spanId operation:operation
                                                              description:@"Pre main"];
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInit];
 
-        SentrySpan *appInitSpan = [appLaunch startChildWithOperation:operation
+        SentrySpan *appInitSpan = [self measurement:appLaunch.context.spanId operation:operation
                                                          description:@"UIKit and Application Init"];
         [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInit];
         [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
-        SentrySpan *frameRenderSpan = [appLaunch startChildWithOperation:operation
+        SentrySpan *frameRenderSpan = [self measurement:appLaunch.context.spanId operation:operation
                                                              description:@"Initial Frame Render"];
         [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
         [frameRenderSpan setTimestamp:appStartEndTimestamp];
@@ -237,6 +245,25 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
     transaction.transaction = self.name;
     [self addMeasurements:transaction];
     return transaction;
+}
+
+- (id<SentrySpan>)measurement:(SentrySpanId *)parentId
+                               operation:(NSString *)operation
+                  description:(nullable NSString *)description
+{
+    SentrySpanContext *context =
+    [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
+                                        spanId:[[SentrySpanId alloc] init]
+                                      parentId:parentId
+                                     operation:operation
+                                       sampled:_rootSpan.context.sampled];
+    context.spanDescription = description;
+    
+    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+    
+    [_children addObject:child];
+    
+    return child;
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction

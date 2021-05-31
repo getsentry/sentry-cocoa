@@ -159,6 +159,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     
     private func goToForeground() {
         TestNotificationCenter.willEnterForeground()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         TestNotificationCenter.didBecomeActive()
     }
     

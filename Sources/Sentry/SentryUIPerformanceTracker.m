@@ -110,6 +110,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                           operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                             inBlock:^{ SentrySWCallOriginal(); }];
             [SentryPerformanceTracker.shared popActiveSpan];
+        [SentryLog logWithMessage:@"UIPerformance: loadView"
+                         andLevel:kSentryLevelDebug];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
@@ -131,6 +133,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                               operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
+                [SentryLog logWithMessage:@"UIPerformance: viewDidLoad"
+                                 andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
@@ -153,6 +157,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                               operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
+                [SentryLog logWithMessage:@"UIPerformance: viewWillAppear"
+                                 andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
@@ -176,6 +182,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                                 inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:spanId];
+                
+                [SentryLog logWithMessage:@"UIPerformance: viewDidAppear"
+                                 andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
@@ -206,6 +215,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                     layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
                 [SentryPerformanceTracker.shared pushActiveSpan:layoutSubViewId];
+                [SentryLog logWithMessage:@"UIPerformance: layoutSubViews"
+                                 andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)willSelector);
@@ -229,6 +240,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                               operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                 inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
+                [SentryLog logWithMessage:@"UIPerformance: viewDidLayoutSubviews"
+                                 andLevel:kSentryLevelDebug];
             }
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)didSelector);
