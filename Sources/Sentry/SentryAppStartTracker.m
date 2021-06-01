@@ -16,7 +16,6 @@
 #import <SentrySpan.h>
 
 #if SENTRY_HAS_UIKIT
-
 #    import <UIKit/UIKit.h>
 
 static NSDate *runtimeInit = nil;
@@ -115,10 +114,6 @@ SentryAppStartTracker ()
                        NSTimeInterval appStartTime = [[self.currentDate date]
                            timeIntervalSinceDate:self.sysctl.processStartTimestamp];
 
-                       [SentryLog logWithMessage:[NSString stringWithFormat:@"AppStart: sys:%f",
-                                                           appStartTime]
-                                        andLevel:kSentryLevelInfo];
-
                        SentryAppStartMeasurement *appStartMeasurement =
                            [[SentryAppStartMeasurement alloc]
                                               initWithType:appStartType
@@ -128,9 +123,6 @@ SentryAppStartTracker ()
                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
                        SentrySDK.appStartMeasurement = appStartMeasurement;
-
-                       [SentryLog logWithMessage:@"UIPerformance: Set Measurement"
-                                        andLevel:kSentryLevelDebug];
                    }
                }];
 
