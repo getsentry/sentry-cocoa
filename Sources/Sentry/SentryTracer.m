@@ -9,12 +9,18 @@
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
+@interface
+SentryTracer ()
+
+@property (nonatomic, strong) SentrySpan *rootSpan;
+@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
+@property (nonatomic, strong) SentryHub *hub;
+@property (nonatomic) SentrySpanStatus finishStatus;
+@property (nonatomic) BOOL isWaitingChildren;
+
+@end
+
 @implementation SentryTracer {
-    SentrySpan *_rootSpan;
-    NSMutableArray<id<SentrySpan>> *_children;
-    SentryHub *_hub;
-    SentrySpanStatus _finishStatus;
-    BOOL _isFinished;
     BOOL _waitForChildren;
 }
 
@@ -29,13 +35,13 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
                            waitForChildren:(BOOL)waitForChildren
 {
     if ([super init]) {
-        _rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
+        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.name = transactionContext.name;
-        _children = [[NSMutableArray alloc] init];
-        _hub = hub;
-        _isFinished = YES;
+        self.children = [[NSMutableArray alloc] init];
+        self.hub = hub;
+        self.isWaitingChildren = YES;
         _waitForChildren = waitForChildren;
-        _finishStatus = kSentrySpanStatusUndefined;
+        self.finishStatus = kSentrySpanStatusUndefined;
     }
 
     return self;
@@ -74,8 +80,8 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
                    context:&spanTimestampObserver];
     }
 
-    @synchronized(_children) {
-        [_children addObject:child];
+    @synchronized(self.children) {
+        [self.children addObject:child];
     }
 
     return child;
@@ -103,42 +109,42 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 
 - (SentrySpanContext *)context
 {
-    return _rootSpan.context;
+    return self.rootSpan.context;
 }
 
 - (NSDate *)timestamp
 {
-    return _rootSpan.timestamp;
+    return self.rootSpan.timestamp;
 }
 
 - (void)setTimestamp:(NSDate *)timestamp
 {
-    _rootSpan.timestamp = timestamp;
+    self.rootSpan.timestamp = timestamp;
 }
 
 - (NSDate *)startTimestamp
 {
-    return _rootSpan.startTimestamp;
+    return self.rootSpan.startTimestamp;
 }
 
 - (void)setStartTimestamp:(NSDate *)startTimestamp
 {
-    _rootSpan.startTimestamp = startTimestamp;
+    self.rootSpan.startTimestamp = startTimestamp;
 }
 
 - (NSDictionary<NSString *, id> *)data
 {
-    return _rootSpan.data;
+    return self.rootSpan.data;
 }
 
 - (BOOL)isFinished
 {
-    return _rootSpan.isFinished;
+    return self.rootSpan.isFinished;
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
-    [_rootSpan setDataValue:value forKey:key];
+    [self.rootSpan setDataValue:value forKey:key];
 }
 
 - (void)finish
@@ -148,7 +154,7 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    _isFinished = YES;
+    self.isWaitingChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -166,7 +172,7 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
 
 - (void)canBeFinished
 {
-    if (!_isFinished || (_waitForChildren && [self hasUnfinishedChildren]))
+    if (!self.isWaitingChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];

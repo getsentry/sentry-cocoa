@@ -38,9 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL isFinished;
 
 /**
- * Sets this tracer to only finish if all children have been finished.
- * If this property is YES and a finish function is called before all children are finished
- * the tracer will automatically finish when the last child finish.
+ * Indicates whether this tracer will be finished only if all children have been finished.
+ * If this property is YES and the finish function is called before all children are finished
+ * the tracer will automatically finish when the last child finishes.
  */
 @property (readonly) BOOL waitForChildren;
 
