@@ -106,9 +106,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
 
             [SentryPerformanceTracker.shared pushActiveSpan:spanId];
             [SentryPerformanceTracker.shared
-                measureSpanWithName:@"loadView"
-                          operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                            inBlock:^{ SentrySWCallOriginal(); }];
+                measureSpanWithDescription:@"loadView"
+                                 operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                   inBlock:^{ SentrySWCallOriginal(); }];
             [SentryPerformanceTracker.shared popActiveSpan];
             [SentryLog logWithMessage:@"UIPerformance: loadView" andLevel:kSentryLevelDebug];
         }),
@@ -128,9 +128,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
-                    measureSpanWithName:@"viewDidLoad"
-                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                inBlock:^{ SentrySWCallOriginal(); }];
+                    measureSpanWithDescription:@"viewDidLoad"
+                                     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                       inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryLog logWithMessage:@"UIPerformance: viewDidLoad" andLevel:kSentryLevelDebug];
             }
@@ -151,9 +151,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
-                    measureSpanWithName:@"viewWillAppear"
-                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                inBlock:^{ SentrySWCallOriginal(animated); }];
+                    measureSpanWithDescription:@"viewWillAppear"
+                                     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                       inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryLog logWithMessage:@"UIPerformance: viewWillAppear"
                                  andLevel:kSentryLevelDebug];
@@ -175,9 +175,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
-                    measureSpanWithName:@"viewDidAppear"
-                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                inBlock:^{ SentrySWCallOriginal(animated); }];
+                    measureSpanWithDescription:@"viewDidAppear"
+                                     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                       inBlock:^{ SentrySWCallOriginal(animated); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryPerformanceTracker.shared finishSpan:spanId];
 
@@ -201,9 +201,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
             } else {
                 [SentryPerformanceTracker.shared pushActiveSpan:spanId];
                 [SentryPerformanceTracker.shared
-                    measureSpanWithName:@"viewWillLayoutSubviews"
-                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                inBlock:^{ SentrySWCallOriginal(); }];
+                    measureSpanWithDescription:@"viewWillLayoutSubviews"
+                                     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                       inBlock:^{ SentrySWCallOriginal(); }];
 
                 SentrySpanId *layoutSubViewId = [SentryPerformanceTracker.shared
                     startSpanWithName:@"layoutSubViews"
@@ -234,9 +234,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
                 [SentryPerformanceTracker.shared finishSpan:layoutSubViewId];
 
                 [SentryPerformanceTracker.shared
-                    measureSpanWithName:@"viewDidLayoutSubviews"
-                              operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                inBlock:^{ SentrySWCallOriginal(); }];
+                    measureSpanWithDescription:@"viewDidLayoutSubviews"
+                                     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                       inBlock:^{ SentrySWCallOriginal(); }];
                 [SentryPerformanceTracker.shared popActiveSpan];
                 [SentryLog logWithMessage:@"UIPerformance: viewDidLayoutSubviews"
                                  andLevel:kSentryLevelDebug];
