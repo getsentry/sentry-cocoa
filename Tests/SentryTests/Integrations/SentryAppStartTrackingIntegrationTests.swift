@@ -32,7 +32,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         let sut = SentryAppStartTrackingIntegration()
         sut.install(with: fixture.options)
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
     }
@@ -43,7 +43,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.tracesSampleRate = 0.0
         sut.install(with: options)
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
@@ -54,7 +54,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.enableAppStartMeasuring = false
         sut.install(with: options)
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
@@ -65,7 +65,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         
         sut.uninstall()
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
