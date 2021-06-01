@@ -16,7 +16,7 @@ SentryTracer ()
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-@property (nonatomic) BOOL isWaitingChildren;
+@property (nonatomic) BOOL isForWaitingChildren;
 
 @end
 

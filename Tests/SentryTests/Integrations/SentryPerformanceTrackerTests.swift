@@ -2,7 +2,7 @@ import XCTest
 
 class SentryPerformanceTrackerTests: XCTestCase {
     
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryPerformanceTrackerTests")
     
     private class Fixture {
 
