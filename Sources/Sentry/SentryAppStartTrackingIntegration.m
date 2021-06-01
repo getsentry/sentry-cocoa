@@ -25,8 +25,8 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (options.enableAppStartMeasuring && options.tracesSampleRate != nil &&
-        [options.tracesSampleRate doubleValue] != 0.0) {
+    if (options.enableAppStartMeasuring == YES && options.enableAutoUIPerformanceTracking == YES
+        && options.tracesSampleRate != nil && [options.tracesSampleRate doubleValue] != 0.0) {
         SentryDefaultCurrentDateProvider *currentDateProvider =
             [[SentryDefaultCurrentDateProvider alloc] init];
         SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];

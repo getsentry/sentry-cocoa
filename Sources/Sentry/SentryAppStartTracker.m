@@ -39,8 +39,7 @@ SentryAppStartTracker ()
 
 + (void)load
 {
-    // Invoked whenever this class is added to the Objective-C runtime. That's the best
-    // approximation of the app start time we can get.
+    // Invoked whenever this class is added to the Objective-C runtime.
     runtimeInit = [NSDate date];
 }
 
@@ -70,7 +69,7 @@ SentryAppStartTracker ()
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeActive)
+                                           selector:@selector(didBecomeVisible)
                                                name:UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
@@ -84,7 +83,7 @@ SentryAppStartTracker ()
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
  * SentryHybridSdkDidBecomeActiveNotification.
  */
-- (void)didBecomeActive
+- (void)didBecomeVisible
 {
     // With only running this once we know that the process is a new one when the following code is
     // executed.
