@@ -9,6 +9,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         
         init() {
             options.tracesSampleRate = 0.1
+            options.tracesSampler = { _ in return 0 } 
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
@@ -35,6 +36,17 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
+    }
+    
+    func testNoSampleRate_DoesNotUpdatesAppState() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
+        sut.install(with: options)
+        
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        
+        XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
     func testOnlyAppStartMeasuringEnabled_DoesNotUpdatesAppState() {
