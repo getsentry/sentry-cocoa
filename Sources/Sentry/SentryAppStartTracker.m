@@ -23,7 +23,6 @@ static NSDate *runtimeInit = nil;
 @interface
 SentryAppStartTracker ()
 
-@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
@@ -42,14 +41,12 @@ SentryAppStartTracker ()
     runtimeInit = [NSDate date];
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                appStateManager:(SentryAppStateManager *)appStateManager
-                         sysctl:(SentrySysctl *)sysctl
+- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                            appStateManager:(SentryAppStateManager *)appStateManager
+                                     sysctl:(SentrySysctl *)sysctl
 {
     if (self = [super init]) {
-        self.options = options;
         self.currentDate = currentDateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
@@ -180,7 +177,7 @@ SentryAppStartTracker ()
 /**
  * Needed for testing, not public.
  */
-+ (void)setAppStart:(nullable NSDate *)value
+- (void)setRuntimeInit:(NSDate *)value
 {
     runtimeInit = value;
 }

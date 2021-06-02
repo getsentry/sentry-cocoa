@@ -39,12 +39,11 @@ SentryAppStartTrackingIntegration ()
             currentDateProvider:currentDateProvider
                          sysctl:sysctl];
 
-        self.tracker =
-            [[SentryAppStartTracker alloc] initWithOptions:options
-                                       currentDateProvider:currentDateProvider
-                                      dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                                           appStateManager:appStateManager
-                                                    sysctl:sysctl];
+        self.tracker = [[SentryAppStartTracker alloc]
+            initWithCurrentDateProvider:currentDateProvider
+                   dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                        appStateManager:appStateManager
+                                 sysctl:sysctl];
         [self.tracker start];
     }
 
