@@ -1,18 +1,11 @@
-minVersion: '0.9.3'
-github:
-  owner: getsentry
-  repo: sentry-cocoa
+minVersion: 0.23.1
 changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
-statusProvider:
-  name: github
-artifactProvider:
-  name: github
 targets:
   - name: github
   - name: cocoapods
     specPath: Sentry.podspec
   - name: registry
-    type: sdk
-    config:
-      canonical: 'cocoapods:sentry-cocoa'
+    sdks:
+      cocoapods:sentry-cocoa:
+        name: registry
