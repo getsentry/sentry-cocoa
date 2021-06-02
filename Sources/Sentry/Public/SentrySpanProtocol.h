@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
