@@ -18,9 +18,9 @@ SENTRY_NO_INIT
  * @param duration The duration of the app start.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-                   appStartDate:(NSDate *)appStartTimestamp
+              appStartTimestamp:(NSDate *)appStartTimestamp
                        duration:(NSTimeInterval)duration
-                    runtimeInit:(NSDate *)runtimeInit
+           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -35,9 +35,9 @@ SENTRY_NO_INIT
 
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
 
-@property (readonly, nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
+@property (readonly, nonatomic, strong) NSDate *runtimeInitTimestamp;
 
-@property (readonly, nonatomic, strong) NSDate *runtimeInit;
+@property (readonly, nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 
 @end
 

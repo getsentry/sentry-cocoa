@@ -4,16 +4,16 @@
 @implementation SentryAppStartMeasurement
 
 - (instancetype)initWithType:(SentryAppStartType)type
-                   appStartDate:(NSDate *)appStartTimestamp
+              appStartTimestamp:(NSDate *)appStartTimestamp
                        duration:(NSTimeInterval)duration
-                    runtimeInit:(NSDate *)runtimeInit
+           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
 {
     if (self = [super init]) {
         _type = type;
         _appStartTimestamp = appStartTimestamp;
         _duration = duration;
-        _runtimeInit = runtimeInit;
+        _runtimeInitTimestamp = runtimeInitTimestamp;
         _didFinishLaunchingTimestamp = didFinishLaunchingTimestamp;
     }
 

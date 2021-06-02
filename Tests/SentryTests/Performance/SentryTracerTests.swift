@@ -36,7 +36,7 @@ class SentryTracerTests: XCTestCase {
             let runtimeInit = appStart.addingTimeInterval(0.2)
             let didFinishLaunching = appStart.addingTimeInterval(0.3)
             
-            return SentryAppStartMeasurement(type: type, appStart: appStart, duration: appStartDuration, runtimeInit: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
@@ -134,7 +134,13 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(type: SentryAppStartType.unknown, appStart: Date(), duration: 0.5, runtimeInit: Date(), didFinishLaunchingTimestamp: Date())
+        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(
+            type: SentryAppStartType.unknown,
+            appStartTimestamp: fixture.currentDateProvider.date(),
+            duration: 0.5,
+            runtimeInitTimestamp: fixture.currentDateProvider.date(),
+            didFinishLaunchingTimestamp: fixture.currentDateProvider.date()
+        )
         
         fixture.getSut().finish()
         fixture.hub.group.wait()
@@ -299,14 +305,14 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(fixture.appStartOperation, preMainSpan?.context.operation)
         XCTAssertEqual(appLaunchSpan?.context.spanId, preMainSpan?.context.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, preMainSpan?.startTimestamp)
-        XCTAssertEqual(appStartMeasurement.runtimeInit, preMainSpan?.timestamp)
+        XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, preMainSpan?.timestamp)
         
         let appInitSpan = spans?.first { span in
             span.context.spanDescription == "UIKit and Application Init"
         }
         XCTAssertEqual(fixture.appStartOperation, appInitSpan?.context.operation)
         XCTAssertEqual(appLaunchSpan?.context.spanId, appInitSpan?.context.parentSpanId)
-        XCTAssertEqual(appStartMeasurement.runtimeInit, appInitSpan?.startTimestamp)
+        XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, appInitSpan?.startTimestamp)
         XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, appInitSpan?.timestamp)
         
         let frameRenderSpan = spans?.first { span in

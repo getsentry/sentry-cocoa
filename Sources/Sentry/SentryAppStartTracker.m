@@ -111,15 +111,15 @@ SentryAppStartTracker ()
                        // It could be that we have to switch back to setting a appStart-timestamp in
                        // the load method of this class to get a close approximation of when the
                        // process was started.
-                       NSTimeInterval appStartTime = [[self.currentDate date]
+                       NSTimeInterval appStartDuration = [[self.currentDate date]
                            timeIntervalSinceDate:self.sysctl.processStartTimestamp];
 
                        SentryAppStartMeasurement *appStartMeasurement =
                            [[SentryAppStartMeasurement alloc]
                                               initWithType:appStartType
-                                              appStartDate:self.sysctl.processStartTimestamp
-                                                  duration:appStartTime
-                                               runtimeInit:runtimeInit
+                                         appStartTimestamp:self.sysctl.processStartTimestamp
+                                                  duration:appStartDuration
+                                      runtimeInitTimestamp:runtimeInit
                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
                        SentrySDK.appStartMeasurement = appStartMeasurement;
