@@ -41,7 +41,7 @@ SentryTracer ()
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
     }
-    
+
     return self;
 }
 
@@ -61,15 +61,15 @@ SentryTracer ()
                              description:(nullable NSString *)description
 {
     SentrySpanContext *context =
-    [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
-                                        spanId:[[SentrySpanId alloc] init]
-                                      parentId:parentId
-                                     operation:operation
-                                       sampled:_rootSpan.context.sampled];
+        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
+                                            spanId:[[SentrySpanId alloc] init]
+                                          parentId:parentId
+                                         operation:operation
+                                           sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
-    
+
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    
+
     if (_waitForChildren) {
         // Observe when the child finishes
         [child addObserver:self
@@ -77,11 +77,11 @@ SentryTracer ()
                    options:NSKeyValueObservingOptionNew
                    context:nil];
     }
-    
+
     @synchronized(self.children) {
         [self.children addObject:child];
     }
-    
+
     return child;
 }
 
@@ -171,7 +171,7 @@ SentryTracer ()
 {
     if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
-    
+
     [_rootSpan finishWithStatus:_finishStatus];
     [self captureTransaction];
 }
@@ -180,13 +180,13 @@ SentryTracer ()
 {
     if (_hub == nil)
         return;
-    
+
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
             [self->_hub.scope setSpan:nil];
         }
     }];
-    
+
     [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
 }
 
@@ -195,13 +195,13 @@ SentryTracer ()
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
         spans = [_children
-                 filteredArrayUsingPredicate:[NSPredicate
-                                              predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
-                                                                       NSDictionary<NSString *, id> *_Nullable bindings) {
-            return span.isFinished;
-        }]];
+            filteredArrayUsingPredicate:[NSPredicate
+                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
+                                                NSDictionary<NSString *, id> *_Nullable bindings) {
+                                                return span.isFinished;
+                                            }]];
     }
-    
+
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
     return transaction;
