@@ -7,8 +7,6 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
-static const void *spanTimestampObserver = &spanTimestampObserver;
-
 @interface
 SentryTracer ()
 
@@ -39,7 +37,7 @@ SentryTracer ()
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isWaitingChildren = YES;
+        self.isForWaitingChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
     }
@@ -77,7 +75,7 @@ SentryTracer ()
         [child addObserver:self
                 forKeyPath:NSStringFromSelector(@selector(timestamp))
                    options:NSKeyValueObservingOptionNew
-                   context:&spanTimestampObserver];
+                   context:nil];
     }
 
     @synchronized(self.children) {
@@ -95,13 +93,12 @@ SentryTracer ()
                         change:(NSDictionary<NSKeyValueChangeKey, id> *)change
                        context:(void *)context
 {
-    if (context == spanTimestampObserver &&
-        [keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
         SentrySpan *finishedSpan = object;
         if (finishedSpan.timestamp != nil) {
             [finishedSpan removeObserver:self
                               forKeyPath:NSStringFromSelector(@selector(timestamp))
-                                 context:&spanTimestampObserver];
+                                 context:nil];
             [self canBeFinished];
         }
     }
@@ -154,7 +151,7 @@ SentryTracer ()
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isWaitingChildren = YES;
+    self.isForWaitingChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -172,7 +169,7 @@ SentryTracer ()
 
 - (void)canBeFinished
 {
-    if (!self.isWaitingChildren || (_waitForChildren && [self hasUnfinishedChildren]))
+    if (!self.isForWaitingChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];

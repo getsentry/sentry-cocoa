@@ -32,11 +32,10 @@ class SentryTracerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
-        
         fixture = Fixture()
     }
     
-    func testFinish_WithChildren_WaitsForAllChildren() {
+    func testFinish_WithChildren_WaitsForAllChildren_finishParentFirst() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
@@ -70,12 +69,98 @@ class SentryTracerTests: XCTestCase {
         }
     }
     
+    func testFinish_WithChildren_WaitsForAllChildren_finishParentLast() {
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: fixture.transactionOperation)
+                
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        child.finish()
+        
+        assertTransactionNotCaptured(sut)
+        
+        let granGrandChild = grandChild.startChild(operation: fixture.transactionOperation)
+        
+        granGrandChild.finish()
+        assertTransactionNotCaptured(sut)
+        
+        grandChild.finish()
+        assertTransactionNotCaptured(sut)
+        
+        sut.finish()
+        assertOneTransactionCaptured(sut)
+        
+        let serialization = getSerializedTransaction()
+        let spans = serialization["spans"]! as! [[String: Any]]
+        
+        let tracerTimestamp: NSDate = sut.timestamp! as NSDate
+        
+        XCTAssertEqual(spans.count, 3)
+        XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), serialization["timestamp"]! as! String)
+        
+        for span in spans {
+            XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), span["timestamp"] as! String)
+        }
+    }
+    
+    func testFinish_WithChildren_DontWaitsForAllChildren() {
+        let sut = fixture.getSut(waitForChildren: false)
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        let granGrandChild = grandChild.startChild(operation: fixture.transactionOperation)
+        
+        granGrandChild.finish()
+        assertTransactionNotCaptured(sut)
+        
+        grandChild.finish()
+        assertTransactionNotCaptured(sut)
+        
+        child.finish()
+        assertTransactionNotCaptured(sut)
+        
+        sut.finish()
+        assertOneTransactionCaptured(sut)
+        
+        let serialization = getSerializedTransaction()
+        let spans = serialization["spans"]! as! [[String: Any]]
+        
+        let tracerTimestamp: NSDate = sut.timestamp! as NSDate
+        
+        XCTAssertEqual(spans.count, 3)
+        XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), serialization["timestamp"]! as! String)
+        
+        for span in spans {
+            XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), span["timestamp"] as! String)
+        }
+    }
+    
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
         let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil, waitForChildren: false)
         
         sut.finish()
         
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
+    }
+    
+    func testStartChild_FromChild_CheckParentId() {
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(child.context.parentSpanId, sut.context.spanId )
+        XCTAssertEqual(child.context.spanId, grandChild.context.parentSpanId )
+    }
+    
+    func testStartChild_FromChild_CheckSpanList() {
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        
+        let children = Dynamic(sut).children as [Span]?
+        
+        XCTAssertEqual(children!.count, 2)
+        XCTAssertTrue(children!.contains(where: { $0 === child }))
+        XCTAssertTrue(children!.contains(where: { $0 === grandChild }))
     }
     
     // Although we only run this test above the below-specified versions, we expect the
