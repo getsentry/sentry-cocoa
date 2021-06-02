@@ -14,7 +14,7 @@ SentryTracer ()
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-@property (nonatomic) BOOL isForWaitingChildren;
+@property (nonatomic) BOOL isWaitingForChildren;
 
 @end
 
@@ -37,7 +37,7 @@ SentryTracer ()
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isForWaitingChildren = NO;
+        self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
     }
@@ -151,7 +151,7 @@ SentryTracer ()
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isForWaitingChildren = YES;
+    self.isWaitingForChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -169,7 +169,7 @@ SentryTracer ()
 
 - (void)canBeFinished
 {
-    if (!self.isForWaitingChildren || (_waitForChildren && [self hasUnfinishedChildren]))
+    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
