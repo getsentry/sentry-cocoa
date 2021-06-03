@@ -8,6 +8,15 @@ class SentryPerformanceTrackerTests: XCTestCase {
 
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
+        let client: TestClient
+        let hub: TestHub
+        let scope: Scope
+
+        init() {
+            scope = Scope()
+            client = TestClient(options: Options())!
+            hub = TestHub(client: client, andScope: scope)
+        }
         
         func getSut(initSDK: Bool = false) -> SentryPerformanceTracker {
             if initSDK {
@@ -16,6 +25,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
                     options.debug = true
                     options.diagnosticLevel = SentryLevel.debug
                 }
+                SentrySDK.setCurrentHub(hub)
             }
             return  SentryPerformanceTracker()
         }
@@ -24,7 +34,6 @@ class SentryPerformanceTrackerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
-        
         fixture = Fixture()
     }
     
@@ -43,7 +52,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let transaction = spans[spanId] as! SentryTracer
         
-        let scopeSpan = SentrySDK.currentHub().scope.span
+        let scopeSpan = fixture.scope.span
         
         XCTAssert(scopeSpan === transaction)
         XCTAssertTrue(transaction.waitForChildren)
