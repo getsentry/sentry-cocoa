@@ -5,6 +5,7 @@
 - fix: Set description for performance tracker spans (#1042)
 - fix: Capturing Child Spans (#1139)
 - feat: Auto UI Performance Instrumentation (#1105)
+- ref: SentryPerformanceTracker (#1144)
 
 ## 7.1.3
 

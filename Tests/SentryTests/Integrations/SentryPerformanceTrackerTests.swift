@@ -19,16 +19,6 @@ class SentryPerformanceTrackerTests: XCTestCase {
             }
             return  SentryPerformanceTracker()
         }
-
-        func getSpans(tracker: SentryPerformanceTracker) -> [SpanId: Span] {
-            let result = Dynamic(tracker).spans as [SpanId: Span]?
-            return result!
-        }
-        
-        func getStack(tracker: SentryPerformanceTracker) -> [Span] {
-            let result = Dynamic(tracker).activeStack as [Span]?
-            return result!
-        }
     }
     
     private var fixture: Fixture!
@@ -47,11 +37,11 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     func testStartSpan_CheckScopeSpan() {
-        let tracker = fixture.getSut(initSDK: true)
-        let spanid = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        let spans: [SpanId: Span] = fixture.getSpans(tracker: tracker)
+        let sut = fixture.getSut(initSDK: true)
+        let spanId = startSpan(tracker: sut)
+        let spans: [SpanId: Span] = getSpans(tracker: sut)
         
-        let transaction = spans[spanid] as! SentryTracer
+        let transaction = spans[spanId] as! SentryTracer
         
         let scopeSpan = SentrySDK.currentHub().scope.span
         
@@ -59,14 +49,14 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(transaction.waitForChildren)
     }
     
-    func testStartSpan_ScopeAlredyWithSpan() {
-        let tracker = fixture.getSut(initSDK: true)
+    func testStartSpan_ScopeAlreadyWithSpan() {
+        let sut = fixture.getSut(initSDK: true)
 
         let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: fixture.someOperation, bindToScope: true)
-        let spanid = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        let spans: [SpanId: Span] = fixture.getSpans(tracker: tracker)
+        let spanId = startSpan(tracker: sut)
+        let spans: [SpanId: Span] = getSpans(tracker: sut)
         
-        let transaction = spans[spanid]
+        let transaction = spans[spanId]
         let scopeSpan = SentrySDK.currentHub().scope.span
         
         XCTAssert(scopeSpan !== transaction)
@@ -74,64 +64,65 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
   
     func testStartSpan_WithActiveSpan() {
-        let tracker = fixture.getSut()
-        let spanid = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
         
-        tracker.pushActiveSpan(spanid)
+        sut.pushActiveSpan(spanId)
         
-        let childSpanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        let spans: [SpanId: Span] = fixture.getSpans(tracker: tracker)
+        let childSpanId = startSpan(tracker: sut)
+        let spans: [SpanId: Span] = getSpans(tracker: sut)
         
-        let transaction = spans[spanid]
+        let transaction = spans[spanId]
         let childSpan = spans[childSpanId]
  
         let children = Dynamic(transaction).children as [Span]?
         
+        XCTAssertEqual(1, children?.count)
         XCTAssert(children!.first === childSpan)
-        XCTAssertEqual(spanid, childSpan?.context.parentSpanId)
+        XCTAssertEqual(spanId, childSpan?.context.parentSpanId)
     }
     
     func testActiveStack() {
-        let tracker = fixture.getSut()
-        let spanid = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
                 
-        XCTAssertNil(tracker.activeSpan())
+        XCTAssertNil(sut.activeSpan())
         
-        tracker.pushActiveSpan(spanid)
-        XCTAssertEqual(tracker.activeSpan(), spanid)
+        sut.pushActiveSpan(spanId)
+        XCTAssertEqual(sut.activeSpan(), spanId)
         
-        let childSpanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        tracker.pushActiveSpan(childSpanId)
-        XCTAssertEqual(tracker.activeSpan(), childSpanId)
+        let childSpanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(childSpanId)
+        XCTAssertEqual(sut.activeSpan(), childSpanId)
         
-        let grandChildSpanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        tracker.pushActiveSpan(grandChildSpanId)
-        XCTAssertEqual(tracker.activeSpan(), grandChildSpanId)
+        let grandChildSpanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(grandChildSpanId)
+        XCTAssertEqual(sut.activeSpan(), grandChildSpanId)
         
-        tracker.popActiveSpan()
-        XCTAssertEqual(tracker.activeSpan(), childSpanId)
+        sut.popActiveSpan()
+        XCTAssertEqual(sut.activeSpan(), childSpanId)
         
-        tracker.popActiveSpan()
-        XCTAssertEqual(tracker.activeSpan(), spanid)
+        sut.popActiveSpan()
+        XCTAssertEqual(sut.activeSpan(), spanId)
         
-        tracker.popActiveSpan()
-        XCTAssertNil(tracker.activeSpan())
+        sut.popActiveSpan()
+        XCTAssertNil(sut.activeSpan())
     }
     
     func testStartSpan_FromChild_CheckParent() {
-        let tracker = fixture.getSut()
-        let spanid = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
                 
-        tracker.pushActiveSpan(spanid)
+        sut.pushActiveSpan(spanId)
                 
-        let childSpanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        tracker.pushActiveSpan(childSpanId)
+        let childSpanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(childSpanId)
                 
-        let grandChildSpanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let grandChildSpanId = startSpan(tracker: sut)
         
-        let spans = fixture.getSpans(tracker: tracker)
+        let spans = getSpans(tracker: sut)
         
-        let root = spans[spanid]
+        let root = spans[spanId]
         let child = spans[childSpanId]
         let grandchild = spans[grandChildSpanId]
         
@@ -140,42 +131,42 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     func testMeasureSpanWithBlock() {
-        let tracker = fixture.getSut()
+        let sut = fixture.getSut()
         var span: Span?
         
-        tracker.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
-            let spanId = tracker.activeSpan()!
+        sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
+            let spanId = sut.activeSpan()!
             
-            let spans = self.fixture.getSpans(tracker: tracker)
+            let spans = self.getSpans(tracker: sut)
             span = spans[spanId]
             
             XCTAssertFalse(span!.isFinished)
         }
         
-        XCTAssertNil(tracker.activeSpan())
+        XCTAssertNil(sut.activeSpan())
         XCTAssertTrue(span!.isFinished)
     }
     
     func testFinishSpan() {
-        let tracker = fixture.getSut()
-        let spanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
         
-        tracker.pushActiveSpan(spanId)
-        let childId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        sut.pushActiveSpan(spanId)
+        let childId = startSpan(tracker: sut)
         
-        let spans = self.fixture.getSpans(tracker: tracker)
+        let spans = getSpans(tracker: sut)
         let span = spans[spanId]
         let child = spans[childId]
         
         XCTAssertFalse(span!.isFinished)
         XCTAssertFalse(child!.isFinished)
         
-        tracker.finishSpan(childId)
+        sut.finishSpan(childId)
         
         XCTAssertFalse(span!.isFinished)
         XCTAssertTrue(child!.isFinished)
         
-        tracker.finishSpan(spanId)
+        sut.finishSpan(spanId)
         
         let status = Dynamic(span).finishStatus as SentrySpanStatus?
         
@@ -184,13 +175,13 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     func testFinishSpanWithStatus() {
-        let tracker = fixture.getSut()
-        let spanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
                 
-        let spans = self.fixture.getSpans(tracker: tracker)
+        let spans = getSpans(tracker: sut)
         let span = spans[spanId]
         
-        tracker.finishSpan(spanId, with: .ok)
+        sut.finishSpan(spanId, with: .ok)
         
         let status = Dynamic(span).finishStatus as SentrySpanStatus?
         
@@ -199,21 +190,108 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     func testIsSpanAlive() {
-        let tracker = fixture.getSut()
-        let spanId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        tracker.pushActiveSpan(spanId)
-        XCTAssertTrue(tracker.isSpanAlive(spanId))
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(spanId)
+        XCTAssertTrue(sut.isSpanAlive(spanId))
 
-        let childId = tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
-        XCTAssertTrue(tracker.isSpanAlive(spanId))
-        XCTAssertTrue(tracker.isSpanAlive(childId))
+        let childId = startSpan(tracker: sut)
+        XCTAssertTrue(sut.isSpanAlive(spanId))
+        XCTAssertTrue(sut.isSpanAlive(childId))
         
-        tracker.finishSpan(childId)
-        XCTAssertTrue(tracker.isSpanAlive(spanId))
-        XCTAssertFalse(tracker.isSpanAlive(childId))
+        sut.finishSpan(childId)
+        XCTAssertTrue(sut.isSpanAlive(spanId))
+        XCTAssertFalse(sut.isSpanAlive(childId))
         
-        tracker.finishSpan(spanId)
-        XCTAssertFalse(tracker.isSpanAlive(spanId))
+        sut.finishSpan(spanId)
+        XCTAssertFalse(sut.isSpanAlive(spanId))
+    }
+    
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testStartSpanAsync() {
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(spanId)
+        
+        let queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        for _ in 0 ..< 5_000 {
+            group.enter()
+            queue.async {
+                _ = self.startSpan(tracker: sut)
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+                
+        let spans = getSpans(tracker: sut)
+        XCTAssertEqual(spans.count, 5_001)
+    }
+    
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testStackAsync() {
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(spanId)
+        
+        var queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
+        var group = DispatchGroup()
+        
+        for _ in 0 ..< 5_000 {
+            group.enter()
+            queue.async {
+                let childId = self.startSpan(tracker: sut)
+                sut.pushActiveSpan(childId)
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+        
+        var stack = getStack(tracker: sut)
+        XCTAssertEqual(5_001, stack.count)
+        
+        queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
+        group = DispatchGroup()
+        
+        for _ in 0 ..< 5_000 {
+            group.enter()
+            queue.async {
+                sut.popActiveSpan()
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+        
+        sut.popActiveSpan()
+        
+        stack = getStack(tracker: sut)
+        XCTAssertEqual(0, stack.count)
+        XCTAssertNil(sut.activeSpan())
+    }
+    
+    private func getSpans(tracker: SentryPerformanceTracker) -> [SpanId: Span] {
+        let result = Dynamic(tracker).spans as [SpanId: Span]?
+        return result!
+    }
+    
+    private func getStack(tracker: SentryPerformanceTracker) -> [Span] {
+        let result = Dynamic(tracker).activeStack as [Span]?
+        return result!
+    }
+    
+    private func startSpan(tracker: SentryPerformanceTracker) -> SpanId {
+        return tracker.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
     }
     
 }
