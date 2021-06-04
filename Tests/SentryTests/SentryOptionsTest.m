@@ -390,16 +390,16 @@
 
 - (void)testEnableRenderFrameMeasuring
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableRenderFrameMeasuring" : @YES }];
+    SentryOptions *options = [self getValidOptions:@{ @"enableRenderFrameMeasuring" : @NO }];
 
-    XCTAssertEqual(YES, options.enableRenderFrameMeasuring);
+    XCTAssertEqual(NO, options.enableRenderFrameMeasuring);
 }
 
 - (void)testDefaultRenderFrameMeasuring
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(NO, options.enableRenderFrameMeasuring);
+    XCTAssertEqual(YES, options.enableRenderFrameMeasuring);
 }
 
 - (void)testSetEnableRenderFrameMeasuringGargabe
@@ -459,7 +459,7 @@
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
     XCTAssertEqual(YES, options.enableAppStartMeasuring);
-    XCTAssertEqual(NO, options.enableRenderFrameMeasuring);
+    XCTAssertEqual(YES, options.enableRenderFrameMeasuring);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
