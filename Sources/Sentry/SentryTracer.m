@@ -59,9 +59,11 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-        initTotalFrames = framesTracker.currentTotalFrames;
-        initSlowFrames = framesTracker.currentSlowFrames;
-        initFrozenFrames = framesTracker.currentFrozenFrames;
+        if (framesTracker.isRunning) {
+            initTotalFrames = framesTracker.currentTotalFrames;
+            initSlowFrames = framesTracker.currentSlowFrames;
+            initFrozenFrames = framesTracker.currentFrozenFrames;
+        }
 #endif
     }
 
@@ -351,13 +353,15 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 #if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-    NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
-    NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
-    NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
+    if (framesTracker.isRunning) {
+        NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
+        NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
+        NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
 
-    [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
-    [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
-    [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
+        [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
+        [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
+        [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
+    }
 #endif
 }
 

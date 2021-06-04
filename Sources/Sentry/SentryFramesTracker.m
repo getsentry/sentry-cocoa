@@ -51,6 +51,7 @@ SentryFramesTracker ()
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
 {
     if (self = [super init]) {
+        _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
 
         // If we can't get the frame rate we assume it is 60.
@@ -80,6 +81,7 @@ SentryFramesTracker ()
 
 - (void)start
 {
+    _isRunning = YES;
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
 }
 
@@ -123,6 +125,7 @@ SentryFramesTracker ()
 
 - (void)stop
 {
+    _isRunning = NO;
     [self.displayLinkWrapper invalidate];
 }
 

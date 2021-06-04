@@ -24,6 +24,23 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture = Fixture()
     }
     
+    func testIsNotRunning_WhenNotStarted() {
+        XCTAssertFalse(fixture.sut.isRunning)
+    }
+    
+    func testIsRunning_WhenStarted() {
+        let sut = fixture.sut
+        sut.start()
+        XCTAssertTrue(sut.isRunning)
+    }
+    
+    func testIsNotRunning_WhenStopped() {
+        let sut = fixture.sut
+        sut.start()
+        sut.stop()
+        XCTAssertFalse(sut.isRunning)
+    }
+    
     func testSlowFrame() {
         let sut = fixture.sut
         sut.start()

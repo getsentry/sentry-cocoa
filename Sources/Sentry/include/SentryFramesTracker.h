@@ -18,6 +18,7 @@ SENTRY_NO_INIT
 @property (nonatomic, assign, readonly) NSUInteger currentFrozenFrames;
 @property (nonatomic, assign, readonly) NSUInteger currentSlowFrames;
 
+@property (nonatomic, assign, readonly) BOOL isRunning;
 - (void)start;
 - (void)stop;
 
