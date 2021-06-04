@@ -417,7 +417,11 @@ class SentryTracerTests: XCTestCase {
         
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertEqual(addZeroFrames(measurements: [:]), measurements)
+        #else
+        XCTAssertNil(measurements)
+        #endif
         
         let spans = serializedTransaction["spans"]! as! [[String: Any]]
         XCTAssertEqual(0, spans.count)
