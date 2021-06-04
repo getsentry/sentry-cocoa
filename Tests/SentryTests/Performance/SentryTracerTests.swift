@@ -124,7 +124,7 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        XCTAssertEqual(addZeroFrames(measurements: ["app_start_cold": ["value": 500]]), measurements)
+        XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
         XCTAssertNil(SentrySDK.appStartMeasurement)
     
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
@@ -169,7 +169,7 @@ class SentryTracerTests: XCTestCase {
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
-    func testAddWarmAppStartMeasurement_NotPutOnNonAutoUITransaction() {
+    func testAddWarmAppStartMeasurement_NotPutOnCustomTransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.appStartMeasurement = appStartMeasurement
         
@@ -179,7 +179,14 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
         
-        assertAppStartMeasurementNotPutOnTransaction()
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
+        XCTAssertEqual(addZeroFrames(measurements: [:]), measurements)
+        
+        let spans = serializedTransaction["spans"]! as! [[String: Any]]
+        XCTAssertEqual(0, spans.count)
     }
     
     func testAddWarmAppStartMeasurement_TooOldTransaction_NotPutOnNonAutoUITransaction() {
@@ -279,7 +286,7 @@ class SentryTracerTests: XCTestCase {
         let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
-            return measurements == self.addZeroFrames(measurements: ["app_start_warm": ["value": 500]])
+            return measurements == ["app_start_warm": ["value": 500]]
         }
 
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
@@ -287,6 +294,21 @@ class SentryTracerTests: XCTestCase {
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
+    func testChangeStartTimeStamp_RemovesFramesMeasurement() {
+        let sut = fixture.getSut()
+        givenFrames(1, 1, 1)
+        sut.startTimestamp = Date()
+        
+        sut.finish()
+        
+        fixture.hub.group.wait()
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        XCTAssertNil(serializedTransaction["measurements"] as? [String: [String: Int]])
+    }
+    
     func testAddFramesMeasurement() {
         let sut = fixture.getSut()
         
@@ -301,8 +323,6 @@ class SentryTracerTests: XCTestCase {
         fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
@@ -315,7 +335,6 @@ class SentryTracerTests: XCTestCase {
     }
     
     private func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
-        
         fixture.displayLinkWrapper.call()
         
         // Slow frames
@@ -417,12 +436,7 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
-        
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssertEqual(addZeroFrames(measurements: [:]), measurements)
-        #else
         XCTAssertNil(measurements)
-        #endif
         
         let spans = serializedTransaction["spans"]! as! [[String: Any]]
         XCTAssertEqual(0, spans.count)

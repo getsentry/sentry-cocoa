@@ -30,6 +30,8 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
     BOOL _waitForChildren;
 
 #if SENTRY_HAS_UIKIT
+    BOOL _startTimeChanged;
+
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
@@ -56,6 +58,8 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
         _finishStatus = kSentrySpanStatusUndefined;
 
 #if SENTRY_HAS_UIKIT
+        _startTimeChanged = NO;
+
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
@@ -153,6 +157,10 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 - (void)setStartTimestamp:(NSDate *)startTimestamp
 {
     _rootSpan.startTimestamp = startTimestamp;
+
+#if SENTRY_HAS_UIKIT
+    _startTimeChanged = YES;
+#endif
 }
 
 - (NSDictionary<NSString *, id> *)data
@@ -353,7 +361,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 #if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-    if (framesTracker.isRunning) {
+    if (framesTracker.isRunning && !_startTimeChanged) {
         NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
         NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
         NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
@@ -361,6 +369,11 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
         [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
         [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
         [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
+
+        NSString *message = [NSString
+            stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
+            self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
     }
 #endif
 }

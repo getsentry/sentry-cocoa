@@ -19,9 +19,9 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
         @"SentryPerformanceTrackingIntegration"
     ];
 }
