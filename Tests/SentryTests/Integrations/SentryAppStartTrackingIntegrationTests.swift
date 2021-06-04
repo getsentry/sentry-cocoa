@@ -8,54 +8,76 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         
         init() {
-            options.enableAppStartMeasuring = true
+            options.tracesSampleRate = 0.1
+            options.tracesSampler = { _ in return 0 } 
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-            
         }
     }
     
     private var fixture: Fixture!
+    private var sut: SentryAppStartTrackingIntegration!
     
     override func setUp() {
         fixture = Fixture()
+        SentrySDK.appStartMeasurement = nil
+        sut = SentryAppStartTrackingIntegration()
     }
 
     override func tearDown() {
-        SentrySDK.appStartMeasurement = nil
         fixture.fileManager.deleteAppState()
+        sut.stop()
     }
     
-    func testAppStartMeasuringEnabled_UpdatesAppState() {
-        let sut = SentryAppStartTrackingIntegration()
+    func testAppStartMeasuringEnabledAndSampleRate_DoesUpdatesAppState() {
         sut.install(with: fixture.options)
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNotNil(SentrySDK.appStartMeasurement)
     }
     
-    func testAppStartMeasuringDisabled_DoesNotUpdatesAppState() {
-        let sut = SentryAppStartTrackingIntegration()
+    func testNoSampleRate_DoesNotUpdatesAppState() {
         let options = fixture.options
-        options.enableAppStartMeasuring = false
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
         sut.install(with: options)
         
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
     
-    func testUninstall() {
-        let sut = SentryAppStartTrackingIntegration()
-        sut.install(with: fixture.options)
+    func testOnlyAppStartMeasuringEnabled_DoesNotUpdatesAppState() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        sut.install(with: options)
         
-        sut.uninstall()
-        
-        TestNotificationCenter.didBecomeActive()
+        TestNotificationCenter.uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.appStartMeasurement)
     }
+    
+    func testAutoUIPerformanceTrackingDisabled_DoesNotUpdatesAppState() {
+        let options = fixture.options
+        options.enableAutoUIPerformanceTracking = false
+        sut.install(with: options)
+        
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        
+        XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
+    
+    func testAppStartMeasuringDisabled_DoesNotUpdatesAppState() {
+        let options = fixture.options
+        options.enableAppStartMeasuring = false
+        sut.install(with: options)
+        
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        
+        XCTAssertNil(SentrySDK.appStartMeasurement)
+    }
+    
 }
 #endif

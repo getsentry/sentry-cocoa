@@ -56,7 +56,9 @@ SentrySpan ()
 
 - (nullable NSDictionary<NSString *, id> *)data
 {
-    return _extras;
+    @synchronized(_extras) {
+        return [_extras copy];
+    }
 }
 
 - (BOOL)isFinished

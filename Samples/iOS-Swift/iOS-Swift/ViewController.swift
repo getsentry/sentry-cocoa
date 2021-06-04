@@ -82,6 +82,12 @@ class ViewController: UIViewController {
     
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
+        let span = transaction.startChild(operation: "user", description: "calls out")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+            span.finish()
+        })
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
             transaction.finish()
         })

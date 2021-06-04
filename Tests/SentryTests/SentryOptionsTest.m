@@ -378,7 +378,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(NO, options.enableAppStartMeasuring);
+    XCTAssertEqual(YES, options.enableAppStartMeasuring);
 }
 
 - (void)testSetEnableAppStartMeasuringGargabe
@@ -458,11 +458,12 @@
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
-    XCTAssertEqual(NO, options.enableAppStartMeasuring);
+    XCTAssertEqual(YES, options.enableAppStartMeasuring);
     XCTAssertEqual(NO, options.enableRenderFrameMeasuring);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertTrue(options.enableAutoUIPerformanceTracking);
 }
 
 - (void)testSetValidDsn
@@ -541,6 +542,18 @@
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertFalse(options.sendDefaultPii);
+}
+
+- (void)testAutomaticallyTrackUIPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertTrue(options.enableAutoUIPerformanceTracking);
+}
+
+- (void)testDontAutomaticallyTrackUIPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableAutoUIPerformanceTracking" : @NO }];
+    XCTAssertFalse(options.enableAutoUIPerformanceTracking);
 }
 
 - (void)testTracesSampleRate

@@ -7,6 +7,24 @@ feat: Measure slow and frozen frames (#1123)
 ## 7.1.0
 
 - feat: Measure app start time (#1111)
+- fix: Set description for performance tracker spans (#1042)
+- fix: Capturing Child Spans (#1139)
+- feat: Auto UI Performance Instrumentation (#1105)
+
+## 7.1.3
+
+- feat: Add PrivateSentrySDKOnly (#1131)
+
+## 7.1.2
+
+- fix: Serialization of span description (#1128)
+
+## 7.1.1
+
+- No documented changes. This is the same as 7.1.0. Ignore this release and please use 7.1.2 instead.
+
+## 7.1.0
+
 - fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
