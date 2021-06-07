@@ -1,6 +1,7 @@
 #import "SentryCurrentDate.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDependencies.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +18,7 @@ static id<SentryCurrentDateProvider> currentDateProvider;
 + (NSDate *_Nonnull)date
 {
     if (nil == currentDateProvider) {
-        currentDateProvider = [[SentryDefaultCurrentDateProvider alloc] init];
+        currentDateProvider = SentryDependencies.currentDateProvider;
     }
     return [currentDateProvider date];
 }

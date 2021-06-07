@@ -33,6 +33,7 @@
 #import "SentryDebugMeta.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryDependencies.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemType.h"

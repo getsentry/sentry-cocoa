@@ -1,6 +1,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryDependencies.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryFrameInAppLogic.h"
@@ -33,8 +34,8 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
-        self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        self.crashAdapter = SentryDependencies.crashAdapter;
+        self.dispatchQueueWrapper = SentryDependencies.dispatchQueue;
     }
     return self;
 }

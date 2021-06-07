@@ -2,6 +2,7 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
+#import "SentryDependencies.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
@@ -37,7 +38,7 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        _crashAdapter = [[SentryCrashAdapter alloc] init];
+        _crashAdapter = SentryDependencies.crashAdapter;
         _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
     }
     return self;
