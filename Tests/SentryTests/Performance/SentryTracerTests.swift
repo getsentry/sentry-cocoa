@@ -101,8 +101,8 @@ class SentryTracerTests: XCTestCase {
                 }
                 
                 grandChild.finish()
-                group.leave()
                 self.assertTransactionNotCaptured(sut)
+                group.leave()
             }
         }
         
