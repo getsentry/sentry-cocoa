@@ -210,9 +210,9 @@ SentryTracer ()
 
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
-        
+
         [_children addObjectsFromArray:appStartSpans];
-        
+
         spans = [_children
             filteredArrayUsingPredicate:[NSPredicate
                                             predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
@@ -333,7 +333,6 @@ SentryTracer ()
         }
     }
 }
-
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
                   operation:(NSString *)operation
