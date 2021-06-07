@@ -14,7 +14,7 @@
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
 /**
- * The maximum amount of seconds the app start measurment end time and the start time of the
+ * The maximum amount of seconds the app start measurement end time and the start time of the
  * transaction are allowed to be apart.
  */
 static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
@@ -199,7 +199,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 - (SentryTransaction *)toTransaction
 {
-    SentryAppStartMeasurement *appStartMeasurement = [self getAppStartMeasurment];
+    SentryAppStartMeasurement *appStartMeasurement = [self getAppStartMeasurement];
 
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans:appStartMeasurement];
 
@@ -226,7 +226,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
     return transaction;
 }
 
-- (SentryAppStartMeasurement *)getAppStartMeasurment
+- (SentryAppStartMeasurement *)getAppStartMeasurement
 {
     SentryAppStartMeasurement *appStartMeasurement = nil;
 
