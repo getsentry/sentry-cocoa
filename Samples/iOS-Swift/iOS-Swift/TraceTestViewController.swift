@@ -19,6 +19,7 @@ class TraceTestViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = UIColor.white
     }
     
     private func initialize() {
@@ -26,9 +27,8 @@ class TraceTestViewController: UIViewController {
         loadSpan = SentrySDK.startTransaction(name: "TraceTestViewController", operation: "navigation")
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         let child = loadSpan?.startChild(operation: "network", description: "Download Image")
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
@@ -47,6 +47,11 @@ class TraceTestViewController: UIViewController {
                 self.loadSpan?.finish()
             }
         }
+        
         dataTask.resume()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 }

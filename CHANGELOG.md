@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
+
 ## 7.1.3
 
 - feat: Add PrivateSentrySDKOnly (#1131)

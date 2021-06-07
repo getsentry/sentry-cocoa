@@ -20,7 +20,8 @@ SentryOptions ()
 {
     return @[
         @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration"
+        @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryPerformanceTrackingIntegration"
     ];
 }
 
@@ -41,6 +42,7 @@ SentryOptions ()
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.enableAutoUIPerformanceTracking = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
 
@@ -200,6 +202,11 @@ SentryOptions ()
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    if (nil != options[@"enableAutoUIPerformanceTracking"]) {
+        self.enableAutoUIPerformanceTracking =
+            [options[@"enableAutoUIPerformanceTracking"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
