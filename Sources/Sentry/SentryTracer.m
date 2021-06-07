@@ -19,12 +19,18 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
  */
 static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
+@interface
+SentryTracer ()
+
+@property (nonatomic, strong) SentrySpan *rootSpan;
+@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
+@property (nonatomic, strong) SentryHub *hub;
+@property (nonatomic) SentrySpanStatus finishStatus;
+@property (nonatomic) BOOL isWaitingForChildren;
+
+@end
+
 @implementation SentryTracer {
-    SentrySpan *_rootSpan;
-    NSMutableArray<id<SentrySpan>> *_children;
-    SentryHub *_hub;
-    SentrySpanStatus _finishStatus;
-    BOOL _isFinished;
     BOOL _waitForChildren;
 }
 
@@ -39,13 +45,13 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
                            waitForChildren:(BOOL)waitForChildren
 {
     if ([super init]) {
-        _rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
+        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.name = transactionContext.name;
-        _children = [[NSMutableArray alloc] init];
-        _hub = hub;
-        _isFinished = YES;
+        self.children = [[NSMutableArray alloc] init];
+        self.hub = hub;
+        self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
-        _finishStatus = kSentrySpanStatusUndefined;
+        self.finishStatus = kSentrySpanStatusUndefined;
     }
 
     return self;
@@ -81,11 +87,11 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
         [child addObserver:self
                 forKeyPath:NSStringFromSelector(@selector(timestamp))
                    options:NSKeyValueObservingOptionNew
-                   context:&spanTimestampObserver];
+                   context:nil];
     }
 
-    @synchronized(_children) {
-        [_children addObject:child];
+    @synchronized(self.children) {
+        [self.children addObject:child];
     }
 
     return child;
@@ -99,13 +105,12 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
                         change:(NSDictionary<NSKeyValueChangeKey, id> *)change
                        context:(void *)context
 {
-    if (context == spanTimestampObserver &&
-        [keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
         SentrySpan *finishedSpan = object;
         if (finishedSpan.timestamp != nil) {
             [finishedSpan removeObserver:self
                               forKeyPath:NSStringFromSelector(@selector(timestamp))
-                                 context:&spanTimestampObserver];
+                                 context:nil];
             [self canBeFinished];
         }
     }
@@ -113,42 +118,42 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 - (SentrySpanContext *)context
 {
-    return _rootSpan.context;
+    return self.rootSpan.context;
 }
 
 - (NSDate *)timestamp
 {
-    return _rootSpan.timestamp;
+    return self.rootSpan.timestamp;
 }
 
 - (void)setTimestamp:(NSDate *)timestamp
 {
-    _rootSpan.timestamp = timestamp;
+    self.rootSpan.timestamp = timestamp;
 }
 
 - (NSDate *)startTimestamp
 {
-    return _rootSpan.startTimestamp;
+    return self.rootSpan.startTimestamp;
 }
 
 - (void)setStartTimestamp:(NSDate *)startTimestamp
 {
-    _rootSpan.startTimestamp = startTimestamp;
+    self.rootSpan.startTimestamp = startTimestamp;
 }
 
 - (NSDictionary<NSString *, id> *)data
 {
-    return _rootSpan.data;
+    return self.rootSpan.data;
 }
 
 - (BOOL)isFinished
 {
-    return _rootSpan.isFinished;
+    return self.rootSpan.isFinished;
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
-    [_rootSpan setDataValue:value forKey:key];
+    [self.rootSpan setDataValue:value forKey:key];
 }
 
 - (void)finish
@@ -158,7 +163,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    _isFinished = YES;
+    self.isWaitingForChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -176,7 +181,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 - (void)canBeFinished
 {
-    if (!_isFinished || (_waitForChildren && [self hasUnfinishedChildren]))
+    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
@@ -205,9 +210,9 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
-
+        
         [_children addObjectsFromArray:appStartSpans];
-
+        
         spans = [_children
             filteredArrayUsingPredicate:[NSPredicate
                                             predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
@@ -225,7 +230,6 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
     [self addMeasurements:transaction appStartMeasurement:appStartMeasurement];
     return transaction;
 }
-
 - (SentryAppStartMeasurement *)getAppStartMeasurement
 {
     SentryAppStartMeasurement *appStartMeasurement = nil;
@@ -329,6 +333,7 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
         }
     }
 }
+
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
                   operation:(NSString *)operation
