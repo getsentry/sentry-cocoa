@@ -23,6 +23,13 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *appStartMeasurement;
 static NSObject *appStartMeasurementLock;
 
++ (void)initialize
+{
+    if (self == [NSObject class]) {
+        appStartMeasurementLock = [[NSObject alloc] init];
+    }
+}
+
 + (SentryHub *)currentHub
 {
     @synchronized(self) {
@@ -61,9 +68,6 @@ static NSObject *appStartMeasurementLock;
  */
 + (NSObject *)appStartMeasurementLock
 {
-    if (appStartMeasurementLock == nil) {
-        appStartMeasurementLock = [[NSObject alloc] init];
-    }
     return appStartMeasurementLock;
 }
 
