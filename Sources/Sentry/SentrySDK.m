@@ -45,7 +45,7 @@ static BOOL crashedLastRunCalled;
 }
 
 /** Internal, only needed for testing. */
-+ (void)setCurrentHub:(SentryHub *)hub
++ (void)setCurrentHub:(nullable SentryHub *)hub
 {
     @synchronized(self) {
         currentHub = hub;

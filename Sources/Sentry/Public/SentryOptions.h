@@ -116,7 +116,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable to enable out of memory tracking or not. Default is YES.
+ * Whether to enable out of memory tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
@@ -156,6 +156,12 @@ NS_SWIFT_NAME(Options)
  * address.
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
+
+/**
+ * When enabled, the SDK tracks UI performance automatically for UIViewController subclasses.
+ * The default is <code>YES</code>.
+ */
+@property (nonatomic, assign) BOOL enableAutoUIPerformanceTracking;
 
 /**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards

@@ -4,6 +4,7 @@
 //
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppState.h"
 #import "SentryAttachment.h"
 #import "SentryAutoSessionTrackingIntegration.h"
@@ -78,6 +79,8 @@
 #import "SentryTestIntegration.h"
 #import "SentryThreadInspector.h"
 #import "SentryTracer.h"
+#import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"

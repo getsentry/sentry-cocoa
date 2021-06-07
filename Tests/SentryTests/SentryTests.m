@@ -137,18 +137,4 @@
     XCTAssertEqual([date timeIntervalSince1970], 1582803326.0);
 }
 
-- (void)testBreadcrumbTracker
-{
-    XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController",
-        [SentryBreadcrumbTracker
-            sanitizeViewControllerName:@"<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>"]);
-    XCTAssertEqualObjects(@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0",
-        [SentryBreadcrumbTracker
-            sanitizeViewControllerName:@"sentry_ios_cocoapodsViewController: 0x7fd9201253c0"]);
-    XCTAssertEqualObjects(@"sentry_ios_cocoapods.ViewController.miau",
-        [SentryBreadcrumbTracker
-            sanitizeViewControllerName:
-                @"<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>"]);
-}
-
 @end

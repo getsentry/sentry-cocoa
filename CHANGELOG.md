@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
+
+## 7.1.3
+
+- feat: Add PrivateSentrySDKOnly (#1131)
+
+## 7.1.2
+
+- fix: Serialization of span description (#1128)
+
+## 7.1.1
+
+- No documented changes. This is the same as 7.1.0. Ignore this release and please use 7.1.2 instead.
+
+## 7.1.0
+
+- fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
 - feat: Add an option to automatically start SentrySDK with a plist file (#1115)
