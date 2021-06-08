@@ -53,7 +53,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         super.tearDown()
         sut.stop()
         fixture.fileManager.deleteAllFolders()
-        SentrySDK.appStartMeasurement = nil
+        SentrySDK.getAndResetAppStartMeasurement()
     }
     
     func testFirstStart_IsColdStart() {
@@ -196,25 +196,25 @@ class SentryAppStartTrackerTests: XCTestCase {
      * We assume a class reads the app measurement, sends it with a transaction to Sentry and sets it to nil.
      */
     private func sendAppMeasurement() {
-        SentrySDK.appStartMeasurement = nil
+        SentrySDK.getAndResetAppStartMeasurement()
     }
-    
+
     private func assertValidStart(type: SentryAppStartType) {
-        XCTAssertNotNil(SentrySDK.appStartMeasurement)
-        XCTAssertEqual(type.rawValue, SentrySDK.appStartMeasurement?.type.rawValue)
-        
+        let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement()
+        XCTAssertNotNil(appStartMeasurement)
+        XCTAssertEqual(type.rawValue, appStartMeasurement?.type.rawValue)
+
         let expectedAppStartDuration = fixture.appStartDuration
-        let actualAppStartDuration = SentrySDK.appStartMeasurement!.duration
+        let actualAppStartDuration = appStartMeasurement!.duration
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
-        
-        XCTAssertEqual(fixture.sysctl.processStartTimestamp, SentrySDK.appStartMeasurement?.appStartTimestamp)
-        XCTAssertEqual(fixture.runtimeInitTimestamp, SentrySDK.appStartMeasurement?.runtimeInitTimestamp)
-        
-        XCTAssertEqual(fixture.didFinishLaunchingTimestamp, SentrySDK.appStartMeasurement?.didFinishLaunchingTimestamp)
+
+        XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement?.appStartTimestamp)
+        XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement?.runtimeInitTimestamp)
+
     }
-    
+
     private func assertNoAppStartUp() {
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

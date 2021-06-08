@@ -23,6 +23,13 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *appStartMeasurement;
 static NSObject *appStartMeasurementLock;
 
++ (void)initialize
+{
+    if (self == [SentrySDK class]) {
+        appStartMeasurementLock = [[NSObject alloc] init];
+    }
+}
+
 + (SentryHub *)currentHub
 {
     @synchronized(self) {
@@ -34,7 +41,7 @@ static NSObject *appStartMeasurementLock;
 }
 
 /** Internal, only needed for testing. */
-+ (void)setCurrentHub:(SentryHub *)hub
++ (void)setCurrentHub:(nullable SentryHub *)hub
 {
     @synchronized(self) {
         currentHub = hub;
@@ -59,28 +66,33 @@ static NSObject *appStartMeasurementLock;
 /**
  * Not public, only for internal use.
  */
-+ (NSObject *)appStartMeasurementLock
++ (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
 {
-    if (appStartMeasurementLock == nil) {
-        appStartMeasurementLock = [[NSObject alloc] init];
+    @synchronized(appStartMeasurementLock) {
+        appStartMeasurement = value;
     }
-    return appStartMeasurementLock;
 }
 
 /**
  * Not public, only for internal use.
  */
-+ (SentryAppStartMeasurement *)appStartMeasurement
++ (nullable SentryAppStartMeasurement *)getAndResetAppStartMeasurement
 {
-    return appStartMeasurement;
-}
+    // Double-Checked Locking to avoid acquiring unnecessary locks.
+    if (appStartMeasurement == nil) {
+        return nil;
+    }
 
-/**
- * Not public, only for internal use.
- */
-+ (void)setAppStartMeasurement:(SentryAppStartMeasurement *)value
-{
-    appStartMeasurement = value;
+    SentryAppStartMeasurement *result = nil;
+
+    @synchronized(appStartMeasurementLock) {
+        if (appStartMeasurement != nil) {
+            result = appStartMeasurement;
+            appStartMeasurement = nil;
+        }
+    }
+
+    return result;
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

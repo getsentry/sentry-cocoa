@@ -62,6 +62,17 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(data["status"] as? String, "ok")
     }
     
+    func testSerialization_NotSettingProperties_PropertiesNotSerialized() {
+        let spanContext = SpanContext(operation: someOperation)
+        
+        let data = spanContext.serialize()
+        
+        XCTAssertNil(data["description"])
+        XCTAssertNil(data["sampled"])
+        XCTAssertNil(data["parent_span_id"])
+        XCTAssertNil(data["status"])
+    }
+    
     func testSampledNoSerialization() {
         let id = SentryId()
         let spanId = SpanId()
