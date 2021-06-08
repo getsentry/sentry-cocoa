@@ -24,8 +24,8 @@ class SentryCrashIntegrationTests: XCTestCase {
             return options
         }
         
-        var sentryCrash: TestSentryCrashWrapper {
-            let sentryCrash = TestSentryCrashWrapper()
+        var sentryCrash: TestSentryCrashAdapter {
+            let sentryCrash = TestSentryCrashAdapter.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
             return sentryCrash

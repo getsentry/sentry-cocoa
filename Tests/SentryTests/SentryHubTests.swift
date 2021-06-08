@@ -15,7 +15,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrash = TestSentryCrashWrapper()
+        let sentryCrash = TestSentryCrashAdapter.sharedInstance()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"

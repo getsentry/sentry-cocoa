@@ -38,7 +38,7 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
+        self.crashAdapter = [SentryCrashAdapter sharedInstance];
         self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
     }
     return self;

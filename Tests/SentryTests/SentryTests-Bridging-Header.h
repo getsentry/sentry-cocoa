@@ -94,3 +94,4 @@
 #import "SentryTransportFactory.h"
 #import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"
+#import "TestSentryCrashAdapter.h"

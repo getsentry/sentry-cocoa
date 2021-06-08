@@ -7,6 +7,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryCrashAdapter
 
++ (instancetype)sharedInstance
+{
+    static SentryCrashAdapter *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    return instance;
+}
+
 - (BOOL)crashedLastLaunch
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
