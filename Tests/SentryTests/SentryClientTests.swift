@@ -1,5 +1,3 @@
-@testable import Sentry.SentryClient
-@testable import Sentry.SentryOptions
 import XCTest
 
 class SentryClientTest: XCTestCase {

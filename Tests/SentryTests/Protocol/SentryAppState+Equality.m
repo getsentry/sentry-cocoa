@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     if (self.isDebugging != appState.isDebugging)
         return NO;
+    if (self.systemBootTimestamp != appState.systemBootTimestamp
+        && ![self.systemBootTimestamp isEqualToDate:appState.systemBootTimestamp])
+        return NO;
     if (self.isActive != appState.isActive)
         return NO;
     if (self.wasTerminated != appState.wasTerminated)
@@ -43,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
     hash = hash * 23 + [self.releaseName hash];
     hash = hash * 23 + [self.osVersion hash];
     hash = hash * 23 + [@(self.isDebugging) hash];
+    hash = hash * 23 + [self.systemBootTimestamp hash];
     hash = hash * 23 + [@(self.isActive) hash];
     hash = hash * 23 + [@(self.wasTerminated) hash];
 
