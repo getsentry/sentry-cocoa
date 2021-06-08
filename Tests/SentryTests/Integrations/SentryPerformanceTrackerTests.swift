@@ -250,30 +250,14 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = startSpan(tracker: sut)
         sut.pushActiveSpan(spanId)
         
-        var queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
-        var group = DispatchGroup()
+        let queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
         
-        for _ in 0 ..< 5_000 {
+        for _ in 0 ..< 50_000 {
             group.enter()
             queue.async {
                 let childId = self.startSpan(tracker: sut)
                 sut.pushActiveSpan(childId)
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.wait()
-        
-        var stack = getStack(tracker: sut)
-        XCTAssertEqual(5_001, stack.count)
-        
-        queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
-        group = DispatchGroup()
-        
-        for _ in 0 ..< 5_000 {
-            group.enter()
-            queue.async {
                 sut.popActiveSpan()
                 group.leave()
             }
@@ -284,7 +268,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         sut.popActiveSpan()
         
-        stack = getStack(tracker: sut)
+        let stack = getStack(tracker: sut)
         XCTAssertEqual(0, stack.count)
         XCTAssertNil(sut.activeSpan())
     }
