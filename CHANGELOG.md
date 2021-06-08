@@ -2,14 +2,7 @@
 
 ## Unreleased
 
-feat: Measure slow and frozen frames (#1123)
-
-## 7.1.0
-
-- feat: Measure app start time (#1111)
-- fix: Set description for performance tracker spans (#1042)
-- fix: Capturing Child Spans (#1139)
-- feat: Auto UI Performance Instrumentation (#1105)
+- feat: Measure slow and frozen frames (#1123)
 - feat: Measure app start time (#1111)
 - feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
 
