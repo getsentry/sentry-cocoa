@@ -47,8 +47,8 @@ class SentryTracerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
-        
         fixture = Fixture()
+        SentrySDK.getAndResetAppStartMeasurement()
     }
     
     func testFinish_WithChildren_WaitsForAllChildren() {
@@ -95,7 +95,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.appStartMeasurement = appStartMeasurement
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         let sut = fixture.getSut()
         sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(5)
@@ -107,7 +107,7 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", appStartMeasurement: appStartMeasurement)
@@ -115,7 +115,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.appStartMeasurement = appStartMeasurement
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         let sut = fixture.getSut()
         sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(-5)
@@ -127,66 +127,66 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", appStartMeasurement: appStartMeasurement)
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {
-        SentrySDK.appStartMeasurement = SentryAppStartMeasurement(
+        SentrySDK.setAppStartMeasurement(SentryAppStartMeasurement(
             type: SentryAppStartType.unknown,
             appStartTimestamp: fixture.currentDateProvider.date(),
             duration: 0.5,
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
             didFinishLaunchingTimestamp: fixture.currentDateProvider.date()
-        )
+        ))
         
         fixture.getSut().finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
     func testAddWarmAppStartMeasurement_NotPutOnNonAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.appStartMeasurement = appStartMeasurement
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         let sut = SentryTracer(transactionContext: TransactionContext(name: "custom", operation: "custom"), hub: fixture.hub, waitForChildren: false)
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNotNil(SentrySDK.appStartMeasurement)
+        XCTAssertNotNil(SentrySDK.getAndResetAppStartMeasurement())
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
     func testAddWarmAppStartMeasurement_TooOldTransaction_NotPutOnNonAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.appStartMeasurement = appStartMeasurement
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         let sut = fixture.getSut()
         sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(5.1)
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
     func testAddWarmAppStartMeasurement_TooYoungTransaction_NotPutOnNonAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.appStartMeasurement = appStartMeasurement
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         let sut = fixture.getSut()
         sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(-5.1)
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -236,7 +236,7 @@ class SentryTracerTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDK.appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()
@@ -264,7 +264,7 @@ class SentryTracerTests: XCTestCase {
         }
 
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
-        XCTAssertNil(SentrySDK.appStartMeasurement)
+        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
     
     private func getSerializedTransaction() -> [String: Any] {

@@ -13,9 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, class) BOOL crashedLastRunCalled;
 
-@property (nullable, nonatomic, class) SentryAppStartMeasurement *appStartMeasurement;
++ (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement;
 
-@property (nonatomic, class) NSObject *appStartMeasurementLock;
++ (nullable SentryAppStartMeasurement *)getAndResetAppStartMeasurement;
 
 + (SentryHub *)currentHub;
 
