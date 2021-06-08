@@ -72,7 +72,7 @@ SentryPerformanceTracker ()
 
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
-                           inBlock:(void (^)(void))block
+                           inBlock:(Callback)block
 {
     SentrySpanId *spanId = [self startSpanWithName:description operation:operation];
     [self pushActiveSpan:spanId];

@@ -1,4 +1,5 @@
 #import "SentrySpanStatus.h"
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -8,8 +9,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Tracks performance synchronizing span with its childs.
  * A span will be finished only when all its children are finished.
- * This class works on thread context, spans created in different
- * threads are not related.
  */
 @interface SentryPerformanceTracker : NSObject
 
@@ -39,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
-                           inBlock:(void (^)(void))block;
+                           inBlock:(Callback)block;
 
 /**
  * Gets the active span id.

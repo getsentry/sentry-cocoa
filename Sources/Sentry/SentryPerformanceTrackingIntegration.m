@@ -1,5 +1,5 @@
 #import "SentryPerformanceTrackingIntegration.h"
-#import "SentryUIPerformanceTracker.h"
+#import "SentryUISwizziling.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
@@ -19,7 +19,7 @@ SentryPerformanceTrackingIntegration ()
 
 - (void)enableUIAutomaticPerformanceTracking
 {
-    [SentryUIPerformanceTracker start];
+    [SentryUISwizziling start];
 }
 
 @end
