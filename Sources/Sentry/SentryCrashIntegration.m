@@ -73,12 +73,12 @@ SentryCrashIntegration ()
     self.options = options;
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppStateManager *appStateManager =
-        [[SentryAppStateManager alloc] initWithOptions:options
-                                          crashAdapter:self.crashAdapter
-                                           fileManager:fileManager
-                                   currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                                                sysctl:[[SentrySysctl alloc] init]];
+    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
+            initWithOptions:options
+               crashAdapter:self.crashAdapter
+                fileManager:fileManager
+        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                     sysctl:[[SentrySysctl alloc] init]];
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options
                                            crashAdapter:self.crashAdapter
