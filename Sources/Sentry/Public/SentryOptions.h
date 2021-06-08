@@ -128,7 +128,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Whether to enable measuring the rendering of frames of the UI or not. Default is YES.
  */
-@property (nonatomic, assign) BOOL enableRenderFrameMeasuring;
+@property (nonatomic, assign) BOOL enableFrameRenderMeasuring;
 
 /**
  * The interval to end a session if the App goes to the background.

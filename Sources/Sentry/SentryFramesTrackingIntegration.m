@@ -19,7 +19,7 @@ SentryFramesTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (options.enableRenderFrameMeasuring) {
+    if (options.enableFrameRenderMeasuring) {
         self.tracker = [SentryFramesTracker sharedInstance];
         [self.tracker start];
     }

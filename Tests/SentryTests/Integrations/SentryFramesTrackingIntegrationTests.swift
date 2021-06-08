@@ -28,7 +28,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testFrameRenderingDisabled_DoesNotMeasureFrames() {
         let sut = SentryFramesTrackingIntegration()
         let options = fixture.options
-        options.enableRenderFrameMeasuring = false
+        options.enableFrameRenderMeasuring = false
         sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)

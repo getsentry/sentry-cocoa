@@ -40,7 +40,7 @@ SentryOptions ()
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
         self.enableAppStartMeasuring = YES;
-        self.enableRenderFrameMeasuring = YES;
+        self.enableFrameRenderMeasuring = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
@@ -194,8 +194,8 @@ SentryOptions ()
         self.enableAppStartMeasuring = [options[@"enableAppStartMeasuring"] boolValue];
     }
 
-    if (nil != options[@"enableRenderFrameMeasuring"]) {
-        self.enableRenderFrameMeasuring = [options[@"enableRenderFrameMeasuring"] boolValue];
+    if (nil != options[@"enableFrameRenderMeasuring"]) {
+        self.enableFrameRenderMeasuring = [options[@"enableFrameRenderMeasuring"] boolValue];
     }
 
     if (nil != options[@"sessionTrackingIntervalMillis"]) {
