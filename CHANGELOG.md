@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.0
 
 - feat: Measure app start time (#1111)
 - feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
