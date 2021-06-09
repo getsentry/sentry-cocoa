@@ -38,6 +38,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     override func tearDown() {
+        SentrySDK.setCurrentHub(nil)
         SentrySDK.close()
     }
     
