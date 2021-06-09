@@ -64,32 +64,30 @@ SentryUIPerformanceTracker ()
     }
 }
 
-- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerLoadView:(id)controller callbackToOrigin:(Callback)callback
 {
     NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
     SentrySpanId *spanId =
         [self.tracker startSpanWithName:name operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
 
-    // use the viewcontroller itself to store the spanId to avoid using a global mapper.
+    // use the target itself to store the spanId to avoid using a global mapper.
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     [self measurePerformance:@"loadView" parentSpanId:spanId blockToMeasure:callback];
 }
 
-- (void)viewControllerViewDidLoad:(UIViewController *)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidLoad:(id)controller callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewDidLoad" target:controller blockToMeasure:callback];
 }
 
-- (void)viewControllerViewWillAppear:(UIViewController *)controller
-                    callbackToOrigin:(Callback)callback
+- (void)viewControllerViewWillAppear:(id)controller callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewWillAppear" target:controller blockToMeasure:callback];
 }
 
-- (void)viewControllerViewDidAppear:(UIViewController *)controller
-                   callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidAppear:(id)controller callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewDidAppear" target:controller blockToMeasure:callback];
 
@@ -100,8 +98,7 @@ SentryUIPerformanceTracker ()
     }
 }
 
-- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
-                            callbackToOrigin:(Callback)callback
+- (void)viewControllerViewWillLayoutSubViews:(id)controller callbackToOrigin:(Callback)callback
 {
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
@@ -125,8 +122,7 @@ SentryUIPerformanceTracker ()
     }
 }
 
-- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
-                           callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidLayoutSubViews:(id)controller callbackToOrigin:(Callback)callback
 {
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
