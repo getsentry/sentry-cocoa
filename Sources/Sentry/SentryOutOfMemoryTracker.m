@@ -1,6 +1,7 @@
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
+#import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryEvent.h>
@@ -25,19 +26,25 @@ SentryOutOfMemoryTracker ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryOutOfMemoryLogic *outOfMemoryLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) SentryFileManager *fileManager;
 
 @end
 
-@implementation SentryOutOfMemoryTracker : NSObject
+@implementation SentryOutOfMemoryTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                outOfMemoryLogic:(SentryOutOfMemoryLogic *)outOfMemoryLogic
+                appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                    fileManager:(SentryFileManager *)fileManager
 {
     if (self = [super init]) {
         self.options = options;
         self.outOfMemoryLogic = outOfMemoryLogic;
+        self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
+        self.fileManager = fileManager;
     }
     return self;
 }
@@ -85,8 +92,7 @@ SentryOutOfMemoryTracker ()
             [SentrySDK captureCrashEvent:event];
         }
 
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-        [fileManager storeAppState:[self.outOfMemoryLogic buildCurrentAppState]];
+        [self.appStateManager storeCurrentAppState];
     }];
 
 #else
@@ -131,11 +137,10 @@ SentryOutOfMemoryTracker ()
     // We accept the tradeoff that the app state might not be 100% up to date over blocking the main
     // thread.
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-        SentryAppState *appState = [fileManager readAppState];
+        SentryAppState *appState = [self.fileManager readAppState];
         if (nil != appState) {
             block(appState);
-            [fileManager storeAppState:appState];
+            [self.fileManager storeAppState:appState];
         }
     }];
 }

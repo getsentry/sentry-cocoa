@@ -50,4 +50,8 @@ class TraceTestViewController: UIViewController {
         
         dataTask.resume()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
 }
