@@ -12,9 +12,9 @@
 @interface
 SentryPerformanceTracker ()
 
-@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, SentryTracer *> *spans;
+@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 
-@property (nonatomic, strong) NSMutableArray<SentryTracer *> *activeStack;
+@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeStack;
 
 @end
 
@@ -39,12 +39,12 @@ SentryPerformanceTracker ()
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation
 {
-    SentryTracer *activeSpanTracker;
+    id<SentrySpan> activeSpanTracker;
     @synchronized(self.activeStack) {
         activeSpanTracker = [self.activeStack lastObject];
     }
 
-    SentryTracer *newSpan;
+    id<SentrySpan> newSpan;
     if (activeSpanTracker != nil) {
         newSpan = [activeSpanTracker startChildWithOperation:operation description:name];
     } else {
@@ -90,7 +90,7 @@ SentryPerformanceTracker ()
 
 - (void)pushActiveSpan:(SentrySpanId *)spanId
 {
-    SentryTracer *toActiveSpan;
+    id<SentrySpan> toActiveSpan;
     @synchronized(self.spans) {
         toActiveSpan = self.spans[spanId];
     }
@@ -116,7 +116,7 @@ SentryPerformanceTracker ()
 
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status
 {
-    SentryTracer *spanTracker;
+    id<SentrySpan> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
         [self.spans removeObjectForKey:spanId];
