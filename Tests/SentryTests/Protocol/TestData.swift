@@ -1,5 +1,3 @@
-import Foundation
-
 class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
@@ -163,7 +161,7 @@ class TestData {
     }
     
     static var appState: SentryAppState {
-        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", isDebugging: false)
+        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", isDebugging: false, systemBootTimestamp: timestamp)
     }
     
     static var oomEvent: Event {

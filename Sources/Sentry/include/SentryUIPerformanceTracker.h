@@ -7,6 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.rendering";
+
 /**
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.

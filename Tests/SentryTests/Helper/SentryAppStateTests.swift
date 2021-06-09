@@ -10,6 +10,7 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.releaseName, actual["release_name"] as? String)
         XCTAssertEqual(appState.osVersion, actual["os_version"] as? String)
         XCTAssertEqual(appState.isDebugging, actual["is_debugging"] as? Bool)
+        XCTAssertEqual((appState.systemBootTimestamp as NSDate).sentry_toIso8601String(), actual["system_boot_timestamp"] as? String)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
     }
@@ -20,6 +21,7 @@ class SentryAppStateTests: XCTestCase {
             "release_name": appState.releaseName,
             "os_version": appState.osVersion,
             "is_debugging": appState.isDebugging,
+            "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated
         ] as [String: Any]
@@ -33,6 +35,7 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
         withValue { $0["is_debugging"] = nil }
+        withValue { $0["system_boot_timestamp"] = nil }
         withValue { $0["is_active"] = nil }
         withValue { $0["was_terminated"] = nil }
     }
@@ -41,8 +44,19 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
         withValue { $0["is_debugging"] = "" }
+        withValue { $0["system_boot_timestamp"] = "" }
         withValue { $0["is_active"] = "" }
         withValue { $0["was_terminated"] = "" }
+    }
+    
+    func testBootTimeRoundedDownToSeconds() {
+        
+        let date = Date(timeIntervalSince1970: 0.1)
+        let expectedDate = Date(timeIntervalSince1970: 0)
+        
+        let sut = SentryAppState(releaseName: "", osVersion: "", isDebugging: false, systemBootTimestamp: date)
+        
+        XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
     
     func withValue(setValue: (inout [String: Any]) -> Void) {

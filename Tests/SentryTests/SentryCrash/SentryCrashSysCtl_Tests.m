@@ -185,6 +185,15 @@
     XCTAssertTrue(value.tv_sec == 0, @"");
 }
 
+- (void)testSysCtlCurrentProcessStartTime
+{
+    struct timeval actual = sentrycrashsysctl_currentProcessStartTime();
+    NSDate *startTime = [NSDate dateWithTimeIntervalSince1970:actual.tv_sec + actual.tv_usec / 1E6];
+
+    // Current time is after start time
+    XCTAssertGreaterThan([[NSDate date] timeIntervalSinceDate:startTime], 0);
+}
+
 - (void)testGetProcessInfo
 {
     int pid = getpid();
