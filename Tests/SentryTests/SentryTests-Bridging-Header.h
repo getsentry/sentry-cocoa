@@ -83,6 +83,6 @@
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIPerformanceTracker.h"
 #import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"
-#import "SentryUIPerformanceTracker.h"

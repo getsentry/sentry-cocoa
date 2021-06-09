@@ -17,9 +17,16 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 
 static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.rendering";
 
+@interface
+SentryUIPerformanceTracker ()
+
+@property (nonatomic, strong) SentryPerformanceTracker *tracker;
+
+@end
+
 @implementation SentryUIPerformanceTracker
 
-+ (instancetype) shared
++ (instancetype)shared
 {
     static SentryUIPerformanceTracker *instance = nil;
     static dispatch_once_t onceToken;
@@ -27,119 +34,117 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
     return instance;
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.tracker = SentryPerformanceTracker.shared;
+    }
+    return self;
+}
+
 - (void)measurePerformance:(NSString *)description
               parentSpanId:(SentrySpanId *)spanId
-        callbackToOriginal:(Callback)callback
+            blockToMeasure:(Callback)callback
 {
-    [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-    [SentryPerformanceTracker.shared
-     measureSpanWithDescription:description
-     operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-     inBlock:callback];
-    [SentryPerformanceTracker.shared popActiveSpan];
+    [self.tracker pushActiveSpan:spanId];
+    [self.tracker measureSpanWithDescription:description
+                                   operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                     inBlock:callback];
+    [self.tracker popActiveSpan];
 }
 
-- (void)viewControllerLoadView:(UIViewController*)controller
-              callbackToOrigin:(Callback)callback {
+- (void)measurePerformance:(NSString *)description
+                    target:(id)target
+            blockToMeasure:(Callback)callback
+{
+    SentrySpanId *spanId = objc_getAssociatedObject(target, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+    if (spanId == nil) {
+        callback();
+    } else {
+        [self measurePerformance:description parentSpanId:spanId blockToMeasure:callback];
+    }
+}
+
+- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(Callback)callback
+{
     NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
-    SentrySpanId *spanId = [SentryPerformanceTracker.shared
-                            startSpanWithName:name
-                            operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
-    
+    SentrySpanId *spanId =
+        [self.tracker startSpanWithName:name operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
+
     // use the viewcontroller itself to store the spanId to avoid using a global mapper.
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
-    [self measurePerformance:@"loadView"
-                parentSpanId:spanId
-          callbackToOriginal:callback];
+        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+    [self measurePerformance:@"loadView" parentSpanId:spanId blockToMeasure:callback];
 }
 
-- (void)viewControllerViewDidLoad:(UIViewController*)controller
-                 callbackToOrigin:(Callback)callback {
+- (void)viewControllerViewDidLoad:(UIViewController *)controller callbackToOrigin:(Callback)callback
+{
+    [self measurePerformance:@"viewDidLoad" target:controller blockToMeasure:callback];
+}
+
+- (void)viewControllerViewWillAppear:(UIViewController *)controller
+                    callbackToOrigin:(Callback)callback
+{
+    [self measurePerformance:@"viewWillAppear" target:controller blockToMeasure:callback];
+}
+
+- (void)viewControllerViewDidAppear:(UIViewController *)controller
+                   callbackToOrigin:(Callback)callback
+{
+    [self measurePerformance:@"viewDidAppear" target:controller blockToMeasure:callback];
+
     SentrySpanId *spanId
-    = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    
-    if (spanId == nil) {
-        callback();
-    } else {
-        [self measurePerformance:@"viewDidLoad"
-                    parentSpanId:spanId
-              callbackToOriginal:callback];
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+    if (spanId != nil) {
+        [self.tracker finishSpan:spanId];
     }
 }
 
-- (void)viewControllerViewWillAppear:(UIViewController*)controller
-                 callbackToOrigin:(Callback)callback {
+- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
+                            callbackToOrigin:(Callback)callback
+{
     SentrySpanId *spanId
-    = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    
-    if (spanId == nil) {
-        callback();
-    } else {
-        [self measurePerformance:@"viewWillAppear"
-                    parentSpanId:spanId
-              callbackToOriginal:callback];
-    }
-}
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
-- (void)viewControllerViewDidAppear:(UIViewController*)controller
-                    callbackToOrigin:(Callback)callback {
-    SentrySpanId *spanId
-    = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    
-    if (spanId == nil) {
+    if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
         callback();
     } else {
-        [self measurePerformance:@"viewDidAppear"
-                    parentSpanId:spanId
-              callbackToOriginal:callback];
-    }
-}
+        [self.tracker pushActiveSpan:spanId];
+        [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
+                                       operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                         inBlock:callback];
 
-- (void)viewControllerViewWillLayoutSubViews:(UIViewController*)controller
-                        callbackToOrigin:(Callback)callback {
-    SentrySpanId *spanId
-    = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    
-    if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
-        callback();
-    } else {
-        [SentryPerformanceTracker.shared pushActiveSpan:spanId];
-        [SentryPerformanceTracker.shared
-         measureSpanWithDescription:@"viewWillLayoutSubviews"
-         operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-         inBlock:callback];
-        
-        SentrySpanId *layoutSubViewId = [SentryPerformanceTracker.shared
-                                         startSpanWithName:@"layoutSubViews"
-                                         operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
-        
+        SentrySpanId *layoutSubViewId =
+            [self.tracker startSpanWithName:@"layoutSubViews"
+                                  operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
+
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
-                                 layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        
-        [SentryPerformanceTracker.shared pushActiveSpan:layoutSubViewId];
+            layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+        [self.tracker pushActiveSpan:layoutSubViewId];
     }
 }
 
-- (void)viewControllerViewDidLayoutSubViews:(UIViewController*)controller
-                           callbackToOrigin:(Callback)callback {
+- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
+                           callbackToOrigin:(Callback)callback
+{
     SentrySpanId *spanId
-    = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-    
-    if (spanId == nil || ![SentryPerformanceTracker.shared isSpanAlive:spanId]) {
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+    if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
         callback();
     } else {
         SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
-                                                                 controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
-        [SentryPerformanceTracker.shared popActiveSpan];
-        [SentryPerformanceTracker.shared finishSpan:layoutSubViewId];
-        
-        [SentryPerformanceTracker.shared
-         measureSpanWithDescription:@"viewDidLayoutSubviews"
-         operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-         inBlock:callback];
-        [SentryPerformanceTracker.shared popActiveSpan];
+            controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
+        [self.tracker popActiveSpan];
+        [self.tracker finishSpan:layoutSubViewId];
+
+        [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
+                                       operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                         inBlock:callback];
+        [self.tracker popActiveSpan];
     }
 }
 

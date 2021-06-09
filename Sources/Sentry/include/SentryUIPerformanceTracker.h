@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
 #import "SentryDefines.h"
+#import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
-#import <UIKit/UIKit.h>
+#    import <UIKit/UIKit.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,27 +23,29 @@ NS_ASSUME_NONNULL_BEGIN
  * viewControllerDidAppear:callBackToOrigin: is called.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller LoadView method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * LoadView method.
  */
-- (void)viewControllerLoadView:(UIViewController*)controller
-              callbackToOrigin:(Callback)callback;
+- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(Callback)callback;
 
 /**
  * Measures viewController`s viewDidLoad method.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller viewDidLoad method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * viewDidLoad method.
  */
-- (void)viewControllerViewDidLoad:(UIViewController*)controller
+- (void)viewControllerViewDidLoad:(UIViewController *)controller
                  callbackToOrigin:(Callback)callback;
 
 /**
  * Measures viewController`s viewWillAppear: method.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller viewWillAppear: method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * viewWillAppear: method.
  */
-- (void)viewControllerViewWillAppear:(UIViewController*)controller
+- (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(Callback)callback;
 
 /**
@@ -53,9 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
  * the transaction to be send to Sentry when all spans are finished.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller viewDidAppear: method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * viewDidAppear: method.
  */
-- (void)viewControllerViewDidAppear:(UIViewController*)controller
+- (void)viewControllerViewDidAppear:(UIViewController *)controller
                    callbackToOrigin:(Callback)callback;
 
 /**
@@ -64,9 +67,10 @@ NS_ASSUME_NONNULL_BEGIN
  * viewControllerViewDidLayoutSubViews:callbackToOrigin: is called.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller viewWillLayoutSubViews method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * viewWillLayoutSubViews method.
  */
-- (void)viewControllerViewWillLayoutSubViews:(UIViewController*)controller
+- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
                             callbackToOrigin:(Callback)callback;
 
 /**
@@ -76,9 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
  * that measures all work done in views between this two methods.
  *
  * @param controller UIViewController to be measured
- * @param callback A callback that indicates the swizzler to call the original view controller viewDidLayoutSubViews method.
+ * @param callback A callback that indicates the swizzler to call the original view controller
+ * viewDidLayoutSubViews method.
  */
-- (void)viewControllerViewDidLayoutSubViews:(UIViewController*)controller
+- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(Callback)callback;
 
 #endif
