@@ -39,7 +39,7 @@ SentryUIPerformanceTracker ()
     }
     return self;
 }
-
+#if SENTRY_HAS_UIKIT
 - (void)measurePerformance:(NSString *)description
                     target:(id)target
             blockToMeasure:(Callback)callback
@@ -137,5 +137,6 @@ SentryUIPerformanceTracker ()
         [self.tracker popActiveSpan];
     }
 }
+#endif
 
 @end
