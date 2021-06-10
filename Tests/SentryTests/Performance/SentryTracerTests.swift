@@ -11,7 +11,8 @@ class SentryTracerTests: XCTestCase {
         let transactionOperation = "ui.load"
         var transactionContext: TransactionContext!
         
-        let appStartOperation = "app.start"
+        let appStartWarmOperation = "app.start.warm"
+        let appStartColdOperation = "app.start.cold"
         
         let currentDateProvider = TestCurrentDateProvider()
         let appStart: Date
@@ -110,7 +111,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
-        assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", appStartMeasurement: appStartMeasurement)
+        assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
     }
     
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {
@@ -130,7 +131,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
-        assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", appStartMeasurement: appStartMeasurement)
+        assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", operation: fixture.appStartWarmOperation, appStartMeasurement: appStartMeasurement)
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {
@@ -286,7 +287,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
     }
     
-    private func assertAppStartsSpanAdded(transaction: Transaction, startType: String, appStartMeasurement: SentryAppStartMeasurement) {
+    private func assertAppStartsSpanAdded(transaction: Transaction, startType: String, operation: String, appStartMeasurement: SentryAppStartMeasurement) {
         let spans: [SentrySpan]? = Dynamic(transaction).spans
         XCTAssertEqual(4, spans?.count)
         
@@ -294,7 +295,7 @@ class SentryTracerTests: XCTestCase {
             span.context.spanDescription == startType
         }
         let trace: SentryTracer? = Dynamic(transaction).trace
-        XCTAssertEqual(fixture.appStartOperation, appLaunchSpan?.context.operation)
+        XCTAssertEqual(operation, appLaunchSpan?.context.operation)
         XCTAssertEqual(trace?.context.spanId, appLaunchSpan?.context.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
@@ -302,7 +303,7 @@ class SentryTracerTests: XCTestCase {
         let preMainSpan = spans?.first { span in
             span.context.spanDescription == "Pre main"
         }
-        XCTAssertEqual(fixture.appStartOperation, preMainSpan?.context.operation)
+        XCTAssertEqual(operation, preMainSpan?.context.operation)
         XCTAssertEqual(appLaunchSpan?.context.spanId, preMainSpan?.context.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, preMainSpan?.startTimestamp)
         XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, preMainSpan?.timestamp)
@@ -310,7 +311,7 @@ class SentryTracerTests: XCTestCase {
         let appInitSpan = spans?.first { span in
             span.context.spanDescription == "UIKit and Application Init"
         }
-        XCTAssertEqual(fixture.appStartOperation, appInitSpan?.context.operation)
+        XCTAssertEqual(operation, appInitSpan?.context.operation)
         XCTAssertEqual(appLaunchSpan?.context.spanId, appInitSpan?.context.parentSpanId)
         XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, appInitSpan?.startTimestamp)
         XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, appInitSpan?.timestamp)
@@ -318,7 +319,7 @@ class SentryTracerTests: XCTestCase {
         let frameRenderSpan = spans?.first { span in
             span.context.spanDescription == "Initial Frame Render"
         }
-        XCTAssertEqual(fixture.appStartOperation, frameRenderSpan?.context.operation)
+        XCTAssertEqual(operation, frameRenderSpan?.context.operation)
         XCTAssertEqual(appLaunchSpan?.context.spanId, frameRenderSpan?.context.parentSpanId)
         XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, frameRenderSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, frameRenderSpan?.timestamp)
