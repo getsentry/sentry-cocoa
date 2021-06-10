@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+fix: Operation names for auto instrumentation (#1164)
+
 ## 7.2.0-beta.0
 
 - feat: Measure app start time (#1111)
