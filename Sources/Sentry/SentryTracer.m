@@ -271,7 +271,7 @@ SentryTracer ()
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    NSString *operation = @"app start";
+    NSString *operation = @"app.start";
 
     NSString *type;
     if (appStartMeasurement.type == SentryAppStartTypeCold) {

@@ -8,10 +8,10 @@ class SentryTracerTests: XCTestCase {
         let scope: Scope
         
         let transactionName = "Some Transaction"
-        let transactionOperation = "ui.rendering"
+        let transactionOperation = "ui.load"
         var transactionContext: TransactionContext!
         
-        let appStartOperation = "app start"
+        let appStartOperation = "app.start"
         
         let currentDateProvider = TestCurrentDateProvider()
         let appStart: Date
