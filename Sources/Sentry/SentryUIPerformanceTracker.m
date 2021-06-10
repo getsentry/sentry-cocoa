@@ -41,17 +41,6 @@ SentryUIPerformanceTracker ()
 }
 
 - (void)measurePerformance:(NSString *)description
-              parentSpanId:(SentrySpanId *)spanId
-            blockToMeasure:(Callback)callback
-{
-    [self.tracker pushActiveSpan:spanId];
-    [self.tracker measureSpanWithDescription:description
-                                   operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                     inBlock:callback];
-    [self.tracker popActiveSpan];
-}
-
-- (void)measurePerformance:(NSString *)description
                     target:(id)target
             blockToMeasure:(Callback)callback
 {
@@ -60,11 +49,14 @@ SentryUIPerformanceTracker ()
     if (spanId == nil) {
         callback();
     } else {
-        [self measurePerformance:description parentSpanId:spanId blockToMeasure:callback];
+        [self.tracker measureSpanWithDescription:description
+                                       operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                    parentSpanId:spanId
+                                         inBlock:callback];
     }
 }
 
-- (void)viewControllerLoadView:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(Callback)callback
 {
     NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
     SentrySpanId *spanId =
@@ -74,20 +66,22 @@ SentryUIPerformanceTracker ()
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-    [self measurePerformance:@"loadView" parentSpanId:spanId blockToMeasure:callback];
+    [self measurePerformance:@"loadView" target:controller blockToMeasure:callback];
 }
 
-- (void)viewControllerViewDidLoad:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidLoad:(UIViewController *)controller callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewDidLoad" target:controller blockToMeasure:callback];
 }
 
-- (void)viewControllerViewWillAppear:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewWillAppear:(UIViewController *)controller
+                    callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewWillAppear" target:controller blockToMeasure:callback];
 }
 
-- (void)viewControllerViewDidAppear:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidAppear:(UIViewController *)controller
+                   callbackToOrigin:(Callback)callback
 {
     [self measurePerformance:@"viewDidAppear" target:controller blockToMeasure:callback];
 
@@ -98,7 +92,8 @@ SentryUIPerformanceTracker ()
     }
 }
 
-- (void)viewControllerViewWillLayoutSubViews:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
+                            callbackToOrigin:(Callback)callback
 {
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
@@ -122,7 +117,8 @@ SentryUIPerformanceTracker ()
     }
 }
 
-- (void)viewControllerViewDidLayoutSubViews:(id)controller callbackToOrigin:(Callback)callback
+- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
+                           callbackToOrigin:(Callback)callback
 {
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);

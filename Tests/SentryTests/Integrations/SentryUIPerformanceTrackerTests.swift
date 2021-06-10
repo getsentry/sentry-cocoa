@@ -1,12 +1,10 @@
 import XCTest
 
-@available(iOS 10.0, *)
-@available(macOS, unavailable)
-@available(macCatalyst, unavailable)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryUIPerformanceTrackerTests: XCTestCase {
 
     private class Fixture {
-        let viewController = NSObject()
+        let viewController = UIViewController()
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
         
@@ -233,3 +231,4 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
     }
     
 }
+#endif

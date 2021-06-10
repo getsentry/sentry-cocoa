@@ -41,6 +41,22 @@ NS_ASSUME_NONNULL_BEGIN
                            inBlock:(Callback)block;
 
 /**
+ * Measure the given block execution
+ * adding it as a child of given parent span.
+ * If parentSpanId does not exist this
+ * measurement is not performed.
+ *
+ * @param description The description of the span.
+ * @param operation Span operation.
+ * @param parentSpanId Id of the span to use as parent.
+ * @param block Block to be measured.
+ */
+- (void)measureSpanWithDescription:(NSString *)description
+                         operation:(NSString *)operation
+                      parentSpanId:(SentrySpanId *)parentSpanId
+                           inBlock:(Callback)block;
+
+/**
  * Gets the active span id.
  */
 - (nullable SentrySpanId *)activeSpan;
