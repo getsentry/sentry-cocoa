@@ -11,7 +11,6 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
 @interface SentryUIPerformanceTracker : NSObject
 
 + (void)start;
-
 @end
 
 NS_ASSUME_NONNULL_END

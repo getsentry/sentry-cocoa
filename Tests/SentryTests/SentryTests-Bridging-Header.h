@@ -69,6 +69,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryPerformanceTracker.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitCategory.h"
 #import "SentryRateLimitCategoryMapper.h"
