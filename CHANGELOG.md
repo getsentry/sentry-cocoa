@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.0
 
 - fix: Set description for performance tracker spans (#1042)
 - fix: Capturing Child Spans (#1139)

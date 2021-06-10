@@ -18,15 +18,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             hub = TestHub(client: client, andScope: scope)
         }
         
-        func getSut(initSDK: Bool = false) -> SentryPerformanceTracker {
-            if initSDK {
-                SentrySDK.start { options in
-                    options.dsn = SentryPerformanceTrackerTests.dsnAsString
-                    options.debug = true
-                    options.diagnosticLevel = SentryLevel.debug
-                }
-                SentrySDK.setCurrentHub(hub)
-            }
+        func getSut() -> SentryPerformanceTracker {
             return  SentryPerformanceTracker()
         }
     }
@@ -35,19 +27,19 @@ class SentryPerformanceTrackerTests: XCTestCase {
     
     override func setUp() {
         fixture = Fixture()
+        SentrySDK.setCurrentHub(fixture.hub)
     }
     
     override func tearDown() {
         SentrySDK.setCurrentHub(nil)
-        SentrySDK.close()
     }
     
     func testSingleton() {
         XCTAssertEqual(SentryPerformanceTracker.shared(), SentryPerformanceTracker.shared())
     }
-    
+   
     func testStartSpan_CheckScopeSpan() {
-        let sut = fixture.getSut(initSDK: true)
+        let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
         let spans: [SpanId: Span] = getSpans(tracker: sut)
         
@@ -60,7 +52,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     func testStartSpan_ScopeAlreadyWithSpan() {
-        let sut = fixture.getSut(initSDK: true)
+        let sut = fixture.getSut()
 
         let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: fixture.someOperation, bindToScope: true)
         let spanId = startSpan(tracker: sut)
