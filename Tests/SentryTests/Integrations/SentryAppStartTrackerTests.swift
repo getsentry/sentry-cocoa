@@ -12,7 +12,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let fileManager: SentryFileManager
-        let crashAdapter = TestSentryCrashWrapper()
+        let crashAdapter = TestSentryCrashAdapter.sharedInstance()
         let appStateManager: SentryAppStateManager
         
         let appStartDuration: TimeInterval = 0.4

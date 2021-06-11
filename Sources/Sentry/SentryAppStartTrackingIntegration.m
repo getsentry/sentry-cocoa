@@ -48,8 +48,8 @@ SentryAppStartTrackingIntegration ()
     }
 
     SentryDefaultCurrentDateProvider *currentDateProvider =
-        [[SentryDefaultCurrentDateProvider alloc] init];
-    SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
+        [SentryDefaultCurrentDateProvider sharedInstance];
+    SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
     SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
     SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]

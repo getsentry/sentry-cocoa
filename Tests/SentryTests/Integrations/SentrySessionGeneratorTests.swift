@@ -15,7 +15,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         var abnormal = 0
     }
     
-    private var sentryCrash: TestSentryCrashWrapper!
+    private var sentryCrash: TestSentryCrashAdapter!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
     private var crashIntegration: SentryCrashIntegration!
     private var options: Options!
@@ -143,7 +143,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         SentrySDK.start(options: options)
         
-        sentryCrash = TestSentryCrashWrapper()
+        sentryCrash = TestSentryCrashAdapter.sharedInstance()
         let client = SentrySDK.currentHub().getClient()
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
         SentrySDK.setCurrentHub(hub)

@@ -10,7 +10,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
+        let crashWrapper: TestSentryCrashAdapter
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
@@ -22,7 +22,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper()
+            crashWrapper = TestSentryCrashAdapter.sharedInstance()
             
             let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper)
             SentrySDK.setCurrentHub(hub)
