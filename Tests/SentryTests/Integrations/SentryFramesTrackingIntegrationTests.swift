@@ -10,23 +10,26 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         init() {
             options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         }
+        
+        var sut: SentryFramesTrackingIntegration {
+            return SentryFramesTrackingIntegration()
+        }
     }
     
-    private var fixture: Fixture!
+    private let fixture = Fixture()
+    private var sut: SentryFramesTrackingIntegration!
     
     override func setUp() {
-        fixture = Fixture()
+        sut = fixture.sut
     }
     
     func testFrameRenderingEnabled_MeasuresFrames() {
-        let sut = SentryFramesTrackingIntegration()
         sut.install(with: fixture.options)
         
         XCTAssertNotNil(Dynamic(sut).tracker)
     }
     
     func testFrameRenderingDisabled_DoesNotMeasureFrames() {
-        let sut = SentryFramesTrackingIntegration()
         let options = fixture.options
         options.enableFrameRenderMeasuring = false
         sut.install(with: options)
@@ -35,7 +38,6 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
     
     func testUninstall() {
-        let sut = SentryFramesTrackingIntegration()
         sut.install(with: fixture.options)
         
         SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(fixture.displayLink)
