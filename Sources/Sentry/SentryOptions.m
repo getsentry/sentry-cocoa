@@ -19,9 +19,10 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration"
+        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryPerformanceTrackingIntegration"
     ];
 }
 
@@ -39,6 +40,7 @@ SentryOptions ()
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
         self.enableAppStartMeasuring = YES;
+        self.enableFrameRenderMeasuring = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
@@ -190,6 +192,10 @@ SentryOptions ()
 
     if (nil != options[@"enableAppStartMeasuring"]) {
         self.enableAppStartMeasuring = [options[@"enableAppStartMeasuring"] boolValue];
+    }
+
+    if (nil != options[@"enableFrameRenderMeasuring"]) {
+        self.enableFrameRenderMeasuring = [options[@"enableFrameRenderMeasuring"] boolValue];
     }
 
     if (nil != options[@"sessionTrackingIntervalMillis"]) {

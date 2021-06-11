@@ -198,21 +198,21 @@ class SentryAppStartTrackerTests: XCTestCase {
     private func sendAppMeasurement() {
         SentrySDK.getAndResetAppStartMeasurement()
     }
-    
+
     private func assertValidStart(type: SentryAppStartType) {
         let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement()
         XCTAssertNotNil(appStartMeasurement)
         XCTAssertEqual(type.rawValue, appStartMeasurement?.type.rawValue)
-        
+
         let expectedAppStartDuration = fixture.appStartDuration
         let actualAppStartDuration = appStartMeasurement!.duration
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
-        
+
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement?.appStartTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement?.runtimeInitTimestamp)
-        
+
     }
-    
+
     private func assertNoAppStartUp() {
         XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
