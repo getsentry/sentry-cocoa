@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Written in Objective-C because Swift doesn't allow you to call the constructor of
- * TestSentryCrashAdapter.
+ * TestSentryCrashAdapter. We override sharedInstance in the implementation file to make it work.
  */
 @interface TestSentryCrashAdapter : SentryCrashAdapter
 SENTRY_NO_INIT
