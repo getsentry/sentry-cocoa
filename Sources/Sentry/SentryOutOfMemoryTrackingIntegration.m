@@ -32,7 +32,7 @@ SentryOutOfMemoryTrackingIntegration ()
                                                   attributes:attributes];
 
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-        SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
+        SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
         SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
                 initWithOptions:options
                    crashAdapter:crashAdapter
