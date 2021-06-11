@@ -57,7 +57,7 @@ SentryFramesTracker ()
         // If we can't get the frame rate we assume it is 60.
         double maximumFramesPerSecond = 60.0;
         if (@available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *)) {
-            maximumFramesPerSecond = (double)[UIScreen.mainScreen maximumFramesPerSecond];
+            maximumFramesPerSecond = (double)UIScreen.mainScreen.maximumFramesPerSecond;
         }
 
         // Most frames take just a few microseconds longer than the optimal caculated duration.

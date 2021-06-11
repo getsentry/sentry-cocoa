@@ -1,6 +1,7 @@
 #import "SentryFramesTrackingIntegration.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFramesTracker.h"
+#import "SentryLog.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,6 +24,11 @@ SentryFramesTrackingIntegration ()
         self.tracker = [SentryFramesTracker sharedInstance];
         [self.tracker start];
     }
+#else
+    [SentryLog
+        logWithMessage:
+            @"NO UIKit -> SentryFramesTrackingIntegration will not track slow and frozen frames."
+              andLevel:kSentryLevelInfo];
 #endif
 }
 
