@@ -187,11 +187,7 @@ class SentryTracerTests: XCTestCase {
         
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssertEqual(addZeroFrames(measurements: [:]), measurements)
-        #else
         XCTAssertNil(measurements)
-        #endif
         
         let spans = serializedTransaction["spans"]! as! [[String: Any]]
         XCTAssertEqual(0, spans.count)
@@ -372,23 +368,6 @@ class SentryTracerTests: XCTestCase {
         }
     }
     #endif
-
-    private func addZeroFrames(measurements: [String: [String: Int]]) -> [String: [String: Int]] {
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        var noFrames = [
-            "frames_total": ["value": 0],
-            "frames_slow": ["value": 0],
-            "frames_frozen": ["value": 0]
-        ]
-        #else
-        var noFrames: [String: [String: Int]] = [:]
-        #endif
-
-        // Merge two dicts
-        measurements.forEach { (key, value) in noFrames[key] = value }
-
-        return noFrames
-    }
     
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {

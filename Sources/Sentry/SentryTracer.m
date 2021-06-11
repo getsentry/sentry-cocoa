@@ -364,7 +364,10 @@ SentryTracer ()
         NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
         NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
 
-        if (totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0) {
+        BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
+        BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
+
+        if (allBiggerThanZero && oneBiggerThanZero) {
             [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
             [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
             [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) }
