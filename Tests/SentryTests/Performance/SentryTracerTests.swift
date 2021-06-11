@@ -306,7 +306,7 @@ class SentryTracerTests: XCTestCase {
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
         givenFrames(1, 1, 1)
-        sut.startTimestamp = Date()
+        sut.startTimestamp = Date(timeIntervalSince1970: 0)
 
         sut.finish()
 
