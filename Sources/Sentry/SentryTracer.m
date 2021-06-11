@@ -364,14 +364,17 @@ SentryTracer ()
         NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
         NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
 
-        [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
-        [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
-        [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
+        if (totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0) {
+            [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
+            [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
+            [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) }
+                                      forKey:@"frames_frozen"];
 
-        NSString *message = [NSString
-            stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
-            self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            NSString *message = [NSString
+                stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
+                self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        }
     }
 #endif
 }

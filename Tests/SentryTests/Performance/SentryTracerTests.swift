@@ -68,6 +68,7 @@ class SentryTracerTests: XCTestCase {
     override func tearDown() {
         SentrySDK.getAndResetAppStartMeasurement()
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
         #endif
     }
@@ -309,11 +310,7 @@ class SentryTracerTests: XCTestCase {
 
         sut.finish()
 
-        fixture.hub.group.wait()
-
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        XCTAssertNil(serializedTransaction["measurements"] as? [String: [String: Int]])
+        assertNoMeasurementsAdded()
     }
 
     func testAddFramesMeasurement() {
@@ -340,7 +337,19 @@ class SentryTracerTests: XCTestCase {
         ], measurements)
         XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
-
+    
+    func testNegativeFramesAmount_NoMeasurmentAdded() {
+        givenFrames(10, 10, 10)
+        
+        let sut = fixture.getSut()
+        
+        SentryFramesTracker.sharedInstance().resetFrames()
+        
+        sut.finish()
+        
+        assertNoMeasurementsAdded()
+    }
+    
     private func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
         fixture.displayLinkWrapper.call()
 
@@ -446,4 +455,13 @@ class SentryTracerTests: XCTestCase {
         let spans = serializedTransaction["spans"]! as! [[String: Any]]
         XCTAssertEqual(0, spans.count)
     }
+    
+    private func assertNoMeasurementsAdded() {
+        fixture.hub.group.wait()
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        XCTAssertNil(serializedTransaction["measurements"])
+    }
+
 }

@@ -64,11 +64,7 @@ SentryFramesTracker ()
         // Therefore we substract one, because otherwise almost all frames would be slow.
         _slowFrameThreshold = 1 / (maximumFramesPerSecond - 1);
 
-        atomic_store_explicit(&_totalFrames, 0, SentryFramesMemoryOrder);
-        atomic_store_explicit(&_frozenFrames, 0, SentryFramesMemoryOrder);
-        atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
-
-        self.previousFrameTimestamp = SentryPreviousFrameInitalValue;
+        [self resetFrames];
     }
     return self;
 }
@@ -77,6 +73,16 @@ SentryFramesTracker ()
 - (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
 {
     _displayLinkWrapper = displayLinkWrapper;
+}
+
+/** Internal for testing */
+- (void)resetFrames
+{
+    atomic_store_explicit(&_totalFrames, 0, SentryFramesMemoryOrder);
+    atomic_store_explicit(&_frozenFrames, 0, SentryFramesMemoryOrder);
+    atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
+
+    self.previousFrameTimestamp = SentryPreviousFrameInitalValue;
 }
 
 - (void)start

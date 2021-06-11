@@ -9,6 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
+- (void)resetFrames;
+
 @end
 #endif
 
