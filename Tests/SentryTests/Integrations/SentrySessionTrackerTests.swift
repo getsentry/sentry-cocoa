@@ -60,6 +60,7 @@ class SentrySessionTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
+        SentrySDK.setCurrentHub(nil)
     }
     
     func testOnlyForeground() {
