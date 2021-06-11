@@ -37,7 +37,7 @@ SentryOutOfMemoryTrackingIntegration ()
                 initWithOptions:options
                    crashAdapter:crashAdapter
                     fileManager:fileManager
-            currentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+            currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                          sysctl:[[SentrySysctl alloc] init]];
         SentryOutOfMemoryLogic *logic =
             [[SentryOutOfMemoryLogic alloc] initWithOptions:options

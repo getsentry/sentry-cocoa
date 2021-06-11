@@ -81,7 +81,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.fileManager = [[SentryFileManager alloc]
                    initWithOptions:self.options
-            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                              error:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
