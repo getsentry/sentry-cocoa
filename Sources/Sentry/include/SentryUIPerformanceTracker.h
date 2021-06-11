@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.rendering";
+static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.load";
 
 /**
  * Class is responsible to swizzle UI key methods
@@ -11,7 +11,6 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
 @interface SentryUIPerformanceTracker : NSObject
 
 + (void)start;
-
 @end
 
 NS_ASSUME_NONNULL_END
