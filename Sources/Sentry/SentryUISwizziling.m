@@ -12,24 +12,14 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif
 
 @implementation SentryUISwizziling
 
 + (void)start
 {
-    // If there`s no UIKIT don`t need to try the swizzling.
-#if SENTRY_HAS_UIKIT
     [SentryUISwizziling swizzleViewControllerInits];
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryUIPerformanceTracker "
-                              @"start] does nothing."
-                     andLevel:kSentryLevelDebug];
-#endif
 }
 
-// Every swizzle is used in UIKit classes.
-#if SENTRY_HAS_UIKIT
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #    pragma clang diagnostic push
@@ -151,6 +141,7 @@
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)didSelector);
 }
 
+@end
+
 #    pragma clang diagnostic pop
 #endif
-@end
