@@ -69,15 +69,5 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
     
-    func testAppStartMeasuringDisabled_DoesNotUpdatesAppState() {
-        let options = fixture.options
-        options.enableAppStartMeasuring = false
-        sut.install(with: options)
-        
-        TestNotificationCenter.uiWindowDidBecomeVisible()
-        
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
-    }
-    
 }
 #endif
