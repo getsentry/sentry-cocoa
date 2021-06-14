@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Remove invalid excludes from `Package.swift` (#1169)
+
 ## 7.2.0-beta.1
 
 - feat: Measure slow and frozen frames (#1123)
