@@ -23,15 +23,34 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         sut = fixture.sut
     }
     
-    func testFrameRenderingEnabled_MeasuresFrames() {
-        sut.install(with: fixture.options)
+    func testTracesSampleRateSet_MeasuresFrames() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.1
+        sut.install(with: options)
         
-        XCTAssertNotNil(Dynamic(sut).tracker)
+        XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
     
-    func testFrameRenderingDisabled_DoesNotMeasureFrames() {
+    func testTracesSamplerSet_MeasuresFrames() {
         let options = fixture.options
-        options.enableFrameRenderMeasuring = false
+        options.tracesSampler = { _ in return 0 }
+        sut.install(with: options)
+        
+        XCTAssertNotNil(Dynamic(sut).tracker.asObject)
+    }
+    
+    func testZeroTracesSampleRate_DoesNotMeasureFrames() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        sut.install(with: options)
+        
+        XCTAssertNil(Dynamic(sut).tracker.asObject)
+    }
+    
+    func testAutoUIPerformanceTrackingDisabled_DoesNotMeasureFrames() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.1
+        options.enableAutoUIPerformanceTracking = false
         sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)

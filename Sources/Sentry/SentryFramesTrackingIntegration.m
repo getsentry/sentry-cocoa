@@ -20,10 +20,24 @@ SentryFramesTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (options.enableFrameRenderMeasuring) {
-        self.tracker = [SentryFramesTracker sharedInstance];
-        [self.tracker start];
+    if (!options.enableAutoUIPerformanceTracking) {
+        [SentryLog logWithMessage:
+                       @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
+                         andLevel:kSentryLevelDebug];
+        return;
     }
+
+    if (!options.isTracingEnabled) {
+        [SentryLog
+            logWithMessage:
+                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
+                  andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    self.tracker = [SentryFramesTracker sharedInstance];
+    [self.tracker start];
+
 #else
     [SentryLog
         logWithMessage:

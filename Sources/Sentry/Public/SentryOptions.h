@@ -121,16 +121,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
 /**
- * Whether to enable measuring app start or not. Default is YES.
- */
-@property (nonatomic, assign) BOOL enableAppStartMeasuring;
-
-/**
- * Whether to enable measuring the rendering of frames of the UI or not. Default is YES.
- */
-@property (nonatomic, assign) BOOL enableFrameRenderMeasuring;
-
-/**
  * The interval to end a session if the App goes to the background.
  */
 @property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
@@ -168,8 +158,8 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
 /**
- * When enabled, the SDK tracks UI performance automatically for UIViewController subclasses.
- * The default is <code>YES</code>.
+ * When enabled, the SDK tracks UI performance automatically for UIViewController subclasses and
+ * measures the app start and slow and frozen frames. The default is <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableAutoUIPerformanceTracking;
 
@@ -187,6 +177,12 @@ NS_SWIFT_NAME(Options)
  * be >= 0.0 and <= 1.0 or NIL. When returning a value out of range the SDK uses the default of 0.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
+
+/**
+ * If tracing should be enabled or not. Returns YES if either a tracesSampleRate > 0 and <=1 or a
+ * tracesSampler is set otherwise NO.
+ */
+@property (nonatomic, assign, readonly) BOOL isTracingEnabled;
 
 /**
  * A list of string prefixes of framework names that belong to the app. This option takes precedence
