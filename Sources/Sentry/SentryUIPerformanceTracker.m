@@ -41,7 +41,7 @@ SentryUIPerformanceTracker ()
 }
 #if SENTRY_HAS_UIKIT
 - (void)measurePerformance:(NSString *)description
-                    target:(id)target
+                    target:(UIViewController *)viewController
             blockToMeasure:(Callback)callback
 {
     SentrySpanId *spanId = objc_getAssociatedObject(target, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
