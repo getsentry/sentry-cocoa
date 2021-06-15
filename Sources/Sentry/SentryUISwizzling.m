@@ -1,4 +1,4 @@
-#import "SentryUISwizziling.h"
+#import "SentryUISwizzling.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
@@ -14,13 +14,13 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@implementation SentryUISwizziling
+@implementation SentryUISwizzling
 
 + (void)start
 {
     // If there`s no UIKIT don`t need to try the swizzling.
 #if SENTRY_HAS_UIKIT
-    [SentryUISwizziling swizzleViewControllerInits];
+    [SentryUISwizzling swizzleViewControllerInits];
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryUIPerformanceTracker "
                               @"start] does nothing."
@@ -45,7 +45,7 @@
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-            [SentryUISwizziling swizzleViewControllerSubClass:[self class]];
+            [SentryUISwizzling swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(coder);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
@@ -54,7 +54,7 @@
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-            [SentryUISwizziling swizzleViewControllerSubClass:[self class]];
+            [SentryUISwizzling swizzleViewControllerSubClass:[self class]];
             return SentrySWCallOriginal(nibName, bundle);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
@@ -76,11 +76,11 @@
 
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
-    [SentryUISwizziling swizzleViewLayoutSubViews:class];
-    [SentryUISwizziling swizzleLoadView:class];
-    [SentryUISwizziling swizzleViewDidLoad:class];
-    [SentryUISwizziling swizzleViewWillAppear:class];
-    [SentryUISwizziling swizzleViewDidAppear:class];
+    [SentryUISwizzling swizzleViewLayoutSubViews:class];
+    [SentryUISwizzling swizzleLoadView:class];
+    [SentryUISwizzling swizzleViewDidLoad:class];
+    [SentryUISwizzling swizzleViewWillAppear:class];
+    [SentryUISwizzling swizzleViewDidAppear:class];
 }
 
 + (void)swizzleLoadView:(Class)class
