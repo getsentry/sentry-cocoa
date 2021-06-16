@@ -1,13 +1,8 @@
 #import "SentryUISwizziling.h"
-#import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
-#import "SentrySDK+Private.h"
-#import "SentryScope.h"
-#import "SentrySpanId.h"
 #import "SentrySwizzle.h"
 #import "SentryUIPerformanceTracker.h"
-#import "SentryUIViewControllerSanitizer.h"
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT

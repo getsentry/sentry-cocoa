@@ -26,11 +26,6 @@
 @protocol SentrySpan;
 
 /**
- * Block for general purpose callback
- */
-typedef void (^Callback)(void);
-
-/**
  * Block used for returning after a request finished
  */
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
