@@ -100,7 +100,7 @@ jobs:
       - run: make build-carthage
         shell: sh 
 
-      - name: Archiving Sentry.Framework.zip
+      - name: Archiving Carthage zips
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.sha }}
