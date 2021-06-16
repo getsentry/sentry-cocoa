@@ -7,37 +7,30 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     private class Fixture {
         
-        var session: SentrySession {
-            let session = SentrySession(releaseName: "1.0.0")
-            session.incrementErrors()
-            
-            return session
-        }
-        
+        let session: SentrySession
         let currentDateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let options: Options
+        let hub: SentryHub
+        let fileManager: SentryFileManager
+        let sentryCrash: TestSentryCrashAdapter
         
-        var options: Options {
-            let options = Options()
-            options.dsn = SentryCrashIntegrationTests.dsnAsString
-            options.releaseName = TestData.appState.releaseName
-            return options
-        }
-        
-        var sentryCrash: TestSentryCrashAdapter {
-            let sentryCrash = TestSentryCrashAdapter.sharedInstance()
+        init() {
+            session = SentrySession(releaseName: "1.0.0")
+            session.incrementErrors()
+            
+            sentryCrash = TestSentryCrashAdapter.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
-            return sentryCrash
-        }
-        
-        var hub: SentryHub {
-            let client = Client(options: options)
-            return TestHub(client: client, andScope: nil)
-        }
-        
-        var fileManager: SentryFileManager {
-            return try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            
+            options = Options()
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.releaseName = TestData.appState.releaseName
+            
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            
+           let client = Client(options: options)
+           hub = TestHub(client: client, andScope: nil)
         }
         
         func getSut() -> SentryCrashIntegration {
@@ -170,6 +163,32 @@ class SentryCrashIntegrationTests: XCTestCase {
         let fileManager = fixture.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
+    }
+    
+    func testInstall_WhenStitchAsyncCallsEnabled_CallsInstallAsyncHooks() {
+        let sut = fixture.getSut()
+        
+        let options = Options()
+        options.stitchAsyncCode = true
+        sut.install(with: options)
+        
+        XCTAssertTrue(fixture.sentryCrash.installAsyncHooksCalled)
+    }
+    
+    func testInstall_WhenStitchAsyncCallsDisabled_DoesNotCallInstallAsyncHooks() {
+        fixture.getSut().install(with: Options())
+        
+        XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
+    }
+    
+    func testUninstall_CallsDeactivateAsyncHooks() {
+        let sut = fixture.getSut()
+        
+        sut.install(with: Options())
+        
+        sut.uninstall()
+        
+        XCTAssertTrue(fixture.sentryCrash.deactivateAsyncHooksCalled)
     }
     
     func testOSCorrectlySetToScopeContext() {

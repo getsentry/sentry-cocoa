@@ -401,6 +401,24 @@
     XCTAssertEqual(NO, options.attachStacktrace);
 }
 
+- (void)testStitchAsyncCodeDisabledPerDefault
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqual(NO, options.stitchAsyncCode);
+}
+
+- (void)testStitchAsyncCodeEnabled
+{
+    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @YES }];
+    XCTAssertEqual(YES, options.stitchAsyncCode);
+}
+
+- (void)testInvalidStitchAsyncCode
+{
+    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
+    XCTAssertEqual(NO, options.attachStacktrace);
+}
+
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -418,6 +436,7 @@
     XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
+    XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertTrue(options.enableAutoUIPerformanceTracking);
 }

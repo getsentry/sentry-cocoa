@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add flag stichAsyncCode (#1172)
 - Remove invalid excludes from `Package.swift` (#1169)
 
 ## 7.2.0-beta.1
