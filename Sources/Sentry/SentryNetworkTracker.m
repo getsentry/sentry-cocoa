@@ -13,14 +13,12 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
     return instance;
-
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
-    
     NSURL * url = sessionTask.currentRequest.URL;
-    if ([url.host containsString:@"sentry.io"]) return;
+    if (self.sentryApiUrl != nil && [url.host isEqualToString:self.sentryApiUrl.host] && [url.path containsString:self.sentryApiUrl.path]) return;
     
     NSString * statePath = NSStringFromSelector(@selector(state));
     [sessionTask addObserver:self forKeyPath:statePath options:NSKeyValueObservingOptionNew context:nil];
