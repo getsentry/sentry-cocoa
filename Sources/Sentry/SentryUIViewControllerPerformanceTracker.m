@@ -1,4 +1,4 @@
-#import "SentryUIPerformanceTracker.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
@@ -16,17 +16,17 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
 
 @interface
-SentryUIPerformanceTracker ()
+SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 
 @end
 
-@implementation SentryUIPerformanceTracker
+@implementation SentryUIViewControllerPerformanceTracker
 
 + (instancetype)shared
 {
-    static SentryUIPerformanceTracker *instance = nil;
+    static SentryUIViewControllerPerformanceTracker *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
     return instance;

@@ -13,9 +13,9 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.load";
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
-@interface SentryUIPerformanceTracker : NSObject
+@interface SentryUIViewControllerPerformanceTracker : NSObject
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, readonly, class) SentryUIPerformanceTracker *shared;
+@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
 
 /**
  * Measures viewController`s loadView method.

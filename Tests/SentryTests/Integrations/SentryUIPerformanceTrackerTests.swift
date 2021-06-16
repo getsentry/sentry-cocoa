@@ -21,12 +21,12 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         
         var viewControllerName: String!
                 
-        func getSut() -> SentryUIPerformanceTracker {
+        func getSut() -> SentryUIViewControllerPerformanceTracker {
             CurrentDate.setCurrentDateProvider(dateProvider)
             
             viewControllerName = SentryUIViewControllerSanitizer.sanitizeViewControllerName(viewController)
         
-            let result = SentryUIPerformanceTracker.shared
+            let result = SentryUIViewControllerPerformanceTracker.shared
             Dynamic(result).tracker = self.tracker
             
             return result
