@@ -36,8 +36,8 @@ build-carthage:
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
 
 build-carthage-sample:
-	cd Samples/Carthage/XCFramework/ && carthage update --use-xcframeworks
-	xcodebuild -project "Samples/Carthage/XCFramework/XCFramework.xcodeproj" -configuration Debug CODE_SIGNING_ALLOWED="NO" build
+	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
+	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Debug CODE_SIGNING_ALLOWED="NO" build
 
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.
