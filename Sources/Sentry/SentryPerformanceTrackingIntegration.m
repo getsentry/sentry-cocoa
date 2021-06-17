@@ -1,5 +1,6 @@
 #import "SentryPerformanceTrackingIntegration.h"
-#import "SentryUIPerformanceTracker.h"
+#import "SentryLog.h"
+#import "SentryUIViewControllerSwizziling.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
@@ -19,7 +20,13 @@ SentryPerformanceTrackingIntegration ()
 
 - (void)enableUIAutomaticPerformanceTracking
 {
-    [SentryUIPerformanceTracker start];
+#if SENTRY_HAS_UIKIT
+    [SentryUIViewControllerSwizziling start];
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
+                              @"start] does nothing."
+                     andLevel:kSentryLevelDebug];
+#endif
 }
 
 @end

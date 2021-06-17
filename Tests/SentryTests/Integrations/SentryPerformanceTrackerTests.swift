@@ -37,7 +37,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     func testSingleton() {
         XCTAssertEqual(SentryPerformanceTracker.shared(), SentryPerformanceTracker.shared())
     }
-    
+   
     func testStartSpan_CheckScopeSpan() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
