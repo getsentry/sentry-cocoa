@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
-                           inBlock:(Callback)block;
+                           inBlock:(void (^)(void))block;
 
 /**
  * Measure the given block execution
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
                       parentSpanId:(SentrySpanId *)parentSpanId
-                           inBlock:(Callback)block;
+                           inBlock:(void (^)(void))block;
 
 /**
  * Gets the active span id.
