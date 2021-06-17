@@ -93,7 +93,7 @@ jobs:
         shell: sh
 
   build-carthage:
-    name: Build Carthage
+    name: Build & Validate Carthage
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
