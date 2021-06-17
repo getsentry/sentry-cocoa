@@ -119,8 +119,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set Cartfile revision to current git commit
-        run: ./scripts/replace-with-current-commit-hash.sh master Samples/Carthage-Validation/From-Source/Cartfile
+      - name: Set Cartfile revision to current branch name
+        run: ./scripts/replace-with-current-branch.sh master Samples/Carthage-Validation/From-Source/Cartfile
         shell: sh
       - run: make build-carthage-sample-from-source
         shell: sh 
@@ -131,7 +131,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
-        run: ./scripts/replace-with-current-commit-hash.sh master Samples/macOS-SPM-CommandLine/Package.swift
+        run: ./scripts/replace-with-current-branch.sh master Samples/macOS-SPM-CommandLine/Package.swift
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
