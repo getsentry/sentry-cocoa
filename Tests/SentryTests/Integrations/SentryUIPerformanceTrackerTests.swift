@@ -3,29 +3,30 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryUIPerformanceTrackerTests: XCTestCase {
 
+    let loadView = "loadView"
+    let viewWillLoad = "viewWillLoad"
+    let viewDidLoad = "viewDidLoad"
+    let viewWillAppear = "viewWillAppear"
+    let viewDidAppear = "viewDidAppear"
+    let viewWillLayoutSubviews = "viewWillLayoutSubviews"
+    let viewDidLayoutSubviews = "viewDidLayoutSubviews"
+    let layoutSubviews = "layoutSubViews"
+    let spanName = "spanName"
+    let spanOperation = "spanOperation"
+    
     private class Fixture {
         let viewController = UIViewController()
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
         
         var viewControllerName: String!
-        let loadView = "loadView"
-        let viewWillLoad = "viewWillLoad"
-        let viewDidLoad = "viewDidLoad"
-        let viewWillAppear = "viewWillAppear"
-        let viewDidAppear = "viewDidAppear"
-        let viewWillLayoutSubviews = "viewWillLayoutSubviews"
-        let viewDidLayoutSubviews = "viewDidLayoutSubviews"
-        let layoutSubviews = "layoutSubViews"
-        let spanName = "spanName"
-        let spanOperation = "spanOperation"
-        
-        func getSut() -> SentryUIPerformanceTracker {
+                
+        func getSut() -> SentryUIViewControllerPerformanceTracker {
             CurrentDate.setCurrentDateProvider(dateProvider)
             
             viewControllerName = SentryUIViewControllerSanitizer.sanitizeViewControllerName(viewController)
         
-            let result = SentryUIPerformanceTracker.shared
+            let result = SentryUIViewControllerPerformanceTracker.shared
             Dynamic(result).tracker = self.tracker
             
             return result
@@ -51,7 +52,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             
             let blockSpan = spans.last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.loadView)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.loadView)
         }
         XCTAssertEqual((transactionSpan as! SentryTracer?)!.name, fixture.viewControllerName)
         XCTAssertFalse(transactionSpan.isFinished)
@@ -59,39 +60,39 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewDidLoad(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.viewDidLoad)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidLoad)
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.viewWillLayoutSubviews)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.viewWillLayoutSubviews)
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
         let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
         XCTAssertEqual(layoutSubViewsSpan.context.parentSpanId, transactionSpan.context.spanId)
-        XCTAssertEqual(layoutSubViewsSpan.context.spanDescription, self.fixture.layoutSubviews)
+        XCTAssertEqual(layoutSubViewsSpan.context.spanDescription, self.layoutSubviews)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.viewDidLayoutSubviews)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidLayoutSubviews)
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
         sut.viewControllerViewWillAppear(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.viewWillAppear)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.viewWillAppear)
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
         sut.viewControllerViewDidAppear(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.fixture.viewDidAppear)
+            XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidAppear)
         }
 
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 7)
@@ -103,57 +104,48 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span!
-        
-        var date = Date(timeIntervalSince1970: 0)
-        
-        fixture.dateProvider.setDate(date: date)
+                
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         var lastSpan: Span?
         
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker: tracker).first
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(1)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 1)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
         sut.viewControllerViewDidLoad(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(2)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 2)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 2)
         
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(3)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 3)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 3)
         
         let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
-        date = date.addingTimeInterval(4)
-        self.fixture.dateProvider.setDate(date: date)
+        advanceTime(bySeconds: 4)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(2)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 2)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 2)
         assertSpanDuration(span: layoutSubViewsSpan, expectedDuration: 4)
         
         sut.viewControllerViewWillAppear(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(1)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 1)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
         sut.viewControllerViewDidAppear(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
-            date = date.addingTimeInterval(5)
-            self.fixture.dateProvider.setDate(date: date)
+            self.advanceTime(bySeconds: 5)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 5)
         
@@ -172,12 +164,13 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker: tracker).first
             lastSpan = self.getStack(tracker: tracker).last
-            customSpanId = tracker.startSpan(withName: self.fixture.spanName, operation: self.fixture.spanOperation)
+            customSpanId = tracker.startSpan(withName: self.spanName, operation: self.spanOperation)
         }
         XCTAssertTrue(lastSpan!.isFinished)
         
         sut.viewControllerViewDidAppear(viewController) {
-            
+            //intentionally left empty.
+            //Need to call viewControllerViewDidAppear to finish the transaction.
         }
         
         XCTAssertFalse(transactionSpan.isFinished)
@@ -230,5 +223,8 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         return result!
     }
     
+    private func advanceTime(bySeconds: TimeInterval) {
+        fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
+    }
 }
 #endif

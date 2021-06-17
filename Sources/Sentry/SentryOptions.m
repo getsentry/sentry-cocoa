@@ -19,10 +19,10 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration"
+        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryPerformanceTrackingIntegration"
     ];
 }
 
@@ -39,7 +39,6 @@ SentryOptions ()
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
         self.enableOutOfMemoryTracking = YES;
-        self.enableAppStartMeasuring = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
@@ -189,10 +188,6 @@ SentryOptions ()
         self.enableOutOfMemoryTracking = [options[@"enableOutOfMemoryTracking"] boolValue];
     }
 
-    if (nil != options[@"enableAppStartMeasuring"]) {
-        self.enableAppStartMeasuring = [options[@"enableAppStartMeasuring"] boolValue];
-    }
-
     if (nil != options[@"sessionTrackingIntervalMillis"]) {
         self.sessionTrackingIntervalMillis =
             [options[@"sessionTrackingIntervalMillis"] unsignedIntValue];
@@ -284,6 +279,12 @@ SentryOptions ()
 {
     double rate = [tracesSampleRate doubleValue];
     return rate >= 0 && rate <= 1.0;
+}
+
+- (BOOL)isTracingEnabled
+{
+    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
+        || _tracesSampler != nil;
 }
 
 @end

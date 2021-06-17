@@ -15,12 +15,6 @@ let package = Package(
         .target(
             name: "Sentry",
             path: "Sources",
-            exclude: [
-                "Samples", 
-                "scripts",
-                "Tests",
-                "Utils"
-            ],
             sources: [
                 "Sentry/",
                 "SentryCrash/"

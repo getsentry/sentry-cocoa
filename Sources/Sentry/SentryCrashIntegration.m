@@ -38,7 +38,7 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
+        self.crashAdapter = [SentryCrashAdapter sharedInstance];
         self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
     }
     return self;
@@ -77,7 +77,7 @@ SentryCrashIntegration ()
             initWithOptions:options
                crashAdapter:self.crashAdapter
                 fileManager:fileManager
-        currentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                      sysctl:[[SentrySysctl alloc] init]];
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options

@@ -25,12 +25,6 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (!options.enableAppStartMeasuring) {
-        [SentryLog logWithMessage:@"AppStartMeasuring disabled. Will not track app start up time."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
     if (!options.enableAutoUIPerformanceTracking) {
         [SentryLog
             logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."
@@ -38,8 +32,7 @@ SentryAppStartTrackingIntegration ()
         return;
     }
 
-    if (!(options.tracesSampleRate != nil && [options.tracesSampleRate doubleValue] != 0.0)
-        && options.tracesSampler == nil) {
+    if (!options.isTracingEnabled) {
         [SentryLog
             logWithMessage:
                 @"No tracesSampleRate and tracesSampler set. Will not track app start up time."
@@ -48,8 +41,8 @@ SentryAppStartTrackingIntegration ()
     }
 
     SentryDefaultCurrentDateProvider *currentDateProvider =
-        [[SentryDefaultCurrentDateProvider alloc] init];
-    SentryCrashAdapter *crashAdapter = [[SentryCrashAdapter alloc] init];
+        [SentryDefaultCurrentDateProvider sharedInstance];
+    SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
     SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
     SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]

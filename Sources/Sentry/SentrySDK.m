@@ -40,6 +40,13 @@ static NSObject *appStartMeasurementLock;
     }
 }
 
++ (SentryOptions *)options
+{
+    @synchronized(self) {
+        return [[currentHub getClient] options];
+    }
+}
+
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHub *)hub
 {

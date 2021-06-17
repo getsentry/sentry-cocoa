@@ -7,15 +7,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.rendering";
+static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.load";
 
 /**
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
-@interface SentryUIPerformanceTracker : NSObject
+@interface SentryUIViewControllerPerformanceTracker : NSObject
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, readonly, class) SentryUIPerformanceTracker *shared;
+@property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
 
 /**
  * Measures viewController`s loadView method.
@@ -26,7 +26,8 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * @param callback A callback that indicates the swizzler to call the original view controller
  * LoadView method.
  */
-- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(Callback)callback;
+- (void)viewControllerLoadView:(UIViewController *)controller
+              callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewDidLoad method.
@@ -36,7 +37,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * viewDidLoad method.
  */
 - (void)viewControllerViewDidLoad:(UIViewController *)controller
-                 callbackToOrigin:(Callback)callback;
+                 callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewWillAppear: method.
@@ -46,7 +47,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * viewWillAppear: method.
  */
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
-                    callbackToOrigin:(Callback)callback;
+                    callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewDidAppear: method.
@@ -59,7 +60,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * viewDidAppear: method.
  */
 - (void)viewControllerViewDidAppear:(UIViewController *)controller
-                   callbackToOrigin:(Callback)callback;
+                   callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewWillLayoutSubViews method.
@@ -71,7 +72,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * viewWillLayoutSubViews method.
  */
 - (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
-                            callbackToOrigin:(Callback)callback;
+                            callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewDidLayoutSubViews method.
@@ -84,7 +85,7 @@ static NSString *const SENTRY_VIEWCONTROLLER_RENDERING_OPERATION = @"ui.renderin
  * viewDidLayoutSubViews method.
  */
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
-                           callbackToOrigin:(Callback)callback;
+                           callbackToOrigin:(void (^)(void))callback;
 #endif
 @end
 

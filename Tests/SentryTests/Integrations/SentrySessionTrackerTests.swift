@@ -11,7 +11,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
-        let sentryCrash: TestSentryCrashWrapper
+        let sentryCrash: TestSentryCrashAdapter
         
         init() {
             options = Options()
@@ -22,7 +22,7 @@ class SentrySessionTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            sentryCrash = TestSentryCrashWrapper()
+            sentryCrash = TestSentryCrashAdapter.sharedInstance()
         }
         
         func getSut() -> SessionTracker {

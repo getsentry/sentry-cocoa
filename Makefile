@@ -20,8 +20,14 @@ test:
 	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
 
+# Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives
+# For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-carthage:
-	@echo "--> Creating Sentry framework package with carthage"
+	@echo "--> Carthage: creating Sentry xcframework"
+	carthage build --use-xcframeworks --no-skip-current
+	zip -r Sentry.xcframework.zip Carthage/Build
+
+	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
 

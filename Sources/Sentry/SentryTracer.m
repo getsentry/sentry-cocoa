@@ -1,6 +1,8 @@
 #import "SentryTracer.h"
 #import "SentryAppStartMeasurement.h"
+#import "SentryFramesTracker.h"
 #import "SentryHub.h"
+#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
@@ -9,7 +11,7 @@
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIPerformanceTracker.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
@@ -32,6 +34,14 @@ SentryTracer ()
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
+
+#if SENTRY_HAS_UIKIT
+    BOOL _startTimeChanged;
+
+    NSUInteger initTotalFrames;
+    NSUInteger initSlowFrames;
+    NSUInteger initFrozenFrames;
+#endif
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -52,6 +62,19 @@ SentryTracer ()
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
+
+#if SENTRY_HAS_UIKIT
+        _startTimeChanged = NO;
+
+        // Store current amount of frames at the beginning to be able to calculate the amount of
+        // frames at the end of the transaction.
+        SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+        if (framesTracker.isRunning) {
+            initTotalFrames = framesTracker.currentTotalFrames;
+            initSlowFrames = framesTracker.currentSlowFrames;
+            initFrozenFrames = framesTracker.currentFrozenFrames;
+        }
+#endif
     }
 
     return self;
@@ -139,6 +162,10 @@ SentryTracer ()
 - (void)setStartTimestamp:(NSDate *)startTimestamp
 {
     self.rootSpan.startTimestamp = startTimestamp;
+
+#if SENTRY_HAS_UIKIT
+    _startTimeChanged = YES;
+#endif
 }
 
 - (NSDictionary<NSString *, id> *)data
@@ -271,12 +298,14 @@ SentryTracer ()
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    NSString *operation = @"app start";
-
+    NSString *operation;
     NSString *type;
+
     if (appStartMeasurement.type == SentryAppStartTypeCold) {
+        operation = @"app.start.cold";
         type = @"Cold Start";
     } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
+        operation = @"app.start.warm";
         type = @"Warm Start";
     }
 
@@ -311,6 +340,8 @@ SentryTracer ()
 - (void)addMeasurements:(SentryTransaction *)transaction
     appStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement
 {
+    NSString *valueKey = @"value";
+
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
@@ -320,10 +351,35 @@ SentryTracer ()
         }
 
         if (type != nil) {
-            [transaction setMeasurementValue:@{ @"value" : @(appStartMeasurement.duration * 1000) }
+            [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
                                       forKey:type];
         }
     }
+
+#if SENTRY_HAS_UIKIT
+    // Frames
+    SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+    if (framesTracker.isRunning && !_startTimeChanged) {
+        NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
+        NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
+        NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
+
+        BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
+        BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
+
+        if (allBiggerThanZero && oneBiggerThanZero) {
+            [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
+            [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
+            [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) }
+                                      forKey:@"frames_frozen"];
+
+            NSString *message = [NSString
+                stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
+                self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        }
+    }
+#endif
 }
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
