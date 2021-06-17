@@ -11,7 +11,7 @@
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIPerformanceTracker.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
