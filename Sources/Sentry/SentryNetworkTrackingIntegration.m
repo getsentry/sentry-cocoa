@@ -1,7 +1,7 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNetworkSwizzling.h"
-#import "SentryOptions.h"
 #import "SentryNetworkTracker.h"
+#import "SentryOptions.h"
 
 @interface
 SentryNetworkTrackingIntegration ()
@@ -9,21 +9,18 @@ SentryNetworkTrackingIntegration ()
 @property (nonatomic, strong) SentryOptions *options;
 @end
 
-
 @implementation SentryNetworkTrackingIntegration
 
 - (void)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
     if (options.enableAutoUIPerformanceTracking) {
-        [self enableNetworkTracking:[NSURL URLWithString:options.dsn]];
-        
+        [self enableNetworkTracking];
     }
 }
 
-- (void)enableNetworkTracking:(NSURL *)sentryApiUrl
+- (void)enableNetworkTracking
 {
-    [SentryNetworkTracker.sharedInstance setSentryApiUrl:sentryApiUrl];
     [SentryNetworkSwizzling start];
 }
 

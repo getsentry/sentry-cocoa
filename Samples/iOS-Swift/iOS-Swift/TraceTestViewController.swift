@@ -11,7 +11,6 @@ class TraceTestViewController: UIViewController {
         self.view.backgroundColor = UIColor.white
     }
     
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {

@@ -6,9 +6,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"network.request";
 
 @interface SentryNetworkTracker : NSObject
 
-@property (class, readonly, nonatomic) SentryNetworkTracker * sharedInstance;
-
-@property (nullable, nonatomic, strong) NSURL * sentryApiUrl;
+@property (class, readonly, nonatomic) SentryNetworkTracker *sharedInstance;
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask;
 
