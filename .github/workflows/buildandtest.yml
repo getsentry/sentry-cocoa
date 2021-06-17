@@ -120,7 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set Cartfile revision to current git commit
-        run: sed -i '' 's/master/${{ github.sha }}/g' Samples/Carthage-Validation/From-Source/Cartfile
+        run: sed -i '' 's/master/${GITHUB_REF#refs/heads/}/g' Samples/Carthage-Validation/From-Source/Cartfile
       - run: make build-carthage-sample-from-source
         shell: sh 
 
