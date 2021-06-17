@@ -43,11 +43,6 @@ build-carthage-sample-framework:
 	cd Samples/Carthage-Validation/Framework/ && carthage update
 	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
-build-carthage-sample-from-source:
-	cd Samples/Carthage-Validation/From-Source/ && carthage update --use-xcframeworks
-	xcodebuild -project "Samples/Carthage-Validation/From-Source/From-Source.xcodeproj" -scheme "From-Source (iOS)" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-	xcodebuild -project "Samples/Carthage-Validation/From-Source/From-Source.xcodeproj" -scheme "From-Source (macOS)" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.
 watchOSLibPath = ./Samples/watchOS-Swift/libs

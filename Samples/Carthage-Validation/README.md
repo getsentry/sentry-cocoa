@@ -11,6 +11,8 @@ Given the above, there are three different ways of installing a dependency via C
 2. pre-compiled framework
 3. downloading the source code
 
+Since Carthage only downloads the source code if no pre-compiled binaries are available and we upload these binaries for every release, we only have to validate the first two.
+
 [1]: https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#binary-project-specification
 [2]: https://github.com/Carthage/Carthage#getting-started
 

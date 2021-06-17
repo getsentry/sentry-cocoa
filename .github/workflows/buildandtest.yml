@@ -110,20 +110,6 @@ jobs:
           name: ${{ github.sha }}
           path: |
             ${{ github.workspace }}/*.zip
-    
-  # Extra Job because this downloads the SDK source and compiles it.
-  # Logically it would make more sense to do this in build-carthage, 
-  # but doing it in parallel speeds up the build time.
-  validate-carthage-from-source:
-    name: Validate building Carthage from source
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set Cartfile revision to current branch name
-        run: ./scripts/replace-with-current-branch.sh master Samples/Carthage-Validation/From-Source/Cartfile
-        shell: sh
-      - run: make build-carthage-sample-from-source
-        shell: sh 
 
   validate-spm:
     name: Validate Swift Package Manager
@@ -131,7 +117,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
-        run: ./scripts/replace-with-current-branch.sh master Samples/macOS-SPM-CommandLine/Package.swift
+        run: sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
