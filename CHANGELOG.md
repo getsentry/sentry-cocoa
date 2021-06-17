@@ -4,7 +4,7 @@
 
 - feat: Add flag stichAsyncCode (#1172)
 - feat: Support XCFramework for Carthage (#1175)
-- Remove invalid excludes from `Package.swift` (#1169)
+- fix: Remove invalid excludes from `Package.swift` (#1169)
 
 ## 7.2.0-beta.1
 
