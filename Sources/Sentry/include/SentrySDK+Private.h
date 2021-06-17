@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryHub *)currentHub;
 
-+ (nullable SentryOptions *)options;
+@property (nonatomic, nullable, readonly, class) SentryOptions *options;
 
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
