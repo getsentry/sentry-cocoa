@@ -81,6 +81,19 @@ SentryPerformanceTracker ()
     [self finishSpan:spanId];
 }
 
+- (void)measureSpanWithDescription:(NSString *)description
+                         operation:(NSString *)operation
+                      parentSpanId:(SentrySpanId *)parentSpanId
+                           inBlock:(void (^)(void))block
+{
+    if (![self isSpanAlive:parentSpanId])
+        return;
+
+    [self pushActiveSpan:parentSpanId];
+    [self measureSpanWithDescription:description operation:operation inBlock:block];
+    [self popActiveSpan];
+}
+
 - (nullable SentrySpanId *)activeSpan
 {
     @synchronized(self.activeStack) {

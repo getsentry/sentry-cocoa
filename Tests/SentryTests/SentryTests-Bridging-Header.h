@@ -97,6 +97,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
