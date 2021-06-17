@@ -118,7 +118,7 @@ jobs:
     name: Validate building Carthage from source
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2.2
+      - uses: actions/checkout@v2.2.0
       - name: Set Cartfile revision to current git commit
         run: sed -i '' 's/master/${{ github.sha }}/g' Samples/Carthage-Validation/From-Source/Cartfile
       - run: make build-carthage-sample-from-source
