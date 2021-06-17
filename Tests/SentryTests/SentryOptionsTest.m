@@ -415,8 +415,8 @@
 
 - (void)testInvalidStitchAsyncCode
 {
-    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
-    XCTAssertEqual(NO, options.attachStacktrace);
+    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @"Invalid" }];
+    XCTAssertEqual(NO, options.stitchAsyncCode);
 }
 
 - (void)testEmptyConstructorSetsDefaultValues
