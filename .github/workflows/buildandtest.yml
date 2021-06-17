@@ -99,6 +99,8 @@ jobs:
       - uses: actions/checkout@v2
       - run: make build-carthage
         shell: sh 
+      - run: make build-carthage-sample
+        shell: sh  
 
       - name: Archiving Carthage zips
         uses: actions/upload-artifact@v2
