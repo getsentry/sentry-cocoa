@@ -22,7 +22,7 @@ SentryOptions ()
         @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
         @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
         @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryPerformanceTrackingIntegration"
+        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration"
     ];
 }
 
