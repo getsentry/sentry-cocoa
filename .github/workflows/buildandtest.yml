@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release/**
-      - ci/fix-spm-validation
   pull_request:
 
 jobs:
