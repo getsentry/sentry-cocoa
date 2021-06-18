@@ -16,6 +16,10 @@ SENTRY_NO_INIT
 
 - (BOOL)isBeingTraced;
 
+- (void)installAsyncHooks;
+
+- (void)deactivateAsyncHooks;
+
 @end
 
 NS_ASSUME_NONNULL_END
