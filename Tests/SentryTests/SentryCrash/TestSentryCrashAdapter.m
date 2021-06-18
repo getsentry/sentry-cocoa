@@ -9,6 +9,8 @@
     instance.internalActiveDurationSinceLastCrash = NO;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;
+    instance.installAsyncHooksCalled = NO;
+    instance.deactivateAsyncHooksCalled = NO;
     return instance;
 }
 
@@ -25,6 +27,16 @@
 - (BOOL)isBeingTraced
 {
     return self.internalIsBeingTraced;
+}
+
+- (void)installAsyncHooks
+{
+    self.installAsyncHooksCalled = YES;
+}
+
+- (void)deactivateAsyncHooks
+{
+    self.deactivateAsyncHooksCalled = YES;
 }
 
 @end

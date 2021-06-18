@@ -4,7 +4,6 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryFrameInAppLogic.h"
-#import "SentryHook.h"
 #import "SentryHub.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
@@ -37,10 +36,9 @@ SentryCrashIntegration ()
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        self.crashAdapter = [SentryCrashAdapter sharedInstance];
-        self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-    }
+    self = [self initWithCrashAdapter:[SentryCrashAdapter sharedInstance]
+              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
+
     return self;
 }
 
@@ -48,9 +46,10 @@ SentryCrashIntegration ()
 - (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
-    self = [self init];
-    self.crashAdapter = crashAdapter;
-    self.dispatchQueueWrapper = dispatchQueueWrapper;
+    if (self = [super init]) {
+        self.crashAdapter = crashAdapter;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
+    }
 
     return self;
 }
@@ -88,8 +87,11 @@ SentryCrashIntegration ()
                                                  outOfMemoryLogic:logic];
 
     [self startCrashHandler];
-    // TODO: enable with feature flag from SentryOptions because this is still experimental
-    //    sentrycrash_install_async_hooks();
+
+    if (options.stitchAsyncCode) {
+        [self.crashAdapter installAsyncHooks];
+    }
+
     [self configureScope];
 }
 
@@ -136,7 +138,7 @@ SentryCrashIntegration ()
         installation = nil;
         installationToken = 0;
     }
-    sentrycrash_deactivate_async_hooks();
+    [self.crashAdapter deactivateAsyncHooks];
 }
 
 - (void)configureScope
