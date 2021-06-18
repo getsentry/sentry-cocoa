@@ -7,18 +7,13 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     private class Fixture {
         
-        let session: SentrySession
         let currentDateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let options: Options
         let hub: SentryHub
-        let fileManager: SentryFileManager
+        let options: Options
         let sentryCrash: TestSentryCrashAdapter
         
         init() {
-            session = SentrySession(releaseName: "1.0.0")
-            session.incrementErrors()
-            
             sentryCrash = TestSentryCrashAdapter.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
@@ -27,10 +22,19 @@ class SentryCrashIntegrationTests: XCTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            let client = Client(options: options)
+            hub = TestHub(client: client, andScope: nil)
+        }
+        
+        var session: SentrySession {
+            let session = SentrySession(releaseName: "1.0.0")
+            session.incrementErrors()
             
-           let client = Client(options: options)
-           hub = TestHub(client: client, andScope: nil)
+            return session
+        }
+        
+        var fileManager: SentryFileManager {
+            return try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         }
         
         func getSut() -> SentryCrashIntegration {
