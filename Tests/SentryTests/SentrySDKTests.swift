@@ -460,6 +460,11 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.currentDate.date(), actual.timestamp)
     }
     
+    func testGlobalOptions() {
+        SentrySDK.setCurrentHub(fixture.hub)
+        XCTAssertEqual(SentrySDK.options, fixture.options)
+    }
+    
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
     }
