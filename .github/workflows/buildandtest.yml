@@ -117,12 +117,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
         run: >-
-          if [[ ${{ github.event.pull_request.head.sha }} != "" ]]; then
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
             sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           else
             sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           fi  
-        shell: sh
+        shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
