@@ -107,7 +107,8 @@ jobs:
           path: |
             ${{ github.workspace }}/*.zip
           
-# Use github.event.pull_request.head.sha instead of github.sha as the github.sha will be the pre merge commit id.
+# Use github.event.pull_request.head.sha instead of github.sha when available as 
+# the github.sha is be the pre merge commit id for PRs.
 # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
@@ -115,7 +116,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
-        run: sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+        run: >-
+          if [[ ${{ github.event.pull_request.head.sha }} != "" ]]; then
+            sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+          else
+            sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+          fi  
+        shell: sh
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
