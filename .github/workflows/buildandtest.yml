@@ -119,6 +119,7 @@ jobs:
       - name: Set SPM revision to current git commit
         run: >-
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          
           if [[ $HEAD_SHA == "" ]]; then
             sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           else
