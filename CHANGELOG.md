@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.2
 
 - feat: Add flag stichAsyncCode (#1172)
 - feat: Support XCFramework for Carthage (#1175)
