@@ -9,7 +9,7 @@ on:
 jobs:
   unit-tests:
     name: Unit Tests ${{matrix.name}}
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       fail-fast: false
       matrix:
@@ -53,7 +53,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +85,7 @@ jobs:
 
   validate-podspec:
     name: Validate Podspec
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Validate Podspec
@@ -94,7 +94,7 @@ jobs:
 
   build-carthage:
     name: Build & Validate Carthage
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: make build-carthage
@@ -116,7 +116,7 @@ jobs:
 # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
@@ -133,7 +133,7 @@ jobs:
 
   swift-build:
     name: Build with Swift
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: swift build
