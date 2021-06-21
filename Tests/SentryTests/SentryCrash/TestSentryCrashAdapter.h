@@ -17,6 +17,10 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL internalIsBeingTraced;
 
+@property (nonatomic, assign) BOOL installAsyncHooksCalled;
+
+@property (nonatomic, assign) BOOL deactivateAsyncHooksCalled;
+
 @end
 
 NS_ASSUME_NONNULL_END

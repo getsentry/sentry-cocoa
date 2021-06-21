@@ -93,12 +93,16 @@ jobs:
         shell: sh
 
   build-carthage:
-    name: Build Carthage
+    name: Build & Validate Carthage
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - run: make build-carthage
         shell: sh 
+      - run: make build-carthage-sample-framework
+        shell: sh  
+      - run: make build-carthage-sample-xcframework
+        shell: sh  
 
       - name: Archiving Carthage zips
         uses: actions/upload-artifact@v2
@@ -106,7 +110,7 @@ jobs:
           name: ${{ github.sha }}
           path: |
             ${{ github.workspace }}/*.zip
-          
+ 
 # Use github.event.pull_request.head.sha instead of github.sha when available as 
 # the github.sha is be the pre merge commit id for PRs.
 # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
@@ -125,4 +129,12 @@ jobs:
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
+        shell: sh
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: swift build
         shell: sh
