@@ -21,7 +21,7 @@ test:
 .PHONY: test
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
-# Afte creating the zips we create a JSON to be able to test Carthage locally.
+# After creating the zips we create a JSON to be able to test Carthage locally.
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-carthage:
 	@echo "--> Carthage: creating JSON"
