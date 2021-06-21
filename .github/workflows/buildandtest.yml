@@ -130,3 +130,11 @@ jobs:
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: swift build
+        shell: sh
