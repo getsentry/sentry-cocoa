@@ -10,7 +10,6 @@ let package = Package(
             targets: ["Sentry"]
         )
     ],
-    dependencies: [],
     targets: [
         .target(
             name: "Sentry",
@@ -35,17 +34,6 @@ let package = Package(
             linkerSettings: [
                 .linkedLibrary("z"),
                 .linkedLibrary("c++")
-            ]
-        ),
-
-        .testTarget(
-            name: "SentrySwiftTests",
-            dependencies: [
-                "Sentry"
-            ],
-            path: "Tests/SentryTests",
-            sources: [
-                "SentrySwiftTests.swift"
             ]
         )
     ]

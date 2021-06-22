@@ -9,7 +9,7 @@ on:
 jobs:
   unit-tests:
     name: Unit Tests ${{matrix.name}}
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       fail-fast: false
       matrix:
@@ -53,7 +53,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +85,7 @@ jobs:
 
   validate-podspec:
     name: Validate Podspec
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Validate Podspec
@@ -93,12 +93,16 @@ jobs:
         shell: sh
 
   build-carthage:
-    name: Build Carthage
-    runs-on: macos-latest
+    name: Build & Validate Carthage
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: make build-carthage
         shell: sh 
+      - run: make build-carthage-sample-framework
+        shell: sh  
+      - run: make build-carthage-sample-xcframework
+        shell: sh  
 
       - name: Archiving Carthage zips
         uses: actions/upload-artifact@v2
@@ -106,14 +110,31 @@ jobs:
           name: ${{ github.sha }}
           path: |
             ${{ github.workspace }}/*.zip
-          
+ 
+# Use github.event.pull_request.head.sha instead of github.sha when available as 
+# the github.sha is be the pre merge commit id for PRs.
+# See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Set SPM revision to current git commit
-        run: sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+          else
+            sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+          fi  
+        shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
+        shell: sh
+
+  swift-build:
+    name: Build with Swift
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: swift build
         shell: sh

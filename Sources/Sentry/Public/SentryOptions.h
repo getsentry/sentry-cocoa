@@ -135,6 +135,16 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
+ * Attention: This is an experimental feature. Turning this feature on can have an impact on
+ * the grouping of your issues.
+ *
+ * When enabled, the SDK stitches stack traces of asynchronous code together.
+ *
+ * This feature is disabled by default.
+ */
+@property (nonatomic, assign) BOOL stitchAsyncCode;
+
+/**
  * Describes the Sentry SDK and its configuration used to capture and transmit an event.
  */
 @property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;

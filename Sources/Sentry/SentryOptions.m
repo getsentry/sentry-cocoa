@@ -41,6 +41,7 @@ SentryOptions ()
         self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
+        self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoUIPerformanceTracking = YES;
@@ -195,6 +196,10 @@ SentryOptions ()
 
     if (nil != options[@"attachStacktrace"]) {
         self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
+    }
+
+    if (nil != options[@"stitchAsyncCode"]) {
+        self.stitchAsyncCode = [options[@"stitchAsyncCode"] boolValue];
     }
 
     if (nil != options[@"maxAttachmentSize"]) {
