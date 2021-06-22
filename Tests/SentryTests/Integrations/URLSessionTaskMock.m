@@ -1,11 +1,3 @@
-//
-//  URLSessionTaskMock.m
-//  SentryTests
-//
-//  Created by Dhiogo Brustolin on 21/06/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import "URLSessionTaskMock.h"
 
 @implementation URLSessionTaskMock {
