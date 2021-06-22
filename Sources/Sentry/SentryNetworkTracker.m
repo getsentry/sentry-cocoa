@@ -7,6 +7,13 @@
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
     = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID";
 
+@interface
+SentryNetworkTracker ()
+
+@property (nonatomic, strong) SentryPerformanceTracker *tracker;
+
+@end
+
 @implementation SentryNetworkTracker
 
 + (SentryNetworkTracker *)sharedInstance
@@ -17,9 +24,20 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
     return instance;
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.tracker = SentryPerformanceTracker.shared;
+    }
+    return self;
+}
+
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
-    NSURL *url = sessionTask.currentRequest.URL;
+    NSURL *url = [[sessionTask currentRequest] URL];
+    if (url == nil)
+        return;
+
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return;
@@ -30,8 +48,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
                      options:NSKeyValueObservingOptionNew
                      context:nil];
 
-    SentrySpanId *spanId =
-        [SentryPerformanceTracker.shared startSpanWithName:url.absoluteString
+    SentrySpanId *spanId = [self.tracker startSpanWithName:url.absoluteString
                                                  operation:SENTRY_NETWORK_REQUEST_OPERATION];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, spanId,
@@ -48,7 +65,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
         if (sessionTask.state != NSURLSessionTaskStateRunning) {
             SentrySpanId *spanId
                 = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
-            [SentryPerformanceTracker.shared finishSpan:spanId];
+            [self.tracker finishSpan:spanId];
             [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
         }
     }

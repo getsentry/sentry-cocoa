@@ -67,6 +67,7 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
+#import "SentryNetworkTracker.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryPerformanceTracker.h"
