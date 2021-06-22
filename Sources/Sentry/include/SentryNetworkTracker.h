@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"network.request";
+static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"http.client";
 
 @interface SentryNetworkTracker : NSObject
 
