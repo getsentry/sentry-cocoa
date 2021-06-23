@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 
+- (void)setResponse:(NSURLResponse *)response;
+
 @end
 
 NS_ASSUME_NONNULL_END

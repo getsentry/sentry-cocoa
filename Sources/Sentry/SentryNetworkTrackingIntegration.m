@@ -14,7 +14,7 @@ SentryNetworkTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
-    if (options.enableAutoUIPerformanceTracking) {
+    if (options.enableAutoHttpRequestTracking) {
         [self enableNetworkTracking];
     }
 }

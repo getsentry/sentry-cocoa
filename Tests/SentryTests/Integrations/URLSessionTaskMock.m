@@ -2,6 +2,7 @@
 
 @implementation URLSessionTaskMock {
     NSURLRequest *_request;
+    NSURLResponse *_response;
 }
 
 @dynamic state;
@@ -9,6 +10,16 @@
 - (NSURLRequest *)currentRequest
 {
     return _request;
+}
+
+- (NSURLResponse *)response
+{
+    return _response;
+}
+
+- (void)setResponse:(NSURLResponse *)response
+{
+    _response = response;
 }
 
 #pragma clang diagnostic push

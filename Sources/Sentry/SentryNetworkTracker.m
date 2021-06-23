@@ -65,10 +65,62 @@ SentryNetworkTracker ()
         if (sessionTask.state != NSURLSessionTaskStateRunning) {
             SentrySpanId *spanId
                 = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
-            [self.tracker finishSpan:spanId];
-            [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
+
+            if (spanId != nil) {
+                [self.tracker finishSpan:spanId withStatus:[self statusForSessionTask:sessionTask]];
+                [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
+            }
         }
     }
+}
+
+- (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task
+{
+    switch (task.state) {
+    case NSURLSessionTaskStateSuspended:
+    case NSURLSessionTaskStateCanceling:
+        return kSentrySpanStatusCancelled;
+    case NSURLSessionTaskStateCompleted: {
+        if (task.response != nil && [task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
+            return [self statusForResponse:response];
+        }
+    } break;
+    case NSURLSessionTaskStateRunning:
+        break;
+    }
+    return kSentrySpanStatusUndefined;
+}
+
+- (SentrySpanStatus)statusForResponse:(NSHTTPURLResponse *)response
+{
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+        return kSentrySpanStatusOk;
+    }
+
+    switch (response.statusCode) {
+    case 400:
+        return kSentrySpanStatusInvalidArgument;
+    case 401:
+        return kSentrySpanStatusUnauthenticated;
+    case 403:
+        return kSentrySpanStatusPermissionDenied;
+    case 404:
+        return kSentrySpanStatusNotFound;
+    case 409:
+        return kSentrySpanStatusCancelled;
+    case 429:
+        return kSentrySpanStatusResourceExhausted;
+    case 500:
+        return kSentrySpanStatusInternalError;
+    case 501:
+        return kSentrySpanStatusUnimplemented;
+    case 503:
+        return kSentrySpanStatusUnavailable;
+    case 504:
+        return kSentrySpanStatusDeadlineExceeded;
+    }
+    return kSentrySpanStatusUndefined;
 }
 
 @end
