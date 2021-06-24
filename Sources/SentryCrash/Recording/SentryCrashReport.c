@@ -45,6 +45,7 @@
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 #include "SentryCrashUUIDConversion.h"
+#include "SentryScopeSyncC.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
@@ -1701,6 +1702,17 @@ sentrycrashreport_writeStandardReport(
         } else {
             writer->beginObject(writer, SentryCrashField_User);
         }
+
+        char *scopeJSON;
+        size_t scopeJSONSize;
+        sentryscopesync_getJSON(&scopeJSON, &scopeJSONSize);
+
+        if (scopeJSON != NULL) {
+            addJSONElement(writer, SentryCrashField_Scope, scopeJSON, false);
+            sentrycrashfu_flushBufferedWriter(&bufferedWriter);
+            free(scopeJSON);
+        }
+
         if (g_userSectionWriteCallback != NULL) {
             sentrycrashfu_flushBufferedWriter(&bufferedWriter);
             if (monitorContext->currentSnapshotUserReported == false) {

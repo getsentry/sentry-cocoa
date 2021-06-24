@@ -325,4 +325,62 @@ class SentryScopeSwiftTests: XCTestCase {
         queue.activate()
         group.waitWithTimeout(timeout: 500)
     }
+    
+    func testScopeObserver_setUser() {
+        let sut = Scope()
+        let observer = TestScopeObserver()
+        sut.add(observer)
+        
+        let user = TestData.user
+        sut.setUser(user)
+        
+        XCTAssertEqual(user, observer.user)
+    }
+    
+    class TestScopeObserver: NSObject, SentryScopeObserver {
+        func setTags(_ tags: [String: String]?) {
+                
+        }
+        
+        func setExtras(_ extras: [String: Any]?) {
+                
+        }
+        
+        func setContext(_ context: [String: Any]?) {
+            
+        }
+        
+        func setDist(_ dist: String?) {
+            
+        }
+        
+        func setEnvironment(_ environment: String?) {
+            
+        }
+        
+        func setFingerprint(_ fingerprint: [String]?) {
+            
+        }
+        
+        func setLevel(_ level: SentryLevel) {
+            
+        }
+        
+        func add(_ crumb: Breadcrumb) {
+            
+        }
+        
+        func clearBreadcrumbs() {
+            
+        }
+        
+        func clear() {
+            
+        }
+        
+        var user: User?
+        func setUser(_ user: User?) {
+            self.user = user
+        }
+    }
 }

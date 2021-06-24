@@ -39,7 +39,13 @@ SentryCrashReportConverter ()
         self.report = report;
         self.frameInAppLogic = frameInAppLogic;
         self.systemContext = report[@"system"];
-        self.userContext = report[@"user"];
+
+        NSDictionary *userContextUnMerged = report[@"user"];
+        NSMutableDictionary *userContextMerged =
+            [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
+        [userContextMerged addEntriesFromDictionary:userContextUnMerged[@"sentry_sdk_scope"]];
+        [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
+        self.userContext = userContextMerged;
 
         NSDictionary *crashContext;
         // This is an incomplete crash report
