@@ -145,4 +145,11 @@ SentryPerformanceTracker ()
     }
 }
 
+- (id<SentrySpan>)getSpan:(SentrySpanId *)spanId
+{
+    @synchronized(self.spans) {
+        return self.spans[spanId];
+    }
+}
+
 @end

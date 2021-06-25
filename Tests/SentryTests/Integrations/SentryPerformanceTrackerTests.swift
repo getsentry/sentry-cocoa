@@ -41,9 +41,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
     func testStartSpan_CheckScopeSpan() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
-        let spans: [SpanId: Span] = getSpans(tracker: sut)
         
-        let transaction = spans[spanId] as! SentryTracer
+        let transaction = sut.getSpan(spanId) as! SentryTracer
         
         let scopeSpan = fixture.scope.span
         
@@ -56,9 +55,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
 
         let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: fixture.someOperation, bindToScope: true)
         let spanId = startSpan(tracker: sut)
-        let spans: [SpanId: Span] = getSpans(tracker: sut)
-        
-        let transaction = spans[spanId]
+                
+        let transaction = sut.getSpan(spanId)
         let scopeSpan = SentrySDK.currentHub().scope.span
         
         XCTAssert(scopeSpan !== transaction)
@@ -72,10 +70,9 @@ class SentryPerformanceTrackerTests: XCTestCase {
         sut.pushActiveSpan(spanId)
         
         let childSpanId = startSpan(tracker: sut)
-        let spans: [SpanId: Span] = getSpans(tracker: sut)
         
-        let transaction = spans[spanId]
-        let childSpan = spans[childSpanId]
+        let transaction = sut.getSpan(spanId)
+        let childSpan = sut.getSpan(childSpanId)
  
         let children = Dynamic(transaction).children as [Span]?
         
@@ -121,12 +118,10 @@ class SentryPerformanceTrackerTests: XCTestCase {
         sut.pushActiveSpan(childSpanId)
                 
         let grandChildSpanId = startSpan(tracker: sut)
-        
-        let spans = getSpans(tracker: sut)
-        
-        let root = spans[spanId]
-        let child = spans[childSpanId]
-        let grandchild = spans[grandChildSpanId]
+                
+        let root = sut.getSpan(spanId)
+        let child = sut.getSpan(childSpanId)
+        let grandchild = sut.getSpan(grandChildSpanId)
         
         XCTAssertEqual(root!.context.spanId, child!.context.parentSpanId)
         XCTAssertEqual(child!.context.spanId, grandchild!.context.parentSpanId)
@@ -139,8 +134,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
             let spanId = sut.activeSpan()!
             
-            let spans = self.getSpans(tracker: sut)
-            span = spans[spanId]
+            span = sut.getSpan(spanId)
             
             XCTAssertFalse(span!.isFinished)
         }
@@ -156,9 +150,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
         sut.pushActiveSpan(spanId)
         let childId = startSpan(tracker: sut)
         
-        let spans = getSpans(tracker: sut)
-        let span = spans[spanId]
-        let child = spans[childId]
+        let span = sut.getSpan(spanId)
+        let child = sut.getSpan(childId)
         
         XCTAssertFalse(span!.isFinished)
         XCTAssertFalse(child!.isFinished)
@@ -179,9 +172,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
     func testFinishSpanWithStatus() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
-                
-        let spans = getSpans(tracker: sut)
-        let span = spans[spanId]
+        
+        let span = sut.getSpan(spanId)
         
         sut.finishSpan(spanId, with: .ok)
         

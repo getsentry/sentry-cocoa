@@ -2,6 +2,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
+#import "SentrySpan.h"
 #import <objc/runtime.h>
 
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
@@ -35,7 +36,8 @@ SentryNetworkTracker ()
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
     NSURL *url = [[sessionTask currentRequest] URL];
-    if (url == nil)
+
+    if (url == nil || ![self isTaskSupported:sessionTask])
         return;
 
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
@@ -48,8 +50,10 @@ SentryNetworkTracker ()
                      options:NSKeyValueObservingOptionNew
                      context:nil];
 
-    SentrySpanId *spanId = [self.tracker startSpanWithName:url.absoluteString
-                                                 operation:SENTRY_NETWORK_REQUEST_OPERATION];
+    SentrySpanId *spanId =
+        [self.tracker startSpanWithName:[NSString stringWithFormat:@"%@ %@",
+                                                  sessionTask.currentRequest.HTTPMethod, url]
+                              operation:SENTRY_NETWORK_REQUEST_OPERATION];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, spanId,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -67,11 +71,25 @@ SentryNetworkTracker ()
                 = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
 
             if (spanId != nil) {
+                id<SentrySpan> span = [self.tracker getSpan:spanId];
+                NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+
+                [span setDataValue:[NSNumber numberWithInteger:responseStatusCode]
+                            forKey:@"http.status_code"];
+
                 [self.tracker finishSpan:spanId withStatus:[self statusForSessionTask:sessionTask]];
                 [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
             }
         }
     }
+}
+
+- (NSInteger)urlResponseStatusCode:(NSURLResponse *)response
+{
+    if (response != nil && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+        return ((NSHTTPURLResponse *)response).statusCode;
+    }
+    return -1;
 }
 
 - (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task
@@ -81,10 +99,8 @@ SentryNetworkTracker ()
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
     case NSURLSessionTaskStateCompleted: {
-        if (task.response != nil && [task.response isKindOfClass:[NSHTTPURLResponse class]]) {
-            NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
-            return [self statusForResponse:response];
-        }
+        return
+            [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
     } break;
     case NSURLSessionTaskStateRunning:
         break;
@@ -92,13 +108,23 @@ SentryNetworkTracker ()
     return kSentrySpanStatusUndefined;
 }
 
-- (SentrySpanStatus)statusForResponse:(NSHTTPURLResponse *)response
+- (BOOL)isTaskSupported:(NSURLSessionTask *)task
 {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    // Since streams are usually created to stay connected we don't measure this type of data
+    // transfer.
+    return [task isKindOfClass:[NSURLSessionDataTask class]] ||
+        [task isKindOfClass:[NSURLSessionDownloadTask class]] ||
+        [task isKindOfClass:[NSURLSessionUploadTask class]];
+}
+
+// https://develop.sentry.dev/sdk/event-payloads/span/
+- (SentrySpanStatus)spanStatusForHttpResponseStatusCode:(NSInteger)statusCode
+{
+    if (statusCode >= 200 && statusCode < 300) {
         return kSentrySpanStatusOk;
     }
 
-    switch (response.statusCode) {
+    switch (statusCode) {
     case 400:
         return kSentrySpanStatusInvalidArgument;
     case 401:
@@ -108,7 +134,7 @@ SentryNetworkTracker ()
     case 404:
         return kSentrySpanStatusNotFound;
     case 409:
-        return kSentrySpanStatusCancelled;
+        return kSentrySpanStatusAborted;
     case 429:
         return kSentrySpanStatusResourceExhausted;
     case 500:

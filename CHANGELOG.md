@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add automatic http request performance monitoring (#1178)
+
 ## 7.2.0-beta.2
 
 - feat: Add flag stichAsyncCode (#1172)

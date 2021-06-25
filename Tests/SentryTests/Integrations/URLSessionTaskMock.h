@@ -2,7 +2,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface URLSessionTaskMock : NSURLSessionTask
+/**
+ * Written in Objective-C because Swift doesn't allow you to call the constructor of
+ * NSURLSessionTask. Using suppression in implementation to override the init.
+ */
+@interface URLSessionTaskMock : NSURLSessionDataTask
 
 @property (nonatomic) NSURLSessionTaskState state;
 

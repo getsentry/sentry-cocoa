@@ -27,8 +27,10 @@ class SentryNetworkTrackerTests: XCTestCase {
             return result
         }
         
-        func createTask() -> URLSessionTaskMock {
-            return URLSessionTaskMock(request: URLRequest(url: SentryNetworkTrackerTests.testURL))
+        func createTask(method: String = "GET") -> URLSessionTaskMock {
+            var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+            request.httpMethod = method
+            return URLSessionTaskMock(request: request)
         }
     }
 
@@ -90,13 +92,37 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertStatusForTaskStateAndResponse(status: .cancelled, state: .suspended, response: URLResponse())
     }
     
+    func testSpanNameWithGet() {
+        let sut = fixture.getSut()
+        let task = fixture.createTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        let span = spans.first?.value as? SentryTracer
+        
+        XCTAssertEqual(span!.name, "GET \(SentryNetworkTrackerTests.testURL)")
+    }
+    
+    func testSpanNameWithPost() {
+        let sut = fixture.getSut()
+        let task = fixture.createTask(method: "POST")
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        let span = spans.first?.value as? SentryTracer
+        
+        XCTAssertEqual(span!.name, "POST \(SentryNetworkTrackerTests.testURL)")
+    }
+    
     func testCaptureResponses() {
         assertStatusForTaskStateAndResponse(status: .ok, state: .completed, response: createResponse(code: 200))
         assertStatusForTaskStateAndResponse(status: .invalidArgument, state: .completed, response: createResponse(code: 400))
         assertStatusForTaskStateAndResponse(status: .unauthenticated, state: .completed, response: createResponse(code: 401))
         assertStatusForTaskStateAndResponse(status: .permissionDenied, state: .completed, response: createResponse(code: 403))
         assertStatusForTaskStateAndResponse(status: .notFound, state: .completed, response: createResponse(code: 404))
-        assertStatusForTaskStateAndResponse(status: .cancelled, state: .completed, response: createResponse(code: 409))
+        assertStatusForTaskStateAndResponse(status: .aborted, state: .completed, response: createResponse(code: 409))
         assertStatusForTaskStateAndResponse(status: .resourceExhausted, state: .completed, response: createResponse(code: 429))
         assertStatusForTaskStateAndResponse(status: .internalError, state: .completed, response: createResponse(code: 500))
         assertStatusForTaskStateAndResponse(status: .unimplemented, state: .completed, response: createResponse(code: 501))
