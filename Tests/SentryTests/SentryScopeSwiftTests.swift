@@ -248,6 +248,15 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(1, attachments.count)
     }
     
+    func testClearAttachments() {
+        let scope = fixture.scope
+        scope.add(TestData.fileAttachment)
+        
+        scope.clearAttachments()
+        
+        XCTAssertEqual(0, scope.attachments.count)
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
@@ -300,6 +309,8 @@ class SentryScopeSwiftTests: XCTestCase {
                     scope.removeTag(key: key)
                     scope.setTags(["tag1": "hello", "tag2": "hello"])
                     
+                    scope.add(TestData.fileAttachment)
+                    scope.clearAttachments()
                     scope.add(TestData.fileAttachment)
                     
                     for _ in 0...10 {
