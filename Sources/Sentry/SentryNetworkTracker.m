@@ -40,6 +40,7 @@ SentryNetworkTracker ()
     if (url == nil || ![self isTaskSupported:sessionTask])
         return;
 
+    // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return;
@@ -74,12 +75,15 @@ SentryNetworkTracker ()
                 id<SentrySpan> span = [self.tracker getSpan:spanId];
                 NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
-                [span setDataValue:[NSNumber numberWithInteger:responseStatusCode]
-                            forKey:@"http.status_code"];
+                if (responseStatusCode != -1) {
+                    [span setDataValue:[NSNumber numberWithInteger:responseStatusCode]
+                                forKey:@"http.status_code"];
+                }
 
                 [self.tracker finishSpan:spanId withStatus:[self statusForSessionTask:sessionTask]];
-                [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
             }
+
+            [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
         }
     }
 }
@@ -99,8 +103,9 @@ SentryNetworkTracker ()
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
     case NSURLSessionTaskStateCompleted: {
-        return
-            [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
+        return task.error != nil
+            ? kSentrySpanStatusUnknownError
+            : [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
     } break;
     case NSURLSessionTaskStateRunning:
         break;

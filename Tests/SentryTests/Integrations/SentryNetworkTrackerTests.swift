@@ -8,7 +8,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     private class Fixture {
         static let url = ""
         let tracker = SentryPerformanceTracker()
-        let sentryTask: URLSessionTaskMock
+        let sentryTask: URLSessionDataTaskMock
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         
@@ -17,7 +17,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
-            sentryTask = URLSessionTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
+            sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
         }
         
         func getSut() -> SentryNetworkTracker {
@@ -25,12 +25,6 @@ class SentryNetworkTrackerTests: XCTestCase {
             Dynamic(result).tracker = self.tracker
             
             return result
-        }
-        
-        func createTask(method: String = "GET") -> URLSessionTaskMock {
-            var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
-            request.httpMethod = method
-            return URLSessionTaskMock(request: request)
         }
     }
 
@@ -42,7 +36,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testCaptureCompletion() {
         let sut = fixture.getSut()
-        let task = fixture.createTask()
+        let task = createDataTask()
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
@@ -53,6 +47,39 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertFalse(span!.isFinished)
         task.state = .completed
         XCTAssertTrue(span!.isFinished)
+    }
+    
+    func testCaptureDownloadTask() {
+        let sut = fixture.getSut()
+        let task = createDownloadTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 1)
+    }
+    
+    func testCaptureUploadTask() {
+        let sut = fixture.getSut()
+        let task = createUploadTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 1)
+    }
+    
+    func testIgnoreStreamTask() {
+        let sut = fixture.getSut()
+        let task = createStreamTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 0)
     }
     
     func testIgnoreSentryApi() {
@@ -68,7 +95,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testCaptureRequestDuration() {
         let sut = fixture.getSut()
-        let task = fixture.createTask()
+        let task = createDataTask()
         let tracker = fixture.tracker
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         
@@ -85,16 +112,31 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testCaptureCanceledRequest() {
-        assertStatusForTaskStateAndResponse(status: .cancelled, state: .canceling, response: URLResponse())
+        assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
     }
     
     func testCaptureSuspendedRequest() {
-        assertStatusForTaskStateAndResponse(status: .cancelled, state: .suspended, response: URLResponse())
+        assertStatus(status: .cancelled, state: .suspended, response: URLResponse())
+    }
+    
+    func testCaptureRequestWithError() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let tracker = fixture.tracker
+        sut.urlSessionTaskResume(task)
+                
+        let spans = getStack(tracker: tracker)
+        let span = spans.first!.value
+        
+        task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
+        task.state = .completed
+        
+        XCTAssertEqual(span.context.status, .unknownError)
     }
     
     func testSpanNameWithGet() {
         let sut = fixture.getSut()
-        let task = fixture.createTask()
+        let task = createDataTask()
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
@@ -106,7 +148,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testSpanNameWithPost() {
         let sut = fixture.getSut()
-        let task = fixture.createTask(method: "POST")
+        let task = createDataTask(method: "POST")
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
@@ -117,30 +159,40 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testCaptureResponses() {
-        assertStatusForTaskStateAndResponse(status: .ok, state: .completed, response: createResponse(code: 200))
-        assertStatusForTaskStateAndResponse(status: .invalidArgument, state: .completed, response: createResponse(code: 400))
-        assertStatusForTaskStateAndResponse(status: .unauthenticated, state: .completed, response: createResponse(code: 401))
-        assertStatusForTaskStateAndResponse(status: .permissionDenied, state: .completed, response: createResponse(code: 403))
-        assertStatusForTaskStateAndResponse(status: .notFound, state: .completed, response: createResponse(code: 404))
-        assertStatusForTaskStateAndResponse(status: .aborted, state: .completed, response: createResponse(code: 409))
-        assertStatusForTaskStateAndResponse(status: .resourceExhausted, state: .completed, response: createResponse(code: 429))
-        assertStatusForTaskStateAndResponse(status: .internalError, state: .completed, response: createResponse(code: 500))
-        assertStatusForTaskStateAndResponse(status: .unimplemented, state: .completed, response: createResponse(code: 501))
-        assertStatusForTaskStateAndResponse(status: .unavailable, state: .completed, response: createResponse(code: 503))
-        assertStatusForTaskStateAndResponse(status: .deadlineExceeded, state: .completed, response: createResponse(code: 504))
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        assertStatus(status: .undefined, state: .completed, response: createResponse(code: 300))
+        assertStatus(status: .invalidArgument, state: .completed, response: createResponse(code: 400))
+        assertStatus(status: .unauthenticated, state: .completed, response: createResponse(code: 401))
+        assertStatus(status: .permissionDenied, state: .completed, response: createResponse(code: 403))
+        assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
+        assertStatus(status: .aborted, state: .completed, response: createResponse(code: 409))
+        assertStatus(status: .resourceExhausted, state: .completed, response: createResponse(code: 429))
+        assertStatus(status: .internalError, state: .completed, response: createResponse(code: 500))
+        assertStatus(status: .unimplemented, state: .completed, response: createResponse(code: 501))
+        assertStatus(status: .unavailable, state: .completed, response: createResponse(code: 503))
+        assertStatus(status: .deadlineExceeded, state: .completed, response: createResponse(code: 504))
+        assertStatus(status: .undefined, state: .completed, response: URLResponse())
     }
-      
-    func assertStatusForTaskStateAndResponse(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse) {
+    
+    func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse) {
         let sut = fixture.getSut()
-        let task = fixture.createTask()
+        let task = createDataTask()
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
         let span = getStack(tracker: tracker).first!.value
         
         task.setResponse(response)
+        
         task.state = state
         
+        let httpStatusCode = span.data?["http.status_code"] as? NSNumber
+        if let httpResponse = response as? HTTPURLResponse {
+            XCTAssertEqual(httpResponse.statusCode, httpStatusCode!.intValue)
+        } else {
+            XCTAssertNil(httpStatusCode)
+        }
+                
         XCTAssertEqual(span.context.status, status)
     }
     
@@ -160,5 +212,29 @@ class SentryNetworkTrackerTests: XCTestCase {
     private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
         let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)
+    }
+    
+    func createDataTask(method: String = "GET") -> URLSessionDataTaskMock {
+        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        request.httpMethod = method
+        return URLSessionDataTaskMock(request: request)
+    }
+    
+    func createDownloadTask(method: String = "GET") -> URLSessionDownloadTaskMock {
+        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        request.httpMethod = method
+        return URLSessionDownloadTaskMock(request: request)
+    }
+    
+    func createUploadTask(method: String = "GET") -> URLSessionUploadTaskMock {
+        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        request.httpMethod = method
+        return URLSessionUploadTaskMock(request: request)
+    }
+    
+    func createStreamTask(method: String = "GET") -> URLSessionStreamTaskMock {
+        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        request.httpMethod = method
+        return URLSessionStreamTaskMock(request: request)
     }
 }
