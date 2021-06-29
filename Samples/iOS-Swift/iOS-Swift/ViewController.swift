@@ -130,4 +130,21 @@ class ViewController: UIViewController {
             }
         }
     }
+
+    @IBAction func dsnChanged(_ sender: UITextField) {
+        let options = Options()
+        options.dsn = sender.text
+        
+        if options.dsn == nil {
+            sender.backgroundColor = UIColor.systemRed
+            DSNStorage.shared.deleteDSN()
+        } else {
+            sender.backgroundColor = UIColor.systemGreen
+            DSNStorage.shared.saveDSN(dsn: options.dsn!)
+        }
+    }
+    
+    @IBAction func resetDSN(_sender: Any) {
+        DSNStorage.shared.deleteDSN()
+    }
 }
