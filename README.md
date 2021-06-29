@@ -52,6 +52,12 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
 
+# Automatic Performance Instrumentation Preview
+
+With 7.1.0-beta.0, we released a preview of automatic performance instrumentation.
+Please [checkout the docs](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/) for more info.
+We highly appreciate your feedback as a comment on our [GitHub discussion](https://github.com/getsentry/sentry-cocoa/discussions/1187).
+
 # Blog posts
 
 [How to use Sentry Attachments with Mobile Applications](https://blog.sentry.io/2021/02/03/how-to-use-sentry-attachments-with-mobile-applications/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
