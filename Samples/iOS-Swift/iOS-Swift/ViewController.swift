@@ -135,16 +135,16 @@ class ViewController: UIViewController {
         let options = Options()
         options.dsn = sender.text
         
-        if options.dsn == nil {
+        if let dsn = options.dsn {
+            sender.backgroundColor = UIColor.systemGreen
+            DSNStorage.shared.saveDSN(dsn: dsn)
+        } else {
             sender.backgroundColor = UIColor.systemRed
             DSNStorage.shared.deleteDSN()
-        } else {
-            sender.backgroundColor = UIColor.systemGreen
-            DSNStorage.shared.saveDSN(dsn: options.dsn!)
         }
     }
     
-    @IBAction func resetDSN(_sender: Any) {
+    @IBAction func resetDSN(_ sender: Any) {
         DSNStorage.shared.deleteDSN()
     }
 }

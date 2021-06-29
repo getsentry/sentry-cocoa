@@ -11,7 +11,9 @@ class DSNStorage {
     private let dsnFile: URL
     
     private init() {
+        // swiftlint:disable force_unwrapping
         let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        // swiftlint:enable force_unwrapping
         dsnFile = cachesDirectory.appendingPathComponent("dsn")
     }
     
