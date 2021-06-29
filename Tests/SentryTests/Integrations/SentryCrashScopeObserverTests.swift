@@ -73,7 +73,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private func getScopeJSON() -> String {
         var jsonPointer = UnsafeMutablePointer<CChar>?(nil)
         let jsonLen = UnsafeMutablePointer<Int>.allocate(capacity: 0)
-        sentryscopesync_getScopeJSON(&jsonPointer, jsonLen)
+        sentryscopesync_getJSON(&jsonPointer, jsonLen)
         let json = String(cString: jsonPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
         
         jsonPointer?.deallocate()
