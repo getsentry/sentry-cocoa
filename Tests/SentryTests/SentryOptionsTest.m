@@ -539,7 +539,7 @@
 
 - (void)testDontAutomaticallyTrackHTTPPerformance
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableAutoUIPerformanceTracking" : @NO }];
+    SentryOptions *options = [self getValidOptions:@{ @"enableAutoHttpRequestTracking" : @NO }];
     XCTAssertFalse(options.enableAutoHttpRequestTracking);
 }
 

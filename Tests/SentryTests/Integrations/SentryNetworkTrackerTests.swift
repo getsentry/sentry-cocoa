@@ -42,11 +42,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = getStack(tracker: tracker)
         let span = spans.first?.value
-        
+                     
         XCTAssertEqual(spans.count, 1)
         XCTAssertFalse(span!.isFinished)
         task.state = .completed
         XCTAssertTrue(span!.isFinished)
+
+        //Test if it has observers. Nil means no observers
+        XCTAssertNil(task.observationInfo)
     }
     
     func testCaptureDownloadTask() {
@@ -58,6 +61,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let spans = getStack(tracker: tracker)
         
         XCTAssertEqual(spans.count, 1)
+        task.state = .completed
+        XCTAssertNil(task.observationInfo)
     }
     
     func testCaptureUploadTask() {
@@ -69,6 +74,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let spans = getStack(tracker: tracker)
         
         XCTAssertEqual(spans.count, 1)
+        task.state = .completed
+        XCTAssertNil(task.observationInfo)
     }
     
     func testIgnoreStreamTask() {
@@ -77,6 +84,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
+        XCTAssertNil(task.observationInfo)
+        
         let spans = getStack(tracker: tracker)
         
         XCTAssertEqual(spans.count, 0)
@@ -89,6 +98,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
+        XCTAssertNil(task.observationInfo)
+        
         let span = getStack(tracker: tracker)
         XCTAssertEqual(span.count, 0)
     }
@@ -111,12 +122,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertSpanDuration(span: span, expectedDuration: 5)
     }
     
-    func testCaptureCanceledRequest() {
+    func testCaptureCancelledRequest() {
         assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
     }
     
     func testCaptureSuspendedRequest() {
-        assertStatus(status: .cancelled, state: .suspended, response: URLResponse())
+        assertStatus(status: .aborted, state: .suspended, response: URLResponse())
     }
     
     func testCaptureRequestWithError() {
@@ -194,6 +205,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
                 
         XCTAssertEqual(span.context.status, status)
+        XCTAssertNil(task.observationInfo)
     }
     
     private func createResponse(code: Int) -> URLResponse {

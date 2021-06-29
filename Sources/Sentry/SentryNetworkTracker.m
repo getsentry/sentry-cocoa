@@ -100,6 +100,7 @@ SentryNetworkTracker ()
 {
     switch (task.state) {
     case NSURLSessionTaskStateSuspended:
+        return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
     case NSURLSessionTaskStateCompleted: {
