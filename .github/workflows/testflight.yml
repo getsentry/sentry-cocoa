@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - build/test/changable-dsn
+      - test/changable-dsn
 
 jobs:
 
