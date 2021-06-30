@@ -2,6 +2,10 @@ import Sentry
 import UIKit
 
 class ViewController: UIViewController {
+    
+    @IBOutlet weak var dsnTextField: UITextField!
+    
+    private let dispatchQueue = DispatchQueue(label: "ViewController")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +30,16 @@ class ViewController: UIViewController {
         let user = Sentry.User(userId: "1")
         user.email = "tony1@example.com"
         SentrySDK.setUser(user)
+        
+        dispatchQueue.async {
+            let dsn = DSNStorage.shared.getDSN()
+            
+            DispatchQueue.main.async {
+                self.dsnTextField.text = dsn
+                self.dsnTextField.backgroundColor = UIColor.systemGreen
+            }
+        }
+        
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {
@@ -128,6 +142,34 @@ class ViewController: UIViewController {
                     ptr[i * memoryPageSize] = 40
                 }
             }
+        }
+    }
+
+    @IBAction func dsnChanged(_ sender: UITextField) {
+        let options = Options()
+        options.dsn = sender.text
+        
+        if let dsn = options.dsn {
+            sender.backgroundColor = UIColor.systemGreen
+            
+            dispatchQueue.async {
+                DSNStorage.shared.saveDSN(dsn: dsn)
+            }
+        } else {
+            sender.backgroundColor = UIColor.systemRed
+            
+            dispatchQueue.async {
+                DSNStorage.shared.deleteDSN()
+            }
+        }
+    }
+    
+    @IBAction func resetDSN(_ sender: Any) {
+        self.dsnTextField.text = AppDelegate.defaultDSN
+        self.dsnTextField.backgroundColor = UIColor.systemGreen
+        
+        dispatchQueue.async {
+            DSNStorage.shared.saveDSN(dsn: AppDelegate.defaultDSN)
         }
     }
 }
