@@ -1704,8 +1704,7 @@ sentrycrashreport_writeStandardReport(
         }
 
         char *scopeJSON;
-        size_t scopeJSONSize;
-        sentryscopesync_getJSON(&scopeJSON, &scopeJSONSize);
+        sentryscopesync_getJSON(&scopeJSON);
 
         if (scopeJSON != NULL) {
             addJSONElement(writer, SentryCrashField_Scope, scopeJSON, false);
@@ -1747,6 +1746,17 @@ sentrycrashreport_setUserInfoJSON(const char *const userInfoJSON)
         g_userInfoJSON = strdup(userInfoJSON);
     }
     pthread_mutex_unlock(&mutex);
+}
+
+/**
+ * Only needed for testing, no sync needed.
+ */
+void
+sentrycrashreport_getUserInfoJSON(char **json)
+{
+    if (g_userInfoJSON != NULL) {
+        *json = strdup(g_userInfoJSON);
+    }
 }
 
 void

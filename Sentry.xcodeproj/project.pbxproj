@@ -937,6 +937,7 @@
 		7BD729952463E83300EA3610 /* SentryDateUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDateUtil.h; path = include/SentryDateUtil.h; sourceTree = "<group>"; };
 		7BD729972463E93500EA3610 /* SentryDateUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDateUtil.m; sourceTree = "<group>"; };
 		7BD729992463EA4A00EA3610 /* SentryDateUtilTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDateUtilTests.swift; sourceTree = "<group>"; };
+		7BD78483268C44ED00D5B363 /* SentryCrashReportTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportTest.h; sourceTree = "<group>"; };
 		7BD86EC4264A63F6005439DB /* SentrySysctl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySysctl.h; path = include/SentrySysctl.h; sourceTree = "<group>"; };
 		7BD86EC6264A641D005439DB /* SentrySysctl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySysctl.m; sourceTree = "<group>"; };
 		7BD86ECA264A6DB5005439DB /* TestSysctl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSysctl.swift; sourceTree = "<group>"; };
@@ -1728,6 +1729,7 @@
 				7BBC827825DFD7D7005F1ED8 /* SentryFrameInAppLogicTests.swift */,
 				7BED3574266F7BC600EAA70D /* TestSentryCrashAdapter.h */,
 				7BED3575266F7BFF00EAA70D /* TestSentryCrashAdapter.m */,
+				7BD78483268C44ED00D5B363 /* SentryCrashReportTest.h */,
 			);
 			path = SentryCrash;
 			sourceTree = "<group>";

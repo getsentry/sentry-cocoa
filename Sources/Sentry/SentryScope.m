@@ -210,7 +210,7 @@ SentryScope ()
     }
 
     for (id<SentryScopeObserver> observer in self.observers) {
-        [observer setExtras:_contextDictionary];
+        [observer setContext:_contextDictionary];
     }
 }
 
@@ -391,13 +391,21 @@ SentryScope ()
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    [serializedData setValue:[self tags] forKey:@"tags"];
-    [serializedData setValue:[self extras] forKey:@"extra"];
-    [serializedData setValue:[self context] forKey:@"context"];
+    if (self.tags.count > 0) {
+        [serializedData setValue:[self tags] forKey:@"tags"];
+    }
+    if (self.extras.count > 0) {
+        [serializedData setValue:[self extras] forKey:@"extra"];
+    }
+    if (self.context.count > 0) {
+        [serializedData setValue:[self context] forKey:@"context"];
+    }
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
-    [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+    if (self.fingerprints.count > 0) {
+        [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+    }
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {

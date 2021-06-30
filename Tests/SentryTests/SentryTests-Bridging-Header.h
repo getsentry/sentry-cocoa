@@ -30,6 +30,7 @@
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashReportSink.h"
 #import "SentryCrashReportStore.h"
+#import "SentryCrashReportTest.h"
 #import "SentryCrashScopeObserver.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"

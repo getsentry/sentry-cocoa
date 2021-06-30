@@ -3,11 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NUMBER_OF_FIELDS 3
+#define NUMBER_OF_FIELDS 7
 static const char *g_userJSON;
 static const char *g_distJSON;
 static const char *g_contextJSON;
 static const char *g_environmentJSON;
+static const char *g_tagsJSON;
+static const char *g_extrasJSON;
+static const char *g_fingerprintJSON;
 
 void
 sentrysocpesync_add(char *destination, const char *source)
@@ -29,23 +32,35 @@ sentrysocpesync_getSize(const char *str)
 }
 
 void
-sentryscopesync_getJSON(char **json, size_t *jsonSize)
+sentryscopesync_getJSON(char **json)
 {
-
+    size_t brackets = 2;
     size_t resultSize = sentrysocpesync_getSize(g_userJSON) + sentrysocpesync_getSize(g_distJSON)
         + sentrysocpesync_getSize(g_contextJSON) + sentrysocpesync_getSize(g_environmentJSON)
-        + NUMBER_OF_FIELDS;
+        + sentrysocpesync_getSize(g_tagsJSON) + sentrysocpesync_getSize(g_extrasJSON)
+        + sentrysocpesync_getSize(g_fingerprintJSON) + NUMBER_OF_FIELDS + brackets;
+
     char *result = malloc(resultSize);
 
-    sentrysocpesync_add(result, g_userJSON);
-    sentrysocpesync_add(result, g_distJSON);
-    sentrysocpesync_add(result, g_contextJSON);
-    sentrysocpesync_add(result, g_environmentJSON);
+    if (resultSize == NUMBER_OF_FIELDS + brackets) {
+        // All fields are empty
+        strcat(result, "{}");
+    } else {
+        strcat(result, "{");
+        sentrysocpesync_add(result, g_userJSON);
+        sentrysocpesync_add(result, g_distJSON);
+        sentrysocpesync_add(result, g_contextJSON);
+        sentrysocpesync_add(result, g_environmentJSON);
+        sentrysocpesync_add(result, g_tagsJSON);
+        sentrysocpesync_add(result, g_extrasJSON);
+        sentrysocpesync_add(result, g_fingerprintJSON);
 
-    result[strlen(result) - 1] = '\0';
+        size_t length = strlen(result);
+        result[length - 1] = '}';
+        result[length] = '\0';
+    }
 
     *json = result;
-    *jsonSize = resultSize;
 }
 
 void
@@ -83,6 +98,24 @@ void
 sentryscopesync_setEnvironment(const char *const environmentJSON)
 {
     sentryscopesync_set(environmentJSON, &g_environmentJSON);
+}
+
+void
+sentryscopesync_setTags(const char *const tagsJSON)
+{
+    sentryscopesync_set(tagsJSON, &g_tagsJSON);
+}
+
+void
+sentryscopesync_setExtras(const char *const extrasJSON)
+{
+    sentryscopesync_set(extrasJSON, &g_extrasJSON);
+}
+
+void
+sentryscopesync_setFingerprint(const char *const fingerprintJSON)
+{
+    sentryscopesync_set(fingerprintJSON, &g_fingerprintJSON);
 }
 
 void

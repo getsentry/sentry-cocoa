@@ -66,16 +66,29 @@
     if (json == nil) {
         return;
     }
-
     sentryscopesync_setEnvironment([json bytes]);
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
+    NSDictionary *serialized = @{ @"extra" : extras };
+
+    NSData *json = [self getBytes:serialized];
+    if (json == nil) {
+        return;
+    }
+    sentryscopesync_setExtras([json bytes]);
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
+    NSDictionary *serialized = @{ @"fingerprint" : fingerprint };
+
+    NSData *json = [self getBytes:serialized];
+    if (json == nil) {
+        return;
+    }
+    sentryscopesync_setFingerprint([json bytes]);
 }
 
 - (void)setLevel:(enum SentryLevel)level
@@ -84,6 +97,13 @@
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
+    NSDictionary *serialized = @{ @"tags" : tags };
+
+    NSData *json = [self getBytes:serialized];
+    if (json == nil) {
+        return;
+    }
+    sentryscopesync_setTags([json bytes]);
 }
 
 - (nullable NSData *)getBytes:(NSDictionary *)serialized
@@ -94,7 +114,6 @@
         json = [SentryCrashJSONCodec encode:serialized
                                     options:SentryCrashJSONEncodeOptionSorted
                                       error:&error];
-        json = [json nullTerminated];
         if (error != NULL) {
             NSString *message = [NSString stringWithFormat:@"Could not serialize %@", error];
             [SentryLog logWithMessage:message andLevel:kSentryLevelError];
@@ -102,6 +121,10 @@
         }
     }
 
+    // Remove first { and last }
+    NSRange range = NSMakeRange(1, [json length] - 2);
+    json = [json subdataWithRange:range];
+    json = [json nullTerminated];
     return json;
 }
 
