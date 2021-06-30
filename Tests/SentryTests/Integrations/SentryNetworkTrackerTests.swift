@@ -13,8 +13,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         let options: Options
         
         init() {
-            CurrentDate.setCurrentDateProvider(dateProvider)
-            
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
@@ -31,9 +29,11 @@ class SentryNetworkTrackerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
+        CurrentDate.setCurrentDateProvider(fixture.dateProvider)
     }
-    
+      
     func testCaptureCompletion() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -92,7 +92,10 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testIgnoreSentryApi() {
-        SentrySDK.start(options: fixture.options)
+        let client = TestClient(options: fixture.options)
+        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance())
+        SentrySDK.setCurrentHub(hub)
+        
         let sut = fixture.getSut()
         let task = fixture.sentryTask
         let tracker = fixture.tracker
@@ -102,6 +105,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let span = getStack(tracker: tracker)
         XCTAssertEqual(span.count, 0)
+        SentrySDK.setCurrentHub(nil)
     }
     
     func testCaptureRequestDuration() {
