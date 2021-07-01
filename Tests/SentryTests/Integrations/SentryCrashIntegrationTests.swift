@@ -186,14 +186,14 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
     }
-    
+
     func testUninstall_CallsDeactivateAsyncHooks() {
         let sut = fixture.getSut()
-        
+
         sut.install(with: Options())
-        
+
         sut.uninstall()
-        
+
         XCTAssertTrue(fixture.sentryCrash.deactivateAsyncHooksCalled)
     }
     
