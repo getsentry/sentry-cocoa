@@ -64,6 +64,8 @@ class SentryCrashIntegrationTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAppState()
+        
+        SentrySDK.close()
     }
     
     // Test for GH-581
