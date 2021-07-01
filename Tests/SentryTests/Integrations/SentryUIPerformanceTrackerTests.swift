@@ -7,6 +7,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
     let viewWillLoad = "viewWillLoad"
     let viewDidLoad = "viewDidLoad"
     let viewWillAppear = "viewWillAppear"
+    let viewAppearing = "viewAppearing"
     let viewDidAppear = "viewDidAppear"
     let viewWillLayoutSubviews = "viewWillLayoutSubviews"
     let viewDidLayoutSubviews = "viewDidLayoutSubviews"
@@ -89,13 +90,17 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
+        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        XCTAssertEqual(viewAppearingSpan.context.parentSpanId, transactionSpan.context.spanId)
+        XCTAssertEqual(viewAppearingSpan.context.spanDescription, self.viewAppearing)
+        
         sut.viewControllerViewDidAppear(viewController) {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidAppear)
         }
 
-        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 7)
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(transactionSpan.isFinished)
     }
     
@@ -143,13 +148,17 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
+        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        advanceTime(bySeconds: 4)
+        
         sut.viewControllerViewDidAppear(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
             self.advanceTime(bySeconds: 5)
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 5)
+        assertSpanDuration(span: viewAppearingSpan, expectedDuration: 4)
         
-        assertSpanDuration(span: transactionSpan, expectedDuration: 18)
+        assertSpanDuration(span: transactionSpan, expectedDuration: 22)
     }
     
     func testWaitingForCustomSpan() {
@@ -168,6 +177,9 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertTrue(lastSpan!.isFinished)
         
+        sut.viewControllerViewWillAppear(viewController) {
+            //intentionally left empty.
+        }
         sut.viewControllerViewDidAppear(viewController) {
             //intentionally left empty.
             //Need to call viewControllerViewDidAppear to finish the transaction.
@@ -176,7 +188,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(transactionSpan.isFinished)
         tracker.finishSpan(customSpanId!)
         XCTAssertTrue(transactionSpan.isFinished)
-        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 3)
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 5)
     }
     
     func testSkipLoadView() {
