@@ -101,7 +101,7 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testLongThreadName() {
-        let threadName = String(repeating: "1", count: 128)
+        let threadName = String(repeating: "1", count: 127)
         fixture.testMachineContextWrapper.threadName = threadName
         fixture.testMachineContextWrapper.threadCount = 1
         
