@@ -164,9 +164,7 @@ SentryScope ()
     @synchronized(_fingerprintArray) {
         [_fingerprintArray removeAllObjects];
     }
-    @synchronized(_attachmentArray) {
-        [_attachmentArray removeAllObjects];
-    }
+    [self clearAttachments];
     @synchronized(_spanLock) {
         _span = nil;
     }
@@ -332,6 +330,13 @@ SentryScope ()
 {
     @synchronized(_attachmentArray) {
         [_attachmentArray addObject:attachment];
+    }
+}
+
+- (void)clearAttachments
+{
+    @synchronized(_attachmentArray) {
+        [_attachmentArray removeAllObjects];
     }
 }
 
