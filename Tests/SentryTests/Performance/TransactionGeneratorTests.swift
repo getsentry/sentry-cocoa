@@ -13,7 +13,7 @@ class TransactionGeneratorTests: XCTestCase {
         }
     }
 
-    func testGenerateTransactions() {
+    func tesGenerateTransactions() {
         transactionWithChildren()
         
         transactionWithErrorAndScope()

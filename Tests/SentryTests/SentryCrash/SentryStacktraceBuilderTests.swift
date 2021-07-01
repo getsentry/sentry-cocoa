@@ -9,6 +9,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
     }
     
+    override func tearDown() {
+        super.tearDown()
+        SentrySDK.close()
+    }
+    
     private let fixture = Fixture()
     
     func testEnoughFrames() {
