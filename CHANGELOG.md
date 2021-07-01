@@ -3,6 +3,9 @@
 ## Unreleased
 
 - feat: Add automatic http request performance monitoring (#1178)
+## unreleased
+
+- feat: Add clearAttachments to Scope (#1195)
 
 ## 7.2.0-beta.2
 
