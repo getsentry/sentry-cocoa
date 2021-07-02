@@ -27,9 +27,8 @@ static BOOL enabled = NO;
     SEL selector = NSSelectorFromString(@"resume");
     SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
-            if (enabled) {
-                [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
-            }
+            [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
+
             SentrySWCallOriginal();
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
