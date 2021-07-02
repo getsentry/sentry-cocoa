@@ -16,7 +16,7 @@ class SentrySwiftTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        SentrySDK.close()
+        clearTestState()
     }
     func testWrongDsn() {
         XCTAssertThrowsError(try Sentry.Options(dict: ["dsn": "http://sentry.io"]))

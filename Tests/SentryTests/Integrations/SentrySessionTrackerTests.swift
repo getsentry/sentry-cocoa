@@ -30,7 +30,7 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash, andCurrentDateProvider: currentDateProvider)
             SentrySDK.setCurrentHub(hub)
         }
     }
@@ -43,16 +43,18 @@ class SentrySessionTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
+        clearTestState()
+        
         fixture = Fixture()
         
-        fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        
+        fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: fixture.currentDateProvider)
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
         
         fixture.setNewHubToSDK()
-        
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
         
         sut = fixture.getSut()
     }
@@ -60,7 +62,8 @@ class SentrySessionTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
-        SentrySDK.setCurrentHub(nil)
+        
+        clearTestState()
     }
     
     func testOnlyForeground() {
