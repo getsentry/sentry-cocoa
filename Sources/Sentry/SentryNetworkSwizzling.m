@@ -16,13 +16,13 @@
 
 + (void)swizzleURLSessionTaskResume
 {
-    SEL selector = NSSelectorFromString(@"resume");
-    SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
-            [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
-            SentrySWCallOriginal();
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+    //    SEL selector = NSSelectorFromString(@"resume");
+    //    SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
+    //        SentrySWArguments(), SentrySWReplacement({
+    //            [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
+    //            SentrySWCallOriginal();
+    //        }),
+    //        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 #pragma clang diagnostic pop
 @end
