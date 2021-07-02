@@ -4,9 +4,17 @@
 
 @implementation SentryNetworkSwizzling
 
+static BOOL enabled = NO;
+
 + (void)start
 {
+    enabled = YES;
     [SentryNetworkSwizzling swizzleURLSessionTaskResume];
+}
+
++ (void)stop
+{
+    enabled = NO;
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -16,13 +24,15 @@
 
 + (void)swizzleURLSessionTaskResume
 {
-    //    SEL selector = NSSelectorFromString(@"resume");
-    //    SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
-    //        SentrySWArguments(), SentrySWReplacement({
-    //            [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
-    //            SentrySWCallOriginal();
-    //        }),
-    //        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+    SEL selector = NSSelectorFromString(@"resume");
+    SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
+        SentrySWArguments(), SentrySWReplacement({
+            if (enabled) {
+                [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
+            }
+            SentrySWCallOriginal();
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 #pragma clang diagnostic pop
 @end

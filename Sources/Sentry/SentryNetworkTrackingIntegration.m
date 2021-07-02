@@ -15,13 +15,13 @@ SentryNetworkTrackingIntegration ()
 {
     self.options = options;
     if (options.enableAutoHttpRequestTracking) {
-        [self enableNetworkTracking];
+        [SentryNetworkSwizzling start];
     }
 }
 
-- (void)enableNetworkTracking
+- (void)uninstall
 {
-    [SentryNetworkSwizzling start];
+    [SentryNetworkSwizzling stop];
 }
 
 @end
