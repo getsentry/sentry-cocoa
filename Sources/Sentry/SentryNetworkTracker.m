@@ -40,6 +40,11 @@ SentryNetworkTracker ()
     if (url == nil || ![self isTaskSupported:sessionTask])
         return;
 
+    // SDK not enabled no need to continue
+    if (SentrySDK.options == nil) {
+        return;
+    }
+
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])

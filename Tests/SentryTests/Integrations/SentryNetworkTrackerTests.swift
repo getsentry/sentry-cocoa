@@ -31,6 +31,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.setCurrentHub(TestHub(client: TestClient(options: fixture.options), andScope: nil))
         CurrentDate.setCurrentDateProvider(fixture.dateProvider)
     }
     
@@ -110,7 +111,20 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let span = getStack(tracker: tracker)
         XCTAssertEqual(span.count, 0)
+    }
+    
+    func testSDKOptionsNil() {
         SentrySDK.setCurrentHub(nil)
+        
+        let sut = fixture.getSut()
+        let task = fixture.sentryTask
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        XCTAssertNil(task.observationInfo)
+        
+        let span = getStack(tracker: tracker)
+        XCTAssertEqual(span.count, 0)
     }
     
     func tesCaptureRequestDuration() {
