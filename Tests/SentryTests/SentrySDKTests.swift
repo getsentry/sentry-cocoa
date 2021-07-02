@@ -71,7 +71,7 @@ class SentrySDKTests: XCTestCase {
             autoSessionTracking.stop()
         }
         
-        SentrySDK.close()
+        clearTestState()
     }
     
     func testStartWithConfigureOptions() {

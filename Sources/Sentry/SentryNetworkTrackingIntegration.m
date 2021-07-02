@@ -19,9 +19,4 @@ SentryNetworkTrackingIntegration ()
     }
 }
 
-- (void)uninstall
-{
-    [SentryNetworkSwizzling stop];
-}
-
 @end

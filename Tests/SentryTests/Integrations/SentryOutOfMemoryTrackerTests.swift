@@ -51,6 +51,8 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         super.tearDown()
         sut.stop()
         fixture.fileManager.deleteAllFolders()
+        
+        clearTestState()
     }
 
     func testStart_StoresAppState() {

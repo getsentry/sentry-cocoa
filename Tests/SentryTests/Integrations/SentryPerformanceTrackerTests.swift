@@ -26,12 +26,15 @@ class SentryPerformanceTrackerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
+        super.setUp()
+        
         fixture = Fixture()
         SentrySDK.setCurrentHub(fixture.hub)
     }
     
     override func tearDown() {
-        SentrySDK.setCurrentHub(nil)
+        super.tearDown()
+        clearTestState()
     }
     
     func testSingleton() {

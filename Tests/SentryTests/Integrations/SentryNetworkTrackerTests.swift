@@ -36,8 +36,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        CurrentDate.setCurrentDateProvider(nil)
-        SentrySDK.setCurrentHub(nil)
+        clearTestState()
     }
       
     func testCaptureCompletion() {

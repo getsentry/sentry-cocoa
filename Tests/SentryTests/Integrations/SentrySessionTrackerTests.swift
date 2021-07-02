@@ -43,6 +43,8 @@ class SentrySessionTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
+        clearTestState()
+        
         fixture = Fixture()
         
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
@@ -60,8 +62,8 @@ class SentrySessionTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
-        SentrySDK.setCurrentHub(nil)
-        CurrentDate.setCurrentDateProvider(nil)
+        
+        clearTestState()
     }
     
     func testOnlyForeground() {

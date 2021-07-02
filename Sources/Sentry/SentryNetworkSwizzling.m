@@ -4,17 +4,9 @@
 
 @implementation SentryNetworkSwizzling
 
-static BOOL enabled = NO;
-
 + (void)start
 {
-    enabled = YES;
-    [SentryNetworkSwizzling swizzleURLSessionTaskResume];
-}
-
-+ (void)stop
-{
-    enabled = NO;
+    [self swizzleURLSessionTaskResume];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -28,7 +20,6 @@ static BOOL enabled = NO;
     SentrySwizzleInstanceMethod(NSURLSessionTask.class, selector, SentrySWReturnType(void),
         SentrySWArguments(), SentrySWReplacement({
             [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
-
             SentrySWCallOriginal();
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
