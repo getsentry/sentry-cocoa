@@ -20,6 +20,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         func getSut() -> SentryNetworkTracker {
             let result = SentryNetworkTracker.sharedInstance
+            result.enable()
             Dynamic(result).tracker = self.tracker
             
             return result
