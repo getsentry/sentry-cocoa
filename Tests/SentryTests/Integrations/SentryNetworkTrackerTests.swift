@@ -128,6 +128,18 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.count, 0)
     }
     
+    func testDisabled() {
+        let sut = fixture.getSut()
+        sut.disable()
+        let task = createUploadTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 0)
+    }
+    
     func tesCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
