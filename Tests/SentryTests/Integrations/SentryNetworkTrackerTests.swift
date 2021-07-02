@@ -33,6 +33,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
         CurrentDate.setCurrentDateProvider(fixture.dateProvider)
     }
+    
+    override func tearDown() {
+        super.tearDown()
+        CurrentDate.setCurrentDateProvider(nil)
+    }
       
     func testCaptureCompletion() {
         let sut = fixture.getSut()
