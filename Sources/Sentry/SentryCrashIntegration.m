@@ -98,7 +98,7 @@ SentryCrashIntegration ()
 - (void)startCrashHandler
 {
     void (^block)(void) = ^{
-        BOOL isInstallationNil = NO;
+        BOOL canSendReports = NO;
         if (installation == nil) {
             SentryFrameInAppLogic *frameInAppLogic =
                 [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
@@ -107,7 +107,7 @@ SentryCrashIntegration ()
             installation =
                 [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
 
-            isInstallationNil = YES;
+            canSendReports = YES;
         }
 
         [installation install];
@@ -135,7 +135,7 @@ SentryCrashIntegration ()
         // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
         // just not call sendAllReports as it doesn't make sense to call it twice as described
         // above.
-        if (isInstallationNil) {
+        if (canSendReports) {
             [installation sendAllReports];
         }
     };
