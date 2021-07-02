@@ -48,7 +48,7 @@ class SentryHubTests: XCTestCase {
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
             client = TestClient(options: options)
-            let hub = SentryHub(client: client, andScope: scope, andCrashAdapter: sentryCrash)
+            let hub = SentryHub(client: client, andScope: scope, andCrashAdapter: sentryCrash, andCurrentDateProvider: currentDateProvider)
             hub.bindClient(client)
             return hub
         }

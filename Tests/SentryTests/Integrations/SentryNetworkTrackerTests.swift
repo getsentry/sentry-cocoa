@@ -98,7 +98,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func testIgnoreSentryApi() {
         let client = TestClient(options: fixture.options)
-        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance())
+        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: fixture.dateProvider)
         SentrySDK.setCurrentHub(hub)
         
         let sut = fixture.getSut()
