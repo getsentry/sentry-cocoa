@@ -64,6 +64,8 @@ class SentryCrashIntegrationTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAppState()
+        
+        clearTestState()
     }
     
     // Test for GH-581
@@ -184,14 +186,14 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
     }
-    
+
     func testUninstall_CallsDeactivateAsyncHooks() {
         let sut = fixture.getSut()
-        
+
         sut.install(with: Options())
-        
+
         sut.uninstall()
-        
+
         XCTAssertTrue(fixture.sentryCrash.deactivateAsyncHooksCalled)
     }
     

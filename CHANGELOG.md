@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.2.0-beta.3
+
+- feat: Add automatic http request performance monitoring (#1178)
+- feat: Add clearAttachments to Scope (#1195)
+
 ## 7.2.0-beta.2
 
 - feat: Add flag stichAsyncCode (#1172)

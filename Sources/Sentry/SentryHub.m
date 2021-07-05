@@ -1,7 +1,8 @@
 #import "SentryHub.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashAdapter.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDefaultCurrentDateProvider.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
@@ -22,6 +23,7 @@ SentryHub ()
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentryTracesSampler *sampler;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 
 @end
 
@@ -39,6 +41,7 @@ SentryHub ()
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [SentryCrashAdapter sharedInstance];
         _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+        _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return self;
 }
@@ -47,9 +50,11 @@ SentryHub ()
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter
+        andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     self = [self initWithClient:client andScope:scope];
     _crashAdapter = crashAdapter;
+    _currentDateProvider = currentDateProvider;
 
     return self;
 }
@@ -82,13 +87,13 @@ SentryHub ()
         // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
-    [lastSession endSessionExitedWithTimestamp:[SentryCurrentDate date]];
+    [lastSession endSessionExitedWithTimestamp:[self.currentDateProvider date]];
     [self captureSession:lastSession];
 }
 
 - (void)endSession
 {
-    [self endSessionWithTimestamp:[SentryCurrentDate date]];
+    [self endSessionWithTimestamp:[self.currentDateProvider date]];
 }
 
 - (void)endSessionWithTimestamp:(NSDate *)timestamp

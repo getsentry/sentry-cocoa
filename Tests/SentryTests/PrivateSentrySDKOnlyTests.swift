@@ -1,6 +1,11 @@
 import XCTest
 
 class PrivateSentrySDKOnlyTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testStoreEnvelope() {
         let client = TestClient(options: Options())

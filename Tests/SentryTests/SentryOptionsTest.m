@@ -531,6 +531,18 @@
     XCTAssertFalse(options.enableAutoUIPerformanceTracking);
 }
 
+- (void)testAutomaticallyTrackHTTPPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertTrue(options.enableAutoHttpRequestTracking);
+}
+
+- (void)testDontAutomaticallyTrackHTTPPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableAutoHttpRequestTracking" : @NO }];
+    XCTAssertFalse(options.enableAutoHttpRequestTracking);
+}
+
 - (void)testTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];

@@ -170,8 +170,18 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK tracks UI performance automatically for UIViewController subclasses and
  * measures the app start and slow and frozen frames. The default is <code>YES</code>.
+ * Note: Performance Monitoring must be enabled for this flag to take effect.
+ * See: https://docs.sentry.io/platforms/apple/performance/
  */
 @property (nonatomic, assign) BOOL enableAutoUIPerformanceTracking;
+
+/**
+ * When enabled, the SDK tracks HTTP requests performance automatically.
+ * The default is <code>YES</code>.
+ * Note: Performance Monitoring must be enabled for this flag to take effect.
+ * See: https://docs.sentry.io/platforms/apple/performance/
+ */
+@property (nonatomic, assign) BOOL enableAutoHttpRequestTracking;
 
 /**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards

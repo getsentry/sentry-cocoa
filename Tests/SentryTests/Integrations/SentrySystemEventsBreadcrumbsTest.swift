@@ -48,6 +48,11 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
         }
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testBatteryLevelBreadcrumb() {
         let currentDevice = MyUIDevice(batteryLevel: 0.56, batteryState: UIDevice.BatteryState.full)
         
