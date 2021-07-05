@@ -211,8 +211,7 @@ SentryOptions ()
     }
 
     if (nil != options[@"enableAutoPerformanceTracking"]) {
-        self.enableAutoPerformanceTracking =
-            [options[@"enableAutoPerformanceTracking"] boolValue];
+        self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
