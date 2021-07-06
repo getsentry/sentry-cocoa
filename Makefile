@@ -17,7 +17,7 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
