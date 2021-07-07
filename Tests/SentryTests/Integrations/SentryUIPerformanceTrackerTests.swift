@@ -225,6 +225,13 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
     }
     
+    func testSpanAssociatedConstants() {
+        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID")
+        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID")
+        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID")
+        XCTAssertEqual(SENTRY_VIEWCONTROLLER_RENDERING_OPERATION, "ui.load")
+    }
+    
     private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
         let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)

@@ -9,15 +9,6 @@
 #import "SentryUIViewControllerSanitizer.h"
 #import <objc/runtime.h>
 
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
-
 @interface
 SentryUIViewControllerPerformanceTracker ()
 
