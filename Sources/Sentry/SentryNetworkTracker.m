@@ -12,6 +12,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
 SentryNetworkTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
+@property (nonatomic, assign) BOOL isEnabled;
 
 @end
 
@@ -29,16 +30,42 @@ SentryNetworkTracker ()
 {
     if (self = [super init]) {
         self.tracker = SentryPerformanceTracker.shared;
+        self.isEnabled = NO;
     }
     return self;
 }
 
+- (void)enable
+{
+    @synchronized(self) {
+        self.isEnabled = YES;
+    }
+}
+
+- (void)disable
+{
+    @synchronized(self) {
+        self.isEnabled = NO;
+    }
+}
+
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
+    @synchronized(self) {
+        if (!self.isEnabled) {
+            return;
+        }
+    }
+
     NSURL *url = [[sessionTask currentRequest] URL];
 
     if (url == nil || ![self isTaskSupported:sessionTask])
         return;
+
+    // SDK not enabled no need to continue
+    if (SentrySDK.options == nil) {
+        return;
+    }
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];

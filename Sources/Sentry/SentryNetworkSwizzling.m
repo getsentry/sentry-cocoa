@@ -6,7 +6,13 @@
 
 + (void)start
 {
-    [SentryNetworkSwizzling swizzleURLSessionTaskResume];
+    [SentryNetworkTracker.sharedInstance enable];
+    [self swizzleURLSessionTaskResume];
+}
+
++ (void)stop
+{
+    [SentryNetworkTracker.sharedInstance disable];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -24,6 +30,5 @@
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
-
 #pragma clang diagnostic pop
 @end

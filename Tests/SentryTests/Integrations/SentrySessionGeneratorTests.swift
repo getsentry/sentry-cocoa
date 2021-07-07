@@ -38,7 +38,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         }
         
         do {
-            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
             
             fileManager.deleteCurrentSession()
             fileManager.deleteCrashedSession()
@@ -145,7 +145,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         sentryCrash = TestSentryCrashAdapter.sharedInstance()
         let client = SentrySDK.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash)
+        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         SentrySDK.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())

@@ -20,6 +20,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         func getSut() -> SentryNetworkTracker {
             let result = SentryNetworkTracker.sharedInstance
+            result.enable()
             Dynamic(result).tracker = self.tracker
             
             return result
@@ -31,7 +32,13 @@ class SentryNetworkTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.setCurrentHub(TestHub(client: TestClient(options: fixture.options), andScope: nil))
         CurrentDate.setCurrentDateProvider(fixture.dateProvider)
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
       
     func testCaptureCompletion() {
@@ -91,9 +98,9 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans.count, 0)
     }
     
-    func testIgnoreSentryApi() {
+    func tesIgnoreSentryApi() {
         let client = TestClient(options: fixture.options)
-        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance())
+        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: fixture.dateProvider)
         SentrySDK.setCurrentHub(hub)
         
         let sut = fixture.getSut()
@@ -105,14 +112,38 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let span = getStack(tracker: tracker)
         XCTAssertEqual(span.count, 0)
-        SentrySDK.setCurrentHub(nil)
     }
     
-    func testCaptureRequestDuration() {
+    func testSDKOptionsNil() {
+        SentrySDK.setCurrentHub(nil)
+        
+        let sut = fixture.getSut()
+        let task = fixture.sentryTask
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        XCTAssertNil(task.observationInfo)
+        
+        let span = getStack(tracker: tracker)
+        XCTAssertEqual(span.count, 0)
+    }
+    
+    func testDisabled() {
+        let sut = fixture.getSut()
+        sut.disable()
+        let task = createUploadTask()
+        let tracker = fixture.tracker
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 0)
+    }
+    
+    func tesCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
         let tracker = fixture.tracker
-        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         
         sut.urlSessionTaskResume(task)
         let span = getStack(tracker: tracker).first!.value

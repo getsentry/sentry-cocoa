@@ -18,7 +18,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     override func tearDown() {
         sentrycrash_deleteAllReports()
-        SentrySDK.close()
+        clearTestState()
     }
     
     func testFaultyReportIsNotSentAndDeleted() throws {
