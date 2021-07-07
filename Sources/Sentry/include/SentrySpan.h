@@ -94,6 +94,13 @@ SENTRY_NO_INIT
  */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
+/**
+ * Returns a string that could be sent as a sentry-trace header.
+ *
+ * @return SentryTraceHeader.
+ */
+- (SentryTraceHeader *)toTraceHeader;
+
 @end
 
 NS_ASSUME_NONNULL_END

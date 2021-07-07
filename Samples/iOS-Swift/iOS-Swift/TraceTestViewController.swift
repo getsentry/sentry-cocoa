@@ -33,6 +33,8 @@ class TraceTestViewController: UIViewController {
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }
+        let m = URLSession.shared.dataTask(with: imgUrl)
+        print(m)
         
         let dataTask = URLSession.shared.dataTask(with: imgUrl) { (data, _, error) in
             DispatchQueue.main.async {

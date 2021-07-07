@@ -24,5 +24,6 @@
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
+
 #pragma clang diagnostic pop
 @end

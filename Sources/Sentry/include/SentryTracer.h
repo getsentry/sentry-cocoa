@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -122,6 +122,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
+/**
+ * Returns a string that could be sent as a sentry-trace header.
+ *
+ * @return SentryTraceHeader.
+ */
+- (SentryTraceHeader *)toTraceHeader;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
 #import "SentryTracer.h"
+#import "SentryTraceHeader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,6 +76,13 @@ SentrySpan ()
 {
     self.context.status = status;
     [self finish];
+}
+
+- (SentryTraceHeader *)toTraceHeader
+{
+    return [[SentryTraceHeader alloc] initWithTraceId:self.context.traceId
+                                               spanId:self.context.spanId
+                                       sampleDecision:self.context.sampled];
 }
 
 - (NSDictionary *)serialize
