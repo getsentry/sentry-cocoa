@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
 #import "SentrySampleDecision.h"
+#import <Foundation/Foundation.h>
 
 @class SentryId, SentrySpanId;
 
@@ -24,7 +24,6 @@ static NSString *const SENTRY_TRACE_HEADER = @"sentry-trace";
  */
 @property (nonatomic, readonly) SentrySampleDecision sampleDecision;
 
-
 /**
  * Initialize a SentryTraceHeader with given trace id, span id and sample decision.
  *
@@ -37,7 +36,6 @@ static NSString *const SENTRY_TRACE_HEADER = @"sentry-trace";
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                  sampleDecision:(SentrySampleDecision)sampleDecision;
-
 
 /**
  * Return the value to use in a request header.

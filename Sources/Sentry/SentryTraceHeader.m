@@ -8,7 +8,9 @@
 @synthesize spanId = _spanId;
 @synthesize sampleDecision = _sampleDecision;
 
-- (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId sampleDecision:(SentrySampleDecision)sampleDecision
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                         spanId:(SentrySpanId *)spanId
+                 sampleDecision:(SentrySampleDecision)sampleDecision
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -21,8 +23,9 @@
 - (NSString *)value
 {
     return _sampleDecision != kSentrySampleDecisionUndecided
-    ? [NSString stringWithFormat:@"%@-%@-%i", _traceId.sentryIdString, _spanId.sentrySpanIdString, _sampleDecision == kSentrySampleDecisionYes ? 1 : 0 ]
-    : [NSString stringWithFormat:@"%@-%@", _traceId.sentryIdString, _spanId.sentrySpanIdString ];
+        ? [NSString stringWithFormat:@"%@-%@-%i", _traceId.sentryIdString,
+                    _spanId.sentrySpanIdString, _sampleDecision == kSentrySampleDecisionYes ? 1 : 0]
+        : [NSString stringWithFormat:@"%@-%@", _traceId.sentryIdString, _spanId.sentrySpanIdString];
 }
 
 @end

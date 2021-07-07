@@ -1,8 +1,8 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
-#import "SentryTracer.h"
 #import "SentryTraceHeader.h"
+#import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
