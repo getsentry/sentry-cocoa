@@ -41,6 +41,7 @@ jobs:
           -scheme Sentry 
           -configuration Release 
           GCC_GENERATE_TEST_COVERAGE_FILES=YES 
+          GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES
           -destination "${{matrix.destination}}" 
           test | xcpretty -t && exit ${PIPESTATUS[0]}
 
