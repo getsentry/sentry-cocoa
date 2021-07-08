@@ -8,11 +8,13 @@ class SentrySpanTests: XCTestCase {
         let extraKey = "extra_key"
         let extraValue = "extra_value"
         let options: Options
-        
+        let currentDateProvider = TestCurrentDateProvider()
+         
         init() {
             options = Options()
             options.dsn = TestConstants.dsnAsString(username: "username")
             options.environment = "test"
+            currentDateProvider.setDate(date: TestData.timestamp)
         }
         
         func getSut() -> Span {
@@ -20,7 +22,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: Client) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance())
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: currentDateProvider)
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -28,11 +30,8 @@ class SentrySpanTests: XCTestCase {
     
     private var fixture: Fixture!
     override func setUp() {
-        let testDataProvider = TestCurrentDateProvider()
-        CurrentDate.setCurrentDateProvider(testDataProvider)
-        testDataProvider.setDate(date: TestData.timestamp)
-        
         fixture = Fixture()
+        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
     }
     
     func testInitAndCheckForTimestamps() {

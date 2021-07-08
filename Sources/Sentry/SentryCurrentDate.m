@@ -14,7 +14,7 @@ SentryCurrentDate ()
 
 static id<SentryCurrentDateProvider> currentDateProvider;
 
-+ (NSDate *_Nonnull)date
++ (NSDate *)date
 {
     if (nil == currentDateProvider) {
         currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
@@ -22,7 +22,7 @@ static id<SentryCurrentDateProvider> currentDateProvider;
     return [currentDateProvider date];
 }
 
-+ (void)setCurrentDateProvider:(id<SentryCurrentDateProvider>)value
++ (void)setCurrentDateProvider:(nullable id<SentryCurrentDateProvider>)value
 {
     currentDateProvider = value;
 }

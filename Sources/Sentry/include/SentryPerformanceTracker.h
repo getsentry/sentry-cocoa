@@ -98,6 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A boolean value indicating whether the span still waiting to be finished.
  */
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId;
+
+/**
+ * Return the SentrySpan associated with the given spanId.
+ *
+ * @param spanId Id of the span to return.
+ *
+ * @return SentrySpan
+ */
+- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+
 @end
 
 NS_ASSUME_NONNULL_END

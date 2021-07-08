@@ -101,11 +101,18 @@ SentryCrashIntegration ()
 - (void)startCrashHandler
 {
     void (^block)(void) = ^{
-        SentryFrameInAppLogic *frameInAppLogic =
-            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                   inAppExcludes:self.options.inAppExcludes];
-        installation =
-            [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
+        BOOL canSendReports = NO;
+        if (installation == nil) {
+            SentryFrameInAppLogic *frameInAppLogic =
+                [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                       inAppExcludes:self.options.inAppExcludes];
+
+            installation =
+                [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
+
+            canSendReports = YES;
+        }
+
         [installation install];
 
         // We need to send the crashed event together with the crashed session in the same envelope
@@ -123,7 +130,17 @@ SentryCrashIntegration ()
         // This is a pragmatic and not the most optimal place for this logic.
         [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrOOM];
 
-        [installation sendAllReports];
+        // We only need to send all reports on the first initialization of SentryCrash. If
+        // SenryCrash was deactivated there are no new reports to send. Furthermore, the
+        // g_reportsPath in SentryCrashReportsStore gets set when SentryCrash is installed. In
+        // production usage, this path is not supposed to change. When testing, this path can
+        // change, and therefore, the initial set g_reportsPath can be deleted. sendAllReports calls
+        // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
+        // just not call sendAllReports as it doesn't make sense to call it twice as described
+        // above.
+        if (canSendReports) {
+            [installation sendAllReports];
+        }
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
 }
@@ -138,7 +155,6 @@ SentryCrashIntegration ()
             [handler setMonitoring:SentryCrashMonitorTypeNone];
             handler.onCrash = NULL;
         }
-        installation = nil;
         installationToken = 0;
     }
     [self.crashAdapter deactivateAsyncHooks];
