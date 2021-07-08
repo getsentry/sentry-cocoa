@@ -1,8 +1,8 @@
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryHttpInterceptor.h"
 #import "SentryNetworkSwizzling.h"
 #import "SentryNetworkTracker.h"
 #import "SentryOptions.h"
-#import "SentryHttpInterceptor.h"
 
 @interface
 SentryNetworkTrackingIntegration ()
