@@ -1,6 +1,7 @@
 #import "SentryNetworkSwizzling.h"
 #import "SentryNetworkTracker.h"
 #import "SentrySwizzle.h"
+#import "SentryHttpInterceptor+Private.h"
 
 @implementation SentryNetworkSwizzling
 
@@ -8,6 +9,7 @@
 {
     [SentryNetworkTracker.sharedInstance enable];
     [self swizzleURLSessionTaskResume];
+    [self swizzleURLSessionWithConfiguration];
 }
 
 + (void)stop
@@ -30,5 +32,32 @@
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
+
++ (void)swizzleURLSessionWithConfiguration
+{
+    SentrySwizzleClassMethod(NSURLSession.class,
+                             NSSelectorFromString(@"sessionWithConfiguration:"),
+                             SentrySWReturnType(NSURLSession *),
+                             SentrySWArguments(NSURLSessionConfiguration *configuration),
+                             SentrySWReplacement(
+                                                 {
+        [SentryHttpInterceptor configureSessionConfiguration:configuration];
+        return SentrySWCallOriginal(configuration);
+    }));
+    
+    SentrySwizzleClassMethod(NSURLSession.class,
+                             NSSelectorFromString(@"sessionWithConfiguration:delegate:delegateQueue:"),
+                             SentrySWReturnType(NSURLSession *),
+                             SentrySWArguments(NSURLSessionConfiguration *configuration,
+                                               id<NSURLSessionDelegate> delegate,
+                                               NSOperationQueue * queue),
+                             SentrySWReplacement(
+                                                 {
+        [SentryHttpInterceptor configureSessionConfiguration:configuration];
+        return SentrySWCallOriginal(configuration, delegate, queue);
+    }));
+}
+
+
 #pragma clang diagnostic pop
 @end

@@ -9,13 +9,27 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSession *session;
 
++ (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration;
+
 @end
 
 @implementation SentryHttpInterceptor
 
++ (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration {
+    if (configuration == nil) return;
+    
+    NSMutableArray * protocolClasses = configuration.protocolClasses != nil
+    ? [NSMutableArray arrayWithArray:[configuration protocolClasses]]
+    : [[NSMutableArray alloc] init];
+    
+    [protocolClasses addObject:[self class]];
+    
+    configuration.protocolClasses = protocolClasses;
+}
+
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    // Intercept the request if it is a http/https request,
+    // Intercept the request if it is a http/https request
     // not targeting Sentry and there is transaction in the scope.
 
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
