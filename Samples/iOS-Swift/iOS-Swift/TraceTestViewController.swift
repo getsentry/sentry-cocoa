@@ -35,8 +35,8 @@ class TraceTestViewController: UIViewController {
         }
         let m = URLSession.shared.dataTask(with: imgUrl)
         print(m)
-        
-        let dataTask = URLSession.shared.dataTask(with: imgUrl) { (data, _, error) in
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
             DispatchQueue.main.async {
                 var spanStatus = SentrySpanStatus.ok
                 if let err = error {

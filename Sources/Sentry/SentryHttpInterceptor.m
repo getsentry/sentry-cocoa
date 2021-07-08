@@ -15,15 +15,19 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
 
 @implementation SentryHttpInterceptor
 
-+ (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration {
-    if (configuration == nil) return;
-    
-    NSMutableArray * protocolClasses = configuration.protocolClasses != nil
-    ? [NSMutableArray arrayWithArray:[configuration protocolClasses]]
-    : [[NSMutableArray alloc] init];
-    
-    [protocolClasses addObject:[self class]];
-    
++ (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration
+{
+    if (configuration == nil)
+        return;
+
+    NSMutableArray *protocolClasses = configuration.protocolClasses != nil
+        ? [NSMutableArray arrayWithArray:[configuration protocolClasses]]
+        : [[NSMutableArray alloc] init];
+
+    if (![protocolClasses containsObject:[self class]]) {
+        [protocolClasses insertObject:[self class] atIndex:0];
+    }
+
     configuration.protocolClasses = protocolClasses;
 }
 
@@ -31,9 +35,13 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
 {
     // Intercept the request if it is a http/https request
     // not targeting Sentry and there is transaction in the scope.
+    NSNumber *intercepted = [NSURLProtocol propertyForKey:@"SENTRY_INTERCEPTED" inRequest:request];
+    if (intercepted != nil && [intercepted boolValue])
+        return false;
 
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
-    if ([apiUrl.host isEqualToString:apiUrl.host] && [apiUrl.path containsString:apiUrl.path])
+    if ([request.URL.host isEqualToString:apiUrl.host] &&
+        [request.URL.path containsString:apiUrl.path])
         return false;
     if (SentrySDK.currentHub.scope.span == nil)
         return false;
@@ -55,9 +63,11 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
 
 - (void)startLoading
 {
+    NSMutableURLRequest *request = [self.request mutableCopy];
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
+    [NSURLProtocol setProperty:@YES forKey:@"SENTRY_INTERCEPTED" inRequest:request];
     self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
-    [[self.session dataTaskWithRequest:self.request] resume];
+    [[self.session dataTaskWithRequest:request] resume];
 }
 
 - (void)stopLoading
