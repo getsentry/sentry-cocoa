@@ -61,7 +61,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
     
     func testAutoUIPerformanceTrackingDisabled_DoesNotUpdatesAppState() {
         let options = fixture.options
-        options.enableAutoUIPerformanceTracking = false
+        options.enableAutoPerformanceTracking = false
         sut.install(with: options)
         
         TestNotificationCenter.uiWindowDidBecomeVisible()

@@ -44,8 +44,7 @@ SentryOptions ()
         self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
-        self.enableAutoUIPerformanceTracking = YES;
-        self.enableAutoHttpRequestTracking = YES;
+        self.enableAutoPerformanceTracking = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
 
@@ -211,13 +210,8 @@ SentryOptions ()
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
     }
 
-    if (nil != options[@"enableAutoUIPerformanceTracking"]) {
-        self.enableAutoUIPerformanceTracking =
-            [options[@"enableAutoUIPerformanceTracking"] boolValue];
-    }
-
-    if (nil != options[@"enableAutoHttpRequestTracking"]) {
-        self.enableAutoHttpRequestTracking = [options[@"enableAutoHttpRequestTracking"] boolValue];
+    if (nil != options[@"enableAutoPerformanceTracking"]) {
+        self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];

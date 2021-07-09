@@ -20,7 +20,7 @@ SentryFramesTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (!options.enableAutoUIPerformanceTracking) {
+    if (!options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:
                        @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
                          andLevel:kSentryLevelDebug];
