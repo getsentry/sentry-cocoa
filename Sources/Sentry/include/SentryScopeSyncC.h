@@ -21,6 +21,8 @@ void sentryscopesync_setFingerprint(const char *const json);
 
 void sentryscopesync_setLevel(const char *const json);
 
+void sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs);
+
 void sentryscopesync_addBreadcrumb(const char *const json);
 
 void sentryscopesync_clearBreadcrumbs(void);

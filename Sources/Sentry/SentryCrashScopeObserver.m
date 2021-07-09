@@ -8,7 +8,23 @@
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
 
+@interface
+SentryCrashScopeObserver ()
+@property (nonatomic, assign) NSInteger maxBreadcrumbs;
+
+@end
+
 @implementation SentryCrashScopeObserver
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    if (self = [super init]) {
+        self.maxBreadcrumbs = maxBreadcrumbs;
+        sentryscopesync_configureBreadcrumbs(maxBreadcrumbs);
+    }
+
+    return self;
+}
 
 - (void)setUser:(nullable SentryUser *)user
 {
@@ -94,6 +110,7 @@
 
 - (void)clearBreadcrumbs
 {
+    sentryscopesync_clearBreadcrumbs();
 }
 
 - (void)clear

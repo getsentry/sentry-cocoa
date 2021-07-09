@@ -4,6 +4,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryCrashScopeObserver : NSObject <SentryScopeObserver>
+SENTRY_NO_INIT
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 
 @end
 

@@ -51,7 +51,6 @@ SentryCrashIntegration ()
     if (self = [super init]) {
         self.crashAdapter = crashAdapter;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
-        self.scopeObserver = [[SentryCrashScopeObserver alloc] init];
     }
 
     return self;
@@ -88,6 +87,9 @@ SentryCrashIntegration ()
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                                  outOfMemoryLogic:logic];
+
+    self.scopeObserver =
+        [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
     [self startCrashHandler];
 

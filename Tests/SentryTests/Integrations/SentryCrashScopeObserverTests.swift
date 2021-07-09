@@ -10,9 +10,10 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let extras = ["extra": [1, 2], "extra2": "tag1"] as [String: Any]
         let fingerprint = ["a", "b", "c"]
         let emptyScopeJSON = "{}"
+        let maxBreadcrumbs = 10
         
         var sut: SentryCrashScopeObserver {
-            return SentryCrashScopeObserver()
+            return SentryCrashScopeObserver(maxBreadcrumbs: maxBreadcrumbs)
         }
     }
     
@@ -214,6 +215,30 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertEqual(expected, getScopeJSON())
     }
     
+    func testAddCrumb_MoreThanMaxBreadcrumbs() {
+        let sut = fixture.sut
+        
+        var crumbs: [Breadcrumb] = []
+        for i in 0...fixture.maxBreadcrumbs {
+            let crumb = TestData.crumb
+            crumb.message = "\(i)"
+            sut.add(crumb)
+            crumbs.append(crumb)
+        }
+        crumbs.removeFirst()
+        
+        var toSerialize: [[String: Any]] = []
+        for c in crumbs {
+            toSerialize.append(c.serialize())
+        }
+        
+        let json = serialize(object: toSerialize)
+        let expected = "{\"breadcrumbs\":\(json)}"
+        
+        let actual = getScopeJSON()
+        XCTAssertEqual(expected.sorted(), actual.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(actual)")
+    }
+    
     func testClear() {
         let sut = fixture.sut
         let user = TestData.user
@@ -244,7 +269,6 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNotNil(expected)
         
         let actual = getScopeJSON()
-        
         XCTAssertEqual(expected.sorted(), actual.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(actual)")
     }
     
