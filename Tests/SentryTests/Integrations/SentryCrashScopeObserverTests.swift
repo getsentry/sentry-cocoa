@@ -19,6 +19,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
     
     private let fixture = Fixture()
     
+    override func setUp() {
+        sentryscopesync_clear()
+        SentryCrash.sharedInstance().userInfo = nil
+    }
+    
     override func tearDown() {
         sentryscopesync_clear()
         SentryCrash.sharedInstance().userInfo = nil
