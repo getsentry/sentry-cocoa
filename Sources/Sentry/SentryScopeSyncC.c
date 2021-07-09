@@ -79,45 +79,45 @@ sentryscopesync_set(const char *const newJSON, const char **field)
 }
 
 void
-sentryscopesync_setUserJSON(const char *const userJSON)
+sentryscopesync_setUserJSON(const char *const json)
 {
-    sentryscopesync_set(userJSON, &g_userJSON);
+    sentryscopesync_set(json, &g_userJSON);
 }
 
 void
-sentryscopesync_setDist(const char *const distJSON)
+sentryscopesync_setDist(const char *const json)
 {
-    sentryscopesync_set(distJSON, &g_distJSON);
+    sentryscopesync_set(json, &g_distJSON);
 }
 
 void
-sentryscopesync_setContext(const char *const contextJSON)
+sentryscopesync_setContext(const char *const json)
 {
-    sentryscopesync_set(contextJSON, &g_contextJSON);
+    sentryscopesync_set(json, &g_contextJSON);
 }
 
 void
-sentryscopesync_setEnvironment(const char *const environmentJSON)
+sentryscopesync_setEnvironment(const char *const json)
 {
-    sentryscopesync_set(environmentJSON, &g_environmentJSON);
+    sentryscopesync_set(json, &g_environmentJSON);
 }
 
 void
-sentryscopesync_setTags(const char *const tagsJSON)
+sentryscopesync_setTags(const char *const json)
 {
-    sentryscopesync_set(tagsJSON, &g_tagsJSON);
+    sentryscopesync_set(json, &g_tagsJSON);
 }
 
 void
-sentryscopesync_setExtras(const char *const extrasJSON)
+sentryscopesync_setExtras(const char *const json)
 {
-    sentryscopesync_set(extrasJSON, &g_extrasJSON);
+    sentryscopesync_set(json, &g_extrasJSON);
 }
 
 void
-sentryscopesync_setFingerprint(const char *const fingerprintJSON)
+sentryscopesync_setFingerprint(const char *const json)
 {
-    sentryscopesync_set(fingerprintJSON, &g_fingerprintJSON);
+    sentryscopesync_set(json, &g_fingerprintJSON);
 }
 
 void
