@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NUMBER_OF_FIELDS 7
+#define NUMBER_OF_FIELDS 9
+#define MAX_BREADCRUMBS 100
 static const char *g_userJSON;
 static const char *g_distJSON;
 static const char *g_contextJSON;
@@ -12,6 +13,9 @@ static const char *g_tagsJSON;
 static const char *g_extrasJSON;
 static const char *g_fingerprintJSON;
 static const char *g_levelJSON;
+static const char *g_breadcrumbs[MAX_BREADCRUMBS];
+static int currentCrumb = 0;
+static size_t rawBreadcrumbSize = 100 + MAX_BREADCRUMBS + 1;
 
 void
 sentrysocpesync_add(char *destination, const char *source)
@@ -32,6 +36,46 @@ sentrysocpesync_getSize(const char *str)
     return size;
 }
 
+size_t
+sentrysocpesync_getBreadcrumbSize(void)
+{
+    size_t size = rawBreadcrumbSize;
+    for (int i = 0; i < MAX_BREADCRUMBS; i++) {
+        size += sentrysocpesync_getSize(g_breadcrumbs[i]);
+    }
+    return size;
+}
+
+void
+sentrysocpesync_addBreadcrumbs(char *destination)
+{
+    size_t size = sentrysocpesync_getBreadcrumbSize();
+    char *crumbs = malloc(size);
+
+    // No crumbs nothing to add
+    if (size == rawBreadcrumbSize) {
+        return;
+    }
+
+    strcat(crumbs, "\"breadcrumbs\":[");
+    for (int i = 0; i < MAX_BREADCRUMBS; i++) {
+        if (g_breadcrumbs[i] != NULL) {
+            strcat(crumbs, "{");
+            strcat(crumbs, g_breadcrumbs[i]);
+            strcat(crumbs, "},");
+        }
+    }
+
+    size_t length = strlen(crumbs);
+    crumbs[length - 1] = ']';
+    crumbs[length] = '\0';
+    strcat(crumbs, ",");
+
+    strcat(destination, crumbs);
+
+    free(crumbs);
+}
+
 void
 sentryscopesync_getJSON(char **json)
 {
@@ -41,11 +85,11 @@ sentryscopesync_getJSON(char **json)
         + sentrysocpesync_getSize(g_contextJSON) + sentrysocpesync_getSize(g_environmentJSON)
         + sentrysocpesync_getSize(g_tagsJSON) + sentrysocpesync_getSize(g_extrasJSON)
         + sentrysocpesync_getSize(g_fingerprintJSON) + sentrysocpesync_getSize(g_levelJSON)
-        + NUMBER_OF_FIELDS + brackets + nullByte;
+        + sentrysocpesync_getBreadcrumbSize() + NUMBER_OF_FIELDS + brackets + nullByte;
 
     char *result = calloc(1, resultSize);
 
-    if (resultSize == NUMBER_OF_FIELDS + brackets + nullByte) {
+    if (resultSize == NUMBER_OF_FIELDS + brackets + nullByte + rawBreadcrumbSize) {
         // All fields are empty
         strcat(result, "{}");
     } else {
@@ -58,6 +102,7 @@ sentryscopesync_getJSON(char **json)
         sentrysocpesync_add(result, g_extrasJSON);
         sentrysocpesync_add(result, g_fingerprintJSON);
         sentrysocpesync_add(result, g_levelJSON);
+        sentrysocpesync_addBreadcrumbs(result);
 
         size_t length = strlen(result);
         result[length - 1] = '}';
@@ -127,6 +172,22 @@ sentryscopesync_setLevel(const char *const json)
 }
 
 void
+sentryscopesync_addBreadcrumb(const char *const json)
+{
+
+    sentryscopesync_set(json, &g_breadcrumbs[currentCrumb]);
+    currentCrumb = (currentCrumb + 1) % MAX_BREADCRUMBS;
+}
+
+void
+sentryscopesync_clearBreadcrumbs(void)
+{
+    for (int i = 0; i < MAX_BREADCRUMBS; i++) {
+        sentryscopesync_set(NULL, &g_breadcrumbs[i]);
+    }
+}
+
+void
 sentryscopesync_clear(void)
 {
     sentryscopesync_setUserJSON(NULL);
@@ -137,4 +198,5 @@ sentryscopesync_clear(void)
     sentryscopesync_setExtras(NULL);
     sentryscopesync_setFingerprint(NULL);
     sentryscopesync_setLevel(NULL);
+    sentryscopesync_clearBreadcrumbs();
 }

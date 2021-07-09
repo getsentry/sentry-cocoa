@@ -203,6 +203,17 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
     }
     
+    func testAddCrumb() {
+        let sut = fixture.sut
+        let crumb = TestData.crumb
+        sut.add(crumb)
+        
+        let json = serialize(object: crumb.serialize())
+        let expected = "{\"breadcrumbs\":[\(json)]}"
+        
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
     func testClear() {
         let sut = fixture.sut
         let user = TestData.user
@@ -214,6 +225,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setExtras(fixture.extras)
         sut.setFingerprint(fixture.fingerprint)
         sut.setLevel(SentryLevel.fatal)
+        sut.add(TestData.crumb)
         
         sut.clear()
         
@@ -249,13 +261,13 @@ class SentryCrashScopeObserverTests: XCTestCase {
         scope.setEnvironment("Production")
         scope.setLevel(SentryLevel.fatal)
         
-//        let crumb1 = TestData.crumb
-//        crumb1.message = "Crumb 1"
-//        scope.add(crumb1)
-//
-//        let crumb2 = TestData.crumb
-//        crumb2.message = "Crumb 2"
-//        scope.add(crumb2)
+        let crumb1 = TestData.crumb
+        crumb1.message = "Crumb 1"
+        scope.add(crumb1)
+
+        let crumb2 = TestData.crumb
+        crumb2.message = "Crumb 2"
+        scope.add(crumb2)
         
         scope.setUser(TestData.user)
         

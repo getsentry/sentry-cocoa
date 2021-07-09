@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <NSData+Sentry.h>
+#import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
 #import <SentryCrashScopeObserver.h>
@@ -23,17 +24,11 @@
         scopeSync:^(const void *bytes) { sentryscopesync_setDist(bytes); }];
 }
 
-- (void)addBreadcrumb:(nonnull SentryBreadcrumb *)crumb
+- (void)setEnvironment:(nullable NSString *)environment
 {
-}
-
-- (void)clear
-{
-    sentryscopesync_clear();
-}
-
-- (void)clearBreadcrumbs
-{
+    [self syncScope:environment
+        serialize:^{ return @ { @"environment" : environment }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setEnvironment(bytes); }];
 }
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
@@ -43,18 +38,18 @@
           scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
 }
 
-- (void)setEnvironment:(nullable NSString *)environment
-{
-    [self syncScope:environment
-        serialize:^{ return @ { @"environment" : environment }; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setEnvironment(bytes); }];
-}
-
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
     [self syncScope:extras
               field:@"extra"
           scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
+}
+
+- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
+{
+    [self syncScope:tags
+              field:@"tags"
+          scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
@@ -86,11 +81,24 @@
     sentryscopesync_setLevel([json bytes]);
 }
 
-- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
-    [self syncScope:tags
-              field:@"tags"
-          scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+    NSDictionary *serialized = [crumb serialize];
+    NSData *json = [self getBytes:serialized];
+    if (json == nil) {
+        return;
+    }
+
+    sentryscopesync_addBreadcrumb([json bytes]);
+}
+
+- (void)clearBreadcrumbs
+{
+}
+
+- (void)clear
+{
+    sentryscopesync_clear();
 }
 
 - (void)syncScope:(nullable NSDictionary *)dict
