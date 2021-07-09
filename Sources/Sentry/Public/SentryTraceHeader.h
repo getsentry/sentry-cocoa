@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentrySampleDecision.h"
 #import <Foundation/Foundation.h>
 
@@ -7,8 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SENTRY_TRACE_HEADER = @"sentry-trace";
 
+NS_SWIFT_NAME(TraceHeader)
 @interface SentryTraceHeader : NSObject
-
+SENTRY_NO_INIT
 /**
  * Trace ID.
  */

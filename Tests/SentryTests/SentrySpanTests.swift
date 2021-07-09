@@ -145,6 +145,36 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
+    func testTraceHeaderNotSampled() {
+        let span = fixture.getSut()
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampleDecision, .no)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-0")
+    }
+    
+    func testTraceHeaderSampled() {
+        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampleDecision, .yes)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-1")
+    }
+    
+    func testTraceHeaderUndecided() {
+        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampleDecision, .undecided)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)")
+    }
+    
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)

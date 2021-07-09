@@ -103,3 +103,4 @@
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
 #import "URLSessionTaskMock.h"
+#import "SentryHttpInterceptor+Private.h"
