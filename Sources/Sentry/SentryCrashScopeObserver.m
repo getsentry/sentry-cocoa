@@ -39,8 +39,8 @@
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
     [self syncScope:context
-        serialize:^{ return @ { @"context" : context }; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
+              field:@"context"
+          scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
@@ -53,19 +53,30 @@
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
     [self syncScope:extras
-        serialize:^{ return @ { @"extra" : extras }; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
+              field:@"extra"
+          scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
     [self syncScope:fingerprint
-        serialize:^{ return @ { @"fingerprint" : fingerprint }; }
+        serialize:^{
+            NSDictionary *result = nil;
+            if (fingerprint.count > 0) {
+                result = @ { @"fingerprint" : fingerprint };
+            }
+            return result;
+        }
         scopeSync:^(const void *bytes) { sentryscopesync_setFingerprint(bytes); }];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
+    if (level == kSentryLevelNone) {
+        sentryscopesync_setLevel(NULL);
+        return;
+    }
+
     NSDictionary *serialized = @{ @"level" : SentryLevelNames[level] };
     NSData *json = [self getBytes:serialized];
     if (json == nil) {
@@ -78,12 +89,27 @@
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
     [self syncScope:tags
-        serialize:^{ return @ { @"tags" : tags }; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+              field:@"tags"
+          scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+}
+
+- (void)syncScope:(nullable NSDictionary *)dict
+            field:(NSString *)field
+        scopeSync:(void (^)(const void *))scopeSync
+{
+    [self syncScope:dict
+          serialize:^{
+              NSDictionary *result = nil;
+              if (dict.count > 0) {
+                  result = @ { field : dict };
+              }
+              return result;
+          }
+          scopeSync:scopeSync];
 }
 
 - (void)syncScope:(nullable id)object
-        serialize:(NSDictionary * (^)(void))serialize
+        serialize:(nullable NSDictionary * (^)(void))serialize
         scopeSync:(void (^)(const void *))scopeSync
 {
     if (object == nil) {
@@ -92,6 +118,11 @@
     }
 
     NSDictionary *serialized = serialize();
+    if (serialized == nil) {
+        scopeSync(NULL);
+        return;
+    }
+
     NSData *json = [self getBytes:serialized];
     if (json == nil) {
         return;

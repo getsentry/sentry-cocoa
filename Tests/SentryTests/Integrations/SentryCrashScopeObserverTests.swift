@@ -31,14 +31,30 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let userJSON = serialize(object: user.serialize())
         let expected = "{\"user\":\(userJSON)}"
         
-        let actual = getScopeJSON()
-        XCTAssertEqual(expected, actual)
+        XCTAssertEqual(expected, getScopeJSON())
     }
 
     func testUser_setToNil() {
         let sut = fixture.sut
         sut.setUser(TestData.user)
         sut.setUser(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testLevel() {
+        let sut = fixture.sut
+        let level = SentryLevel.fatal
+        sut.setLevel(level)
+        
+        let expected = "{\"level\":\"fatal\"}"
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+
+    func testLevel_setToNone() {
+        let sut = fixture.sut
+        sut.setLevel(SentryLevel.fatal)
+        sut.setLevel(SentryLevel.none)
         
         XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
     }
@@ -86,8 +102,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let contextJSON = serialize(object: fixture.context)
         let expected = "{\"context\":\(contextJSON)}"
         
-        let actual = getScopeJSON()
-        XCTAssertEqual(expected, actual)
+        XCTAssertEqual(expected, getScopeJSON())
     }
     
     func testContext_setToNil() {
@@ -96,6 +111,94 @@ class SentryCrashScopeObserverTests: XCTestCase {
         scope.add(sut)
         setContext(scope)
         sut.setContext(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testContext_setEmptyDict() {
+        let scope = Scope()
+        let sut = fixture.sut
+        scope.add(sut)
+        setContext(scope)
+        sut.setContext([:])
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testFingerprint() {
+        let sut = fixture.sut
+        sut.setFingerprint(fixture.fingerprint)
+        
+        let json = serialize(object: fixture.fingerprint)
+        let expected = "{\"fingerprint\":\(json)}"
+        
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
+    func testFingerprint_SetToNil() {
+        let sut = fixture.sut
+        sut.setFingerprint(fixture.fingerprint)
+        sut.setFingerprint(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testFingerprint_SetToEmptyArray() {
+        let sut = fixture.sut
+        sut.setFingerprint(fixture.fingerprint)
+        sut.setFingerprint([])
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testExtra() {
+        let sut = fixture.sut
+        sut.setExtras(fixture.extras)
+        
+        let json = serialize(object: fixture.extras)
+        let expected = "{\"extra\":\(json)}"
+        
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
+    func testExtra_SetToNil() {
+        let sut = fixture.sut
+        sut.setExtras(fixture.extras)
+        sut.setExtras(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testExtra_SetToEmptyDict() {
+        let sut = fixture.sut
+        sut.setExtras(fixture.extras)
+        sut.setExtras([:])
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testTags() {
+        let sut = fixture.sut
+        sut.setTags(fixture.tags)
+        
+        let json = serialize(object: fixture.tags)
+        let expected = "{\"tags\":\(json)}"
+        
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
+    func testTags_SetToNil() {
+        let sut = fixture.sut
+        sut.setTags(fixture.tags)
+        sut.setTags(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testTags_SetToEmptyDict() {
+        let sut = fixture.sut
+        sut.setTags(fixture.tags)
+        sut.setTags([:])
         
         XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
     }
@@ -110,6 +213,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setTags(fixture.tags)
         sut.setExtras(fixture.extras)
         sut.setFingerprint(fixture.fingerprint)
+        sut.setLevel(SentryLevel.fatal)
         
         sut.clear()
         
