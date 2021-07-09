@@ -11,26 +11,16 @@
 
 - (void)setUser:(nullable SentryUser *)user
 {
-    NSDictionary *serialized = @{ @"user" : [user serialize] };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-
-    sentryscopesync_setUserJSON([json bytes]);
+    [self syncScope:user
+        serialize:^{ return @ { @"user" : [user serialize] }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setUserJSON(bytes); }];
 }
 
 - (void)setDist:(nullable NSString *)dist
 {
-    NSDictionary *serialized = @{ @"dist" : dist };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-
-    sentryscopesync_setDist([json bytes]);
+    [self syncScope:dist
+        serialize:^{ return @ { @"dist" : dist }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setDist(bytes); }];
 }
 
 - (void)addBreadcrumb:(nonnull SentryBreadcrumb *)crumb
@@ -48,62 +38,66 @@
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    NSDictionary *serialized = @{ @"context" : context };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-
-    sentryscopesync_setContext([json bytes]);
+    [self syncScope:context
+        serialize:^{ return @ { @"context" : context }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
-    NSDictionary *serialized = @{ @"environment" : environment };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-    sentryscopesync_setEnvironment([json bytes]);
+    [self syncScope:environment
+        serialize:^{ return @ { @"environment" : environment }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setEnvironment(bytes); }];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    NSDictionary *serialized = @{ @"extra" : extras };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-    sentryscopesync_setExtras([json bytes]);
+    [self syncScope:extras
+        serialize:^{ return @ { @"extra" : extras }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
-    NSDictionary *serialized = @{ @"fingerprint" : fingerprint };
-
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
-        return;
-    }
-    sentryscopesync_setFingerprint([json bytes]);
+    [self syncScope:fingerprint
+        serialize:^{ return @ { @"fingerprint" : fingerprint }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setFingerprint(bytes); }];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
-}
-
-- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
-{
-    NSDictionary *serialized = @{ @"tags" : tags };
-
+    NSDictionary *serialized = @{ @"level" : SentryLevelNames[level] };
     NSData *json = [self getBytes:serialized];
     if (json == nil) {
         return;
     }
-    sentryscopesync_setTags([json bytes]);
+
+    sentryscopesync_setLevel([json bytes]);
+}
+
+- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
+{
+    [self syncScope:tags
+        serialize:^{ return @ { @"tags" : tags }; }
+        scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+}
+
+- (void)syncScope:(nullable id)object
+        serialize:(NSDictionary * (^)(void))serialize
+        scopeSync:(void (^)(const void *))scopeSync
+{
+    if (object == nil) {
+        scopeSync(NULL);
+        return;
+    }
+
+    NSDictionary *serialized = serialize();
+    NSData *json = [self getBytes:serialized];
+    if (json == nil) {
+        return;
+    }
+
+    scopeSync([json bytes]);
 }
 
 - (nullable NSData *)getBytes:(NSDictionary *)serialized
@@ -114,7 +108,7 @@
         json = [SentryCrashJSONCodec encode:serialized
                                     options:SentryCrashJSONEncodeOptionSorted
                                       error:&error];
-        if (error != NULL) {
+        if (error != nil) {
             NSString *message = [NSString stringWithFormat:@"Could not serialize %@", error];
             [SentryLog logWithMessage:message andLevel:kSentryLevelError];
             return nil;

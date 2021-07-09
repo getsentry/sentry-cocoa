@@ -11,6 +11,7 @@ static const char *g_environmentJSON;
 static const char *g_tagsJSON;
 static const char *g_extrasJSON;
 static const char *g_fingerprintJSON;
+static const char *g_levelJSON;
 
 void
 sentrysocpesync_add(char *destination, const char *source)
@@ -35,14 +36,16 @@ void
 sentryscopesync_getJSON(char **json)
 {
     size_t brackets = 2;
+    size_t nullByte = 1;
     size_t resultSize = sentrysocpesync_getSize(g_userJSON) + sentrysocpesync_getSize(g_distJSON)
         + sentrysocpesync_getSize(g_contextJSON) + sentrysocpesync_getSize(g_environmentJSON)
         + sentrysocpesync_getSize(g_tagsJSON) + sentrysocpesync_getSize(g_extrasJSON)
-        + sentrysocpesync_getSize(g_fingerprintJSON) + NUMBER_OF_FIELDS + brackets;
+        + sentrysocpesync_getSize(g_fingerprintJSON) + sentrysocpesync_getSize(g_levelJSON)
+        + NUMBER_OF_FIELDS + brackets + nullByte;
 
-    char *result = malloc(resultSize);
+    char *result = calloc(1, resultSize);
 
-    if (resultSize == NUMBER_OF_FIELDS + brackets) {
+    if (resultSize == NUMBER_OF_FIELDS + brackets + nullByte) {
         // All fields are empty
         strcat(result, "{}");
     } else {
@@ -54,6 +57,7 @@ sentryscopesync_getJSON(char **json)
         sentrysocpesync_add(result, g_tagsJSON);
         sentrysocpesync_add(result, g_extrasJSON);
         sentrysocpesync_add(result, g_fingerprintJSON);
+        sentrysocpesync_add(result, g_levelJSON);
 
         size_t length = strlen(result);
         result[length - 1] = '}';
@@ -66,9 +70,7 @@ sentryscopesync_getJSON(char **json)
 void
 sentryscopesync_set(const char *const newJSON, const char **field)
 {
-    if (field != NULL) {
-        free((void *)*field);
-    }
+    free((void *)*field);
     if (newJSON == NULL) {
         *field = NULL;
     } else {
@@ -119,10 +121,20 @@ sentryscopesync_setFingerprint(const char *const fingerprintJSON)
 }
 
 void
+sentryscopesync_setLevel(const char *const json)
+{
+    sentryscopesync_set(json, &g_levelJSON);
+}
+
+void
 sentryscopesync_clear(void)
 {
     sentryscopesync_setUserJSON(NULL);
     sentryscopesync_setDist(NULL);
     sentryscopesync_setContext(NULL);
     sentryscopesync_setEnvironment(NULL);
+    sentryscopesync_setTags(NULL);
+    sentryscopesync_setExtras(NULL);
+    sentryscopesync_setFingerprint(NULL);
+    sentryscopesync_setLevel(NULL);
 }

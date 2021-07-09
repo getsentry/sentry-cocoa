@@ -5,7 +5,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private class Fixture {
         let dist = "dist"
         let environment = "environment"
-        let context = ["context": 1]
+        let context = ["context": ["one": 1]]
+        let tags = ["tag": "tag", "tag1": "tag1"]
+        let extras = ["extra": [1, 2], "extra2": "tag1"] as [String: Any]
+        let fingerprint = ["a", "b", "c"]
+        let emptyScopeJSON = "{}"
         
         var sut: SentryCrashScopeObserver {
             return SentryCrashScopeObserver()
@@ -30,6 +34,14 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let actual = getScopeJSON()
         XCTAssertEqual(expected, actual)
     }
+
+    func testUser_setToNil() {
+        let sut = fixture.sut
+        sut.setUser(TestData.user)
+        sut.setUser(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
     
     func testDist() {
         let sut = fixture.sut
@@ -38,8 +50,15 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let distJSON = serialize(object: fixture.dist)
         let expected = "{\"dist\":\(distJSON)}"
         
-        let actual = getScopeJSON()
-        XCTAssertEqual(expected, actual)
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
+    func testDist_setToNil() {
+        let sut = fixture.sut
+        sut.setDist(fixture.dist)
+        sut.setDist(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
     }
     
     func testEnvironment() {
@@ -49,22 +68,36 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let environmentJSON = serialize(object: fixture.environment)
         let expected = "{\"environment\":\(environmentJSON)}"
         
+        XCTAssertEqual(expected, getScopeJSON())
+    }
+    
+    func testEnvironment_setToNil() {
+        let sut = fixture.sut
+        sut.setEnvironment(fixture.environment)
+        sut.setEnvironment(nil)
+        
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+    }
+    
+    func testContext() {
+        let sut = fixture.sut
+        sut.setContext(fixture.context)
+        
+        let contextJSON = serialize(object: fixture.context)
+        let expected = "{\"context\":\(contextJSON)}"
+        
         let actual = getScopeJSON()
         XCTAssertEqual(expected, actual)
     }
     
-    func testContext() {
+    func testContext_setToNil() {
         let scope = Scope()
         let sut = fixture.sut
         scope.add(sut)
-        
         setContext(scope)
+        sut.setContext(nil)
         
-        let contextJSON = serialize(object: fixture.context)
-        let expected = "{\"context\":{\"context\":\(contextJSON)}}"
-        
-        let actual = getScopeJSON()
-        XCTAssertEqual(expected, actual)
+        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
     }
     
     func testClear() {
@@ -72,13 +105,17 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let user = TestData.user
         sut.setUser(user)
         sut.setDist(fixture.dist)
+        sut.setContext(fixture.context)
         sut.setEnvironment(fixture.environment)
+        sut.setTags(fixture.tags)
+        sut.setExtras(fixture.extras)
+        sut.setFingerprint(fixture.fingerprint)
         
         sut.clear()
         
         let json = getScopeJSON()
         
-        XCTAssertEqual("{}", json)
+        XCTAssertEqual(fixture.emptyScopeJSON, json)
     }
     
     func testEmptyScope() {
@@ -106,7 +143,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         scope.setFingerprint(["finger", "print"])
         setContext(scope)
         scope.setEnvironment("Production")
-//        scope.setLevel(SentryLevel.fatal)
+        scope.setLevel(SentryLevel.fatal)
         
 //        let crumb1 = TestData.crumb
 //        crumb1.message = "Crumb 1"

@@ -21,4 +21,6 @@ void sentryscopesync_setExtras(const char *const extrasJSON);
 
 void sentryscopesync_setFingerprint(const char *const fingerprintJSON);
 
+void sentryscopesync_setLevel(const char *const json);
+
 #endif /* SentryScopeSyncC_h */
