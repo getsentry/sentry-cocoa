@@ -272,8 +272,9 @@ class SentryScopeSwiftTests: XCTestCase {
         let group = DispatchGroup()
         
         let scope = fixture.scope
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
         
-        for _ in 0...20 {
+        for _ in 0...2 {
             group.enter()
             queue.async {
                 

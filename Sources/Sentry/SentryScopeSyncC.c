@@ -4,19 +4,36 @@
 #include <string.h>
 
 #define NUMBER_OF_FIELDS 9
+
 static const char *userJSON;
+static pthread_mutex_t userMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *distJSON;
+static pthread_mutex_t distMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *contextJSON;
+static pthread_mutex_t contextMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *environmentJSON;
+static pthread_mutex_t environmentMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *tagsJSON;
+static pthread_mutex_t tagsMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *extrasJSON;
+static pthread_mutex_t extrasMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *fingerprintJSON;
+static pthread_mutex_t fingerprintMutex = PTHREAD_MUTEX_INITIALIZER;
+
 static const char *levelJSON;
+static pthread_mutex_t levelMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static long maxCrumbs = 0;
 static int currentCrumb = 0;
 static const char **breadcrumbs; // dynamic array of char arrays
 static const char *breadcrumbsStart = "\"breadcrumbs\":[";
+static pthread_mutex_t breadrumbsMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 add(char *destination, const char *source)
@@ -84,6 +101,9 @@ addBreadcrumbs(char *destination)
     free(crumbs);
 }
 
+/**
+ * We don't lock access to the properties in this method as this is called when a crash occurs.
+ */
 void
 sentryscopesync_getJSON(char **json)
 {
@@ -120,7 +140,7 @@ sentryscopesync_getJSON(char **json)
 }
 
 static void
-set(const char *const newJSON, const char **field)
+setUnlocked(const char *const newJSON, const char **field)
 {
     free((void *)*field);
     if (newJSON == NULL) {
@@ -130,80 +150,101 @@ set(const char *const newJSON, const char **field)
     }
 }
 
+static void
+set(const char *const newJSON, const char **field, pthread_mutex_t * mutex)
+{
+    pthread_mutex_lock(mutex);
+    setUnlocked(newJSON, field);
+    pthread_mutex_unlock(mutex);
+}
+
 void
 sentryscopesync_setUser(const char *const json)
 {
-    set(json, &userJSON);
+    set(json, &userJSON, &userMutex);
 }
 
 void
 sentryscopesync_setDist(const char *const json)
 {
-    set(json, &distJSON);
+    set(json, &distJSON, &distMutex);
 }
 
 void
 sentryscopesync_setContext(const char *const json)
 {
-    set(json, &contextJSON);
+    set(json, &contextJSON, &contextMutex);
 }
 
 void
 sentryscopesync_setEnvironment(const char *const json)
 {
-    set(json, &environmentJSON);
+    set(json, &environmentJSON, &environmentMutex);
 }
 
 void
 sentryscopesync_setTags(const char *const json)
 {
-    set(json, &tagsJSON);
+    set(json, &tagsJSON, &tagsMutex);
 }
 
 void
 sentryscopesync_setExtras(const char *const json)
 {
-    set(json, &extrasJSON);
+    set(json, &extrasJSON, &extrasMutex);
 }
 
 void
 sentryscopesync_setFingerprint(const char *const json)
 {
-    set(json, &fingerprintJSON);
+    set(json, &fingerprintJSON, &fingerprintMutex);
 }
 
 void
 sentryscopesync_setLevel(const char *const json)
 {
-    set(json, &levelJSON);
+    set(json, &levelJSON, &levelMutex);
 }
 
 void
 sentryscopesync_addBreadcrumb(const char *const json)
 {
-    set(json, &breadcrumbs[currentCrumb]);
+    pthread_mutex_lock(&breadrumbsMutex);
+    setUnlocked(json, &breadcrumbs[currentCrumb]);
     // Ring buffer
     currentCrumb = (currentCrumb + 1) % maxCrumbs;
+    pthread_mutex_unlock(&breadrumbsMutex);
+}
+
+
+static void clearBreadcrumbsUnlocked(void)
+{
+    for (int i = 0; i < maxCrumbs; i++) {
+        setUnlocked(NULL, &breadcrumbs[i]);
+    }
 }
 
 void
 sentryscopesync_clearBreadcrumbs(void)
 {
-    for (int i = 0; i < maxCrumbs; i++) {
-        set(NULL, &breadcrumbs[i]);
-    }
+    pthread_mutex_lock(&breadrumbsMutex);
+    clearBreadcrumbsUnlocked();
+    pthread_mutex_unlock(&breadrumbsMutex);
 }
 
 void
 sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 {
+    
+    pthread_mutex_lock(&breadrumbsMutex);
     maxCrumbs = maxBreadcrumbs;
     size_t size = sizeof(char *) * maxCrumbs;
     breadcrumbs = malloc(size);
     for (int i = 0; i < maxCrumbs; i++) {
         breadcrumbs[i] = NULL;
     }
-    sentryscopesync_clearBreadcrumbs();
+    clearBreadcrumbsUnlocked();
+    pthread_mutex_unlock(&breadrumbsMutex);
 }
 
 void
