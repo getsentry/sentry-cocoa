@@ -290,12 +290,34 @@
     XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
-- (void)testBreadCrumb_FromUserInfo
+/**
+ * Uses two valid crash reports taken from a simulator, with matching scope data.
+ */
+- (void)testScopeSync_V1_VS_V2
+{
+    [self isValidReport:@"Resources/crash-report-user-info-scope-v1"];
+    [self isValidReport:@"Resources/crash-report-user-info-scope-v2"];
+
+    NSDictionary *rawCrashV1 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v1"];
+    NSDictionary *rawCrashV2 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v2"];
+
+    SentryCrashReportConverter *reportConverterV1 =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrashV1
+                                           frameInAppLogic:self.frameInAppLogic];
+
+    SentryCrashReportConverter *reportConverterV2 =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrashV2
+                                           frameInAppLogic:self.frameInAppLogic];
+
+    [self compareDict:reportConverterV1.userContext withDict:reportConverterV2.userContext];
+}
+
+- (void)testBreadcrumb_FromUserInfo
 {
     [self testBreadcrumb:@"Resources/breadcrumb"];
 }
 
-- (void)testBreadCrumb_FromSDKScope
+- (void)testBreadcrumb_FromSDKScope
 {
     [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }

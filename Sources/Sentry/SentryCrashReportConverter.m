@@ -51,7 +51,7 @@ SentryCrashReportConverter ()
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"]];
+        [userContextMerged addEntriesFromDictionary:userContextUnMerged[@"sentry_sdk_scope"]];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
