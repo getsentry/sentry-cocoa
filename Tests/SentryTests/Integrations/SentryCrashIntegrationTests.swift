@@ -79,16 +79,23 @@ class SentryCrashIntegrationTests: XCTestCase {
         )
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
-        // Furthermore we would need to use TestSentryDispatchQueueWrapper to make make sure the sync of the scope to SentryCrash happened, which is complicated when we call
-        // SentrySDK.start.
-        // Setting this up needs quite some refactoring, which is complex and we accept this
-        // test smell of waiting a bit for now.
-        delayNonBlocking(timeout: 0.1)
         
         let instance = SentryCrash.sharedInstance()
         let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
         assertUserInfoField(userInfo: userInfo, key: "release", expected: releaseName)
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
+    }
+    
+    func testContext_IsPassedToSentryCrash() {
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+        }
+        
+        let instance = SentryCrash.sharedInstance()
+        let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
+        let context = userInfo["context"] as? [String: Any]
+        
+        assertContext(context: context)
     }
     
     func testEndSessionAsCrashed_WithCurrentSession() {
@@ -206,31 +213,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         let context = hub.scope.serialize()["context"]as? [String: Any] ?? ["": ""]
         
-        guard let os = context["os"] as? [String: Any] else {
-            XCTFail("No OS found on context.")
-            return
-        }
-        
-        guard let device = context["device"] as? [String: Any] else {
-            XCTFail("No device found on context.")
-            return
-        }
-        
-        #if targetEnvironment(macCatalyst) || os(macOS)
-        XCTAssertEqual("macOS", device["family"] as? String)
-        XCTAssertEqual("macOS", os["name"] as? String)
-        
-        let osVersion = ProcessInfo().operatingSystemVersion
-        XCTAssertEqual("\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)", os["version"] as? String)
-        #elseif os(iOS)
-        XCTAssertEqual("iOS", device["family"] as? String)
-        XCTAssertEqual("iOS", os["name"] as? String)
-        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
-        #elseif os(tvOS)
-        XCTAssertEqual("tvOS", device["family"] as? String)
-        XCTAssertEqual("tvOS", os["name"] as? String)
-        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
-        #endif
+        assertContext(context: context)
     }
     
     private func givenCurrentSession() -> SentrySession {
@@ -268,6 +251,34 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
         XCTAssertEqual(expected, crashedSession)
         XCTAssertNil(fixture.fileManager.readCurrentSession())
+    }
+    
+    private func assertContext(context: [String: Any]?) {
+        guard let os = context?["os"] as? [String: Any] else {
+            XCTFail("No OS found on context.")
+            return
+        }
+        
+        guard let device = context?["device"] as? [String: Any] else {
+            XCTFail("No device found on context.")
+            return
+        }
+        
+        #if targetEnvironment(macCatalyst) || os(macOS)
+        XCTAssertEqual("macOS", device["family"] as? String)
+        XCTAssertEqual("macOS", os["name"] as? String)
+        
+        let osVersion = ProcessInfo().operatingSystemVersion
+        XCTAssertEqual("\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)", os["version"] as? String)
+        #elseif os(iOS)
+        XCTAssertEqual("iOS", device["family"] as? String)
+        XCTAssertEqual("iOS", os["name"] as? String)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+        #elseif os(tvOS)
+        XCTAssertEqual("tvOS", device["family"] as? String)
+        XCTAssertEqual("tvOS", os["name"] as? String)
+        XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
+        #endif
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
