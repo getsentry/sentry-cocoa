@@ -127,10 +127,10 @@ SentryScope ()
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
             [_breadcrumbArray removeObjectAtIndex:0];
         }
-    }
 
-    for (id<SentryScopeObserver> observer in self.observers) {
-        [observer addBreadcrumb:crumb];
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer addBreadcrumb:crumb];
+        }
     }
 }
 
@@ -188,7 +188,7 @@ SentryScope ()
 {
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray removeAllObjects];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer clearBreadcrumbs];
         }
@@ -217,7 +217,7 @@ SentryScope ()
 {
     @synchronized(_contextDictionary) {
         [_contextDictionary removeObjectForKey:key];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_contextDictionary];
         }
@@ -235,7 +235,7 @@ SentryScope ()
 {
     @synchronized(_extraDictionary) {
         [_extraDictionary setValue:value forKey:key];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
         }
@@ -246,7 +246,7 @@ SentryScope ()
 {
     @synchronized(_extraDictionary) {
         [_extraDictionary removeObjectForKey:key];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
         }
@@ -260,7 +260,7 @@ SentryScope ()
     }
     @synchronized(_extraDictionary) {
         [_extraDictionary addEntriesFromDictionary:extras];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
         }
@@ -278,7 +278,7 @@ SentryScope ()
 {
     @synchronized(_tagDictionary) {
         _tagDictionary[key] = value;
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
         }
@@ -289,7 +289,7 @@ SentryScope ()
 {
     @synchronized(_tagDictionary) {
         [_tagDictionary removeObjectForKey:key];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
         }
@@ -303,7 +303,7 @@ SentryScope ()
     }
     @synchronized(_tagDictionary) {
         [_tagDictionary addEntriesFromDictionary:tags];
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
         }
@@ -351,7 +351,7 @@ SentryScope ()
         if (fingerprint != nil) {
             [_fingerprintArray addObjectsFromArray:fingerprint];
         }
-        
+
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setFingerprint:_fingerprintArray];
         }

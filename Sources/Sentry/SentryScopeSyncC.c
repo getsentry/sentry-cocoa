@@ -6,34 +6,18 @@
 #define NUMBER_OF_FIELDS 9
 
 static const char *userJSON;
-static pthread_mutex_t userMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *distJSON;
-static pthread_mutex_t distMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *contextJSON;
-static pthread_mutex_t contextMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *environmentJSON;
-static pthread_mutex_t environmentMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *tagsJSON;
-static pthread_mutex_t tagsMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *extrasJSON;
-static pthread_mutex_t extrasMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *fingerprintJSON;
-static pthread_mutex_t fingerprintMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static const char *levelJSON;
-static pthread_mutex_t levelMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static long maxCrumbs = 0;
 static int currentCrumb = 0;
 static const char **breadcrumbs; // dynamic array of char arrays
 static const char *breadcrumbsStart = "\"breadcrumbs\":[";
-static pthread_mutex_t breadrumbsMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 add(char *destination, const char *source)
@@ -140,7 +124,7 @@ sentryscopesync_getJSON(char **json)
 }
 
 static void
-setUnlocked(const char *const newJSON, const char **field)
+set(const char *const newJSON, const char **field)
 {
     free((void *)*field);
     if (newJSON == NULL) {
@@ -150,101 +134,80 @@ setUnlocked(const char *const newJSON, const char **field)
     }
 }
 
-static void
-set(const char *const newJSON, const char **field, pthread_mutex_t * mutex)
-{
-    pthread_mutex_lock(mutex);
-    setUnlocked(newJSON, field);
-    pthread_mutex_unlock(mutex);
-}
-
 void
 sentryscopesync_setUser(const char *const json)
 {
-    set(json, &userJSON, &userMutex);
+    set(json, &userJSON);
 }
 
 void
 sentryscopesync_setDist(const char *const json)
 {
-    set(json, &distJSON, &distMutex);
+    set(json, &distJSON);
 }
 
 void
 sentryscopesync_setContext(const char *const json)
 {
-    set(json, &contextJSON, &contextMutex);
+    set(json, &contextJSON);
 }
 
 void
 sentryscopesync_setEnvironment(const char *const json)
 {
-    set(json, &environmentJSON, &environmentMutex);
+    set(json, &environmentJSON);
 }
 
 void
 sentryscopesync_setTags(const char *const json)
 {
-    set(json, &tagsJSON, &tagsMutex);
+    set(json, &tagsJSON);
 }
 
 void
 sentryscopesync_setExtras(const char *const json)
 {
-    set(json, &extrasJSON, &extrasMutex);
+    set(json, &extrasJSON);
 }
 
 void
 sentryscopesync_setFingerprint(const char *const json)
 {
-    set(json, &fingerprintJSON, &fingerprintMutex);
+    set(json, &fingerprintJSON);
 }
 
 void
 sentryscopesync_setLevel(const char *const json)
 {
-    set(json, &levelJSON, &levelMutex);
+    set(json, &levelJSON);
 }
 
 void
 sentryscopesync_addBreadcrumb(const char *const json)
 {
-    pthread_mutex_lock(&breadrumbsMutex);
-    setUnlocked(json, &breadcrumbs[currentCrumb]);
+    set(json, &breadcrumbs[currentCrumb]);
     // Ring buffer
     currentCrumb = (currentCrumb + 1) % maxCrumbs;
-    pthread_mutex_unlock(&breadrumbsMutex);
-}
-
-
-static void clearBreadcrumbsUnlocked(void)
-{
-    for (int i = 0; i < maxCrumbs; i++) {
-        setUnlocked(NULL, &breadcrumbs[i]);
-    }
 }
 
 void
 sentryscopesync_clearBreadcrumbs(void)
 {
-    pthread_mutex_lock(&breadrumbsMutex);
-    clearBreadcrumbsUnlocked();
-    pthread_mutex_unlock(&breadrumbsMutex);
+    for (int i = 0; i < maxCrumbs; i++) {
+        set(NULL, &breadcrumbs[i]);
+    }
 }
 
 void
 sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 {
-    
-    pthread_mutex_lock(&breadrumbsMutex);
     maxCrumbs = maxBreadcrumbs;
     size_t size = sizeof(char *) * maxCrumbs;
     breadcrumbs = malloc(size);
     for (int i = 0; i < maxCrumbs; i++) {
         breadcrumbs[i] = NULL;
     }
-    clearBreadcrumbsUnlocked();
-    pthread_mutex_unlock(&breadrumbsMutex);
+    sentryscopesync_clearBreadcrumbs();
 }
 
 void

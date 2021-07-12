@@ -424,7 +424,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let value = ["extra": 1]
         sut.setContext(value: ["extra": 1], key: "context")
         
-        XCTAssertEqual(["context" : value], observer.context as? [String: [String:Int]])
+        XCTAssertEqual(["context": value], observer.context as? [String: [String: Int]])
     }
     
     func testScopeObserver_setDist() {
@@ -541,7 +541,7 @@ class SentryScopeSwiftTests: XCTestCase {
             self.level = level
         }
         
-        var crumbs : [Breadcrumb] = []
+        var crumbs: [Breadcrumb] = []
         func add(_ crumb: Breadcrumb) {
             crumbs.append(crumb)
         }
