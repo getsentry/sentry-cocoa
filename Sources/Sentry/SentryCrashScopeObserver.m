@@ -89,7 +89,7 @@ SentryCrashScopeObserver ()
     }
 
     NSDictionary *serialized = @{ @"level" : SentryLevelNames[level] };
-    NSData *json = [self getBytes:serialized];
+    NSData *json = [self toJSONAsCString:serialized];
     if (json == nil) {
         return;
     }
@@ -100,7 +100,7 @@ SentryCrashScopeObserver ()
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     NSDictionary *serialized = [crumb serialize];
-    NSData *json = [self getBytes:serialized];
+    NSData *json = [self toJSONAsCString:serialized];
     if (json == nil) {
         return;
     }
@@ -148,15 +148,15 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSData *json = [self getBytes:serialized];
-    if (json == nil) {
+    NSData *jsonCString = [self toJSONAsCString:serialized];
+    if (jsonCString == nil) {
         return;
     }
 
-    scopeSync([json bytes]);
+    scopeSync([jsonCString bytes]);
 }
 
-- (nullable NSData *)getBytes:(NSDictionary *)serialized
+- (nullable NSData *)toJSONAsCString:(NSDictionary *)serialized
 {
     NSError *error = nil;
     NSData *json = nil;
@@ -174,8 +174,8 @@ SentryCrashScopeObserver ()
     // Remove first { and last }
     NSRange range = NSMakeRange(1, [json length] - 2);
     json = [json subdataWithRange:range];
-    json = [json nullTerminated];
-    return json;
+    // C strings need to be null terminated
+    return [json nullTerminated];
 }
 
 @end
