@@ -250,7 +250,7 @@ SentryCrashIntegration ()
             [outerScope setContextValue:appData forKey:@"app"];
 
             NSMutableDictionary<NSString *, id> *userInfo =
-                                    [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
+                [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
             // SentryCrashReportConverter.convertReportToEvent needs the release name and
             // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
             // crash it writes the UserInfo into SentryCrashField_User of the report.
