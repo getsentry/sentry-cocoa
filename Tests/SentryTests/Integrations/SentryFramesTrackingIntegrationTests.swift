@@ -50,7 +50,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testAutoUIPerformanceTrackingDisabled_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.1
-        options.enableAutoUIPerformanceTracking = false
+        options.enableAutoPerformanceTracking = false
         sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)

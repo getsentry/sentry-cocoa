@@ -25,7 +25,7 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (!options.enableAutoUIPerformanceTracking) {
+    if (!options.enableAutoPerformanceTracking) {
         [SentryLog
             logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."
                   andLevel:kSentryLevelDebug];
