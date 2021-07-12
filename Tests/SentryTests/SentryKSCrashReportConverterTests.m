@@ -290,22 +290,14 @@
     XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
-- (void)testBreadCrumb
+- (void)testBreadCrumb_FromUserInfo
 {
-    [self isValidReport:@"Resources/breadcrumb"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/breadcrumb"];
-    SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
-                                           frameInAppLogic:self.frameInAppLogic];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
-    XCTAssertEqual(event.breadcrumbs.firstObject.level, kSentryLevelInfo);
-    XCTAssertEqualObjects(
-        [event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
+    [self testBreadcrumb:@"Resources/breadcrumb"];
+}
 
-    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
-    XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
+- (void)testBreadCrumb_FromSDKScope
+{
+    [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }
 
 #pragma mark private helper
@@ -361,6 +353,24 @@
     NSLog(@"%@",
         [NSString stringWithFormat:@"%@",
                   [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
+}
+
+- (void)testBreadcrumb:(NSString *)reportPath
+{
+    [self isValidReport:reportPath];
+    NSDictionary *rawCrash = [self getCrashReport:reportPath];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
+    XCTAssertEqual(event.breadcrumbs.firstObject.level, kSentryLevelInfo);
+    XCTAssertEqualObjects(
+        [event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
+
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
+    XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 
 @end
