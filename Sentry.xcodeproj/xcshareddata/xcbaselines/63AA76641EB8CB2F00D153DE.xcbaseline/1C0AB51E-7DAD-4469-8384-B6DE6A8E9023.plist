@@ -30,6 +30,19 @@
 				</dict>
 			</dict>
 		</dict>
+		<key>SentryScopeSwiftTests</key>
+		<dict>
+			<key>testPeformanceOfSyncToSentryCrash()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.0084601</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
+		</dict>
 	</dict>
 </dict>
 </plist>

@@ -261,6 +261,15 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
     }
     
+    func testPeformanceOfSyncToSentryCrash() {
+        let scope = fixture.scope
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        self.measure {
+            modifyScope(scope: scope)
+        }
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
@@ -272,7 +281,6 @@ class SentryScopeSwiftTests: XCTestCase {
         let group = DispatchGroup()
         
         let scope = fixture.scope
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
         
         for _ in 0...2 {
             group.enter()
@@ -281,57 +289,8 @@ class SentryScopeSwiftTests: XCTestCase {
                 // The number is kept small for the CI to not take to long.
                 // If you really want to test this increase to 100_000 or so.
                 for _ in 0...1_000 {
-                    
                     // Simulate some real world modifications of the user
-                    
-                    let key = "key"
-                    
-                    _ = Scope(scope: scope)
-                    
-                    for _ in 0...100 {
-                        scope.add(self.fixture.breadcrumb)
-                    }
-                    
-                    scope.serialize()
-                    scope.clearBreadcrumbs()
-                    scope.add(self.fixture.breadcrumb)
-                    
-                    scope.apply(to: SentrySession(releaseName: "1.0.0"))
-                    
-                    scope.setFingerprint(nil)
-                    scope.setFingerprint(["finger", "print"])
-                    
-                    scope.setContext(value: ["some": "value"], key: key)
-                    scope.removeContext(key: key)
-                    
-                    scope.setExtra(value: 1, key: key)
-                    scope.removeExtra(key: key)
-                    scope.setExtras(["value": "1", "value2": "2"])
-                    
-                    scope.apply(to: TestData.event, maxBreadcrumb: 5)
-                    
-                    scope.setTag(value: "value", key: key)
-                    scope.removeTag(key: key)
-                    scope.setTags(["tag1": "hello", "tag2": "hello"])
-                    
-                    scope.add(TestData.fileAttachment)
-                    scope.clearAttachments()
-                    scope.add(TestData.fileAttachment)
-                    
-                    for _ in 0...10 {
-                        scope.add(self.fixture.breadcrumb)
-                    }
-                    scope.serialize()
-                    
-                    scope.setUser(self.fixture.user)
-                    scope.setDist("dist")
-                    scope.setEnvironment("env")
-                    scope.setLevel(SentryLevel.debug)
-                    
-                    scope.apply(to: SentrySession(releaseName: "1.0.0"))
-                    scope.apply(to: TestData.event, maxBreadcrumb: 5)
-                    
-                    scope.serialize()
+                    self.modifyScope(scope: scope)
                 }
                 
                 group.leave()
@@ -560,5 +519,56 @@ class SentryScopeSwiftTests: XCTestCase {
         func setUser(_ user: User?) {
             self.user = user
         }
+    }
+
+    private func modifyScope(scope: Scope) {
+        let key = "key"
+        
+        _ = Scope(scope: scope)
+        
+        for _ in 0...100 {
+            scope.add(self.fixture.breadcrumb)
+        }
+        
+        scope.serialize()
+        scope.clearBreadcrumbs()
+        scope.add(self.fixture.breadcrumb)
+        
+        scope.apply(to: SentrySession(releaseName: "1.0.0"))
+        
+        scope.setFingerprint(nil)
+        scope.setFingerprint(["finger", "print"])
+        
+        scope.setContext(value: ["some": "value"], key: key)
+        scope.removeContext(key: key)
+        
+        scope.setExtra(value: 1, key: key)
+        scope.removeExtra(key: key)
+        scope.setExtras(["value": "1", "value2": "2"])
+        
+        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        
+        scope.setTag(value: "value", key: key)
+        scope.removeTag(key: key)
+        scope.setTags(["tag1": "hello", "tag2": "hello"])
+        
+        scope.add(TestData.fileAttachment)
+        scope.clearAttachments()
+        scope.add(TestData.fileAttachment)
+        
+        for _ in 0...10 {
+            scope.add(self.fixture.breadcrumb)
+        }
+        scope.serialize()
+        
+        scope.setUser(self.fixture.user)
+        scope.setDist("dist")
+        scope.setEnvironment("env")
+        scope.setLevel(SentryLevel.debug)
+        
+        scope.apply(to: SentrySession(releaseName: "1.0.0"))
+        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        
+        scope.serialize()
     }
 }
