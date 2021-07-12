@@ -5,7 +5,7 @@
 
 void sentryscopesync_getJSON(char **json);
 
-void sentryscopesync_setUserJSON(const char *const json);
+void sentryscopesync_setUser(const char *const json);
 
 void sentryscopesync_setDist(const char *const json);
 

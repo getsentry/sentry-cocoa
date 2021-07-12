@@ -30,7 +30,7 @@ SentryCrashScopeObserver ()
 {
     [self syncScope:user
         serialize:^{ return @ { @"user" : [user serialize] }; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setUserJSON(bytes); }];
+        scopeSync:^(const void *bytes) { sentryscopesync_setUser(bytes); }];
 }
 
 - (void)setDist:(nullable NSString *)dist

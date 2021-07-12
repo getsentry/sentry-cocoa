@@ -132,7 +132,7 @@ sentryscopesync_set(const char *const newJSON, const char **field)
 }
 
 void
-sentryscopesync_setUserJSON(const char *const json)
+sentryscopesync_setUser(const char *const json)
 {
     sentryscopesync_set(json, &g_userJSON);
 }
@@ -210,7 +210,7 @@ sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 void
 sentryscopesync_clear(void)
 {
-    sentryscopesync_setUserJSON(NULL);
+    sentryscopesync_setUser(NULL);
     sentryscopesync_setDist(NULL);
     sentryscopesync_setContext(NULL);
     sentryscopesync_setEnvironment(NULL);
