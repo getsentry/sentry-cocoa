@@ -270,6 +270,17 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
+    func testPeformanceOfSyncToSentryCrash_OneCrumb() {
+        let scope = fixture.scope
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        modifyScope(scope: scope)
+        
+        self.measure {
+            scope.add(self.fixture.breadcrumb)
+        }
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
