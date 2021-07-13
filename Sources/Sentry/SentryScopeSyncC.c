@@ -203,6 +203,9 @@ sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 {
     maxCrumbs = maxBreadcrumbs;
     size_t size = sizeof(char *) * maxCrumbs;
+    if (breadcrumbs != NULL) {
+        free((void *)*breadcrumbs);
+    }
     breadcrumbs = malloc(size);
     memset(breadcrumbs, 0, size);
 }
