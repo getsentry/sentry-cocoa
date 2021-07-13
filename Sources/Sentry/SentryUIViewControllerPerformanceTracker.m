@@ -9,12 +9,6 @@
 #import "SentryUIViewControllerSanitizer.h"
 #import <objc/runtime.h>
 
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
-
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
-
 @interface
 SentryUIViewControllerPerformanceTracker ()
 
@@ -65,18 +59,54 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(void (^)(void))callback
 {
-    [self measurePerformance:@"viewWillAppear" target:controller blockToMeasure:callback];
+    SentrySpanId *spanId
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+    if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        // We are no longer tracking this UIViewController, just call the base method.
+        callback();
+    } else {
+        [self.tracker pushActiveSpan:spanId];
+        [self.tracker measureSpanWithDescription:@"viewWillAppear"
+                                       operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                         inBlock:callback];
+
+        SentrySpanId *viewAppearingId =
+            [self.tracker startSpanWithName:@"viewAppearing"
+                                  operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
+
+        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID,
+            viewAppearingId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+        [self.tracker pushActiveSpan:viewAppearingId];
+    }
 }
 
 - (void)viewControllerViewDidAppear:(UIViewController *)controller
                    callbackToOrigin:(void (^)(void))callback
 {
-    [self measurePerformance:@"viewDidAppear" target:controller blockToMeasure:callback];
-
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
-    if (spanId != nil) {
+    if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+        // We are no longer tracking this UIViewController, just call the base method.
+        callback();
+    } else {
+        SentrySpanId *viewAppearingId = objc_getAssociatedObject(
+            controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
+        if (viewAppearingId != nil) {
+            [self.tracker popActiveSpan]; // pop viewAppearingSpan pushed at viewWillAppear
+            [self.tracker finishSpan:viewAppearingId];
+            objc_setAssociatedObject(controller,
+                &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
+                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+
+        [self.tracker measureSpanWithDescription:@"viewDidAppear"
+                                       operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                         inBlock:callback];
+        [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at viewWillAppear
+
         // if we still tracking this UIViewController, finishes the transaction and remove
         // associated span id.
         [self.tracker finishSpan:spanId];
@@ -123,13 +153,17 @@ SentryUIViewControllerPerformanceTracker ()
     } else {
         SentrySpanId *layoutSubViewId = objc_getAssociatedObject(
             controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
-        [self.tracker popActiveSpan];
-        [self.tracker finishSpan:layoutSubViewId];
+
+        if (layoutSubViewId != nil) {
+            [self.tracker popActiveSpan]; // Pop layoutSubView span pushed at viewWillAppear
+            [self.tracker finishSpan:layoutSubViewId];
+        }
 
         [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
                                        operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
                                          inBlock:callback];
-        [self.tracker popActiveSpan];
+
+        [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at viewWillAppear
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
             nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }

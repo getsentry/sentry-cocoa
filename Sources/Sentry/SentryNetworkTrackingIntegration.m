@@ -15,7 +15,7 @@ SentryNetworkTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
-    if (options.enableAutoHttpRequestTracking) {
+    if (options.enableAutoPerformanceTracking) {
         [SentryNetworkSwizzling start];
         [NSURLProtocol registerClass:[SentryHttpInterceptor class]];
     }
