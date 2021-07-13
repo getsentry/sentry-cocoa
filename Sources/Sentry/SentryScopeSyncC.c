@@ -5,18 +5,18 @@
 
 #define NUMBER_OF_FIELDS 9
 
-static const char *userJSON;
-static const char *distJSON;
-static const char *contextJSON;
-static const char *environmentJSON;
-static const char *tagsJSON;
-static const char *extrasJSON;
-static const char *fingerprintJSON;
-static const char *levelJSON;
+static const char *userJSON = NULL;
+static const char *distJSON = NULL;
+static const char *contextJSON = NULL;
+static const char *environmentJSON = NULL;
+static const char *tagsJSON = NULL;
+static const char *extrasJSON = NULL;
+static const char *fingerprintJSON = NULL;
+static const char *levelJSON = NULL;
 
 static long maxCrumbs = 0;
 static int currentCrumb = 0;
-static const char **breadcrumbs; // dynamic array of char arrays
+static const char **breadcrumbs = NULL; // dynamic array of char arrays
 static const char *breadcrumbsStart = "\"breadcrumbs\":[";
 
 static void
