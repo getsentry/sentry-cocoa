@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.2.0-beta.4
+
+- No documented changes.
+
 ## unreleased
 
 - fix: Add viewAppearing to UIViewController spans (#1202)
