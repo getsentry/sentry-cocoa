@@ -1,4 +1,5 @@
 #import "SentryNetworkTracker.h"
+#import "SentryHttpInterceptor+Private.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
@@ -56,6 +57,11 @@ SentryNetworkTracker ()
             return;
         }
     }
+
+    NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
+                                                inRequest:[sessionTask currentRequest]];
+    if (intercepted != nil && [intercepted boolValue])
+        return;
 
     NSURL *url = [[sessionTask currentRequest] URL];
 

@@ -52,6 +52,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryFramesTrackingIntegration.h"
 #import "SentryHttpDateParser.h"
+#import "SentryHttpInterceptor+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+TestInit.h"
@@ -103,4 +104,3 @@
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
 #import "URLSessionTaskMock.h"
-#import "SentryHttpInterceptor+Private.h"
