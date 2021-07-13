@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Compile failure with C99 (#1224)
+
 ## 7.1.3
 
 - feat: Add PrivateSentrySDKOnly (#1131)
