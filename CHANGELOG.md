@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- fix: Compile failure with C99 (#1224)
 - fix: Add viewAppearing to UIViewController spans (#1202)
 
 ## 7.2.0-beta.3

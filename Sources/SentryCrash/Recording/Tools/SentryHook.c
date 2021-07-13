@@ -6,6 +6,7 @@
 #include <execinfo.h>
 #include <mach/mach.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 static bool hooks_active = true;
 
