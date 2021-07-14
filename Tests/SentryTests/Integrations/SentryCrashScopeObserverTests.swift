@@ -9,7 +9,6 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let tags = ["tag": "tag", "tag1": "tag1"]
         let extras = ["extra": [1, 2], "extra2": "tag1"] as [String: Any]
         let fingerprint = ["a", "b", "c"]
-        let emptyScopeJSON = "{}"
         let maxBreadcrumbs = 10
         
         var sut: SentryCrashScopeObserver {
@@ -45,7 +44,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setUser(TestData.user)
         sut.setUser(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testLevel() {
@@ -62,7 +61,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setLevel(SentryLevel.fatal)
         sut.setLevel(SentryLevel.none)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testDist() {
@@ -80,7 +79,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setDist(fixture.dist)
         sut.setDist(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testEnvironment() {
@@ -98,7 +97,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setEnvironment(fixture.environment)
         sut.setEnvironment(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testContext() {
@@ -118,7 +117,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         setContext(scope)
         sut.setContext(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testContext_setEmptyDict() {
@@ -128,7 +127,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         setContext(scope)
         sut.setContext([:])
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testFingerprint() {
@@ -146,7 +145,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testFingerprint_SetToEmptyArray() {
@@ -154,7 +153,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint([])
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testExtra() {
@@ -172,7 +171,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setExtras(fixture.extras)
         sut.setExtras(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testExtra_SetToEmptyDict() {
@@ -180,7 +179,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setExtras(fixture.extras)
         sut.setExtras([:])
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testTags() {
@@ -198,7 +197,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setTags(fixture.tags)
         sut.setTags(nil)
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testTags_SetToEmptyDict() {
@@ -206,7 +205,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setTags(fixture.tags)
         sut.setTags([:])
         
-        XCTAssertEqual(fixture.emptyScopeJSON, getScopeJSON())
+        XCTAssertNil(getScopeJSON())
     }
     
     func testAddCrumb() {
@@ -241,7 +240,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let expected = "{\"breadcrumbs\":\(json)}"
         
         let actual = getScopeJSON()
-        XCTAssertEqual(expected.sorted(), actual.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(actual)")
+        XCTAssertEqual(expected.sorted(), actual?.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(String(describing: actual))")
     }
     
     func testClear() {
@@ -259,9 +258,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         
         sut.clear()
         
-        let json = getScopeJSON()
-        
-        XCTAssertEqual(fixture.emptyScopeJSON, json)
+        XCTAssertNil(getScopeJSON())
     }
     
     func testEmptyScope() {
@@ -274,7 +271,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNotNil(expected)
         
         let actual = getScopeJSON()
-        XCTAssertEqual(expected.sorted(), actual.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(actual)")
+        XCTAssertNil(actual)
     }
     
     func testUserInfoJSON() {
@@ -307,7 +304,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         
         let actual = getScopeJSON()
         
-        XCTAssertEqual(expected.sorted(), actual.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(actual)")
+        XCTAssertEqual(expected.sorted(), actual?.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(String(describing: actual))")
     }
     
     private func setContext(_ scope: Scope) {
@@ -329,9 +326,12 @@ class SentryCrashScopeObserverTests: XCTestCase {
         return String(data: serialized, encoding: .utf8) ?? ""
     }
     
-    private func getScopeJSON() -> String {
-        var jsonPointer = UnsafeMutablePointer<CChar>?(nil)
-        sentryscopesync_getJSON(&jsonPointer)
+    private func getScopeJSON() -> String? {
+        let jsonPointer = sentryscopesync_getJSON()
+        if jsonPointer == nil {
+            return nil
+        }
+        
         let json = String(cString: jsonPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
         jsonPointer?.deallocate()
         return json

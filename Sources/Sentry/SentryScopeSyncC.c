@@ -22,7 +22,7 @@ static const char *breadcrumbsStart = "\"breadcrumbs\":[";
 static void
 add(char *destination, const char *source)
 {
-    if (source != NULL) {
+    if (source) {
         strcat(destination, source);
         strcat(destination, ",");
     }
@@ -61,8 +61,8 @@ getBreadcrumbSize(void)
 /**
  * We don't lock access to the properties in this method as this is called when a crash occurs.
  */
-void
-sentryscopesync_getJSON(char **json)
+char *
+sentryscopesync_getJSON(void)
 {
     size_t brackets = 2;
     size_t nullByte = 1;
@@ -73,51 +73,51 @@ sentryscopesync_getJSON(char **json)
         + getSize(fingerprintJSON) + getSize(levelJSON) + breadcrumbSize + NUMBER_OF_FIELDS
         + brackets + nullByte;
 
-    char *result = calloc(1, resultSize);
-
     if (resultSize == NUMBER_OF_FIELDS + brackets + nullByte + getRawBreadcrumbSize()) {
         // All fields are empty
-        strcat(result, "{}");
-    } else {
-        strcat(result, "{");
-        add(result, userJSON);
-        add(result, distJSON);
-        add(result, contextJSON);
-        add(result, environmentJSON);
-        add(result, tagsJSON);
-        add(result, extrasJSON);
-        add(result, fingerprintJSON);
-        add(result, levelJSON);
-
-        // No crumbs nothing to add
-        if (breadcrumbSize != getRawBreadcrumbSize()) {
-
-            char *crumbs = malloc(breadcrumbSize);
-
-            strcat(crumbs, breadcrumbsStart);
-            for (int i = 0; i < maxCrumbs; i++) {
-                if (breadcrumbs[i] != NULL) {
-                    strcat(crumbs, "{");
-                    strcat(crumbs, breadcrumbs[i]);
-                    strcat(crumbs, "},");
-                }
-            }
-
-            size_t crumbLength = strlen(crumbs);
-            crumbs[crumbLength - 1] = ']';
-            crumbs[crumbLength] = '\0';
-            strcat(crumbs, ",");
-            strcat(result, crumbs);
-
-            free(crumbs);
-        }
-
-        size_t length = strlen(result);
-        result[length - 1] = '}';
-        result[length] = '\0';
+        return NULL;
     }
 
-    *json = result;
+    char *result = calloc(1, resultSize); // TODO: fix this
+
+    strcat(result, "{");
+    add(result, userJSON);
+    add(result, distJSON);
+    add(result, contextJSON);
+    add(result, environmentJSON);
+    add(result, tagsJSON);
+    add(result, extrasJSON);
+    add(result, fingerprintJSON);
+    add(result, levelJSON);
+
+    // No crumbs nothing to add
+    if (breadcrumbSize != getRawBreadcrumbSize()) {
+
+        char *crumbs = malloc(breadcrumbSize);
+
+        strcat(crumbs, breadcrumbsStart);
+        for (int i = 0; i < maxCrumbs; i++) {
+            if (breadcrumbs[i] != NULL) {
+                strcat(crumbs, "{");
+                strcat(crumbs, breadcrumbs[i]);
+                strcat(crumbs, "},");
+            }
+        }
+
+        size_t crumbLength = strlen(crumbs);
+        crumbs[crumbLength - 1] = ']';
+        crumbs[crumbLength] = '\0';
+        strcat(crumbs, ",");
+        strcat(result, crumbs);
+
+        free(crumbs);
+    }
+
+    size_t length = strlen(result);
+    result[length - 1] = '}';
+    result[length] = '\0';
+
+    return result;
 }
 
 static void
@@ -185,6 +185,10 @@ sentryscopesync_setLevel(const char *const json)
 void
 sentryscopesync_addBreadcrumb(const char *const json)
 {
+    if (!breadcrumbs) {
+        return; // TODO: add test
+    }
+
     set(json, &breadcrumbs[currentCrumb]);
     // Ring buffer
     currentCrumb = (currentCrumb + 1) % maxCrumbs;
@@ -203,7 +207,8 @@ sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 {
     maxCrumbs = maxBreadcrumbs;
     size_t size = sizeof(char *) * maxCrumbs;
-    if (breadcrumbs != NULL) {
+    currentCrumb = 0; // TODO: add test
+    if (breadcrumbs) {
         free((void *)*breadcrumbs);
     }
     breadcrumbs = malloc(size);

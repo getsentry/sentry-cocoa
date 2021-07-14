@@ -4,7 +4,7 @@
 /**
  * Stitches together all passed in scope JSON fields and returns it as a full JSON.
  */
-void sentryscopesync_getJSON(char **json);
+char *sentryscopesync_getJSON(void);
 
 void sentryscopesync_setUser(const char *const json);
 

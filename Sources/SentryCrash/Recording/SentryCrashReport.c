@@ -1703,8 +1703,7 @@ sentrycrashreport_writeStandardReport(
             writer->beginObject(writer, SentryCrashField_User);
         }
 
-        char *scopeJSON;
-        sentryscopesync_getJSON(&scopeJSON);
+        char *scopeJSON = sentryscopesync_getJSON();
 
         if (scopeJSON != NULL) {
             addJSONElement(writer, SentryCrashField_Scope, scopeJSON, false);
