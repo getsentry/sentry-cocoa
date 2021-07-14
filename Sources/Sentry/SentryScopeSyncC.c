@@ -5,18 +5,18 @@
 
 #define NUMBER_OF_FIELDS 9
 
-static const char *userJSON = NULL;
-static const char *distJSON = NULL;
-static const char *contextJSON = NULL;
-static const char *environmentJSON = NULL;
-static const char *tagsJSON = NULL;
-static const char *extrasJSON = NULL;
-static const char *fingerprintJSON = NULL;
-static const char *levelJSON = NULL;
+static char *userJSON = NULL;
+static char *distJSON = NULL;
+static char *contextJSON = NULL;
+static char *environmentJSON = NULL;
+static char *tagsJSON = NULL;
+static char *extrasJSON = NULL;
+static char *fingerprintJSON = NULL;
+static char *levelJSON = NULL;
 
 static long maxCrumbs = 0;
 static int currentCrumb = 0;
-static const char **breadcrumbs = NULL; // dynamic array of char arrays
+static char **breadcrumbs = NULL; // dynamic array of char arrays
 static const char *breadcrumbsStart = "\"breadcrumbs\":[";
 
 static void
@@ -45,6 +45,9 @@ getRawBreadcrumbSize(void)
     return sizeof(breadcrumbsStart) + maxCrumbs + addionitalChars + 1;
 }
 
+/**
+ * Returns the required size to serialize the breadcrumbs.
+ */
 static size_t
 getBreadcrumbSize(void)
 {
@@ -55,36 +58,6 @@ getBreadcrumbSize(void)
     return size;
 }
 
-static void
-addBreadcrumbs(char *destination)
-{
-    size_t size = getBreadcrumbSize();
-    char *crumbs = malloc(size);
-
-    // No crumbs nothing to add
-    if (size == getRawBreadcrumbSize()) {
-        return;
-    }
-
-    strcat(crumbs, breadcrumbsStart);
-    for (int i = 0; i < maxCrumbs; i++) {
-        if (breadcrumbs[i] != NULL) {
-            strcat(crumbs, "{");
-            strcat(crumbs, breadcrumbs[i]);
-            strcat(crumbs, "},");
-        }
-    }
-
-    size_t length = strlen(crumbs);
-    crumbs[length - 1] = ']';
-    crumbs[length] = '\0';
-    strcat(crumbs, ",");
-
-    strcat(destination, crumbs);
-
-    free(crumbs);
-}
-
 /**
  * We don't lock access to the properties in this method as this is called when a crash occurs.
  */
@@ -93,9 +66,11 @@ sentryscopesync_getJSON(char **json)
 {
     size_t brackets = 2;
     size_t nullByte = 1;
+    size_t breadcrumbSize = getBreadcrumbSize();
+
     size_t resultSize = getSize(userJSON) + getSize(distJSON) + getSize(contextJSON)
         + getSize(environmentJSON) + getSize(tagsJSON) + getSize(extrasJSON)
-        + getSize(fingerprintJSON) + getSize(levelJSON) + getBreadcrumbSize() + NUMBER_OF_FIELDS
+        + getSize(fingerprintJSON) + getSize(levelJSON) + breadcrumbSize + NUMBER_OF_FIELDS
         + brackets + nullByte;
 
     char *result = calloc(1, resultSize);
@@ -113,7 +88,29 @@ sentryscopesync_getJSON(char **json)
         add(result, extrasJSON);
         add(result, fingerprintJSON);
         add(result, levelJSON);
-        addBreadcrumbs(result);
+
+        // No crumbs nothing to add
+        if (breadcrumbSize != getRawBreadcrumbSize()) {
+
+            char *crumbs = malloc(breadcrumbSize);
+
+            strcat(crumbs, breadcrumbsStart);
+            for (int i = 0; i < maxCrumbs; i++) {
+                if (breadcrumbs[i] != NULL) {
+                    strcat(crumbs, "{");
+                    strcat(crumbs, breadcrumbs[i]);
+                    strcat(crumbs, "},");
+                }
+            }
+
+            size_t crumbLength = strlen(crumbs);
+            crumbs[crumbLength - 1] = ']';
+            crumbs[crumbLength] = '\0';
+            strcat(crumbs, ",");
+            strcat(result, crumbs);
+
+            free(crumbs);
+        }
 
         size_t length = strlen(result);
         result[length - 1] = '}';
@@ -124,12 +121,15 @@ sentryscopesync_getJSON(char **json)
 }
 
 static void
-set(const char *const newJSON, const char **field)
+set(const char *const newJSON, char **field)
 {
-    free((void *)*field);
-    if (newJSON == NULL) {
-        *field = NULL;
-    } else {
+    char *localField = *field;
+    *field = NULL;
+    if (localField != NULL) {
+        free((void *)localField);
+    }
+
+    if (newJSON != NULL) {
         *field = strdup(newJSON);
     }
 }
