@@ -29,52 +29,46 @@ SentryCrashScopeObserver ()
 - (void)setUser:(nullable SentryUser *)user
 {
     [self syncScope:user
-        serialize:^{ return @ { @"user" : [user serialize] }; }
+        serialize:^{ return [user serialize]; }
         scopeSync:^(const void *bytes) { sentryscopesync_setUser(bytes); }];
 }
 
 - (void)setDist:(nullable NSString *)dist
 {
     [self syncScope:dist
-        serialize:^{ return @ { @"dist" : dist }; }
+        serialize:^{ return dist; }
         scopeSync:^(const void *bytes) { sentryscopesync_setDist(bytes); }];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
     [self syncScope:environment
-        serialize:^{ return @ { @"environment" : environment }; }
+        serialize:^{ return environment; }
         scopeSync:^(const void *bytes) { sentryscopesync_setEnvironment(bytes); }];
 }
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self syncScope:context
-              field:@"context"
-          scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
+    [self syncScope:context scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    [self syncScope:extras
-              field:@"extra"
-          scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
+    [self syncScope:extras scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    [self syncScope:tags
-              field:@"tags"
-          scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+    [self syncScope:tags scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
 {
     [self syncScope:fingerprint
         serialize:^{
-            NSDictionary *result = nil;
+            NSArray *result = nil;
             if (fingerprint.count > 0) {
-                result = @ { @"fingerprint" : fingerprint };
+                result = fingerprint;
             }
             return result;
         }
@@ -88,11 +82,8 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSDictionary *serialized = @{ @"level" : SentryLevelNames[level] };
-    NSData *json = [self toJSONAsCString:serialized];
-    if (json == nil) {
-        return;
-    }
+    NSString *levelAsString = SentryLevelNames[level];
+    NSData *json = [self toJSONAsCString:levelAsString];
 
     sentryscopesync_setLevel([json bytes]);
 }
@@ -118,23 +109,21 @@ SentryCrashScopeObserver ()
     sentryscopesync_clear();
 }
 
-- (void)syncScope:(nullable NSDictionary *)dict
-            field:(NSString *)field
-        scopeSync:(void (^)(const void *))scopeSync
+- (void)syncScope:(NSDictionary *)dict scopeSync:(void (^)(const void *))scopeSync
 {
     [self syncScope:dict
           serialize:^{
               NSDictionary *result = nil;
               if (dict.count > 0) {
-                  result = @ { field : dict };
+                  result = dict;
               }
               return result;
           }
           scopeSync:scopeSync];
 }
 
-- (void)syncScope:(nullable id)object
-        serialize:(nullable NSDictionary * (^)(void))serialize
+- (void)syncScope:(id)object
+        serialize:(nullable id (^)(void))serialize
         scopeSync:(void (^)(const void *))scopeSync
 {
     if (object == nil) {
@@ -142,7 +131,7 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSDictionary *serialized = serialize();
+    id serialized = serialize();
     if (serialized == nil) {
         scopeSync(NULL);
         return;
@@ -156,12 +145,12 @@ SentryCrashScopeObserver ()
     scopeSync([jsonCString bytes]);
 }
 
-- (nullable NSData *)toJSONAsCString:(NSDictionary *)serialized
+- (nullable NSData *)toJSONAsCString:(id)toSerialize
 {
     NSError *error = nil;
     NSData *json = nil;
-    if (serialized != nil) {
-        json = [SentryCrashJSONCodec encode:serialized
+    if (toSerialize != nil) {
+        json = [SentryCrashJSONCodec encode:toSerialize
                                     options:SentryCrashJSONEncodeOptionSorted
                                       error:&error];
         if (error != nil) {
@@ -171,9 +160,6 @@ SentryCrashScopeObserver ()
         }
     }
 
-    // Remove first { and last }
-    NSRange range = NSMakeRange(1, [json length] - 2);
-    json = [json subdataWithRange:range];
     // C strings need to be null terminated
     return [json nullTerminated];
 }

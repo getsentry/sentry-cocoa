@@ -1148,6 +1148,10 @@ writeAllThreads(const SentryCrashReportWriter *const writer, const char *const k
     const SentryCrash_MonitorContext *const crash, bool writeNotableAddresses)
 {
     const struct SentryCrashMachineContext *const context = crash->offendingMachineContext;
+
+    if (!context)
+        return;
+
     SentryCrashThread offendingThread = sentrycrashmc_getThreadFromContext(context);
     int threadCount = sentrycrashmc_getThreadCount(context);
     SentryCrashMC_NEW_CONTEXT(machineContext);
@@ -1648,6 +1652,55 @@ writeDebugInfo(const SentryCrashReportWriter *const writer, const char *const ke
     writer->endContainer(writer);
 }
 
+static void
+writeScopeJson(const SentryCrashReportWriter *const writer)
+{
+    SentryCrashScope *scope = sentryscopesync_getScope();
+    writer->beginObject(writer, SentryCrashField_Scope);
+    {
+        if (scope->userJSON) {
+            addJSONElement(writer, "user", scope->userJSON, false);
+        }
+        if (scope->distJSON) {
+            addJSONElement(writer, "dist", scope->distJSON, false);
+        }
+        if (scope->contextJSON) {
+            addJSONElement(writer, "context", scope->contextJSON, false);
+        }
+        if (scope->environmentJSON) {
+            addJSONElement(writer, "environment", scope->environmentJSON, false);
+        }
+        if (scope->tagsJSON) {
+            addJSONElement(writer, "tags", scope->tagsJSON, false);
+        }
+        if (scope->extrasJSON) {
+            addJSONElement(writer, "extra", scope->extrasJSON, false);
+        }
+        if (scope->fingerprintJSON) {
+            addJSONElement(writer, "fingerprint", scope->fingerprintJSON, false);
+        }
+        if (scope->levelJSON) {
+            addJSONElement(writer, "level", scope->levelJSON, false);
+        }
+
+        if (scope->breadcrumbs) {
+            writer->beginArray(writer, "breadcrumbs");
+            {
+                for (int i = 0; i < scope->maxCrumbs; i++) {
+                    // Crumbs use a ringbuffer. We need to start at the current crumb to get the
+                    // crumbs in the correct order.
+                    long index = (scope->currentCrumb + i) % scope->maxCrumbs;
+                    if (scope->breadcrumbs[index]) {
+                        addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
+                    }
+                }
+            }
+            writer->endContainer(writer);
+        }
+    }
+    writer->endContainer(writer);
+}
+
 void
 sentrycrashreport_writeStandardReport(
     const SentryCrash_MonitorContext *const monitorContext, const char *const path)
@@ -1696,19 +1749,14 @@ sentrycrashreport_writeStandardReport(
         }
         writer->endContainer(writer);
 
+        writeScopeJson(writer);
+        sentrycrashfu_flushBufferedWriter(&bufferedWriter);
+
         if (g_userInfoJSON != NULL) {
             addJSONElement(writer, SentryCrashField_User, g_userInfoJSON, false);
             sentrycrashfu_flushBufferedWriter(&bufferedWriter);
         } else {
             writer->beginObject(writer, SentryCrashField_User);
-        }
-
-        char *scopeJSON = sentryscopesync_getJSON();
-
-        if (scopeJSON != NULL) {
-            addJSONElement(writer, SentryCrashField_Scope, scopeJSON, false);
-            sentrycrashfu_flushBufferedWriter(&bufferedWriter);
-            free(scopeJSON);
         }
 
         if (g_userSectionWriteCallback != NULL) {
@@ -1745,17 +1793,6 @@ sentrycrashreport_setUserInfoJSON(const char *const userInfoJSON)
         g_userInfoJSON = strdup(userInfoJSON);
     }
     pthread_mutex_unlock(&mutex);
-}
-
-/**
- * Only needed for testing, no sync needed.
- */
-void
-sentrycrashreport_getUserInfoJSON(char **json)
-{
-    if (g_userInfoJSON != NULL) {
-        *json = strdup(g_userInfoJSON);
-    }
 }
 
 void

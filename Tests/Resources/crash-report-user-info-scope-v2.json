@@ -32,85 +32,85 @@
                 "version": "14.5"
             }
         },
-        "release": "io.sentry.sample.iOS-Swift@7.2.0-beta.3+1",
-        "sentry_sdk_scope": {
-            "user": {
-                "email": "tony1@example.com",
-                "id": "1"
+        "release": "io.sentry.sample.iOS-Swift@7.2.0-beta.3+1"
+    },
+    "sentry_sdk_scope": {
+        "user": {
+            "email": "tony1@example.com",
+            "id": "1"
+        },
+        "environment": "debug",
+        "tags": {
+            "language": "swift"
+        },
+        "extra": {
+            "__sentry_transaction": "iOS_Swift.ViewController",
+            "currentViewController": "<iOS_Swift.ViewController: 0x7fe250019a40>"
+        },
+        "breadcrumbs": [
+            {
+                "category": "started",
+                "level": "info",
+                "message": "Breadcrumb Tracking",
+                "timestamp": "2021-07-12T09:17:54.932Z",
+                "type": "debug"
             },
-            "environment": "debug",
-            "tags": {
-                "language": "swift"
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
             },
-            "extra": {
-                "__sentry_transaction": "iOS_Swift.ViewController",
-                "currentViewController": "<iOS_Swift.ViewController: 0x7fe250019a40>"
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
             },
-            "breadcrumbs": [
-                {
-                    "category": "started",
-                    "level": "info",
-                    "message": "Breadcrumb Tracking",
-                    "timestamp": "2021-07-12T09:17:54.932Z",
-                    "type": "debug"
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
                 },
-                {
-                    "category": "device.orientation",
-                    "data": {
-                        "position": "portrait"
-                    },
-                    "level": "info",
-                    "timestamp": "2021-07-12T09:17:54.977Z",
-                    "type": "navigation"
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
+            },
+            {
+                "category": "app.lifecycle",
+                "data": {
+                    "state": "foreground"
                 },
-                {
-                    "category": "device.orientation",
-                    "data": {
-                        "position": "portrait"
-                    },
-                    "level": "info",
-                    "timestamp": "2021-07-12T09:17:54.977Z",
-                    "type": "navigation"
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.978Z",
+                "type": "navigation"
+            },
+            {
+                "category": "ui.lifecycle",
+                "data": {
+                    "screen": "iOS_Swift.ViewController"
                 },
-                {
-                    "category": "device.orientation",
-                    "data": {
-                        "position": "portrait"
-                    },
-                    "level": "info",
-                    "timestamp": "2021-07-12T09:17:54.977Z",
-                    "type": "navigation"
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:55.020Z",
+                "type": "navigation"
+            },
+            {
+                "category": "touch",
+                "data": {
+                    "view": "<UIButton: 0x7fe24e527120; frame = (0 240; 359 30); opaque = NO; autoresize = RM+BM; layer = <CALayer: 0x60000237d620>>"
                 },
-                {
-                    "category": "app.lifecycle",
-                    "data": {
-                        "state": "foreground"
-                    },
-                    "level": "info",
-                    "timestamp": "2021-07-12T09:17:54.978Z",
-                    "type": "navigation"
-                },
-                {
-                    "category": "ui.lifecycle",
-                    "data": {
-                        "screen": "iOS_Swift.ViewController"
-                    },
-                    "level": "info",
-                    "timestamp": "2021-07-12T09:17:55.020Z",
-                    "type": "navigation"
-                },
-                {
-                    "category": "touch",
-                    "data": {
-                        "view": "<UIButton: 0x7fe24e527120; frame = (0 240; 359 30); opaque = NO; autoresize = RM+BM; layer = <CALayer: 0x60000237d620>>"
-                    },
-                    "level": "info",
-                    "message": "crash:",
-                    "timestamp": "2021-07-12T09:17:56.284Z",
-                    "type": "user"
-                }
-            ]
-        }
+                "level": "info",
+                "message": "crash:",
+                "timestamp": "2021-07-12T09:17:56.284Z",
+                "type": "user"
+            }
+        ]
     },
     "debug": {}
 }

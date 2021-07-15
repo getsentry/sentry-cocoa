@@ -5,7 +5,6 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private class Fixture {
         let dist = "dist"
         let environment = "environment"
-        let context = ["context": ["one": 1]]
         let tags = ["tag": "tag", "tag1": "tag1"]
         let extras = ["extra": [1, 2], "extra2": "tag1"] as [String: Any]
         let fingerprint = ["a", "b", "c"]
@@ -19,12 +18,12 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private let fixture = Fixture()
     
     override func setUp() {
-        sentryscopesync_clear()
+        sentryscopesync_reset()
         SentryCrash.sharedInstance().userInfo = nil
     }
     
     override func tearDown() {
-        sentryscopesync_clear()
+        sentryscopesync_reset()
         SentryCrash.sharedInstance().userInfo = nil
     }
 
@@ -33,192 +32,199 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let user = TestData.user
         sut.setUser(user)
         
-        let userJSON = serialize(object: user.serialize())
-        let expected = "{\"user\":\(userJSON)}"
+        let expected = serialize(object: user.serialize())
         
-        XCTAssertEqual(expected, getScopeJSON())
+        XCTAssertEqual(expected, getScopeJson { $0.userJSON })
     }
 
     func testUser_setToNil() {
         let sut = fixture.sut
         sut.setUser(TestData.user)
         sut.setUser(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.userJSON })
     }
     
     func testLevel() {
         let sut = fixture.sut
         let level = SentryLevel.fatal
         sut.setLevel(level)
-        
-        let expected = "{\"level\":\"fatal\"}"
-        XCTAssertEqual(expected, getScopeJSON())
+
+        XCTAssertEqual("\"fatal\"", getScopeJson { $0.levelJSON })
     }
 
     func testLevel_setToNone() {
         let sut = fixture.sut
         sut.setLevel(SentryLevel.fatal)
         sut.setLevel(SentryLevel.none)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.levelJSON })
     }
-    
+
     func testDist() {
         let sut = fixture.sut
         sut.setDist(fixture.dist)
-        
-        let distJSON = serialize(object: fixture.dist)
-        let expected = "{\"dist\":\(distJSON)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+
+        let expected = serialize(object: fixture.dist)
+
+        XCTAssertEqual(expected, getScopeJson { $0.distJSON })
     }
-    
+
     func testDist_setToNil() {
         let sut = fixture.sut
         sut.setDist(fixture.dist)
         sut.setDist(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.distJSON })
     }
-    
+
     func testEnvironment() {
         let sut = fixture.sut
         sut.setEnvironment(fixture.environment)
-        
-        let environmentJSON = serialize(object: fixture.environment)
-        let expected = "{\"environment\":\(environmentJSON)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+
+        let expected = serialize(object: fixture.environment)
+
+        XCTAssertEqual(expected, getScopeJson { $0.environmentJSON })
     }
-    
+
     func testEnvironment_setToNil() {
         let sut = fixture.sut
         sut.setEnvironment(fixture.environment)
         sut.setEnvironment(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.environmentJSON })
     }
-    
+
     func testContext() {
         let sut = fixture.sut
-        sut.setContext(fixture.context)
-        
-        let contextJSON = serialize(object: fixture.context)
-        let expected = "{\"context\":\(contextJSON)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+        sut.setContext(TestData.context)
+
+        let expected = serialize(object: TestData.context)
+
+        XCTAssertEqual(expected, getScopeJson { $0.contextJSON })
     }
-    
+
     func testContext_setToNil() {
         let scope = Scope()
         let sut = fixture.sut
         scope.add(sut)
-        setContext(scope)
+        TestData.setContext(scope)
         sut.setContext(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.contextJSON })
     }
-    
+
     func testContext_setEmptyDict() {
         let scope = Scope()
         let sut = fixture.sut
         scope.add(sut)
-        setContext(scope)
+        TestData.setContext(scope)
         sut.setContext([:])
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.contextJSON })
     }
-    
+
     func testFingerprint() {
         let sut = fixture.sut
         sut.setFingerprint(fixture.fingerprint)
-        
-        let json = serialize(object: fixture.fingerprint)
-        let expected = "{\"fingerprint\":\(json)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+
+        let expected = serialize(object: fixture.fingerprint)
+
+        XCTAssertEqual(expected, getScopeJson { $0.fingerprintJSON })
     }
-    
+
     func testFingerprint_SetToNil() {
         let sut = fixture.sut
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.fingerprintJSON })
     }
-    
+
     func testFingerprint_SetToEmptyArray() {
         let sut = fixture.sut
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint([])
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.fingerprintJSON })
     }
-    
+
     func testExtra() {
         let sut = fixture.sut
         sut.setExtras(fixture.extras)
-        
-        let json = serialize(object: fixture.extras)
-        let expected = "{\"extra\":\(json)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+
+        let expected = serialize(object: fixture.extras)
+
+        XCTAssertEqual(expected, getScopeJson { $0.extrasJSON })
     }
-    
+
     func testExtra_SetToNil() {
         let sut = fixture.sut
         sut.setExtras(fixture.extras)
         sut.setExtras(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.extrasJSON })
     }
-    
+
     func testExtra_SetToEmptyDict() {
         let sut = fixture.sut
         sut.setExtras(fixture.extras)
         sut.setExtras([:])
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.extrasJSON })
     }
-    
+
     func testTags() {
         let sut = fixture.sut
         sut.setTags(fixture.tags)
-        
-        let json = serialize(object: fixture.tags)
-        let expected = "{\"tags\":\(json)}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+
+        let expected = serialize(object: fixture.tags)
+
+        XCTAssertEqual(expected, getScopeJson { $0.tagsJSON })
     }
-    
+
     func testTags_SetToNil() {
         let sut = fixture.sut
         sut.setTags(fixture.tags)
         sut.setTags(nil)
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.tagsJSON })
     }
-    
+
     func testTags_SetToEmptyDict() {
         let sut = fixture.sut
         sut.setTags(fixture.tags)
         sut.setTags([:])
-        
-        XCTAssertNil(getScopeJSON())
+
+        XCTAssertNil(getScopeJson { $0.tagsJSON })
     }
-    
+
     func testAddCrumb() {
         let sut = fixture.sut
         let crumb = TestData.crumb
         sut.add(crumb)
         
-        let json = serialize(object: crumb.serialize())
-        let expected = "{\"breadcrumbs\":[\(json)]}"
-        
-        XCTAssertEqual(expected, getScopeJSON())
+        assertOneCrumbSetToScope(crumb: crumb)
     }
     
+    func testAddCrumbWithoutConfigure_DoesNotCrash() {
+        sentryscopesync_addBreadcrumb("")
+    }
+    
+    func testCallConfigureCrumbTwice() {
+        let sut = fixture.sut
+        let crumb = TestData.crumb
+        sut.add(crumb)
+        
+        sentryscopesync_configureBreadcrumbs(fixture.maxBreadcrumbs)
+        
+        let scope = sentryscopesync_getScope()
+        XCTAssertEqual(0, scope?.pointee.currentCrumb)
+        
+        sut.add(crumb)
+        assertOneCrumbSetToScope(crumb: crumb)
+    }
+
     func testAddCrumb_MoreThanMaxBreadcrumbs() {
         let sut = fixture.sut
         
@@ -230,25 +236,36 @@ class SentryCrashScopeObserverTests: XCTestCase {
             crumbs.append(crumb)
         }
         crumbs.removeFirst()
+
+        let scope = sentryscopesync_getScope()
         
-        var toSerialize: [[String: Any]] = []
-        for c in crumbs {
-            toSerialize.append(c.serialize())
+        XCTAssertEqual(1, scope?.pointee.currentCrumb)
+        
+        guard let breadcrumbs = scope?.pointee.breadcrumbs else {
+            XCTFail("Pointer to breadcrumbs is nil.")
+            return
         }
         
-        let json = serialize(object: toSerialize)
-        let expected = "{\"breadcrumbs\":\(json)}"
-        
-        let actual = getScopeJSON()
-        XCTAssertEqual(expected.sorted(), actual?.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(String(describing: actual))")
+        // Breadcrumbs are stored with a ring buffer. Therefore,
+        // we need to start where the current crumb is
+        var i = scope?.pointee.currentCrumb ?? 0
+        var crumbPointer = breadcrumbs[i]
+        for crumb in crumbs {
+            let scopeCrumbJSON = String(cString: crumbPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
+            
+            XCTAssertEqual(serialize(object: crumb.serialize()), scopeCrumbJSON)
+            
+            i = (i + 1) % fixture.maxBreadcrumbs
+            crumbPointer = breadcrumbs[i]
+        }
     }
-    
+
     func testClear() {
         let sut = fixture.sut
         let user = TestData.user
         sut.setUser(user)
         sut.setDist(fixture.dist)
-        sut.setContext(fixture.context)
+        sut.setContext(TestData.context)
         sut.setEnvironment(fixture.environment)
         sut.setTags(fixture.tags)
         sut.setExtras(fixture.extras)
@@ -258,67 +275,14 @@ class SentryCrashScopeObserverTests: XCTestCase {
         
         sut.clear()
         
-        XCTAssertNil(getScopeJSON())
+       assertEmptyScope()
     }
     
     func testEmptyScope() {
-        let scope = Scope()
-        let sut = fixture.sut
-        scope.add(sut)
-        SentryCrash.sharedInstance().userInfo = scope.serialize()
+        // First, we need to configure the CScope
+        XCTAssertNotNil(fixture.sut)
         
-        let expected = getUserInfoJSON()
-        XCTAssertNotNil(expected)
-        
-        let actual = getScopeJSON()
-        XCTAssertNil(actual)
-    }
-    
-    func testUserInfoJSON() {
-        let scope = Scope()
-        let sut = fixture.sut
-        scope.add(sut)
-        
-        let tags = ["tag1": "tag1", "tag2": "tag2"]
-        scope.setTags(tags)
-        scope.setExtras(["extra1": "extra1", "extra2": "extra2"])
-        scope.setFingerprint(["finger", "print"])
-        setContext(scope)
-        scope.setEnvironment("Production")
-        scope.setLevel(SentryLevel.fatal)
-        
-        let crumb1 = TestData.crumb
-        crumb1.message = "Crumb 1"
-        scope.add(crumb1)
-
-        let crumb2 = TestData.crumb
-        crumb2.message = "Crumb 2"
-        scope.add(crumb2)
-        
-        scope.setUser(TestData.user)
-        
-        SentryCrash.sharedInstance().userInfo = scope.serialize()
-        
-        let expected = getUserInfoJSON()
-        XCTAssertNotNil(expected)
-        
-        let actual = getScopeJSON()
-        
-        XCTAssertEqual(expected.sorted(), actual?.sorted(), "\nJSON is not equal\nexpected:\n\(expected)\nactual:\n\(String(describing: actual))")
-    }
-    
-    private func setContext(_ scope: Scope) {
-        scope.setContext(value: ["context": 1], key: "context")
-    }
-    
-    private func getUserInfoJSON() -> String {
-        var jsonPointer = UnsafeMutablePointer<CChar>?(nil)
-        sentrycrashreport_getUserInfoJSON(&jsonPointer)
-        let json = String(cString: jsonPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
-        
-        jsonPointer?.deallocate()
-        
-        return json
+        assertEmptyScope()
     }
     
     private func serialize(object: Any) -> String {
@@ -326,14 +290,57 @@ class SentryCrashScopeObserverTests: XCTestCase {
         return String(data: serialized, encoding: .utf8) ?? ""
     }
     
-    private func getScopeJSON() -> String? {
-        let jsonPointer = sentryscopesync_getJSON()
-        if jsonPointer == nil {
+    private func getCrashScope() -> SentryCrashScope {
+        let jsonPointer = sentryscopesync_getScope()
+        return jsonPointer!.pointee
+    }
+    
+    private func getScopeJson(getField: (SentryCrashScope)-> UnsafeMutablePointer<CChar>?) -> String? {
+        guard let scopePointer = sentryscopesync_getScope() else {
+            return nil
+        }
+
+        guard let charPointer = getField(scopePointer.pointee) else {
             return nil
         }
         
-        let json = String(cString: jsonPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
-        jsonPointer?.deallocate()
-        return json
+        return String(cString: charPointer)
+    }
+    
+    private func assertOneCrumbSetToScope(crumb: Breadcrumb) {
+        let expected = serialize(object: crumb.serialize())
+        
+        let scope = sentryscopesync_getScope()
+        
+        XCTAssertEqual(1, scope?.pointee.currentCrumb)
+        
+        let breadcrumbs = scope?.pointee.breadcrumbs
+        let breadcrumbJSON = String(cString: breadcrumbs?.pointee ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
+        
+        XCTAssertEqual(expected, breadcrumbJSON)
+    }
+    
+    private func assertEmptyScope() {
+        let scope = getCrashScope()
+        XCTAssertNil(scope.userJSON)
+        XCTAssertNil(scope.distJSON)
+        XCTAssertNil(scope.contextJSON)
+        XCTAssertNil(scope.environmentJSON)
+        XCTAssertNil(scope.tagsJSON)
+        XCTAssertNil(scope.extrasJSON)
+        XCTAssertNil(scope.fingerprintJSON)
+        XCTAssertNil(scope.levelJSON)
+        
+        XCTAssertEqual(0, scope.currentCrumb)
+        XCTAssertEqual(fixture.maxBreadcrumbs, scope.maxCrumbs)
+        
+        guard let breadcrumbs = scope.breadcrumbs else {
+            XCTFail("Pointer to breadcrumbs is nil.")
+            return
+        }
+
+        for i in 0..<fixture.maxBreadcrumbs {
+            XCTAssertNil(breadcrumbs[i])
+        }
     }
 }
