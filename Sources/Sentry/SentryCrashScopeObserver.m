@@ -10,7 +10,6 @@
 
 @interface
 SentryCrashScopeObserver ()
-@property (nonatomic, assign) NSInteger maxBreadcrumbs;
 
 @end
 
@@ -19,8 +18,7 @@ SentryCrashScopeObserver ()
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
-        sentryscopesync_configureBreadcrumbs(maxBreadcrumbs);
+        sentrycrash_scopesync_configureBreadcrumbs(maxBreadcrumbs);
     }
 
     return self;
@@ -30,36 +28,39 @@ SentryCrashScopeObserver ()
 {
     [self syncScope:user
         serialize:^{ return [user serialize]; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setUser(bytes); }];
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setUser(bytes); }];
 }
 
 - (void)setDist:(nullable NSString *)dist
 {
     [self syncScope:dist
         serialize:^{ return dist; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setDist(bytes); }];
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setDist(bytes); }];
 }
 
 - (void)setEnvironment:(nullable NSString *)environment
 {
     [self syncScope:environment
         serialize:^{ return environment; }
-        scopeSync:^(const void *bytes) { sentryscopesync_setEnvironment(bytes); }];
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setEnvironment(bytes); }];
 }
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self syncScope:context scopeSync:^(const void *bytes) { sentryscopesync_setContext(bytes); }];
+    [self syncScope:context
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setContext(bytes); }];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    [self syncScope:extras scopeSync:^(const void *bytes) { sentryscopesync_setExtras(bytes); }];
+    [self syncScope:extras
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setExtras(bytes); }];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    [self syncScope:tags scopeSync:^(const void *bytes) { sentryscopesync_setTags(bytes); }];
+    [self syncScope:tags
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setTags(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
@@ -72,80 +73,80 @@ SentryCrashScopeObserver ()
             }
             return result;
         }
-        scopeSync:^(const void *bytes) { sentryscopesync_setFingerprint(bytes); }];
+        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setFingerprint(bytes); }];
 }
 
 - (void)setLevel:(enum SentryLevel)level
 {
     if (level == kSentryLevelNone) {
-        sentryscopesync_setLevel(NULL);
+        sentrycrash_scopesync_setLevel(NULL);
         return;
     }
 
     NSString *levelAsString = SentryLevelNames[level];
-    NSData *json = [self toJSONAsCString:levelAsString];
+    NSData *json = [self toJSONEncodedCString:levelAsString];
 
-    sentryscopesync_setLevel([json bytes]);
+    sentrycrash_scopesync_setLevel([json bytes]);
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     NSDictionary *serialized = [crumb serialize];
-    NSData *json = [self toJSONAsCString:serialized];
+    NSData *json = [self toJSONEncodedCString:serialized];
     if (json == nil) {
         return;
     }
 
-    sentryscopesync_addBreadcrumb([json bytes]);
+    sentrycrash_scopesync_addBreadcrumb([json bytes]);
 }
 
 - (void)clearBreadcrumbs
 {
-    sentryscopesync_clearBreadcrumbs();
+    sentrycrash_scopesync_clearBreadcrumbs();
 }
 
 - (void)clear
 {
-    sentryscopesync_clear();
+    sentrycrash_scopesync_clear();
 }
 
-- (void)syncScope:(NSDictionary *)dict scopeSync:(void (^)(const void *))scopeSync
+- (void)syncScope:(NSDictionary *)dict syncToSentryCrash:(void (^)(const void *))syncToSentryCrash
 {
     [self syncScope:dict
-          serialize:^{
-              NSDictionary *result = nil;
-              if (dict.count > 0) {
-                  result = dict;
-              }
-              return result;
-          }
-          scopeSync:scopeSync];
+                serialize:^{
+                    NSDictionary *result = nil;
+                    if (dict.count > 0) {
+                        result = dict;
+                    }
+                    return result;
+                }
+        syncToSentryCrash:syncToSentryCrash];
 }
 
 - (void)syncScope:(id)object
-        serialize:(nullable id (^)(void))serialize
-        scopeSync:(void (^)(const void *))scopeSync
+            serialize:(nullable id (^)(void))serialize
+    syncToSentryCrash:(void (^)(const void *))syncToSentryCrash
 {
     if (object == nil) {
-        scopeSync(NULL);
+        syncToSentryCrash(NULL);
         return;
     }
 
     id serialized = serialize();
     if (serialized == nil) {
-        scopeSync(NULL);
+        syncToSentryCrash(NULL);
         return;
     }
 
-    NSData *jsonCString = [self toJSONAsCString:serialized];
-    if (jsonCString == nil) {
+    NSData *jsonEncodedCString = [self toJSONEncodedCString:serialized];
+    if (jsonEncodedCString == nil) {
         return;
     }
 
-    scopeSync([jsonCString bytes]);
+    syncToSentryCrash([jsonEncodedCString bytes]);
 }
 
-- (nullable NSData *)toJSONAsCString:(id)toSerialize
+- (nullable NSData *)toJSONEncodedCString:(id)toSerialize
 {
     NSError *error = nil;
     NSData *json = nil;

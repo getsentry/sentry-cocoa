@@ -9,13 +9,13 @@
 static SentryCrashScope scope = { 0 };
 
 SentryCrashScope *
-sentryscopesync_getScope(void)
+sentrycrash_scopesync_getScope(void)
 {
     return &scope;
 }
 
 static void
-set(const char *const newJSON, char **field)
+setField(const char *const newJSONCodedCString, char **field)
 {
     char *localField = *field;
     *field = NULL;
@@ -23,87 +23,87 @@ set(const char *const newJSON, char **field)
         free((void *)localField);
     }
 
-    if (newJSON != NULL) {
-        *field = strdup(newJSON);
+    if (newJSONCodedCString != NULL) {
+        *field = strdup(newJSONCodedCString);
     }
 }
 
 void
-sentryscopesync_setUser(const char *const json)
+sentrycrash_scopesync_setUser(const char *const jsonEncodedCString)
 {
-    set(json, &scope.userJSON);
+    setField(jsonEncodedCString, &scope.user);
 }
 
 void
-sentryscopesync_setDist(const char *const json)
+sentrycrash_scopesync_setDist(const char *const jsonEncodedCString)
 {
-    set(json, &scope.distJSON);
+    setField(jsonEncodedCString, &scope.dist);
 }
 
 void
-sentryscopesync_setContext(const char *const json)
+sentrycrash_scopesync_setContext(const char *const jsonEncodedCString)
 {
-    set(json, &scope.contextJSON);
+    setField(jsonEncodedCString, &scope.context);
 }
 
 void
-sentryscopesync_setEnvironment(const char *const json)
+sentrycrash_scopesync_setEnvironment(const char *const jsonEncodedCString)
 {
-    set(json, &scope.environmentJSON);
+    setField(jsonEncodedCString, &scope.environment);
 }
 
 void
-sentryscopesync_setTags(const char *const json)
+sentrycrash_scopesync_setTags(const char *const jsonEncodedCString)
 {
-    set(json, &scope.tagsJSON);
+    setField(jsonEncodedCString, &scope.tags);
 }
 
 void
-sentryscopesync_setExtras(const char *const json)
+sentrycrash_scopesync_setExtras(const char *const jsonEncodedCString)
 {
-    set(json, &scope.extrasJSON);
+    setField(jsonEncodedCString, &scope.extras);
 }
 
 void
-sentryscopesync_setFingerprint(const char *const json)
+sentrycrash_scopesync_setFingerprint(const char *const jsonEncodedCString)
 {
-    set(json, &scope.fingerprintJSON);
+    setField(jsonEncodedCString, &scope.fingerprint);
 }
 
 void
-sentryscopesync_setLevel(const char *const json)
+sentrycrash_scopesync_setLevel(const char *const jsonEncodedCString)
 {
-    set(json, &scope.levelJSON);
+    setField(jsonEncodedCString, &scope.level);
 }
 
 void
-sentryscopesync_addBreadcrumb(const char *const json)
+sentrycrash_scopesync_addBreadcrumb(const char *const jsonEncodedCString)
 {
     if (!scope.breadcrumbs) {
         return;
     }
 
-    set(json, &scope.breadcrumbs[scope.currentCrumb]);
+    setField(jsonEncodedCString, &scope.breadcrumbs[scope.currentCrumb]);
     // Ring buffer
     scope.currentCrumb = (scope.currentCrumb + 1) % scope.maxCrumbs;
 }
 
 void
-sentryscopesync_clearBreadcrumbs(void)
+sentrycrash_scopesync_clearBreadcrumbs(void)
 {
     if (!scope.breadcrumbs) {
         return;
     }
 
     for (int i = 0; i < scope.maxCrumbs; i++) {
-        set(NULL, &scope.breadcrumbs[i]);
+        setField(NULL, &scope.breadcrumbs[i]);
     }
 
     scope.currentCrumb = 0;
 }
 
 void
-sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
+sentrycrash_scopesync_configureBreadcrumbs(long maxBreadcrumbs)
 {
     scope.maxCrumbs = maxBreadcrumbs;
     size_t size = sizeof(char *) * scope.maxCrumbs;
@@ -116,22 +116,22 @@ sentryscopesync_configureBreadcrumbs(long maxBreadcrumbs)
 }
 
 void
-sentryscopesync_clear(void)
+sentrycrash_scopesync_clear(void)
 {
-    sentryscopesync_setUser(NULL);
-    sentryscopesync_setDist(NULL);
-    sentryscopesync_setContext(NULL);
-    sentryscopesync_setEnvironment(NULL);
-    sentryscopesync_setTags(NULL);
-    sentryscopesync_setExtras(NULL);
-    sentryscopesync_setFingerprint(NULL);
-    sentryscopesync_setLevel(NULL);
-    sentryscopesync_clearBreadcrumbs();
+    sentrycrash_scopesync_setUser(NULL);
+    sentrycrash_scopesync_setDist(NULL);
+    sentrycrash_scopesync_setContext(NULL);
+    sentrycrash_scopesync_setEnvironment(NULL);
+    sentrycrash_scopesync_setTags(NULL);
+    sentrycrash_scopesync_setExtras(NULL);
+    sentrycrash_scopesync_setFingerprint(NULL);
+    sentrycrash_scopesync_setLevel(NULL);
+    sentrycrash_scopesync_clearBreadcrumbs();
 }
 
 void
-sentryscopesync_reset(void)
+sentrycrash_scopesync_reset(void)
 {
-    sentryscopesync_clear();
+    sentrycrash_scopesync_clear();
     scope.breadcrumbs = NULL;
 }

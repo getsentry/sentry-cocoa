@@ -1655,32 +1655,32 @@ writeDebugInfo(const SentryCrashReportWriter *const writer, const char *const ke
 static void
 writeScopeJson(const SentryCrashReportWriter *const writer)
 {
-    SentryCrashScope *scope = sentryscopesync_getScope();
+    SentryCrashScope *scope = sentrycrash_scopesync_getScope();
     writer->beginObject(writer, SentryCrashField_Scope);
     {
-        if (scope->userJSON) {
-            addJSONElement(writer, "user", scope->userJSON, false);
+        if (scope->user) {
+            addJSONElement(writer, "user", scope->user, false);
         }
-        if (scope->distJSON) {
-            addJSONElement(writer, "dist", scope->distJSON, false);
+        if (scope->dist) {
+            addJSONElement(writer, "dist", scope->dist, false);
         }
-        if (scope->contextJSON) {
-            addJSONElement(writer, "context", scope->contextJSON, false);
+        if (scope->context) {
+            addJSONElement(writer, "context", scope->context, false);
         }
-        if (scope->environmentJSON) {
-            addJSONElement(writer, "environment", scope->environmentJSON, false);
+        if (scope->environment) {
+            addJSONElement(writer, "environment", scope->environment, false);
         }
-        if (scope->tagsJSON) {
-            addJSONElement(writer, "tags", scope->tagsJSON, false);
+        if (scope->tags) {
+            addJSONElement(writer, "tags", scope->tags, false);
         }
-        if (scope->extrasJSON) {
-            addJSONElement(writer, "extra", scope->extrasJSON, false);
+        if (scope->extras) {
+            addJSONElement(writer, "extra", scope->extras, false);
         }
-        if (scope->fingerprintJSON) {
-            addJSONElement(writer, "fingerprint", scope->fingerprintJSON, false);
+        if (scope->fingerprint) {
+            addJSONElement(writer, "fingerprint", scope->fingerprint, false);
         }
-        if (scope->levelJSON) {
-            addJSONElement(writer, "level", scope->levelJSON, false);
+        if (scope->level) {
+            addJSONElement(writer, "level", scope->level, false);
         }
 
         if (scope->breadcrumbs) {

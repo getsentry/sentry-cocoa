@@ -18,12 +18,12 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private let fixture = Fixture()
     
     override func setUp() {
-        sentryscopesync_reset()
+        sentrycrash_scopesync_reset()
         SentryCrash.sharedInstance().userInfo = nil
     }
     
     override func tearDown() {
-        sentryscopesync_reset()
+        sentrycrash_scopesync_reset()
         SentryCrash.sharedInstance().userInfo = nil
     }
 
@@ -34,7 +34,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         
         let expected = serialize(object: user.serialize())
         
-        XCTAssertEqual(expected, getScopeJson { $0.userJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.user })
     }
 
     func testUser_setToNil() {
@@ -42,7 +42,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setUser(TestData.user)
         sut.setUser(nil)
 
-        XCTAssertNil(getScopeJson { $0.userJSON })
+        XCTAssertNil(getScopeJson { $0.user })
     }
     
     func testLevel() {
@@ -50,7 +50,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let level = SentryLevel.fatal
         sut.setLevel(level)
 
-        XCTAssertEqual("\"fatal\"", getScopeJson { $0.levelJSON })
+        XCTAssertEqual("\"fatal\"", getScopeJson { $0.level })
     }
 
     func testLevel_setToNone() {
@@ -58,7 +58,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setLevel(SentryLevel.fatal)
         sut.setLevel(SentryLevel.none)
 
-        XCTAssertNil(getScopeJson { $0.levelJSON })
+        XCTAssertNil(getScopeJson { $0.level })
     }
 
     func testDist() {
@@ -67,7 +67,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: fixture.dist)
 
-        XCTAssertEqual(expected, getScopeJson { $0.distJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.dist })
     }
 
     func testDist_setToNil() {
@@ -75,7 +75,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setDist(fixture.dist)
         sut.setDist(nil)
 
-        XCTAssertNil(getScopeJson { $0.distJSON })
+        XCTAssertNil(getScopeJson { $0.dist })
     }
 
     func testEnvironment() {
@@ -84,7 +84,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: fixture.environment)
 
-        XCTAssertEqual(expected, getScopeJson { $0.environmentJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.environment })
     }
 
     func testEnvironment_setToNil() {
@@ -92,7 +92,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setEnvironment(fixture.environment)
         sut.setEnvironment(nil)
 
-        XCTAssertNil(getScopeJson { $0.environmentJSON })
+        XCTAssertNil(getScopeJson { $0.environment })
     }
 
     func testContext() {
@@ -101,7 +101,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: TestData.context)
 
-        XCTAssertEqual(expected, getScopeJson { $0.contextJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.context })
     }
 
     func testContext_setToNil() {
@@ -111,7 +111,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         TestData.setContext(scope)
         sut.setContext(nil)
 
-        XCTAssertNil(getScopeJson { $0.contextJSON })
+        XCTAssertNil(getScopeJson { $0.context })
     }
 
     func testContext_setEmptyDict() {
@@ -121,7 +121,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         TestData.setContext(scope)
         sut.setContext([:])
 
-        XCTAssertNil(getScopeJson { $0.contextJSON })
+        XCTAssertNil(getScopeJson { $0.context })
     }
 
     func testFingerprint() {
@@ -130,7 +130,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: fixture.fingerprint)
 
-        XCTAssertEqual(expected, getScopeJson { $0.fingerprintJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.fingerprint })
     }
 
     func testFingerprint_SetToNil() {
@@ -138,7 +138,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint(nil)
 
-        XCTAssertNil(getScopeJson { $0.fingerprintJSON })
+        XCTAssertNil(getScopeJson { $0.fingerprint })
     }
 
     func testFingerprint_SetToEmptyArray() {
@@ -146,7 +146,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setFingerprint(fixture.fingerprint)
         sut.setFingerprint([])
 
-        XCTAssertNil(getScopeJson { $0.fingerprintJSON })
+        XCTAssertNil(getScopeJson { $0.fingerprint })
     }
 
     func testExtra() {
@@ -155,7 +155,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: fixture.extras)
 
-        XCTAssertEqual(expected, getScopeJson { $0.extrasJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.extras })
     }
 
     func testExtra_SetToNil() {
@@ -163,7 +163,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setExtras(fixture.extras)
         sut.setExtras(nil)
 
-        XCTAssertNil(getScopeJson { $0.extrasJSON })
+        XCTAssertNil(getScopeJson { $0.extras })
     }
 
     func testExtra_SetToEmptyDict() {
@@ -171,7 +171,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setExtras(fixture.extras)
         sut.setExtras([:])
 
-        XCTAssertNil(getScopeJson { $0.extrasJSON })
+        XCTAssertNil(getScopeJson { $0.extras })
     }
 
     func testTags() {
@@ -180,7 +180,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let expected = serialize(object: fixture.tags)
 
-        XCTAssertEqual(expected, getScopeJson { $0.tagsJSON })
+        XCTAssertEqual(expected, getScopeJson { $0.tags })
     }
 
     func testTags_SetToNil() {
@@ -188,7 +188,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setTags(fixture.tags)
         sut.setTags(nil)
 
-        XCTAssertNil(getScopeJson { $0.tagsJSON })
+        XCTAssertNil(getScopeJson { $0.tags })
     }
 
     func testTags_SetToEmptyDict() {
@@ -196,7 +196,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sut.setTags(fixture.tags)
         sut.setTags([:])
 
-        XCTAssertNil(getScopeJson { $0.tagsJSON })
+        XCTAssertNil(getScopeJson { $0.tags })
     }
 
     func testAddCrumb() {
@@ -208,7 +208,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
     }
     
     func testAddCrumbWithoutConfigure_DoesNotCrash() {
-        sentryscopesync_addBreadcrumb("")
+        sentrycrash_scopesync_addBreadcrumb("")
     }
     
     func testCallConfigureCrumbTwice() {
@@ -216,9 +216,9 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let crumb = TestData.crumb
         sut.add(crumb)
         
-        sentryscopesync_configureBreadcrumbs(fixture.maxBreadcrumbs)
+        sentrycrash_scopesync_configureBreadcrumbs(fixture.maxBreadcrumbs)
         
-        let scope = sentryscopesync_getScope()
+        let scope = sentrycrash_scopesync_getScope()
         XCTAssertEqual(0, scope?.pointee.currentCrumb)
         
         sut.add(crumb)
@@ -237,7 +237,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         }
         crumbs.removeFirst()
 
-        let scope = sentryscopesync_getScope()
+        let scope = sentrycrash_scopesync_getScope()
         
         XCTAssertEqual(1, scope?.pointee.currentCrumb)
         
@@ -291,12 +291,12 @@ class SentryCrashScopeObserverTests: XCTestCase {
     }
     
     private func getCrashScope() -> SentryCrashScope {
-        let jsonPointer = sentryscopesync_getScope()
+        let jsonPointer = sentrycrash_scopesync_getScope()
         return jsonPointer!.pointee
     }
     
     private func getScopeJson(getField: (SentryCrashScope)-> UnsafeMutablePointer<CChar>?) -> String? {
-        guard let scopePointer = sentryscopesync_getScope() else {
+        guard let scopePointer = sentrycrash_scopesync_getScope() else {
             return nil
         }
 
@@ -310,7 +310,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
     private func assertOneCrumbSetToScope(crumb: Breadcrumb) {
         let expected = serialize(object: crumb.serialize())
         
-        let scope = sentryscopesync_getScope()
+        let scope = sentrycrash_scopesync_getScope()
         
         XCTAssertEqual(1, scope?.pointee.currentCrumb)
         
@@ -322,14 +322,14 @@ class SentryCrashScopeObserverTests: XCTestCase {
     
     private func assertEmptyScope() {
         let scope = getCrashScope()
-        XCTAssertNil(scope.userJSON)
-        XCTAssertNil(scope.distJSON)
-        XCTAssertNil(scope.contextJSON)
-        XCTAssertNil(scope.environmentJSON)
-        XCTAssertNil(scope.tagsJSON)
-        XCTAssertNil(scope.extrasJSON)
-        XCTAssertNil(scope.fingerprintJSON)
-        XCTAssertNil(scope.levelJSON)
+        XCTAssertNil(scope.user)
+        XCTAssertNil(scope.dist)
+        XCTAssertNil(scope.context)
+        XCTAssertNil(scope.environment)
+        XCTAssertNil(scope.tags)
+        XCTAssertNil(scope.extras)
+        XCTAssertNil(scope.fingerprint)
+        XCTAssertNil(scope.level)
         
         XCTAssertEqual(0, scope.currentCrumb)
         XCTAssertEqual(fixture.maxBreadcrumbs, scope.maxCrumbs)
