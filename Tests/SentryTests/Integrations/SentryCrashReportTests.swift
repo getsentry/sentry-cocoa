@@ -9,6 +9,14 @@ class SentryCrashReportTests: XCTestCase {
         init() {
             reportPath = NSString.path(withComponents: [testPath, "SentryCrashReport.json"])
         }
+        
+        var sut: SentryCrashScopeObserver {
+            return SentryCrashScopeObserver(maxBreadcrumbs: 10)
+        }
+        
+        var scope: Scope {
+            return TestData.scopeWith(observer: sut)
+        }
     }
     
     private let fixture = Fixture()
@@ -26,12 +34,21 @@ class SentryCrashReportTests: XCTestCase {
         deleteTestDir()
     }
         
-    func testScopeInCrashReport_IsSameAsSerializingIt() throws {
-        let sut = SentryCrashScopeObserver(maxBreadcrumbs: 10)
-        let scope = TestData.scopeWith(observer: sut)
+    func testScopeInCrashReport_IsSameAsSerializingIt() {
+        let scope = fixture.scope
         
+        assertSerializedUserInfo_SameAsCrashReport(scope: scope)
+    }
+    
+    func testScopeInCrashReport_Cleared_IsSameAsSerializingIt() {
+        let scope = fixture.scope
+        scope.clear()
+        
+        assertSerializedUserInfo_SameAsCrashReport(scope: scope)
+    }
+    
+    private func assertSerializedUserInfo_SameAsCrashReport(scope: Scope) {
         serializeToCrashReport(scope: scope)
-
         writeCrashReport()
         
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
@@ -88,15 +105,15 @@ class SentryCrashReportTests: XCTestCase {
     }
 
     struct CrashReportUserInfo: Decodable, Equatable {
-        let user: CrashReportUser
-        let dist: String
-        let context: [String: [String: String]]
-        let environment: String
-        let tags: [String: String]
-        let extra: [String: String]
-        let fingerprint: [String]
-        let level: String
-        let breadcrumbs: [CrashReportCrumb]
+        let user: CrashReportUser?
+        let dist: String?
+        let context: [String: [String: String]]?
+        let environment: String?
+        let tags: [String: String]?
+        let extra: [String: String]?
+        let fingerprint: [String]?
+        let level: String?
+        let breadcrumbs: [CrashReportCrumb]?
     }
 
     struct CrashReportUser: Decodable, Equatable {

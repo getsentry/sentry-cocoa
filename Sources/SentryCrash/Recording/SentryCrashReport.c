@@ -1684,18 +1684,29 @@ writeScopeJson(const SentryCrashReportWriter *const writer)
         }
 
         if (scope->breadcrumbs) {
-            writer->beginArray(writer, "breadcrumbs");
-            {
-                for (int i = 0; i < scope->maxCrumbs; i++) {
-                    // Crumbs use a ringbuffer. We need to start at the current crumb to get the
-                    // crumbs in the correct order.
-                    long index = (scope->currentCrumb + i) % scope->maxCrumbs;
-                    if (scope->breadcrumbs[index]) {
-                        addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
-                    }
+
+            bool areThereBreadcrumbs = false;
+            for (int i = 0; i < scope->maxCrumbs; i++) {
+                if (scope->breadcrumbs[i]) {
+                    areThereBreadcrumbs = true;
+                    break;
                 }
             }
-            writer->endContainer(writer);
+
+            if (areThereBreadcrumbs) {
+                writer->beginArray(writer, "breadcrumbs");
+                {
+                    for (int i = 0; i < scope->maxCrumbs; i++) {
+                        // Crumbs use a ringbuffer. We need to start at the current crumb to get the
+                        // crumbs in the correct order.
+                        long index = (scope->currentCrumb + i) % scope->maxCrumbs;
+                        if (scope->breadcrumbs[index]) {
+                            addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
+                        }
+                    }
+                }
+                writer->endContainer(writer);
+            }
         }
     }
     writer->endContainer(writer);
