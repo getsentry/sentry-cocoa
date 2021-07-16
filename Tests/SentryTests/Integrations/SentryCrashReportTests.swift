@@ -3,11 +3,11 @@ import XCTest
 class SentryCrashReportTests: XCTestCase {
     
     private class Fixture {
-        let testPath = "\(NSTemporaryDirectory())/SentryTest"
+        let testPath: String = NSString.path(withComponents: [NSTemporaryDirectory(), "SentryTest"])
         let reportPath: String
         
         init() {
-            reportPath = "\(self.testPath)SentryCrashReport.json"
+            reportPath = NSString.path(withComponents: [testPath, "SentryCrashReport.json"])
         }
     }
     
@@ -17,10 +17,12 @@ class SentryCrashReportTests: XCTestCase {
     override func setUp() {
         super.setUp()
         deleteTestDir()
+        createTestDir()
     }
     
     override func tearDown() {
         super.tearDown()
+        
         deleteTestDir()
     }
         
@@ -33,11 +35,15 @@ class SentryCrashReportTests: XCTestCase {
         writeCrashReport()
         
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()
-        let crashReport: CrashReport = try! JSONDecoder().decode(CrashReport.self, from: crashReportContents)
-        
-        // The serialized scope is stored in user. This was the way to store the scope before declaring an extra area for it.
-        // We compare the approach before with the current approach to make sure it's working fine.
-        XCTAssertEqual(crashReport.user, crashReport.sentry_sdk_scope)
+        do {
+            let crashReport: CrashReport = try JSONDecoder().decode(CrashReport.self, from: crashReportContents)
+            
+            // The serialized scope is stored in user. This was the way to store the scope before declaring an extra area for it.
+            // We compare the approach before with the current approach to make sure it's working fine.
+            XCTAssertEqual(crashReport.user, crashReport.sentry_sdk_scope)
+        } catch {
+            XCTFail("Couldn't decode crash report: \(error)")
+        }
     }
     
     private func writeCrashReport() {
@@ -58,12 +64,24 @@ class SentryCrashReportTests: XCTestCase {
     
     private func deleteTestDir() {
         do {
-            try fileManager.removeItem(atPath: fixture.testPath)
+            if fileManager.fileExists(atPath: fixture.testPath) {
+                try fileManager.removeItem(atPath: fixture.testPath)
+            }
         } catch {
-            // ignore
+            XCTFail("Couldn't delete test dir: \(error)")
         }
     }
     
+    private func createTestDir() {
+        do {
+            try fileManager.createDirectory(atPath: fixture.testPath, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            XCTFail("Couldn't create test dir: \(error)")
+        }
+    }
+    
+    // We parse JSON so it's fine to disable identifier_name
+    // swiftlint:disable identifier_name
     struct CrashReport: Decodable {
         let user: CrashReportUserInfo
         let sentry_sdk_scope: CrashReportUserInfo
@@ -72,7 +90,7 @@ class SentryCrashReportTests: XCTestCase {
     struct CrashReportUserInfo: Decodable, Equatable {
         let user: CrashReportUser
         let dist: String
-        let context: [String: [String: Int]]
+        let context: [String: [String: String]]
         let environment: String
         let tags: [String: String]
         let extra: [String: String]
@@ -97,4 +115,5 @@ class SentryCrashReportTests: XCTestCase {
         let timestamp: String
         let type: String
     }
+    // swiftlint:enable identifier_name
 }
