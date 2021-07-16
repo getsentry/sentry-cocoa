@@ -31,7 +31,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
         }
     }
     
-    private class TestProtocol : URLProtocol{
+    private class TestProtocol: URLProtocol {
         
     }
     

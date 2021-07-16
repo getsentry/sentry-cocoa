@@ -25,7 +25,8 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
         : [[NSMutableArray alloc] init];
 
     if (![protocolClasses containsObject:[self class]]) {
-        //Adding SentryHTTPInterceptor at index 0 of the protocol list to be the first to intercept.
+        // Adding SentryHTTPInterceptor at index 0 of the protocol list to be the first to
+        // intercept.
         [protocolClasses insertObject:[self class] atIndex:0];
     }
 

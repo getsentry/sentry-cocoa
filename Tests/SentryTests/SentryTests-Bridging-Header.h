@@ -69,6 +69,7 @@
 #import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNetworkTracker.h"
+#import "SentryNetworkTrackingIntegration.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryPerformanceTracker.h"
@@ -104,4 +105,3 @@
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
 #import "URLSessionTaskMock.h"
-#import "SentryNetworkTrackingIntegration.h"
