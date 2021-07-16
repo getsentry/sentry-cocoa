@@ -2,11 +2,11 @@
 
 ## Unreleased 
 
+- perf: Scope sync to SentryCrash (#1193)
 - fix: Compile failure with C99 (#1224)
 
 ## 7.2.0-beta.4
 
-- perf: Scope sync to SentryCrash (#1193)
 - fix: Add viewAppearing to UIViewController spans (#1202)
 
 ## 7.2.0-beta.3
