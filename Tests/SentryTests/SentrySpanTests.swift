@@ -151,7 +151,7 @@ class SentrySpanTests: XCTestCase {
         
         XCTAssertEqual(header.traceId, span.context.traceId)
         XCTAssertEqual(header.spanId, span.context.spanId)
-        XCTAssertEqual(header.sampleDecision, .no)
+        XCTAssertEqual(header.sampled, .no)
         XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-0")
     }
     
@@ -161,7 +161,7 @@ class SentrySpanTests: XCTestCase {
         
         XCTAssertEqual(header.traceId, span.context.traceId)
         XCTAssertEqual(header.spanId, span.context.spanId)
-        XCTAssertEqual(header.sampleDecision, .yes)
+        XCTAssertEqual(header.sampled, .yes)
         XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-1")
     }
     
@@ -171,7 +171,7 @@ class SentrySpanTests: XCTestCase {
         
         XCTAssertEqual(header.traceId, span.context.traceId)
         XCTAssertEqual(header.spanId, span.context.spanId)
-        XCTAssertEqual(header.sampleDecision, .undecided)
+        XCTAssertEqual(header.sampled, .undecided)
         XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)")
     }
     

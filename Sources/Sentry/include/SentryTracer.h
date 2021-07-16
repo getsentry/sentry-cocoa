@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
 /**
- * Returns a string that could be sent as a sentry-trace header.
+ * Returns the trace information that could be sent as a sentry-trace header.
  *
  * @return SentryTraceHeader.
  */

@@ -82,7 +82,7 @@ SentrySpan ()
 {
     return [[SentryTraceHeader alloc] initWithTraceId:self.context.traceId
                                                spanId:self.context.spanId
-                                       sampleDecision:self.context.sampled];
+                                              sampled:self.context.sampled];
 }
 
 - (NSDictionary *)serialize

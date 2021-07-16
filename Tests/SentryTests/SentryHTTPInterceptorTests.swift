@@ -31,6 +31,10 @@ class SentryHTTPInterceptorTests: XCTestCase {
         }
     }
     
+    private class TestProtocol : URLProtocol{
+        
+    }
+    
     private var fixture: Fixture!
     
     override func setUp() {
@@ -51,6 +55,13 @@ class SentryHTTPInterceptorTests: XCTestCase {
         XCTAssertNil(configuration.protocolClasses)
         SentryHttpInterceptor.configureSessionConfiguration(configuration)
         XCTAssertEqual(configuration.protocolClasses?.count, 1)
+        XCTAssertTrue(configuration.protocolClasses?.first === SentryHttpInterceptor.self)
+    }
+    
+    func testSessionConfigurationWithOtherProtocol() {
+        let configuration = URLSessionConfiguration()
+        configuration.protocolClasses = [TestProtocol.self]
+        SentryHttpInterceptor.configureSessionConfiguration(configuration)
         XCTAssertTrue(configuration.protocolClasses?.first === SentryHttpInterceptor.self)
     }
     

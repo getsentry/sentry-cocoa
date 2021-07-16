@@ -6,25 +6,25 @@
 
 @synthesize traceId = _traceId;
 @synthesize spanId = _spanId;
-@synthesize sampleDecision = _sampleDecision;
+@synthesize sampled = _sampled;
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
-                 sampleDecision:(SentrySampleDecision)sampleDecision
+                        sampled:(SentrySampleDecision)sampleDecision
 {
     if (self = [super init]) {
         _traceId = traceId;
         _spanId = spanId;
-        _sampleDecision = sampleDecision;
+        _sampled = sampleDecision;
     }
     return self;
 }
 
 - (NSString *)value
 {
-    return _sampleDecision != kSentrySampleDecisionUndecided
+    return _sampled != kSentrySampleDecisionUndecided
         ? [NSString stringWithFormat:@"%@-%@-%i", _traceId.sentryIdString,
-                    _spanId.sentrySpanIdString, _sampleDecision == kSentrySampleDecisionYes ? 1 : 0]
+                    _spanId.sentrySpanIdString, _sampled == kSentrySampleDecisionYes ? 1 : 0]
         : [NSString stringWithFormat:@"%@-%@", _traceId.sentryIdString, _spanId.sentrySpanIdString];
 }
 
