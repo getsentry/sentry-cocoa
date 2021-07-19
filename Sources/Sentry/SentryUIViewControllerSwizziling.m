@@ -15,6 +15,36 @@
     [SentryUIViewControllerSwizziling swizzleViewControllerInits];
 }
 
+NSArray<Class>*ClassGetSubclasses(Class parentClass)
+{
+  int numClasses = objc_getClassList(NULL, 0);
+  Class *classes = NULL;
+
+  classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * numClasses);
+  numClasses = objc_getClassList(classes, numClasses);
+
+  NSMutableArray *result = [NSMutableArray array];
+  for (NSInteger i = 0; i < numClasses; i++)
+  {
+    Class superClass = classes[i];
+    do
+    {
+      superClass = class_getSuperclass(superClass);
+    } while(superClass && superClass != parentClass);
+
+    if (superClass == nil)
+    {
+      continue;
+    }
+
+    [result addObject:classes[i]];
+  }
+
+  free(classes);
+
+  return result;
+}
+
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #    pragma clang diagnostic push
@@ -26,23 +56,32 @@
  */
 + (void)swizzleViewControllerInits
 {
-    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
-            return SentrySWCallOriginal(coder);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
+    NSArray<Class>* viewControllers =  ClassGetSubclasses([UIViewController class]);
+    
+    for (Class viewController in viewControllers) {
+        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
+    }
+    
 
-    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
-    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
-    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
-            return SentrySWCallOriginal(nibName, bundle);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
+    
+    
+//    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
+//    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
+//    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
+//        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
+//            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+//            return SentrySWCallOriginal(coder);
+//        }),
+//        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
+//
+//    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
+//    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
+//    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
+//        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
+//            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+//            return SentrySWCallOriginal(nibName, bundle);
+//        }),
+//        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
