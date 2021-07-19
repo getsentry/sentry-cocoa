@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,m}",
+      sp.source_files = "Sources/Sentry/**/*.{h,m,c}",
         "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
         
       sp.public_header_files =

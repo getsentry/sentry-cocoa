@@ -290,22 +290,36 @@
     XCTAssertEqual(event.extra.count, (unsigned long)3);
 }
 
-- (void)testBreadCrumb
+/**
+ * Uses two valid crash reports taken from a simulator, with matching scope data.
+ */
+- (void)testScopeSync_V1_VS_V2
 {
-    [self isValidReport:@"Resources/breadcrumb"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/breadcrumb"];
-    SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
-                                           frameInAppLogic:self.frameInAppLogic];
-    SentryEvent *event = [reportConverter convertReportToEvent];
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
-    XCTAssertEqual(event.breadcrumbs.firstObject.level, kSentryLevelInfo);
-    XCTAssertEqualObjects(
-        [event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
+    [self isValidReport:@"Resources/crash-report-user-info-scope-v1"];
+    [self isValidReport:@"Resources/crash-report-user-info-scope-v2"];
 
-    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
-    XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
+    NSDictionary *rawCrashV1 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v1"];
+    NSDictionary *rawCrashV2 = [self getCrashReport:@"Resources/crash-report-user-info-scope-v2"];
+
+    SentryCrashReportConverter *reportConverterV1 =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrashV1
+                                           frameInAppLogic:self.frameInAppLogic];
+
+    SentryCrashReportConverter *reportConverterV2 =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrashV2
+                                           frameInAppLogic:self.frameInAppLogic];
+
+    [self compareDict:reportConverterV1.userContext withDict:reportConverterV2.userContext];
+}
+
+- (void)testBreadcrumb_FromUserInfo
+{
+    [self testBreadcrumb:@"Resources/breadcrumb"];
+}
+
+- (void)testBreadcrumb_FromSDKScope
+{
+    [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }
 
 #pragma mark private helper
@@ -361,6 +375,24 @@
     NSLog(@"%@",
         [NSString stringWithFormat:@"%@",
                   [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]);
+}
+
+- (void)testBreadcrumb:(NSString *)reportPath
+{
+    [self isValidReport:reportPath];
+    NSDictionary *rawCrash = [self getCrashReport:reportPath];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash
+                                           frameInAppLogic:self.frameInAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"ui.lifecycle");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.type, @"navigation");
+    XCTAssertEqual(event.breadcrumbs.firstObject.level, kSentryLevelInfo);
+    XCTAssertEqualObjects(
+        [event.breadcrumbs.firstObject.data objectForKey:@"screen"], @"UIInputWindowController");
+
+    NSDate *date = [NSDate sentry_fromIso8601String:@"2020-02-06T01:00:32Z"];
+    XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 
 @end

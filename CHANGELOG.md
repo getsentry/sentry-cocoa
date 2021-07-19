@@ -3,6 +3,7 @@
 ## Unreleased 
 
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
+- perf: Scope sync to SentryCrash (#1193)
 - fix: Compile failure with C99 (#1224)
 
 ## 7.2.0-beta.4
