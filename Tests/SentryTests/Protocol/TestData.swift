@@ -176,6 +176,37 @@ class TestData {
         return event
     }
     
+    static func scopeWith(observer: SentryScopeObserver) -> Scope {
+        let scope = Scope()
+        scope.add(observer)
+        
+        scope.setUser(TestData.user)
+        scope.setDist("dist")
+        setContext(scope)
+        scope.setEnvironment("Production")
+        
+        let tags = ["tag1": "tag1", "tag2": "tag2"]
+        scope.setTags(tags)
+        scope.setExtras(["extra1": "extra1", "extra2": "extra2"])
+        scope.setFingerprint(["finger", "print"])
+        
+        scope.setLevel(SentryLevel.fatal)
+        
+        let crumb1 = TestData.crumb
+        crumb1.message = "Crumb 1"
+        scope.add(crumb1)
+
+        let crumb2 = TestData.crumb
+        crumb2.message = "Crumb 2"
+        scope.add(crumb2)
+        
+        return scope
+    }
+    
+    static func setContext(_ scope: Scope) {
+        scope.setContext(value: TestData.context["context"]!, key: "context")
+    }
+    
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private static var maximumFramesPerSecond: Int {
         if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
