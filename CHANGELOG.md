@@ -2,6 +2,7 @@
 
 ## Unreleased 
 
+- fix: ViewController swizzling before iOS 13 (#1231)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 - perf: Scope sync to SentryCrash (#1193)
 - fix: Compile failure with C99 (#1224)
