@@ -15,36 +15,6 @@
     [SentryUIViewControllerSwizziling swizzleViewControllerInits];
 }
 
-NSArray<Class>*ClassGetSubclasses(Class parentClass)
-{
-  int numClasses = objc_getClassList(NULL, 0);
-  Class *classes = NULL;
-
-  classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * numClasses);
-  numClasses = objc_getClassList(classes, numClasses);
-
-  NSMutableArray *result = [NSMutableArray array];
-  for (NSInteger i = 0; i < numClasses; i++)
-  {
-    Class superClass = classes[i];
-    do
-    {
-      superClass = class_getSuperclass(superClass);
-    } while(superClass && superClass != parentClass);
-
-    if (superClass == nil)
-    {
-      continue;
-    }
-
-    [result addObject:classes[i]];
-  }
-
-  free(classes);
-
-  return result;
-}
-
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #    pragma clang diagnostic push
@@ -56,32 +26,87 @@ NSArray<Class>*ClassGetSubclasses(Class parentClass)
  */
 + (void)swizzleViewControllerInits
 {
-    NSArray<Class>* viewControllers =  ClassGetSubclasses([UIViewController class]);
-    
-    for (Class viewController in viewControllers) {
-        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
-    }
-    
+    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
+    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
+    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
+        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+            return SentrySWCallOriginal(coder);
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
 
-    
-    
-//    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-//    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
-//    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
-//        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-//            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
-//            return SentrySWCallOriginal(coder);
-//        }),
-//        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
-//
-//    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
-//    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
-//    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
-//        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-//            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
-//            return SentrySWCallOriginal(nibName, bundle);
-//        }),
-//        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
+    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
+    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
+    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
+        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+            return SentrySWCallOriginal(nibName, bundle);
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
+
+    [SentryUIViewControllerSwizziling swizzleRootViewController];
+}
+
+/**
+ * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view controller
+ * before the SentrySDK is initialized. Therefore, we manually call swizzle here not to lose
+ * auto-generated transactions for the initial view controller. As we use
+ * SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling twice. We
+ * could also use objc_getClassList to lookup sub classes of UIViewController, but the lookup can
+ * take around 60ms, which is not acceptable.
+ */
++ (void)swizzleRootViewController
+{
+    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
+        [SentryLog logWithMessage:@"UIApplication doesn't respont to sharedApplication. Skipping "
+                                  @"swizzleRootViewController."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
+
+    if (app == nil) {
+        [SentryLog logWithMessage:@"UIApplication is nil. Skipping swizzleRootViewController."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    if (app.delegate == nil) {
+        [SentryLog
+            logWithMessage:@"UIApplicationDelegate is nil. Skipping swizzleRootViewController."
+                  andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    // Check if delegate responds to window, which it doesn't have to.
+    if (![app.delegate respondsToSelector:@selector(window)]) {
+        [SentryLog logWithMessage:@"UIApplicationDelegate doesn't respond to window selctor. "
+                                  @"Skipping swizzleRootViewController."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    if (app.delegate.window == nil) {
+        [SentryLog logWithMessage:
+                       @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    UIViewController *rootViewController = app.delegate.window.rootViewController;
+    if (rootViewController == nil) {
+        [SentryLog logWithMessage:@"UIApplicationDelegate.window.rootViewController is nil. "
+                                  @"Skipping swizzleRootViewController."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    Class rootViewControllerClass = [rootViewController class];
+    if (rootViewControllerClass != nil) {
+        [SentryLog logWithMessage:@"Calling swizzleRootViewController." andLevel:kSentryLevelDebug];
+        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:rootViewControllerClass];
+    }
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
