@@ -59,6 +59,10 @@ class SentryScopeSwiftTests: XCTestCase {
             transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
         }
         
+        var observer: TestScopeObserver {
+            return TestScopeObserver()
+        }
+        
         var dateAs8601String: String {
             get {
                 (date as NSDate).sentry_toIso8601String()
@@ -257,6 +261,26 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
     }
     
+    func testPeformanceOfSyncToSentryCrash() {
+        let scope = fixture.scope
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        self.measure {
+            modifyScope(scope: scope)
+        }
+    }
+    
+    func testPeformanceOfSyncToSentryCrash_OneCrumb() {
+        let scope = fixture.scope
+        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        
+        modifyScope(scope: scope)
+        
+        self.measure {
+            scope.add(self.fixture.breadcrumb)
+        }
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
@@ -269,64 +293,15 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let scope = fixture.scope
         
-        for _ in 0...20 {
+        for _ in 0...2 {
             group.enter()
             queue.async {
                 
                 // The number is kept small for the CI to not take to long.
                 // If you really want to test this increase to 100_000 or so.
                 for _ in 0...1_000 {
-                    
                     // Simulate some real world modifications of the user
-                    
-                    let key = "key"
-                    
-                    _ = Scope(scope: scope)
-                    
-                    for _ in 0...100 {
-                        scope.add(self.fixture.breadcrumb)
-                    }
-                    
-                    scope.serialize()
-                    scope.clearBreadcrumbs()
-                    scope.add(self.fixture.breadcrumb)
-                    
-                    scope.apply(to: SentrySession(releaseName: "1.0.0"))
-                    
-                    scope.setFingerprint(nil)
-                    scope.setFingerprint(["finger", "print"])
-                    
-                    scope.setContext(value: ["some": "value"], key: key)
-                    scope.removeContext(key: key)
-                    
-                    scope.setExtra(value: 1, key: key)
-                    scope.removeExtra(key: key)
-                    scope.setExtras(["value": "1", "value2": "2"])
-                    
-                    scope.apply(to: TestData.event, maxBreadcrumb: 5)
-                    
-                    scope.setTag(value: "value", key: key)
-                    scope.removeTag(key: key)
-                    scope.setTags(["tag1": "hello", "tag2": "hello"])
-                    
-                    scope.add(TestData.fileAttachment)
-                    scope.clearAttachments()
-                    scope.add(TestData.fileAttachment)
-                    
-                    for _ in 0...10 {
-                        scope.add(self.fixture.breadcrumb)
-                    }
-                    scope.serialize()
-                    
-                    scope.setUser(self.fixture.user)
-                    scope.setDist("dist")
-                    scope.setEnvironment("env")
-                    scope.setLevel(SentryLevel.debug)
-                    
-                    scope.apply(to: SentrySession(releaseName: "1.0.0"))
-                    scope.apply(to: TestData.event, maxBreadcrumb: 5)
-                    
-                    scope.serialize()
+                    self.modifyScope(scope: scope)
                 }
                 
                 group.leave()
@@ -335,5 +310,276 @@ class SentryScopeSwiftTests: XCTestCase {
         
         queue.activate()
         group.waitWithTimeout(timeout: 500)
+    }
+    
+    func testScopeObserver_setUser() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let user = TestData.user
+        sut.setUser(user)
+        
+        XCTAssertEqual(user, observer.user)
+    }
+    
+    func testScopeObserver_setTags() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setTags(fixture.tags)
+        
+        XCTAssertEqual(fixture.tags, observer.tags)
+    }
+    
+    func testScopeObserver_setTagValue() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setTag(value: "tag", key: "tag")
+        
+        XCTAssertEqual( ["tag": "tag"], observer.tags)
+    }
+    
+    func testScopeObserver_removeTag() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setTag(value: "tag", key: "tag")
+        sut.removeTag(key: "tag")
+        
+        XCTAssertEqual(0, observer.tags?.count)
+    }
+    
+    func testScopeObserver_setExtras() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setExtras( fixture.extra)
+        
+        XCTAssertEqual(fixture.extra, observer.extras as? [String: String])
+    }
+    
+    func testScopeObserver_setExtraValue() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let extras = ["extra": 1]
+        
+        sut.setExtra(value: 1, key: "extra")
+        XCTAssertEqual(extras, observer.extras as? [String: Int])
+    }
+    
+    func testScopeObserver_removeExtra() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setExtras(["extra": 1])
+        sut.removeExtra(key: "extra")
+        
+        XCTAssertEqual(0, observer.extras?.count)
+    }
+    
+    func testScopeObserver_setContext() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let value = ["extra": 1]
+        sut.setContext(value: ["extra": 1], key: "context")
+        
+        XCTAssertEqual(["context": value], observer.context as? [String: [String: Int]])
+    }
+    
+    func testScopeObserver_setDist() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let dist = "dist"
+        sut.setDist(dist)
+        
+        XCTAssertEqual(dist, observer.dist)
+    }
+    
+    func testScopeObserver_setEnvironment() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let environment = "environment"
+        sut.setEnvironment(environment)
+        
+        XCTAssertEqual(environment, observer.environment)
+    }
+    
+    func testScopeObserver_setFingerprint() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let fingerprint = ["finger", "print"]
+        sut.setFingerprint(fingerprint)
+        
+        XCTAssertEqual(fingerprint, observer.fingerprint)
+    }
+    
+    func testScopeObserver_setLevel() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let level = SentryLevel.info
+        sut.setLevel(level)
+        
+        XCTAssertEqual(level, observer.level)
+    }
+    
+    func testScopeObserver_addBreadcrumb() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        let crumb = TestData.crumb
+        sut.add(crumb)
+        sut.add(crumb)
+        
+        XCTAssertEqual([crumb, crumb], observer.crumbs)
+    }
+    
+    func testScopeObserver_clearBreadcrumb() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.clearBreadcrumbs()
+        sut.clearBreadcrumbs()
+        
+        XCTAssertEqual(2, observer.clearBreadcrumbInvocations)
+    }
+    
+    func testScopeObserver_clear() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.clear()
+        sut.clear()
+        
+        XCTAssertEqual(2, observer.clearInvocations)
+    }
+    
+    class TestScopeObserver: NSObject, SentryScopeObserver {
+        var tags: [String: String]?
+        func setTags(_ tags: [String: String]?) {
+            self.tags = tags
+        }
+        
+        var extras: [String: Any]?
+        func setExtras(_ extras: [String: Any]?) {
+            self.extras = extras
+        }
+        
+        var context: [String: Any]?
+        func setContext(_ context: [String: Any]?) {
+            self.context = context
+        }
+        
+        var dist: String?
+        func setDist(_ dist: String?) {
+            self.dist = dist
+        }
+        
+        var environment: String?
+        func setEnvironment(_ environment: String?) {
+            self.environment = environment
+        }
+        
+        var fingerprint: [String]?
+        func setFingerprint(_ fingerprint: [String]?) {
+            self.fingerprint = fingerprint
+        }
+        
+        var level: SentryLevel?
+        func setLevel(_ level: SentryLevel) {
+            self.level = level
+        }
+        
+        var crumbs: [Breadcrumb] = []
+        func add(_ crumb: Breadcrumb) {
+            crumbs.append(crumb)
+        }
+        
+        var clearBreadcrumbInvocations = 0
+        func clearBreadcrumbs() {
+            clearBreadcrumbInvocations += 1
+        }
+        
+        var clearInvocations = 0
+        func clear() {
+            clearInvocations += 1
+        }
+        
+        var user: User?
+        func setUser(_ user: User?) {
+            self.user = user
+        }
+    }
+
+    private func modifyScope(scope: Scope) {
+        let key = "key"
+        
+        _ = Scope(scope: scope)
+        
+        for _ in 0...100 {
+            scope.add(self.fixture.breadcrumb)
+        }
+        
+        scope.serialize()
+        scope.clearBreadcrumbs()
+        scope.add(self.fixture.breadcrumb)
+        
+        scope.apply(to: SentrySession(releaseName: "1.0.0"))
+        
+        scope.setFingerprint(nil)
+        scope.setFingerprint(["finger", "print"])
+        
+        scope.setContext(value: ["some": "value"], key: key)
+        scope.removeContext(key: key)
+        
+        scope.setExtra(value: 1, key: key)
+        scope.removeExtra(key: key)
+        scope.setExtras(["value": "1", "value2": "2"])
+        
+        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        
+        scope.setTag(value: "value", key: key)
+        scope.removeTag(key: key)
+        scope.setTags(["tag1": "hello", "tag2": "hello"])
+        
+        scope.add(TestData.fileAttachment)
+        scope.clearAttachments()
+        scope.add(TestData.fileAttachment)
+        
+        for _ in 0...10 {
+            scope.add(self.fixture.breadcrumb)
+        }
+        scope.serialize()
+        
+        scope.setUser(self.fixture.user)
+        scope.setDist("dist")
+        scope.setEnvironment("env")
+        scope.setLevel(SentryLevel.debug)
+        
+        scope.apply(to: SentrySession(releaseName: "1.0.0"))
+        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        
+        scope.serialize()
     }
 }

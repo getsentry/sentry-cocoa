@@ -1,0 +1,15 @@
+{
+    "sentry_sdk_scope": {
+        "breadcrumbs": [
+            {
+                "category": "ui.lifecycle",
+                "type": "navigation",
+                "data": {
+                    "screen": "UIInputWindowController"
+                },
+                "level": "info",
+                "timestamp": "2020-02-06T01:00:32Z"
+            }
+        ]
+    }
+}

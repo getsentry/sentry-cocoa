@@ -61,6 +61,7 @@ jobs:
         beforeXcode: ['']
         scheme: 
           - iOS-Swift
+          - iOS-SwiftUI
           - iOS-ObjectiveC
           - macOS-Swift
           - tvOS-Swift

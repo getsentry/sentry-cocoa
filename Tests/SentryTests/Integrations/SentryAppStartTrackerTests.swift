@@ -146,6 +146,30 @@ class SentryAppStartTrackerTests: XCTestCase {
         assertNoAppStartUp()
     }
     
+    /**
+     * Test for reproducing GH-1225
+     * It can happen that the OS posts the didFinishLaunching notification before we register for it.
+     */
+    func testDidFinishLaunching_PostedBeforeStart() {
+        givenProcessStartTimestamp()
+        sut = fixture.sut
+        givenRuntimeInitTimestamp(sut: sut)
+        
+        TestNotificationCenter.willEnterForeground()
+        
+        givenDidFinishLaunchingTimestamp()
+        
+        TestNotificationCenter.didFinishLaunching()
+        
+        sut.start()
+        
+        advanceTime(bySeconds: 0.1)
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        TestNotificationCenter.didBecomeActive()
+        
+        assertValidStart(type: .cold)
+    }
+    
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
@@ -157,18 +181,30 @@ class SentryAppStartTrackerTests: XCTestCase {
         givenPreviousAppState(appState: appState)
     }
     
-    private func startApp() {
+    private func givenProcessStartTimestamp() {
         fixture.sysctl.setProcessStartTimestamp(value: fixture.currentDate.date())
-        
-        sut = fixture.sut
+    }
+    
+    private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker) {
         fixture.runtimeInitTimestamp = fixture.currentDate.date().addingTimeInterval(0.2)
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+    }
+    
+    private func givenDidFinishLaunchingTimestamp() {
+        fixture.didFinishLaunchingTimestamp = fixture.currentDate.date().addingTimeInterval(0.3)
+        advanceTime(bySeconds: 0.3)
+    }
+    
+    private func startApp() {
+        givenProcessStartTimestamp()
+        
+        sut = fixture.sut
+        givenRuntimeInitTimestamp(sut: sut)
         sut.start()
         
         TestNotificationCenter.willEnterForeground()
         
-        fixture.didFinishLaunchingTimestamp = fixture.currentDate.date().addingTimeInterval(0.3)
-        advanceTime(bySeconds: 0.3)
+        givenDidFinishLaunchingTimestamp()
         
         TestNotificationCenter.didFinishLaunching()
         advanceTime(bySeconds: 0.1)
@@ -200,17 +236,20 @@ class SentryAppStartTrackerTests: XCTestCase {
     }
 
     private func assertValidStart(type: SentryAppStartType) {
-        let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement()
-        XCTAssertNotNil(appStartMeasurement)
-        XCTAssertEqual(type.rawValue, appStartMeasurement?.type.rawValue)
+        guard let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement() else {
+            XCTFail("AppStartMeasurement must not be nil")
+            return
+        }
+        
+        XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
 
         let expectedAppStartDuration = fixture.appStartDuration
-        let actualAppStartDuration = appStartMeasurement!.duration
+        let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
 
-        XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement?.appStartTimestamp)
-        XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement?.runtimeInitTimestamp)
-
+        XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
+        XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
+        XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
     }
 
     private func assertNoAppStartUp() {

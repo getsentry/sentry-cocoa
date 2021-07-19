@@ -11,6 +11,7 @@
 #import "SentrySessionCrashedHandler.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
+#import <SentryCrashScopeObserver.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
@@ -29,6 +30,7 @@ SentryCrashIntegration ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
+@property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
 @end
 
@@ -85,6 +87,9 @@ SentryCrashIntegration ()
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                                  outOfMemoryLogic:logic];
+
+    self.scopeObserver =
+        [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
     [self startCrashHandler];
 
@@ -244,27 +249,20 @@ SentryCrashIntegration ()
 
             [outerScope setContextValue:appData forKey:@"app"];
 
-            [outerScope addScopeListener:^(SentryScope *_Nonnull scope) {
-                // The serialization of the scope and synching it to SentryCrash can use quite some
-                // CPU time. We want to make sure that this doesn't happen on the main thread. We
-                // accept the tradeoff that in case of a crash the scope might not be 100% up to
-                // date over blocking the main thread.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-                    NSMutableDictionary<NSString *, id> *userInfo =
-                        [[NSMutableDictionary alloc] initWithDictionary:[scope serialize]];
+            NSMutableDictionary<NSString *, id> *userInfo =
+                [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
+            // SentryCrashReportConverter.convertReportToEvent needs the release name and
+            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
+            // crash it writes the UserInfo into SentryCrashField_User of the report.
+            // SentryCrashReportConverter.initWithReport loads the contents of
+            // SentryCrashField_User into self.userContext and convertReportToEvent can map
+            // the release name and dist to the SentryEvent. Fixes GH-581
+            userInfo[@"release"] = self.options.releaseName;
+            userInfo[@"dist"] = self.options.dist;
 
-                    // SentryCrashReportConverter.convertReportToEvent needs the release name and
-                    // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
-                    // crash it writes the UserInfo into SentryCrashField_User of the report.
-                    // SentryCrashReportConverter.initWithReport loads the contents of
-                    // SentryCrashField_User into self.userContext and convertReportToEvent can map
-                    // the release name and dist to the SentryEvent. Fixes GH-581
-                    userInfo[@"release"] = self.options.releaseName;
-                    userInfo[@"dist"] = self.options.dist;
+            [SentryCrash.sharedInstance setUserInfo:userInfo];
 
-                    [SentryCrash.sharedInstance setUserInfo:userInfo];
-                }];
-            }];
+            [outerScope addObserver:self.scopeObserver];
         }];
     }
 }
