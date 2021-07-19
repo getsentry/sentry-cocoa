@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7BB6224D26A56C4E00D0E75E /* iOS_SwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6224C26A56C4E00D0E75E /* iOS_SwiftUIApp.swift */; };
+		7BB6224D26A56C4E00D0E75E /* SwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6224C26A56C4E00D0E75E /* SwiftUIApp.swift */; };
 		7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6224E26A56C4E00D0E75E /* ContentView.swift */; };
 		7BB6225126A56C5000D0E75E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225026A56C5000D0E75E /* Assets.xcassets */; };
 		7BB6225426A56C5000D0E75E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225326A56C5000D0E75E /* Preview Assets.xcassets */; };
@@ -31,7 +31,7 @@
 
 /* Begin PBXFileReference section */
 		7BB6224926A56C4E00D0E75E /* iOS-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7BB6224C26A56C4E00D0E75E /* iOS_SwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS_SwiftUIApp.swift; sourceTree = "<group>"; };
+		7BB6224C26A56C4E00D0E75E /* SwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIApp.swift; sourceTree = "<group>"; };
 		7BB6224E26A56C4E00D0E75E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7BB6225026A56C5000D0E75E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7BB6225326A56C5000D0E75E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -73,7 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				7BB6226026A56E1E00D0E75E /* iOS-SwiftUI.entitlements */,
-				7BB6224C26A56C4E00D0E75E /* iOS_SwiftUIApp.swift */,
+				7BB6224C26A56C4E00D0E75E /* SwiftUIApp.swift */,
 				7BB6224E26A56C4E00D0E75E /* ContentView.swift */,
 				7BB6225026A56C5000D0E75E /* Assets.xcassets */,
 				7BB6225526A56C5000D0E75E /* Info.plist */,
@@ -169,7 +169,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */,
-				7BB6224D26A56C4E00D0E75E /* iOS_SwiftUIApp.swift in Sources */,
+				7BB6224D26A56C4E00D0E75E /* SwiftUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
