@@ -59,6 +59,12 @@ SentryAppStartTracker ()
 
 - (void)start
 {
+    // It can happen that the OS posts the didFinishLaunching notification before we register for it
+    // or we just don't receive it. In this case the didFinishLaunchingTimestamp would be nil. As
+    // the SDK should be initialized in application:didFinishLaunchingWithOptions: or in the init of
+    // @main of a SwiftUI  we set the timestamp here.
+    self.didFinishLaunchingTimestamp = [self.currentDate date];
+
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didFinishLaunching)
                                                name:UIApplicationDidFinishLaunchingNotification
