@@ -102,10 +102,26 @@
         return;
     }
 
-    Class rootViewControllerClass = [rootViewController class];
-    if (rootViewControllerClass != nil) {
-        [SentryLog logWithMessage:@"Calling swizzleRootViewController." andLevel:kSentryLevelDebug];
-        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:rootViewControllerClass];
+    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
+    [allViewControllers addObject:rootViewController];
+
+    NSMutableArray<UIViewController *> *toAdd =
+        [NSMutableArray arrayWithArray:rootViewController.childViewControllers];
+
+    while (toAdd.count > 0) {
+        UIViewController *viewController = [toAdd lastObject];
+        [allViewControllers addObject:viewController];
+        [toAdd addObjectsFromArray:viewController.childViewControllers];
+        [toAdd removeLastObject];
+    }
+
+    for (UIViewController *viewController in allViewControllers) {
+        Class viewControllerClass = [viewController class];
+        if (viewControllerClass != nil) {
+            [SentryLog logWithMessage:@"Calling swizzleRootViewController."
+                             andLevel:kSentryLevelDebug];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
+        }
     }
 }
 
