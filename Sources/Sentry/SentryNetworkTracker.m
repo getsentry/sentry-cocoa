@@ -61,7 +61,7 @@ SentryNetworkTracker ()
     if (SentrySDK.options == nil) {
         return;
     }
-    
+
     NSURL *url = [[sessionTask currentRequest] URL];
 
     if (url == nil || ![self isTaskSupported:sessionTask])
@@ -71,7 +71,7 @@ SentryNetworkTracker ()
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return;
-    
+
     SentrySpanId *spanId =
         [self.tracker startSpanWithName:[NSString stringWithFormat:@"%@ %@",
                                                   sessionTask.currentRequest.HTTPMethod, url]
@@ -96,9 +96,9 @@ SentryNetworkTracker ()
         NSURLSessionTask *sessionTask = object;
         if (sessionTask.state != NSURLSessionTaskStateRunning) {
             SentrySpanId *spanId;
-            @synchronized (sessionTask) {
-                spanId
-                    = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
+            @synchronized(sessionTask) {
+                spanId = objc_getAssociatedObject(
+                    sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
                 // We'll just go through once
                 objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, nil,
                     OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -112,10 +112,11 @@ SentryNetworkTracker ()
                     [span setDataValue:[NSNumber numberWithInteger:responseStatusCode]
                                 forKey:@"http.status_code"];
                 }
-                
+
                 [self.tracker finishSpan:spanId withStatus:[self statusForSessionTask:sessionTask]];
                 [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
-                [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+                [SentryLog logWithMessage:@"Finished HTTP span for sessionTask"
+                                 andLevel:kSentryLevelDebug];
             }
         }
     }
