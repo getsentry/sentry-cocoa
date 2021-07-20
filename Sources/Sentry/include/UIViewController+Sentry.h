@@ -1,9 +1,9 @@
 #import "SentryDefines.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface UIViewController (Sentry)
 
@@ -15,6 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+
+#endif
