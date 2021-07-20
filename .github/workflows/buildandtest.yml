@@ -58,13 +58,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-  
+
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
 
       - name: Setup fastlane
-        run: bundle install   
+        run: bundle install
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests
@@ -77,9 +77,9 @@ jobs:
       fail-fast: false
       matrix:
         beforeXcode: ['']
-        scheme: 
+        scheme:
           - macOS-Swift
-        # other sample projects are built in ui-tests  
+        # other sample projects are built in ui-tests
 
         # WatchOS needs Sentry as a XCFramework  
         include:
