@@ -3,6 +3,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <UIViewController+Sentry.h>
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -102,18 +103,7 @@
         return;
     }
 
-    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
-    [allViewControllers addObject:rootViewController];
-
-    NSMutableArray<UIViewController *> *toAdd =
-        [NSMutableArray arrayWithArray:rootViewController.childViewControllers];
-
-    while (toAdd.count > 0) {
-        UIViewController *viewController = [toAdd lastObject];
-        [allViewControllers addObject:viewController];
-        [toAdd addObjectsFromArray:viewController.childViewControllers];
-        [toAdd removeLastObject];
-    }
+    NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];
