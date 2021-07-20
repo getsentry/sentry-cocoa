@@ -6,7 +6,7 @@ class LaunchUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testLaunch()  {
+    func testLaunch() {
         let app = XCUIApplication()
         app.launch()
     }
