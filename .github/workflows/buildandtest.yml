@@ -78,11 +78,8 @@ jobs:
       matrix:
         beforeXcode: ['']
         scheme: 
-          - iOS-Swift
-          - iOS-SwiftUI
-          - iOS-ObjectiveC
           - macOS-Swift
-          - tvOS-Swift
+        # other sample projects are built in ui-tests  
 
         # WatchOS needs Sentry as a XCFramework  
         include:
