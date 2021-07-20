@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class UIViewControllerSentryTests: XCTestCase {
 
     func testOnlyOneViewController() {
@@ -35,3 +36,5 @@ class UIViewControllerSentryTests: XCTestCase {
         XCTAssertEqual([root, child, grandChild2, grandChild1], root.descendantViewControllers)
     }
 }
+
+#endif

@@ -1,7 +1,9 @@
-
-#import <UIKit/UIKit.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
 
 @interface UIViewController (Sentry)
 
@@ -12,5 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, strong) NSArray<UIViewController *> *descendantViewControllers;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

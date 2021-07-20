@@ -1,5 +1,7 @@
 #import "UIViewController+Sentry.h"
 
+#if SENTRY_HAS_UIKIT
+
 @implementation UIViewController (Sentry)
 
 - (NSArray<UIViewController *> *)descendantViewControllers
@@ -25,3 +27,5 @@
 }
 
 @end
+
+#endif
