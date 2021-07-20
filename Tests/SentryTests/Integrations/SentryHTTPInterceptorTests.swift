@@ -119,4 +119,30 @@ class SentryHTTPInterceptorTests: XCTestCase {
         XCTAssertFalse(SentryHttpInterceptor.canInit(with: newRequest))
     }
     
+    func testProtocolGetRegisteredAndUnregistered() {
+        NSURLProtocolSwizzle.swizzleURLProtocol()
+        NSURLProtocolSwizzle.shared.registerCallback = { protocolClass in
+            XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
+        }
+        NSURLProtocolSwizzle.shared.unregisterCallback = { protocolClass in
+            XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
+        }
+        let integration = SentryNetworkTrackingIntegration()
+        integration.install(with: fixture.options)
+        integration.uninstall()
+        
+        NSURLProtocolSwizzle.shared.registerCallback = nil
+        NSURLProtocolSwizzle.shared.unregisterCallback = nil
+    }
+    
+    func testProtocolDontGetRegistered() {
+        NSURLProtocolSwizzle.swizzleURLProtocol()
+        NSURLProtocolSwizzle.shared.registerCallback = { _ in
+            XCTAssert(false)
+        }
+        let integration = SentryNetworkTrackingIntegration()
+        fixture.options.enableAutoPerformanceTracking = false
+        integration.install(with: fixture.options)
+        integration.uninstall()
+    }
 }

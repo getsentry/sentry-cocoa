@@ -9,6 +9,11 @@
 {
     [SentryNetworkTracker.sharedInstance enable];
     [self swizzleURLSessionTaskResume];
+
+    // NSURLProtocol is only used when NSURLSession.shared is used.
+    // If a custom NSURLSession with custom configurations is used SentryHTTPProtocol is not called.
+    // To solve this we swizzle the NSURLSession session configuration and add SentryHTTPProtocol in
+    // the classProtocol list.
     [self swizzleURLSessionWithConfiguration];
 }
 

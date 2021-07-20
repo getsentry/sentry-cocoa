@@ -4,6 +4,7 @@
 //
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"

@@ -58,6 +58,8 @@ SentryNetworkTracker ()
         }
     }
 
+    // We need to check if this request was created by SentryHTTPInterceptor so we don't end up with
+    // two spans for the same request.
     NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
                                                 inRequest:[sessionTask currentRequest]];
     if (intercepted != nil && [intercepted boolValue])
