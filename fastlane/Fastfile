@@ -101,4 +101,23 @@ platform :ios do
     )
   end
 
+  lane :ui_tests do
+    run_tests(workspace: "Sentry.xcworkspace",
+      devices: ["iPhone 8"],
+      scheme: "iOS-SwiftUI")
+
+    run_tests(workspace: "Sentry.xcworkspace",
+        devices: ["iPhone 8"],
+        scheme: "iOS-Swift")
+
+    run_tests(workspace: "Sentry.xcworkspace",
+      devices: ["iPhone 8"],
+      scheme: "iOS-ObjectiveC")
+
+    run_tests(workspace: "Sentry.xcworkspace",
+      devices: ["Apple TV"],
+      scheme: "tvOS-Swift")
+
+  end
+
 end

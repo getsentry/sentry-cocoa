@@ -2266,7 +2266,7 @@
 		6327C5CA1EB8A783004E799B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0830;
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
