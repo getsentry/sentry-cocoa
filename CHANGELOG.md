@@ -2,6 +2,8 @@
 
 ## Unreleased 
 
+- fix: AppStartMeasurement didFinishLaunching is nil (#1228)
+
 ## 7.2.0-beta.5
 
 - perf: Scope sync to SentryCrash (#1193)
