@@ -53,7 +53,7 @@ jobs:
         if: ${{matrix.pushCodecov}}
 
   ui-tests:
-    name: Run UITests
+    name: Run UI Tests
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
