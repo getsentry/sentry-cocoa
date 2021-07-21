@@ -52,6 +52,24 @@ jobs:
         uses: codecov/codecov-action@v1
         if: ${{matrix.pushCodecov}}
 
+  ui-tests:
+    name: Run UI Tests
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+
+      - name: Setup fastlane
+        run: bundle install
+
+      - name: Run Fastlane
+        run: bundle exec fastlane ui_tests
+        shell: sh
+
   build-sample:
     name: Sample ${{ matrix.scheme }}
     runs-on: macos-11
@@ -59,11 +77,9 @@ jobs:
       fail-fast: false
       matrix:
         beforeXcode: ['']
-        scheme: 
-          - iOS-Swift
-          - iOS-ObjectiveC
+        scheme:
           - macOS-Swift
-          - tvOS-Swift
+        # other sample projects are built in ui-tests
 
         # WatchOS needs Sentry as a XCFramework  
         include:

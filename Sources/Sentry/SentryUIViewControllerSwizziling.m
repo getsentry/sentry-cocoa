@@ -3,6 +3,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <UIViewController+Sentry.h>
 #import <objc/runtime.h>
 
 #if SENTRY_HAS_UIKIT
@@ -43,6 +44,77 @@
             return SentrySWCallOriginal(nibName, bundle);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
+
+    [SentryUIViewControllerSwizziling swizzleRootViewController];
+}
+
+/**
+ * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view controller
+ * before the SentrySDK is initialized. Therefore, we manually call swizzle here not to lose
+ * auto-generated transactions for the initial view controller. As we use
+ * SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling twice. We
+ * could also use objc_getClassList to lookup sub classes of UIViewController, but the lookup can
+ * take around 60ms, which is not acceptable.
+ */
++ (void)swizzleRootViewController
+{
+    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
+        NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
+                            @"sharedApplication. Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
+
+    if (app == nil) {
+        NSString *message = @"UIViewControllerSwizziling: UIApplication is nil. Skipping "
+                            @"swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    if (app.delegate == nil) {
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate is nil. Skipping "
+                            @"swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    // Check if delegate responds to window, which it doesn't have to.
+    if (![app.delegate respondsToSelector:@selector(window)]) {
+        NSString *message
+            = @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    if (app.delegate.window == nil) {
+        NSString *message = @"UIViewControllerSwizziling UIApplicationDelegate.window is nil. "
+                            @"Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    UIViewController *rootViewController = app.delegate.window.rootViewController;
+    if (rootViewController == nil) {
+        NSString *message
+            = @"UIViewControllerSwizziling UIApplicationDelegate.window.rootViewController is nil. "
+              @"Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
+
+    for (UIViewController *viewController in allViewControllers) {
+        Class viewControllerClass = [viewController class];
+        if (viewControllerClass != nil) {
+            NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
+        }
+    }
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
