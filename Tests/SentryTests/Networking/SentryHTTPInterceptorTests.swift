@@ -174,7 +174,6 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let session = interceptor.createSession()
         XCTAssertNotNil(session)
         XCTAssertTrue(session.delegate === interceptor)
-        XCTAssertEqual(session.configuration, URLSessionConfiguration.default)
     }
     
     func testStartLoading() {
