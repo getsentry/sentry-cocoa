@@ -141,73 +141,32 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let newRequest = SentryHttpInterceptor.canonicalRequest(for: request)
         XCTAssertFalse(SentryHttpInterceptor.canInit(with: newRequest))
     }
-    
-    func testProtocolGetRegisteredAndUnregistered() {
-        NSURLProtocolSwizzle.swizzleURLProtocol()
         
-        var registerCallbackCalled = false
-        NSURLProtocolSwizzle.shared.registerCallback = { protocolClass in
-            registerCallbackCalled = true
-            XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
-        }
-        
-        var unregisterCallbackCalled = false
-        NSURLProtocolSwizzle.shared.unregisterCallback = { protocolClass in
-            unregisterCallbackCalled = true
-            XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
-        }
-        let integration = SentryNetworkTrackingIntegration()
-        integration.install(with: fixture.options)
-        XCTAssertTrue(registerCallbackCalled)
-        
-        integration.uninstall()
-        XCTAssertTrue(unregisterCallbackCalled)
-        
-        NSURLProtocolSwizzle.shared.registerCallback = nil
-        NSURLProtocolSwizzle.shared.unregisterCallback = nil
-    }
-    
-    func testProtocolDontGetRegistered() {
-        NSURLProtocolSwizzle.swizzleURLProtocol()
-        NSURLProtocolSwizzle.shared.registerCallback = { _ in
-            XCTAssert(false)
-        }
-        let integration = SentryNetworkTrackingIntegration()
-        fixture.options.enableAutoPerformanceTracking = false
-        integration.install(with: fixture.options)
-        integration.uninstall()
-    }
-    
     func testCreateSession() {
         let interceptor = SentryHttpInterceptor(request: fixture.request, cachedResponse: nil, client: nil)
-        let session = interceptor.createSession()
+        let session: URLSession! = Dynamic(interceptor).createSession() as URLSession?
+        //let session = interceptor.createSession()
         XCTAssertNotNil(session)
         XCTAssertTrue(session.delegate === interceptor)
-        // Default serial operiation queue
+        // Default serial operation queue
         XCTAssertEqual(1, session.delegateQueue.maxConcurrentOperationCount)
     }
     
     func testStartLoading() {
-        let now = Date()
-        fixture.dateProvider.setDate(date: now)
-        
         let sut = fixture.getSut()
         sut.startLoading()
         let session = sut.session as? TestURLSession
         
-        XCTAssertEqual(session?.lastDataTask?.resumeDate, now)
+        XCTAssertEqual(session?.lastDataTask?.resumeDate, fixture.dateProvider.date())
     }
     
     func testStopLoading() {
-        let now = Date()
-        fixture.dateProvider.setDate(date: now)
-        
         let sut = fixture.getSut()
         sut.startLoading()
         let session = sut.session as? TestURLSession
         sut.stopLoading()
         
-        XCTAssertEqual(session?.invalidateAndCancelDate, now)
+        XCTAssertEqual(session?.invalidateAndCancelDate, fixture.dateProvider.date())
         XCTAssertNil(sut.session)
     }
     
@@ -215,24 +174,30 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let sut = fixture.getSut()
         let session = sut.createSession()
         let client = sut.client as? TestProtocolClient
+        var testCallbackCalled = false
         client?.testCallback = { method, params in
+            testCallbackCalled = true
             XCTAssertEqual(method, "urlProtocolDidFinishLoading:")
             XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
         }
         sut.urlSession(session, task: URLSessionDataTaskMock(), didCompleteWithError: nil)
+        XCTAssertTrue(testCallbackCalled)
     }
     
     func testTaskCompletionWithError() {
         let sut = fixture.getSut()
-        let session = sut.createSession()
+        let session: URLSession! = Dynamic(sut).createSession() as URLSession?
         let client = sut.client as? TestProtocolClient
         let someError = NSError(domain: "errorDomain", code: -1, userInfo: nil)
+        var testCallbackCalled = false
         client?.testCallback = { method, params in
+            testCallbackCalled = true
             XCTAssertEqual(method, "urlProtocol:didFailWithError:")
             XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
             XCTAssertEqual(someError, params["didFailWithError"] as? NSError)
         }
         sut.urlSession(session, task: URLSessionDataTaskMock(), didCompleteWithError: someError)
+        XCTAssertTrue(testCallbackCalled)
     }
     
     func testTaskDidReceiveResponse() {
@@ -265,11 +230,14 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let session = sut.createSession()
         let client = sut.client as? TestProtocolClient
         let data = Data()
+        var testCallbackCalled = false
         client?.testCallback = { method, params in
+            testCallbackCalled = true
             XCTAssertEqual(method, "urlProtocol:didLoad:")
             XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
             XCTAssertEqual(data, params["didLoad"] as? Data)
         }
         sut.urlSession(session, dataTask: URLSessionDataTaskMock(), didReceive: data)
+        XCTAssertTrue(testCallbackCalled)
     }
 }

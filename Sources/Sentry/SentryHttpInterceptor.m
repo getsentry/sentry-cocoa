@@ -11,6 +11,8 @@ SentryHttpInterceptor ()
 
 + (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration;
 
+- (NSURLSession *)createSession;
+
 @end
 
 @implementation SentryHttpInterceptor
