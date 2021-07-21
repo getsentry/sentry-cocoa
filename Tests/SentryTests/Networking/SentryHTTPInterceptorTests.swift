@@ -6,14 +6,35 @@ class SentryHTTPInterceptorTests: XCTestCase {
     private static let httpsUrl = "https://somedomain.com"
     private static let wsUrl = "ws://somedomain.com"
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
+    
+    class TestURLSession: URLSession {
+        var invalidateAndCancelDate: Date?
+        var lastDataTask: URLSessionDataTaskMock?
         
+        override func dataTask(with request: URLRequest) -> URLSessionDataTask {
+            lastDataTask = URLSessionDataTaskMock(request: request)
+            return lastDataTask!
+        }
+        
+        override func invalidateAndCancel() {
+            invalidateAndCancelDate = CurrentDate.date()
+        }
+    }
+    
+    class TestSentryHTTPInterceptor: SentryHttpInterceptor {
+        override func createSession() -> URLSession {
+            return TestURLSession()
+        }
+    }
+    
     private class Fixture {
         let client: TestClient
         let hub: TestHub
         let scope: Scope
         let span: Span
-        let request: URLRequest! = nil
+        let request: URLRequest!
         let options: Options
+        let dateProvider = TestCurrentDateProvider()
         
         init() {
             options = Options()
@@ -24,14 +45,16 @@ class SentryHTTPInterceptorTests: XCTestCase {
             span = SentrySpan(context: SpanContext(operation: "SomeOperation"))
             hub = TestHub(client: client, andScope: scope)
             scope.span = span
+            request = URLRequest(url: URL(string: SentryHTTPInterceptorTests.httpUrl)!)
+            CurrentDate.setCurrentDateProvider(dateProvider)
         }
         
         func getSut() -> SentryHttpInterceptor {
-            return SentryHttpInterceptor(request: request, cachedResponse: nil, client: nil)
+            return TestSentryHTTPInterceptor(request: request, cachedResponse: nil, client: TestProtocolClient())
         }
     }
     
-    private class TestProtocol: URLProtocol {
+    private class AlternativeTestProtocol: URLProtocol {
         
     }
     
@@ -60,7 +83,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
     
     func testSessionConfigurationWithOtherProtocol() {
         let configuration = URLSessionConfiguration()
-        configuration.protocolClasses = [TestProtocol.self]
+        configuration.protocolClasses = [AlternativeTestProtocol.self]
         SentryHttpInterceptor.configureSessionConfiguration(configuration)
         XCTAssertTrue(configuration.protocolClasses?.first === SentryHttpInterceptor.self)
     }
@@ -144,5 +167,90 @@ class SentryHTTPInterceptorTests: XCTestCase {
         fixture.options.enableAutoPerformanceTracking = false
         integration.install(with: fixture.options)
         integration.uninstall()
+    }
+    
+    func testCreateSession() {
+        let interceptor = SentryHttpInterceptor(request: fixture.request, cachedResponse: nil, client: nil)
+        let session = interceptor.createSession()
+        XCTAssertNotNil(session)
+        XCTAssertTrue(session.delegate === interceptor)
+        XCTAssertEqual(session.configuration, URLSessionConfiguration.default)
+    }
+    
+    func testStartLoading() {
+        let now = Date()
+        fixture.dateProvider.setDate(date: now)
+        
+        let sut = fixture.getSut()
+        sut.startLoading()
+        let session = sut.session as? TestURLSession
+        
+        XCTAssertEqual(session?.lastDataTask?.resumeDate, now)
+    }
+    
+    func testStopLoading() {
+        let now = Date()
+        fixture.dateProvider.setDate(date: now)
+        
+        let sut = fixture.getSut()
+        sut.startLoading()
+        let session = sut.session as? TestURLSession
+        sut.stopLoading()
+        
+        XCTAssertEqual(session?.invalidateAndCancelDate, now)
+        XCTAssertNil(sut.session)
+    }
+    
+    func testTaskCompletionWithoutError() {
+        let sut = fixture.getSut()
+        let session = sut.createSession()
+        let client = sut.client as? TestProtocolClient
+        client?.testCallback = { method, params in
+            XCTAssertEqual(method, "urlProtocolDidFinishLoading:")
+            XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
+        }
+        sut.urlSession(session, task: URLSessionDataTaskMock(), didCompleteWithError: nil)
+    }
+    
+    func testTaskCompletionWithError() {
+        let sut = fixture.getSut()
+        let session = sut.createSession()
+        let client = sut.client as? TestProtocolClient
+        let someError = NSError(domain: "errorDomain", code: -1, userInfo: nil)
+        client?.testCallback = { method, params in
+            XCTAssertEqual(method, "urlProtocol:didFailWithError:")
+            XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
+            XCTAssertEqual(someError, params["didFailWithError"] as? NSError)
+        }
+        sut.urlSession(session, task: URLSessionDataTaskMock(), didCompleteWithError: someError)
+    }
+    
+    func testTaskDidReceiveResponse() {
+        let sut = fixture.getSut()
+        let session = sut.createSession()
+        let client = sut.client as? TestProtocolClient
+        let response = URLResponse()
+        client?.testCallback = { method, params in
+            XCTAssertEqual(method, "urlProtocol:didReceive:cacheStoragePolicy:")
+            XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
+            XCTAssertEqual(response, params["didReceive"] as? URLResponse)
+            XCTAssertEqual(URLCache.StoragePolicy.notAllowed, params["cacheStoragePolicy"] as? URLCache.StoragePolicy)
+        }
+        sut.urlSession(session, dataTask: URLSessionDataTaskMock(), didReceive: response) { disposition in
+            XCTAssertEqual(disposition, .allow)
+        }
+    }
+    
+    func testDataTaskDidReceiveData() {
+        let sut = fixture.getSut()
+        let session = sut.createSession()
+        let client = sut.client as? TestProtocolClient
+        let data = Data()
+        client?.testCallback = { method, params in
+            XCTAssertEqual(method, "urlProtocol:didLoad:")
+            XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
+            XCTAssertEqual(data, params["didLoad"] as? Data)
+        }
+        sut.urlSession(session, dataTask: URLSessionDataTaskMock(), didReceive: data)
     }
 }

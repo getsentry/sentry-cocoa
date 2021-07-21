@@ -5,9 +5,9 @@
 #import "SentryTraceHeader.h"
 
 @interface
-SentryHttpInterceptor () <NSURLSessionDelegate>
+SentryHttpInterceptor ()
 
-@property (nonatomic, strong) NSURLSession *session;
+@property (nullable, nonatomic, strong) NSURLSession *session;
 
 + (void)configureSessionConfiguration:(NSURLSessionConfiguration *)configuration;
 
@@ -66,10 +66,15 @@ SentryHttpInterceptor () <NSURLSessionDelegate>
     return newRequest;
 }
 
-- (void)startLoading
+- (NSURLSession *)createSession
 {
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
-    self.session = [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
+    return [NSURLSession sessionWithConfiguration:conf delegate:self delegateQueue:nil];
+}
+
+- (void)startLoading
+{
+    self.session = [self createSession];
     [[self.session dataTaskWithRequest:self.request] resume];
 }
 

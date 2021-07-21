@@ -1,9 +1,11 @@
 #import "URLSessionTaskMock.h"
+#import "SentryCurrentDate.h"
 
 @implementation URLSessionDataTaskMock {
     NSURLRequest *_request;
     NSURLResponse *_response;
     NSError *_error;
+    NSDate *_resumeDate;
 }
 
 @dynamic state;
@@ -31,6 +33,11 @@
 - (void)setError:(NSError *)error
 {
     _error = error;
+}
+
+- (void)resume
+{
+    _resumeDate = SentryCurrentDate.date;
 }
 
 #pragma clang diagnostic push
