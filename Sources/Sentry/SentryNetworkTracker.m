@@ -1,10 +1,10 @@
 #import "SentryNetworkTracker.h"
+#import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentrySpan.h"
 #import <objc/runtime.h>
-#import "SentryLog.h"
 
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
     = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID";
