@@ -59,47 +59,49 @@
 + (void)swizzleRootViewController
 {
     if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
-        [SentryLog logWithMessage:@"UIApplication doesn't respont to sharedApplication. Skipping "
-                                  @"swizzleRootViewController."
-                         andLevel:kSentryLevelDebug];
+        NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
+                            @"sharedApplication. Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
 
     if (app == nil) {
-        [SentryLog logWithMessage:@"UIApplication is nil. Skipping swizzleRootViewController."
-                         andLevel:kSentryLevelDebug];
+        NSString *message = @"UIViewControllerSwizziling: UIApplication is nil. Skipping "
+                            @"swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     if (app.delegate == nil) {
-        [SentryLog
-            logWithMessage:@"UIApplicationDelegate is nil. Skipping swizzleRootViewController."
-                  andLevel:kSentryLevelDebug];
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate is nil. Skipping "
+                            @"swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     // Check if delegate responds to window, which it doesn't have to.
     if (![app.delegate respondsToSelector:@selector(window)]) {
-        [SentryLog logWithMessage:@"UIApplicationDelegate doesn't respond to window selctor. "
-                                  @"Skipping swizzleRootViewController."
-                         andLevel:kSentryLevelDebug];
+        NSString *message
+            = @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     if (app.delegate.window == nil) {
-        [SentryLog logWithMessage:
-                       @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController."
-                         andLevel:kSentryLevelDebug];
+        NSString *message = @"UIViewControllerSwizziling UIApplicationDelegate.window is nil. "
+                            @"Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
-        [SentryLog logWithMessage:@"UIApplicationDelegate.window.rootViewController is nil. "
-                                  @"Skipping swizzleRootViewController."
-                         andLevel:kSentryLevelDebug];
+        NSString *message
+            = @"UIViewControllerSwizziling UIApplicationDelegate.window.rootViewController is nil. "
+              @"Skipping swizzleRootViewController.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -108,8 +110,8 @@
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];
         if (viewControllerClass != nil) {
-            [SentryLog logWithMessage:@"Calling swizzleRootViewController."
-                             andLevel:kSentryLevelDebug];
+            NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
         }
     }
