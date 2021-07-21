@@ -5,7 +5,7 @@
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
-#import "SentryScope+Private.h"
+#import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentryTracer.h"
@@ -66,6 +66,8 @@ SentryScope ()
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
+@property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
+
 @end
 
 @implementation SentryScope {
@@ -77,7 +79,6 @@ SentryScope ()
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     if (self = [super init]) {
-        self.listeners = [NSMutableArray new];
         self.maxBreadcrumbs = maxBreadcrumbs;
         self.breadcrumbArray = [NSMutableArray new];
         self.tagDictionary = [NSMutableDictionary new];
@@ -86,6 +87,7 @@ SentryScope ()
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
         _spanLock = [[NSObject alloc] init];
+        self.observers = [NSMutableArray new];
     }
     return self;
 }
@@ -125,8 +127,11 @@ SentryScope ()
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
             [_breadcrumbArray removeObjectAtIndex:0];
         }
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer addBreadcrumb:crumb];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)setSpan:(nullable id<SentrySpan>)span
@@ -174,15 +179,20 @@ SentryScope ()
     self.environmentString = nil;
     self.levelEnum = kSentryLevelNone;
 
-    [self notifyListeners];
+    for (id<SentryScopeObserver> observer in self.observers) {
+        [observer clear];
+    }
 }
 
 - (void)clearBreadcrumbs
 {
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray removeAllObjects];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer clearBreadcrumbs];
+        }
     }
-    [self notifyListeners];
 }
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs
@@ -196,16 +206,22 @@ SentryScope ()
 {
     @synchronized(_contextDictionary) {
         [_contextDictionary setValue:value forKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setContext:_contextDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)removeContextForKey:(NSString *)key
 {
     @synchronized(_contextDictionary) {
         [_contextDictionary removeObjectForKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setExtras:_contextDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)context
@@ -219,16 +235,22 @@ SentryScope ()
 {
     @synchronized(_extraDictionary) {
         [_extraDictionary setValue:value forKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setExtras:_extraDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)removeExtraForKey:(NSString *)key
 {
     @synchronized(_extraDictionary) {
         [_extraDictionary removeObjectForKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setExtras:_extraDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)setExtras:(NSDictionary<NSString *, id> *_Nullable)extras
@@ -238,8 +260,11 @@ SentryScope ()
     }
     @synchronized(_extraDictionary) {
         [_extraDictionary addEntriesFromDictionary:extras];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setExtras:_extraDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (NSDictionary<NSString *, id> *)extras
@@ -253,16 +278,22 @@ SentryScope ()
 {
     @synchronized(_tagDictionary) {
         _tagDictionary[key] = value;
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setTags:_tagDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)removeTagForKey:(NSString *)key
 {
     @synchronized(_tagDictionary) {
         [_tagDictionary removeObjectForKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setTags:_tagDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags
@@ -272,8 +303,11 @@ SentryScope ()
     }
     @synchronized(_tagDictionary) {
         [_tagDictionary addEntriesFromDictionary:tags];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setTags:_tagDictionary];
+        }
     }
-    [self notifyListeners];
 }
 
 - (NSDictionary<NSString *, NSString *> *)tags
@@ -286,19 +320,28 @@ SentryScope ()
 - (void)setUser:(SentryUser *_Nullable)user
 {
     self.userObject = user;
-    [self notifyListeners];
+
+    for (id<SentryScopeObserver> observer in self.observers) {
+        [observer setUser:user];
+    }
 }
 
 - (void)setDist:(NSString *_Nullable)dist
 {
     self.distString = dist;
-    [self notifyListeners];
+
+    for (id<SentryScopeObserver> observer in self.observers) {
+        [observer setDist:dist];
+    }
 }
 
 - (void)setEnvironment:(NSString *_Nullable)environment
 {
     self.environmentString = environment;
-    [self notifyListeners];
+
+    for (id<SentryScopeObserver> observer in self.observers) {
+        [observer setEnvironment:environment];
+    }
 }
 
 - (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint
@@ -308,9 +351,11 @@ SentryScope ()
         if (fingerprint != nil) {
             [_fingerprintArray addObjectsFromArray:fingerprint];
         }
-    }
 
-    [self notifyListeners];
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setFingerprint:_fingerprintArray];
+        }
+    }
 }
 
 - (NSArray<NSString *> *)fingerprints
@@ -323,7 +368,10 @@ SentryScope ()
 - (void)setLevel:(enum SentryLevel)level
 {
     self.levelEnum = level;
-    [self notifyListeners];
+
+    for (id<SentryScopeObserver> observer in self.observers) {
+        [observer setLevel:level];
+    }
 }
 
 - (void)addAttachment:(SentryAttachment *)attachment
@@ -350,13 +398,21 @@ SentryScope ()
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
-    [serializedData setValue:[self tags] forKey:@"tags"];
-    [serializedData setValue:[self extras] forKey:@"extra"];
-    [serializedData setValue:[self context] forKey:@"context"];
+    if (self.tags.count > 0) {
+        [serializedData setValue:[self tags] forKey:@"tags"];
+    }
+    if (self.extras.count > 0) {
+        [serializedData setValue:[self extras] forKey:@"extra"];
+    }
+    if (self.context.count > 0) {
+        [serializedData setValue:[self context] forKey:@"context"];
+    }
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
-    [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+    if (self.fingerprints.count > 0) {
+        [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
+    }
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
@@ -479,6 +535,11 @@ SentryScope ()
     }
     event.context = newContext;
     return event;
+}
+
+- (void)addObserver:(id<SentryScopeObserver>)observer
+{
+    [self.observers addObject:observer];
 }
 
 @end

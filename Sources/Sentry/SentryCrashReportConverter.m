@@ -39,7 +39,21 @@ SentryCrashReportConverter ()
         self.report = report;
         self.frameInAppLogic = frameInAppLogic;
         self.systemContext = report[@"system"];
-        self.userContext = report[@"user"];
+
+        NSDictionary *userContextUnMerged = report[@"user"];
+        if (userContextUnMerged == nil) {
+            userContextUnMerged = [NSDictionary new];
+        }
+
+        // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
+        // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
+        // data from userInfo, and to not have to do many changes in here we merge both dictionaries
+        // here. For more details please check out SentryCrashScopeObserver.
+        NSMutableDictionary *userContextMerged =
+            [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"]];
+        [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
+        self.userContext = userContextMerged;
 
         NSDictionary *crashContext;
         // This is an incomplete crash report
