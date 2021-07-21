@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Sub-millis precision for spans and events (#1234)
 - fix: Race on session task (#1233)
 
 ## 7.2.0-beta.6
