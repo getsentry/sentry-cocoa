@@ -111,4 +111,5 @@
 #import "SentryUIViewControllerSanitizer.h"
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
+#import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"

@@ -2,6 +2,8 @@
 
 ## Unreleased 
 
+- fix: ViewController swizzling before iOS 13 (#1231)
+- fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 
 ## 7.2.0-beta.5
