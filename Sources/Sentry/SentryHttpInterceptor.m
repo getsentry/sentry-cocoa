@@ -35,6 +35,8 @@ SentryHttpInterceptor ()
     configuration.protocolClasses = protocolClasses;
 }
 
+//Documentation says that the method that takes a task parameter are preferred by the system to those that do not.
+//But for the iOS versions we support `canInitWithTask:` does not work well.
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     // Intercept the request if it is a http/https request
