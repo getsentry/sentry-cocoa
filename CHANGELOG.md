@@ -1,10 +1,9 @@
 # Changelog
 
-## Unreleased 
+## 7.2.0-beta.6
 
 - feat: Sub-millis precision for spans and events (#1234)
 - fix: ViewController swizzling before iOS 13 (#1231)
-- fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 
 ## 7.2.0-beta.5
