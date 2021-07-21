@@ -2,6 +2,7 @@
 
 ## Unreleased 
 
+- feat: Support for sub-millis precision for spans (#1234)
 - fix: ViewController swizzling before iOS 13 (#1231)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
