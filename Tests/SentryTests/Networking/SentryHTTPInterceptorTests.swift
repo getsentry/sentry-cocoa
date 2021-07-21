@@ -69,7 +69,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        SentrySDK.setCurrentHub(nil)
+        clearTestState()
     }
     
     func testSessionConfiguration() {
@@ -174,6 +174,8 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let session = interceptor.createSession()
         XCTAssertNotNil(session)
         XCTAssertTrue(session.delegate === interceptor)
+        // Default serial operiation queue
+        XCTAssertEqual(1, session.delegateQueue.maxConcurrentOperationCount)
     }
     
     func testStartLoading() {

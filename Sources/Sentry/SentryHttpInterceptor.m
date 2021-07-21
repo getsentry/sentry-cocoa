@@ -40,15 +40,15 @@ SentryHttpInterceptor ()
     NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
                                                 inRequest:request];
     if (intercepted != nil && [intercepted boolValue])
-        return false;
+        return NO;
 
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     if ([request.URL.host isEqualToString:apiUrl.host] &&
         [request.URL.path containsString:apiUrl.path])
-        return false;
+        return NO;
 
     if (SentrySDK.currentHub.scope.span == nil)
-        return false;
+        return NO;
 
     return ([request.URL.scheme isEqualToString:@"http"] ||
         [request.URL.scheme isEqualToString:@"https"]);
