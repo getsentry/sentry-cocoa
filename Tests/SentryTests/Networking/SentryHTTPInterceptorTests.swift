@@ -144,15 +144,24 @@ class SentryHTTPInterceptorTests: XCTestCase {
     
     func testProtocolGetRegisteredAndUnregistered() {
         NSURLProtocolSwizzle.swizzleURLProtocol()
+        
+        var registerCallbackCalled = false
         NSURLProtocolSwizzle.shared.registerCallback = { protocolClass in
+            registerCallbackCalled = true
             XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
         }
+        
+        var unregisterCallbackCalled = false
         NSURLProtocolSwizzle.shared.unregisterCallback = { protocolClass in
+            unregisterCallbackCalled = true
             XCTAssertTrue(protocolClass === SentryHttpInterceptor.self)
         }
         let integration = SentryNetworkTrackingIntegration()
         integration.install(with: fixture.options)
+        XCTAssertTrue(registerCallbackCalled)
+        
         integration.uninstall()
+        XCTAssertTrue(unregisterCallbackCalled)
         
         NSURLProtocolSwizzle.shared.registerCallback = nil
         NSURLProtocolSwizzle.shared.unregisterCallback = nil
@@ -231,15 +240,24 @@ class SentryHTTPInterceptorTests: XCTestCase {
         let session = sut.createSession()
         let client = sut.client as? TestProtocolClient
         let response = URLResponse()
+
+        var testCallbackCalled = false
         client?.testCallback = { method, params in
+            testCallbackCalled = true
             XCTAssertEqual(method, "urlProtocol:didReceive:cacheStoragePolicy:")
             XCTAssertEqual(sut, params["urlProtocol"] as? URLProtocol)
             XCTAssertEqual(response, params["didReceive"] as? URLResponse)
             XCTAssertEqual(URLCache.StoragePolicy.notAllowed, params["cacheStoragePolicy"] as? URLCache.StoragePolicy)
         }
+        
+        var completionHandlerCalled = false
         sut.urlSession(session, dataTask: URLSessionDataTaskMock(), didReceive: response) { disposition in
+            completionHandlerCalled = true
             XCTAssertEqual(disposition, .allow)
         }
+        
+        XCTAssertTrue(completionHandlerCalled)
+        XCTAssertTrue(testCallbackCalled)
     }
     
     func testDataTaskDidReceiveData() {
