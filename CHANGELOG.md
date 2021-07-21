@@ -1,8 +1,11 @@
 # Changelog
 
-## 7.2.0-beta.6
+## Unreleased
 
 - fix: Race on session task (#1233)
+
+## 7.2.0-beta.6
+
 - fix: ViewController swizzling before iOS 13 (#1231)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 
