@@ -2,6 +2,7 @@
 
 ## Unreleased 
 
+- fix: Race on session task (#1233)
 - fix: AppStartMeasurement didFinishLaunching is nil (#1228)
 
 ## 7.2.0-beta.5
