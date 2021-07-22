@@ -10,7 +10,7 @@ class SentryClientTest: XCTestCase {
         let debugImageBuilder = SentryDebugImageProvider()
         
         let threadInspector = SentryThreadInspector(
-            stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))),
+            stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))),
             andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
         )
         

@@ -3,8 +3,8 @@
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
-#import "SentryFrameInAppLogic.h"
 #import "SentryHub.h"
+#import "SentryInAppLogic.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -105,12 +105,11 @@ SentryCrashIntegration ()
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
         if (installation == nil) {
-            SentryFrameInAppLogic *frameInAppLogic =
-                [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                       inAppExcludes:self.options.inAppExcludes];
+            SentryInAppLogic *inAppLogic =
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                  inAppExcludes:self.options.inAppExcludes];
 
-            installation =
-                [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
+            installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
 
             canSendReports = YES;
         }
