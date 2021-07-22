@@ -16,7 +16,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
-            
+
             let root = tracker.startSpan(withName: "ROOT_SPAN", operation: "TEST")
             tracker.pushActiveSpan(root)
         }
@@ -52,7 +52,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         var spans = getStack(tracker: tracker)
         XCTAssertEqual(spans.count, 2)
-        
+
         spans.removeValue(forKey: tracker.activeSpan()!)
         let span = spans.first?.value
         XCTAssertFalse(span!.isFinished)
@@ -107,12 +107,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let tracker = fixture.tracker
         tracker.popActiveSpan()
-        
+
         sut.urlSessionTaskResume(task)
         let spans = getStack(tracker: tracker)
         XCTAssertEqual(spans.count, 1)
     }
-    
+
     func testIgnoreSentryApi() {
         let client = TestClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: fixture.dateProvider)
@@ -159,11 +159,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let task = createInterceptedRequest()
         sut.urlSessionTaskResume(task)
-        
+
         let tracker = fixture.tracker
         let spans = getStack(tracker: tracker)
-        
-        XCTAssertEqual(spans.count, 0)
+
+        XCTAssertEqual(spans.count, 1)
     }
     
     func testCaptureRequestDuration() {
@@ -317,7 +317,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
     }
-    
+
     private func createInterceptedRequest() -> URLSessionDownloadTaskMock {
         let request = NSMutableURLRequest(url: SentryNetworkTrackerTests.testURL)
         URLProtocol.setProperty(true, forKey: SENTRY_INTERCEPTED_REQUEST, in: request)
