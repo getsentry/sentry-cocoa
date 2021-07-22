@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface URLSessionDataTaskMock : NSURLSessionDataTask
 
+@property (nullable, readonly) NSDate *resumeDate;
 @property (nonatomic) NSURLSessionTaskState state;
 
 - (instancetype)initWithRequest:(NSURLRequest *)request;
