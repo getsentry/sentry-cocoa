@@ -3,6 +3,8 @@
 #import "SentryPerformanceTracker.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryInAppLogic.h>
+#import <SentryOptions.h>
 #import <UIViewController+Sentry.h>
 #import <objc/runtime.h>
 
@@ -11,8 +13,12 @@
 
 @implementation SentryUIViewControllerSwizziling
 
-+ (void)start
+static SentryInAppLogic *inAppLogic;
+
++ (void)startWithOptions:(SentryOptions *)options
 {
+    inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                   inAppExcludes:options.inAppExcludes];
     [SentryUIViewControllerSwizziling swizzleViewControllerInits];
 }
 
@@ -119,16 +125,7 @@
 
 + (void)swizzleViewControllerSubClass:(Class)class
 {
-    // Swizzling only classes from the user app module to avoid track every UIKit view controller
-    // interaction.
-    static const char *appImage = nil;
-    if (appImage == nil) {
-        if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
-            UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
-            appImage = class_getImageName(app.delegate.class);
-        }
-    }
-    if (appImage == nil || strcmp(appImage, class_getImageName(class)) != 0)
+    if (![SentryUIViewControllerSwizziling shouldSwizzleViewController:class])
         return;
 
     // This are the five main functions related to UI creation in a view controller.
@@ -138,6 +135,18 @@
     [SentryUIViewControllerSwizziling swizzleViewDidLoad:class];
     [SentryUIViewControllerSwizziling swizzleViewWillAppear:class];
     [SentryUIViewControllerSwizziling swizzleViewDidAppear:class];
+}
+
+/**
+ * For testing.
+ */
++ (BOOL)shouldSwizzleViewController:(Class)class
+{
+    // Swizzling only inApp classes to avoid track every UIKit view controller
+    // interaction.
+    NSString *classImageName = [NSString stringWithCString:class_getImageName(class)
+                                                  encoding:NSUTF8StringEncoding];
+    return [inAppLogic isInApp:classImageName];
 }
 
 + (void)swizzleLoadView:(Class)class

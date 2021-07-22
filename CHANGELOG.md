@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Swizzle only inApp ViewControllers (#1242)
 - feat: Add Sentry Trace HTTP Header (#1213)
 - feat: Sub-millis precision for spans and events (#1234)
 - fix: Race on session task (#1233)
