@@ -90,8 +90,9 @@ SentrySpan ()
     NSMutableDictionary<NSString *, id> *mutableDictionary =
         [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
 
-    [mutableDictionary setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
-    [mutableDictionary setValue:[self.startTimestamp sentry_toIso8601String]
+    [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
+
+    [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
     if (_extras != nil) {

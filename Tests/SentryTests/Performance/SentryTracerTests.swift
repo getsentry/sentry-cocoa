@@ -100,10 +100,10 @@ class SentryTracerTests: XCTestCase {
         let tracerTimestamp: NSDate = sut.timestamp! as NSDate
         
         XCTAssertEqual(spans.count, 3)
-        XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), serialization["timestamp"]! as! String)
+        XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, serialization["timestamp"] as? TimeInterval)
         
         for span in spans {
-            XCTAssertEqual(tracerTimestamp.sentry_toIso8601String(), span["timestamp"] as! String)
+            XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, span["timestamp"] as? TimeInterval)
         }
     }
     
