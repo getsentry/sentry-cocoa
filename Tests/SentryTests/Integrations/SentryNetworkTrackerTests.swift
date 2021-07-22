@@ -163,7 +163,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         let spans = getStack(tracker: tracker)
 
-        XCTAssertEqual(spans.count, 0)
+        XCTAssertEqual(spans.count, 1)
     }
     
     func testCaptureRequestDuration() {
