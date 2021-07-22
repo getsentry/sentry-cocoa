@@ -1,5 +1,6 @@
 import XCTest
 
+#if !targetEnvironment(macCatalyst)
 class SentryHTTPInterceptorTests: XCTestCase {
     
     private static let httpUrl = "http://somedomain.com"
@@ -73,7 +74,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
     }
     
     func testSessionConfiguration() {
-        let configuration = URLSessionConfiguration()
+        let configuration = URLSessionConfiguration.default
         
         XCTAssertNil(configuration.protocolClasses)
         SentryHttpInterceptor.configureSessionConfiguration(configuration)
@@ -82,7 +83,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
     }
     
     func testSessionConfigurationWithOtherProtocol() {
-        let configuration = URLSessionConfiguration()
+        let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [AlternativeTestProtocol.self]
         SentryHttpInterceptor.configureSessionConfiguration(configuration)
         XCTAssertTrue(configuration.protocolClasses?.first === SentryHttpInterceptor.self)
@@ -241,3 +242,5 @@ class SentryHTTPInterceptorTests: XCTestCase {
         XCTAssertTrue(testCallbackCalled)
     }
 }
+
+#endif
