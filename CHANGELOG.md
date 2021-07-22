@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.7
 
 - fix: Swizzle only inApp ViewControllers (#1242)
 - feat: Add Sentry Trace HTTP Header (#1213)
