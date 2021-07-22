@@ -16,6 +16,9 @@ class SentryNetworkTrackerTests: XCTestCase {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
+            
+            let root = tracker.startSpan(withName: "ROOT_SPAN", operation: "TEST")
+            tracker.pushActiveSpan(root)
         }
         
         func getSut() -> SentryNetworkTracker {
@@ -47,10 +50,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
-        let spans = getStack(tracker: tracker)
+        var spans = getStack(tracker: tracker)
+        XCTAssertEqual(spans.count, 2)
+        
+        spans.removeValue(forKey: tracker.activeSpan()!)
         let span = spans.first?.value
-                     
-        XCTAssertEqual(spans.count, 1)
         XCTAssertFalse(span!.isFinished)
         task.state = .completed
         XCTAssertTrue(span!.isFinished)
@@ -67,7 +71,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = getStack(tracker: tracker)
         
-        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.count, 2)
         task.state = .completed
         XCTAssertNil(task.observationInfo)
     }
@@ -80,7 +84,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = getStack(tracker: tracker)
         
-        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.count, 2)
         task.state = .completed
         XCTAssertNil(task.observationInfo)
     }
@@ -95,10 +99,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         let spans = getStack(tracker: tracker)
         
-        XCTAssertEqual(spans.count, 0)
+        XCTAssertEqual(spans.count, 1)
     }
     
-    func tesIgnoreSentryApi() {
+    func testTrackerWithoutActiveSpan() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let tracker = fixture.tracker
+        tracker.popActiveSpan()
+        
+        sut.urlSessionTaskResume(task)
+        let spans = getStack(tracker: tracker)
+        XCTAssertEqual(spans.count, 1)
+    }
+    
+    func testIgnoreSentryApi() {
         let client = TestClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: fixture.dateProvider)
         SentrySDK.setCurrentHub(hub)
@@ -111,7 +126,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
         
         let span = getStack(tracker: tracker)
-        XCTAssertEqual(span.count, 0)
+        XCTAssertEqual(span.count, 1)
     }
     
     func testSDKOptionsNil() {
@@ -125,7 +140,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
         
         let span = getStack(tracker: tracker)
-        XCTAssertEqual(span.count, 0)
+        XCTAssertEqual(span.count, 1)
     }
     
     func testDisabled() {
@@ -137,16 +152,18 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         let spans = getStack(tracker: tracker)
         
-        XCTAssertEqual(spans.count, 0)
+        XCTAssertEqual(spans.count, 1)
     }
     
-    func tesCaptureRequestDuration() {
+    func testCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
-        let span = getStack(tracker: tracker).first!.value
+        var spans = getStack(tracker: tracker)
+        spans.removeValue(forKey: tracker.activeSpan()!)
+        let span = spans.first!.value
         
         advanceTime(bySeconds: 5)
         
@@ -171,7 +188,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         sut.urlSessionTaskResume(task)
                 
-        let spans = getStack(tracker: tracker)
+        var spans = getStack(tracker: tracker)
+        spans.removeValue(forKey: tracker.activeSpan()!)
         let span = spans.first!.value
         
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
@@ -180,28 +198,30 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.context.status, .unknownError)
     }
     
-    func testSpanNameWithGet() {
+    func testSpanDescriptionNameWithGet() {
         let sut = fixture.getSut()
         let task = createDataTask()
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
-        let spans = getStack(tracker: tracker)
-        let span = spans.first?.value as? SentryTracer
+        var spans = getStack(tracker: tracker)
+        spans.removeValue(forKey: tracker.activeSpan()!)
+        let span = spans.first?.value as? SentrySpan
         
-        XCTAssertEqual(span!.name, "GET \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span!.context.spanDescription, "GET \(SentryNetworkTrackerTests.testURL)")
     }
     
-    func testSpanNameWithPost() {
+    func testSpanDescriptionNameWithPost() {
         let sut = fixture.getSut()
         let task = createDataTask(method: "POST")
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
-        let spans = getStack(tracker: tracker)
-        let span = spans.first?.value as? SentryTracer
+        var spans = getStack(tracker: tracker)
+        spans.removeValue(forKey: tracker.activeSpan()!)
+        let span = spans.first?.value as? SentrySpan
         
-        XCTAssertEqual(span!.name, "POST \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span!.context.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
     }
     
     func testCaptureResponses() {
@@ -226,7 +246,9 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         
         sut.urlSessionTaskResume(task)
-        let span = getStack(tracker: tracker).first!.value
+        var spans = getStack(tracker: tracker)
+        spans.removeValue(forKey: tracker.activeSpan()!)
+        let span = spans.first!.value
         
         task.setResponse(response)
         

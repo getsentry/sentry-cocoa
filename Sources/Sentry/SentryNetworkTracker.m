@@ -74,9 +74,14 @@ SentryNetworkTracker ()
         return;
 
     SentrySpanId *spanId =
-        [self.tracker startSpanWithName:[NSString stringWithFormat:@"%@ %@",
-                                                  sessionTask.currentRequest.HTTPMethod, url]
-                              operation:SENTRY_NETWORK_REQUEST_OPERATION];
+        [self.tracker startChildSpanWithName:[NSString stringWithFormat:@"%@ %@",
+                                                       sessionTask.currentRequest.HTTPMethod, url]
+                                   operation:SENTRY_NETWORK_REQUEST_OPERATION];
+
+    // startChildSpan only create a span if there is an active transaction,
+    // otherwise we have nothing else to do here.
+    if (spanId == nil)
+        return;
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, spanId,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);

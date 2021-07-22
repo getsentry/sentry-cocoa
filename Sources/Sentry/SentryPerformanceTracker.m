@@ -70,6 +70,25 @@ SentryPerformanceTracker ()
     return spanId;
 }
 
+- (nullable SentrySpanId *)startChildSpanWithName:(NSString *)name operation:(NSString *)operation
+{
+    id<SentrySpan> newSpan;
+    @synchronized(self.activeStack) {
+        id<SentrySpan> activeSpanTracker = [self.activeStack lastObject];
+        if (activeSpanTracker == nil) {
+            return nil;
+        }
+        newSpan = [activeSpanTracker startChildWithOperation:operation description:name];
+    }
+    SentrySpanId *spanId = newSpan.context.spanId;
+
+    @synchronized(self.spans) {
+        self.spans[spanId] = newSpan;
+    }
+
+    return spanId;
+}
+
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
                            inBlock:(void (^)(void))block
@@ -135,7 +154,9 @@ SentryPerformanceTracker ()
         [self.spans removeObjectForKey:spanId];
     }
 
-    [spanTracker finishWithStatus:status];
+    @synchronized(self.activeStack) {
+        [spanTracker finishWithStatus:status];
+    }
 }
 
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId

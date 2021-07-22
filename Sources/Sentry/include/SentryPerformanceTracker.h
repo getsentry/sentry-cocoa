@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)shared;
 
 /**
- * Starts a new span in the current thread if no span is active,
+ * Starts a new span if no span is active,
  * then bind it to the scope if no span is binded.
  * If there`s an active span, starts a child of the active span.
  *
@@ -28,6 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
+
+/**
+ * Starts a child of the active span.
+ * If there`s not an active span, don't start a new one and return nil.
+ *
+ * @param name Span name.
+ * @param operation Span operation.
+ *
+ * @return The span id if one is created.
+ */
+- (nullable SentrySpanId *)startChildSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
  * Measure the given block execution.
