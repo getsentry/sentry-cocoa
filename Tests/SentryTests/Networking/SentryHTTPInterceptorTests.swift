@@ -76,9 +76,9 @@ class SentryHTTPInterceptorTests: XCTestCase {
     func testSessionConfiguration() {
         let configuration = URLSessionConfiguration.default
         
-        XCTAssertNil(configuration.protocolClasses)
+        let defaultProtocolCount = URLSessionConfiguration.default.protocolClasses?.count ?? 0
         SentryHttpInterceptor.configureSessionConfiguration(configuration)
-        XCTAssertEqual(configuration.protocolClasses?.count, 1)
+        XCTAssertEqual(configuration.protocolClasses?.count, 1 + defaultProtocolCount)
         XCTAssertTrue(configuration.protocolClasses?.first === SentryHttpInterceptor.self)
     }
     
