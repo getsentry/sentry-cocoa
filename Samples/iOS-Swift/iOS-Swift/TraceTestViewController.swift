@@ -33,8 +33,10 @@ class TraceTestViewController: UIViewController {
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }
-        
-        let dataTask = URLSession.shared.dataTask(with: imgUrl) { (data, _, error) in
+        let m = URLSession.shared.dataTask(with: imgUrl)
+        print(m)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
             DispatchQueue.main.async {
                 var spanStatus = SentrySpanStatus.ok
                 if let err = error {

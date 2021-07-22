@@ -195,6 +195,11 @@ SentryTracer ()
     [self canBeFinished];
 }
 
+- (SentryTraceHeader *)toTraceHeader
+{
+    return [self.rootSpan toTraceHeader];
+}
+
 - (BOOL)hasUnfinishedChildren
 {
     @synchronized(_children) {
