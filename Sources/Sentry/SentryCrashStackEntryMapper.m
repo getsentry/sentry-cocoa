@@ -1,7 +1,7 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
-#import "SentryFrameInAppLogic.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryInAppLogic.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -9,13 +9,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryCrashStackEntryMapper ()
 
-@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *frameInAppLogic;
 
 @end
 
 @implementation SentryCrashStackEntryMapper
 
-- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+- (instancetype)initWithFrameInAppLogic:(SentryInAppLogic *)frameInAppLogic
 {
     if (self = [super init]) {
         self.frameInAppLogic = frameInAppLogic;

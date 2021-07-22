@@ -6,8 +6,8 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
-#import "SentryFrameInAppLogic.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryInAppLogic.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -25,14 +25,14 @@ SentryCrashReportConverter ()
 @property (nonatomic, strong) NSArray *threads;
 @property (nonatomic, strong) NSDictionary *systemContext;
 @property (nonatomic, strong) NSString *diagnosis;
-@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *frameInAppLogic;
 
 @end
 
 @implementation SentryCrashReportConverter
 
 - (instancetype)initWithReport:(NSDictionary *)report
-               frameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+               frameInAppLogic:(SentryInAppLogic *)frameInAppLogic
 {
     self = [super init];
     if (self) {

@@ -1,12 +1,12 @@
 import XCTest
 
-class SentryFrameInAppLogicTests: XCTestCase {
+class SentryInAppLogicTests: XCTestCase {
     
     private class Fixture {
         
-        func getSut(inAppIncludes: [String] = [], inAppExcludes: [String] = [] ) -> SentryFrameInAppLogic {
+        func getSut(inAppIncludes: [String] = [], inAppExcludes: [String] = [] ) -> SentryInAppLogic {
             
-            return SentryFrameInAppLogic(
+            return SentryInAppLogic(
                 inAppIncludes: inAppIncludes,
                 inAppExcludes: inAppExcludes
             )

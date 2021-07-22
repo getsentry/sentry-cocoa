@@ -14,13 +14,13 @@
 @interface
 SentryCrashReportSink ()
 
-@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *frameInAppLogic;
 
 @end
 
 @implementation SentryCrashReportSink
 
-- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+- (instancetype)initWithFrameInAppLogic:(SentryInAppLogic *)frameInAppLogic
 {
     if (self = [super init]) {
         self.frameInAppLogic = frameInAppLogic;

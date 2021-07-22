@@ -48,7 +48,7 @@ SentryOptions ()
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
 
-        // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
+        // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
         // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
         // inApp. For private frameworks, such as Sentry, dynamic and static frameworks differ.

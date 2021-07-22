@@ -1,13 +1,13 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryCrashReportConverter.h"
-#import "SentryFrameInAppLogic.h"
+#import "SentryInAppLogic.h"
 #import "SentryMechanismMeta.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
-@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *frameInAppLogic;
 
 @end
 
@@ -16,8 +16,7 @@
 - (void)setUp
 {
     [super setUp];
-    self.frameInAppLogic = [[SentryFrameInAppLogic alloc] initWithInAppIncludes:@[]
-                                                                  inAppExcludes:@[]];
+    self.frameInAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[] inAppExcludes:@[]];
 }
 
 - (void)tearDown

@@ -11,10 +11,10 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
-#import "SentryFrameInAppLogic.h"
 #import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
+#import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
@@ -63,9 +63,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
 
-        SentryFrameInAppLogic *frameInAppLogic =
-            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                   inAppExcludes:options.inAppExcludes];
+        SentryInAppLogic *frameInAppLogic =
+            [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                              inAppExcludes:options.inAppExcludes];
         SentryCrashStackEntryMapper *crashStackEntryMapper =
             [[SentryCrashStackEntryMapper alloc] initWithFrameInAppLogic:frameInAppLogic];
         SentryStacktraceBuilder *stacktraceBuilder =

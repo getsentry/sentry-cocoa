@@ -9,7 +9,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     private var sut: SentryCrashStackEntryMapper!
     
     override func setUp() {
-        sut = SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
+        sut = SentryCrashStackEntryMapper(frameInAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
     }
 
     func testSymbolAddress() {
