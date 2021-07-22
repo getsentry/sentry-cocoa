@@ -105,12 +105,11 @@ SentryCrashIntegration ()
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
         if (installation == nil) {
-            SentryInAppLogic *frameInAppLogic =
+            SentryInAppLogic *inAppLogic =
                 [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
                                                   inAppExcludes:self.options.inAppExcludes];
 
-            installation =
-                [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
+            installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
 
             canSendReports = YES;
         }

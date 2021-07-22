@@ -9,16 +9,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryCrashStackEntryMapper ()
 
-@property (nonatomic, strong) SentryInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
 @implementation SentryCrashStackEntryMapper
 
-- (instancetype)initWithFrameInAppLogic:(SentryInAppLogic *)frameInAppLogic
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
 {
     if (self = [super init]) {
-        self.frameInAppLogic = frameInAppLogic;
+        self.inAppLogic = inAppLogic;
     }
     return self;
 }
@@ -45,7 +45,7 @@ SentryCrashStackEntryMapper ()
         NSString *imageName = [NSString stringWithCString:stackCursor.stackEntry.imageName
                                                  encoding:NSUTF8StringEncoding];
         frame.package = imageName;
-        frame.inApp = @([self.frameInAppLogic isInApp:imageName]);
+        frame.inApp = @([self.inAppLogic isInApp:imageName]);
     }
 
     return frame;

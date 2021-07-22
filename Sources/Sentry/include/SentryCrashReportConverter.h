@@ -8,8 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSDictionary *userContext;
 
-- (instancetype)initWithReport:(NSDictionary *)report
-               frameInAppLogic:(SentryInAppLogic *)frameInAppLogic;
+- (instancetype)initWithReport:(NSDictionary *)report inAppLogic:(SentryInAppLogic *)inAppLogic;
 
 /**
  * Converts the report to an SentryEvent.

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCrashInstallationReporter : SentryCrashInstallation
 SENTRY_NO_INIT
 
-- (instancetype)initWithFrameInAppLogic:(SentryInAppLogic *)frameInAppLogic;
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic;
 
 - (void)sendAllReports;
 

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCrashStackEntryMapper : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithFrameInAppLogic:(SentryInAppLogic *)frameInAppLogic;
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic;
 
 /**
  * Maps the stackEntry of a SentryCrashStackCursor to SentryFrame.

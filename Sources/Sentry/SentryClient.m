@@ -63,11 +63,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
 
-        SentryInAppLogic *frameInAppLogic =
+        SentryInAppLogic *inAppLogic =
             [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                               inAppExcludes:options.inAppExcludes];
         SentryCrashStackEntryMapper *crashStackEntryMapper =
-            [[SentryCrashStackEntryMapper alloc] initWithFrameInAppLogic:frameInAppLogic];
+            [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
         SentryStacktraceBuilder *stacktraceBuilder =
             [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
         id<SentryCrashMachineContextWrapper> machineContextWrapper =
