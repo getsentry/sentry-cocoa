@@ -98,7 +98,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans.count, 0)
     }
     
-    func tesIgnoreSentryApi() {
+    func testIgnoreSentryApi() {
         let client = TestClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: fixture.dateProvider)
         SentrySDK.setCurrentHub(hub)
@@ -140,7 +140,18 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans.count, 0)
     }
     
-    func tesCaptureRequestDuration() {
+    func testIntercepted() {
+        let sut = fixture.getSut()
+        let task = createInterceptedRequest()
+        sut.urlSessionTaskResume(task)
+        
+        let tracker = fixture.tracker
+        let spans = getStack(tracker: tracker)
+        
+        XCTAssertEqual(spans.count, 0)
+    }
+    
+    func testCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
         let tracker = fixture.tracker
@@ -283,5 +294,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
+    }
+    
+    private func createInterceptedRequest() -> URLSessionDownloadTaskMock {
+        let request = NSMutableURLRequest(url: SentryNetworkTrackerTests.testURL)
+        URLProtocol.setProperty(true, forKey: SENTRY_INTERCEPTED_REQUEST, in: request)
+        request.httpMethod = "GET"
+        return URLSessionDownloadTaskMock(request: request as URLRequest)
     }
 }

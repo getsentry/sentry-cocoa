@@ -1,4 +1,5 @@
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryHttpInterceptor.h"
 #import "SentryNetworkSwizzling.h"
 #import "SentryNetworkTracker.h"
 #import "SentryOptions.h"
@@ -16,12 +17,14 @@ SentryNetworkTrackingIntegration ()
     self.options = options;
     if (options.enableAutoPerformanceTracking) {
         [SentryNetworkSwizzling start];
+        [NSURLProtocol registerClass:[SentryHttpInterceptor class]];
     }
 }
 
 - (void)uninstall
 {
     [SentryNetworkSwizzling stop];
+    [NSURLProtocol unregisterClass:[SentryHttpInterceptor class]];
 }
 
 @end

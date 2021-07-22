@@ -1,4 +1,5 @@
 #import "SentryNetworkTracker.h"
+#import "SentryHttpInterceptor+Private.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
@@ -57,6 +58,13 @@ SentryNetworkTracker ()
             return;
         }
     }
+
+    // We need to check if this request was created by SentryHTTPInterceptor so we don't end up with
+    // two spans for the same request.
+    NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
+                                                inRequest:[sessionTask currentRequest]];
+    if (intercepted != nil && [intercepted boolValue])
+        return;
 
     // SDK not enabled no need to continue
     if (SentrySDK.options == nil) {
