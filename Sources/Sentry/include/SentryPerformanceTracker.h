@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)shared;
 
 /**
- * Starts a new span in the current thread if no span is active,
+ * Starts a new span if no span is active,
  * then bind it to the scope if no span is binded.
  * If there`s an active span, starts a child of the active span.
  *

@@ -1,19 +1,19 @@
 #import "SentryNetworkTracker.h"
 #import "SentryHttpInterceptor+Private.h"
+#import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySpan.h"
 #import <objc/runtime.h>
 
-static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID
-    = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID";
+static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
 
 @interface
 SentryNetworkTracker ()
 
-@property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nonatomic, assign) BOOL isEnabled;
 
 @end
@@ -31,7 +31,6 @@ SentryNetworkTracker ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.tracker = SentryPerformanceTracker.shared;
         self.isEnabled = NO;
     }
     return self;
@@ -81,12 +80,23 @@ SentryNetworkTracker ()
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return;
 
-    SentrySpanId *spanId =
-        [self.tracker startSpanWithName:[NSString stringWithFormat:@"%@ %@",
-                                                  sessionTask.currentRequest.HTTPMethod, url]
-                              operation:SENTRY_NETWORK_REQUEST_OPERATION];
+    __block id<SentrySpan> netSpan;
 
-    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, spanId,
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span != nil) {
+            netSpan = [span
+                startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                            description:[NSString stringWithFormat:@"%@ %@",
+                                                  sessionTask.currentRequest.HTTPMethod, url]];
+        }
+    }];
+
+    // We only create a span if there is a transaction in the scope,
+    // otherwise we have nothing else to do here.
+    if (netSpan == nil)
+        return;
+
+    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     NSString *statePath = NSStringFromSelector(@selector(state));
@@ -104,25 +114,24 @@ SentryNetworkTracker ()
     if ([keyPath isEqualToString:NSStringFromSelector(@selector(state))]) {
         NSURLSessionTask *sessionTask = object;
         if (sessionTask.state != NSURLSessionTaskStateRunning) {
-            SentrySpanId *spanId;
+            id<SentrySpan> netSpan;
             @synchronized(sessionTask) {
-                spanId = objc_getAssociatedObject(
-                    sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID);
+                netSpan
+                    = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
                 // We'll just go through once
-                objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN_ID, nil,
+                objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, nil,
                     OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             }
 
-            if (spanId != nil) {
-                id<SentrySpan> span = [self.tracker getSpan:spanId];
+            if (netSpan != nil) {
                 NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
                 if (responseStatusCode != -1) {
-                    [span setDataValue:[NSNumber numberWithInteger:responseStatusCode]
-                                forKey:@"http.status_code"];
+                    [netSpan setDataValue:[NSNumber numberWithInteger:responseStatusCode]
+                                   forKey:@"http.status_code"];
                 }
 
-                [self.tracker finishSpan:spanId withStatus:[self statusForSessionTask:sessionTask]];
+                [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
                 [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
                 [SentryLog logWithMessage:@"Finished HTTP span for sessionTask"
                                  andLevel:kSentryLevelDebug];

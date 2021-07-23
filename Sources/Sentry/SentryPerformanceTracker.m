@@ -135,7 +135,9 @@ SentryPerformanceTracker ()
         [self.spans removeObjectForKey:spanId];
     }
 
-    [spanTracker finishWithStatus:status];
+    @synchronized(self.activeStack) {
+        [spanTracker finishWithStatus:status];
+    }
 }
 
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId
