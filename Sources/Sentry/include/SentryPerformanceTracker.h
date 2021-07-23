@@ -30,17 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
- * Starts a child of the active span.
- * If there`s not an active span, don't start a new one and return nil.
- *
- * @param name Span name.
- * @param operation Span operation.
- *
- * @return The span id if one is created.
- */
-- (nullable SentrySpanId *)startChildSpanWithName:(NSString *)name operation:(NSString *)operation;
-
-/**
  * Measure the given block execution.
  *
  * @param description The description of the span.
