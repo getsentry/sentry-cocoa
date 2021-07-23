@@ -159,11 +159,10 @@ SentryNetworkTracker ()
         return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
-    case NSURLSessionTaskStateCompleted: {
+    case NSURLSessionTaskStateCompleted:
         return task.error != nil
             ? kSentrySpanStatusUnknownError
             : [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
-    } break;
     case NSURLSessionTaskStateRunning:
         break;
     }

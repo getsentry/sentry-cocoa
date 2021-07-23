@@ -185,6 +185,68 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.context.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
     }
     
+    func testStatusForTaskRunning() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let status = Dynamic(sut).statusForSessionTask(task) as SentrySpanStatus?
+        XCTAssertEqual(status, .undefined)
+    }
+    
+    func testSpanRemovedFromAssociatedObject() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        let spans = Dynamic(transaction).children as [Span]?
+        
+        objc_removeAssociatedObjects(task)
+        
+        XCTAssertFalse(spans!.first!.isFinished)
+        XCTAssertNotNil(task.observationInfo)
+        
+        task.state = .completed
+        XCTAssertNotNil(task.observationInfo)
+        XCTAssertFalse(spans!.first!.isFinished)
+    }
+    
+    func testTaskStateChangedForRunning() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        let spans = Dynamic(transaction).children as [Span]?
+        task.state = .running
+        XCTAssertFalse(spans!.first!.isFinished)
+        
+        XCTAssertNotNil(task.observationInfo)
+        
+        task.state = .completed
+        XCTAssertNil(task.observationInfo)
+        XCTAssertTrue(spans!.first!.isFinished)
+    }
+    
+    func testObserverForAnotherProperty() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        let spans = Dynamic(transaction).children as [Span]?
+        
+        task.addObserver(sut, forKeyPath: "error", options: .new, context: nil)
+        task.setError(NSError(domain: "TEST_ERROR", code: -1, userInfo: nil))
+        XCTAssertFalse(spans!.first!.isFinished)
+        
+        task.removeObserver(sut, forKeyPath: "error")
+        XCTAssertNotNil(task.observationInfo)
+        
+        task.state = .completed
+        XCTAssertNil(task.observationInfo)
+        XCTAssertTrue(spans!.first!.isFinished)
+    }
+    
     func testCaptureResponses() {
         assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
         assertStatus(status: .undefined, state: .completed, response: createResponse(code: 300))
