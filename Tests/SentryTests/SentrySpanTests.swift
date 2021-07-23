@@ -128,13 +128,17 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
     }
     
-    func testSetTags() {
+    func testAddAndRemoveTags() {
         let span = fixture.getSut()
         
         span.setTag(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.tags!.count, 1)
-        XCTAssertEqual(span.tags![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.tags.count, 1)
+        XCTAssertEqual(span.tags[fixture.extraKey], fixture.extraValue)
+        
+        span.removeTag(key: fixture.extraKey)
+        XCTAssertEqual(span.tags.count, 0)
+        XCTAssertNil(span.tags[fixture.extraKey])
     }
     
     func testSerialization() {
@@ -205,37 +209,6 @@ class SentrySpanTests: XCTestCase {
                 
                 for j in 0..<innerLoop {
                     span.setExtra(value: value, key: "\(i)-\(j)")
-                }
-                
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.wait()
-        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
-    }
-    
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
-    func testModifyingTagsFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
-        let span = fixture.getSut()
-        
-        // The number is kept small for the CI to not take to long.
-        // If you really want to test this increase to 100_000 or so.
-        let innerLoop = 1_000
-        let outerLoop = 20
-        let value = fixture.extraValue
-        
-        for i in 0..<outerLoop {
-            group.enter()
-            queue.async {
-                
-                for j in 0..<innerLoop {
                     span.setTag(value: value, key: "\(i)-\(j)")
                 }
                 
@@ -245,6 +218,6 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.tags!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
     }
 }

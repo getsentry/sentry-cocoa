@@ -64,10 +64,17 @@ SentrySpan ()
     }
 }
 
-- (void)setTagValue:(nullable NSString *)value forKey:(NSString *)key
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
     @synchronized(_tags) {
         [_tags setValue:value forKey:key];
+    }
+}
+
+- (void)removeTagForKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
     }
 }
 

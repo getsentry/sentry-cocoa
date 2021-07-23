@@ -188,9 +188,14 @@ SentryTracer ()
     [self.rootSpan setDataValue:value forKey:key];
 }
 
-- (void)setTagValue:(nullable id)value forKey:(NSString *)key
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
     [self.rootSpan setTagValue:value forKey:key];
+}
+
+- (void)removeTagForKey:(NSString *)key
+{
+    [self.rootSpan removeTagForKey:key];
 }
 
 - (void)finish
