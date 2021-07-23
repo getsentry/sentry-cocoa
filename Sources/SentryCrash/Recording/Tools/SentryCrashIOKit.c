@@ -6,6 +6,7 @@
 //  Copyright © 2021 Sentry. All rights reserved.
 //
 
+#if SentryCrashCRASH_HOST_MAC
 #include "SentryCrashIOKit.h"
 #include "SentryCrashLogger.h"
 
@@ -73,3 +74,4 @@ sentrycrashiokit_getPrimaryInterfaceMacAddress(char *const macAddressBuffer)
 
     return ret == KERN_SUCCESS;
 }
+#endif

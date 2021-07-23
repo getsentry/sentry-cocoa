@@ -29,7 +29,9 @@
 #import "SentryCrashCPU.h"
 #import "SentryCrashDate.h"
 #import "SentryCrashDynamicLinker.h"
-#import "SentryCrashIOKit.h"
+#if SentryCrashCRASH_HOST_MAC
+#    import "SentryCrashIOKit.h"
+#endif
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashSysCtl.h"
 #import "SentryCrashSystemCapabilities.h"
@@ -41,6 +43,9 @@
 #import <Foundation/Foundation.h>
 #if SentryCrashCRASH_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+#endif
+#if SentryCrashCRASH_HOST_WATCH
+#    import <WatchKit/WatchKit.h>
 #endif
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
@@ -376,6 +381,25 @@ getReceiptUrlPath()
     return path;
 }
 
+/** The device's vendor identifier.
+ *
+ * @return NSUUID of the device's vendor identifier, if available, nil otherwise
+ */
+static NSUUID *
+getIdentifier() {
+#if SentryCrashCRASH_HAS_UIDEVICE
+    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+        return [UIDevice currentDevice].identifierForVendor;
+    }
+#endif
+#if SentryCrashCRASH_HOST_WATCH
+    if (@available(watchOS 6.2, *)) {
+        return [WKInterfaceDevice currentDevice].identifierForVendor;
+    }
+#endif
+    return nil;
+}
+
 /** Generate a 20 byte SHA1 hash that remains unique across a single device and
  * application. This is slightly different from the Apple crash report key,
  * which is unique to the device, regardless of the application.
@@ -387,16 +411,18 @@ getDeviceAndAppHash()
 {
     NSMutableData *data = nil;
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+#if SentryCrashCRASH_HAS_UIDEVICE || SentryCrashCRASH_HOST_WATCH
+    NSUUID *vendorID = getIdentifier();
+    if (vendorID != nil) {
         data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
-    } else
-#endif
-    {
-        data = [NSMutableData dataWithLength:6];
-        sentrycrashiokit_getPrimaryInterfaceMacAddress([data mutableBytes]);
+        [vendorID getUUIDBytes:data.mutableBytes];
     }
+#endif
+#if SentryCrashCRASH_HOST_MAC
+    data = [NSMutableData dataWithLength:6];
+    sentrycrashiokit_getPrimaryInterfaceMacAddress([data mutableBytes]);
+#endif
+
 
     // Append some device-specific data.
     [data appendData:(NSData *_Nonnull)[nsstringSysctl(@"hw.machine")

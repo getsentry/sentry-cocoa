@@ -18,6 +18,7 @@
 
 - (void)testGetMacAddress
 {
+#if SentryCrashCRASH_HOST_MAC
     unsigned char macAddress[6] = { 0 };
     bool success = sentrycrashiokit_getPrimaryInterfaceMacAddress((char *)macAddress);
     XCTAssertTrue(success, @"");
@@ -26,6 +27,7 @@
         result |= macAddress[i];
     }
     XCTAssertTrue(result != 0, @"");
+#endif
 }
 
 @end
