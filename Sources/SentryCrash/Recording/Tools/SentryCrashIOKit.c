@@ -1,11 +1,3 @@
-//
-//  SentryCrashIOKit.c
-//  Sentry
-//
-//  Created by Jamie Bishop on 07/05/2021.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #if SentryCrashCRASH_HOST_MAC
 #include "SentryCrashIOKit.h"
 #include "SentryCrashLogger.h"

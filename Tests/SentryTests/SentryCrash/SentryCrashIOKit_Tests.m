@@ -1,11 +1,3 @@
-//
-//  SentryCrashIOKit_Tests.m
-//  Sentry
-//
-//  Created by Jamie Bishop on 07/05/2021.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #import <XCTest/XCTest.h>
 
 #import "SentryCrashIOKit.h"

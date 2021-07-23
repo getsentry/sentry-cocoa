@@ -1,11 +1,3 @@
-//
-//  SentryCrashIOKit.h
-//  Sentry
-//
-//  Created by Jamie Bishop on 07/05/2021.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
-
 #ifndef SentryCrashIOKit_h
 #define SentryCrashIOKit_h
 
