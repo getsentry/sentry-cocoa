@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.7
 
 - fix: Don't create transactions for HTTP Requests. (#1237)
+- fix: Swizzle only inApp ViewControllers (#1242)
 - feat: Add Sentry Trace HTTP Header (#1213)
 - feat: Sub-millis precision for spans and events (#1234)
 - fix: Race on session task (#1233)

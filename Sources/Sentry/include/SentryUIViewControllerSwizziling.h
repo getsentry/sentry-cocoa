@@ -5,13 +5,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
+@class SentryOptions;
+
 /**
  * Class is responsible to swizzle UI key methods
  * so Sentry can track UI performance.
  */
 @interface SentryUIViewControllerSwizziling : NSObject
 
-+ (void)start;
++ (void)startWithOptions:(SentryOptions *)options;
 
 @end
 
