@@ -96,6 +96,10 @@ SentryNetworkTracker ()
     if (netSpan == nil)
         return;
 
+    [netSpan setDataValue:[sessionTask.currentRequest HTTPMethod] forKey:@"method"];
+    [netSpan setDataValue:@"fetch" forKey:@"type"];
+    [netSpan setDataValue:url.path forKey:@"url"];
+    
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
         OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
@@ -127,7 +131,7 @@ SentryNetworkTracker ()
                 NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
                 if (responseStatusCode != -1) {
-                    [netSpan setDataValue:[NSNumber numberWithInteger:responseStatusCode]
+                    [netSpan setTagValue:[NSNumber numberWithInteger:responseStatusCode]
                                    forKey:@"http.status_code"];
                 }
 
