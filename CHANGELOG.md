@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Remove tags and data if empty for Span (#1246)
+
 ## 7.2.0-beta.7
 
 - fix: Swizzle only inApp ViewControllers (#1242)

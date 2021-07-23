@@ -95,9 +95,9 @@ SentrySpan ()
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
-    if (_extras != nil) {
-        @synchronized(_extras) {
-            [mutableDictionary setValue:_extras.copy forKey:@"data"];
+    @synchronized(_extras) {
+        if (_extras.count > 0) {
+            mutableDictionary[@"data"] = _extras.copy;
         }
     }
 
