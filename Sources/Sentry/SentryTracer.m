@@ -173,6 +173,11 @@ SentryTracer ()
     return self.rootSpan.data;
 }
 
+- (NSDictionary<NSString *, id> *)tags
+{
+    return self.rootSpan.tags;
+}
+
 - (BOOL)isFinished
 {
     return self.rootSpan.isFinished;
@@ -181,6 +186,11 @@ SentryTracer ()
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
     [self.rootSpan setDataValue:value forKey:key];
+}
+
+- (void)setTagValue:(nullable id)value forKey:(NSString *)key
+{
+    [self.rootSpan setTagValue:value forKey:key];
 }
 
 - (void)finish

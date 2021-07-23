@@ -31,6 +31,11 @@ SENTRY_NO_INIT
 @property (nullable, readonly) NSDictionary<NSString *, id> *data;
 
 /**
+ * A key-value pairs holding additional data about the span.
+ */
+@property (nullable, readonly) NSDictionary<NSString *, id> *tags;
+
+/**
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
@@ -81,6 +86,11 @@ SENTRY_NO_INIT
  */
 - (void)setDataValue:(nullable id)value
               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+
+/**
+ * Sets a tag value.
+ */
+- (void)setTagValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
 /**
  * Finishes the span by setting the end time.

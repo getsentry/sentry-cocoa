@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readonly) NSDictionary<NSString *, id> *data;
 
 /**
+ * A key-value pairs holding additional data about the span.
+ */
+@property (nullable, readonly) NSDictionary<NSString *, id> *tags;
+
+/**
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
@@ -109,6 +114,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setDataValue:(nullable id)value
               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+
+/**
+ * Sets a tag value.
+ */
+- (void)setTagValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
 
 /**
  * Finishes the transaction by setting the end time and capturing the transaction with binded hub.

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add tags to Sentry Span (#1243)
+
 ## 7.2.0-beta.7
 
 - fix: Swizzle only inApp ViewControllers (#1242)

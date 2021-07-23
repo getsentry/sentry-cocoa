@@ -15,6 +15,7 @@ SentrySpan ()
 
 @implementation SentrySpan {
     NSMutableDictionary<NSString *, id> *_extras;
+    NSMutableDictionary<NSString *, id> *_tags;
 }
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
@@ -31,6 +32,7 @@ SentrySpan ()
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _extras = [[NSMutableDictionary alloc] init];
+        _tags = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -59,6 +61,20 @@ SentrySpan ()
 {
     @synchronized(_extras) {
         return [_extras copy];
+    }
+}
+
+- (void)setTagValue:(nullable NSString *)value forKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
+}
+
+- (nullable NSDictionary<NSString *, id> *)tags
+{
+    @synchronized(_tags) {
+        return [_tags copy];
     }
 }
 
@@ -98,6 +114,12 @@ SentrySpan ()
     if (_extras != nil) {
         @synchronized(_extras) {
             [mutableDictionary setValue:_extras.copy forKey:@"data"];
+        }
+    }
+
+    if (_tags != nil) {
+        @synchronized(_tags) {
+            [mutableDictionary setValue:_tags.copy forKey:@"tags"];
         }
     }
 
