@@ -128,6 +128,15 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
     }
     
+    func testSetTags() {
+        let span = fixture.getSut()
+        
+        span.setTag(value: fixture.extraValue, key: fixture.extraKey)
+        
+        XCTAssertEqual(span.tags!.count, 1)
+        XCTAssertEqual(span.tags![fixture.extraKey] as! String, fixture.extraValue)
+    }
+    
     func testSerialization() {
         let span = fixture.getSut()
         
@@ -178,7 +187,7 @@ class SentrySpanTests: XCTestCase {
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testModifyingTagsFromMultipleThreads() {
+    func testModifyingExtraFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
                 
@@ -205,5 +214,37 @@ class SentrySpanTests: XCTestCase {
         queue.activate()
         group.wait()
         XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
+    }
+    
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testModifyingTagsFromMultipleThreads() {
+        let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        let span = fixture.getSut()
+        
+        // The number is kept small for the CI to not take to long.
+        // If you really want to test this increase to 100_000 or so.
+        let innerLoop = 1_000
+        let outerLoop = 20
+        let value = fixture.extraValue
+        
+        for i in 0..<outerLoop {
+            group.enter()
+            queue.async {
+                
+                for j in 0..<innerLoop {
+                    span.setTag(value: value, key: "\(i)-\(j)")
+                }
+                
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.wait()
+        XCTAssertEqual(span.tags!.count, outerLoop * innerLoop)
     }
 }
