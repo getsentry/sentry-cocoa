@@ -401,6 +401,24 @@
     XCTAssertEqual(NO, options.attachStacktrace);
 }
 
+- (void)testStitchAsyncCodeDisabledPerDefault
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqual(NO, options.stitchAsyncCode);
+}
+
+- (void)testStitchAsyncCodeEnabled
+{
+    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @YES }];
+    XCTAssertEqual(YES, options.stitchAsyncCode);
+}
+
+- (void)testInvalidStitchAsyncCode
+{
+    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @"Invalid" }];
+    XCTAssertEqual(NO, options.stitchAsyncCode);
+}
+
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -418,7 +436,9 @@
     XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
+    XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertTrue(options.enableAutoPerformanceTracking);
 }
 
 - (void)testSetValidDsn
@@ -499,6 +519,18 @@
     XCTAssertFalse(options.sendDefaultPii);
 }
 
+- (void)testAutomaticallyTrackPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertTrue(options.enableAutoPerformanceTracking);
+}
+
+- (void)testDontAutomaticallyTrackPerformance
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableAutoPerformanceTracking" : @NO }];
+    XCTAssertFalse(options.enableAutoPerformanceTracking);
+}
+
 - (void)testTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];
@@ -575,6 +607,36 @@
     SentryOptions *options = [self getValidOptions:@{}];
 
     XCTAssertNil(options.tracesSampler);
+}
+
+- (void)testIsTracingEnabled_NothingSet_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertFalse(options.isTracingEnabled);
+}
+
+- (void)testIsTracingEnabled_TracesSampleRateSetToZero_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampleRate = @0.00;
+    XCTAssertFalse(options.isTracingEnabled);
+}
+
+- (void)testIsTracingEnabled_TracesSampleRateSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampleRate = @0.01;
+    XCTAssertTrue(options.isTracingEnabled);
+}
+
+- (void)testIsTracingEnabled_TracesSamplerSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.tracesSampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @0.0;
+    };
+    XCTAssertTrue(options.isTracingEnabled);
 }
 
 - (void)testInAppIncludes

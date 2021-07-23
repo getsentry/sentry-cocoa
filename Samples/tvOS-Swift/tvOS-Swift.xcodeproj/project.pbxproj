@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7B34280025876DF000056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427FF25876DF000056519 /* Tongariro.jpg */; };
+		7B64388926A6C71A000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64388826A6C71A000D0F65 /* LaunchUITests.swift */; };
 		7BA61D66247FA32600C130A8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA61D65247FA32600C130A8 /* AppDelegate.swift */; };
 		7BA61D68247FA32600C130A8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA61D67247FA32600C130A8 /* ContentView.swift */; };
 		7BA61D6A247FA32600C130A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BA61D69247FA32600C130A8 /* Assets.xcassets */; };
@@ -15,6 +16,16 @@
 		7BA61D79247FA35500C130A8 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; };
 		7BA61D7A247FA35500C130A8 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7B64388B26A6C71A000D0F65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BA61D5A247FA32600C130A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BA61D61247FA32600C130A8;
+			remoteInfo = "tvOS-Swift";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		7BA61D7B247FA35500C130A8 /* Embed Frameworks */ = {
@@ -32,6 +43,9 @@
 
 /* Begin PBXFileReference section */
 		7B3427FF25876DF000056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
+		7B64388626A6C71A000D0F65 /* tvOS-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tvOS-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B64388826A6C71A000D0F65 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
+		7B64388A26A6C71A000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BA61D62247FA32600C130A8 /* tvOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tvOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BA61D65247FA32600C130A8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7BA61D67247FA32600C130A8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -42,6 +56,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		7B64388326A6C71A000D0F65 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7BA61D5F247FA32600C130A8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,10 +74,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7B64388726A6C71A000D0F65 /* tvOS-SwiftUITests */ = {
+			isa = PBXGroup;
+			children = (
+				7B64388826A6C71A000D0F65 /* LaunchUITests.swift */,
+				7B64388A26A6C71A000D0F65 /* Info.plist */,
+			);
+			path = "tvOS-SwiftUITests";
+			sourceTree = "<group>";
+		};
 		7BA61D59247FA32600C130A8 = {
 			isa = PBXGroup;
 			children = (
 				7BA61D64247FA32600C130A8 /* tvOS-Swift */,
+				7B64388726A6C71A000D0F65 /* tvOS-SwiftUITests */,
 				7BA61D63247FA32600C130A8 /* Products */,
 				7BA61D77247FA35500C130A8 /* Frameworks */,
 			);
@@ -66,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				7BA61D62247FA32600C130A8 /* tvOS-Swift.app */,
+				7B64388626A6C71A000D0F65 /* tvOS-SwiftUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -94,6 +126,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		7B64388526A6C71A000D0F65 /* tvOS-SwiftUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B64388F26A6C71A000D0F65 /* Build configuration list for PBXNativeTarget "tvOS-SwiftUITests" */;
+			buildPhases = (
+				7B64388226A6C71A000D0F65 /* Sources */,
+				7B64388326A6C71A000D0F65 /* Frameworks */,
+				7B64388426A6C71A000D0F65 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7B64388C26A6C71A000D0F65 /* PBXTargetDependency */,
+			);
+			name = "tvOS-SwiftUITests";
+			productName = "tvOS-SwiftUITests";
+			productReference = 7B64388626A6C71A000D0F65 /* tvOS-SwiftUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		7BA61D61247FA32600C130A8 /* tvOS-Swift */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7BA61D74247FA32600C130A8 /* Build configuration list for PBXNativeTarget "tvOS-Swift" */;
@@ -118,10 +168,14 @@
 		7BA61D5A247FA32600C130A8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "GetSentry LLC";
 				TargetAttributes = {
+					7B64388526A6C71A000D0F65 = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 7BA61D61247FA32600C130A8;
+					};
 					7BA61D61247FA32600C130A8 = {
 						CreatedOnToolsVersion = 11.5;
 					};
@@ -141,11 +195,19 @@
 			projectRoot = "";
 			targets = (
 				7BA61D61247FA32600C130A8 /* tvOS-Swift */,
+				7B64388526A6C71A000D0F65 /* tvOS-SwiftUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		7B64388426A6C71A000D0F65 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7BA61D60247FA32600C130A8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -159,6 +221,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		7B64388226A6C71A000D0F65 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B64388926A6C71A000D0F65 /* LaunchUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7BA61D5E247FA32600C130A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -169,6 +239,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7B64388C26A6C71A000D0F65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BA61D61247FA32600C130A8 /* tvOS-Swift */;
+			targetProxy = 7B64388B26A6C71A000D0F65 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		7BA61D6E247FA32600C130A8 /* LaunchScreen.storyboard */ = {
@@ -182,6 +260,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		7B64388D26A6C71A000D0F65 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "tvOS-SwiftUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_TARGET_NAME = "tvOS-Swift";
+				TVOS_DEPLOYMENT_TARGET = 14.5;
+			};
+			name = Debug;
+		};
+		7B64388E26A6C71A000D0F65 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "tvOS-SwiftUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_TARGET_NAME = "tvOS-Swift";
+				TVOS_DEPLOYMENT_TARGET = 14.5;
+			};
+			name = Release;
+		};
 		7BA61D72247FA32600C130A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -341,6 +459,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		7B64388F26A6C71A000D0F65 /* Build configuration list for PBXNativeTarget "tvOS-SwiftUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B64388D26A6C71A000D0F65 /* Debug */,
+				7B64388E26A6C71A000D0F65 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		7BA61D5D247FA32600C130A8 /* Build configuration list for PBXProject "tvOS-Swift" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -45,7 +45,7 @@ class SentrySDKTests: XCTestCase {
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope)
+            hub = SentryHub(client: client, andScope: scope, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: currentDate)
             
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
@@ -70,6 +70,8 @@ class SentrySDKTests: XCTestCase {
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
         }
+        
+        clearTestState()
     }
     
     func testStartWithConfigureOptions() {
@@ -184,16 +186,7 @@ class SentrySDKTests: XCTestCase {
     
         assertEventCaptured(expectedScope: scope)
     }
-    
-    func testSpan() {
-        givenSdkWithHub()
-        
-        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
-        let newSpan = SentrySDK.span
-        
-        XCTAssert(span === newSpan)
-    }
-    
+       
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
         
@@ -344,6 +337,15 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
     
+    func testStartTransaction() {
+        givenSdkWithHub()
+        
+        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
+        let newSpan = SentrySDK.span
+        
+        XCTAssert(span === newSpan)
+    }
+    
     func testPerformanceOfConfigureScope() {
         func buildCrumb(_ i: Int) -> Breadcrumb {
             let crumb = Breadcrumb()
@@ -458,6 +460,11 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.options.releaseName ?? "", actual.releaseName)
         XCTAssertEqual(1, actual.duration)
         XCTAssertEqual(fixture.currentDate.date(), actual.timestamp)
+    }
+    
+    func testGlobalOptions() {
+        SentrySDK.setCurrentHub(fixture.hub)
+        XCTAssertEqual(SentrySDK.options, fixture.options)
     }
     
     private func givenSdkWithHub() {

@@ -16,7 +16,9 @@
 		637AFDB3243B02770034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		7B3427F825876A5200056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
+		7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B371C34268B08F300207D8D /* DSNStorage.swift */; };
 		7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
+		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +43,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
+		};
+		7B64386D26A6C544000D0F65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 637AFD9E243B02760034958B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 637AFDA5243B02760034958B;
+			remoteInfo = "iOS-Swift";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -71,7 +80,11 @@
 		637AFDB7243B02770034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
+		7B371C34268B08F300207D8D /* DSNStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
 		7B4AC43F25D16AA00070736A /* RandomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
+		7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B64386A26A6C544000D0F65 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
+		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,6 +94,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B64386526A6C544000D0F65 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +129,7 @@
 			children = (
 				6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */,
 				637AFDA8243B02760034958B /* iOS-Swift */,
+				7B64386926A6C544000D0F65 /* iOS-SwiftUITests */,
 				637AFDA7243B02760034958B /* Products */,
 				634C7EC124406A4200AFDE9F /* Frameworks */,
 			);
@@ -118,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				637AFDA6243B02760034958B /* iOS-Swift.app */,
+				7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -130,6 +152,7 @@
 				637AFDAB243B02760034958B /* SceneDelegate.swift */,
 				637AFDAD243B02760034958B /* ViewController.swift */,
 				7B4AC43F25D16AA00070736A /* RandomErrors.swift */,
+				7B371C34268B08F300207D8D /* DSNStorage.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
@@ -138,6 +161,15 @@
 				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
 			);
 			path = "iOS-Swift";
+			sourceTree = "<group>";
+		};
+		7B64386926A6C544000D0F65 /* iOS-SwiftUITests */ = {
+			isa = PBXGroup;
+			children = (
+				7B64386A26A6C544000D0F65 /* LaunchUITests.swift */,
+				7B64386C26A6C544000D0F65 /* Info.plist */,
+			);
+			path = "iOS-SwiftUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,18 +194,40 @@
 			productReference = 637AFDA6243B02760034958B /* iOS-Swift.app */;
 			productType = "com.apple.product-type.application";
 		};
+		7B64386726A6C544000D0F65 /* iOS-SwiftUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B64387226A6C544000D0F65 /* Build configuration list for PBXNativeTarget "iOS-SwiftUITests" */;
+			buildPhases = (
+				7B64386426A6C544000D0F65 /* Sources */,
+				7B64386526A6C544000D0F65 /* Frameworks */,
+				7B64386626A6C544000D0F65 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7B64386E26A6C544000D0F65 /* PBXTargetDependency */,
+			);
+			name = "iOS-SwiftUITests";
+			productName = "iOS-SwiftUITests";
+			productReference = 7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		637AFD9E243B02760034958B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1140;
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Sentry;
 				TargetAttributes = {
 					637AFDA5243B02760034958B = {
 						CreatedOnToolsVersion = 11.4;
+					};
+					7B64386726A6C544000D0F65 = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 637AFDA5243B02760034958B;
 					};
 				};
 			};
@@ -197,6 +251,7 @@
 			projectRoot = "";
 			targets = (
 				637AFDA5243B02760034958B /* iOS-Swift */,
+				7B64386726A6C544000D0F65 /* iOS-SwiftUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -230,6 +285,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7B64386626A6C544000D0F65 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -241,7 +303,16 @@
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				637AFDAC243B02760034958B /* SceneDelegate.swift in Sources */,
+				7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */,
 				7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B64386426A6C544000D0F65 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +323,11 @@
 			isa = PBXTargetDependency;
 			name = Sentry;
 			targetProxy = 630853512440C60800DDE4CE /* PBXContainerItemProxy */;
+		};
+		7B64386E26A6C544000D0F65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 637AFDA5243B02760034958B /* iOS-Swift */;
+			targetProxy = 7B64386D26A6C544000D0F65 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -404,7 +480,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "7.0.3";
+				MARKETING_VERSION = "7.2.0-beta.7";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -427,7 +503,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "7.0.3";
+				MARKETING_VERSION = "7.2.0-beta.7";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -435,6 +511,46 @@
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7B64386F26A6C544000D0F65 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "iOS-Swift";
+			};
+			name = Debug;
+		};
+		7B64387026A6C544000D0F65 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "iOS-Swift";
 			};
 			name = Release;
 		};
@@ -455,6 +571,15 @@
 			buildConfigurations = (
 				637AFDBB243B02770034958B /* Debug */,
 				637AFDBC243B02770034958B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7B64387226A6C544000D0F65 /* Build configuration list for PBXNativeTarget "iOS-SwiftUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B64386F26A6C544000D0F65 /* Debug */,
+				7B64387026A6C544000D0F65 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

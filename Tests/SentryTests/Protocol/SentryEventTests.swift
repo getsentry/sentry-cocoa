@@ -13,7 +13,7 @@ class SentryEventTests: XCTestCase {
         event.context?["a"] = ["a": 0]
 
         XCTAssertEqual(event.eventId.sentryIdString, actual["event_id"] as? String)
-        XCTAssertEqual(TestData.timestampAs8601String, actual["timestamp"] as? String)
+        XCTAssertEqual(TestData.timestamp.timeIntervalSince1970, actual["timestamp"] as? TimeInterval)
         XCTAssertEqual("cocoa", actual["platform"] as? String)
         XCTAssertEqual("info", actual["level"] as? String)
 
@@ -50,7 +50,7 @@ class SentryEventTests: XCTestCase {
         event.type = "transaction"
         
         let actual = event.serialize()
-        XCTAssertEqual(TestData.timestampAs8601String, actual["start_timestamp"] as? String)
+        XCTAssertEqual(TestData.timestamp.timeIntervalSince1970, actual["start_timestamp"] as? TimeInterval)
     }
     
     func testSerializeWithTypeTransaction_WithoutStartTimestamp() {
@@ -59,7 +59,8 @@ class SentryEventTests: XCTestCase {
         event.startTimestamp = nil
         
         let actual = event.serialize()
-        XCTAssertEqual(TestData.timestampAs8601String, actual["start_timestamp"] as? String)
+        XCTAssertEqual(TestData.timestamp.timeIntervalSince1970, actual["start_timestamp"] as? TimeInterval
+        )
     }
     
     func testSerializeWithExtraTransaction() {

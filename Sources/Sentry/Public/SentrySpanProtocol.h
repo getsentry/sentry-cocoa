@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanId, SentryId;
+@class SentrySpanId, SentryId, SentryTraceHeader;
 
 NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>
@@ -73,6 +73,13 @@ NS_SWIFT_NAME(Span)
  * @param status The status of this span
  *  */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
+
+/**
+ * Returns the trace information that could be sent as a sentry-trace header.
+ *
+ * @return SentryTraceHeader.
+ */
+- (SentryTraceHeader *)toTraceHeader;
 
 @end
 

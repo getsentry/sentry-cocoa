@@ -79,7 +79,8 @@ SentrySpanContext () {
         @"type" : SentrySpanContext.type,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"tags" : _tags.copy
+        @"tags" : _tags.copy,
+        @"op" : self.operation
     }
                                                  .mutableCopy;
 
@@ -88,8 +89,8 @@ SentrySpanContext () {
     if (self.sampled != kSentrySampleDecisionUndecided)
         [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
 
-    if (self.operation != nil)
-        [mutabledictionary setValue:self.operation forKey:@"op"];
+    if (self.spanDescription != nil)
+        [mutabledictionary setValue:self.spanDescription forKey:@"description"];
 
     if (self.parentSpanId != nil)
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];

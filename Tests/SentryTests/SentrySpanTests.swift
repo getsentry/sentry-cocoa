@@ -8,11 +8,13 @@ class SentrySpanTests: XCTestCase {
         let extraKey = "extra_key"
         let extraValue = "extra_value"
         let options: Options
-        
+        let currentDateProvider = TestCurrentDateProvider()
+         
         init() {
             options = Options()
             options.dsn = TestConstants.dsnAsString(username: "username")
             options.environment = "test"
+            currentDateProvider.setDate(date: TestData.timestamp)
         }
         
         func getSut() -> Span {
@@ -20,7 +22,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: Client) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashWrapper())
+            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: currentDateProvider)
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -28,11 +30,8 @@ class SentrySpanTests: XCTestCase {
     
     private var fixture: Fixture!
     override func setUp() {
-        let testDataProvider = TestCurrentDateProvider()
-        CurrentDate.setCurrentDateProvider(testDataProvider)
-        testDataProvider.setDate(date: TestData.timestamp)
-        
         fixture = Fixture()
+        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
     }
     
     func testInitAndCheckForTimestamps() {
@@ -138,12 +137,42 @@ class SentrySpanTests: XCTestCase {
         let serialization = span.serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.context.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["trace_id"] as? String, span.context.traceId.sentryIdString)
-        XCTAssertEqual(serialization["timestamp"] as? String, TestData.timestampAs8601String)
-        XCTAssertEqual(serialization["start_timestamp"] as? String, TestData.timestampAs8601String)
+        XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
+        XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
         XCTAssertEqual(serialization["sampled"] as? String, "false")
         XCTAssertNotNil(serialization["data"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+    }
+    
+    func testTraceHeaderNotSampled() {
+        let span = fixture.getSut()
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampled, .no)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-0")
+    }
+    
+    func testTraceHeaderSampled() {
+        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampled, .yes)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-1")
+    }
+    
+    func testTraceHeaderUndecided() {
+        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let header = span.toTraceHeader()
+        
+        XCTAssertEqual(header.traceId, span.context.traceId)
+        XCTAssertEqual(header.spanId, span.context.spanId)
+        XCTAssertEqual(header.sampled, .undecided)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)")
     }
     
     @available(tvOS 10.0, *)

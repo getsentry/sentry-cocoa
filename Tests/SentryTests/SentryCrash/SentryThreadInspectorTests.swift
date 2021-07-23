@@ -11,7 +11,7 @@ class SentryThreadInspectorTests: XCTestCase {
             let machineContextWrapper = testWithRealMachineConextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
             
             return SentryThreadInspector(
-                stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))),
+                stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))),
                 andMachineContextWrapper: machineContextWrapper
             )
         }
@@ -101,7 +101,7 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testLongThreadName() {
-        let threadName = String(repeating: "1", count: 128)
+        let threadName = String(repeating: "1", count: 127)
         fixture.testMachineContextWrapper.threadName = threadName
         fixture.testMachineContextWrapper.threadCount = 1
         

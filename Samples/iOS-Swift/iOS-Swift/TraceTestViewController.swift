@@ -19,6 +19,7 @@ class TraceTestViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = UIColor.white
     }
     
     private func initialize() {
@@ -26,15 +27,16 @@ class TraceTestViewController: UIViewController {
         loadSpan = SentrySDK.startTransaction(name: "TraceTestViewController", operation: "navigation")
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         let child = loadSpan?.startChild(operation: "network", description: "Download Image")
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }
-        
-        let dataTask = URLSession.shared.dataTask(with: imgUrl) { (data, _, error) in
+        let m = URLSession.shared.dataTask(with: imgUrl)
+        print(m)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
             DispatchQueue.main.async {
                 var spanStatus = SentrySpanStatus.ok
                 if let err = error {
@@ -47,6 +49,11 @@ class TraceTestViewController: UIViewController {
                 self.loadSpan?.finish()
             }
         }
+        
         dataTask.resume()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 }

@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -38,15 +38,35 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL isFinished;
 
 /**
- * Init a SentryTransaction with given transaction context and hub and set other fields by default
+ * Indicates whether this tracer will be finished only if all children have been finished.
+ * If this property is YES and the finish function is called before all children are finished
+ * the tracer will automatically finish when the last child finishes.
+ */
+@property (readonly) BOOL waitForChildren;
+
+/**
+ * Init a SentryTracer with given transaction context and hub and set other fields by default
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  *
- * @return SentryTransaction
+ * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub;
+/**
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
+ *
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param waitForChildren Whether this tracer should wait all children to finish.
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitForChildren;
 
 /**
  * Starts a child span.
@@ -102,6 +122,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
 
+/**
+ * Returns the trace information that could be sent as a sentry-trace header.
+ *
+ * @return SentryTraceHeader.
+ */
+- (SentryTraceHeader *)toTraceHeader;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -7,33 +7,30 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     private class Fixture {
         
+        let currentDateProvider = TestCurrentDateProvider()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let hub: SentryHub
+        let options: Options
+        let sentryCrash: TestSentryCrashAdapter
+        
+        init() {
+            sentryCrash = TestSentryCrashAdapter.sharedInstance()
+            sentryCrash.internalActiveDurationSinceLastCrash = 5.0
+            sentryCrash.internalCrashedLastLaunch = true
+            
+            options = Options()
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.releaseName = TestData.appState.releaseName
+            
+            let client = Client(options: options)
+            hub = TestHub(client: client, andScope: nil)
+        }
+        
         var session: SentrySession {
             let session = SentrySession(releaseName: "1.0.0")
             session.incrementErrors()
             
             return session
-        }
-        
-        let currentDateProvider = TestCurrentDateProvider()
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        
-        var options: Options {
-            let options = Options()
-            options.dsn = SentryCrashIntegrationTests.dsnAsString
-            options.releaseName = TestData.appState.releaseName
-            return options
-        }
-        
-        var sentryCrash: TestSentryCrashWrapper {
-            let sentryCrash = TestSentryCrashWrapper()
-            sentryCrash.internalActiveDurationSinceLastCrash = 5.0
-            sentryCrash.internalCrashedLastLaunch = true
-            return sentryCrash
-        }
-        
-        var hub: SentryHub {
-            let client = Client(options: options)
-            return TestHub(client: client, andScope: nil)
         }
         
         var fileManager: SentryFileManager {
@@ -67,6 +64,8 @@ class SentryCrashIntegrationTests: XCTestCase {
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAppState()
+        
+        clearTestState()
     }
     
     // Test for GH-581
@@ -80,16 +79,23 @@ class SentryCrashIntegrationTests: XCTestCase {
         )
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
-        // Furthermore we would need to use TestSentryDispatchQueueWrapper to make make sure the sync of the scope to SentryCrash happened, which is complicated when we call
-        // SentrySDK.start.
-        // Setting this up needs quite some refactoring, which is complex and we accept this
-        // test smell of waiting a bit for now.
-        delayNonBlocking(timeout: 0.1)
         
         let instance = SentryCrash.sharedInstance()
         let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
         assertUserInfoField(userInfo: userInfo, key: "release", expected: releaseName)
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
+    }
+    
+    func testContext_IsPassedToSentryCrash() {
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+        }
+        
+        let instance = SentryCrash.sharedInstance()
+        let userInfo = (instance?.userInfo ?? ["": ""]) as Dictionary
+        let context = userInfo["context"] as? [String: Any]
+        
+        assertContext(context: context)
     }
     
     func testEndSessionAsCrashed_WithCurrentSession() {
@@ -172,6 +178,32 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertNil(fileManager.readCrashedSession())
     }
     
+    func testInstall_WhenStitchAsyncCallsEnabled_CallsInstallAsyncHooks() {
+        let sut = fixture.getSut()
+        
+        let options = Options()
+        options.stitchAsyncCode = true
+        sut.install(with: options)
+        
+        XCTAssertTrue(fixture.sentryCrash.installAsyncHooksCalled)
+    }
+    
+    func testInstall_WhenStitchAsyncCallsDisabled_DoesNotCallInstallAsyncHooks() {
+        fixture.getSut().install(with: Options())
+        
+        XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
+    }
+
+    func testUninstall_CallsDeactivateAsyncHooks() {
+        let sut = fixture.getSut()
+
+        sut.install(with: Options())
+
+        sut.uninstall()
+
+        XCTAssertTrue(fixture.sentryCrash.deactivateAsyncHooksCalled)
+    }
+    
     func testOSCorrectlySetToScopeContext() {
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
@@ -181,12 +213,53 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         let context = hub.scope.serialize()["context"]as? [String: Any] ?? ["": ""]
         
-        guard let os = context["os"] as? [String: Any] else {
+        assertContext(context: context)
+    }
+    
+    private func givenCurrentSession() -> SentrySession {
+        // serialize sets the timestamp
+        let session = SentrySession(jsonObject: fixture.session.serialize())!
+        fixture.fileManager.storeCurrentSession(session)
+        return session
+    }
+    
+    private func givenCrashedSession() -> SentrySession {
+        let session = givenCurrentSession()
+        session.endCrashed(withTimestamp: fixture.currentDateProvider.date().addingTimeInterval(5))
+        
+        return session
+    }
+    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    private func givenOOMAppState() {
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
+        appState.isActive = true
+        fixture.fileManager.store(appState)
+    }
+    #endif
+    
+    private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
+        if let actual = userInfo[key] as? String {
+            XCTAssertEqual(expected, actual)
+        } else {
+            XCTFail("\(key) not passed to SentryCrash.userInfo")
+        }
+    }
+    
+    private func assertCrashedSessionStored(expected: SentrySession) {
+        let crashedSession = fixture.fileManager.readCrashedSession()
+        XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
+        XCTAssertEqual(expected, crashedSession)
+        XCTAssertNil(fixture.fileManager.readCurrentSession())
+    }
+    
+    private func assertContext(context: [String: Any]?) {
+        guard let os = context?["os"] as? [String: Any] else {
             XCTFail("No OS found on context.")
             return
         }
         
-        guard let device = context["device"] as? [String: Any] else {
+        guard let device = context?["device"] as? [String: Any] else {
             XCTFail("No device found on context.")
             return
         }
@@ -206,43 +279,6 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertEqual("tvOS", os["name"] as? String)
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
         #endif
-    }
-    
-    private func givenCurrentSession() -> SentrySession {
-        // serialize sets the timestamp
-        let session = SentrySession(jsonObject: fixture.session.serialize())!
-        fixture.fileManager.storeCurrentSession(session)
-        return session
-    }
-    
-    private func givenCrashedSession() -> SentrySession {
-        let session = givenCurrentSession()
-        session.endCrashed(withTimestamp: fixture.currentDateProvider.date().addingTimeInterval(5))
-        
-        return session
-    }
-    
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    private func givenOOMAppState() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false)
-        appState.isActive = true
-        fixture.fileManager.store(appState)
-    }
-    #endif
-    
-    private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
-        if let actual = userInfo[key] as? String {
-            XCTAssertEqual(expected, actual)
-        } else {
-            XCTFail("\(key) not passed to SentryCrash.userInfo")
-        }
-    }
-    
-    private func assertCrashedSessionStored(expected: SentrySession) {
-        let crashedSession = fixture.fileManager.readCrashedSession()
-        XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
-        XCTAssertEqual(expected, crashedSession)
-        XCTAssertNil(fixture.fileManager.readCurrentSession())
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

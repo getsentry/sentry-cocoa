@@ -10,7 +10,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     private var sut: SentryCrashInstallationReporter!
     
     override func setUp() {
-        sut = SentryCrashInstallationReporter(frameInAppLogic: SentryFrameInAppLogic(inAppIncludes: [], inAppExcludes: []))
+        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
         sut.install()
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()
@@ -18,6 +18,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     override func tearDown() {
         sentrycrash_deleteAllReports()
+        clearTestState()
     }
     
     func testFaultyReportIsNotSentAndDeleted() throws {

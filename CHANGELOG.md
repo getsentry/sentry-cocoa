@@ -1,7 +1,62 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.7
 
+- fix: Swizzle only inApp ViewControllers (#1242)
+- feat: Add Sentry Trace HTTP Header (#1213)
+- feat: Sub-millis precision for spans and events (#1234)
+- fix: Race on session task (#1233)
+
+## 7.2.0-beta.6
+ 
+- fix: ViewController swizzling before iOS 13 (#1231)
+- fix: AppStartMeasurement didFinishLaunching is nil (#1228)
+
+## 7.2.0-beta.5
+
+- perf: Scope sync to SentryCrash (#1193)
+- fix: Compile failure with C99 (#1224)
+
+## 7.2.0-beta.4
+
+- fix: Add viewAppearing to UIViewController spans (#1202)
+
+## 7.2.0-beta.3
+
+- feat: Add automatic http request performance monitoring (#1178)
+- feat: Add clearAttachments to Scope (#1195)
+
+## 7.2.0-beta.2
+
+- feat: Add flag stichAsyncCode (#1172)
+- feat: Support XCFramework for Carthage (#1175)
+- fix: Remove invalid excludes from `Package.swift` (#1169)
+
+## 7.2.0-beta.1
+
+- feat: Measure slow and frozen frames (#1123)
+- fix: Operation names for auto instrumentation (#1164)
+
+## 7.2.0-beta.0
+
+- feat: Measure app start time (#1111)
+- feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
+
+## 7.1.3
+
+- feat: Add PrivateSentrySDKOnly (#1131)
+
+## 7.1.2
+
+- fix: Serialization of span description (#1128)
+
+## 7.1.1
+
+- No documented changes. This is the same as 7.1.0. Ignore this release and please use 7.1.2 instead.
+
+## 7.1.0
+
+- fix: Remove SentryUnsignedLongLongValue (#1118)
 - feat: Expose SentryDebugImageProvider (#1094)
 - docs: Improve code doc on start and endSession (#1098)
 

@@ -1,6 +1,9 @@
 import Foundation
 
 class TestHub: SentryHub {
+    
+    let group = DispatchGroup()
+    let queue = DispatchQueue(label: "TestHub", attributes: .concurrent)
 
     var startSessionInvocations: Int = 0
     var closeCachedSessionInvocations: Int = 0
@@ -27,7 +30,12 @@ class TestHub: SentryHub {
     
     var capturedEventsWithScopes: [(event: Event, scope: Scope)] = []
     override func capture(event: Event, scope: Scope) -> SentryId {
-        capturedEventsWithScopes.append((event, scope))
+        group.enter()
+        queue.async(flags: .barrier) {
+            self.capturedEventsWithScopes.append((event, scope))
+            self.group.leave()
+        }
+        
         return event.eventId
     }
     

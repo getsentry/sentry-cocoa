@@ -19,8 +19,10 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration"
+        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration"
     ];
 }
 
@@ -39,12 +41,14 @@ SentryOptions ()
         self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
+        self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.enableAutoPerformanceTracking = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
 
-        // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
+        // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
         // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
         // inApp. For private frameworks, such as Sentry, dynamic and static frameworks differ.
@@ -194,12 +198,20 @@ SentryOptions ()
         self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
     }
 
+    if (nil != options[@"stitchAsyncCode"]) {
+        self.stitchAsyncCode = [options[@"stitchAsyncCode"] boolValue];
+    }
+
     if (nil != options[@"maxAttachmentSize"]) {
         self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
     }
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    if (nil != options[@"enableAutoPerformanceTracking"]) {
+        self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
@@ -271,6 +283,12 @@ SentryOptions ()
 {
     double rate = [tracesSampleRate doubleValue];
     return rate >= 0 && rate <= 1.0;
+}
+
+- (BOOL)isTracingEnabled
+{
+    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
+        || _tracesSampler != nil;
 }
 
 @end

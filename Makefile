@@ -17,13 +17,31 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
 
+# Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
+# After creating the zips we create a JSON to be able to test Carthage locally.
+# For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-carthage:
-	@echo "--> Creating Sentry framework package with carthage"
+	@echo "--> Carthage: creating JSON"
+	./scripts/create-carthage-json.sh
+
+	@echo "--> Carthage: creating Sentry xcframework"
+	carthage build --use-xcframeworks --no-skip-current
+	zip -r Sentry.xcframework.zip Carthage/Build
+
+	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
+
+build-carthage-sample-xcframework:
+	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
+	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+
+build-carthage-sample-framework:
+	cd Samples/Carthage-Validation/Framework/ && carthage update
+	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.
