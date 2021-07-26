@@ -294,7 +294,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        for _ in 0...10_000 {
+        for _ in 0...100_000 {
             group.enter()
             queue.async {
                 sut.urlSessionTaskResume(task)
@@ -323,7 +323,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        for _ in 0...10_000 {
+        for _ in 0...100_000 {
             group.enter()
             queue.async {
                 task.state = .completed
