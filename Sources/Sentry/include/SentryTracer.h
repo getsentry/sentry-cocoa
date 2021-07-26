@@ -28,16 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
 /**
- * An arbitrary mapping of additional metadata of the span.
- */
-@property (nullable, readonly) NSDictionary<NSString *, id> *data;
-
-/**
- * A key-value pairs holding additional data about the span.
- */
-@property (nullable, readonly) NSDictionary<NSString *, id> *tags;
-
-/**
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;

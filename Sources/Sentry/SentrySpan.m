@@ -50,14 +50,21 @@ SentrySpan ()
                                    description:description];
 }
 
-- (void)setDataValue:(nullable NSString *)value forKey:(NSString *)key
+- (void)setDataValue:(id)value forKey:(NSString *)key
 {
     @synchronized(_extras) {
         [_extras setValue:value forKey:key];
     }
 }
 
-- (nullable NSDictionary<NSString *, id> *)data
+- (void)removeDataForKey:(NSString *)key
+{
+    @synchronized(_extras) {
+        [_extras removeObjectForKey:key];
+    }
+}
+
+- (NSDictionary<NSString *, id> *)data
 {
     @synchronized(_extras) {
         return [_extras copy];
@@ -78,7 +85,7 @@ SentrySpan ()
     }
 }
 
-- (nullable NSDictionary<NSString *, id> *)tags
+- (NSDictionary<NSString *, id> *)tags
 {
     @synchronized(_tags) {
         return [_tags copy];
@@ -111,25 +118,25 @@ SentrySpan ()
 - (NSDictionary *)serialize
 {
     NSMutableDictionary<NSString *, id> *mutableDictionary =
-        [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
-
+    [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
+    
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
-
+    
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
-
-    if (_extras != nil) {
-        @synchronized(_extras) {
+        
+    @synchronized(_extras) {
+        if (_extras.count > 0) {
             [mutableDictionary setValue:_extras.copy forKey:@"data"];
         }
     }
-
-    if (_tags != nil) {
-        @synchronized(_tags) {
+        
+    @synchronized(_tags) {
+        if (_tags.count > 0) {
             [mutableDictionary setValue:_tags.copy forKey:@"tags"];
         }
     }
-
+    
     return mutableDictionary;
 }
 
