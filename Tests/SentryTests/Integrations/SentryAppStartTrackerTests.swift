@@ -53,7 +53,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         super.tearDown()
         sut.stop()
         fixture.fileManager.deleteAllFolders()
-        SentrySDK.getAndResetAppStartMeasurement()
+        clearTestState()
     }
     
     func testFirstStart_IsColdStart() {
@@ -232,11 +232,11 @@ class SentryAppStartTrackerTests: XCTestCase {
      * We assume a class reads the app measurement, sends it with a transaction to Sentry and sets it to nil.
      */
     private func sendAppMeasurement() {
-        SentrySDK.getAndResetAppStartMeasurement()
+        SentrySDK.setAppStartMeasurement(nil)
     }
 
     private func assertValidStart(type: SentryAppStartType) {
-        guard let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement() else {
+        guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
@@ -253,7 +253,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     }
 
     private func assertNoAppStartUp() {
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

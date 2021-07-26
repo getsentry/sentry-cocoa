@@ -60,13 +60,15 @@ class SentryTracerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
-        SentrySDK.getAndResetAppStartMeasurement()
-
+        SentrySDK.setAppStartMeasurement(nil)
+        SentryTracer.resetAppStartMeasurmentRead()
     }
 
     override func tearDown() {
-        SentrySDK.getAndResetAppStartMeasurement()
+        SentrySDK.setAppStartMeasurement(nil)
+        SentryTracer.resetAppStartMeasurmentRead()
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
@@ -129,7 +131,6 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -149,7 +150,6 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", operation: fixture.appStartWarmOperation, appStartMeasurement: appStartMeasurement)
@@ -167,8 +167,6 @@ class SentryTracerTests: XCTestCase {
         fixture.getSut().finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
-        
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
@@ -180,7 +178,7 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNotNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
@@ -202,8 +200,6 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
-        
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
@@ -215,8 +211,6 @@ class SentryTracerTests: XCTestCase {
         sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(-5.1)
         sut.finish()
         fixture.hub.group.wait()
-        
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -294,7 +288,6 @@ class SentryTracerTests: XCTestCase {
         }
 
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -331,7 +324,7 @@ class SentryTracerTests: XCTestCase {
             "frames_slow": ["value": slowFrames],
             "frames_frozen": ["value": frozenFrames]
         ], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
     func testNegativeFramesAmount_NoMeasurmentAdded() {

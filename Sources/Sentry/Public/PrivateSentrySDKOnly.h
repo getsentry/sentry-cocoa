@@ -2,14 +2,14 @@
 
 #import "SentryDefines.h"
 
-@class SentryEnvelope, SentryDebugMeta;
+@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * ATTENTION: This class is reserved for hybrid SDKs. Methods may be changed, renamed or removed
  * without notice. If you want to use one of these methods here please open up an issue and let us
- * now.
+ * know.
  *
  * The name of this class is supposed to be a bit weird and ugly. The name starts with private on
  * purpose so users don't see it in code completion when typing Sentry. We also add only at the end
@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
  * describing a debug image. This class should be renamed to SentryDebugImage in a future version.
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImages;
+
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
 
 @end
 

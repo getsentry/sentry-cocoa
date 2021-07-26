@@ -41,4 +41,9 @@ PrivateSentrySDKOnly ()
     return [self.debugImageProvider getDebugImages];
 }
 
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement
+{
+    return [SentrySDK getAppStartMeasurement];
+}
+
 @end

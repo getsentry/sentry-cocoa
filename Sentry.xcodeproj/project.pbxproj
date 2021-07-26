@@ -937,6 +937,7 @@
 		7BBD189F244ED1A200427C76 /* SentryRetryAfterHeaderParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRetryAfterHeaderParserTests.swift; sourceTree = "<group>"; };
 		7BBD18A1244EE2FD00427C76 /* TestResponseFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResponseFactory.swift; sourceTree = "<group>"; };
 		7BBD18BA24530D2600427C76 /* SentryFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFileManagerTests.swift; sourceTree = "<group>"; };
+		7BBEB16026AEE5EF00C06C03 /* SentryTracer+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryTracer+Test.h"; sourceTree = "<group>"; };
 		7BC3936725B1AB3E004F03D3 /* SentryLevelMapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryLevelMapper.h; path = include/SentryLevelMapper.h; sourceTree = "<group>"; };
 		7BC3936D25B1AB72004F03D3 /* SentryLevelMapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryLevelMapper.m; sourceTree = "<group>"; };
 		7BC3937325B1ACB7004F03D3 /* SentryLevelMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLevelMapperTests.swift; sourceTree = "<group>"; };
@@ -1824,6 +1825,7 @@
 			children = (
 				7B42602D26302E0B00B36EDD /* TransactionGeneratorTests.swift */,
 				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
+				7BBEB16026AEE5EF00C06C03 /* SentryTracer+Test.h */,
 			);
 			path = Performance;
 			sourceTree = "<group>";

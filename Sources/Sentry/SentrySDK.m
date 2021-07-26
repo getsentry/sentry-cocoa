@@ -83,23 +83,11 @@ static NSObject *appStartMeasurementLock;
 /**
  * Not public, only for internal use.
  */
-+ (nullable SentryAppStartMeasurement *)getAndResetAppStartMeasurement
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
-    // Double-Checked Locking to avoid acquiring unnecessary locks.
-    if (appStartMeasurement == nil) {
-        return nil;
-    }
-
-    SentryAppStartMeasurement *result = nil;
-
     @synchronized(appStartMeasurementLock) {
-        if (appStartMeasurement != nil) {
-            result = appStartMeasurement;
-            appStartMeasurement = nil;
-        }
+        return appStartMeasurement;
     }
-
-    return result;
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

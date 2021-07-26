@@ -2,6 +2,7 @@
 
 ## Unreleased 
 
+- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
 - fix: Don't create transactions for HTTP Requests. (#1237)
 
 ## 7.2.0-beta.7
