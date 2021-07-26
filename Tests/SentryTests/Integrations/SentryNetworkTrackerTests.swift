@@ -294,8 +294,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        // The number is kept small for the CI to not take to long.
-        // If you really want to test this increase to 1_000_000 or so.
         for _ in 0...10_000 {
             group.enter()
             queue.async {
@@ -306,7 +304,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         
         queue.activate()
-        group.waitWithTimeout(timeout: 500)
+        group.waitWithTimeout(timeout: 100)
         
         assertOneSpanCreated(transaction)
     }
@@ -325,9 +323,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        // The number is kept small for the CI to not take to long.
-        // If you really want to test this increase to 1_000_000 or so.
-        for _ in 0...100_000 {
+        for _ in 0...10_000 {
             group.enter()
             queue.async {
                 task.state = .completed
@@ -336,7 +332,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         
         queue.activate()
-        group.waitWithTimeout(timeout: 500)
+        group.waitWithTimeout(timeout: 100)
         
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(1, spans?.count)
