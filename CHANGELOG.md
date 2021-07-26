@@ -2,6 +2,7 @@
 
 ## Unreleased 
 
+- fix: Race Conditions in NetworkTracker (#1250)
 - fix: Don't create transactions for HTTP Requests. (#1237)
 
 ## 7.2.0-beta.7
