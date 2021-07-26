@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+- fix: Don't create transactions for HTTP Requests. (#1237)
+
 ## 7.2.0-beta.7
 
 - fix: Swizzle only inApp ViewControllers (#1242)
