@@ -46,13 +46,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let span = spanForTask(task: task)!
         
-        XCTAssertNotNil(span)
-        XCTAssertFalse(span.isFinished)
-        task.state = .completed
-        XCTAssertTrue(span.isFinished)
-
-        //Test if it has observers. Nil means no observers
-        XCTAssertNil(task.observationInfo)
+        assertCompletedSpan(task, span)
     }
     
     func testCaptureDownloadTask() {
@@ -263,6 +257,92 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertStatus(status: .undefined, state: .completed, response: URLResponse())
     }
     
+    func testResumeAfterCompleted_OnlyOneSpanCreated() {
+        let task = createDataTask()
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        task.state = .completed
+        sut.urlSessionTaskResume(task)
+
+        assertOneSpanCreated(transaction)
+    }
+    
+    func testResumeAfterCancelled_OnlyOneSpanCreated() {
+        let task = createDataTask()
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        task.state = .canceling
+        sut.urlSessionTaskResume(task)
+
+        assertOneSpanCreated(transaction)
+    }
+    
+    // Altough we only run this test above the below specified versions, we exped the
+    // implementation to be thread safe
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testResumeCalledMultipleTimesConcurrent_OneSpanCreated() {
+        let task = createDataTask()
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        
+        let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        for _ in 0...100_000 {
+            group.enter()
+            queue.async {
+                sut.urlSessionTaskResume(task)
+                task.state = .completed
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.waitWithTimeout(timeout: 100)
+        
+        assertOneSpanCreated(transaction)
+    }
+    
+    // Altough we only run this test above the below specified versions, we exped the
+    // implementation to be thread safe
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
+    func testChangeStateMultipleTimesConcurrent_OneSpanFinished() {
+        let task = createDataTask()
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        sut.urlSessionTaskResume(task)
+        
+        let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        for _ in 0...100_000 {
+            group.enter()
+            queue.async {
+                task.state = .completed
+                group.leave()
+            }
+        }
+        
+        queue.activate()
+        group.waitWithTimeout(timeout: 100)
+        
+        let spans = Dynamic(transaction).children as [Span]?
+        XCTAssertEqual(1, spans?.count)
+        let span = spans!.first!
+        
+        XCTAssertTrue(span.isFinished)
+        //Test if it has observers. Nil means no observers
+        XCTAssertNil(task.observationInfo)
+    }
+    
     func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse) {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -287,6 +367,21 @@ class SentryNetworkTrackerTests: XCTestCase {
                 
         XCTAssertEqual(span.context.status, status)
         XCTAssertNil(task.observationInfo)
+    }
+    
+    private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) {
+        XCTAssertNotNil(span)
+        XCTAssertFalse(span.isFinished)
+        task.state = .completed
+        XCTAssertTrue(span.isFinished)
+
+        //Test if it has observers. Nil means no observers
+        XCTAssertNil(task.observationInfo)
+    }
+    
+    private func assertOneSpanCreated(_ transaction: Span) {
+        let spans = Dynamic(transaction).children as [Span]?
+        XCTAssertEqual(1, spans?.count)
     }
     
     private func spanForTask(task: URLSessionTask) -> Span? {

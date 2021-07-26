@@ -80,24 +80,37 @@ SentryNetworkTracker ()
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return;
 
-    __block id<SentrySpan> netSpan;
-
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span != nil) {
-            netSpan = [span
-                startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
-                            description:[NSString stringWithFormat:@"%@ %@",
-                                                  sessionTask.currentRequest.HTTPMethod, url]];
+    @synchronized(sessionTask) {
+        if (sessionTask.state == NSURLSessionTaskStateCompleted
+            || sessionTask.state == NSURLSessionTaskStateCanceling) {
+            return;
         }
-    }];
 
-    // We only create a span if there is a transaction in the scope,
-    // otherwise we have nothing else to do here.
-    if (netSpan == nil)
-        return;
+        __block id<SentrySpan> netSpan;
+        netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
-    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        // The task already has a span. Nothing to do.
+        if (netSpan != nil) {
+            return;
+        }
+
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+            if (span != nil) {
+                netSpan = [span
+                    startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                                description:[NSString stringWithFormat:@"%@ %@",
+                                                      sessionTask.currentRequest.HTTPMethod, url]];
+            }
+        }];
+
+        // We only create a span if there is a transaction in the scope,
+        // otherwise we have nothing else to do here.
+        if (netSpan == nil)
+            return;
+
+        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
+            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 
     NSString *statePath = NSStringFromSelector(@selector(state));
     [sessionTask addObserver:self
@@ -132,6 +145,8 @@ SentryNetworkTracker ()
         return;
     }
 
+    [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
+
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
@@ -140,7 +155,6 @@ SentryNetworkTracker ()
     }
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
-    [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
