@@ -5,15 +5,11 @@
 #import <Foundation/Foundation.h>
 #import <SentryAppStartTracker.h>
 #import <SentryAppState.h>
-#import <SentryClient+Private.h>
 #import <SentryCurrentDateProvider.h>
 #import <SentryDispatchQueueWrapper.h>
-#import <SentryFileManager.h>
-#import <SentryHub.h>
 #import <SentryInternalNotificationNames.h>
 #import <SentryLog.h>
 #import <SentrySDK+Private.h>
-#import <SentrySpan.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
