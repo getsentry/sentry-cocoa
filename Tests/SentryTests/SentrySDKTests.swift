@@ -491,13 +491,13 @@ class SentrySDKTests: XCTestCase {
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
-    @available(OSX 10.15, *)
-    @available(iOS 13.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     func testSetpAppStartMeasurmentConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
-                let timestamp = self.fixture.currentDate.date().advanced(by: TimeInterval(i))
+                let timestamp = self.fixture.currentDate.date().addingTimeInterval( TimeInterval(i))
                 let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, appStartTimestamp: timestamp)
                 SentrySDK.setAppStartMeasurement(appStartMeasurement)
                 group.leave()
@@ -523,7 +523,7 @@ class SentrySDKTests: XCTestCase {
         queue2.activate()
         group.waitWithTimeout(timeout: 100)
         
-        let timestamp = self.fixture.currentDate.date().advanced(by: TimeInterval(amount))
+        let timestamp = self.fixture.currentDate.date().addingTimeInterval(TimeInterval(amount))
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
     
