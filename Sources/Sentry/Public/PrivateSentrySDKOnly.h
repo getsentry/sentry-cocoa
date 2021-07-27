@@ -44,6 +44,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 
+/**
+ * If enabled the SDK won't send the app start measurement with the first transaction. Instead, if
+ * enableAutoPerformanceTracking is enabled the SDK measures the app start an then calls
+ * onAppStartMeasurementAvailable.
+ */
+@property (class, nonatomic, assign) BOOL sendAppStartMeasurement;
+
 @end
 
 NS_ASSUME_NONNULL_END

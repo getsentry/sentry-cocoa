@@ -215,6 +215,18 @@ class SentryTracerTests: XCTestCase {
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
+    func testSendAppStartMeasurmentDisabled_NotPutOnTransaction() {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        PrivateSentrySDKOnly.sendAppStartMeasurement = false
+        
+        let sut = fixture.getSut()
+        sut.finish()
+        fixture.hub.group.wait()
+        
+        assertAppStartMeasurementNotPutOnTransaction()
+    }
+    
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
