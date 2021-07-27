@@ -491,7 +491,7 @@ class SentrySDKTests: XCTestCase {
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
+    @available(OSX 10.15, *)
     @available(iOS 13.0, *)
     func testSetpAppStartMeasurmentConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
