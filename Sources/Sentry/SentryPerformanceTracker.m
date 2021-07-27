@@ -101,6 +101,13 @@ SentryPerformanceTracker ()
     }
 }
 
+- (id<SentrySpan>)getRootSpan:(id<SentrySpan>)span {
+    while ([span.context parentSpanId] != nil) {
+        span = self.spans[span.context.parentSpanId];
+    }
+    return span;
+}
+
 - (void)pushActiveSpan:(SentrySpanId *)spanId
 {
     id<SentrySpan> toActiveSpan;
@@ -112,13 +119,43 @@ SentryPerformanceTracker ()
         @synchronized(self.activeStack) {
             [self.activeStack addObject:toActiveSpan];
         }
+        
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan>  _Nullable span) {
+            if (span == nil) return;
+            
+            @synchronized (self.spans) {
+                if ([self.spans objectForKey:span.context.spanId] == nil) return;
+                
+                [SentrySDK.currentHub.scope setSpan:toActiveSpan];
+            }
+        }];
     }
 }
 
 - (void)popActiveSpan
 {
+    if (self.activeStack.count == 0) return;
+    
+    id<SentrySpan> currentActiveSpan;
+    id<SentrySpan> nextActiveSpan;
+    
     @synchronized(self.activeStack) {
+        currentActiveSpan = [self.activeStack lastObject];
         [self.activeStack removeLastObject];
+        nextActiveSpan = [self.activeStack lastObject];
+        
+        //if the stack is empty, we should find the root span.
+        if(nextActiveSpan == nil) {
+            nextActiveSpan = [self getRootSpan:currentActiveSpan];
+            //if the transaction is finish, there is no point in bind it to the scope.
+            if ([nextActiveSpan isFinished])
+                nextActiveSpan = nil;
+        }
+        
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan>  _Nullable span) {
+            if (![span.context.spanId isEqual:currentActiveSpan.context.spanId]) return;
+            [SentrySDK.currentHub.scope setSpan:nextActiveSpan];
+        }];
     }
 }
 
