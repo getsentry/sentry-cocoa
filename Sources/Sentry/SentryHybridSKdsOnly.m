@@ -13,6 +13,8 @@ PrivateSentrySDKOnly ()
 
 @implementation PrivateSentrySDKOnly
 
+static SentryOnAppStartMeasurementAvailable _onAppStartMeasurmentAvailable;
+
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -44,6 +46,17 @@ PrivateSentrySDKOnly ()
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
     return [SentrySDK getAppStartMeasurement];
+}
+
++ (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
+{
+    return _onAppStartMeasurmentAvailable;
+}
+
++ (void)setOnAppStartMeasurementAvailable:
+    (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
+{
+    _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
 }
 
 @end

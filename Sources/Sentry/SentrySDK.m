@@ -1,4 +1,5 @@
 #import "SentrySDK.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
@@ -20,13 +21,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
-static SentryAppStartMeasurement *appStartMeasurement;
-static NSObject *appStartMeasurementLock;
+static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static NSObject *sentrySDKappStartMeasurementLock;
 
 + (void)initialize
 {
     if (self == [SentrySDK class]) {
-        appStartMeasurementLock = [[NSObject alloc] init];
+        sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
     }
 }
 
@@ -75,8 +76,11 @@ static NSObject *appStartMeasurementLock;
  */
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
 {
-    @synchronized(appStartMeasurementLock) {
-        appStartMeasurement = value;
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        sentrySDKappStartMeasurement = value;
+    }
+    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
+        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
     }
 }
 
@@ -85,8 +89,8 @@ static NSObject *appStartMeasurementLock;
  */
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
-    @synchronized(appStartMeasurementLock) {
-        return appStartMeasurement;
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        return sentrySDKappStartMeasurement;
     }
 }
 

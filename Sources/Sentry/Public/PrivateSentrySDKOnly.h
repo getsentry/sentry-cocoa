@@ -7,6 +7,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * A callback to be notified when the AppStartMeasurement is available.
+ */
+typedef void (^SentryOnAppStartMeasurementAvailable)(
+    SentryAppStartMeasurement *_Nullable appStartMeasurement);
+
+/**
  * ATTENTION: This class is reserved for hybrid SDKs. Methods may be changed, renamed or removed
  * without notice. If you want to use one of these methods here please open up an issue and let us
  * know.
@@ -35,7 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImages;
 
-+ (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
+@property (class, nullable, nonatomic, copy)
+    SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 
 @end
 

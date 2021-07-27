@@ -223,11 +223,11 @@ class TestData {
     static let frozenFrameThreshold = 0.7
     #endif
     
-    static func getAppStartMeasurement(type: SentryAppStartType) -> SentryAppStartMeasurement {
+    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
-        let runtimeInit = TestData.timestamp.addingTimeInterval(0.2)
-        let didFinishLaunching = TestData.timestamp.addingTimeInterval(0.3)
+        let runtimeInit = appStartTimestamp.addingTimeInterval(0.2)
+        let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
         
-        return SentryAppStartMeasurement(type: type, appStartTimestamp: TestData.timestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 }
