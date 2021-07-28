@@ -151,7 +151,7 @@ SentryNetworkTracker ()
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
-        [netSpan setTagValue:[NSString stringWithFormat:@"%li", responseStatusCode]
+        [netSpan setTagValue:[NSString stringWithFormat:@"%li", (long)responseStatusCode]
                       forKey:@"http.status_code"];
     }
 
