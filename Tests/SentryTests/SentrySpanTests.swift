@@ -119,13 +119,17 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(childSpan.context.spanDescription, fixture.someDescription)
     }
     
-    func testSetExtras() {
+    func testAddAndRemoveExtras() {
         let span = fixture.getSut()
 
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data!.count, 1)
-        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data.count, 1)
+        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
+        
+        span.removeData(key: fixture.extraKey)
+        XCTAssertEqual(span.data.count, 0)
+        XCTAssertNil(span.data[fixture.extraKey])
     }
     
     func testAddAndRemoveTags() {
@@ -145,6 +149,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
+        span.setTag(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
         
         let serialization = span.serialize()
@@ -155,14 +160,31 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
         XCTAssertEqual(serialization["sampled"] as? String, "false")
         XCTAssertNotNil(serialization["data"])
+        XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
-    func testSerialization_WithNoData() {
+    func testSerialization_WithNoDataAndTag() {
         let span = fixture.getSut()
         
         let serialization = span.serialize()
         XCTAssertNil(serialization["data"])
+        XCTAssertNil(serialization["tag"])
+    }
+    
+    func testMergeTagsInSerialization() {
+        let context = SpanContext(operation: fixture.someOperation)
+        context.setTag(value: fixture.someTransaction, key: fixture.extraKey)
+        let span = SentrySpan(context: context)
+        
+        let originalSerialization = span.serialize()
+        XCTAssertEqual((originalSerialization["tags"] as! Dictionary)[fixture.extraKey], fixture.someTransaction)
+        
+        span.setTag(value: fixture.extraValue, key: fixture.extraKey)
+        
+        let mergedSerialization = span.serialize()
+        XCTAssertEqual((mergedSerialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
     func testTraceHeaderNotSampled() {
@@ -225,6 +247,6 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
     }
 }

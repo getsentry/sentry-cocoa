@@ -118,10 +118,10 @@ SentrySpan ()
 - (NSDictionary *)serialize
 {
     NSMutableDictionary<NSString *, id> *mutableDictionary =
-    [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
-    
+        [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
+
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
-    
+
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
@@ -130,13 +130,15 @@ SentrySpan ()
             mutableDictionary[@"data"] = _extras.copy;
         }
     }
-        
+
     @synchronized(_tags) {
         if (_tags.count > 0) {
-            [mutableDictionary setValue:_tags.copy forKey:@"tags"];
+            NSMutableDictionary *tags = _context.tags.mutableCopy;
+            [tags addEntriesFromDictionary:_tags.copy];
+            mutableDictionary[@"tags"] = tags;
         }
     }
-    
+
     return mutableDictionary;
 }
 

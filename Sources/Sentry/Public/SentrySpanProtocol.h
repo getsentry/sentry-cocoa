@@ -64,8 +64,7 @@ NS_SWIFT_NAME(Span)
 /**
  * Sets an extra.
  */
-- (void)setDataValue:(id)value
-              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setDataValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Removes a data value.
