@@ -29,12 +29,12 @@
 #import "SentryCrashCPU.h"
 #import "SentryCrashDate.h"
 #import "SentryCrashDynamicLinker.h"
-#if SentryCrashCRASH_HOST_MAC
-#    import "SentryCrashIOKit.h"
-#endif
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashSysCtl.h"
 #import "SentryCrashSystemCapabilities.h"
+#if SentryCrashCRASH_HOST_MAC
+#    import "SentryCrashIOKit.h"
+#endif
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -381,6 +381,7 @@ getReceiptUrlPath()
     return path;
 }
 
+#if SentryCrashCRASH_HAS_UIDEVICE || SentryCrashCRASH_HOST_WATCH
 /** The device's vendor identifier.
  *
  * @return NSUUID of the device's vendor identifier, if available, nil otherwise
@@ -399,6 +400,7 @@ getIdentifier() {
 #endif
     return nil;
 }
+#endif
 
 /** Generate a 20 byte SHA1 hash that remains unique across a single device and
  * application. This is slightly different from the Apple crash report key,

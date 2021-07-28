@@ -1,3 +1,5 @@
+#import "SentryCrashSystemCapabilities.h"
+
 #if SentryCrashCRASH_HOST_MAC
 #include "SentryCrashIOKit.h"
 #include "SentryCrashLogger.h"

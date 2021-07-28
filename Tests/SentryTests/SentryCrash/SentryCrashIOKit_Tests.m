@@ -1,7 +1,9 @@
 #import <XCTest/XCTest.h>
+#import "SentryCrashSystemCapabilities.h"
 
+#if SentryCrashCRASH_HOST_MAC
 #import "SentryCrashIOKit.h"
-#import "SentryCrashSysCtl.h"
+#endif
 
 @interface SentryCrashIOKit_Tests : XCTestCase
 @end

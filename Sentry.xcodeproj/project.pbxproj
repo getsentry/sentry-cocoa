@@ -21,6 +21,7 @@
 		15E0A8ED240F2CB000F044E3 /* SentrySerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8EC240F2CB000F044E3 /* SentrySerialization.m */; };
 		15E0A8F0240F638200F044E3 /* SentrySerializationNilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8EF240F638200F044E3 /* SentrySerializationNilTests.m */; };
 		15E0A8F22411A45A00F044E3 /* SentrySession.m in Sources */ = {isa = PBXBuildFile; fileRef = 15E0A8F12411A45A00F044E3 /* SentrySession.m */; };
+		17AD47A626B1FB320083C167 /* SentryCrashIOKit.c in Sources */ = {isa = PBXBuildFile; fileRef = 17C4E1DB26455255002FB897 /* SentryCrashIOKit.c */; };
 		17C4E1DC26455255002FB897 /* SentryCrashIOKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 17C4E1DA26455255002FB897 /* SentryCrashIOKit.h */; };
 		17C4E1DD26455255002FB897 /* SentryCrashIOKit.c in Sources */ = {isa = PBXBuildFile; fileRef = 17C4E1DB26455255002FB897 /* SentryCrashIOKit.c */; };
 		17C4E1E026455EF3002FB897 /* SentryCrashIOKit_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C4E1DE26455E9C002FB897 /* SentryCrashIOKit_Tests.m */; };
@@ -2701,6 +2702,7 @@
 				7BBD18B32451805500427C76 /* SentryRateLimitsParserTests.swift in Sources */,
 				7B59398224AB47650003AAD2 /* SentrySessionTrackerTests.swift in Sources */,
 				7B05A61824A4D14A00EF211D /* SentrySessionGeneratorTests.swift in Sources */,
+				17AD47A626B1FB320083C167 /* SentryCrashIOKit.c in Sources */,
 				63FE720920DA66EC00CDBAE8 /* XCTestCase+SentryCrash.m in Sources */,
 				17C4E1E026455EF3002FB897 /* SentryCrashIOKit_Tests.m in Sources */,
 				7B85BD8E24C5C3A6000A4225 /* SentryFileManagerTestExtension.swift in Sources */,
