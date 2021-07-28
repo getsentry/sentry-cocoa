@@ -1,27 +1,12 @@
 import XCTest
 
-#if !targetEnvironment(macCatalyst)
 class SentryHTTPInterceptorTests: XCTestCase {
     
     private static let httpUrl = "http://somedomain.com"
     private static let httpsUrl = "https://somedomain.com"
     private static let wsUrl = "ws://somedomain.com"
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
-    
-    class TestURLSession: URLSession {
-        var invalidateAndCancelDate: Date?
-        var lastDataTask: URLSessionDataTaskMock?
-        
-        override func dataTask(with request: URLRequest) -> URLSessionDataTask {
-            lastDataTask = URLSessionDataTaskMock(request: request)
-            return lastDataTask!
-        }
-        
-        override func invalidateAndCancel() {
-            invalidateAndCancelDate = CurrentDate.date()
-        }
-    }
-    
+       
     class TestSentryHTTPInterceptor: SentryHttpInterceptor {
         override func createSession() -> URLSession {
             return TestURLSession()
@@ -242,5 +227,3 @@ class SentryHTTPInterceptorTests: XCTestCase {
         XCTAssertTrue(testCallbackCalled)
     }
 }
-
-#endif
