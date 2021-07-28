@@ -42,6 +42,13 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+- (instancetype)init
+{
+    self = [super init];
+    return self;
+}
+
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super init]) {

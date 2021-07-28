@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readonly) NSDate *resumeDate;
 @property (nonatomic) NSURLSessionTaskState state;
 
+- (instancetype)init;
+
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 
 - (void)setResponse:(NSURLResponse *)response;
