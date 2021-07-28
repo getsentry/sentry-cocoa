@@ -145,6 +145,13 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
+    func testSerialization_WithNoData() {
+        let span = fixture.getSut()
+        
+        let serialization = span.serialize()
+        XCTAssertNil(serialization["data"])
+    }
+    
     func testTraceHeaderNotSampled() {
         let span = fixture.getSut()
         let header = span.toTraceHeader()
