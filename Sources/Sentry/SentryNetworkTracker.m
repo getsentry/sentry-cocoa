@@ -151,9 +151,13 @@ SentryNetworkTracker ()
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
-        [netSpan setDataValue:[NSNumber numberWithInteger:responseStatusCode]
-                       forKey:@"http.status_code"];
+        [netSpan setTagValue:[NSString stringWithFormat:@"%li", responseStatusCode]
+                      forKey:@"http.status_code"];
     }
+
+    [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
+    [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
+    [netSpan setDataValue:@"fetch" forKey:@"type"];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];

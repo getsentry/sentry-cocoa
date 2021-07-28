@@ -358,12 +358,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         task.state = state
         
-        let httpStatusCode = span.data["http.status_code"] as? NSNumber
+        let httpStatusCode = span.tags["http.status_code"] as String?
+        
         if let httpResponse = response as? HTTPURLResponse {
-            XCTAssertEqual(httpResponse.statusCode, httpStatusCode!.intValue)
+            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode!)
         } else {
             XCTAssertNil(httpStatusCode)
         }
+        
+        let path = span.data["url"] as? String
+        let method = span.data["method"] as? String
+        let requestType = span.data["type"] as? String
+        
+        XCTAssertEqual(path, task.currentRequest!.url!.path)
+        XCTAssertEqual(method, task.currentRequest!.httpMethod)
+        XCTAssertEqual(requestType, "fetch")
                 
         XCTAssertEqual(span.context.status, status)
         XCTAssertNil(task.observationInfo)
