@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.0-beta.8
 
 - fix: Remove tags and data if empty for Span (#1246)
 - fix: Race Conditions in NetworkTracker (#1250)
