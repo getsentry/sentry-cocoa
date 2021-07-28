@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.1.4
 
 - fix: Compile failure with C99 (#1224)
 
