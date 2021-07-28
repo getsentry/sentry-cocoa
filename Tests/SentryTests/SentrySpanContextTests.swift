@@ -71,6 +71,7 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(data["sampled"])
         XCTAssertNil(data["parent_span_id"])
         XCTAssertNil(data["status"])
+        XCTAssertNil(data["tags"])
     }
     
     func testSampledNoSerialization() {

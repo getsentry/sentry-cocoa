@@ -15,6 +15,7 @@ SentrySpan ()
 
 @implementation SentrySpan {
     NSMutableDictionary<NSString *, id> *_extras;
+    NSMutableDictionary<NSString *, id> *_tags;
 }
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
@@ -31,6 +32,7 @@ SentrySpan ()
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _extras = [[NSMutableDictionary alloc] init];
+        _tags = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -48,17 +50,45 @@ SentrySpan ()
                                    description:description];
 }
 
-- (void)setDataValue:(nullable NSString *)value forKey:(NSString *)key
+- (void)setDataValue:(id)value forKey:(NSString *)key
 {
     @synchronized(_extras) {
         [_extras setValue:value forKey:key];
     }
 }
 
-- (nullable NSDictionary<NSString *, id> *)data
+- (void)removeDataForKey:(NSString *)key
+{
+    @synchronized(_extras) {
+        [_extras removeObjectForKey:key];
+    }
+}
+
+- (NSDictionary<NSString *, id> *)data
 {
     @synchronized(_extras) {
         return [_extras copy];
+    }
+}
+
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
+}
+
+- (void)removeTagForKey:(NSString *)key
+{
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
+    }
+}
+
+- (NSDictionary<NSString *, id> *)tags
+{
+    @synchronized(_tags) {
+        return [_tags copy];
     }
 }
 
@@ -95,9 +125,17 @@ SentrySpan ()
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
-    if (_extras != nil) {
-        @synchronized(_extras) {
-            [mutableDictionary setValue:_extras.copy forKey:@"data"];
+    @synchronized(_extras) {
+        if (_extras.count > 0) {
+            mutableDictionary[@"data"] = _extras.copy;
+        }
+    }
+
+    @synchronized(_tags) {
+        if (_tags.count > 0) {
+            NSMutableDictionary *tags = _context.tags.mutableCopy;
+            [tags addEntriesFromDictionary:_tags.copy];
+            mutableDictionary[@"tags"] = tags;
         }
     }
 
