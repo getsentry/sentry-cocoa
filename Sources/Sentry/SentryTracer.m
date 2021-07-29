@@ -283,7 +283,8 @@ static BOOL appStartMeasurementRead;
         return nil;
     }
 
-    if (!PrivateSentrySDKOnly.sendAppStartMeasurement) {
+    // Hybrid SDKs send the app start measurement themselves.
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         return nil;
     }
 

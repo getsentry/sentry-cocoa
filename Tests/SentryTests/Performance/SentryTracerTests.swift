@@ -24,6 +24,7 @@ class SentryTracerTests: XCTestCase {
         #endif
 
         init() {
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(0.5)
             
@@ -62,12 +63,12 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentrySDK.setAppStartMeasurement(nil)
         SentryTracer.resetAppStartMeasurmentRead()
     }
 
     override func tearDown() {
-        SentrySDK.setAppStartMeasurement(nil)
+        super.tearDown()
+        clearTestState()
         SentryTracer.resetAppStartMeasurmentRead()
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
@@ -215,10 +216,10 @@ class SentryTracerTests: XCTestCase {
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
-    func testSendAppStartMeasurmentDisabled_NotPutOnTransaction() {
+    func testAppStartMeasurementHybridSDKModeEnabled_NotPutOnTransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
-        PrivateSentrySDKOnly.sendAppStartMeasurement = false
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
         
         let sut = fixture.getSut()
         sut.finish()

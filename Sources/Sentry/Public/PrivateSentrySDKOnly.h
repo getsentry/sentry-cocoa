@@ -48,8 +48,10 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * If enabled the SDK won't send the app start measurement with the first transaction. Instead, if
  * enableAutoPerformanceTracking is enabled the SDK measures the app start an then calls
  * onAppStartMeasurementAvailable.
+ *
+ * Default is NO.
  */
-@property (class, nonatomic, assign) BOOL sendAppStartMeasurement;
+@property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
 @end
 

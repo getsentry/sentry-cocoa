@@ -14,7 +14,7 @@ PrivateSentrySDKOnly ()
 @implementation PrivateSentrySDKOnly
 
 static SentryOnAppStartMeasurementAvailable _onAppStartMeasurmentAvailable;
-static BOOL _sendAppStartMeasurement = YES;
+static BOOL _appStartMeasurementHybridSDKMode = NO;
 
 - (instancetype)init
 {
@@ -60,14 +60,14 @@ static BOOL _sendAppStartMeasurement = YES;
     _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
 }
 
-+ (BOOL)sendAppStartMeasurement
++ (BOOL)appStartMeasurementHybridSDKMode
 {
-    return _sendAppStartMeasurement;
+    return _appStartMeasurementHybridSDKMode;
 }
 
-+ (void)setSendAppStartMeasurement:(BOOL)sendAppStartMeasurement
++ (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
 {
-    _sendAppStartMeasurement = sendAppStartMeasurement;
+    _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
 }
 
 @end

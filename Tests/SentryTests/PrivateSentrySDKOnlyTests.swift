@@ -44,9 +44,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testSendAppStartMeasurement() {
-        XCTAssertTrue(PrivateSentrySDKOnly.sendAppStartMeasurement)
+        XCTAssertFalse(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
         
-        PrivateSentrySDKOnly.sendAppStartMeasurement = false
-        XCTAssertFalse(PrivateSentrySDKOnly.sendAppStartMeasurement)
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        XCTAssertTrue(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
     }
 }
