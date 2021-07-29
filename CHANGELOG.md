@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add breadcrumbs for HTTP requests (#1258)
+
 ## 7.2.0-beta.8
 
 - fix: Remove tags and data if empty for Span (#1246)
