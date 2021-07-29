@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 7.2.0-beta.8
 
 - feat: Add tags to Sentry Span (#1243)
