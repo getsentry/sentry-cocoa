@@ -4,6 +4,10 @@
 
 - fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
+- feat: Add tags to Sentry Span (#1243)
+
+## 7.2.0-beta.8
+
 - fix: Remove tags and data if empty for Span (#1246)
 - fix: Race Conditions in NetworkTracker (#1250)
 - fix: Don't create transactions for HTTP Requests. (#1237)
@@ -49,6 +53,10 @@
 
 - feat: Measure app start time (#1111)
 - feat: Auto UI Performance Instrumentation (#1105, #1150, #1136, #1139, #1042)
+
+## 7.1.4
+
+- fix: Compile failure with C99 (#1224)
 
 ## 7.1.3
 

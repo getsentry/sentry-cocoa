@@ -124,12 +124,12 @@ class SentrySpanTests: XCTestCase {
 
         span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data.count, 1)
-        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data!.count, 1)
+        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
-        XCTAssertEqual(span.data.count, 0)
-        XCTAssertNil(span.data[fixture.extraKey])
+        XCTAssertEqual(span.data!.count, 0)
+        XCTAssertNil(span.data![fixture.extraKey])
     }
     
     func testAddAndRemoveTags() {

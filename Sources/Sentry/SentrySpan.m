@@ -50,7 +50,7 @@ SentrySpan ()
                                    description:description];
 }
 
-- (void)setDataValue:(id)value forKey:(NSString *)key
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
     @synchronized(_extras) {
         [_extras setValue:value forKey:key];
@@ -64,7 +64,7 @@ SentrySpan ()
     }
 }
 
-- (NSDictionary<NSString *, id> *)data
+- (nullable NSDictionary<NSString *, id> *)data
 {
     @synchronized(_extras) {
         return [_extras copy];
