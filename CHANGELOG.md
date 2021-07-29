@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add tags to Sentry Span (#1243)
+
 ## 7.2.0-beta.8
 
 - fix: Remove tags and data if empty for Span (#1246)
