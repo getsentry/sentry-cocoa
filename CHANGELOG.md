@@ -3,6 +3,7 @@
 ## Unreleased
 
 - feat: Add breadcrumbs for HTTP requests (#1258)
+- feat: Add tags to Sentry Span (#1243)
 
 ## 7.2.0-beta.8
 
