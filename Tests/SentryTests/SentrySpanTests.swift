@@ -247,6 +247,6 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
     }
 }
