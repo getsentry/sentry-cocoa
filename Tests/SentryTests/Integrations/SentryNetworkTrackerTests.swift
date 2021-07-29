@@ -273,6 +273,16 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
     }
     
+    func testBreadcrumbNotFound() {
+        assertStatus(status: .notFound, state: .completed, response: createResponse(code: 404))
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        
+        XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 404))
+        XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 404))
+    }
+    
     func testBreadcrumbWithError() {
         let task = createDataTask()
         let _ = spanForTask(task: task)!
