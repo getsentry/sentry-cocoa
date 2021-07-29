@@ -43,6 +43,16 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertGreaterThan(images.count, 100)
     }
     
+    func testGetAppStartMeasurement() {
+        let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        
+        XCTAssertEqual(appStartMeasurement, PrivateSentrySDKOnly.appStartMeasurement)
+        
+        SentrySDK.setAppStartMeasurement(nil)
+        XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
+    }
+    
     func testSendAppStartMeasurement() {
         XCTAssertFalse(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
         

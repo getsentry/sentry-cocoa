@@ -44,7 +44,7 @@ static BOOL _appStartMeasurementHybridSDKMode = NO;
     return [self.debugImageProvider getDebugImages];
 }
 
-+ (nullable SentryAppStartMeasurement *)getAppStartMeasurement
++ (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
     return [SentrySDK getAppStartMeasurement];
 }
