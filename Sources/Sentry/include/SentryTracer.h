@@ -28,11 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
 /**
- * An arbitrary mapping of additional metadata of the span.
- */
-@property (nullable, readonly) NSDictionary<NSString *, id> *data;
-
-/**
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
@@ -71,28 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Starts a child span.
  *
- * @param operation Short code identifying the type of operation the span is measuring.
- *
- * @return SentrySpan
- */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(operation:));
-
-/**
- * Starts a child span.
- *
- * @param operation Defines the child span operation.
- * @param description Define the child span description.
- *
- * @return SentrySpan
- */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(operation:description:));
-
-/**
- * Starts a child span.
- *
  * @param parentId The child span parent id.
  * @param operation The child span operation.
  * @param description The child span description.
@@ -104,30 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
                              description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
-/**
- * Sets an extra.
- */
-- (void)setDataValue:(nullable id)value
-              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
-
-/**
- * Finishes the transaction by setting the end time and capturing the transaction with binded hub.
- */
-- (void)finish;
-
-/**
- * Finishes the span by setting the end time and span status.
- *
- * @param status The status of this span
- */
-- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
-
-/**
- * Returns the trace information that could be sent as a sentry-trace header.
- *
- * @return SentryTraceHeader.
- */
-- (SentryTraceHeader *)toTraceHeader;
 @end
 
 NS_ASSUME_NONNULL_END

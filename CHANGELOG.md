@@ -3,6 +3,7 @@
 ## Unreleased
 
 - feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- feat: Add tags to Sentry Span (#1243)
 
 ## 7.2.0-beta.8
 
