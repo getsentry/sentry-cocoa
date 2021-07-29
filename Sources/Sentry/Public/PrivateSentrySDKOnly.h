@@ -45,11 +45,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 
 /**
- * If enabled the SDK won't send the app start measurement with the first transaction. Instead, if
- * enableAutoPerformanceTracking is enabled the SDK measures the app start an then calls
- * onAppStartMeasurementAvailable.
- *
- * Default is NO.
+ * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if
+ * enableAutoPerformanceTracking is enabled, the SDK measures the app start and then calls
+ * onAppStartMeasurementAvailable. Furthermore, the SDK doesn't set all values for the app start
+ * measurement because the HybridSDKs initialize the Cocoa SDK too late to receive all
+ * notifications. Instead, the SDK sets the appStartDuration to 0 and the
+ * didFinishLaunchingTimestamp to timeIntervalSinceReferenceDate. Default is NO.
  */
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
