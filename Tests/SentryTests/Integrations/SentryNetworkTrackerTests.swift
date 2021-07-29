@@ -257,6 +257,54 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertStatus(status: .undefined, state: .completed, response: URLResponse())
     }
     
+    func testBreadcrumb() {
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200))
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        
+        XCTAssertEqual(breadcrumb!.category, "http")
+        XCTAssertEqual(breadcrumb!.level, .info)
+        XCTAssertEqual(breadcrumb!.type, "http")
+        XCTAssertEqual(breadcrumbs!.count, 1)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+        XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 200))
+        XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
+    }
+    
+    func testBreadcrumbWithError() {
+        let task = createDataTask()
+        let _ = spanForTask(task: task)!
+        
+        task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
+        task.state = .completed
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+        
+        XCTAssertEqual(breadcrumb!.category, "http")
+        XCTAssertEqual(breadcrumb!.level, .error)
+        XCTAssertEqual(breadcrumb!.type, "http")
+        XCTAssertEqual(breadcrumbs!.count, 1)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+        XCTAssertNil(breadcrumb!.data!["status_code"])
+        XCTAssertNil(breadcrumb!.data!["reason"])
+    }
+    
+    func testBreadcrumbPost() {
+        let task = createDataTask(method: "POST")
+        let _ = spanForTask(task: task)!
+        
+        task.state = .completed
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs!.first
+
+        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "POST")
+    }
+    
     func testResumeAfterCompleted_OnlyOneSpanCreated() {
         let task = createDataTask()
         let sut = fixture.getSut()
@@ -364,7 +412,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         } else {
             XCTAssertNil(httpStatusCode)
         }
-                
+        
         XCTAssertEqual(span.context.status, status)
         XCTAssertNil(task.observationInfo)
     }

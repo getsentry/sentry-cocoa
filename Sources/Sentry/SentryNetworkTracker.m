@@ -1,4 +1,5 @@
 #import "SentryNetworkTracker.h"
+#import "SentryBreadcrumb.h"
 #import "SentryHttpInterceptor+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -145,14 +146,28 @@ SentryNetworkTracker ()
         return;
     }
 
+    SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
+                                                                  category:@"http"];
+    breadcrumb.type = @"http";
+    NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
+    breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
+    breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
+
     [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
 
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
-        [netSpan setDataValue:[NSNumber numberWithInteger:responseStatusCode]
-                       forKey:@"http.status_code"];
+        NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
+        [netSpan setDataValue:statusCode forKey:@"http.status_code"];
+        breadcrumbData[@"status_code"] = statusCode;
+        breadcrumbData[@"reason"] =
+            [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
     }
+
+    breadcrumb.data = breadcrumbData;
+    [SentrySDK addBreadcrumb:breadcrumb];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
