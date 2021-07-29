@@ -4,7 +4,6 @@
 
 - fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
-- feat: Add tags to Sentry Span (#1243)
 
 ## 7.2.0-beta.8
 
