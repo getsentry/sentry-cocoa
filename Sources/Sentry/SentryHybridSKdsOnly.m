@@ -13,6 +13,9 @@ PrivateSentrySDKOnly ()
 
 @implementation PrivateSentrySDKOnly
 
+static SentryOnAppStartMeasurementAvailable _onAppStartMeasurmentAvailable;
+static BOOL _appStartMeasurementHybridSDKMode = NO;
+
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -39,6 +42,32 @@ PrivateSentrySDKOnly ()
 - (NSArray<SentryDebugMeta *> *)getDebugImages
 {
     return [self.debugImageProvider getDebugImages];
+}
+
++ (nullable SentryAppStartMeasurement *)appStartMeasurement
+{
+    return [SentrySDK getAppStartMeasurement];
+}
+
++ (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
+{
+    return _onAppStartMeasurmentAvailable;
+}
+
++ (void)setOnAppStartMeasurementAvailable:
+    (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
+{
+    _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
+}
+
++ (BOOL)appStartMeasurementHybridSDKMode
+{
+    return _appStartMeasurementHybridSDKMode;
+}
+
++ (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
+{
+    _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
 }
 
 @end

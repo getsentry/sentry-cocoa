@@ -3,6 +3,7 @@
 #import "SentryLog.h"
 #import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
+#import <PrivateSentrySDKOnly.h>
 #import <SentryAppStartTracker.h>
 #import <SentryAppState.h>
 #import <SentryCurrentDateProvider.h>
@@ -49,7 +50,6 @@ SentryAppStartTracker ()
         self.sysctl = sysctl;
         self.previousAppState = [self.appStateManager loadCurrentAppState];
         self.wasInBackground = NO;
-
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
     }
     return self;
@@ -77,57 +77,75 @@ SentryAppStartTracker ()
                                            selector:@selector(didEnterBackground)
                                                name:UIApplicationDidEnterBackgroundNotification
                                              object:nil];
+
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
+        [self buildAppStartMeasurement];
+    }
 }
 
-/**
- * It is called when an App. is receiving events / It is in the foreground and when we receive a
- * SentryHybridSdkDidBecomeActiveNotification.
- */
-- (void)didBecomeVisible
+- (void)buildAppStartMeasurement
 {
+    void (^block)(void) = ^(void) {
+        SentryAppStartType appStartType = [self getStartType];
+
+        if (appStartType == SentryAppStartTypeUnknown) {
+            [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
+                             andLevel:kSentryLevelWarning];
+        } else if (self.wasInBackground) {
+            // If the app was already running in the background it's not a cold or warm
+            // start.
+            [SentryLog logWithMessage:@"App was in background. Not measuring app start."
+                             andLevel:kSentryLevelInfo];
+        } else {
+            // According to a talk at WWDC about optimizing app launch (
+            // https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
+            // slide 17) no process exists for cold and warm launches. Therefore it is
+            // fine to use the process start timestamp. Instead on Android the process
+            // can be forked before the app is launched and this would give wrong values.
+            // Using the proess start time returned valid values when testing with real
+            // devices.
+            // It could be that we have to switch back to setting a appStart-timestamp in
+            // the load method of this class to get a close approximation of when the
+            // process was started.
+            NSTimeInterval appStartDuration =
+                [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+
+            // On HybridSDKs, we miss the didFinishLaunchNotification and the
+            // didBecomeVisibleNotification. Therefore, we can't set the
+            // didFinishLaunchingTimestamp, and we can't calculate the appStartDuration. Instead,
+            // the SDK provides the information we know and leaves the rest to the HybridSDKs.
+            if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
+                self.didFinishLaunchingTimestamp =
+                    [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:0];
+
+                appStartDuration = 0;
+            }
+
+            SentryAppStartMeasurement *appStartMeasurement =
+                [[SentryAppStartMeasurement alloc] initWithType:appStartType
+                                              appStartTimestamp:self.sysctl.processStartTimestamp
+                                                       duration:appStartDuration
+                                           runtimeInitTimestamp:runtimeInit
+                                    didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+
+            SentrySDK.appStartMeasurement = appStartMeasurement;
+        }
+
+        [self stop];
+    };
+
     // With only running this once we know that the process is a new one when the following code is
     // executed.
     static dispatch_once_t once;
-    [self.dispatchQueue
-        dispatchOnce:&once
-               block:^{
-                   SentryAppStartType appStartType = [self getStartType];
+    [self.dispatchQueue dispatchOnce:&once block:block];
+}
 
-                   if (appStartType == SentryAppStartTypeUnknown) {
-                       [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
-                                        andLevel:kSentryLevelWarning];
-                   } else if (self.wasInBackground) {
-                       // If the app was already running in the background it's not a cold or warm
-                       // start.
-                       [SentryLog logWithMessage:@"App was in background. Not measuring app start."
-                                        andLevel:kSentryLevelInfo];
-                   } else {
-                       // According to a talk at WWDC about optimizing app launch (
-                       // https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
-                       // slide 17) no process exists for cold and warm launches. Therefore it is
-                       // fine to use the process start timestamp. Instead on Android the process
-                       // can be forked before the app is launched and this would give wrong values.
-                       // Using the proess start time returned valid values when testing with real
-                       // devices.
-                       // It could be that we have to switch back to setting a appStart-timestamp in
-                       // the load method of this class to get a close approximation of when the
-                       // process was started.
-                       NSTimeInterval appStartDuration = [[self.currentDate date]
-                           timeIntervalSinceDate:self.sysctl.processStartTimestamp];
-
-                       SentryAppStartMeasurement *appStartMeasurement =
-                           [[SentryAppStartMeasurement alloc]
-                                              initWithType:appStartType
-                                         appStartTimestamp:self.sysctl.processStartTimestamp
-                                                  duration:appStartDuration
-                                      runtimeInitTimestamp:runtimeInit
-                               didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
-
-                       SentrySDK.appStartMeasurement = appStartMeasurement;
-                   }
-               }];
-
-    [self stop];
+/**
+ * This is when the first frame is drawn.
+ */
+- (void)didBecomeVisible
+{
+    [self buildAppStartMeasurement];
 }
 
 - (SentryAppStartType)getStartType

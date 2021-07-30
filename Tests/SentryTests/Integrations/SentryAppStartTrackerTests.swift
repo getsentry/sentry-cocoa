@@ -53,7 +53,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         super.tearDown()
         sut.stop()
         fixture.fileManager.deleteAllFolders()
-        SentrySDK.getAndResetAppStartMeasurement()
+        clearTestState()
     }
     
     func testFirstStart_IsColdStart() {
@@ -170,6 +170,20 @@ class SentryAppStartTrackerTests: XCTestCase {
         assertValidStart(type: .cold)
     }
     
+    func testHybridSDKs_ColdStart() {
+        hybridAppStart()
+        
+        assertValidHybridStart(type: .cold)
+    }
+    
+    func testHybridSDKs_SecondStart_SystemNotRebooted_IsWarmStart() {
+        givenSystemNotRebooted()
+        
+        hybridAppStart()
+        
+        assertValidHybridStart(type: .warm)
+    }
+    
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
@@ -212,6 +226,33 @@ class SentryAppStartTrackerTests: XCTestCase {
         TestNotificationCenter.didBecomeActive()
     }
     
+    private func hybridAppStart() {
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        
+        givenProcessStartTimestamp()
+        
+        advanceTime(bySeconds: 0.2)
+        fixture.runtimeInitTimestamp = fixture.currentDate.date()
+        
+        TestNotificationCenter.willEnterForeground()
+        
+        advanceTime(bySeconds: 0.3)
+        fixture.didFinishLaunchingTimestamp = fixture.currentDate.date()
+        
+        sut = fixture.sut
+        Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+        
+        TestNotificationCenter.didFinishLaunching()
+        
+        advanceTime(bySeconds: 0.1)
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        TestNotificationCenter.didBecomeActive()
+        
+        // The Hybrid SDKs call start after all the notifications are posted,
+        // because they init the SentrySDK when the hybrid engine is ready.
+        sut.start()
+    }
+    
     private func goToForeground() {
         TestNotificationCenter.willEnterForeground()
         TestNotificationCenter.uiWindowDidBecomeVisible()
@@ -232,11 +273,11 @@ class SentryAppStartTrackerTests: XCTestCase {
      * We assume a class reads the app measurement, sends it with a transaction to Sentry and sets it to nil.
      */
     private func sendAppMeasurement() {
-        SentrySDK.getAndResetAppStartMeasurement()
+        SentrySDK.setAppStartMeasurement(nil)
     }
 
     private func assertValidStart(type: SentryAppStartType) {
-        guard let appStartMeasurement = SentrySDK.getAndResetAppStartMeasurement() else {
+        guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
@@ -251,9 +292,25 @@ class SentryAppStartTrackerTests: XCTestCase {
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
     }
+    
+    private func assertValidHybridStart(type: SentryAppStartType) {
+        guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
+            XCTFail("AppStartMeasurement must not be nil")
+            return
+        }
+        
+        XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
+
+        let actualAppStartDuration = appStartMeasurement.duration
+        XCTAssertEqual(0.0, actualAppStartDuration, accuracy: 0.000_1)
+
+        XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
+        XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
+        XCTAssertEqual(Date(timeIntervalSinceReferenceDate: 0), appStartMeasurement.didFinishLaunchingTimestamp)
+    }
 
     private func assertNoAppStartUp() {
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

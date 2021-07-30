@@ -1,4 +1,5 @@
 #import "SentryTracer.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub.h"
@@ -42,6 +43,17 @@ SentryTracer ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
 #endif
+}
+
+static NSObject *appStartMeasurementLock;
+static BOOL appStartMeasurementRead;
+
++ (void)initialize
+{
+    if (self == [SentryTracer class]) {
+        appStartMeasurementLock = [[NSObject alloc] init];
+        appStartMeasurementRead = NO;
+    }
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -291,9 +303,28 @@ SentryTracer ()
         return nil;
     }
 
-    SentryAppStartMeasurement *measurement = [SentrySDK getAndResetAppStartMeasurement];
-    if (measurement == nil) {
+    // Hybrid SDKs send the app start measurement themselves.
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         return nil;
+    }
+
+    // Double-Checked Locking to avoid acquiring unnecessary locks.
+    if (appStartMeasurementRead == YES) {
+        return nil;
+    }
+
+    SentryAppStartMeasurement *measurement = nil;
+    @synchronized(appStartMeasurementLock) {
+        if (appStartMeasurementRead == YES) {
+            return nil;
+        }
+
+        measurement = [SentrySDK getAppStartMeasurement];
+        if (measurement == nil) {
+            return nil;
+        }
+
+        appStartMeasurementRead = YES;
     }
 
     NSDate *appStartTimestamp = measurement.appStartTimestamp;
@@ -425,6 +456,16 @@ SentryTracer ()
 - (NSDictionary *)serialize
 {
     return [_rootSpan serialize];
+}
+
+/**
+ * Internal. Only needed for testing.
+ */
++ (void)resetAppStartMeasurmentRead
+{
+    @synchronized(appStartMeasurementLock) {
+        appStartMeasurementRead = NO;
+    }
 }
 
 @end

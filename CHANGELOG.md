@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
 - fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
 
