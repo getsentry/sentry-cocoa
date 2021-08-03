@@ -142,10 +142,6 @@ SentryNetworkTracker ()
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (netSpan == nil) {
-        return;
-    }
-
     SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
@@ -153,8 +149,6 @@ SentryNetworkTracker ()
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
     breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
     breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
-
-    [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
 
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
@@ -169,6 +163,11 @@ SentryNetworkTracker ()
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
 
+    if (netSpan == nil) {
+        return;
+    }
+
+    [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
