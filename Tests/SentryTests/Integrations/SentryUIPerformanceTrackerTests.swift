@@ -232,6 +232,57 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(SENTRY_VIEWCONTROLLER_RENDERING_OPERATION, "ui.load")
     }
     
+    func testOverloadCall() {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        
+        XCTAssertTrue(getStack(tracker: tracker).isEmpty)
+        //we need loadView to start the tracking
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker: tracker)
+            transactionSpan = spans.first
+        }
+        XCTAssertFalse(transactionSpan.isFinished)
+        
+        sut.viewControllerViewDidLoad(viewController) {
+            let blockSpan = self.getStack(tracker: tracker).last!
+            
+            //this is the same as calling super.viewDidLoad in a custom class sub class
+            sut.viewControllerViewDidLoad(viewController) {
+                let innerblockSpan = self.getStack(tracker: tracker).last!
+                XCTAssertTrue(innerblockSpan === blockSpan)
+            }
+        }
+        XCTAssertFalse(transactionSpan.isFinished)
+        
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
+    }
+    
+    func testSecondLoadView() {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        
+        XCTAssertTrue(getStack(tracker: tracker).isEmpty)
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker: tracker)
+            transactionSpan = spans.first
+        }
+        
+        //here we are calling loadView a second time,
+        //which should create a child span of the transaction
+        //already created in the previous call and not create a new transaction
+        sut.viewControllerLoadView(viewController) {
+            //This callback was intentionally left blank
+        }
+               
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
+    }
+    
     private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
         let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)
