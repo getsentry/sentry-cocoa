@@ -156,7 +156,7 @@ SentryNetworkTracker ()
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
         [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
-                  forKey:@"http.status_code"];
+                      forKey:@"http.status_code"];
         breadcrumbData[@"status_code"] = statusCode;
         breadcrumbData[@"reason"] =
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
