@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement;
 
-+ (nullable SentryAppStartMeasurement *)getAndResetAppStartMeasurement;
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
 
 + (SentryHub *)currentHub;
 
