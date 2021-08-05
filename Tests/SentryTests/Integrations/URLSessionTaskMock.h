@@ -7,6 +7,9 @@ NS_ASSUME_NONNULL_BEGIN
  * NSURLSessionTask. Using suppression in implementation to override the init.
  */
 
+static int64_t const DATA_BYTES_RECEIVED = 256;
+static int64_t const DATA_BYTES_SENT = 652;
+
 @interface URLSessionDataTaskMock : NSURLSessionDataTask
 
 @property (nullable, readonly) NSDate *resumeDate;

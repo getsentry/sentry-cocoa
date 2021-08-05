@@ -271,6 +271,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
         XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 200))
         XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
+        XCTAssertEqual(breadcrumb!.data!["request_body_size"] as! Int64, DATA_BYTES_SENT)
+        XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
     }
     
     func testBreadcrumbWithoutSpan() {
