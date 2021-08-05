@@ -40,11 +40,13 @@
     _resumeDate = SentryCurrentDate.date;
 }
 
-- (int64_t)countOfBytesSent {
+- (int64_t)countOfBytesSent
+{
     return DATA_BYTES_SENT;
 }
 
-- (int64_t)countOfBytesReceived {
+- (int64_t)countOfBytesReceived
+{
     return DATA_BYTES_RECEIVED;
 }
 

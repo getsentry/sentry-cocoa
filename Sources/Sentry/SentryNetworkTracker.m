@@ -150,9 +150,11 @@ SentryNetworkTracker ()
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
     breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
     breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
-    breadcrumbData[@"request_body_size"] = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    breadcrumbData[@"response_body_size"] = [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
-    
+    breadcrumbData[@"request_body_size"] =
+        [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    breadcrumbData[@"response_body_size"] =
+        [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
+
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
