@@ -307,7 +307,7 @@ class SentryTracerTests: XCTestCase {
 
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
-        givenFrames(1, 1, 1)
+        fixture.displayLinkWrapper.givenFrames(1, 1, 1)
         sut.startTimestamp = Date(timeIntervalSince1970: 0)
 
         sut.finish()
@@ -322,7 +322,7 @@ class SentryTracerTests: XCTestCase {
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
-        givenFrames(slowFrames, frozenFrames, normalFrames)
+        fixture.displayLinkWrapper.givenFrames(slowFrames, frozenFrames, normalFrames)
 
         sut.finish()
 
@@ -341,7 +341,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testNegativeFramesAmount_NoMeasurmentAdded() {
-        givenFrames(10, 10, 10)
+        fixture.displayLinkWrapper.givenFrames(10, 10, 10)
         
         let sut = fixture.getSut()
         
@@ -350,28 +350,6 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         assertNoMeasurementsAdded()
-    }
-    
-    private func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
-        fixture.displayLinkWrapper.call()
-
-        // Slow frames
-        for _ in 0..<slow {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
-        }
-
-        // Frozen frames
-        for _ in 0..<frozen {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
-        }
-
-        // Normal frames.
-        for _ in 0..<(normal - 1) {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold - 0.01
-            fixture.displayLinkWrapper.call()
-        }
     }
     #endif
     
