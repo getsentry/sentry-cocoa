@@ -59,4 +59,33 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
         XCTAssertTrue(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
     }
+    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
+    func testIsFramesTrackingRunning() {
+        XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)
+        SentryFramesTracker.sharedInstance().start()
+        XCTAssertTrue(PrivateSentrySDKOnly.isFramesTrackingRunning)
+    }
+    
+    func testGetFrames() {
+        let tracker = SentryFramesTracker.sharedInstance()
+        let displayLink = TestDiplayLinkWrapper()
+        
+        tracker.setDisplayLinkWrapper(displayLink)
+        tracker.start()
+        displayLink.call()
+        
+        let slow = 2
+        let frozen = 1
+        let normal = 100
+        displayLink.givenFrames(slow, frozen, normal)
+        
+        let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+        XCTAssertEqual(UInt(slow + frozen + normal), currentFrames.total)
+        XCTAssertEqual(UInt(frozen), currentFrames.frozen)
+        XCTAssertEqual(UInt(slow), currentFrames.slow)
+    }
+
+    #endif
 }

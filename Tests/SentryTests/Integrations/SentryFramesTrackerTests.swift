@@ -53,9 +53,10 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
         fixture.displayLinkWrapper.call()
         
-        XCTAssertEqual(2, sut.currentSlowFrames)
-        XCTAssertEqual(3, sut.currentTotalFrames)
-        XCTAssertEqual(0, sut.currentFrozenFrames)
+        let currentFrames = sut.currentFrames
+        XCTAssertEqual(2, currentFrames.slow)
+        XCTAssertEqual(3, currentFrames.total)
+        XCTAssertEqual(0, currentFrames.frozen)
     }
     
     func testFrozenFrame() {
@@ -68,9 +69,10 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
         fixture.displayLinkWrapper.call()
         
-        XCTAssertEqual(1, sut.currentSlowFrames)
-        XCTAssertEqual(2, sut.currentTotalFrames)
-        XCTAssertEqual(1, sut.currentFrozenFrames)
+        let currentFrames = sut.currentFrames
+        XCTAssertEqual(1, currentFrames.slow)
+        XCTAssertEqual(2, currentFrames.total)
+        XCTAssertEqual(1, currentFrames.frozen)
     }
     
     func testAllFrames_ConcurrentRead() {
@@ -79,9 +81,10 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let group = DispatchGroup()
         
-        assertPreviousCountBiggerThanCurrent(group) { return sut.currentFrozenFrames }
-        assertPreviousCountBiggerThanCurrent(group) { return sut.currentSlowFrames }
-        assertPreviousCountBiggerThanCurrent(group) { return sut.currentTotalFrames }
+        var currentFrames = sut.currentFrames
+        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.frozen }
+        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.slow }
+        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.total }
         
         fixture.displayLinkWrapper.call()
         
@@ -95,9 +98,10 @@ class SentryFramesTrackerTests: XCTestCase {
         }
         
         group.wait()
-        XCTAssertEqual(2 * frames, sut.currentTotalFrames)
-        XCTAssertEqual(frames, sut.currentSlowFrames)
-        XCTAssertEqual(frames, sut.currentFrozenFrames)
+        currentFrames = sut.currentFrames
+        XCTAssertEqual(2 * frames, currentFrames.total)
+        XCTAssertEqual(frames, currentFrames.slow)
+        XCTAssertEqual(frames, currentFrames.frozen)
     }
     
     func testPerformanceOfTrackingFrames() {

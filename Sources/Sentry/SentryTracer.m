@@ -13,6 +13,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryScreenFrames.h>
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
@@ -82,9 +83,10 @@ static BOOL appStartMeasurementRead;
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
         if (framesTracker.isRunning) {
-            initTotalFrames = framesTracker.currentTotalFrames;
-            initSlowFrames = framesTracker.currentSlowFrames;
-            initFrozenFrames = framesTracker.currentFrozenFrames;
+            SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+            initTotalFrames = currentFrames.total;
+            initSlowFrames = currentFrames.slow;
+            initFrozenFrames = currentFrames.frozen;
         }
 #endif
     }
@@ -416,9 +418,11 @@ static BOOL appStartMeasurementRead;
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
     if (framesTracker.isRunning && !_startTimeChanged) {
-        NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
-        NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
-        NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
+
+        SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+        NSInteger totalFrames = currentFrames.total - initTotalFrames;
+        NSInteger slowFrames = currentFrames.slow - initSlowFrames;
+        NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
         BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
         BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;

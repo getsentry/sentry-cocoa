@@ -3,6 +3,7 @@
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
+#import <SentryFramesTracker.h>
 
 @interface
 PrivateSentrySDKOnly ()
@@ -69,5 +70,19 @@ static BOOL _appStartMeasurementHybridSDKMode = NO;
 {
     _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
 }
+
+#if SENTRY_HAS_UIKIT
+
++ (BOOL)isFramesTrackingRunning
+{
+    return [SentryFramesTracker sharedInstance].isRunning;
+}
+
++ (SentryScreenFrames *)currentScreenFrames
+{
+    return [SentryFramesTracker sharedInstance].currentFrames;
+}
+
+#endif
 
 @end
