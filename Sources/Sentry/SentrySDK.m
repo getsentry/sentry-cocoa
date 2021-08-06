@@ -61,6 +61,11 @@ static NSObject *sentrySDKappStartMeasurementLock;
     return currentHub.scope.span;
 }
 
++ (BOOL)isEnabled
+{
+    return currentHub != nil && [currentHub getClient] != nil;
+}
+
 + (BOOL)crashedLastRunCalled
 {
     return crashedLastRunCalled;

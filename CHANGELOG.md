@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add isEnabled property in SentrySDK (#1265)
 - feat: Add breadcrumbs for HTTP requests (#1258)
 
 ## 7.2.0-beta.9

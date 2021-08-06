@@ -23,6 +23,11 @@ SENTRY_NO_INIT
 @property (nullable, class, nonatomic, readonly) id<SentrySpan> span;
 
 /**
+ * Indicates whether the SentrySDK is enabled.
+ */
+@property (class, nonatomic, readonly) BOOL isEnabled;
+
+/**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
