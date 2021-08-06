@@ -8,4 +8,10 @@ func clearTestState() {
     SentrySDK.setAppStartMeasurement(nil)
     CurrentDate.setCurrentDateProvider(nil)
     SentryNetworkTracker.sharedInstance.disable()
+    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    let framesTracker = SentryFramesTracker.sharedInstance()
+    framesTracker.stop()
+    framesTracker.resetFrames()
+    #endif
 }

@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement;
+@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,6 +55,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * didFinishLaunchingTimestamp to timeIntervalSinceReferenceDate. Default is NO.
  */
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
+
+#if SENTRY_HAS_UIKIT
+@property (class, nonatomic, assign, readonly) BOOL isFramesTrackingRunning;
+@property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
+#endif
 
 @end
 

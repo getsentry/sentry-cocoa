@@ -2,6 +2,7 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
+#import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -114,19 +115,13 @@ SentryFramesTracker ()
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
 }
 
-- (NSUInteger)currentTotalFrames
+- (SentryScreenFrames *)currentFrames
 {
-    return atomic_load_explicit(&_totalFrames, SentryFramesMemoryOrder);
-}
+    NSUInteger total = atomic_load_explicit(&_totalFrames, SentryFramesMemoryOrder);
+    NSUInteger slow = atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
+    NSUInteger frozen = atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
 
-- (NSUInteger)currentSlowFrames
-{
-    return atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
-}
-
-- (NSUInteger)currentFrozenFrames
-{
-    return atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
+    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 }
 
 - (void)stop

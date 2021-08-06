@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryDisplayLinkWrapper;
+@class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,11 +14,9 @@ SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
 
-@property (nonatomic, assign, readonly) NSUInteger currentTotalFrames;
-@property (nonatomic, assign, readonly) NSUInteger currentFrozenFrames;
-@property (nonatomic, assign, readonly) NSUInteger currentSlowFrames;
-
+@property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;
 @property (nonatomic, assign, readonly) BOOL isRunning;
+
 - (void)start;
 - (void)stop;
 

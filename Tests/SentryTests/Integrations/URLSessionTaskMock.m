@@ -40,6 +40,16 @@
     _resumeDate = SentryCurrentDate.date;
 }
 
+- (int64_t)countOfBytesSent
+{
+    return DATA_BYTES_SENT;
+}
+
+- (int64_t)countOfBytesReceived
+{
+    return DATA_BYTES_RECEIVED;
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
