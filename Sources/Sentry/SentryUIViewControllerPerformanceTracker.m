@@ -227,24 +227,18 @@ SentryUIViewControllerPerformanceTracker ()
 {
     NSMutableSet<NSString *> *inExecution;
 
-    @synchronized(viewController) {
-        inExecution = objc_getAssociatedObject(
-            viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET);
-        if (inExecution == nil) {
-            inExecution = [[NSMutableSet alloc] init];
-            objc_setAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET,
-                inExecution, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
+    inExecution
+        = objc_getAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET);
+    if (inExecution == nil) {
+        inExecution = [[NSMutableSet alloc] init];
+        objc_setAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET,
+            inExecution, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (![inExecution containsObject:description]) {
-        @synchronized(viewController) {
-            [inExecution addObject:description];
-        }
+        [inExecution addObject:description];
         block();
-        @synchronized(viewController) {
-            [inExecution removeObject:description];
-        }
+        [inExecution removeObject:description];
     }
 }
 
