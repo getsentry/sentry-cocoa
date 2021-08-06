@@ -488,6 +488,29 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentrySDK.getAppStartMeasurement(), appStartMeasurement)
     }
     
+    func testIsEnabled() {
+        XCTAssertFalse(SentrySDK.isEnabled)
+        
+        SentrySDK.capture(message: "message")
+        XCTAssertFalse(SentrySDK.isEnabled)
+        
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        XCTAssertTrue(SentrySDK.isEnabled)
+        
+        SentrySDK.close()
+        XCTAssertFalse(SentrySDK.isEnabled)
+        
+        SentrySDK.capture(message: "message")
+        XCTAssertFalse(SentrySDK.isEnabled)
+        
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        XCTAssertTrue(SentrySDK.isEnabled)
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
