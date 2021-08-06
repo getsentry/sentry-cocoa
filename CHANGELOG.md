@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add breadcrumbs for HTTP requests (#1258)
+
 ## 7.2.0-beta.9
 
 - feat: Expose tracked screen frames (#1262)
