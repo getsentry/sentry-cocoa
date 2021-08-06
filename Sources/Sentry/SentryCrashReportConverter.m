@@ -231,7 +231,6 @@ SentryCrashReportConverter ()
 }
 
 - (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex
-                  stripCrashedStacktrace:(BOOL)stripCrashedStacktrace
 {
     if (threadIndex >= [self.threads count]) {
         return nil;
@@ -314,7 +313,7 @@ SentryCrashReportConverter ()
 
 - (SentryThread *_Nullable)crashedThread
 {
-    return [self threadAtIndex:self.crashedThreadIndex stripCrashedStacktrace:NO];
+    return [self threadAtIndex:self.crashedThreadIndex];
 }
 
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta
@@ -479,7 +478,7 @@ SentryCrashReportConverter ()
 {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger)self.threads.count; threadIndex++) {
-        SentryThread *thread = [self threadAtIndex:threadIndex stripCrashedStacktrace:YES];
+        SentryThread *thread = [self threadAtIndex:threadIndex];
         if (thread && nil != thread.stacktrace) {
             [result addObject:thread];
         }
