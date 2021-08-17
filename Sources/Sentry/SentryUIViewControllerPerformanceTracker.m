@@ -221,18 +221,24 @@ SentryUIViewControllerPerformanceTracker ()
                   }];
 }
 
+/**
+ * When a custom UIViewController is a subclass of another UIViewController, the SDK swizzles both
+ * functions, which would create one span for each UIViewController leading to duplicate spans in
+ * the transaction. To fix this, we only allow one span per lifecycle method at a time.
+ */
 - (void)limitOverride:(NSString *)description
                target:(UIViewController *)viewController
                 block:(void (^)(void))block
 {
-    NSMutableSet<NSString *> *inExecution;
+    NSMutableSet<NSString *> *spansInExecution;
 
-    inExecution
-        = objc_getAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET);
-    if (inExecution == nil) {
-        inExecution = [[NSMutableSet alloc] init];
-        objc_setAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_EXECUTION_SET,
-            inExecution, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    spansInExecution = objc_getAssociatedObject(
+        viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET);
+    if (spansInExecution == nil) {
+        spansInExecution = [[NSMutableSet alloc] init];
+        objc_setAssociatedObject(viewController,
+            &SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET, spansInExecution,
+            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (![inExecution containsObject:description]) {
