@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Duplicate spans for UIViewControllers (#1264)
 - feat: Add isEnabled property in SentrySDK (#1265)
 - feat: Add breadcrumbs for HTTP requests (#1258)
 
