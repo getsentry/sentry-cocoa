@@ -241,10 +241,10 @@ SentryUIViewControllerPerformanceTracker ()
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (![inExecution containsObject:description]) {
-        [inExecution addObject:description];
+    if (![spansInExecution containsObject:description]) {
+        [spansInExecution addObject:description];
         block();
-        [inExecution removeObject:description];
+        [spansInExecution removeObject:description];
     }
 }
 
