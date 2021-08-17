@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Set app state on main thread when terminating (#1272)
+
 ## 7.2.0
 
 This release contains support for [auto performance instrumentation](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/)
