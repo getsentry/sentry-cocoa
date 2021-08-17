@@ -24,6 +24,7 @@ class SentryTracerTests: XCTestCase {
         #endif
 
         init() {
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(0.5)
             
@@ -60,13 +61,15 @@ class SentryTracerTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
-        SentrySDK.getAndResetAppStartMeasurement()
-
+        SentryTracer.resetAppStartMeasurmentRead()
     }
 
     override func tearDown() {
-        SentrySDK.getAndResetAppStartMeasurement()
+        super.tearDown()
+        clearTestState()
+        SentryTracer.resetAppStartMeasurmentRead()
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
@@ -129,7 +132,6 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -149,7 +151,6 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", operation: fixture.appStartWarmOperation, appStartMeasurement: appStartMeasurement)
@@ -167,8 +168,6 @@ class SentryTracerTests: XCTestCase {
         fixture.getSut().finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
-        
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
@@ -180,7 +179,7 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNotNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
@@ -202,8 +201,6 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
-        
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
@@ -216,7 +213,17 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         fixture.hub.group.wait()
         
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
+        assertAppStartMeasurementNotPutOnTransaction()
+    }
+    
+    func testAppStartMeasurementHybridSDKModeEnabled_NotPutOnTransaction() {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        
+        let sut = fixture.getSut()
+        sut.finish()
+        fixture.hub.group.wait()
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -294,14 +301,13 @@ class SentryTracerTests: XCTestCase {
         }
 
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
     }
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
-        givenFrames(1, 1, 1)
+        fixture.displayLinkWrapper.givenFrames(1, 1, 1)
         sut.startTimestamp = Date(timeIntervalSince1970: 0)
 
         sut.finish()
@@ -316,7 +322,7 @@ class SentryTracerTests: XCTestCase {
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
-        givenFrames(slowFrames, frozenFrames, normalFrames)
+        fixture.displayLinkWrapper.givenFrames(slowFrames, frozenFrames, normalFrames)
 
         sut.finish()
 
@@ -331,11 +337,11 @@ class SentryTracerTests: XCTestCase {
             "frames_slow": ["value": slowFrames],
             "frames_frozen": ["value": frozenFrames]
         ], measurements)
-        XCTAssertNil(SentrySDK.getAndResetAppStartMeasurement())
+        XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
     func testNegativeFramesAmount_NoMeasurmentAdded() {
-        givenFrames(10, 10, 10)
+        fixture.displayLinkWrapper.givenFrames(10, 10, 10)
         
         let sut = fixture.getSut()
         
@@ -344,28 +350,6 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         assertNoMeasurementsAdded()
-    }
-    
-    private func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
-        fixture.displayLinkWrapper.call()
-
-        // Slow frames
-        for _ in 0..<slow {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
-        }
-
-        // Frozen frames
-        for _ in 0..<frozen {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
-        }
-
-        // Normal frames.
-        for _ in 0..<(normal - 1) {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold - 0.01
-            fixture.displayLinkWrapper.call()
-        }
     }
     #endif
     

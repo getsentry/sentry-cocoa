@@ -23,6 +23,11 @@ SENTRY_NO_INIT
 @property (nullable, class, nonatomic, readonly) id<SentrySpan> span;
 
 /**
+ * Indicates whether the SentrySDK is enabled.
+ */
+@property (class, nonatomic, readonly) BOOL isEnabled;
+
+/**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
@@ -91,7 +96,7 @@ SENTRY_NO_INIT
  *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
- * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  *
  * @return The created transaction.
  */
@@ -114,7 +119,7 @@ SENTRY_NO_INIT
  * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
- * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  *
  * @return The created transaction.
  */
@@ -126,7 +131,7 @@ SENTRY_NO_INIT
  * Creates a transaction, binds it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
- * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  * @param customSamplingContext Additional information about the sampling context.
  *
  * @return The created transaction.

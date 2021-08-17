@@ -1,4 +1,5 @@
 #import "SentryTracer.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub.h"
@@ -12,6 +13,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryScreenFrames.h>
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
@@ -44,6 +46,17 @@ SentryTracer ()
 #endif
 }
 
+static NSObject *appStartMeasurementLock;
+static BOOL appStartMeasurementRead;
+
++ (void)initialize
+{
+    if (self == [SentryTracer class]) {
+        appStartMeasurementLock = [[NSObject alloc] init];
+        appStartMeasurementRead = NO;
+    }
+}
+
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
@@ -70,9 +83,10 @@ SentryTracer ()
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
         if (framesTracker.isRunning) {
-            initTotalFrames = framesTracker.currentTotalFrames;
-            initSlowFrames = framesTracker.currentSlowFrames;
-            initFrozenFrames = framesTracker.currentFrozenFrames;
+            SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+            initTotalFrames = currentFrames.total;
+            initSlowFrames = currentFrames.slow;
+            initFrozenFrames = currentFrames.frozen;
         }
 #endif
     }
@@ -291,9 +305,28 @@ SentryTracer ()
         return nil;
     }
 
-    SentryAppStartMeasurement *measurement = [SentrySDK getAndResetAppStartMeasurement];
-    if (measurement == nil) {
+    // Hybrid SDKs send the app start measurement themselves.
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         return nil;
+    }
+
+    // Double-Checked Locking to avoid acquiring unnecessary locks.
+    if (appStartMeasurementRead == YES) {
+        return nil;
+    }
+
+    SentryAppStartMeasurement *measurement = nil;
+    @synchronized(appStartMeasurementLock) {
+        if (appStartMeasurementRead == YES) {
+            return nil;
+        }
+
+        measurement = [SentrySDK getAppStartMeasurement];
+        if (measurement == nil) {
+            return nil;
+        }
+
+        appStartMeasurementRead = YES;
     }
 
     NSDate *appStartTimestamp = measurement.appStartTimestamp;
@@ -385,9 +418,11 @@ SentryTracer ()
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
     if (framesTracker.isRunning && !_startTimeChanged) {
-        NSInteger totalFrames = framesTracker.currentTotalFrames - initTotalFrames;
-        NSInteger slowFrames = framesTracker.currentSlowFrames - initSlowFrames;
-        NSInteger frozenFrames = framesTracker.currentFrozenFrames - initFrozenFrames;
+
+        SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+        NSInteger totalFrames = currentFrames.total - initTotalFrames;
+        NSInteger slowFrames = currentFrames.slow - initSlowFrames;
+        NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
         BOOL allBiggerThanZero = totalFrames >= 0 && slowFrames >= 0 && frozenFrames >= 0;
         BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
@@ -425,6 +460,16 @@ SentryTracer ()
 - (NSDictionary *)serialize
 {
     return [_rootSpan serialize];
+}
+
+/**
+ * Internal. Only needed for testing.
+ */
++ (void)resetAppStartMeasurmentRead
+{
+    @synchronized(appStartMeasurementLock) {
+        appStartMeasurementRead = NO;
+    }
 }
 
 @end

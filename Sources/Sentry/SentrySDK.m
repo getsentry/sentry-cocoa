@@ -1,4 +1,5 @@
 #import "SentrySDK.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
@@ -20,13 +21,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
-static SentryAppStartMeasurement *appStartMeasurement;
-static NSObject *appStartMeasurementLock;
+static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static NSObject *sentrySDKappStartMeasurementLock;
 
 + (void)initialize
 {
     if (self == [SentrySDK class]) {
-        appStartMeasurementLock = [[NSObject alloc] init];
+        sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
     }
 }
 
@@ -60,6 +61,11 @@ static NSObject *appStartMeasurementLock;
     return currentHub.scope.span;
 }
 
++ (BOOL)isEnabled
+{
+    return currentHub != nil && [currentHub getClient] != nil;
+}
+
 + (BOOL)crashedLastRunCalled
 {
     return crashedLastRunCalled;
@@ -75,31 +81,22 @@ static NSObject *appStartMeasurementLock;
  */
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
 {
-    @synchronized(appStartMeasurementLock) {
-        appStartMeasurement = value;
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        sentrySDKappStartMeasurement = value;
+    }
+    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
+        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
     }
 }
 
 /**
  * Not public, only for internal use.
  */
-+ (nullable SentryAppStartMeasurement *)getAndResetAppStartMeasurement
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
-    // Double-Checked Locking to avoid acquiring unnecessary locks.
-    if (appStartMeasurement == nil) {
-        return nil;
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        return sentrySDKappStartMeasurement;
     }
-
-    SentryAppStartMeasurement *result = nil;
-
-    @synchronized(appStartMeasurementLock) {
-        if (appStartMeasurement != nil) {
-            result = appStartMeasurement;
-            appStartMeasurement = nil;
-        }
-    }
-
-    return result;
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

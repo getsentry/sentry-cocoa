@@ -3,7 +3,14 @@
 ## Unreleased
 
 - fix: Overload methods duplicate spans (#1264)
-- fix: Span serialization HTTP data in wrong place (#1255)
+- feat: Add isEnabled property in SentrySDK (#1265)
+- feat: Add breadcrumbs for HTTP requests (#1258)
+
+## 7.2.0-beta.9
+
+- feat: Expose tracked screen frames (#1262)
+- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
 
 ## 7.2.0-beta.8
