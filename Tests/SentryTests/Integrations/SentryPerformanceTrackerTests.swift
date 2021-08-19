@@ -134,16 +134,34 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         var span: Span?
         
+        let expectation = expectation(description: "Callback Expectation")
+        
         sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
             let spanId = sut.activeSpan()!
             
             span = sut.getSpan(spanId)
             
             XCTAssertFalse(span!.isFinished)
+            
+            expectation.fulfill()
         }
         
         XCTAssertNil(sut.activeSpan())
         XCTAssertTrue(span!.isFinished)
+        wait(for: [expectation], timeout: 0)
+    }
+    
+    func testMeasureSpanWithBlock_SpanNotIsAlive_BlockIsCalled() {
+        let sut = fixture.getSut()
+        
+        let expectation = expectation(description: "Callback Expectation")
+        
+        sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation, parentSpanId: SpanId()) {
+            expectation.fulfill()
+        }
+        
+        XCTAssertNil(sut.activeSpan())
+        wait(for: [expectation], timeout: 0)
     }
     
     func testFinishSpan() {
