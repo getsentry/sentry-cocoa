@@ -2,6 +2,8 @@
 
 ## 7.2.1
 
+This release fixes a crucial issue for auto performance instrumentation that caused crashes when using nested ViewControllers.
+
 - fix: Callback issue for auto performance (#1275)
 
 ## 7.2.0
