@@ -46,6 +46,9 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         var transactionSpan: Span!
         
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 6
+        
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker: tracker)
@@ -54,6 +57,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = spans.last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.loadView)
+            callbackExpectation.fulfill()
         }
         XCTAssertEqual((transactionSpan as! SentryTracer?)!.name, fixture.viewControllerName)
         XCTAssertFalse(transactionSpan.isFinished)
@@ -62,6 +66,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidLoad)
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
@@ -69,6 +74,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewWillLayoutSubviews)
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
@@ -80,6 +86,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidLayoutSubviews)
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
@@ -87,6 +94,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewWillAppear)
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
@@ -98,10 +106,13 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             let blockSpan = self.getStack(tracker: tracker).last!
             XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
             XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidAppear)
+            callbackExpectation.fulfill()
         }
 
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(transactionSpan.isFinished)
+        
+        wait(for: [callbackExpectation], timeout: 0)
     }
     
     func testTimeMeasurement() {
@@ -197,32 +208,42 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
+        
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 5
 
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         sut.viewControllerViewDidLoad(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
+            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
+            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
+            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewWillAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
+            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewDidAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
+            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
+        
+        wait(for: [callbackExpectation], timeout: 0)
     }
     
     func testSpanAssociatedConstants() {
@@ -238,11 +259,16 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let tracker = fixture.tracker
         var transactionSpan: Span!
         
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 3
+        
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         //we need loadView to start the tracking
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker: tracker)
             transactionSpan = spans.first
+            
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
@@ -253,11 +279,16 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             sut.viewControllerViewDidLoad(viewController) {
                 let innerblockSpan = self.getStack(tracker: tracker).last!
                 XCTAssertTrue(innerblockSpan === blockSpan)
+                
+                callbackExpectation.fulfill()
             }
+            
+            callbackExpectation.fulfill()
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
+        wait(for: [callbackExpectation], timeout: 0)
     }
     
     func testSecondLoadView() {
@@ -265,12 +296,15 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span!
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 2
         
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerLoadView(viewController) {
             let spans = self.getStack(tracker: tracker)
             transactionSpan = spans.first
+            callbackExpectation.fulfill()
         }
         
         //here we are calling loadView a second time,
@@ -278,9 +312,11 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         //already created in the previous call and not create a new transaction
         sut.viewControllerLoadView(viewController) {
             //This callback was intentionally left blank
+            callbackExpectation.fulfill()
         }
                
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
+        wait(for: [callbackExpectation], timeout: 0)
     }
     
     private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {

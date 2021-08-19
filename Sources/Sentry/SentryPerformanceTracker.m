@@ -86,8 +86,10 @@ SentryPerformanceTracker ()
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block
 {
-    if (![self isSpanAlive:parentSpanId])
+    if (![self isSpanAlive:parentSpanId]) {
+        block();
         return;
+    }
 
     [self pushActiveSpan:parentSpanId];
     [self measureSpanWithDescription:description operation:operation inBlock:block];
