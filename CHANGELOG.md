@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Callback issue for auto performance (#1275)
+
 ## 7.2.0
 
 This release contains support for [auto performance instrumentation](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/)
