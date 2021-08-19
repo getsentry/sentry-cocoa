@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.1
 
 - fix: Callback issue for auto performance (#1275)
 
