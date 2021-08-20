@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.2
 
 - fix: Crash when swizzling Nib UIViewController (#1277)
 
