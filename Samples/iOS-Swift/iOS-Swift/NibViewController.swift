@@ -6,6 +6,6 @@ class NibViewController: UIViewController {
     @IBOutlet var button: UIButton!
     
     override func viewDidLoad() {
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = .systemPink
     }
 }
