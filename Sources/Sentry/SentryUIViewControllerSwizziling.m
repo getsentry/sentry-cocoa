@@ -37,7 +37,7 @@ static SentryInAppLogic *inAppLogic;
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:NO];
             return SentrySWCallOriginal(coder);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
@@ -46,7 +46,7 @@ static SentryInAppLogic *inAppLogic;
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class]];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:YES];
             return SentrySWCallOriginal(nibName, bundle);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
@@ -118,12 +118,15 @@ static SentryInAppLogic *inAppLogic;
         if (viewControllerClass != nil) {
             NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
+
+            // We don't now if it the UIViewController uses a nib or not.
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass
+                                                                      isNib:YES];
         }
     }
 }
 
-+ (void)swizzleViewControllerSubClass:(Class)class
++ (void)swizzleViewControllerSubClass:(Class)class isNib:(BOOL)isNib
 {
     if (![SentryUIViewControllerSwizziling shouldSwizzleViewController:class])
         return;
@@ -131,7 +134,7 @@ static SentryInAppLogic *inAppLogic;
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
     [SentryUIViewControllerSwizziling swizzleViewLayoutSubViews:class];
-    [SentryUIViewControllerSwizziling swizzleLoadView:class];
+    [SentryUIViewControllerSwizziling swizzleLoadView:class isNib:isNib];
     [SentryUIViewControllerSwizziling swizzleViewDidLoad:class];
     [SentryUIViewControllerSwizziling swizzleViewWillAppear:class];
     [SentryUIViewControllerSwizziling swizzleViewDidAppear:class];
@@ -149,9 +152,20 @@ static SentryInAppLogic *inAppLogic;
     return [inAppLogic isInApp:classImageName];
 }
 
-+ (void)swizzleLoadView:(Class)class
++ (void)swizzleLoadView:(Class)class isNib:(BOOL)isNib
 {
+    // The UIViewController only searches for a nib file if you do not override the loadView method.
+    // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
+    // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
+    // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
+    // loadView if the UIViewController doesn't implement it.
+    // Because you can still use the loadView to load a view manually with a UIViewController that
+    // uses a nib, we swizzle it if it loadView is overridden and implemented.
     SEL selector = NSSelectorFromString(@"loadView");
+    if (isNib && ![class respondsToSelector:selector]) {
+        return;
+    }
+
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
