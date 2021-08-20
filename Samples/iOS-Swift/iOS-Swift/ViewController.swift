@@ -9,6 +9,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view.
         SentrySDK.configureScope { (scope) in
             scope.setEnvironment("debug")
@@ -171,5 +172,10 @@ class ViewController: UIViewController {
         dispatchQueue.async {
             DSNStorage.shared.saveDSN(dsn: AppDelegate.defaultDSN)
         }
+    }
+    
+    @IBAction func showNibController(_ sender: Any) {
+        let nib = NibViewController()
+        present(nib, animated: true, completion: nil)
     }
 }
