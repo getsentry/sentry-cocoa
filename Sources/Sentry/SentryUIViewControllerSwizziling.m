@@ -159,13 +159,11 @@ static SentryInAppLogic *inAppLogic;
     // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
-    // Because you can still use the loadView to load a view manually with a UIViewController that
-    // uses a nib, we swizzle it if it loadView is overridden and implemented.
-    SEL selector = NSSelectorFromString(@"loadView");
-    if (isNib && ![class respondsToSelector:selector]) {
+    if (isNib) {
         return;
     }
 
+    SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
