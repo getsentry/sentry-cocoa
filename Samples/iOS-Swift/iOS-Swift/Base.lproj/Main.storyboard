@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="95.5" width="398" height="454.5"/>
+                                <rect key="frame" x="8" y="95.5" width="398" height="484.5"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -35,7 +35,7 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
                                         <rect key="frame" x="0.0" y="30" width="398" height="30"/>
-                                        <state key="normal" title="navigate to Hello"/>
+                                        <state key="normal" title="Lorem Ipsum"/>
                                         <connections>
                                             <segue destination="2jd-n4-Ihk" kind="show" id="wcP-y8-kPR"/>
                                         </connections>
@@ -103,8 +103,15 @@
                                             <action selector="asyncCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mqi-sE-R7d"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
+                                        <rect key="frame" x="0.0" y="330" width="398" height="30"/>
+                                        <state key="normal" title="Show  Nib"/>
+                                        <connections>
+                                            <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E8m-GA-zvY"/>
+                                        </connections>
+                                    </button>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
-                                        <rect key="frame" x="0.0" y="330" width="398" height="124.5"/>
+                                        <rect key="frame" x="0.0" y="360" width="398" height="124.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>
@@ -184,10 +191,11 @@
             </objects>
             <point key="canvasLocation" x="1224.6376811594205" y="503.57142857142856"/>
         </scene>
-        <!--View Controller-->
+        <!--Lorem Ipsum View Controller-->
         <scene sceneID="HP6-1Y-hca">
             <objects>
-                <viewController id="2jd-n4-Ihk" sceneMemberID="viewController">
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <viewController id="2jd-n4-Ihk" customClass="LoremIpsumViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="hTi-ne-s8a">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -199,25 +207,31 @@
                                     <navigationItem title="Hello" id="7le-ZX-hzV"/>
                                 </items>
                             </navigationBar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="I'm just here to test navigation breadcrumbs." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nyb-oP-3NJ">
-                                <rect key="frame" x="20" y="81" width="340" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" delaysContentTouches="NO" editable="NO" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sla-j3-cfX">
+                                <rect key="frame" x="20" y="70" width="374" height="772"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="mFP-ho-mca"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="Zdf-8M-7gd"/>
+                    <connections>
+                        <outlet property="textView" destination="sla-j3-cfX" id="Xua-md-Bb1"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1226" y="-148"/>
+            <point key="canvasLocation" x="1224.6376811594205" y="-148.66071428571428"/>
         </scene>
     </scenes>
     <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

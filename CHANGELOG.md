@@ -4,6 +4,10 @@
 
 - fix: Set app state on main thread when terminating (#1272)
 
+## 7.2.2
+
+- fix: Crash when swizzling Nib UIViewController (#1277)
+
 ## 7.2.1
 
 This release fixes a crucial issue for auto performance instrumentation that caused crashes when using nested ViewControllers.

@@ -120,6 +120,9 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span!
+        
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 6
                 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
         var lastSpan: Span?
@@ -128,12 +131,72 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
             transactionSpan = self.getStack(tracker: tracker).first
             lastSpan = self.getStack(tracker: tracker).last!
             self.advanceTime(bySeconds: 1)
+            callbackExpectation.fulfill()
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
         sut.viewControllerViewDidLoad(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
             self.advanceTime(bySeconds: 2)
+            callbackExpectation.fulfill()
+        }
+        assertSpanDuration(span: lastSpan!, expectedDuration: 2)
+        
+        sut.viewControllerViewWillLayoutSubViews(viewController) {
+            lastSpan = self.getStack(tracker: tracker).last!
+            self.advanceTime(bySeconds: 3)
+            callbackExpectation.fulfill()
+        }
+        assertSpanDuration(span: lastSpan!, expectedDuration: 3)
+        
+        let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
+        advanceTime(bySeconds: 4)
+        
+        sut.viewControllerViewDidLayoutSubViews(viewController) {
+            lastSpan = self.getStack(tracker: tracker).last!
+            self.advanceTime(bySeconds: 2)
+            callbackExpectation.fulfill()
+        }
+        assertSpanDuration(span: lastSpan!, expectedDuration: 2)
+        assertSpanDuration(span: layoutSubViewsSpan, expectedDuration: 4)
+        
+        sut.viewControllerViewWillAppear(viewController) {
+            lastSpan = self.getStack(tracker: tracker).last!
+            self.advanceTime(bySeconds: 1)
+            callbackExpectation.fulfill()
+        }
+        assertSpanDuration(span: lastSpan!, expectedDuration: 1)
+        
+        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        advanceTime(bySeconds: 4)
+        
+        sut.viewControllerViewDidAppear(viewController) {
+            lastSpan = self.getStack(tracker: tracker).last!
+            self.advanceTime(bySeconds: 5)
+            callbackExpectation.fulfill()
+        }
+        assertSpanDuration(span: lastSpan!, expectedDuration: 5)
+        assertSpanDuration(span: viewAppearingSpan, expectedDuration: 4)
+        
+        assertSpanDuration(span: transactionSpan, expectedDuration: 22)
+        
+        wait(for: [callbackExpectation], timeout: 0)
+    }
+    
+    func testTimeMeasurement_SkipLoadView() {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+                
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 0))
+        var lastSpan: Span?
+        
+        sut.viewControllerViewDidLoad(viewController) {
+            transactionSpan = self.getStack(tracker: tracker).first
+            lastSpan = self.getStack(tracker: tracker).last!
+            self.advanceTime(bySeconds: 2)
+
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 2)
         
@@ -169,7 +232,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         assertSpanDuration(span: lastSpan!, expectedDuration: 5)
         assertSpanDuration(span: viewAppearingSpan, expectedDuration: 4)
         
-        assertSpanDuration(span: transactionSpan, expectedDuration: 22)
+        assertSpanDuration(span: transactionSpan, expectedDuration: 21)
     }
     
     func testWaitingForCustomSpan() {
@@ -202,48 +265,32 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 5)
     }
     
-    func testSkipLoadView() {
+    func testSkipLoadViewAndViewDidLoad() {
         //Skipping loadView prevent the tracker from creating the view controller transaction and no span is created after this.
         
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         
-        let callbackExpectation = expectation(description: "Callback Expectation")
-        callbackExpectation.expectedFulfillmentCount = 5
-
-        XCTAssertTrue(getStack(tracker: tracker).isEmpty)
-        sut.viewControllerViewDidLoad(viewController) {
-            XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
-            callbackExpectation.fulfill()
-        }
-        XCTAssertTrue(getStack(tracker: tracker).isEmpty)
-        
         sut.viewControllerViewWillLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
-            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
-            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewWillAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
-            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
         
         sut.viewControllerViewDidAppear(viewController) {
             XCTAssertTrue(self.getStack(tracker: tracker).isEmpty)
-            callbackExpectation.fulfill()
         }
         XCTAssertTrue(getStack(tracker: tracker).isEmpty)
-        
-        wait(for: [callbackExpectation], timeout: 0)
     }
     
     func testSpanAssociatedConstants() {

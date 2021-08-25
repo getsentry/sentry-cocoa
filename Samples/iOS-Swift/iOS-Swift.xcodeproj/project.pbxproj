@@ -19,7 +19,11 @@
 		7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B371C34268B08F300207D8D /* DSNStorage.swift */; };
 		7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
+		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
+		7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
+		D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
+		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,7 +89,11 @@
 		7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B64386A26A6C544000D0F65 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
+		7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
+		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
+		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,14 +159,18 @@
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
 				637AFDAB243B02760034958B /* SceneDelegate.swift */,
 				637AFDAD243B02760034958B /* ViewController.swift */,
+				7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */,
 				7B4AC43F25D16AA00070736A /* RandomErrors.swift */,
 				7B371C34268B08F300207D8D /* DSNStorage.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
+				7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */,
 				637AFDB4243B02770034958B /* LaunchScreen.storyboard */,
 				637AFDB7243B02770034958B /* Info.plist */,
 				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
+				D890CD3B26CEE2FA001246CF /* NibViewController.xib */,
+				D890CD3E26CEE31B001246CF /* NibViewController.swift */,
 			);
 			path = "iOS-Swift";
 			sourceTree = "<group>";
@@ -278,6 +290,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */,
+				7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */,
 				637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */,
 				7B3427F825876A5200056519 /* Tongariro.jpg in Resources */,
 				637AFDB3243B02770034958B /* Assets.xcassets in Resources */,
@@ -299,10 +313,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				637AFDAC243B02760034958B /* SceneDelegate.swift in Sources */,
+				7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */,
 				7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */,
 				7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */,
 			);
@@ -474,13 +490,13 @@
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "7.2.1";
+				MARKETING_VERSION = 7.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -494,8 +510,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
@@ -503,10 +520,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "7.2.1";
+				MARKETING_VERSION = 7.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
