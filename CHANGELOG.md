@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Build failure for SPM (#1284)
+
 ## 7.2.2
 
 - fix: Crash when swizzling Nib UIViewController (#1277)
