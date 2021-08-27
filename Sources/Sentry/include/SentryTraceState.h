@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
 #import "SentryId.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,12 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
  * The value of a segment attribute in the user's data bag, if it exists.
  */
 @property (nullable, nonatomic, readonly) NSString *segment;
-  
+
 /**
  * Initializes a SentryTraceStateUser with given properties.
  */
-- (instancetype)initWithUserId:(nullable NSString *)userId
-                       segment:(nullable NSString *)segment;
+- (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment;
 
 /**
  * Initializes a SentryTraceStateUser with data from SentryUser.
@@ -33,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTraceState : NSObject
 
 /**
- * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700) that is a sequence of 32 hexadecimal digits.
+ * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)
+ * that is a sequence of 32 hexadecimal digits.
  */
 @property (nonatomic, readonly) SentryId *traceId;
 
@@ -62,7 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nullable, nonatomic, readonly) SentryTraceStateUser *user;
 
-
 /**
  * Initializes a SentryTraceState with given properties.
  */
@@ -76,15 +75,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a SentryTraceState with data from scope and options.
  */
-- (nullable instancetype)initWithScope:(SentryScope *)scope
-                               options:(SentryOptions *)options;
+- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
 
 /**
  * Initializes a SentryTraceState with data from a trace, scope and options.
  */
 - (instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable SentryScope *)scope
-                                options:(SentryOptions *)options;
+                         scope:(nullable SentryScope *)scope
+                       options:(SentryOptions *)options;
 
 @end
 

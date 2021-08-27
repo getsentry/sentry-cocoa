@@ -8,11 +8,11 @@ class SentryTraceStateTests: XCTestCase {
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
         let options: Options
-        let scope : Scope
-        let tracer : SentryTracer
+        let scope: Scope
+        let tracer: SentryTracer
         let userId = "SomeUserID"
         let userSegment = "Test Segment"
-        let traceId : SentryId
+        let traceId: SentryId
         let publicKey = "SentrySessionTrackerTests"
         let releaseName = "SentrySessionTrackerIntegrationTests"
         let environment = "debug"
@@ -70,9 +70,7 @@ class SentryTraceStateTests: XCTestCase {
         XCTAssertNil(traceState)
     }
     
-    
-    
-    func assertTraceState(traceState : SentryTraceState) {
+    func assertTraceState(traceState: SentryTraceState) {
         XCTAssertEqual(traceState.traceId, fixture.traceId)
         XCTAssertEqual(traceState.publicKey, fixture.publicKey)
         XCTAssertEqual(traceState.releaseName, fixture.releaseName)
@@ -82,6 +80,5 @@ class SentryTraceStateTests: XCTestCase {
         XCTAssertEqual(traceState.user?.userId, fixture.userId)
         XCTAssertEqual(traceState.user?.segment, fixture.userSegment)
     }
-    
     
 }
