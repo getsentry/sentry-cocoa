@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.2.3
+
+- fix: Build failure for SPM (#1284)
+- fix: Set app state on main thread when terminating (#1272)
+
 ## 7.2.2
 
 - fix: Crash when swizzling Nib UIViewController (#1277)

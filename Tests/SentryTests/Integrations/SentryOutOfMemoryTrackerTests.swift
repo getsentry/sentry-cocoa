@@ -14,6 +14,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
             options = Options()
@@ -33,7 +34,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         func getSut() -> SentryOutOfMemoryTracker {
             let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
-            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
+            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
         }
     }
     
@@ -63,6 +64,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_SetsIsActive() {
@@ -75,6 +77,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         goToBackground()
         
         XCTAssertFalse(fixture.fileManager.readAppState()?.isActive ?? true)
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {
@@ -182,6 +185,15 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         assertOOMEventSent()
+    }
+    
+    func testTerminateApp_RunsOnMainThread() {
+        sut.start()
+        
+        TestNotificationCenter.willTerminate()
+        
+        // 1 for start
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {

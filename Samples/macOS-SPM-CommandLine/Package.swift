@@ -12,6 +12,9 @@ let package = Package(
     targets: [
         .target(
             name: "macOS-SPM-CommandLine",
-            dependencies: ["Sentry"])
+            dependencies: ["Sentry"], 
+            swiftSettings: [
+                .unsafeFlags(["-warnings-as-errors"])
+            ])
     ]
 )
