@@ -58,8 +58,9 @@ SentryNetworkTracker ()
             return;
         }
     }
-    
-    if (![self isTaskSupported:sessionTask]) return;
+
+    if (![self isTaskSupported:sessionTask])
+        return;
 
     // We need to check if this request was created by SentryHTTPInterceptor so we don't end up with
     // two spans for the same request.

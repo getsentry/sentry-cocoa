@@ -173,7 +173,7 @@
 
 @implementation URLSessionUnsupportedTaskMock
 
--(NSURLRequest *) currentRequest
+- (NSURLRequest *)currentRequest
 {
     @throw @"currentRequest not available";
 }
