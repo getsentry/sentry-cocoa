@@ -9,10 +9,6 @@ class TraceTestViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        
-        var url = URLRequest(url: URL(string: "http://www.google.com")!)
-        url.addValue("dae", forHTTPHeaderField: "some")
-        print(url)
     }
     
     override func viewWillAppear(_ animated: Bool) {
