@@ -12,7 +12,7 @@ ViewController ()
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     // Do any additional setup after loading the view.
     [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
         [scope setEnvironment:@"debug"];

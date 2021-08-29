@@ -10,7 +10,7 @@ class TraceTestViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         
-        var url = URLRequest(url: URL(string:"http://www.google.com")!)
+        var url = URLRequest(url: URL(string: "http://www.google.com")!)
         url.addValue("dae", forHTTPHeaderField: "some")
         print(url)
     }

@@ -32,7 +32,6 @@ class SentryHTTPInterceptorTests: XCTestCase {
         }
     }
     
-    
     private var fixture: Fixture!
     
     override func setUp() {
@@ -49,7 +48,7 @@ class SentryHTTPInterceptorTests: XCTestCase {
     
     func testInterception() {
         let sut = fixture.getSut()!
-        XCTAssertNotNil(sut.value(forHTTPHeaderField:SENTRY_TRACE_HEADER))
+        XCTAssertNotNil(sut.value(forHTTPHeaderField: SENTRY_TRACE_HEADER))
     }
     
 }
