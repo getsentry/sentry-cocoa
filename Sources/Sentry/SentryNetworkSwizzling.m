@@ -14,7 +14,9 @@
     // If a custom NSURLSession with custom configurations is used SentryHTTPProtocol is not called.
     // To solve this we swizzle the NSURLSession session configuration and add SentryHTTPProtocol in
     // the classProtocol list.
-    [self swizzleURLSessionWithConfiguration];
+    //[self swizzleURLSessionWithConfiguration];
+    
+    [self swizzleURLRequestInit];
 }
 
 + (void)stop
@@ -49,6 +51,21 @@
             [SentryHttpInterceptor configureSessionConfiguration:configuration];
             return SentrySWCallOriginal(configuration, delegate, queue);
         }));
+}
+
++(void)callback:(NSURLRequest *)request withDescription:(NSString *)string url:(NSString *)url{
+    NSLog(@"%@ %@", string, url);
+}
+
++ (void)swizzleURLRequestInit
+{
+    SEL initWithURLCacheTimeoutSelector = NSSelectorFromString(@"initWithURL:cachePolicy:timeoutInterval:");
+    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithURLCacheTimeoutSelector, SentrySWReturnType(NSURLRequest *),
+        SentrySWArguments(NSURL *url, NSURLRequestCachePolicy cache, NSTimeInterval interval), SentrySWReplacement({
+            [SentryNetworkSwizzling callback:self withDescription:@"initWithURL:cachePolicy:timeoutInterval" url:url.absoluteString];
+            return SentrySWCallOriginal(url, cache, interval);
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithURLCacheTimeoutSelector);
 }
 
 #pragma clang diagnostic pop
