@@ -170,3 +170,12 @@
 }
 #pragma clang diagnostic pop
 @end
+
+@implementation URLSessionUnsupportedTaskMock
+
+-(NSURLRequest *) currentRequest
+{
+    @throw @"currentRequest not available";
+}
+
+@end

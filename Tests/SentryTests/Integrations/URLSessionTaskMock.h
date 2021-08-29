@@ -54,4 +54,10 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
+@interface URLSessionUnsupportedTaskMock : NSURLSessionTask
+
+- (NSURLRequest *)currentRequest NS_UNAVAILABLE;
+
+@end
+
 NS_ASSUME_NONNULL_END
