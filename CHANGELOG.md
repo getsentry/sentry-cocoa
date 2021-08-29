@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- fix: Apps crash when using a URLSessionTask subclass with currentRequest unavailable
+- fix: Apps crash when using a URLSessionTask subclass with currentRequest unavailable (#1294)
 
 ## 7.2.3
 
