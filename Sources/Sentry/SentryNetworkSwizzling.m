@@ -34,18 +34,23 @@
 
 + (void)swizzleURLRequestInit
 {
-    SEL initWithURLCacheTimeoutSelector = NSSelectorFromString(@"initWithURL:cachePolicy:timeoutInterval:");
-    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithURLCacheTimeoutSelector, SentrySWReturnType(NSURLRequest *),
-        SentrySWArguments(NSURL *url, NSURLRequestCachePolicy cache, NSTimeInterval interval), SentrySWReplacement({
-            return [SentryNetworkTracker.sharedInstance initializeUrlRequest:SentrySWCallOriginal(url, cache, interval)];
+    SEL initWithURLCacheTimeoutSelector
+        = NSSelectorFromString(@"initWithURL:cachePolicy:timeoutInterval:");
+    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithURLCacheTimeoutSelector,
+        SentrySWReturnType(NSURLRequest *),
+        SentrySWArguments(NSURL * url, NSURLRequestCachePolicy cache, NSTimeInterval interval),
+        SentrySWReplacement({
+            return [SentryNetworkTracker.sharedInstance
+                initializeUrlRequest:SentrySWCallOriginal(url, cache, interval)];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithURLCacheTimeoutSelector);
-    
-    
+
     SEL initWithCoderSelector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithCoderSelector, SentrySWReturnType(NSURLRequest *),
-        SentrySWArguments(NSCoder *coder), SentrySWReplacement({
-            return [SentryNetworkTracker.sharedInstance initializeUrlRequest:SentrySWCallOriginal(coder)];
+    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithCoderSelector,
+        SentrySWReturnType(NSURLRequest *), SentrySWArguments(NSCoder * coder),
+        SentrySWReplacement({
+            return [SentryNetworkTracker.sharedInstance
+                initializeUrlRequest:SentrySWCallOriginal(coder)];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithCoderSelector);
 }

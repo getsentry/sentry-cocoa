@@ -246,35 +246,35 @@ SentryNetworkTracker ()
 {
     if (request == nil || ![self isSupportedRequest:request])
         return request;
-    
+
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil)
         return request;
-    
+
     if ([request isKindOfClass:[NSMutableURLRequest class]]) {
-       [(NSMutableURLRequest *)request addValue:[span toTraceHeader].value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+        [(NSMutableURLRequest *)request addValue:[span toTraceHeader].value
+                              forHTTPHeaderField:SENTRY_TRACE_HEADER];
     } else if (request.class == [NSURLRequest class]) {
-        NSMutableURLRequest* mutateRequest = [request mutableCopy];
+        NSMutableURLRequest *mutateRequest = [request mutableCopy];
         [mutateRequest addValue:[span toTraceHeader].value forHTTPHeaderField:SENTRY_TRACE_HEADER];
         request = mutateRequest;
     }
-    
+
     return request;
 }
 
-- (bool)isSupportedRequest:(NSURLRequest *)request {
+- (bool)isSupportedRequest:(NSURLRequest *)request
+{
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
     NSURL *url = request.URL;
-    
-    if ([url.host isEqualToString:apiUrl.host] &&
-        [url.path containsString:apiUrl.path])
+
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
         return NO;
 
     if (SentrySDK.currentHub.scope.span == nil)
         return NO;
 
-    return ([url.scheme isEqualToString:@"http"] ||
-        [url.scheme isEqualToString:@"https"]);
+    return ([url.scheme isEqualToString:@"http"] || [url.scheme isEqualToString:@"https"]);
 }
 
 @end
