@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Apps crash when using a URLSessionTask subclass with currentRequest unavailable
+
 ## 7.2.3
 
 - fix: Build failure for SPM (#1284)
