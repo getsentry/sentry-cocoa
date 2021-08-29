@@ -1,6 +1,5 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBreadcrumb.h"
-#import "SentryHttpInterceptor+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
@@ -8,6 +7,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentryTraceHeader.h"
 #import <objc/runtime.h>
 
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
@@ -58,13 +58,6 @@ SentryNetworkTracker ()
             return;
         }
     }
-
-    // We need to check if this request was created by SentryHTTPInterceptor so we don't end up with
-    // two spans for the same request.
-    NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
-                                                inRequest:[sessionTask currentRequest]];
-    if (intercepted != nil && [intercepted boolValue])
-        return;
 
     // SDK not enabled no need to continue
     if (SentrySDK.options == nil) {
@@ -247,6 +240,41 @@ SentryNetworkTracker ()
         return kSentrySpanStatusDeadlineExceeded;
     }
     return kSentrySpanStatusUndefined;
+}
+
+- (nullable NSURLRequest *)initializeUrlRequest:(nullable NSURLRequest *)request
+{
+    if (request == nil || ![self isSupportedRequest:request])
+        return request;
+    
+    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+    if (span == nil)
+        return request;
+    
+    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
+       [(NSMutableURLRequest *)request addValue:[span toTraceHeader].value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+    } else if (request.class == [NSURLRequest class]) {
+        NSMutableURLRequest* mutateRequest = [request mutableCopy];
+        [mutateRequest addValue:[span toTraceHeader].value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+        request = mutateRequest;
+    }
+    
+    return request;
+}
+
+- (bool)isSupportedRequest:(NSURLRequest *)request {
+    NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
+    NSURL *url = request.URL;
+    
+    if ([url.host isEqualToString:apiUrl.host] &&
+        [url.path containsString:apiUrl.path])
+        return NO;
+
+    if (SentrySDK.currentHub.scope.span == nil)
+        return NO;
+
+    return ([url.scheme isEqualToString:@"http"] ||
+        [url.scheme isEqualToString:@"https"]);
 }
 
 @end

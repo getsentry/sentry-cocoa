@@ -114,14 +114,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertEqual(spans!.count, 0)
     }
-    
-    func testHTTPRequestAlreadyIntercepted() {
-        let task = createInterceptedRequest()
-        let span = spanForTask(task: task)
         
-        XCTAssertNil(span)
-    }
-    
     func testCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -521,12 +514,5 @@ class SentryNetworkTrackerTests: XCTestCase {
         var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
-    }
-
-    private func createInterceptedRequest() -> URLSessionDownloadTaskMock {
-        let request = NSMutableURLRequest(url: SentryNetworkTrackerTests.testURL)
-        URLProtocol.setProperty(true, forKey: SENTRY_INTERCEPTED_REQUEST, in: request)
-        request.httpMethod = "GET"
-        return URLSessionDownloadTaskMock(request: request as URLRequest)
     }
 }

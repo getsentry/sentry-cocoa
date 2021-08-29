@@ -13,12 +13,8 @@ ViewController ()
 {
     [super viewDidLoad];
     
-    NSURLRequest * request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://www.google.com"]];
-    NSKeyedArchiver* arc = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
-    [request encodeWithCoder:arc];
-    
-    
-    NSURLRequest* myReq = [[NSURLRequest alloc] initWithCoder:arc];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://www.google.com"]];
+    NSLog(@"%@", request);
     
     // Do any additional setup after loading the view.
     [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {

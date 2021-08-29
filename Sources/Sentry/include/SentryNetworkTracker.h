@@ -10,6 +10,8 @@ static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"http.client";
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask;
 
+- (nullable NSURLRequest *)initializeUrlRequest:(nullable NSURLRequest *)request;
+
 - (void)enable;
 
 - (void)disable;
