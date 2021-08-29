@@ -13,9 +13,6 @@ ViewController ()
 {
     [super viewDidLoad];
     
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://www.google.com"]];
-    NSLog(@"%@", request);
-    
     // Do any additional setup after loading the view.
     [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
         [scope setEnvironment:@"debug"];
