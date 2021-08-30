@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 7.2.4
+
 - fix: Sentry HTTP Trace Header Breaking Requests (#1295)
 - fix: Apps crash when using a URLSessionTask subclass with currentRequest unavailable (#1294)
 
