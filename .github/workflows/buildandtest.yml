@@ -70,6 +70,35 @@ jobs:
         run: bundle exec fastlane ui_tests
         shell: sh
 
+  # We had issues that the release build was broken on master.
+  # With this we catch potential issues already in the PR.
+  ios-swift-release:
+    name: Make a release build of iOS Swift
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
+  
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+
+      - name: Setup fastlane
+        run: bundle install   
+
+      - name: Run Fastlane
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+        run: |
+          bundle exec fastlane build_ios_swift
+        shell: sh
+
   build-sample:
     name: Sample ${{ matrix.scheme }}
     runs-on: macos-11
