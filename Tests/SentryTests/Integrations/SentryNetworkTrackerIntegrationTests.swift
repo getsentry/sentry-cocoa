@@ -49,8 +49,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
         
-        let expected = [SENTRY_TRACE_HEADER : transaction.toTraceHeader().value()]
-        XCTAssertEqual(expected,configuration.httpAdditionalHeaders as! [String : String])
+        let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+        XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
     }
 
     func testNSURLSession_TraceHeaderAdded() {
@@ -62,7 +62,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let additionalHeaders = ["test": "SDK"]
         configuration.httpAdditionalHeaders = additionalHeaders
         let session = URLSession(configuration: configuration)
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (data, _, error) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
             expectation.fulfill()
         }
         
@@ -85,13 +85,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         customConfiguration.protocolClasses?.insert(BlockAllRequestsProtocol.self, at: 0)
         let session = URLSession(configuration: customConfiguration)
         
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (data, _, error) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, error) in
             
             if let error = (error as NSError?) {
                 XCTAssertEqual(BlockAllRequestsProtocol.error.domain, error.domain)
                 XCTAssertEqual(BlockAllRequestsProtocol.error.code, error.code)
-            }
-            else {
+            } else {
                 XCTFail("Error expected")
             }
             expectation.fulfill()
