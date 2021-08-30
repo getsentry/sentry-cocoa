@@ -66,7 +66,9 @@
     }
     return self;
 }
+
 #pragma clang diagnostic pop
+
 @end
 
 @implementation URLSessionDownloadTaskMock {
@@ -172,6 +174,18 @@
 @end
 
 @implementation URLSessionUnsupportedTaskMock
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (instancetype)initWithRequest:(NSURLRequest *)request
+{
+    if (self = [super init]) {
+        // Empty on purpose
+    }
+    return self;
+}
+#pragma clang diagnostic pop
+
 
 - (NSURLRequest *)currentRequest
 {

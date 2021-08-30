@@ -1,5 +1,6 @@
 import ObjectiveC
 import XCTest
+import AVFoundation
 
 class SentryNetworkTrackerTests: XCTestCase {
     
@@ -222,7 +223,8 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testTaskWithoutCurrentRequest() {
-        let task = URLSessionUnsupportedTaskMock()
+        let request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        let task = URLSessionUnsupportedTaskMock(request: request)
         let span = spanForTask(task: task)
         
         XCTAssertNil(span)
