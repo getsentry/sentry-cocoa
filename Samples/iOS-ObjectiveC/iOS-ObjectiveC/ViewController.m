@@ -37,6 +37,7 @@ ViewController ()
     user.email = @"tony@example.com";
     [SentrySDK setUser:user];
 
+    // Load an image just for HTTP swizzling
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
     NSURL *url = [[NSURL alloc]
