@@ -59,6 +59,9 @@ SentryNetworkTracker ()
         }
     }
 
+    if (![self isTaskSupported:sessionTask])
+        return;
+
     // SDK not enabled no need to continue
     if (SentrySDK.options == nil) {
         return;
@@ -66,7 +69,7 @@ SentryNetworkTracker ()
 
     NSURL *url = [[sessionTask currentRequest] URL];
 
-    if (url == nil || ![self isTaskSupported:sessionTask])
+    if (url == nil)
         return;
 
     // Don't measure requests to Sentry's backend

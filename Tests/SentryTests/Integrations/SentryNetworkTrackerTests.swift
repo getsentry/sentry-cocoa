@@ -114,7 +114,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertEqual(spans!.count, 0)
     }
-        
+
     func testCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -214,6 +214,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(spans!.first!.isFinished)
     }
     
+    func testTaskWithoutCurrentRequest() {
+        let request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        let task = URLSessionUnsupportedTaskMock(request: request)
+        let span = spanForTask(task: task)
+
+        XCTAssertNil(span)
+        XCTAssertNil(task.observationInfo)
+    }
+
     func testObserverForAnotherProperty() {
         let sut = fixture.getSut()
         let task = createDataTask()
