@@ -8,7 +8,7 @@
 {
     [SentryNetworkTracker.sharedInstance enable];
     [self swizzleURLSessionTaskResume];
-    [self swizzleURLRequestInit];
+    [self swizzleNSURLSessionConfiguration];
 }
 
 + (void)stop
@@ -32,27 +32,14 @@
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleURLRequestInit
++ (void)swizzleNSURLSessionConfiguration
 {
-    SEL initWithURLCacheTimeoutSelector
-        = NSSelectorFromString(@"initWithURL:cachePolicy:timeoutInterval:");
-    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithURLCacheTimeoutSelector,
-        SentrySWReturnType(NSURLRequest *),
-        SentrySWArguments(NSURL * url, NSURLRequestCachePolicy cache, NSTimeInterval interval),
-        SentrySWReplacement({
-            return [SentryNetworkTracker.sharedInstance
-                initializeUrlRequest:SentrySWCallOriginal(url, cache, interval)];
+    SEL httpAdditionalHeadersSelector = NSSelectorFromString(@"HTTPAdditionalHeaders");
+    SentrySwizzleInstanceMethod(NSURLSessionConfiguration.class, httpAdditionalHeadersSelector,
+        SentrySWReturnType(NSDictionary *), SentrySWArguments(), SentrySWReplacement({
+            return [SentryNetworkTracker.sharedInstance addTraceHeader:SentrySWCallOriginal()];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithURLCacheTimeoutSelector);
-
-    SEL initWithCoderSelector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(NSURLRequest.class, initWithCoderSelector,
-        SentrySWReturnType(NSURLRequest *), SentrySWArguments(NSCoder * coder),
-        SentrySWReplacement({
-            return [SentryNetworkTracker.sharedInstance
-                initializeUrlRequest:SentrySWCallOriginal(coder)];
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithCoderSelector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)httpAdditionalHeadersSelector);
 }
 
 #pragma clang diagnostic pop

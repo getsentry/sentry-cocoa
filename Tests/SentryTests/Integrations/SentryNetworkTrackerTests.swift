@@ -14,6 +14,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         let scope: Scope
+        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.testURL)
+        
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
@@ -25,6 +27,10 @@ class SentryNetworkTrackerTests: XCTestCase {
             let result = SentryNetworkTracker.sharedInstance
             result.enable()
             return result
+        }
+        
+        var mutableUrlRequest: URLRequest {
+            return URLRequest(url: SentryNetworkTrackerTests.testURL)
         }
     }
 
