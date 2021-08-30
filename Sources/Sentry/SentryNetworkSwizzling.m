@@ -1,5 +1,4 @@
 #import "SentryNetworkSwizzling.h"
-#import "SentryHttpInterceptor+Private.h"
 #import "SentryNetworkTracker.h"
 #import "SentrySwizzle.h"
 
@@ -9,12 +8,7 @@
 {
     [SentryNetworkTracker.sharedInstance enable];
     [self swizzleURLSessionTaskResume];
-
-    // NSURLProtocol is only used when NSURLSession.shared is used.
-    // If a custom NSURLSession with custom configurations is used SentryHTTPProtocol is not called.
-    // To solve this we swizzle the NSURLSession session configuration and add SentryHTTPProtocol in
-    // the classProtocol list.
-    [self swizzleURLSessionWithConfiguration];
+    [self swizzleNSURLSessionConfiguration];
 }
 
 + (void)stop
@@ -38,17 +32,14 @@
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleURLSessionWithConfiguration
++ (void)swizzleNSURLSessionConfiguration
 {
-    SentrySwizzleClassMethod(NSURLSession.class,
-        NSSelectorFromString(@"sessionWithConfiguration:delegate:delegateQueue:"),
-        SentrySWReturnType(NSURLSession *),
-        SentrySWArguments(NSURLSessionConfiguration * configuration,
-            id<NSURLSessionDelegate> delegate, NSOperationQueue * queue),
-        SentrySWReplacement({
-            [SentryHttpInterceptor configureSessionConfiguration:configuration];
-            return SentrySWCallOriginal(configuration, delegate, queue);
-        }));
+    SEL httpAdditionalHeadersSelector = NSSelectorFromString(@"HTTPAdditionalHeaders");
+    SentrySwizzleInstanceMethod(NSURLSessionConfiguration.class, httpAdditionalHeadersSelector,
+        SentrySWReturnType(NSDictionary *), SentrySWArguments(), SentrySWReplacement({
+            return [SentryNetworkTracker.sharedInstance addTraceHeader:SentrySWCallOriginal()];
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)httpAdditionalHeadersSelector);
 }
 
 #pragma clang diagnostic pop

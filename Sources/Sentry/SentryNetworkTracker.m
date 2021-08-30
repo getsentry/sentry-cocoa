@@ -1,6 +1,5 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBreadcrumb.h"
-#import "SentryHttpInterceptor+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
@@ -8,6 +7,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
+#import "SentryTraceHeader.h"
 #import <objc/runtime.h>
 
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
@@ -60,13 +60,6 @@ SentryNetworkTracker ()
     }
 
     if (![self isTaskSupported:sessionTask])
-        return;
-
-    // We need to check if this request was created by SentryHTTPInterceptor so we don't end up with
-    // two spans for the same request.
-    NSNumber *intercepted = [NSURLProtocol propertyForKey:SENTRY_INTERCEPTED_REQUEST
-                                                inRequest:[sessionTask currentRequest]];
-    if (intercepted != nil && [intercepted boolValue])
         return;
 
     // SDK not enabled no need to continue
@@ -250,6 +243,22 @@ SentryNetworkTracker ()
         return kSentrySpanStatusDeadlineExceeded;
     }
     return kSentrySpanStatusUndefined;
+}
+
+- (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
+{
+    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
+    if (span == nil) {
+        return headers;
+    }
+
+    if (headers == nil) {
+        return @{ SENTRY_TRACE_HEADER : [span toTraceHeader].value };
+    } else {
+        NSMutableDictionary *newHeaders = [[NSMutableDictionary alloc] initWithDictionary:headers];
+        newHeaders[SENTRY_TRACE_HEADER] = [span toTraceHeader].value;
+        return [[NSDictionary alloc] initWithDictionary:newHeaders];
+    }
 }
 
 @end
