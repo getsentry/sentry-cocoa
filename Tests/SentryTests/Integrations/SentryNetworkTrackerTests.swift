@@ -1,6 +1,6 @@
+import AVFoundation
 import ObjectiveC
 import XCTest
-import AVFoundation
 
 class SentryNetworkTrackerTests: XCTestCase {
     

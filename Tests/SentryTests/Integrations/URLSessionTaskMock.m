@@ -186,7 +186,6 @@
 }
 #pragma clang diagnostic pop
 
-
 - (NSURLRequest *)currentRequest
 {
     @throw @"currentRequest not available";
