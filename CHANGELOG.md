@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- fix: Swizzling crash on iOS 13 (#1297)
+
 ## 7.2.4
 
 - fix: Sentry HTTP Trace Header Breaking Requests (#1295)
