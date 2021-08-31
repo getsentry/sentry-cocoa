@@ -57,7 +57,7 @@ jobs:
             os: macos-11
             xcode: 11.7
             destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
-            pushCodecov: false
+            pushCodecov: true
 
           - name: tvOS latest
             os: macos-11
