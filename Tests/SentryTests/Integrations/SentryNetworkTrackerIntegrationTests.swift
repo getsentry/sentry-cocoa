@@ -97,7 +97,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
         
         dataTask.resume()
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1)
     }
 }
 
