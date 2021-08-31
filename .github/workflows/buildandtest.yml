@@ -49,7 +49,7 @@ jobs:
 
           - name: iOS 15 beta
             os: macos-11
-            xcode: 13.0
+            xcode: "13.0"
             destination: platform=iOS Simulator,OS=15.0,name=iPhone 11
             pushCodecov: true
 
@@ -67,7 +67,7 @@ jobs:
 
           - name: tvOS 15 beta
             os: macos-11
-            xcode: 13.0
+            xcode: "13.0"
             destination: platform=tvOS Simulator,OS=15.0,name=Apple TV 4K
             pushCodecov: false
 
