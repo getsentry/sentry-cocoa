@@ -9,7 +9,7 @@ on:
 jobs:
   unit-tests:
     name: Unit Tests ${{matrix.name}}
-    runs-on: macos-11
+    runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
@@ -17,23 +17,59 @@ jobs:
         include:
           # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
           # so the coverage report shows a reduced coverage.
-          - name: macOS
+          - name: macOS 11
+            os: macos-11  
+            xcode: 12.5.1
             destination: platform=macOS
             pushCodecov: false
-          - name: Mac Catalyst
+
+          - name: macOS 10.15
+            os: macos-10.15
+            xcode: 12.4
+            destination: platform=macOS
+            pushCodecov: false
+            
+          - name: Mac Catalyst Mac OS 11
+            os: macos-11
+            xcode: 12.5.1
             destination: platform=macOS,variant=Mac Catalyst  
             pushCodecov: true
-          - name: iOS  
+
+          - name: Mac Catalyst Mac OS 10.15
+            os: macos-10.15
+            xcode: 12.4
+            destination: platform=macOS,variant=Mac Catalyst 
+            pushCodecov: false
+
+          - name: iOS latest
+            os: macos-11
+            xcode: 12.5.1
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
-          - name: tvOS  
+
+          - name: iOS 13.7
+            os: macos-11
+            xcode: 11.7
+            destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
+            pushCodecov: false
+
+          - name: tvOS latest
+            os: macos-11
+            xcode: 12.5.1
             destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: false    
+            pushCodecov: false
+
+          - name: tvOS 13.4
+            os: macos-11
+            xcode: 11.7
+            destination: platform=tvOS Simulator,OS=13.4,name=Apple TV 4K
+            pushCodecov: false 
+
           # Can't run tests on watchOS because XCTest is not available  
 
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Running tests
         run: >-
           xcodebuild 
@@ -53,12 +89,14 @@ jobs:
         if: ${{matrix.pushCodecov}}
 
   ui-tests:
-    name: Run UI Tests
-    runs-on: macos-11
+    name: Run UI Tests on Mac OS ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-11, macos-10.5, macos-10.4, macos-10.13]
+
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh
-
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
