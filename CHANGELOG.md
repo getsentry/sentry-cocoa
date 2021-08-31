@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: XCFramework output not preserving symlinks for macOS (#1281)
+
 ## 7.2.6
 
 - fix: Add Trace Headers below iOS 14.0 (#1302)
@@ -17,9 +21,6 @@
 
 - fix: Build failure for SPM (#1284)
 - fix: Set app state on main thread when terminating (#1272)
-## Unreleased
-
-- fix: XCFramework output not preserving symlinks for macOS
 
 ## 7.2.2
 
