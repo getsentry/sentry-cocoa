@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.5
 
 - fix: Swizzling crash on iOS 13 (#1297)
 
