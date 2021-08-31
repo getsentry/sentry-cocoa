@@ -89,14 +89,12 @@ jobs:
         if: ${{matrix.pushCodecov}}
 
   ui-tests:
-    name: Run UI Tests on Mac OS ${{ matrix.os }}
-    runs-on: ${{matrix.os}}
-    strategy:
-      matrix:
-        os: [macos-11, macos-10.15, macos-10.14, macos-10.13]
+    name: Run UI Tests
+    runs-on: macos-11
 
     steps:
       - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
