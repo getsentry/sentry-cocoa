@@ -134,7 +134,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         var span: Span?
         
-        let expectation = expectation(description: "Callback Expectation")
+        let expect = expectation(description: "Callback Expectation")
         
         sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
             let spanId = sut.activeSpan()!
@@ -143,25 +143,25 @@ class SentryPerformanceTrackerTests: XCTestCase {
             
             XCTAssertFalse(span!.isFinished)
             
-            expectation.fulfill()
+            expect.fulfill()
         }
         
         XCTAssertNil(sut.activeSpan())
         XCTAssertTrue(span!.isFinished)
-        wait(for: [expectation], timeout: 0)
+        wait(for: [expect], timeout: 0)
     }
     
     func testMeasureSpanWithBlock_SpanNotIsAlive_BlockIsCalled() {
         let sut = fixture.getSut()
         
-        let expectation = expectation(description: "Callback Expectation")
+        let expect = expectation(description: "Callback Expectation")
         
         sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation, parentSpanId: SpanId()) {
-            expectation.fulfill()
+            expect.fulfill()
         }
         
         XCTAssertNil(sut.activeSpan())
-        wait(for: [expectation], timeout: 0)
+        wait(for: [expect], timeout: 0)
     }
     
     func testFinishSpan() {

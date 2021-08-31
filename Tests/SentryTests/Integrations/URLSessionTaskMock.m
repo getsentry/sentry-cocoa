@@ -6,9 +6,20 @@
     NSURLResponse *_response;
     NSError *_error;
     NSDate *_resumeDate;
+    NSURLSessionTaskState _state;
 }
 
 @dynamic state;
+
+- (void)setState:(NSURLSessionTaskState)state
+{
+    _state = state;
+}
+
+- (NSURLSessionTaskState)state
+{
+    return _state;
+}
 
 - (NSURLRequest *)currentRequest
 {
@@ -74,9 +85,33 @@
 @implementation URLSessionDownloadTaskMock {
     NSURLRequest *_request;
     NSURLResponse *_response;
+    NSURLSessionTaskState _state;
+    NSError *_error;
 }
 
 @dynamic state;
+
+- (void)setState:(NSURLSessionTaskState)state
+{
+    _state = state;
+}
+
+- (NSURLSessionTaskState)state
+{
+    return _state;
+}
+
+@dynamic error;
+
+- (void)setError:(NSError *)error
+{
+    _error = error;
+}
+
+- (NSError *)error
+{
+    return _error;
+}
 
 - (NSURLRequest *)currentRequest
 {
@@ -91,6 +126,16 @@
 - (void)setResponse:(NSURLResponse *)response
 {
     _response = response;
+}
+
+- (int64_t)countOfBytesSent
+{
+    return DATA_BYTES_SENT;
+}
+
+- (int64_t)countOfBytesReceived
+{
+    return DATA_BYTES_RECEIVED;
 }
 
 #pragma clang diagnostic push
@@ -108,9 +153,33 @@
 @implementation URLSessionUploadTaskMock {
     NSURLRequest *_request;
     NSURLResponse *_response;
+    NSURLSessionTaskState _state;
+    NSError *_error;
 }
 
 @dynamic state;
+
+- (void)setState:(NSURLSessionTaskState)state
+{
+    _state = state;
+}
+
+- (NSURLSessionTaskState)state
+{
+    return _state;
+}
+
+@dynamic error;
+
+- (void)setError:(NSError *)error
+{
+    _error = error;
+}
+
+- (NSError *)error
+{
+    return _error;
+}
 
 - (NSURLRequest *)currentRequest
 {
@@ -125,6 +194,16 @@
 - (void)setResponse:(NSURLResponse *)response
 {
     _response = response;
+}
+
+- (int64_t)countOfBytesSent
+{
+    return DATA_BYTES_SENT;
+}
+
+- (int64_t)countOfBytesReceived
+{
+    return DATA_BYTES_RECEIVED;
 }
 
 #pragma clang diagnostic push
@@ -142,9 +221,20 @@
 @implementation URLSessionStreamTaskMock {
     NSURLRequest *_request;
     NSURLResponse *_response;
+    NSURLSessionTaskState _state;
 }
 
 @dynamic state;
+
+- (void)setState:(NSURLSessionTaskState)state
+{
+    _state = state;
+}
+
+- (NSURLSessionTaskState)state
+{
+    return _state;
+}
 
 - (NSURLRequest *)currentRequest
 {

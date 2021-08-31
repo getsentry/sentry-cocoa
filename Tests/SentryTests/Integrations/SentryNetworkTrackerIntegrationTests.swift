@@ -49,12 +49,16 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
         
-        let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
-        XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
+        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+            XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
+        } else {
+            XCTAssertNil(configuration.httpAdditionalHeaders)
+        }
     }
 
     func testNSURLSession_TraceHeaderAdded() {
-        let expectation = expectation(description: "Callback Expectation")
+        let expect = expectation(description: "Callback Expectation")
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
         
@@ -63,23 +67,27 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         configuration.httpAdditionalHeaders = additionalHeaders
         let session = URLSession(configuration: configuration)
         let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
-            expectation.fulfill()
+            expect.fulfill()
         }
         
-        let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
-            .merging(additionalHeaders) { (current, _) in current }
-        XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
+        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+                .merging(additionalHeaders) { (current, _) in current }
+            XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
+        } else {
+            XCTAssertEqual(additionalHeaders, configuration.httpAdditionalHeaders as! [String: String])
+        }
         
         dataTask.resume()
         
-        wait(for: [expectation], timeout: 5)
+        wait(for: [expect], timeout: 5)
     }
     
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
     func testCustomURLProtocol_BlocksAllRequests() {
-        let expectation = expectation(description: "Callback Expectation")
+        let expect = expectation(description: "Callback Expectation")
         
         let customConfiguration = URLSessionConfiguration.default.copy() as! URLSessionConfiguration
         customConfiguration.protocolClasses?.insert(BlockAllRequestsProtocol.self, at: 0)
@@ -93,11 +101,11 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             } else {
                 XCTFail("Error expected")
             }
-            expectation.fulfill()
+            expect.fulfill()
         }
         
         dataTask.resume()
-        wait(for: [expectation], timeout: 0.1)
+        wait(for: [expect], timeout: 1)
     }
 }
 
