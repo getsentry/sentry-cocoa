@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.2.6
 
 - fix: Add Trace Headers below iOS 14.0 (#1302)
 
