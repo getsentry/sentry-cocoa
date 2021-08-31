@@ -48,13 +48,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let configuration = URLSessionConfiguration.default
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
-        
-        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
-            XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
-        } else {
-            XCTAssertNil(configuration.httpAdditionalHeaders)
-        }
+                
+        let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+        XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
     }
 
     func testNSURLSession_TraceHeaderAdded() {
@@ -69,14 +65,10 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
             expect.fulfill()
         }
-        
-        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
-                .merging(additionalHeaders) { (current, _) in current }
-            XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
-        } else {
-            XCTAssertEqual(additionalHeaders, configuration.httpAdditionalHeaders as! [String: String])
-        }
+         
+        let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+            .merging(additionalHeaders) { (current, _) in current }
+        XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
         
         dataTask.resume()
         
