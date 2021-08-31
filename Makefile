@@ -29,7 +29,8 @@ build-carthage:
 
 	@echo "--> Carthage: creating Sentry xcframework"
 	carthage build --use-xcframeworks --no-skip-current
-	zip -r Sentry.xcframework.zip Carthage/Build
+# use ditto here to avoid clobbering symlinks which exist in macOS frameworks
+	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
 
 	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
