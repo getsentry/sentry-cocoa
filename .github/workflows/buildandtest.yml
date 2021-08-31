@@ -105,7 +105,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [macos-11, macos-10.5, macos-10.4, macos-10.13]
+        os: [macos-11, macos-10.15, macos-10.14, macos-10.13]
 
     steps:
       - uses: actions/checkout@v2
