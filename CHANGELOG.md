@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.2.7
 
+- fix: Remove Trace Headers below iOS 14.0 (#1309)
 - fix: XCFramework output not preserving symlinks for macOS (#1281)
 
 ## 7.2.6
