@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != sdkInfo) {
         [serializedData addEntriesFromDictionary:[sdkInfo serialize]];
     }
-    
+
     SentryTraceState *traceState = envelope.header.traceState;
     if (traceState != nil) {
         [serializedData setValue:[traceState serialize] forKey:@"trace"];

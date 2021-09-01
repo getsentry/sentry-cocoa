@@ -32,10 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithId:(nullable SentryId *)eventId
-                traceState:(nullable SentryTraceState *)traceState {
+                traceState:(nullable SentryTraceState *)traceState
+{
     SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                                       andVersion:SentryMeta.versionString];
-    
+
     self = [self initWithId:eventId sdkInfo:sdkInfo traceState:traceState];
     
     return self;
@@ -43,8 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithId:(nullable SentryId *)eventId
                    sdkInfo:(nullable SentrySdkInfo *)sdkInfo
-                traceState:(nullable SentryTraceState *)traceState  {
-    
+                traceState:(nullable SentryTraceState *)traceState
+{
+
     if (self = [super init]) {
         _eventId = eventId;
         _sdkInfo = sdkInfo;
@@ -160,9 +162,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                    options:0
                     // TODO: handle error
                                                      error:nil];
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession
-                                                                        length:json.length]
-                           data:json];
+    return [self
+        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession
+                                                               length:json.length]
+                  data:json];
 }
 
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback

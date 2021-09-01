@@ -63,20 +63,23 @@
                             user:[[SentryTraceStateUser alloc] initWithUser:scope.userObject]];
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
-    NSMutableDictionary *result = @{
-            @"trace_id": _traceId.sentryIdString,
-            @"public_key": _publicKey
-        }.mutableCopy;
-    
-    if (_releaseName != nil) [result setValue:_releaseName forKey:@"release"];
-    
-    if (_environment != nil) [result setValue:_environment forKey:@"environment"];
-    
-    if (_transaction != nil) [result setValue:_transaction forKey:@"transaction"];
-    
-    if (_user != nil) [result setValue:@{ @"id": _user.userId, @"segment": _user.segment } forKey:@"user"];
-    
+- (NSDictionary<NSString *, id> *)serialize
+{
+    NSMutableDictionary *result =
+        @{ @"trace_id" : _traceId.sentryIdString, @"public_key" : _publicKey }.mutableCopy;
+
+    if (_releaseName != nil)
+        [result setValue:_releaseName forKey:@"release"];
+
+    if (_environment != nil)
+        [result setValue:_environment forKey:@"environment"];
+
+    if (_transaction != nil)
+        [result setValue:_transaction forKey:@"transaction"];
+
+    if (_user != nil)
+        [result setValue:@{ @"id" : _user.userId, @"segment" : _user.segment } forKey:@"user"];
+
     return result;
 }
 

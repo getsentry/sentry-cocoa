@@ -240,7 +240,7 @@ SentryOptions ()
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
-    
+
     if (options[@"enableTraceSampling"] != nil) {
         _enableTraceSampling = [options[@"enableTraceSampling"] boolValue];
     }
