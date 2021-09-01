@@ -1,5 +1,6 @@
 #import "SentryId.h"
 #import <Foundation/Foundation.h>
+#import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryTraceState : NSObject
+@interface SentryTraceState : NSObject <SentrySerializable>
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)

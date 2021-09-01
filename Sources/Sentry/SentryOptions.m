@@ -47,6 +47,7 @@ SentryOptions ()
         self.enableAutoPerformanceTracking = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
+        _enableTraceSampling = NO;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -238,6 +239,10 @@ SentryOptions ()
 
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
+    }
+    
+    if (options[@"enableTraceSampling"] != nil) {
+        _enableTraceSampling = [options[@"enableTraceSampling"] boolValue];
     }
 }
 

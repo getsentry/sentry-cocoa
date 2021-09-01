@@ -14,6 +14,7 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import <SentryScreenFrames.h>
+#import "SentryTraceState.h"
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
@@ -36,7 +37,8 @@ SentryTracer ()
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
-
+    SentryTraceState * _traceState;
+    
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
 
@@ -171,6 +173,17 @@ static BOOL appStartMeasurementRead;
 - (NSDate *)startTimestamp
 {
     return self.rootSpan.startTimestamp;
+}
+
+- (SentryTraceState *) traceState {
+    if (_traceState == nil) {
+        @synchronized (self) {
+            if (_traceState == nil) {
+                _traceState = [[SentryTraceState alloc] initWithTracer:self scope:_hub.scope options:SentrySDK.options];
+            }
+        }
+    }
+    return _traceState;
 }
 
 - (void)setStartTimestamp:(NSDate *)startTimestamp

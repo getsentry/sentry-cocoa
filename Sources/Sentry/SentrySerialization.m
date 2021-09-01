@@ -9,6 +9,7 @@
 #import "SentryLog.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
+#import "SentryTraceState.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySdkInfo *sdkInfo = envelope.header.sdkInfo;
     if (nil != sdkInfo) {
         [serializedData addEntriesFromDictionary:[sdkInfo serialize]];
+    }
+    
+    SentryTraceState *traceState = envelope.header.traceState;
+    if (traceState != nil) {
+        [serializedData setValue:[traceState serialize] forKey:@"trace"];
     }
 
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];

@@ -230,6 +230,14 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
 
+/**
+ * Controls if the `tracestate` header is attached to envelopes and HTTP client integrations.
+ *
+ * Note: this is an experimental API and will be removed without notice.
+ */
+@property (nonatomic, readonly, assign) BOOL enableTraceSampling;
+   
+
 @end
 
 NS_ASSUME_NONNULL_END
