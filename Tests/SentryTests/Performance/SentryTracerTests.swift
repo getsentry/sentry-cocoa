@@ -353,6 +353,13 @@ class SentryTracerTests: XCTestCase {
     }
     #endif
     
+    func testSetExtra_ForwardsToSetData() {
+        let sut = fixture.getSut()
+        sut.setExtra(value: 0, key: "key")
+        
+        XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+    }
+    
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
             fatalError("Event must not be nil.")

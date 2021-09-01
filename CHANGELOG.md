@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: SpanProtocol add setData for Swift (#1305)
 - fix: XCFramework output not preserving symlinks for macOS (#1281)
 
 ## 7.2.6

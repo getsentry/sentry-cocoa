@@ -57,6 +57,11 @@ SentrySpan ()
     }
 }
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key
+{
+    [self setDataValue:value forKey:key];
+}
+
 - (void)removeDataForKey:(NSString *)key
 {
     @synchronized(_extras) {
