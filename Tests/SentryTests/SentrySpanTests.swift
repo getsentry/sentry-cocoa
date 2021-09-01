@@ -217,6 +217,13 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)")
     }
     
+    func testSetExtra_ForwardsToSetData() {
+        let sut = SentrySpan(context: SpanContext(operation: "test"))
+        sut.setExtra(value: 0, key: "key")
+        
+        XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+    }
+    
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
