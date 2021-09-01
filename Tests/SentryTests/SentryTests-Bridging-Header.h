@@ -59,7 +59,6 @@
 #import "SentryFramesTracker.h"
 #import "SentryFramesTrackingIntegration.h"
 #import "SentryHttpDateParser.h"
-#import "SentryHttpInterceptor+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+TestInit.h"

@@ -26,7 +26,10 @@ static int64_t const DATA_BYTES_SENT = 652;
 @end
 
 @interface URLSessionDownloadTaskMock : NSURLSessionDownloadTask
+
 @property (nonatomic) NSURLSessionTaskState state;
+
+@property (nonatomic, copy) NSError *error;
 
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 
@@ -51,6 +54,14 @@ static int64_t const DATA_BYTES_SENT = 652;
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 
 - (void)setResponse:(NSURLResponse *)response;
+
+@end
+
+@interface URLSessionUnsupportedTaskMock : NSURLSessionTask
+
+- (instancetype)initWithRequest:(NSURLRequest *)request;
+
+- (NSURLRequest *)currentRequest NS_UNAVAILABLE;
 
 @end
 

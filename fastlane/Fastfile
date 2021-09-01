@@ -40,8 +40,8 @@ platform :ios do
     )
   end
 
-  desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
-  lane :ios_swift_to_testflight do
+  desc "Build iOS-Swift with Release"
+  lane :build_ios_swift do
 
     keychain_name = "ios-swift.keychain"
     keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
@@ -84,6 +84,11 @@ platform :ios do
 			},
       archive_path: "iOS-Swift"
     )
+
+  end
+
+  desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
+  lane :ios_swift_to_testflight do
     
     testflight
 

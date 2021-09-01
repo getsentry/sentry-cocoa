@@ -12,6 +12,7 @@ ViewController ()
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
     // Do any additional setup after loading the view.
     [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
         [scope setEnvironment:@"debug"];
@@ -35,6 +36,14 @@ ViewController ()
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
     user.email = @"tony@example.com";
     [SentrySDK setUser:user];
+
+    // Load an image just for HTTP swizzling
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+    NSURL *url = [[NSURL alloc]
+        initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url];
+    [task resume];
 }
 
 - (IBAction)addBreadcrumb:(id)sender
