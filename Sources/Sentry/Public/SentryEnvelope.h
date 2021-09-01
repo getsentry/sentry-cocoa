@@ -57,7 +57,7 @@ SENTRY_NO_INIT
  * @param traceState Current trace state.
  */
 - (instancetype)initWithId:(nullable SentryId *)eventId
-                sdkInfo:(nullable SentrySdkInfo *)sdkInfo
+                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
                 traceState:(nullable SentryTraceState *)traceState NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -65,11 +65,11 @@ SENTRY_NO_INIT
  * An event id exist if the envelope contains an event of items within it are
  * related. i.e Attachments
  */
-@property (nullable, nonatomic, readonly, copy) SentryId * eventId;
+@property (nullable, nonatomic, readonly, copy) SentryId *eventId;
 
-@property (nullable, nonatomic, readonly, copy) SentrySdkInfo * sdkInfo;
+@property (nullable, nonatomic, readonly, copy) SentrySdkInfo *sdkInfo;
 
-@property (nullable, nonatomic, readonly, copy) SentryTraceState * traceState;
+@property (nullable, nonatomic, readonly, copy) SentryTraceState *traceState;
 
 @end
 

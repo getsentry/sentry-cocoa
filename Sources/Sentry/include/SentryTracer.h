@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves a trace state from this tracer.
  */
-@property (nonatomic, readonly) SentryTraceState * traceState;
+@property (nonatomic, readonly) SentryTraceState *traceState;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
