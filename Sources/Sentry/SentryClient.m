@@ -28,16 +28,16 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
+#import "SentrySpan.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTraceState.h"
+#import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-#import "SentryTraceState.h"
-#import "SentryTracer.h"
-#import "SentrySpan.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -241,8 +241,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
-- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
-                                  withScope:(SentryScope *)scope
+- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
@@ -250,12 +249,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     } else {
         span = scope.span;
     }
-    
-    SentryTracer* tracer;
+
+    SentryTracer *tracer;
     if ([span isKindOfClass:[SentryTracer class]]) {
         tracer = span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
-        tracer = [(SentrySpan*)span tracer];
+        tracer = [(SentrySpan *)span tracer];
     } else {
         return nil;
     }
@@ -271,7 +270,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isCrashEvent:isCrashEvent];
-    
+
     if (nil != preparedEvent) {
         [self.transport sendEvent:preparedEvent
                        traceState:[self getTraceStateWithEvent:event withScope:scope]
