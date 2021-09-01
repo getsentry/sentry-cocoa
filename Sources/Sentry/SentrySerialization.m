@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
                                   error:(NSError *_Nullable *_Nullable)error
 {
-
     NSData *data = nil;
     if ([NSJSONSerialization isValidJSONObject:dictionary] != NO) {
         data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];

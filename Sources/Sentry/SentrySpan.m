@@ -8,9 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentrySpan ()
-
-@property (nonatomic) SentryTracer *tracer;
-
 @end
 
 @implementation SentrySpan {
@@ -21,7 +18,7 @@ SentrySpan ()
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if ([self initWithContext:context]) {
-        self.tracer = tracer;
+        _tracer = tracer;
     }
     return self;
 }

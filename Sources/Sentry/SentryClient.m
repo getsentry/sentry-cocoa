@@ -35,6 +35,9 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryTraceState.h"
+#import "SentryTracer.h"
+#import "SentrySpan.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -238,6 +241,27 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
+- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
+                                  withScope:(SentryScope *)scope
+{
+    id<SentrySpan> span;
+    if ([event isKindOfClass:[SentryTransaction class]]) {
+        span = [(SentryTransaction *)event trace];
+    } else {
+        span = scope.span;
+    }
+    
+    SentryTracer* tracer;
+    if ([span isKindOfClass:[SentryTracer class]]) {
+        tracer = span;
+    } else if ([span isKindOfClass:[SentrySpan class]]) {
+        tracer = [(SentrySpan*)span tracer];
+    } else {
+        return nil;
+    }
+    return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
+}
+
 - (SentryId *)sendEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -247,9 +271,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isCrashEvent:isCrashEvent];
-
+    
     if (nil != preparedEvent) {
-        [self.transport sendEvent:preparedEvent attachments:scope.attachments];
+        [self.transport sendEvent:preparedEvent
+                       traceState:[self getTraceStateWithEvent:event withScope:scope]
+                      attachments:scope.attachments];
         return preparedEvent.eventId;
     }
 
@@ -263,7 +289,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (nil != event) {
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transport sendEvent:event attachments:scope.attachments];
+            [self.transport sendEvent:event
+                           traceState:[self getTraceStateWithEvent:event withScope:scope]
+                          attachments:scope.attachments];
             return event.eventId;
         }
 
