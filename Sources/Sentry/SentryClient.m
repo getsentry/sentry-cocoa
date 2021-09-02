@@ -250,14 +250,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         span = scope.span;
     }
 
-    SentryTracer *tracer;
-    if ([span isKindOfClass:[SentryTracer class]]) {
-        tracer = span;
-    } else if ([span isKindOfClass:[SentrySpan class]]) {
-        tracer = [(SentrySpan *)span tracer];
-    } else {
-        return nil;
-    }
+    SentryTracer *tracer = [SentryTracer getTracer:span];
+    if (tracer == nil) return nil;
+    
     return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
 }
 

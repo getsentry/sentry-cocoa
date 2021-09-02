@@ -82,6 +82,11 @@ NS_ASSUME_NONNULL_BEGIN
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
+
+/**
+ * Get the tracer from a span.
+ */
++ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 @end
 
 NS_ASSUME_NONNULL_END

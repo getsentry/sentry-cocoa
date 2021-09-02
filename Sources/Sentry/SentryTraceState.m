@@ -4,6 +4,8 @@
 #import "SentryScope+Private.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
+#import "SentrySerialization.h"
+#import "SentryLog.h"
 
 @implementation SentryTraceStateUser
 
@@ -63,6 +65,23 @@
                             user:[[SentryTraceStateUser alloc] initWithUser:scope.userObject]];
 }
 
+- (NSString *)toHTTPHeader
+{
+    NSError * error;
+    NSDictionary * json = [self serialize];
+    NSData * data = [SentrySerialization dataWithJSONObject:json error:&error];
+    
+    if (nil != error) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't encode trace state: %@", error]
+                         andLevel:kSentryLevelError];
+        return nil;
+    }
+    
+    NSString * encodedData = [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"=" withString:@""];
+    
+    return [NSString stringWithFormat:@"sentry=%@", encodedData];
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *result =
@@ -77,8 +96,17 @@
     if (_transaction != nil)
         [result setValue:_transaction forKey:@"transaction"];
 
-    if (_user != nil)
-        [result setValue:@{ @"id" : _user.userId, @"segment" : _user.segment } forKey:@"user"];
+    if (_user != nil) {
+        NSMutableDictionary* userDictionary = [[NSMutableDictionary alloc] init];
+        if (_user.userId != nil)
+            userDictionary[@"id"] = _user.userId;
+        
+        if (_user.segment != nil)
+            userDictionary[@"segment"] = _user.segment;
+        
+        if (userDictionary.count > 0)
+            [result setValue:userDictionary forKey:@"user"];
+    }
 
     return result;
 }

@@ -47,10 +47,11 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     func testNSURLSessionConfiguration_ActiveSpan_HeadersAdded() {
         let configuration = URLSessionConfiguration.default
         
-        let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
+        let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+        let traceState = transaction.traceState
         
         if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader() ]
             XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
         } else {
             XCTAssertNil(configuration.httpAdditionalHeaders)
@@ -60,7 +61,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     func testNSURLSession_TraceHeaderAdded() {
         let expect = expectation(description: "Callback Expectation")
         
-        let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
+        let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+        let traceState = transaction.traceState
         
         let configuration = URLSessionConfiguration.default
         let additionalHeaders = ["test": "SDK"]
@@ -71,7 +73,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
         
         if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value()]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader()]
                 .merging(additionalHeaders) { (current, _) in current }
             XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
         } else {

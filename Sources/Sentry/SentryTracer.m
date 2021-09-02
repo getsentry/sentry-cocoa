@@ -493,4 +493,13 @@ static BOOL appStartMeasurementRead;
     }
 }
 
++ (SentryTracer *)getTracer:(id<SentrySpan>)span {
+    if ([span isKindOfClass:[SentryTracer class]]) {
+        return span;
+    } else if ([span isKindOfClass:[SentrySpan class]]) {
+        return [(SentrySpan *)span tracer];
+    }
+    return nil;
+}
+
 @end
