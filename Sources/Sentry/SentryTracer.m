@@ -202,6 +202,11 @@ static BOOL appStartMeasurementRead;
     [self.rootSpan setDataValue:value forKey:key];
 }
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key
+{
+    [self setDataValue:value forKey:key];
+}
+
 - (void)removeDataForKey:(NSString *)key
 {
     [self.rootSpan removeDataForKey:key];
