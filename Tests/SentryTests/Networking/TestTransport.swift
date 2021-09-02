@@ -13,7 +13,7 @@ public class TestTransport: NSObject, Transport {
         self.send(event, with: session, traceState: nil, attachments: attachments)
     }
     
-    var sentEventsWithSessionTraceState: [(event: Event, session: SentrySession,traceState : SentryTraceState?, attachments: [Attachment])] = []
+    var sentEventsWithSessionTraceState: [(event: Event, session: SentrySession, traceState: SentryTraceState?, attachments: [Attachment])] = []
     public func send(_ event: Event, with session: SentrySession, traceState: SentryTraceState?, attachments: [Attachment]) {
         sentEventsWithSessionTraceState.append((event, session, traceState, attachments))
     }

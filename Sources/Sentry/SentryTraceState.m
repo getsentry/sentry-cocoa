@@ -1,11 +1,11 @@
 #import "SentryTraceState.h"
 #import "SentryDsn.h"
+#import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
-#import "SentrySerialization.h"
-#import "SentryLog.h"
 
 @implementation SentryTraceStateUser
 
@@ -67,18 +67,21 @@
 
 - (NSString *)toHTTPHeader
 {
-    NSError * error;
-    NSDictionary * json = [self serialize];
-    NSData * data = [SentrySerialization dataWithJSONObject:json error:&error];
-    
+    NSError *error;
+    NSDictionary *json = [self serialize];
+    NSData *data = [SentrySerialization dataWithJSONObject:json error:&error];
+
     if (nil != error) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't encode trace state: %@", error]
-                         andLevel:kSentryLevelError];
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"Couldn't encode trace state: %@", error]
+                  andLevel:kSentryLevelError];
         return nil;
     }
-    
-    NSString * encodedData = [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"=" withString:@""];
-    
+
+    NSString *encodedData =
+        [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"="
+                                                                           withString:@""];
+
     return [NSString stringWithFormat:@"sentry=%@", encodedData];
 }
 
@@ -97,13 +100,13 @@
         [result setValue:_transaction forKey:@"transaction"];
 
     if (_user != nil) {
-        NSMutableDictionary* userDictionary = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *userDictionary = [[NSMutableDictionary alloc] init];
         if (_user.userId != nil)
             userDictionary[@"id"] = _user.userId;
-        
+
         if (_user.segment != nil)
             userDictionary[@"segment"] = _user.segment;
-        
+
         if (userDictionary.count > 0)
             [result setValue:userDictionary forKey:@"user"];
     }

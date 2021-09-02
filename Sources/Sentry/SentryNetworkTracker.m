@@ -8,9 +8,9 @@
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
 #import "SentryTraceHeader.h"
-#import <objc/runtime.h>
-#import "SentryTracer.h"
 #import "SentryTraceState.h"
+#import "SentryTracer.h"
+#import <objc/runtime.h>
 
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
 
@@ -256,12 +256,12 @@ SentryNetworkTracker ()
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
     result[SENTRY_TRACE_HEADER] = [span toTraceHeader].value;
-    
-    SentryTracer* tracer = [SentryTracer getTracer:span];
+
+    SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
         result[SENTRY_TRACESTATE_HEADER] = [tracer.traceState toHTTPHeader];
     }
-    
+
     return [[NSDictionary alloc] initWithDictionary:result];
 }
 

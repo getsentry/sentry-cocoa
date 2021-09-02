@@ -320,7 +320,7 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         
-        assertLastSentEventWithSession { event, session, traceState in
+        assertLastSentEventWithSession { event, session, _ in
             XCTAssertEqual(fixture.event.eventId, event.eventId)
             XCTAssertEqual(fixture.event.message, event.message)
             XCTAssertEqual("value", event.tags?["key"] ?? "")

@@ -251,8 +251,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
-    if (tracer == nil) return nil;
-    
+    if (tracer == nil)
+        return nil;
+
     return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
 }
 
