@@ -9,7 +9,7 @@
 
 @implementation SentryTraceStateUser
 
-- (instancetype)initWithUserId:(NSString *)userId segment:(NSString *)segment
+- (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment
 {
     if (self = [super init]) {
         _userId = userId;
@@ -65,7 +65,7 @@
                             user:[[SentryTraceStateUser alloc] initWithUser:scope.userObject]];
 }
 
-- (NSString *)toHTTPHeader
+- (nullable NSString *)toHTTPHeader
 {
     NSError *error;
     NSDictionary *json = [self serialize];

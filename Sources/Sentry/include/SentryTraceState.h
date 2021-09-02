@@ -48,7 +48,7 @@ static NSString *const SENTRY_TRACESTATE_HEADER = @"tracestate";
 /**
  * The release name as specified in client options, usually: package@x.y.z+build.
  */
-@property (nullable, nonatomic, readonly) NSString *releaseName;
+@property (nullable, nonatomic, readonly) NSString *release;
 
 /**
  * The environment name as specified in client options, for example staging.
