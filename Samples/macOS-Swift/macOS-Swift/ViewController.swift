@@ -3,12 +3,6 @@ import Sentry
 
 class ViewController: NSViewController {
 
-    override var representedObject: Any? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-    
     @IBAction func addBreadCrumb(_ sender: Any) {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"

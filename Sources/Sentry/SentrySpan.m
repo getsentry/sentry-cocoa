@@ -11,7 +11,7 @@ SentrySpan ()
 @end
 
 @implementation SentrySpan {
-    NSMutableDictionary<NSString *, id> *_extras;
+    NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
 }
 
@@ -28,7 +28,7 @@ SentrySpan ()
     if ([super init]) {
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
-        _extras = [[NSMutableDictionary alloc] init];
+        _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
     }
     return self;
@@ -49,8 +49,8 @@ SentrySpan ()
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
-    @synchronized(_extras) {
-        [_extras setValue:value forKey:key];
+    @synchronized(_data) {
+        [_data setValue:value forKey:key];
     }
 }
 
@@ -61,15 +61,15 @@ SentrySpan ()
 
 - (void)removeDataForKey:(NSString *)key
 {
-    @synchronized(_extras) {
-        [_extras removeObjectForKey:key];
+    @synchronized(_data) {
+        [_data removeObjectForKey:key];
     }
 }
 
 - (nullable NSDictionary<NSString *, id> *)data
 {
-    @synchronized(_extras) {
-        return [_extras copy];
+    @synchronized(_data) {
+        return [_data copy];
     }
 }
 
@@ -127,9 +127,9 @@ SentrySpan ()
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
 
-    @synchronized(_extras) {
-        if (_extras.count > 0) {
-            mutableDictionary[@"data"] = _extras.copy;
+    @synchronized(_data) {
+        if (_data.count > 0) {
+            mutableDictionary[@"data"] = _data.copy;
         }
     }
 
