@@ -155,6 +155,14 @@ class SentryEnvelopeTests: XCTestCase {
         let allNil = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNil(allNil.sdkInfo)
+        XCTAssertNil(allNil.traceState)
+    }
+    
+    func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
+        let allNil = SentryEnvelopeHeader(id: nil, traceState: nil)
+        XCTAssertNil(allNil.eventId)
+        XCTAssertNotNil(allNil.sdkInfo)
+        XCTAssertNil(allNil.traceState)
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
@@ -164,6 +172,15 @@ class SentryEnvelopeTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
+    }
+    
+    func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
+        let eventId = SentryId()
+        let traceState = SentryTraceState(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", user: nil)
+        
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceState: traceState)
+        XCTAssertEqual(eventId, envelopeHeader.eventId)
+        XCTAssertEqual(traceState, envelopeHeader.traceState)
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {

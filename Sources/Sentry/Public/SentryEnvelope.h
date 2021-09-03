@@ -23,7 +23,7 @@ SENTRY_NO_INIT
 /**
  * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
  *
- * It is recommended to use initWithId:eventId: because it sets the sdkInfo for you.
+ * It is recommended to use initWithId: because it sets the sdkInfo for you.
  *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.
@@ -34,7 +34,7 @@ SENTRY_NO_INIT
                 andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo;
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
+ * Initializes an SentryEnvelopeHeader object with the specified eventId and traceState.
  *
  *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
@@ -45,9 +45,9 @@ SENTRY_NO_INIT
                 traceState:(nullable SentryTraceState *)traceState;
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
+ * Initializes an SentryEnvelopeHeader object with the specified eventId, skdInfo and traceState.
  *
- * It is recommended to use initWithId:traceState because it sets the sdkInfo for you.
+ * It is recommended to use initWithId:traceState: because it sets the sdkInfo for you.
  *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.

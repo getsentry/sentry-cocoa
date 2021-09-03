@@ -407,6 +407,25 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
 }
 
+- (void)testEnableTraceSampling
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertFalse(options.enableTraceSampling);
+}
+
+- (void)testEnableTraceSamplingEnabled
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @YES }];
+    XCTAssertTrue(options.enableTraceSampling);
+}
+
+- (void)testEnableTraceSamplingDisabled
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @NO }];
+    XCTAssertFalse(options.enableTraceSampling);
+}
+
+
 - (void)testStitchAsyncCodeEnabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @YES }];
@@ -439,6 +458,7 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
+    XCTAssertFalse(options.enableTraceSampling);
 }
 
 - (void)testSetValidDsn

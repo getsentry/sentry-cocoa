@@ -47,22 +47,23 @@
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    if (![scope.span isKindOfClass:[SentryTracer class]])
-        return nil;
-    return [self initWithTracer:scope.span scope:scope options:options];
+    return [self initWithTracer:[SentryTracer getTracer:scope.span] scope:scope options:options];
 }
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer
                          scope:(nullable SentryScope *)scope
                        options:(SentryOptions *)options
 {
-
+    SentryTraceStateUser *stateUser;
+    if (scope.userObject != nil)
+        stateUser = [[SentryTraceStateUser alloc] initWithUser:scope.userObject];
+    
     return [self initWithTraceId:tracer.context.traceId
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment
                      transaction:tracer.name
-                            user:[[SentryTraceStateUser alloc] initWithUser:scope.userObject]];
+                            user:stateUser];
 }
 
 - (nullable NSString *)toHTTPHeader
