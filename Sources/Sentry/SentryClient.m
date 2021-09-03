@@ -247,6 +247,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if ([event isKindOfClass:[SentryTransaction class]]) {
         span = [(SentryTransaction *)event trace];
     } else {
+        // Even envelopes without transactions can contain the trace state, allowing Sentry to
+        // eventually sample attachments belonging to a transaction.
         span = scope.span;
     }
 
