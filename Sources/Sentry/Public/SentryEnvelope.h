@@ -36,7 +36,6 @@ SENTRY_NO_INIT
 /**
  * Initializes an SentryEnvelopeHeader object with the specified eventId and traceState.
  *
- *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.
  * @param traceState Current trace state.

@@ -79,6 +79,10 @@
         return nil;
     }
 
+    // base64 uses `=` as trailing pads, but we need to remove `=`, as `=` is a reserved character
+    // in the tracestate header, see
+    // https://develop.sentry.dev/sdk/performance/trace-context/#tracestate-headers As base54 only
+    // uses `=` as trailing pads we can replace all occurrences.
     NSString *encodedData =
         [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"="
                                                                            withString:@""];
