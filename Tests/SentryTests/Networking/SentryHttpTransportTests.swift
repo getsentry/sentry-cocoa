@@ -86,6 +86,7 @@ class SentryHttpTransportTests: XCTestCase {
     private var sut: SentryHttpTransport!
 
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
@@ -94,6 +95,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     override func tearDown() {
+        super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
     }
     

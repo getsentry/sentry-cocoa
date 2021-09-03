@@ -20,6 +20,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     private var sut: SentryFramesTrackingIntegration!
     
     override func setUp() {
+        super.setUp()
         sut = fixture.sut
     }
     
