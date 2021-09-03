@@ -81,12 +81,17 @@ whitelist_rules:
   - void_return
   - weak_delegate
 identifier_name:
+  allowed_symbols: 
+    - i
+    - _
   min_length:
     - 2
     - 1
 force_try:
   severity: warning
 force_unwrapping:
+  severity: error
+overridden_super_call:
   severity: error
 line_length:
   - 220

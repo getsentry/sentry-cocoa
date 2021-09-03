@@ -9,6 +9,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     private var sut: SentryCrashStackEntryMapper!
     
     override func setUp() {
+        super.setUp()
         sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
     }
 

@@ -9,6 +9,7 @@ class SentryTransportInitializerTests: XCTestCase {
     private var fileManager: SentryFileManager!
     
     override func setUp() {
+        super.setUp()
         do {
             let options = Options()
             options.dsn = SentryTransportInitializerTests.dsnAsString

@@ -6,6 +6,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     private var sut: EnvelopeRateLimit!
     
     override func setUp() {
+        super.setUp()
         rateLimits = TestRateLimits()
         sut = EnvelopeRateLimit(rateLimits: rateLimits)
     }

@@ -72,10 +72,12 @@ class SentryEnvelopeTests: XCTestCase {
     private let fixture = Fixture()
 
     override func setUp() {
+        super.setUp()
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
     }
     
     override func tearDown() {
+        super.tearDown()
         do {
             let fileManager = FileManager.default
             if fileManager.fileExists(atPath: fixture.path) {

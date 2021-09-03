@@ -6,6 +6,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
     private var sut: SentryConcurrentRateLimitsDictionary!
     
     override func setUp() {
+        super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         sut = SentryConcurrentRateLimitsDictionary()
     }

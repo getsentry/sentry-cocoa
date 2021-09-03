@@ -5,6 +5,7 @@ class SentrySysctlTests: XCTestCase {
     private var sut: SentrySysctl!
     
     override func setUp() {
+        super.setUp()
         sut = SentrySysctl()
     }
 
