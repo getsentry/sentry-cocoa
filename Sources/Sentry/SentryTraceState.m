@@ -57,7 +57,7 @@
     SentryTraceStateUser *stateUser;
     if (scope.userObject != nil)
         stateUser = [[SentryTraceStateUser alloc] initWithUser:scope.userObject];
-    
+
     return [self initWithTraceId:tracer.context.traceId
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName

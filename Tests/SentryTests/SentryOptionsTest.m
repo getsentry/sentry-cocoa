@@ -425,7 +425,6 @@
     XCTAssertFalse(options.enableTraceSampling);
 }
 
-
 - (void)testStitchAsyncCodeEnabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @YES }];
