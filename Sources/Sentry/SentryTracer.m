@@ -495,6 +495,10 @@ static BOOL appStartMeasurementRead;
 
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span
 {
+    if (span == nil) {
+        return nil;
+    }
+
     if ([span isKindOfClass:[SentryTracer class]]) {
         return span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {

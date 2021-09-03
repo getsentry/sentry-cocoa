@@ -41,13 +41,19 @@ class SentryTraceStateTests: XCTestCase {
         fixture = Fixture()
     }
     
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testInit() {
-        let traceState = SentryTraceState(trace: fixture.traceId,
-                                          publicKey: fixture.publicKey,
-                                          releaseName: fixture.releaseName,
-                                          environment: fixture.environment,
-                                          transaction: fixture.transactionName,
-                                          user: SentryTraceStateUser(userId: fixture.userId, segment: fixture.userSegment))
+        let traceState = SentryTraceState(
+            trace: fixture.traceId,
+            publicKey: fixture.publicKey,
+            releaseName: fixture.releaseName,
+            environment: fixture.environment,
+            transaction: fixture.transactionName,
+            user: SentryTraceStateUser(userId: fixture.userId, segment: fixture.userSegment))
         
         assertTraceState(traceState: traceState)
     }

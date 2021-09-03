@@ -47,7 +47,12 @@
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    return [self initWithTracer:[SentryTracer getTracer:scope.span] scope:scope options:options];
+    SentryTracer *tracer = [SentryTracer getTracer:scope.span];
+    if (tracer == nil) {
+        return nil;
+    } else {
+        return [self initWithTracer:tracer scope:scope options:options];
+    }
 }
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer
