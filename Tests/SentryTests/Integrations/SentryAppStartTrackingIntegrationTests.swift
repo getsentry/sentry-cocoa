@@ -20,12 +20,14 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
     private var sut: SentryAppStartTrackingIntegration!
     
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
         SentrySDK.setAppStartMeasurement(nil)
         sut = SentryAppStartTrackingIntegration()
     }
 
     override func tearDown() {
+        super.tearDown()
         fixture.fileManager.deleteAppState()
         sut.stop()
     }

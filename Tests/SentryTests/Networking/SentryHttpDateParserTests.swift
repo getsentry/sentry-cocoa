@@ -7,6 +7,7 @@ class SentryHttpDateParserTests: XCTestCase {
     private var sut: HttpDateParser!
 
     override func setUp() {
+        super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         sut = HttpDateParser()
     }

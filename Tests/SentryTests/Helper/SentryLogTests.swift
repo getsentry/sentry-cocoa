@@ -3,6 +3,7 @@ import XCTest
 class SentryLogTests: XCTestCase {
     
     override func tearDown() {
+        super.tearDown()
         // Set back to default
         SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
         SentryLog.setLogOutput(nil)

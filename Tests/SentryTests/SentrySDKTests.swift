@@ -57,6 +57,7 @@ class SentrySDKTests: XCTestCase {
     private var fixture: Fixture!
     
     override func setUp() {
+        super.setUp()
         fixture = Fixture()
     }
     

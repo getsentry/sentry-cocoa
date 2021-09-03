@@ -5,6 +5,7 @@ class SentrySessionTestsSwift: XCTestCase {
     private var currentDateProvider: TestCurrentDateProvider!
     
     override func setUp() {
+        super.setUp()
         currentDateProvider = TestCurrentDateProvider()
         CurrentDate.setCurrentDateProvider(currentDateProvider)
     }
