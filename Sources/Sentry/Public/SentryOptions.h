@@ -235,7 +235,7 @@ NS_SWIFT_NAME(Options)
  *
  * Note: this is an experimental API and will be removed without notice.
  */
-@property (nonatomic, readonly, assign) BOOL enableTraceSampling;
+@property (nonatomic, readonly, assign) BOOL experimentalEnableTraceSampling;
 
 @end
 

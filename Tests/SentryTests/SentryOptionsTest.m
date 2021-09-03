@@ -410,19 +410,19 @@
 - (void)testEnableTraceSampling
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.enableTraceSampling);
+    XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
 - (void)testEnableTraceSamplingEnabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @YES }];
-    XCTAssertTrue(options.enableTraceSampling);
+    XCTAssertTrue(options.experimentalEnableTraceSampling);
 }
 
 - (void)testEnableTraceSamplingDisabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @NO }];
-    XCTAssertFalse(options.enableTraceSampling);
+    XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
 - (void)testStitchAsyncCodeEnabled
@@ -457,7 +457,7 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
-    XCTAssertFalse(options.enableTraceSampling);
+    XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
 - (void)testSetValidDsn
