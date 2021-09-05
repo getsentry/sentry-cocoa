@@ -270,9 +270,7 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    
     [_hub captureTransaction:[self toTransaction] withScope:_hub.scope];
-    
 }
 
 - (SentryTransaction *)toTransaction
