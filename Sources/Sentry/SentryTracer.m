@@ -270,7 +270,9 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
+    if (self.context.sampled == kSentrySampleDecisionYes) {
+        [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
+    }
 }
 
 - (SentryTransaction *)toTransaction
