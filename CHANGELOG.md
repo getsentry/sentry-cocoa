@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: SpanProtocol add setData for Swift (#1305)
+- fix: Performance tracker not respecting traceSampleRate (#1318)
 
 ## 7.2.7
 
