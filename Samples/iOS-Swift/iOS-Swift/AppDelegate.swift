@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             options.debug = true
             // Sampling 100% - In Production you probably want to adjust this
-            options.tracesSampleRate = 1.0
+            options.tracesSampleRate = 0.001
             options.sessionTrackingIntervalMillis = 5_000
         }
         
