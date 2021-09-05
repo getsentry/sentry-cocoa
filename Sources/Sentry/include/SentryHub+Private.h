@@ -1,6 +1,6 @@
 #import "SentryHub.h"
 
-@class SentryId, SentryScope;
+@class SentryId, SentryScope, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
                               waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
 
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
 @end
 
 NS_ASSUME_NONNULL_END

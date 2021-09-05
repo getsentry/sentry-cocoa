@@ -2,7 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryFramesTracker.h"
-#import "SentryHub.h"
+#import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -270,9 +270,9 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    if (self.context.sampled == kSentrySampleDecisionYes) {
-        [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
-    }
+    
+    [_hub captureTransaction:[self toTransaction] withScope:_hub.scope];
+    
 }
 
 - (SentryTransaction *)toTransaction

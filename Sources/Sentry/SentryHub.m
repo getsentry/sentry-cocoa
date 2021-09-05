@@ -15,6 +15,7 @@
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransactionContext.h"
+#import "SentryTransaction.h"
 
 @interface
 SentryHub ()
@@ -226,6 +227,12 @@ SentryHub ()
     }
 
     [client captureCrashEvent:event withScope:self.scope];
+}
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+{
+    if (transaction.trace.context.sampled != kSentrySampleDecisionYes) return SentryId.empty;
+    return [self captureEvent:transaction withScope:scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
