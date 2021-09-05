@@ -284,7 +284,10 @@ SentryHub ()
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
-    return [self startTransactionWithContext:transactionContext bindToScope:bindToScope waitForChildren:NO customSamplingContext:customSamplingContext];
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:bindToScope
+                             waitForChildren:NO
+                       customSamplingContext:customSamplingContext];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -306,7 +309,6 @@ SentryHub ()
 
     return tracer;
 }
-
 
 - (SentryId *)captureMessage:(NSString *)message
 {
