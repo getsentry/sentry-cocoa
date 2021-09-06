@@ -2,7 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryFramesTracker.h"
-#import "SentryHub.h"
+#import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -270,7 +270,7 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    [_hub captureEvent:[self toTransaction] withScope:_hub.scope];
+    [_hub captureTransaction:[self toTransaction] withScope:_hub.scope];
 }
 
 - (SentryTransaction *)toTransaction
