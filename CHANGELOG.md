@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 7.2.8
+
 - fix: SpanProtocol add setData for Swift (#1305)
 - fix: SentryHub not checking spanContext sampled value (#1318)
 
