@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 7.2.9
+
+- Nothing
+
 ## 7.2.8
 
 - fix: SpanProtocol add setData for Swift (#1305)
