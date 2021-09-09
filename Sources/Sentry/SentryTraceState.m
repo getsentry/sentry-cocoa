@@ -40,10 +40,6 @@
                            user:(nullable SentryTraceStateUser *)user
 {
     if (self = [super init]) {
-        if (traceId == nil || publicKey == nil) {
-            NSLog(@"ops");
-        }
-        
         _traceId = traceId;
         _publicKey = publicKey;
         _environment = environment;
