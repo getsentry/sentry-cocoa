@@ -61,11 +61,12 @@
 }
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                         scope:(nullable SentryScope *)scope
-                       options:(SentryOptions *)options
+                                  scope:(nullable SentryScope *)scope
+                                options:(SentryOptions *)options
 {
-    if (tracer.context.traceId == nil || options.parsedDsn == nil) return nil;
-    
+    if (tracer.context.traceId == nil || options.parsedDsn == nil)
+        return nil;
+
     SentryTraceStateUser *stateUser;
     if (scope.userObject != nil)
         stateUser = [[SentryTraceStateUser alloc] initWithUser:scope.userObject];
