@@ -88,9 +88,9 @@ static NSString *const SENTRY_TRACESTATE_HEADER = @"tracestate";
 /**
  * Initializes a SentryTraceState with data from a trace, scope and options.
  */
-- (instancetype)initWithTracer:(SentryTracer *)tracer
-                         scope:(nullable SentryScope *)scope
-                       options:(SentryOptions *)options;
+- (nullable instancetype)initWithTracer:(SentryTracer *)tracer
+                                  scope:(nullable SentryScope *)scope
+                                options:(SentryOptions *)options;
 
 /**
  * Encode this SentryTraceState to a base64 value that can be used in a http header.

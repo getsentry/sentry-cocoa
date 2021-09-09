@@ -67,7 +67,7 @@ class SentryTraceStateTests: XCTestCase {
     func testInitWithTracerScopeOptions() {
         let traceState = SentryTraceState(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options)
         
-        assertTraceState(traceState: traceState)
+        assertTraceState(traceState: traceState!)
     }
     
     func testInitNil() {
