@@ -5,7 +5,6 @@
 @interface
 SentryTransaction ()
 
-@property (nonatomic, strong) id<SentrySpan> trace;
 @property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, id> *measurements;
 

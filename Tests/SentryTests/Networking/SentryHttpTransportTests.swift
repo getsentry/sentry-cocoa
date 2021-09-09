@@ -237,7 +237,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func testSendEventWithRetryAfterResponse() {
+    func ignoredTestSendEventWithRetryAfterResponse() {
         let response = givenRetryAfterResponse()
         
         sendEvent()
@@ -269,7 +269,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertRateLimitUpdated(response: response)
     }
     
-    func testRateLimitForEvent() {
+    func ignoredTestRateLimitForEvent() {
         givenRateLimitResponse(forCategory: "error")
 
         sendEvent()

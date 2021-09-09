@@ -1,5 +1,5 @@
 #import "SentryPerformanceTracker.h"
-#import "SentryHub.h"
+#import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -48,17 +48,13 @@ SentryPerformanceTracker ()
     if (activeSpanTracker != nil) {
         newSpan = [activeSpanTracker startChildWithOperation:operation description:name];
     } else {
-        newSpan = [[SentryTracer alloc]
-            initWithTransactionContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                            operation:operation]
-                                   hub:SentrySDK.currentHub
-                       waitForChildren:YES];
-
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            if (span == nil) {
-                [SentrySDK.currentHub.scope setSpan:newSpan];
-            }
-        }];
+        SentryTransactionContext *context =
+            [[SentryTransactionContext alloc] initWithName:name operation:operation];
+        newSpan =
+            [SentrySDK.currentHub startTransactionWithContext:context
+                                                  bindToScope:SentrySDK.currentHub.scope.span == nil
+                                              waitForChildren:YES
+                                        customSamplingContext:@{}];
     }
 
     SentrySpanId *spanId = newSpan.context.spanId;

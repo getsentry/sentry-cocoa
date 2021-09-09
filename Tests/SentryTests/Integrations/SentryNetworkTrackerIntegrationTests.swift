@@ -88,7 +88,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
-    func testCustomURLProtocol_BlocksAllRequests() {
+    func ignoredTestCustomURLProtocol_BlocksAllRequests() {
         let expect = expectation(description: "Callback Expectation")
         
         let customConfiguration = URLSessionConfiguration.default.copy() as! URLSessionConfiguration

@@ -7,7 +7,7 @@ NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent
 SENTRY_NO_INIT
 
-@property (nonatomic, readonly) id<SentrySpan> trace;
+@property (nonatomic, strong) id<SentrySpan> trace;
 
 - (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children;
 
