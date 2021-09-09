@@ -144,13 +144,15 @@ NS_ASSUME_NONNULL_BEGIN
                 if (nil != headerDictionary[@"sdk"]) {
                     sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary];
                 }
-                
+
                 SentryTraceState *traceState = nil;
                 if (nil != headerDictionary[@"trace"]) {
                     traceState = [[SentryTraceState alloc] initWithDict:headerDictionary[@"trace"]];
                 }
-                
-                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId sdkInfo:sdkInfo traceState:traceState];
+
+                envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
+                                                                  sdkInfo:sdkInfo
+                                                               traceState:traceState];
             }
             break;
         }

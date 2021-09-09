@@ -798,7 +798,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureTransactionEvent_sendTraceState() {
         let trace = SentryTracer()
-        let transaction  = Transaction(trace: trace, children: [])
+        let transaction = Transaction(trace: trace, children: [])
         let client = fixture.getSut()
         client.options.experimentalEnableTraceSampling = true
         client.capture(event: transaction)
@@ -808,7 +808,7 @@ class SentryClientTest: XCTestCase {
     
     func testCaptureTransactionEvent_dontSendTraceState() {
         let trace = SentryTracer()
-        let transaction  = Transaction(trace: trace, children: [])
+        let transaction = Transaction(trace: trace, children: [])
         let client = fixture.getSut()
         client.capture(event: transaction)
         
