@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add tracestate HTTP header support (#1291)
+
 ## 7.2.9
 
 - Nothing
