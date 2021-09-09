@@ -111,7 +111,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user:nil)
+        let trace = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceState: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -279,7 +279,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    func assertTraceState(firstTrace : SentryTraceState, secondTrace: SentryTraceState) {
+    func assertTraceState(firstTrace: SentryTraceState, secondTrace: SentryTraceState) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)

@@ -80,7 +80,7 @@ class SentryTraceStateTests: XCTestCase {
         var traceState = SentryTraceState(scope: fixture.scope, options: fixture.options)
         XCTAssertNotNil(traceState?.user?.segment)
         XCTAssertEqual(traceState!.user!.segment, "Test Segment")
-        fixture.scope.userObject?.data =  ["segment": 5]
+        fixture.scope.userObject?.data = ["segment": 5]
         traceState = SentryTraceState(scope: fixture.scope, options: fixture.options)
         XCTAssertNil(traceState?.user?.segment)
     }
