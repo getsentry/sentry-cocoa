@@ -75,8 +75,8 @@ SentryHttpTransport ()
                                                                attachments:attachments];
 
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc]
-        initWithId:event.eventId
-        traceState:_options.experimentalEnableTraceSampling ? traceState : nil];
+                                            initWithId:event.eventId
+                                            traceState:traceState];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -92,8 +92,8 @@ SentryHttpTransport ()
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc]
-        initWithId:event.eventId
-        traceState:_options.experimentalEnableTraceSampling ? traceState : nil];
+                                            initWithId:event.eventId
+                                            traceState:traceState];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 

@@ -120,7 +120,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEventIsSentAsEnvelope()
         assertEnvelopesStored(envelopeCount: 0)
     }
-
+    
     func testSendEventWhenSessionRateLimitActive() {
         fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key"))
         
@@ -510,7 +510,7 @@ class SentryHttpTransportTests: XCTestCase {
         let actualEventRequest = fixture.requestManager.requests.last
         XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
     }
-
+    
     private func assertEnvelopesStored(envelopeCount: Int) {
         XCTAssertEqual(envelopeCount, fixture.fileManager.getAllEnvelopes().count)
     }

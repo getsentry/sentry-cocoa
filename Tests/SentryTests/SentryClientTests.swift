@@ -796,6 +796,54 @@ class SentryClientTest: XCTestCase {
         client.captureCrash(TestData.event, with: fixture.scope)
     }
     
+    func testCaptureTransactionEvent_sendTraceState() {
+        let trace = SentryTracer()
+        let transaction  = Transaction(trace: trace, children: [])
+        let client = fixture.getSut()
+        client.options.experimentalEnableTraceSampling = true
+        client.capture(event: transaction)
+        
+        XCTAssertNotNil(fixture.transport.sentEventsTraceState.first?.traceState)
+    }
+    
+    func testCaptureTransactionEvent_dontSendTraceState() {
+        let trace = SentryTracer()
+        let transaction  = Transaction(trace: trace, children: [])
+        let client = fixture.getSut()
+        client.capture(event: transaction)
+        
+        XCTAssertNil(fixture.transport.sentEventsTraceState.first?.traceState)
+    }
+    
+    func testCaptureEvent_traceInScope_sendTraceState() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        let scope = Scope()
+        scope.span = SentryTracer()
+        
+        let client = fixture.getSut()
+        client.options.experimentalEnableTraceSampling = true
+        client.capture(event: event, scope: scope)
+        
+        client.capture(event: event)
+        
+        XCTAssertNotNil(fixture.transport.sentEventsTraceState.first?.traceState)
+    }
+    
+    func testCaptureEvent_traceInScope_dontSendTraceState() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        let scope = Scope()
+        scope.span = SentryTracer()
+        
+        let client = fixture.getSut()
+        client.capture(event: event, scope: scope)
+        
+        client.capture(event: event)
+        
+        XCTAssertNil(fixture.transport.sentEventsTraceState.first?.traceState)
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()

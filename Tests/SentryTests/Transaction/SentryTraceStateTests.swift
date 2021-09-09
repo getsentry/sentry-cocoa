@@ -76,6 +76,15 @@ class SentryTraceStateTests: XCTestCase {
         XCTAssertNil(traceState)
     }
     
+    func testUserSegment() {
+        var traceState = SentryTraceState(scope: fixture.scope, options: fixture.options)
+        XCTAssertNotNil(traceState?.user?.segment)
+        XCTAssertEqual(traceState!.user!.segment, "Test Segment")
+        fixture.scope.userObject?.data =  ["segment": 5]
+        traceState = SentryTraceState(scope: fixture.scope, options: fixture.options)
+        XCTAssertNil(traceState?.user?.segment)
+    }
+    
     func assertTraceState(traceState: SentryTraceState) {
         XCTAssertEqual(traceState.traceId, fixture.traceId)
         XCTAssertEqual(traceState.publicKey, fixture.publicKey)

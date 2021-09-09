@@ -20,7 +20,12 @@
 
 - (instancetype)initWithUser:(nullable SentryUser *)user
 {
-    return [self initWithUserId:user.userId segment:[user.data objectForKey:@"segment"]];
+    NSString* segment;
+    if ([user.data[@"segment"] isKindOfClass:[NSString class]]) {
+        segment = user.data[@"segment"];
+    }
+    
+    return [self initWithUserId:user.userId segment: segment];
 }
 
 @end
@@ -69,6 +74,24 @@
                      environment:options.environment
                      transaction:tracer.name
                             user:stateUser];
+}
+
+- (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary {
+    SentryId * traceId = [[SentryId alloc] initWithUUIDString:dictionary[@"trace_id"]];
+    NSString * publicKey = dictionary[@"public_key"];
+    if (traceId == nil || publicKey == nil) return nil;
+    
+    SentryTraceStateUser *user;
+    if (dictionary[@"user"] != nil) {
+        NSDictionary* userInfo = dictionary[@"user"];
+        user = [[SentryTraceStateUser alloc] initWithUserId:userInfo[@"id"] segment:userInfo[@"segment"]];
+    }
+    return [self initWithTraceId:traceId
+                       publicKey:publicKey
+                     releaseName:dictionary[@"release"]
+                     environment:dictionary[@"environment"]
+                     transaction:dictionary[@"transaction"]
+                            user:user];
 }
 
 - (nullable NSString *)toHTTPHeader

@@ -81,6 +81,11 @@ static NSString *const SENTRY_TRACESTATE_HEADER = @"tracestate";
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
 
 /**
+ * Initializes a SentryTraceState with data from a dictionary.
+ */
+- (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary;
+
+/**
  * Initializes a SentryTraceState with data from a trace, scope and options.
  */
 - (instancetype)initWithTracer:(SentryTracer *)tracer
