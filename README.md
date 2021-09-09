@@ -60,6 +60,8 @@ We highly appreciate your feedback as a comment on our [GitHub discussion](https
 
 # Blog posts
 
+[Mobile Vitals - Four Metrics Every Mobile Developer Should Care About](https://blog.sentry.io/2021/08/23/mobile-vitals-four-metrics-every-mobile-developer-should-care-about/).
+
 [How to use Sentry Attachments with Mobile Applications](https://blog.sentry.io/2021/02/03/how-to-use-sentry-attachments-with-mobile-applications/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
 
 [Close the Loop with User Feedback](https://blog.sentry.io/2021/02/16/close-the-loop-with-user-feedback/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
