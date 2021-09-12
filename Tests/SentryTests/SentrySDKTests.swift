@@ -75,6 +75,18 @@ class SentrySDKTests: XCTestCase {
         clearTestState()
     }
     
+    // Repro for: https://github.com/getsentry/sentry-cocoa/issues/1325
+    func testStartWithZeroMaxBreadcrumbsOptionsDoesNotCrash() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.maxBreadcrumbs = 0
+        }
+
+        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level:SentryLevel.warning, category: "test"))
+        let breadcrumbs = Dynamic(SentrySDK.currentHub().scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(0, breadcrumbs?.count)
+    }
+
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString

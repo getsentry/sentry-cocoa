@@ -381,7 +381,11 @@ SentryHub ()
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
-    SentryBeforeBreadcrumbCallback callback = [[[self client] options] beforeBreadcrumb];
+    SentryOptions *options = [[self client] options];
+    if (options.maxBreadcrumbs < 1) {
+        return;
+    }
+    SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
     if (nil != callback) {
         crumb = callback(crumb);
     }
