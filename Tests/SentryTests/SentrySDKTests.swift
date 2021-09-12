@@ -82,7 +82,7 @@ class SentrySDKTests: XCTestCase {
             options.maxBreadcrumbs = 0
         }
 
-        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level:SentryLevel.warning, category: "test"))
+        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level: SentryLevel.warning, category: "test"))
         let breadcrumbs = Dynamic(SentrySDK.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
