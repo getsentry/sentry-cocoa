@@ -79,7 +79,7 @@ sentrycrash_scopesync_setLevel(const char *const jsonEncodedCString)
 void
 sentrycrash_scopesync_addBreadcrumb(const char *const jsonEncodedCString)
 {
-    if (!scope.breadcrumbs) {
+    if (!scope.breadcrumbs || scope.maxCrumbs < 1) {
         return;
     }
 
@@ -91,7 +91,7 @@ sentrycrash_scopesync_addBreadcrumb(const char *const jsonEncodedCString)
 void
 sentrycrash_scopesync_clearBreadcrumbs(void)
 {
-    if (!scope.breadcrumbs) {
+    if (!scope.breadcrumbs || scope.maxCrumbs < 1) {
         return;
     }
 
