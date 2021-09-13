@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.2.10
+
+- No documented changes.
 
 ## 7.2.9
 
