@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.2.10
+
+- No documented changes.
 
 - feat: Add tracestate HTTP header support (#1291)
 
