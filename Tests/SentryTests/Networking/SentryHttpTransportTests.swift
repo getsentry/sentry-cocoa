@@ -157,7 +157,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
 
-    func testSendAllCachedEvents() {
+    func flakytestSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
         
