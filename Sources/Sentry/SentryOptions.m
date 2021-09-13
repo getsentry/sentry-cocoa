@@ -241,8 +241,8 @@ SentryOptions ()
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
 
-    if (options[@"enableTraceSampling"] != nil) {
-        _experimentalEnableTraceSampling = [options[@"enableTraceSampling"] boolValue];
+    if (options[@"experimentalEnableTraceSampling"] != nil) {
+        _experimentalEnableTraceSampling = [options[@"experimentalEnableTraceSampling"] boolValue];
     }
 }
 

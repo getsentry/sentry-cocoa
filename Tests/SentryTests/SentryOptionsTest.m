@@ -415,13 +415,13 @@
 
 - (void)testEnableTraceSamplingEnabled
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @YES }];
+    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @YES }];
     XCTAssertTrue(options.experimentalEnableTraceSampling);
 }
 
 - (void)testEnableTraceSamplingDisabled
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableTraceSampling" : @NO }];
+    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @NO }];
     XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
