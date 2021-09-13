@@ -74,9 +74,11 @@ SentryHttpTransport ()
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
                                                                attachments:attachments];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+    /*SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                          traceState:traceState];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
+*/
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
 
     [self sendEnvelope:envelope];
 }
@@ -90,10 +92,11 @@ SentryHttpTransport ()
                                                                attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+    /*SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                          traceState:traceState];
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];*/
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
 
     [self sendEnvelope:envelope];
 }
