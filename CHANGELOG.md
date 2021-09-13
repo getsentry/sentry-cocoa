@@ -4,6 +4,8 @@
 
 - No documented changes.
 
+- Setting maxBreadcrumb to zero causes a crash when adding a breadcrumb (#1326)
+
 - feat: Add tracestate HTTP header support (#1291)
 
 ## 7.2.9
