@@ -157,7 +157,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
 
-    func flakytestSendAllCachedEvents() {
+    func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
         
@@ -168,7 +168,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
     
-    func flakyTestSendAllCachedEnvelopes() {
+    func testSendAllCachedEnvelopes() {
         givenNoInternetConnection()
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.9.0"))
         sendEnvelope(envelope: envelope)
