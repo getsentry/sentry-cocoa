@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.2.10
+
+- No documented changes.
 
 - Setting maxBreadcrumb to zero causes a crash when adding a breadcrumb (#1326)
 
