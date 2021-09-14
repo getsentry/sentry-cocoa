@@ -21,19 +21,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithId:(SentryId *_Nullable)eventId;
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId and skdInfo.
- *
- * It is recommended to use initWithId: because it sets the sdkInfo for you.
- *
- * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
- * related to event.
- * @param sdkInfo sdkInfo Describes the Sentry SDK. Can be nil for backwards compatibility. New
- * instances should always provide a version.
- */
-- (instancetype)initWithId:(SentryId *_Nullable)eventId
-                andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo;
-
-/**
  * Initializes an SentryEnvelopeHeader object with the specified eventId and traceState.
  *
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment

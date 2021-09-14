@@ -92,7 +92,7 @@ class SentrySerializationTests: XCTestCase {
 
     func testSentryEnvelopeSerializer_SdkInfo() {
         let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", andVersion: "5.0.1")
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: sdkInfo)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceState: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
@@ -123,7 +123,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_SdkInfoIsNil() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in

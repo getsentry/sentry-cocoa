@@ -154,7 +154,7 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
-        let allNil = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNil(allNil.sdkInfo)
         XCTAssertNil(allNil.traceState)
@@ -171,7 +171,7 @@ class SentryEnvelopeTests: XCTestCase {
         let eventId = SentryId()
         let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceState: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
     }

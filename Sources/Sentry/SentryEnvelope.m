@@ -32,6 +32,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithId:(nullable SentryId *)eventId
+                traceState:(nullable SentryTraceState *)traceState
+{
+    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                      andVersion:SentryMeta.versionString];
+
+    self = [self initWithId:eventId sdkInfo:sdkInfo traceState:traceState];
+
+    return self;
+}
+
+- (instancetype)initWithId:(nullable SentryId *)eventId
                    sdkInfo:(nullable SentrySdkInfo *)sdkInfo
                 traceState:(nullable SentryTraceState *)traceState
 {
