@@ -154,18 +154,35 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
-        let allNil = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNil(allNil.sdkInfo)
+        XCTAssertNil(allNil.traceState)
+    }
+    
+    func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
+        let allNil = SentryEnvelopeHeader(id: nil, traceState: nil)
+        XCTAssertNil(allNil.eventId)
+        XCTAssertNotNil(allNil.sdkInfo)
+        XCTAssertNil(allNil.traceState)
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = SentryId()
         let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, andSdkInfo: sdkInfo)
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceState: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
+    }
+    
+    func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
+        let eventId = SentryId()
+        let traceState = SentryTraceState(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", user: nil)
+        
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceState: traceState)
+        XCTAssertEqual(eventId, envelopeHeader.eventId)
+        XCTAssertEqual(traceState, envelopeHeader.traceState)
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {

@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
+@property (atomic, strong) SentryUser *_Nullable userObject;
+
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
 @end

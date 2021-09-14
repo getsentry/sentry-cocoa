@@ -4,6 +4,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
+        static var traceState = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user: SentryTraceStateUser(userId: "User Id", segment: "some segment"))
     }
 
     func testSentryEnvelopeSerializer_WithSingleEvent() {
@@ -24,6 +25,7 @@ class SentrySerializationTests: XCTestCase {
             XCTAssertEqual("event", envelope.items[0].header.type)
             XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(envelope.items[0].data, deserializedEnvelope.items[0].data)
+            XCTAssertNil(deserializedEnvelope.header.traceState)
         }
     }
 
@@ -90,16 +92,38 @@ class SentrySerializationTests: XCTestCase {
 
     func testSentryEnvelopeSerializer_SdkInfo() {
         let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", andVersion: "5.0.1")
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: sdkInfo)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceState: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
             XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
         }
     }
+    
+    func testSentryEnvelopeSerializer_TraceState() {
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceState: Fixture.traceState)
+        let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
+            XCTAssertNotNil(deserializedEnvelope.header.traceState)
+            assertTraceState(firstTrace: Fixture.traceState, secondTrace: deserializedEnvelope.header.traceState!)
+        }
+    }
+    
+    func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
+        let trace = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user: nil)
+        
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceState: trace)
+        let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
+
+        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
+            XCTAssertNotNil(deserializedEnvelope.header.traceState)
+            assertTraceState(firstTrace: trace, secondTrace: deserializedEnvelope.header.traceState!)
+        }
+    }
+    
     func testSentryEnvelopeSerializer_SdkInfoIsNil() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, andSdkInfo: nil)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
@@ -253,5 +277,15 @@ class SentrySerializationTests: XCTestCase {
     private func assertDefaultSdkInfoSet(deserializedEnvelope: SentryEnvelope) {
         let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
+    }
+    
+    func assertTraceState(firstTrace: SentryTraceState, secondTrace: SentryTraceState) {
+        XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
+        XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
+        XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)
+        XCTAssertEqual(firstTrace.transaction, secondTrace.transaction)
+        XCTAssertEqual(firstTrace.environment, secondTrace.environment)
+        XCTAssertEqual(firstTrace.user?.userId, secondTrace.user?.userId)
+        XCTAssertEqual(firstTrace.user?.segment, secondTrace.user?.segment)
     }
 }

@@ -28,8 +28,11 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
+#import "SentrySpan.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTraceState.h"
+#import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
@@ -238,6 +241,24 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
+- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+{
+    id<SentrySpan> span;
+    if ([event isKindOfClass:[SentryTransaction class]]) {
+        span = [(SentryTransaction *)event trace];
+    } else {
+        // Even envelopes without transactions can contain the trace state, allowing Sentry to
+        // eventually sample attachments belonging to a transaction.
+        span = scope.span;
+    }
+
+    SentryTracer *tracer = [SentryTracer getTracer:span];
+    if (tracer == nil)
+        return nil;
+
+    return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
+}
+
 - (SentryId *)sendEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -249,7 +270,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                        isCrashEvent:isCrashEvent];
 
     if (nil != preparedEvent) {
-        [self.transport sendEvent:preparedEvent attachments:scope.attachments];
+        SentryTraceState *traceState = _options.experimentalEnableTraceSampling
+            ? [self getTraceStateWithEvent:event withScope:scope]
+            : nil;
+
+        [self.transport sendEvent:preparedEvent
+                       traceState:traceState
+                      attachments:scope.attachments];
         return preparedEvent.eventId;
     }
 
@@ -262,8 +289,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (nil != event) {
         if (nil == session.releaseName || [session.releaseName length] == 0) {
+            SentryTraceState *traceState = _options.experimentalEnableTraceSampling
+                ? [self getTraceStateWithEvent:event withScope:scope]
+                : nil;
+
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transport sendEvent:event attachments:scope.attachments];
+            [self.transport sendEvent:event traceState:traceState attachments:scope.attachments];
             return event.eventId;
         }
 

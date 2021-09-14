@@ -99,3 +99,5 @@ type_name:
   min_length:
     - 2
     - 1
+large_tuple:
+    - 3

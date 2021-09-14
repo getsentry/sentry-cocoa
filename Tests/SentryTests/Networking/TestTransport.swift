@@ -5,16 +5,24 @@ public class TestTransport: NSObject, Transport {
     
     var lastSentEnvelope: SentryEnvelope?
     
-    var sentEvents: [(event: Event, attachments: [Attachment])] = []
     public func send(event: Event, attachments: [Attachment]) {
-        sentEvents.append((event, attachments))
+        self.send(event: event, traceState: nil, attachments: attachments)
     }
     
-    var sentEventsWithSession: [(event: Event, session: SentrySession, attachments: [Attachment])] = []
     public func send(_ event: Event, with session: SentrySession, attachments: [Attachment]) {
-        sentEventsWithSession.append((event, session, attachments))
+        self.send(event, with: session, traceState: nil, attachments: attachments)
     }
     
+    var sentEventsWithSessionTraceState: [(event: Event, session: SentrySession, traceState: SentryTraceState?, attachments: [Attachment])] = []
+    public func send(_ event: Event, with session: SentrySession, traceState: SentryTraceState?, attachments: [Attachment]) {
+        sentEventsWithSessionTraceState.append((event, session, traceState, attachments))
+    }
+    
+    var sentEventsTraceState: [(event: Event, traceState: SentryTraceState?, attachments: [Attachment])] = []
+    public func send(event: Event, traceState: SentryTraceState?, attachments: [Attachment]) {
+        sentEventsTraceState.append((event, traceState, attachments))
+    }
+          
     var sentUserFeedback: [UserFeedback] = []
     public func send(userFeedback: UserFeedback) {
         sentUserFeedback.append(userFeedback)

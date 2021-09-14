@@ -31,6 +31,11 @@ SENTRY_NO_INIT
 @property (readonly) BOOL isFinished;
 
 /**
+ * The SentryTracer this span is associated with.
+ */
+@property (nonatomic, readonly) SentryTracer *tracer;
+
+/**
  * Init a SentrySpan with given tracer and context.
  *
  * @param tracer The tracer responsible for this span.
