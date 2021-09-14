@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.3.0-beta.0
+
+- No documented changes.
+
 ## 7.2.10
 
 - No documented changes.
