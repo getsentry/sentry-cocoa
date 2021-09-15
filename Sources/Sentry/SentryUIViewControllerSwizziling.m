@@ -145,10 +145,14 @@ static SentryInAppLogic *inAppLogic;
  */
 + (BOOL)shouldSwizzleViewController:(Class)class
 {
+    // Some apple classes do not return an imageName
+    const char *imageName = class_getImageName(class);
+    if (imageName == nil)
+        return false;
+
     // Swizzling only inApp classes to avoid track every UIKit view controller
     // interaction.
-    NSString *classImageName = [NSString stringWithCString:class_getImageName(class)
-                                                  encoding:NSUTF8StringEncoding];
+    NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
     return [inAppLogic isInApp:classImageName];
 }
 

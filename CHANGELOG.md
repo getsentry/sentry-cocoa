@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Trying to swizzle a class without a library name (#1332)
+
 ## 7.3.0-beta.0
 
 - Setting maxBreadcrumb to zero causes a crash when adding a breadcrumb (#1326)
