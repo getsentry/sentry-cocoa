@@ -145,7 +145,7 @@ static SentryInAppLogic *inAppLogic;
  */
 + (BOOL)shouldSwizzleViewController:(Class)class
 {
-    // Some apple classes does not return an imageName
+    // Some apple classes do not return an imageName
     const char *imageName = class_getImageName(class);
     if (imageName == nil)
         return false;
