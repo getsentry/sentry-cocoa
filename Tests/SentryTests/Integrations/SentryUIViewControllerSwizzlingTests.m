@@ -43,9 +43,8 @@
 - (void)testShouldNotSwizzle_NoImageClass
 {
     Class class;
-    
-    BOOL result =
-        [SentryUIViewControllerSwizziling shouldSwizzleViewController:class];
+
+    BOOL result = [SentryUIViewControllerSwizziling shouldSwizzleViewController:class];
 
     XCTAssertFalse(result);
 }
