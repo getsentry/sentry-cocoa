@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.3.0
 
 - fix: Trying to swizzle a class without a library name (#1332)
 
