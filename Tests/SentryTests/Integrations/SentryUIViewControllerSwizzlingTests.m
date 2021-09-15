@@ -40,7 +40,7 @@
     XCTAssertTrue(result);
 }
 
-- (void)testShouldSwizzle_NotImageClass
+- (void)testShouldNotSwizzle_NoImageClass
 {
     Class class;
     
