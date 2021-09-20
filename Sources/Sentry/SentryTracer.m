@@ -9,6 +9,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryTraceState.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -36,6 +37,7 @@ SentryTracer ()
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
+    SentryTraceState *_traceState;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -171,6 +173,20 @@ static BOOL appStartMeasurementRead;
 - (NSDate *)startTimestamp
 {
     return self.rootSpan.startTimestamp;
+}
+
+- (SentryTraceState *)traceState
+{
+    if (_traceState == nil) {
+        @synchronized(self) {
+            if (_traceState == nil) {
+                _traceState = [[SentryTraceState alloc] initWithTracer:self
+                                                                 scope:_hub.scope
+                                                               options:SentrySDK.options];
+            }
+        }
+    }
+    return _traceState;
 }
 
 - (void)setStartTimestamp:(NSDate *)startTimestamp
@@ -475,6 +491,20 @@ static BOOL appStartMeasurementRead;
     @synchronized(appStartMeasurementLock) {
         appStartMeasurementRead = NO;
     }
+}
+
++ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span
+{
+    if (span == nil) {
+        return nil;
+    }
+
+    if ([span isKindOfClass:[SentryTracer class]]) {
+        return span;
+    } else if ([span isKindOfClass:[SentrySpan class]]) {
+        return [(SentrySpan *)span tracer];
+    }
+    return nil;
 }
 
 @end

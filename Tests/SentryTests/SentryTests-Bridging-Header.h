@@ -105,6 +105,7 @@
 #import "SentryTestIntegration.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
+#import "SentryTraceState.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracer.h"
 #import "SentryTransaction+Private.h"

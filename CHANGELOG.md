@@ -1,10 +1,18 @@
 # Changelog
 
+## 7.3.0
+
+- fix: Trying to swizzle a class without a library name (#1332)
+
+## 7.3.0-beta.0
+
+- fix: maxBreadcrumb zero crashes when adding (#1326)
+
+- feat: Add tracestate HTTP header support (#1291)
+
 ## 7.2.10
 
 - No documented changes.
-
-- Setting maxBreadcrumb to zero causes a crash when adding a breadcrumb (#1326)
 
 ## 7.2.9
 
