@@ -6,7 +6,7 @@
 
 ## 7.3.0-beta.0
 
-- Setting maxBreadcrumb to zero causes a crash when adding a breadcrumb (#1326)
+- fix: maxBreadcrumb zero crashes when adding (#1326)
 
 - feat: Add tracestate HTTP header support (#1291)
 
