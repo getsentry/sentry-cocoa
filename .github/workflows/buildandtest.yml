@@ -19,7 +19,7 @@ jobs:
           # so the coverage report shows a reduced coverage.
           - name: macOS 12
             os: macos-11 
-            xcode: 13.0
+            xcode: "13.0"
             destination: platform=macOS
             pushCodecov: false
 
