@@ -8,6 +8,7 @@ on:
 
 jobs:
   unit-tests:
+    name: unit tests - xcode ${{matrix.xcode}} - ${{matrix.destination}}
     runs-on: macos-11 
     strategy:
       fail-fast: false
@@ -17,7 +18,8 @@ jobs:
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
 
         # Can't run tests on watchOS because XCTest is not available  
-        destination: ["platform=macOS","platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
+        # We remove the platform= here because it shows up in the job name.
+        destination: ["macOS","macOS,variant=Mac Catalyst", "iOS Simulator,name=iPhone 11", "tvOS Simulator,name=Apple TV 4K"]
 
     steps:
       - uses: actions/checkout@v2
@@ -30,7 +32,7 @@ jobs:
           -configuration Release 
           GCC_GENERATE_TEST_COVERAGE_FILES=YES 
           GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES
-          -destination "${{matrix.destination}}" 
+          -destination "platform=${{matrix.destination}}" 
           test | xcpretty -t && exit ${PIPESTATUS[0]}
 
       # We can upload all coverage reports, because codecov merges them.
@@ -41,7 +43,7 @@ jobs:
         
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.destination, 'variant=Mac Catalyst') || contains(matrix.destination, 'platform=iOS') }}
+        if: ${{ contains(matrix.destination, 'Mac Catalyst') || contains(matrix.destination, 'iOS') }}
 
   ui-tests:
     name: UI Tests
