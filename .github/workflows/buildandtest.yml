@@ -13,7 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
+        # which is only available since iOS 13 / Xcode 11.
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
+
         # Can't run tests on watchOS because XCTest is not available  
         destination: ["platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
         pushCodecov: [true]
@@ -44,25 +47,6 @@ jobs:
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
         if: ${{matrix.pushCodecov}}
-
-  build-sdk:
-    name: Tests with Xcode 10.3 for ${{matrix.destination}} 
-    runs-on: macos-10.15
-    strategy:
-      fail-fast: true
-      matrix:
-        destination: ["platform=macOS", "platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 7", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
-
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 10.3
-      - name: Compiling
-        run: >-
-          xcodebuild 
-          -workspace Sentry.xcworkspace 
-          -scheme Sentry 
-          -configuration Release 
-          -destination "${{matrix.destination}}" 
 
   ui-tests:
     name: UI Tests
