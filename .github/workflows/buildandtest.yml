@@ -63,7 +63,13 @@ jobs:
             os: macos-11
             xcode: "12.5.1"
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: true
+            pushCodecov: false
+
+          - name: iOS
+            os: macos-11
+            xcode: "11.7"
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
+            pushCodecov: false
 
           - name: iOS
             os: macos-10.15
@@ -71,17 +77,11 @@ jobs:
             destination: platform=iOS Simulator,OS=latest,name=iPhone 7
             pushCodecov: false
 
-          - name: iOS
-            os: macos-11
-            xcode: "11.7"
-            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: true
-
           - name: tvOS
             os: macos-11
             xcode: "13.0"
             destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: false
+            pushCodecov: true
 
           - name: tvOS
             os: macos-11
