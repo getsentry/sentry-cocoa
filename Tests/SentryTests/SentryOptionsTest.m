@@ -683,7 +683,7 @@
         expected = [expected arrayByAddingObject:bundleExecutable];
     }
 
-    [self assertArrayEquals:@[ expected, actual:options.inAppIncludes];
+    [self assertArrayEquals:expected actual:options.inAppIncludes];
 }
 
 - (NSString *)getBundleExecutable
