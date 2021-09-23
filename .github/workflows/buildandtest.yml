@@ -104,6 +104,24 @@ jobs:
         run: bundle exec fastlane ui_tests
         shell: sh
 
+  ui-tests-objc:
+    name: UI Tests for ObjC with Xcode ${{matrix.xcode}}
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["11.7", "10.3"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: bundle install
+
+      - name: Run Fastlane
+        run: bundle exec fastlane objc_ui_tests
+        shell: sh
+
   # We had issues that the release build was broken on master.
   # With this we catch potential issues already in the PR.
   ios-swift-release:
