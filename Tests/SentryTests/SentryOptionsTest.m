@@ -664,19 +664,26 @@
     NSArray *inAppIncludes = @[ @"iOS-Swift", @"BusinessLogic", @1 ];
     SentryOptions *options = [self getValidOptions:@{ @"inAppIncludes" : inAppIncludes }];
 
-    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+    NSString *bundleExecutable = [self getBundleExecutable];
     if (nil != bundleExecutable) {
         expected = [expected arrayByAddingObject:bundleExecutable];
     }
-    XCTAssertEqualObjects(expected, options.inAppIncludes);
+
+    [self assertArrayEquals:expected actual:options.inAppIncludes];
 }
 
 - (void)testAddInAppIncludes
 {
     SentryOptions *options = [self getValidOptions:@{}];
     [options addInAppInclude:@"App"];
-    XCTAssertEqualObjects(@[ @"App" ], options.inAppIncludes);
+
+    [self assertArrayEquals:@[ [self getBundleExecutable], @"App" ] actual:options.inAppIncludes];
+}
+
+- (NSString *)getBundleExecutable
+{
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    return infoDict[@"CFBundleExecutable"];
 }
 
 - (void)testDefaultInAppIncludes
@@ -739,6 +746,12 @@
     SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
 
     XCTAssertNotNil(options.urlSessionDelegate);
+}
+
+- (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
+{
+    XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],
+        [actual sortedArrayUsingSelector:@selector(compare:)]);
 }
 
 @end
