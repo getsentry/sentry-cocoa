@@ -46,88 +46,16 @@ jobs:
         if: ${{matrix.pushCodecov}}
 
   build-sdk:
-    name: Build SDK ${{matrix.name}} with Xcode ${{matrix.xcode}}
-    runs-on: ${{matrix.os}}
+    name: Tests with Xcode 10.3 for ${{matrix.destination}} 
+    runs-on: macos-10.15
     strategy:
       fail-fast: true
       matrix:
-        
-        include:
-          - name: macOS
-            os: macos-11 
-            xcode: "13.0"
-            destination: platform=macOS
-            pushCodecov: false
-
-          - name: macOS
-            os: macos-11  
-            xcode: "12.5.1"
-            destination: platform=macOS
-            pushCodecov: false
-
-          - name: macOS 10.15
-            os: macos-10.15
-            xcode: "12.4"
-            destination: platform=macOS
-            pushCodecov: false
-
-          - name: Mac Catalyst
-            os: macos-11
-            xcode: "13.0"
-            destination: platform=macOS,variant=Mac Catalyst  
-            pushCodecov: true
-
-          - name: Mac Catalyst
-            os: macos-11
-            xcode: "12.5.1"
-            destination: platform=macOS,variant=Mac Catalyst  
-            pushCodecov: true
-
-          - name: Mac Catalyst
-            os: macos-10.15
-            xcode: "12.4"
-            destination: platform=macOS,variant=Mac Catalyst 
-            pushCodecov: false
-
-          - name: iOS
-            os: macos-11
-            xcode: "13.0"
-            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: true
-          
-          - name: iOS
-            os: macos-11
-            xcode: "12.5.1"
-            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: false
-
-          - name: iOS
-            os: macos-11
-            xcode: "11.7"
-            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: false
-
-          - name: tvOS
-            os: macos-11
-            xcode: "13.0"
-            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: true
-
-          - name: tvOS
-            os: macos-11
-            xcode: "12.5.1"
-            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: false
-
-          - name: tvOS
-            os: macos-11
-            xcode: "11.7"
-            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: false
+        destination: ["platform=macOS", "platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 7", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
 
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: ./scripts/ci-select-xcode.sh 10.3
       - name: Compiling
         run: >-
           xcodebuild 
