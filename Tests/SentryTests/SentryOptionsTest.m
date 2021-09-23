@@ -677,7 +677,13 @@
     SentryOptions *options = [self getValidOptions:@{}];
     [options addInAppInclude:@"App"];
 
-    [self assertArrayEquals:@[ [self getBundleExecutable], @"App" ] actual:options.inAppIncludes];
+    NSArray<NSString *> *expected = @[ @"App" ];
+    NSString *bundleExecutable = [self getBundleExecutable];
+    if (nil != bundleExecutable) {
+        expected = [expected arrayByAddingObject:bundleExecutable];
+    }
+
+    [self assertArrayEquals:@[ expected, actual:options.inAppIncludes];
 }
 
 - (NSString *)getBundleExecutable
