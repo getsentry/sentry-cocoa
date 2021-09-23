@@ -56,43 +56,43 @@ jobs:
           - name: iOS 15.0
             os: macos-11
             xcode: 13.0
-            destination: platform=iOS Simulator
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
           
           - name: iOS 14.5
             os: macos-11
             xcode: 12.5.1
-            destination: platform=iOS Simulator
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
 
           - name: iOS 10.3
             os: macos-10.13
             xcode: 8.3.3
-            destination: platform=iOS Simulator
+            destination: platform=iOS Simulator,OS=10.3,name=iPhone 7
             pushCodecov: false
 
           - name: iOS 13.7
             os: macos-11
             xcode: 11.7
-            destination: platform=iOS Simulator
+            destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
             pushCodecov: true
 
           - name: tvOS 15.0
             os: macos-11
             xcode: 13.0
-            destination: platform=tvOS Simulator
+            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false
 
           - name: tvOS 14.5
             os: macos-11
             xcode: 12.5.1
-            destination: platform=tvOS Simulator
+            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false
 
           - name: tvOS 13.4
             os: macos-11
             xcode: 11.7
-            destination: platform=tvOS Simulator
+            destination: platform=tvOS Simulator,OS=13.4,name=Apple TV 4K
             pushCodecov: false 
 
           # Can't run tests on watchOS because XCTest is not available  
