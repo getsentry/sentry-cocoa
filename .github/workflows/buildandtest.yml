@@ -67,7 +67,7 @@ jobs:
 
           - name: iOS
             os: macos-10.15
-            xcode: "9.4.1"
+            xcode: "10.3"
             destination: platform=iOS Simulator,OS=latest,name=iPhone 7
             pushCodecov: false
 
@@ -138,7 +138,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        xcode: ["10.3", "9.4.1"]
+        xcode: ["11.7", "10.3"]
 
     steps:
       - uses: actions/checkout@v2
