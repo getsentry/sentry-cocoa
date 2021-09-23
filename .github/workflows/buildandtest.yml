@@ -13,12 +13,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Can't run tests on watchOS because XCTest is not available  
+        platform: ["macOS","MacCatalyst", "iOS", "tvOS"]
+        
         # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
         # which is only available since iOS 13 / Xcode 11.
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
-
-        # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS","MacCatalyst", "iOS", "tvOS"]
 
     steps:
       - uses: actions/checkout@v2
