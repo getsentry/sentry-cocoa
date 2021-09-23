@@ -71,7 +71,7 @@ jobs:
             destination: platform=iOS Simulator,OS=10.3,name=iPhone 7
             pushCodecov: false
 
-          - name: iOS 9.0
+          - name: iOS 13.7
             os: macos-11
             xcode: 11.7
             destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
@@ -108,7 +108,7 @@ jobs:
           -configuration Release 
           GCC_GENERATE_TEST_COVERAGE_FILES=YES 
           GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES
-          -destination "${{matrix.destination}}" 
+          
           test | xcpretty -t && exit ${PIPESTATUS[0]}
 
       # We can upload all coverage reports, because codecov merges them.
