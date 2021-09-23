@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests ${{matrix.destination}} with Xcode ${{matrix.xcode}}
+    name: Tests with Xcode ${{matrix.xcode}} for ${{matrix.destination}} 
     runs-on: macos-11 
     strategy:
       fail-fast: false
@@ -43,6 +43,7 @@ jobs:
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
+        if: ${{matrix.pushCodecov}}
 
   build-sdk:
     name: Build SDK ${{matrix.name}} with Xcode ${{matrix.xcode}}
