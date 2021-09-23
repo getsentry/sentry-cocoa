@@ -8,33 +8,21 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests ${{matrix.name}} with Xcode ${{matrix.xcode}}
+    name: Unit Tests ${{matrix.destination}} with Xcode ${{matrix.xcode}}
     runs-on: macos-11 
     strategy:
       fail-fast: false
       matrix:
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
+        # Can't run tests on watchOS because XCTest is not available  
+        destination: ["platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
+        pushCodecov: [true]
         
         include:
           # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
           # so the coverage report shows a reduced coverage.
-          - name: macOS
-            destination: platform=macOS
+          - destination: platform=macOS
             pushCodecov: false
-
-          - name: Mac Catalyst
-            destination: platform=macOS,variant=Mac Catalyst  
-            pushCodecov: true
-
-          - name: iOS
-            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
-            pushCodecov: true
-
-          - name: tvOS
-            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
-            pushCodecov: true 
-
-          # Can't run tests on watchOS because XCTest is not available  
 
     steps:
       - uses: actions/checkout@v2
@@ -55,7 +43,6 @@ jobs:
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
-        if: ${{matrix.pushCodecov}}
 
   build-sdk:
     name: Build SDK ${{matrix.name}} with Xcode ${{matrix.xcode}}
