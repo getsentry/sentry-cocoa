@@ -17,7 +17,7 @@ jobs:
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
 
         # Can't run tests on watchOS because XCTest is not available  
-        destination: ["platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
+        destination: ["platform=macOS","platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
         pushCodecov: [true]
         
         include:
