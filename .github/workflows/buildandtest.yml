@@ -119,23 +119,35 @@ jobs:
         if: ${{matrix.pushCodecov}}
 
   ui-tests:
-    name: Run UI Tests with Xcode ${{matrix.xcode}}
+    name: Run UI Tests
     runs-on: macos-11
-    strategy:
-      fail-fast: false
-      matrix:
-        xcode: ["13.0", "12.5.1"]
 
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - uses: ruby/setup-ruby@v1
-
-      - name: Setup fastlane
-        run: bundle install
+      - run: ./scripts/ci-select-xcode.sh 
+      - run: bundle install
 
       - name: Run Fastlane
         run: bundle exec fastlane ui_tests
+        shell: sh
+  
+  ui-tests-objc:
+    name: Run UI Tests for ObjC with Xcode ${{matrix.xcode}}
+    runs-on: macos-10.13
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["10.1", "9.4.1", "8.3.3"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: bundle install
+
+      - name: Run Fastlane
+        run: bundle exec fastlane objc_ui_tests
         shell: sh
 
   # We had issues that the release build was broken on master.
@@ -145,11 +157,9 @@ jobs:
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@v1
-
-      - name: Setup fastlane
-        run: bundle install   
+      - run: ./scripts/ci-select-xcode.sh 
+      - run: bundle install
 
       - name: Run Fastlane
         env:

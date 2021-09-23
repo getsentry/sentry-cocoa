@@ -106,6 +106,14 @@ platform :ios do
     )
   end
 
+  lane :objc_ui_tests do
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-ObjectiveC"
+    )
+
+  end
+
   lane :ui_tests do
     run_tests(
       workspace: "Sentry.xcworkspace",
@@ -115,11 +123,6 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift"
-    )
-
-    run_tests(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-ObjectiveC"
     )
 
     run_tests(
