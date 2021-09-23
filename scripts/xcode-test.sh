@@ -20,8 +20,7 @@ case $PLATFORM in
         DESTINATION="platform=macOS,variant=Mac Catalyst"
         ;;
 
-    # Use iOS as Default
-    "tvOS")
+    "iOS")
         DESTINATION="platform=iOS Simulator,OS=latest,name=iPhone 11"
         ;;
 

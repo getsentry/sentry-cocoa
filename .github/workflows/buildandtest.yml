@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests ${{matrix.platform}} with Xcode ${{matrix.xcode}} - 
+    name: Unit Tests ${{matrix.platform}} with Xcode ${{matrix.xcode}}
     runs-on: macos-11 
     strategy:
       fail-fast: false
@@ -38,7 +38,7 @@ jobs:
         
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.destination, 'variant=Mac Catalyst') || contains(matrix.destination, 'platform=iOS') }}
+        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
   ui-tests:
     name: UI Tests
