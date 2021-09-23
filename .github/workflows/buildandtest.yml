@@ -18,7 +18,7 @@ jobs:
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
 
         # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS","Mac Catalyst", "iOS", "tvOS"]
+        platform: ["macOS","MacCatalyst", "iOS", "tvOS"]
 
     steps:
       - uses: actions/checkout@v2
