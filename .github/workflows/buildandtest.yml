@@ -18,13 +18,6 @@ jobs:
 
         # Can't run tests on watchOS because XCTest is not available  
         destination: ["platform=macOS","platform=macOS,variant=Mac Catalyst", "platform=iOS Simulator,OS=latest,name=iPhone 11 Pro", "platform=tvOS Simulator,OS=latest,name=Apple TV 4K"]
-        pushCodecov: [true]
-        
-        include:
-          # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
-          # so the coverage report shows a reduced coverage.
-          - destination: platform=macOS
-            pushCodecov: false
 
     steps:
       - uses: actions/checkout@v2
@@ -45,7 +38,10 @@ jobs:
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@v1
-        if: ${{matrix.pushCodecov}}
+        
+        # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
+        # so the coverage report shows a reduced coverage.
+        if: ${{ contains(matrix.destination, 'variant=Mac Catalyst') || contains(matrix.destination, 'platform=iOS') }}
 
   ui-tests:
     name: UI Tests
