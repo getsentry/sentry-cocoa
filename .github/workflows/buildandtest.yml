@@ -18,22 +18,15 @@ jobs:
         xcode: ["13.0", "12.5.1", "12.5.1", "11.7"]
 
         # Can't run tests on watchOS because XCTest is not available  
-        # We remove the platform= here because it shows up in the job name.
-        destination: ["macOS","macOS,variant=Mac Catalyst", "iOS Simulator,name=iPhone 11", "tvOS Simulator,name=Apple TV 4K"]
+        platform: ["macOS","Mac Catalyst", "iOS", "tvOS"]
 
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Running tests
-        run: >-
-          xcodebuild 
-          -workspace Sentry.xcworkspace 
-          -scheme Sentry 
-          -configuration Release 
-          GCC_GENERATE_TEST_COVERAGE_FILES=YES 
-          GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES
-          -destination "platform=${{matrix.destination}}" 
-          test | xcpretty -t && exit ${PIPESTATUS[0]}
+        # We call a script with the platform so the destination
+        # passed to xcodebuild doesn't end up in the job name.
+        run: ./scripts/xcode-test.sh ${{matrix.platform}}
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
@@ -43,7 +36,7 @@ jobs:
         
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.destination, 'Mac Catalyst') || contains(matrix.destination, 'iOS') }}
+        if: ${{ contains(matrix.destination, 'variant=Mac Catalyst') || contains(matrix.destination, 'platform=iOS') }}
 
   ui-tests:
     name: UI Tests
