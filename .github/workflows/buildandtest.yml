@@ -65,7 +65,13 @@ jobs:
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
 
-          - name: iOS 13.7
+          - name: iOS 10.3
+            os: macos-10.13
+            xcode: 8.3.3
+            destination: platform=iOS Simulator,OS=10.3,name=iPhone 7
+            pushCodecov: false
+
+          - name: iOS 9.0
             os: macos-11
             xcode: 11.7
             destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
