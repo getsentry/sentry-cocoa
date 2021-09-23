@@ -118,7 +118,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        xcode: [13.0, 12.5.1, 12.5, 12.4, 11.7]
+        xcode: [13.0, 12.5.1]
 
     steps:
       - uses: actions/checkout@v2
