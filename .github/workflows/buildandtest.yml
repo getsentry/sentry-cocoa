@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
 
       - name: Setup fastlane
         run: bundle install
@@ -112,7 +112,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
 
       - name: Setup fastlane
         run: bundle install   
