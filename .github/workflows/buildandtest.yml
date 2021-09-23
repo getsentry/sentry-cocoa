@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests ${{matrix.name}}
+    name: Unit Tests ${{matrix.name}} with Xcode ${{matrix.xcode}}
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -17,13 +17,13 @@ jobs:
         include:
           # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
           # so the coverage report shows a reduced coverage.
-          - name: macOS 12
+          - name: macOS
             os: macos-11 
             xcode: "13.0"
             destination: platform=macOS
             pushCodecov: false
 
-          - name: macOS 11
+          - name: macOS
             os: macos-11  
             xcode: "12.5.1"
             destination: platform=macOS
@@ -35,64 +35,64 @@ jobs:
             destination: platform=macOS
             pushCodecov: false
 
-          - name: Mac Catalyst MacOS 12
+          - name: Mac Catalyst
             os: macos-11
             xcode: "13.0"
             destination: platform=macOS,variant=Mac Catalyst  
             pushCodecov: true
 
-          - name: Mac Catalyst MacOS 11
+          - name: Mac Catalyst
             os: macos-11
             xcode: "12.5.1"
             destination: platform=macOS,variant=Mac Catalyst  
             pushCodecov: true
 
-          - name: Mac Catalyst MacOS 10.15
+          - name: Mac Catalyst
             os: macos-10.15
             xcode: "12.4"
             destination: platform=macOS,variant=Mac Catalyst 
             pushCodecov: false
 
-          - name: iOS 15.0
+          - name: iOS
             os: macos-11
             xcode: "13.0"
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
           
-          - name: iOS 14.5
+          - name: iOS
             os: macos-11
             xcode: "12.5.1"
             destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
 
-          - name: iOS 10.3
+          - name: iOS
             os: macos-10.13
             xcode: "8.3.3"
-            destination: platform=iOS Simulator,OS=10.3,name=iPhone 7
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 7
             pushCodecov: false
 
-          - name: iOS 13.7
+          - name: iOS
             os: macos-11
             xcode: "11.7"
-            destination: platform=iOS Simulator,OS=13.7,name=iPhone 11 Pro
+            destination: platform=iOS Simulator,OS=latest,name=iPhone 11 Pro
             pushCodecov: true
 
-          - name: tvOS 15.0
+          - name: tvOS
             os: macos-11
             xcode: "13.0"
             destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false
 
-          - name: tvOS 14.5
+          - name: tvOS
             os: macos-11
             xcode: "12.5.1"
             destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false
 
-          - name: tvOS 13.4
+          - name: tvOS
             os: macos-11
             xcode: "11.7"
-            destination: platform=tvOS Simulator,OS=13.4,name=Apple TV 4K
+            destination: platform=tvOS Simulator,OS=latest,name=Apple TV 4K
             pushCodecov: false 
 
           # Can't run tests on watchOS because XCTest is not available  
