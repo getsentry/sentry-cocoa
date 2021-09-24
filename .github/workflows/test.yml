@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit ${{matrix.platform}} with Xcode ${{matrix.xcode}}
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
     runs-on: macos-11 
     strategy:
       fail-fast: false
