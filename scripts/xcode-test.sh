@@ -16,7 +16,7 @@ case $PLATFORM in
         DESTINATION="platform=macOS"
         ;;
 
-    "MacCatalyst")
+    "Catalyst")
         DESTINATION="platform=macOS,variant=Mac Catalyst"
         ;;
 
