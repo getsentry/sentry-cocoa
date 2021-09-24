@@ -3,9 +3,10 @@ set -euo pipefail
 
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
-# Matrix, the name of the job would be hard to read. With this script
-# you can specify a readable platform in the matrix and then call this
-# script.
+# Matrix, the name of the job would include the destination, which would
+# be, for example, platform=tvOS Simulator,OS=latest,name=Apple TV 4K.
+# To fix this, we specify a readable platform in the matrix and then call
+# this script to map the platform to the destination.
 
 PLATFORM="${1}"
 DESTINATION=""
