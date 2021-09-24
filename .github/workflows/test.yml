@@ -41,7 +41,7 @@ jobs:
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
   ui-tests:
-    name: UI
+    name: UI tests for Sample Apps
     runs-on: macos-11
 
     steps:
