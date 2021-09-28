@@ -196,7 +196,6 @@ SentryUIViewControllerPerformanceTracker ()
                    }];
 }
 
-
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callbackToOrigin
 {

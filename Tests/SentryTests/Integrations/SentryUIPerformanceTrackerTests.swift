@@ -1,9 +1,9 @@
-import XCTest
 import ObjectiveC
+import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-class TestViewController : UIViewController {
+class TestViewController: UIViewController {
 }
 
 class SentryUIPerformanceTrackerTests: XCTestCase {
@@ -401,7 +401,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
     }
     
-    private func initSDKForSwizzling(){
+    private func initSDKForSwizzling() {
         SentrySDK.start { options in
             options.dsn = ""
             options.tracesSampleRate = 1.0

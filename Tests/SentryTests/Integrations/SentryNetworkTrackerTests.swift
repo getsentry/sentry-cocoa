@@ -539,7 +539,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         return URLSessionStreamTaskMock(request: request)
     }
     
-    private func initSDKForSwizzling(){
+    private func initSDKForSwizzling() {
         SentrySDK.start { options in
             options.dsn = ""
             options.tracesSampleRate = 1.0
