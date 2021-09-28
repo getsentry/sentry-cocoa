@@ -48,6 +48,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         clearTestState()
     }
       
+    func testSwizzling() {
+        initSDKForSwizzling()
+        let task = URLSession.shared.dataTask(with: URL(string: "http://localhost/")!)
+        task.resume()
+        
+        let _ = URLSessionConfiguration.default.httpAdditionalHeaders
+    }
+    
     func testCaptureCompletion() {
         let task = createDataTask()
         let span = spanForTask(task: task)!
@@ -529,5 +537,15 @@ class SentryNetworkTrackerTests: XCTestCase {
         var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
+    }
+    
+    private func initSDKForSwizzling(){
+        SentrySDK.start { options in
+            options.dsn = ""
+            options.tracesSampleRate = 1.0
+            let n = class_getImageName(SentryNetworkTrackerTests.self)
+            let s = NSString(cString: n!, encoding: String.Encoding.utf8.rawValue)
+            options.add(inAppInclude: s!.lastPathComponent)
+        }
     }
 }
