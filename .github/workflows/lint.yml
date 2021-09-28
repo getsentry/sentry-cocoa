@@ -10,3 +10,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run SwiftLint
         run: swiftlint
+
+  validate-podspec:
+    name: Validate Podspec
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate Podspec
+        run: pod lib lint
+        shell: sh
