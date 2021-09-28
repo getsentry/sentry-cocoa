@@ -103,7 +103,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
-    func ignoredTestCustomURLProtocol_BlocksAllRequests() {
+    func testCustomURLProtocol_BlocksAllRequests() {
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")

@@ -249,6 +249,12 @@ SentryNetworkTracker ()
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
+    @synchronized(self) {
+        if (!self.isEnabled) {
+            return headers;
+        }
+    }
+
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
         return headers;
