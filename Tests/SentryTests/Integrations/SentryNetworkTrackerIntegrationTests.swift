@@ -50,7 +50,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
         let traceState = transaction.traceState
         
-        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
+        if canHeaderBeAdded() {
             let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader() ]
             XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
         } else {
@@ -72,7 +72,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             expect.fulfill()
         }
         
-        if #available(iOS 14.0, tvOS 14.3, macCatalyst 14.0, macOS 11.0, *) {
+        if canHeaderBeAdded() {
             let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader()]
                 .merging(additionalHeaders) { (current, _) in current }
             XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
@@ -108,6 +108,16 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         dataTask.resume()
         wait(for: [expect], timeout: 1)
+    }
+    
+    /**
+     * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
+     * SentryNetworkSwizzling#swizzleNSURLSessionConfiguration.
+     */
+    private func canHeaderBeAdded() -> Bool {
+        let selector = NSSelectorFromString("HTTPAdditionalHeaders")
+        let classToSwizzle = URLSessionConfiguration.self
+        return class_getInstanceMethod(classToSwizzle, selector) != nil
     }
 }
 

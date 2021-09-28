@@ -9,10 +9,7 @@ class SentryClientTest: XCTestCase {
         
         let debugImageBuilder = SentryDebugImageProvider()
         
-        let threadInspector = SentryThreadInspector(
-            stacktraceBuilder: SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))),
-            andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
-        )
+        let threadInspector: SentryThreadInspector
         
         let session: SentrySession
         let event: Event
@@ -39,6 +36,14 @@ class SentryClientTest: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTest.dsn
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: options.inAppExcludes)
+            let crashStackEntryMapper = SentryCrashStackEntryMapper(inAppLogic: inAppLogic)
+            let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
+            threadInspector = SentryThreadInspector(
+                stacktraceBuilder: stacktraceBuilder,
+                andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
+            )
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
