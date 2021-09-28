@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add enableNetworkTracking flag (#1349)
+
 ## 7.3.0
 
 - fix: Trying to swizzle a class without a library name (#1332)

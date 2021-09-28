@@ -15,6 +15,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerIntegrationTests.dsnAsString
+            options.tracesSampleRate = 1.0
         }
         
         var mutableUrlRequest: URLRequest {
@@ -22,15 +23,11 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
     }
     
-    private var fixture = Fixture() 
+    private var fixture: Fixture!
     
     override func setUp() {
         super.setUp()
-        
-        SentrySDK.start { options in
-            options.dsn = SentryNetworkTrackerIntegrationTests.dsnAsString
-            options.tracesSampleRate = 1.0
-        }
+        fixture = Fixture()
     }
 
     override func tearDown() {
@@ -39,15 +36,31 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     func testNSURLSessionConfiguration_NoActiveSpan_NoHeadersAdded() {
+        startSDK()
+        
         let configuration = URLSessionConfiguration.default
         
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
     
+    func testNetworkTrackingDisabled_WhenNetworkTrackingDisabled() {
+        testNetworkTrackingDisabled { options in
+            options.enableNetworkTracking = false
+        }
+    }
+    
+    func testNetworkTrackingDisabled_WhenAutoPerformanceTrackingDisabled() {
+        testNetworkTrackingDisabled { options in
+            options.enableAutoPerformanceTracking = false
+        }
+    }
+    
     func testNSURLSessionConfiguration_ActiveSpan_HeadersAdded() {
+        startSDK()
+        
         let configuration = URLSessionConfiguration.default
         
-        let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+        let transaction = startTransactionBoundToScope()
         let traceState = transaction.traceState
         
         if canHeaderBeAdded() {
@@ -59,6 +72,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     func testNSURLSession_TraceHeaderAdded() {
+        startSDK()
+        
         let expect = expectation(description: "Callback Expectation")
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
@@ -89,6 +104,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
     func ignoredTestCustomURLProtocol_BlocksAllRequests() {
+        startSDK()
+        
         let expect = expectation(description: "Callback Expectation")
         
         let customConfiguration = URLSessionConfiguration.default.copy() as! URLSessionConfiguration
@@ -110,6 +127,17 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 1)
     }
     
+    private func testNetworkTrackingDisabled(configureOptions: (Options) -> Void) {
+        configureOptions(fixture.options)
+        
+        startSDK()
+        
+        let configuration = URLSessionConfiguration.default
+        _ = startTransactionBoundToScope()
+        
+        XCTAssertNil(configuration.httpAdditionalHeaders)
+    }
+    
     /**
      * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
      * SentryNetworkSwizzling#swizzleNSURLSessionConfiguration.
@@ -118,6 +146,14 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let selector = NSSelectorFromString("HTTPAdditionalHeaders")
         let classToSwizzle = URLSessionConfiguration.self
         return class_getInstanceMethod(classToSwizzle, selector) != nil
+    }
+    
+    private func startSDK() {
+        SentrySDK.start(options: self.fixture.options)
+    }
+    
+    private func startTransactionBoundToScope() -> SentryTracer {
+        return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
     }
 }
 

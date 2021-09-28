@@ -457,6 +457,7 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
+    XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
@@ -548,6 +549,27 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"enableAutoPerformanceTracking" : @NO }];
     XCTAssertFalse(options.enableAutoPerformanceTracking);
+}
+
+- (void)testEnableNetworkTracking
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableNetworkTracking" : @YES }];
+
+    XCTAssertEqual(YES, options.enableNetworkTracking);
+}
+
+- (void)testDefaultNetworkTracking
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertEqual(YES, options.enableNetworkTracking);
+}
+
+- (void)testSetNetworkTrackingGargabe
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableNetworkTracking" : @"" }];
+
+    XCTAssertEqual(NO, options.enableNetworkTracking);
 }
 
 - (void)testTracesSampleRate

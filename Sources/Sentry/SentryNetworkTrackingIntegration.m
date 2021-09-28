@@ -1,22 +1,31 @@
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryLog.h"
 #import "SentryNetworkSwizzling.h"
 #import "SentryNetworkTracker.h"
 #import "SentryOptions.h"
-
-@interface
-SentryNetworkTrackingIntegration ()
-
-@property (nonatomic, strong) SentryOptions *options;
-@end
 
 @implementation SentryNetworkTrackingIntegration
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    self.options = options;
-    if (options.enableAutoPerformanceTracking) {
-        [SentryNetworkSwizzling start];
+    // We don't check isTracingEnabled, because the integration
+    // also creates breadcrumbs for HTTP requests.
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
+                                  @"enableAutoPerformanceTracking is disabled."
+                         andLevel:kSentryLevelDebug];
+        return;
     }
+
+    if (!options.enableNetworkTracking) {
+        [SentryLog
+            logWithMessage:
+                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
+                  andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    [SentryNetworkSwizzling start];
 }
 
 - (void)uninstall
