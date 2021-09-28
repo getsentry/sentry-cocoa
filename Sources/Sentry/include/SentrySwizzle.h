@@ -153,7 +153,7 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 @property (nonatomic, readonly) SEL selector;
 
 #if TEST
-@property (nonatomic) bool originalCalled;
+@property (nonatomic) BOOL originalCalled;
 #endif
 
 @end
@@ -367,7 +367,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                                        } @finally {                                                \
                                            if (!swizzleInfo.originalCalled)                        \
                                                @throw([NSException                                 \
-                                                   exceptionWithName:@"Swizzling Error"            \
+                                                   exceptionWithName:@"SwizzlingError"            \
                                                               reason:@"Original method not called" \
                                                             userInfo:nil]);                        \
                                        }                                                           \
