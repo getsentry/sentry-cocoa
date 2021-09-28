@@ -367,7 +367,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                                        } @finally {                                                \
                                            if (!swizzleInfo.originalCalled)                        \
                                                @throw([NSException                                 \
-                                                   exceptionWithName:@"SwizzlingError"            \
+                                                   exceptionWithName:@"SwizzlingError"             \
                                                               reason:@"Original method not called" \
                                                             userInfo:nil]);                        \
                                        }                                                           \
