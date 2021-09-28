@@ -12,10 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-  
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: '2.7'
+      - uses: ruby/setup-ruby@v1
 
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
