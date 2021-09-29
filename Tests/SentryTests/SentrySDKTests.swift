@@ -445,7 +445,7 @@ class SentrySDKTests: XCTestCase {
         
         self.measure(metrics: [XCTMemoryMetric()]) {
             for _ in 0...1_000 {
-                let trans = SentrySDK.startTransaction(name: "", operation: "")
+                let trans = SentrySDK.startTransaction(name: "no leak", operation: "")
                 
                 for _ in 0...10 {
                     let span = trans.startChild(operation: "ui.load")
