@@ -334,37 +334,12 @@
 
 - (void)testEnableAutoSessionTracking
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableAutoSessionTracking" : @YES }];
-
-    XCTAssertEqual(YES, options.enableAutoSessionTracking);
-}
-
-- (void)testDefaultEnableAutoSessionTracking
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertEqual(YES, options.enableAutoSessionTracking);
+    [self testBooleanField:@"enableAutoSessionTracking"];
 }
 
 - (void)testEnableOutOfMemoryTracking
 {
-    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @YES }];
-
-    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
-}
-
-- (void)testDefaultOutOfMemoryTracking
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
-}
-
-- (void)testSetOutOfMemoryTrackingGargabe
-{
-    SentryOptions *options = [self getValidOptions:@{ @"enableOutOfMemoryTracking" : @"" }];
-
-    XCTAssertEqual(NO, options.enableOutOfMemoryTracking);
+    [self testBooleanField:@"enableOutOfMemoryTracking"];
 }
 
 - (void)testSessionTrackingIntervalMillis
@@ -383,28 +358,14 @@
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
 }
 
-- (void)testAttachStackTraceDisabledPerDefault
+- (void)testAttachStackTrace
 {
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(YES, options.attachStacktrace);
-}
-
-- (void)testAttachStackTraceDisabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @NO }];
-    XCTAssertEqual(NO, options.attachStacktrace);
-}
-
-- (void)testInvalidAttachStackTrace
-{
-    SentryOptions *options = [self getValidOptions:@{ @"attachStacktrace" : @"Invalid" }];
-    XCTAssertEqual(NO, options.attachStacktrace);
+    [self testBooleanField:@"attachStacktrace"];
 }
 
 - (void)testStitchAsyncCodeDisabledPerDefault
 {
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(NO, options.stitchAsyncCode);
+    [self testBooleanField:@"stitchAsyncCode" defaultValue:NO];
 }
 
 - (void)testEnableTraceSampling
@@ -423,18 +384,6 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @NO }];
     XCTAssertFalse(options.experimentalEnableTraceSampling);
-}
-
-- (void)testStitchAsyncCodeEnabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @YES }];
-    XCTAssertEqual(YES, options.stitchAsyncCode);
-}
-
-- (void)testInvalidStitchAsyncCode
-{
-    SentryOptions *options = [self getValidOptions:@{ @"stitchAsyncCode" : @"Invalid" }];
-    XCTAssertEqual(NO, options.stitchAsyncCode);
 }
 
 - (void)testEmptyConstructorSetsDefaultValues
@@ -457,6 +406,7 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
+    XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertFalse(options.experimentalEnableTraceSampling);
 }
 
@@ -519,35 +469,17 @@
 
 - (void)testSendDefaultPii
 {
-    SentryOptions *options = [self getValidOptions:@{ @"sendDefaultPii" : @YES }];
-
-    XCTAssertTrue(options.sendDefaultPii);
+    [self testBooleanField:@"sendDefaultPii" defaultValue:NO];
 }
 
-- (void)testSendDefaultPiiGarbage
+- (void)testEnableAutoPerformanceTracking
 {
-    SentryOptions *options = [self getValidOptions:@{ @"sendDefaultPii" : @"no" }];
-
-    XCTAssertFalse(options.sendDefaultPii);
+    [self testBooleanField:@"enableAutoPerformanceTracking"];
 }
 
-- (void)testDefaultSendDefaultPii
+- (void)testEnableNetworkTracking
 {
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertFalse(options.sendDefaultPii);
-}
-
-- (void)testAutomaticallyTrackPerformance
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertTrue(options.enableAutoPerformanceTracking);
-}
-
-- (void)testDontAutomaticallyTrackPerformance
-{
-    SentryOptions *options = [self getValidOptions:@{ @"enableAutoPerformanceTracking" : @NO }];
-    XCTAssertFalse(options.enableAutoPerformanceTracking);
+    [self testBooleanField:@"enableNetworkTracking"];
 }
 
 - (void)testTracesSampleRate
@@ -758,6 +690,44 @@
 {
     XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],
         [actual sortedArrayUsingSelector:@selector(compare:)]);
+}
+
+- (void)testBooleanField:(NSString *)property
+{
+    [self testBooleanField:property defaultValue:YES];
+}
+
+- (void)testBooleanField:(NSString *)property defaultValue:(BOOL)defaultValue
+{
+    // Opposite of default
+    SentryOptions *options = [self getValidOptions:@{ property : @(!defaultValue) }];
+    XCTAssertEqual(!defaultValue, [self getProperty:property of:options]);
+
+    // Default
+    options = [self getValidOptions:@{}];
+    XCTAssertEqual(defaultValue, [self getProperty:property of:options]);
+
+    // Garbage
+    options = [self getValidOptions:@{ property : @"" }];
+    XCTAssertEqual(NO, [self getProperty:property of:options]);
+}
+
+- (BOOL)getProperty:(NSString *)property of:(SentryOptions *)options
+{
+    SEL selector = NSSelectorFromString(property);
+    NSAssert(
+        [options respondsToSelector:selector], @"Options doesn't have a property '%@'", property);
+
+    NSInvocation *invocation = [NSInvocation
+        invocationWithMethodSignature:[[options class]
+                                          instanceMethodSignatureForSelector:selector]];
+    [invocation setSelector:selector];
+    [invocation setTarget:options];
+    [invocation invoke];
+    BOOL result;
+    [invocation getReturnValue:&result];
+
+    return result;
 }
 
 @end
