@@ -1,13 +1,12 @@
 #import "SentryIOTrackingIntegration.h"
-#import "SentryOptions.h"
 #import "SentryNSDataSwizzling.h"
+#import "SentryOptions.h"
 
 @interface
 SentryIOTrackingIntegration ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @end
-
 
 @implementation SentryIOTrackingIntegration
 

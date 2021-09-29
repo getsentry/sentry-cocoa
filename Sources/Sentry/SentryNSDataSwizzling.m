@@ -23,17 +23,16 @@
 + (void)swizzleNSData
 {
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
-    SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector, SentrySWReturnType(BOOL),
-        SentrySWArguments(NSString* path, BOOL useAuxiliaryFile), SentrySWReplacement({
-            return SentrySWCallOriginal(path, useAuxiliaryFile);
-        }),
+    SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
+        SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
+        SentrySWReplacement({ return SentrySWCallOriginal(path, useAuxiliaryFile); }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileAtomicallySelector);
-    
+
     SEL writeToFileOptionsErrorSelector = NSSelectorFromString(@"writeToFile:options:error:");
-    SentrySwizzleInstanceMethod(NSData.class, writeToFileOptionsErrorSelector, SentrySWReturnType(BOOL),
-        SentrySWArguments(NSString* path, NSDataWritingOptions writeOptionsMask, NSError** error), SentrySWReplacement({
-            return SentrySWCallOriginal(path, writeOptionsMask, error);
-        }),
+    SentrySwizzleInstanceMethod(NSData.class, writeToFileOptionsErrorSelector,
+        SentrySWReturnType(BOOL),
+        SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
+        SentrySWReplacement({ return SentrySWCallOriginal(path, writeOptionsMask, error); }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
 }
 #pragma clang diagnostic pop
