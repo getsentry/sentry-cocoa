@@ -153,7 +153,7 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 @property (nonatomic, readonly) SEL selector;
 
 // A flag to check whether the original implementation was called.
-@property (nonatomic) bool originalCalled;
+@property (nonatomic) BOOL originalCalled;
 
 @end
 
@@ -350,53 +350,52 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#    define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,             \
-        SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                            \
-        [SentrySwizzle swizzleInstanceMethod:selector                                              \
-                                     inClass:[classToSwizzle class]                                \
-                               newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                 \
-                                   SentrySWReturnType (*originalImplementation_)(_SentrySWDel3Arg( \
-                                       __unsafe_unretained id, SEL, SentrySWArguments));           \
-                                   SEL selector_ = selector;                                       \
-                                   return ^SentrySWReturnType(_SentrySWDel2Arg(                    \
-                                       __unsafe_unretained id self, SentrySWArguments)) {          \
-                                       @try {                                                      \
-                                           SentrySWReplacement                                     \
-                                       } @finally {                                                \
-                                           if (!swizzleInfo.originalCalled)                        \
-                                               @throw([NSException                                 \
-                                                   exceptionWithName:@"Swizzling Error"            \
-                                                              reason:@"Original method not called" \
-                                                            userInfo:nil]);                        \
-                                       }                                                           \
-                                   };                                                              \
-                               }                                                                   \
-                                        mode:SentrySwizzleMode                                     \
-                                         key:KEY];
+#define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,                 \
+    SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                                \
+    [SentrySwizzle                                                                                 \
+        swizzleInstanceMethod:selector                                                             \
+                      inClass:[classToSwizzle class]                                               \
+                newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                                \
+                    SentrySWReturnType (*originalImplementation_)(                                 \
+                        _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));         \
+                    SEL selector_ = selector;                                                      \
+                    return ^SentrySWReturnType(                                                    \
+                        _SentrySWDel2Arg(__unsafe_unretained id self, SentrySWArguments)) {        \
+                        @try {                                                                     \
+                            SentrySWReplacement                                                    \
+                        } @finally {                                                               \
+                            if (!swizzleInfo.originalCalled)                                       \
+                                @throw(                                                            \
+                                    [NSException exceptionWithName:@"SwizzlingError"               \
+                                                            reason:@"Original method not called"   \
+                                                          userInfo:nil]);                          \
+                        }                                                                          \
+                    };                                                                             \
+                }                                                                                  \
+                         mode:SentrySwizzleMode                                                    \
+                          key:KEY];
 
-#    define _SentrySwizzleClassMethod(                                                             \
-        classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)      \
-        [SentrySwizzle                                                                             \
-            swizzleClassMethod:selector                                                            \
-                       inClass:[classToSwizzle class]                                              \
-                 newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                               \
-                     SentrySWReturnType (*originalImplementation_)(                                \
-                         _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));        \
-                     SEL selector_ = selector;                                                     \
-                     return ^SentrySWReturnType(                                                   \
-                         _SentrySWDel2Arg(__unsafe_unretained id self, SentrySWArguments)) {       \
-                         @try {                                                                    \
-                             SentrySWReplacement                                                   \
-                         } @finally {                                                              \
-                             if (!swizzleInfo.originalCalled)                                      \
-                                 @throw(                                                           \
-                                     [NSException exceptionWithName:@"Swizzling Error"             \
-                                                             reason:@"Original method not called"  \
-                                                           userInfo:nil]);                         \
-                         }                                                                         \
-                     };                                                                            \
-                 }];
-
+#define _SentrySwizzleClassMethod(                                                                 \
+    classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)          \
+    [SentrySwizzle                                                                                 \
+        swizzleClassMethod:selector                                                                \
+                   inClass:[classToSwizzle class]                                                  \
+             newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                                   \
+                 SentrySWReturnType (*originalImplementation_)(                                    \
+                     _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));            \
+                 SEL selector_ = selector;                                                         \
+                 return ^SentrySWReturnType(                                                       \
+                     _SentrySWDel2Arg(__unsafe_unretained id self, SentrySWArguments)) {           \
+                     @try {                                                                        \
+                         SentrySWReplacement                                                       \
+                     } @finally {                                                                  \
+                         if (!swizzleInfo.originalCalled)                                          \
+                             @throw([NSException exceptionWithName:@"Swizzling Error"              \
+                                                            reason:@"Original method not called"   \
+                                                          userInfo:nil]);                          \
+                     }                                                                             \
+                 };                                                                                \
+             }];
 
 #define _SentrySWCallOriginal(arguments...)                                                        \
     ((__typeof(originalImplementation_))[swizzleInfo getOriginalImplementation])(                  \
