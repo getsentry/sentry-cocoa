@@ -33,7 +33,7 @@ SENTRY_NO_INIT
 /**
  * The SentryTracer this span is associated with.
  */
-@property (nonatomic, readonly) SentryTracer *tracer;
+@property (nonatomic, readonly, weak) SentryTracer *tracer;
 
 /**
  * Init a SentrySpan with given tracer and context.

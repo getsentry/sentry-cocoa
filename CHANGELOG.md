@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Memory Leak for Span (#1352)
+
 ## 7.3.0
 
 - fix: Trying to swizzle a class without a library name (#1332)
