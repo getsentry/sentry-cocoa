@@ -435,6 +435,27 @@ class SentrySDKTests: XCTestCase {
         }
     }
     
+    @available(tvOS 13.0, *)
+    @available(OSX 10.15, *)
+    @available(iOS 13.0, *)
+    func testMemoryFootprintOfTransactions() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        self.measure(metrics: [XCTMemoryMetric()]) {
+            for _ in 0...1000 {
+                let trans = SentrySDK.startTransaction(name: "", operation: "")
+                
+                for _ in 0...10 {
+                    let span = trans.startChild(operation: "ui.load")
+                    span.finish()
+                }
+                trans.finish()
+            }
+        }
+    }
+    
     func testStartSession() {
         givenSdkWithHub()
         
