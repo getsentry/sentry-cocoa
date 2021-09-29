@@ -444,7 +444,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         self.measure(metrics: [XCTMemoryMetric()]) {
-            for _ in 0...1000 {
+            for _ in 0...1_000 {
                 let trans = SentrySDK.startTransaction(name: "", operation: "")
                 
                 for _ in 0...10 {
