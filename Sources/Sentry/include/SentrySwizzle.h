@@ -152,9 +152,8 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 /// The selector of the swizzled method.
 @property (nonatomic, readonly) SEL selector;
 
-#if TEST
+// A flag to check whether the original implementation was called.
 @property (nonatomic) bool originalCalled;
-#endif
 
 @end
 
@@ -351,7 +350,6 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
-#if TEST
 #    define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,             \
         SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                            \
         [SentrySwizzle swizzleInstanceMethod:selector                                              \
@@ -398,35 +396,7 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          }                                                                         \
                      };                                                                            \
                  }];
-#else
-#    define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,             \
-        SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                            \
-        [SentrySwizzle                                                                             \
-            swizzleInstanceMethod:selector                                                         \
-                          inClass:[classToSwizzle class]                                           \
-                    newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                            \
-                        SentrySWReturnType (*originalImplementation_)(                             \
-                            _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));     \
-                        SEL selector_ = selector;                                                  \
-                        return ^SentrySWReturnType(_SentrySWDel2Arg(__unsafe_unretained id self,   \
-                            SentrySWArguments)) { SentrySWReplacement };                           \
-                    }                                                                              \
-                             mode:SentrySwizzleMode                                                \
-                              key:KEY];
 
-#    define _SentrySwizzleClassMethod(                                                             \
-        classToSwizzle, selector, SentrySWReturnType, SentrySWArguments, SentrySWReplacement)      \
-        [SentrySwizzle                                                                             \
-            swizzleClassMethod:selector                                                            \
-                       inClass:[classToSwizzle class]                                              \
-                 newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {                               \
-                     SentrySWReturnType (*originalImplementation_)(                                \
-                         _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));        \
-                     SEL selector_ = selector;                                                     \
-                     return ^SentrySWReturnType(_SentrySWDel2Arg(                                  \
-                         __unsafe_unretained id self, SentrySWArguments)) { SentrySWReplacement }; \
-                 }];
-#endif
 
 #define _SentrySWCallOriginal(arguments...)                                                        \
     ((__typeof(originalImplementation_))[swizzleInfo getOriginalImplementation])(                  \

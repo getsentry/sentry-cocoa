@@ -46,21 +46,6 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         fixture = Fixture()
     }
 
-    func testSwizzlingCall() {
-        initSDKForSwizzling()
-        
-        let testViewController = TestViewController()
-        testViewController.viewDidLoad()
-        testViewController.viewWillLayoutSubviews()
-        testViewController.viewDidLayoutSubviews()
-        testViewController.viewWillAppear(false)
-        testViewController.viewDidAppear(false)
-        
-        let viewController = UIViewController()
-        viewController.loadView()
-        viewController.viewDidAppear(false)
-    }
-    
     func testUILifeCycle() {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
@@ -399,16 +384,6 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
-    }
-    
-    private func initSDKForSwizzling() {
-        SentrySDK.start { options in
-            options.dsn = ""
-            options.tracesSampleRate = 1.0
-            let n = class_getImageName(TestViewController.self)
-            let s = NSString(cString: n!, encoding: String.Encoding.utf8.rawValue)
-            options.add(inAppInclude: s!.lastPathComponent)
-        }
     }
 }
 #endif
