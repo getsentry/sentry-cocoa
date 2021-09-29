@@ -34,7 +34,6 @@ class SwizzlingCallTests: XCTestCase {
         let _ = URLSessionConfiguration.default.httpAdditionalHeaders
     }
     
-    
     private func initSDKForSwizzling() {
         SentrySDK.start { options in
             options.dsn = ""

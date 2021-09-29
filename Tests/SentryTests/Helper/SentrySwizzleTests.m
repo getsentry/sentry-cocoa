@@ -336,17 +336,17 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     ASSERT_LOG_IS(@"A");
 }
 
-- (void) testSwizzleDontCallOriginalImplementation
+- (void)testSwizzleDontCallOriginalImplementation
 {
     SEL selector = @selector(methodForSwizzlingWithoutCallOriginal);
     SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
 
-    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
+    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
             return;
             SentrySWCallOriginal();
-            //We need to use SentrySWCallOriginal in SentrySWReplacement, otherwise the code does not compile
-            //But a wrong logic can prevent it to be called
+            // We need to use SentrySWCallOriginal in SentrySWReplacement, otherwise the code does
+            // not compile But a wrong logic can prevent it to be called
         }),
         SentrySwizzleModeAlways, NULL);
 
