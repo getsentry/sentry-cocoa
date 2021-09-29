@@ -3,6 +3,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
+#import "SentryOptions.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -34,7 +35,7 @@ SentryNetworkTracker ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.isEnabled = NO;
+        _isEnabled = NO;
     }
     return self;
 }
@@ -42,14 +43,14 @@ SentryNetworkTracker ()
 - (void)enable
 {
     @synchronized(self) {
-        self.isEnabled = YES;
+        _isEnabled = YES;
     }
 }
 
 - (void)disable
 {
     @synchronized(self) {
-        self.isEnabled = NO;
+        _isEnabled = NO;
     }
 }
 

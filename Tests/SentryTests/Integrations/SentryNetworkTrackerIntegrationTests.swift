@@ -43,15 +43,21 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
     
-    func testNetworkTrackingDisabled_WhenNetworkTrackingDisabled() {
-        testNetworkTrackingDisabled { options in
+    func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() {
+        testNetworkTrackerDisabled { options in
             options.enableNetworkTracking = false
         }
     }
     
-    func testNetworkTrackingDisabled_WhenAutoPerformanceTrackingDisabled() {
-        testNetworkTrackingDisabled { options in
+    func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
+        testNetworkTrackerDisabled { options in
             options.enableAutoPerformanceTracking = false
+        }
+    }
+    
+    func testNetworkTrackerDisabled_WhenTracingDisabled() {
+        testNetworkTrackerDisabled { options in
+            options.tracesSampleRate = 0.0
         }
     }
     
@@ -127,14 +133,13 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 1)
     }
     
-    private func testNetworkTrackingDisabled(configureOptions: (Options) -> Void) {
+    private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
         startSDK()
         
         let configuration = URLSessionConfiguration.default
         _ = startTransactionBoundToScope()
-        
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
     
@@ -155,6 +160,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     private func startTransactionBoundToScope() -> SentryTracer {
         return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
     }
+    
 }
 
 class BlockAllRequestsProtocol: URLProtocol {

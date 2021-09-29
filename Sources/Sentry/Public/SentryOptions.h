@@ -176,7 +176,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
 
 /**
- * When enabled, the SDK always adds breadcrumbs for HTTP requests and tracks performance for HTTP
+ * When enabled, the SDK adds breadcrumbs for HTTP requests and tracks performance for HTTP
  * requests if auto performance tracking is enabled. The default is <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableNetworkTracking;
