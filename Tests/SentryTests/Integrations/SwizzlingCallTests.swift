@@ -5,6 +5,7 @@ import XCTest
 class SwizzlingCallTests: XCTestCase {
  
     override func setUp() {
+        super.setUp()
         initSDKForSwizzling()
     }
     
@@ -22,9 +23,6 @@ class SwizzlingCallTests: XCTestCase {
         viewController.viewDidAppear(false)
     }
     
-    func testException_WrongSwizzling() {
-        
-    }
 #endif
     
     func testSwizzling() {
