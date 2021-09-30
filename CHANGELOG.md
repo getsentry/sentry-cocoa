@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+- fix: HTTP instrumentation KVO crash (#1354)
+
 ## 7.4.0
 
 - feat: Add enableNetworkTracking flag (#1349)
