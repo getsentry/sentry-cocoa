@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 7.4.1
 
 - fix: HTTP instrumentation KVO crash (#1354)
 
