@@ -20,6 +20,9 @@ SentrySwizzleInfo ()
 - (SentrySwizzleOriginalIMP)getOriginalImplementation
 {
     NSAssert(_impProviderBlock, nil);
+
+    self.originalCalled = true;
+
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();
 }
