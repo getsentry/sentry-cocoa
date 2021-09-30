@@ -133,6 +133,27 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 5)
     }
     
+    func testWhenTaskCancelledAndSuspended_OnlyOneBreadcrumb() {
+        startSDK()
+        
+        let expect = expectation(description: "Callback Expectation")
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, error) in
+            expect.fulfill()
+        }
+        
+        dataTask.resume()
+        dataTask.suspend()
+        dataTask.resume()
+        dataTask.cancel()
+        wait(for: [expect], timeout: 5)
+        
+        let scope = SentrySDK.currentHub().scope
+        let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(1, breadcrumbs?.count)
+    }
+    
     private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
