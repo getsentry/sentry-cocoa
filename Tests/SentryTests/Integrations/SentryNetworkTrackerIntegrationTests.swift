@@ -139,7 +139,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let expect = expectation(description: "Callback Expectation")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, error) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
             expect.fulfill()
         }
         
