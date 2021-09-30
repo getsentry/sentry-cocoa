@@ -130,7 +130,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
         
         dataTask.resume()
-        wait(for: [expect], timeout: 1)
+        wait(for: [expect], timeout: 5)
     }
     
     private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
