@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.4.0
 
+- feat: Add enableNetworkTracking flag (#1349)
 - fix: Memory Leak for Span (#1352)
 
 ## 7.3.0

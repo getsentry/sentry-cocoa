@@ -312,7 +312,9 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 404))
     }
     
-    func testBreadcrumbWithError() {
+    func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() {
+        fixture.options.enableAutoPerformanceTracking = false
+        
         let task = createDataTask()
         let _ = spanForTask(task: task)!
         
