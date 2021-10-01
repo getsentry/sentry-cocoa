@@ -18,7 +18,7 @@ class UIViewControllerSentryTests: XCTestCase {
         let child2 = UIViewController()
         root.addChild(child2)
         
-        XCTAssertEqual([root, child2, child1], root.descendantViewControllers)
+        XCTAssertEqual(Set([root, child2, child1]), Set(root.descendantViewControllers))
     }
     
     func testGrandChildViewController() {
@@ -33,7 +33,7 @@ class UIViewControllerSentryTests: XCTestCase {
         let grandChild2 = UIViewController()
         child.addChild(grandChild2)
         
-        XCTAssertEqual([root, child, grandChild2, grandChild1], root.descendantViewControllers)
+        XCTAssertEqual(Set([root, child, grandChild2, grandChild1]), Set(root.descendantViewControllers))
     }
 }
 
