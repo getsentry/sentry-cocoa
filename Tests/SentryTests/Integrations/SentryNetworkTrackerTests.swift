@@ -47,7 +47,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-      
+    
     func testCaptureCompletion() {
         let task = createDataTask()
         let span = spanForTask(task: task)!

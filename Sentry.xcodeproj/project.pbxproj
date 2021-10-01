@@ -528,6 +528,7 @@
 		D88817D826D7149100BF2251 /* SentryTraceState.m in Sources */ = {isa = PBXBuildFile; fileRef = D88817D626D7149100BF2251 /* SentryTraceState.m */; };
 		D88817DA26D72AB800BF2251 /* SentryTraceState.h in Headers */ = {isa = PBXBuildFile; fileRef = D88817D926D72AB800BF2251 /* SentryTraceState.h */; };
 		D88817DD26D72BA500BF2251 /* SentryTraceStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */; };
+		D8FFE50C2703DBB400607131 /* SwizzlingCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1112,6 +1113,7 @@
 		D88817D626D7149100BF2251 /* SentryTraceState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTraceState.m; sourceTree = "<group>"; };
 		D88817D926D72AB800BF2251 /* SentryTraceState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryTraceState.h; path = include/SentryTraceState.h; sourceTree = "<group>"; };
 		D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceStateTests.swift; sourceTree = "<group>"; };
+		D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingCallTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1871,6 +1873,7 @@
 				7B6ADFCE26A02CAE0076C206 /* SentryCrashReportTests.swift */,
 				7BC9CD4126A99E670047518E /* SentryUIViewControllerSwizzlingTests.m */,
 				7BC9CD4326A99F660047518E /* SentryUIViewControllerSwizziling+TestInit.h */,
+				D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
@@ -2569,6 +2572,7 @@
 				7BAF3DC8243DB90E008A5414 /* TestTransport.swift in Sources */,
 				7B0A54562523178700A71716 /* SentryScopeSwiftTests.swift in Sources */,
 				7B5B94332657A816002E474B /* SentryAppStartTrackingIntegrationTests.swift in Sources */,
+				D8FFE50C2703DBB400607131 /* SwizzlingCallTests.swift in Sources */,
 				7BE2C7F8257000A4003B66C7 /* SentryTestIntegration.m in Sources */,
 				7BC6EBF4255C044A0059822A /* SentryEventTests.swift in Sources */,
 				63FE721920DA66EC00CDBAE8 /* SentryCrashReportStore_Tests.m in Sources */,
