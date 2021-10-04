@@ -361,25 +361,6 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
     }
     
-    /**
-     * This test makes sure that the span has a weak reference to the tracer and doesn't call the tracer#spanFinished method.
-     */
-    func testSpanFinishesAfterTracerReleased_NoCrash_TracerIsNil() {
-        let child = getUnfinishedChildSpanOfFinishedTracer()
-        XCTAssertNil(Dynamic(child).tracer.asObject)
-        child.finish()
-    }
-    
-    /**
-     * The tracer is deallocated after calling this function as we don't have a reference to it anymore.s
-     */
-    private func getUnfinishedChildSpanOfFinishedTracer() -> Span {
-        let tracer = fixture.getSut()
-        let child = tracer.startChild(operation: "child")
-        tracer.finish()
-        return child
-    }
-    
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
             fatalError("Event must not be nil.")
