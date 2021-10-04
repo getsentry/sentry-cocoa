@@ -102,6 +102,9 @@ SentrySpan ()
 - (void)finish
 {
     self.timestamp = [SentryCurrentDate date];
+    if (self.tracer != nil) {
+        [self.tracer spanFinished:self];
+    }
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
