@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+- fix: Crash When Observing Span Finished (#1360)
+
 ## 7.4.1
 
 - fix: HTTP instrumentation KVO crash (#1354)
