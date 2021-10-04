@@ -3,6 +3,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryInAppLogic.h>
 #import <SentryOptions.h>
 #import <UIViewController+Sentry.h>
@@ -19,7 +20,16 @@ static SentryInAppLogic *inAppLogic;
 {
     inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                    inAppExcludes:options.inAppExcludes];
-    [SentryUIViewControllerSwizziling swizzleViewControllerInits];
+
+    [SentryUIViewControllerSwizziling swizzleRootViewController];
+
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    SentryDispatchQueueWrapper *dispatchQueueWrapper =
+        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
+                                              attributes:attributes];
+    [dispatchQueueWrapper
+        dispatchAsyncWithBlock:^{ [SentryUIViewControllerSwizziling swizzleViewControllers]; }];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -31,27 +41,38 @@ static SentryInAppLogic *inAppLogic;
  * Swizzle the some init methods of the view controller,
  * so we can swizzle user view controller subclass on demand.
  */
-+ (void)swizzleViewControllerInits
++ (void)swizzleViewControllers
 {
-    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:NO];
-            return SentrySWCallOriginal(coder);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
+    NSArray<Class> *viewControllers =
+        [SentryUIViewControllerSwizziling classGetSubclasses:[UIViewController class]];
+    for (Class viewController in viewControllers) {
+        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController isNib:NO];
+    }
+}
 
-    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
-    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
-    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:YES];
-            return SentrySWCallOriginal(nibName, bundle);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
++ (NSArray<Class> *)classGetSubclasses:(Class)parentClass
+{
+    int amountOfClasses = objc_getClassList(NULL, 0);
+    Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * amountOfClasses);
+    amountOfClasses = objc_getClassList(classes, amountOfClasses);
 
-    [SentryUIViewControllerSwizziling swizzleRootViewController];
+    NSMutableArray<Class> *result = [NSMutableArray array];
+    for (NSInteger i = 0; i < amountOfClasses; i++) {
+        Class superClass = classes[i];
+        do {
+            superClass = class_getSuperclass(superClass);
+        } while (superClass && superClass != parentClass);
+
+        if (superClass == nil) {
+            continue;
+        }
+
+        [result addObject:classes[i]];
+    }
+
+    free(classes);
+
+    return result;
 }
 
 /**
@@ -163,7 +184,7 @@ static SentryInAppLogic *inAppLogic;
     // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
-    if (isNib) {
+    if (![class respondsToSelector:@selector(loadView)]) {
         return;
     }
 
