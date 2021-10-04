@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 7.4.2
 
 - fix: Crash When Observing Span Finished (#1360)
 
