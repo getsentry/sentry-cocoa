@@ -84,6 +84,11 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
+ * A method to inform the tracer that a span finished.
+ */
+- (void)spanFinished:(id<SentrySpan>)finishedSpan;
+
+/**
  * Get the tracer from a span.
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
