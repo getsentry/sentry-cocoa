@@ -1,5 +1,7 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
     override func setUp() {
@@ -63,3 +65,5 @@ class ViewWithLoadViewController: UIViewController {
         // empty on purpose
     }
 }
+
+#endif

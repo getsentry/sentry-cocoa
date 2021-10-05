@@ -25,15 +25,15 @@ static SentryInAppLogic *inAppLogic;
 
     [SentryUIViewControllerSwizziling swizzleRootViewController];
 
-    // Swizzle all custom ViewControllers. First, fetch all subclasses of ViewController and then
-    // swizzle them. As there is no straightforward way to get all sub-classes in Objective-C, the
-    // code first retrieves all classes in the runtime, iterates over all classes, and checks for
-    // every class if UIViewController is a parent. Cause loading all classes can take a few
+    // Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and
+    // then swizzle them. As there is no straightforward way to get all sub-classes in Objective-C,
+    // the code first retrieves all classes in the runtime, iterates over all classes, and checks
+    // for every class if UIViewController is a parent. Cause loading all classes can take a few
     // milliseconds, do this on a background thread, which should be fine because the SDK swizzles
     // the root view controller and its children above. Previously, the code intercepted the
     // ViewController initializers with swizzling to swizzle the lifecycle methods. This approach
-    // led to ViewControllers crashing when using a convenience initializer, see GH-1355. The error
-    // occurred because our swizzling logic adds the method to swizzle if the class doesn't
+    // led to UIViewControllers crashing when using a convenience initializer, see GH-1355. The
+    // error occurred because our swizzling logic adds the method to swizzle if the class doesn't
     // implement it. It seems like adding an extra initializer causes problems with the rules for
     // initialization in Swift, see
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
