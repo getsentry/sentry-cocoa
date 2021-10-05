@@ -1,4 +1,5 @@
 #import "SentryPerformanceTrackingIntegration.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryUIViewControllerSwizziling.h"
 
@@ -15,7 +16,12 @@ SentryPerformanceTrackingIntegration ()
     self.options = options;
     if (options.enableAutoPerformanceTracking) {
 #if SENTRY_HAS_UIKIT
-        [SentryUIViewControllerSwizziling startWithOptions:options];
+        dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+            DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        SentryDispatchQueueWrapper *dispatchQueue =
+            [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
+                                                  attributes:attributes];
+        [SentryUIViewControllerSwizziling startWithOptions:options dispatchQueue:dispatchQueue];
 #else
         [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
                                   @"start] does nothing."

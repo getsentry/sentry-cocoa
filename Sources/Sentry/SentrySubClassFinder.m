@@ -10,7 +10,7 @@
     Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * amountOfClasses);
     amountOfClasses = objc_getClassList(classes, amountOfClasses);
 
-    NSMutableArray<Class> *result = [NSMutableArray array];
+    NSMutableArray<Class> *result = [NSMutableArray new];
     for (NSInteger i = 0; i < amountOfClasses; i++) {
         Class superClass = classes[i];
         do {

@@ -18,18 +18,13 @@
 static SentryInAppLogic *inAppLogic;
 
 + (void)startWithOptions:(SentryOptions *)options
+           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                    inAppExcludes:options.inAppExcludes];
 
     [SentryUIViewControllerSwizziling swizzleRootViewController];
-
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-    SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
-                                              attributes:attributes];
-    [dispatchQueueWrapper
+    [dispatchQueue
         dispatchAsyncWithBlock:^{ [SentryUIViewControllerSwizziling swizzleViewControllers]; }];
 }
 
@@ -47,7 +42,7 @@ static SentryInAppLogic *inAppLogic;
     NSArray<Class> *viewControllers =
         [SentrySubClassFinder classGetSubclasses:[UIViewController class]];
     for (Class viewController in viewControllers) {
-        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController isNib:NO];
+        [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
     }
 }
 
@@ -116,14 +111,12 @@ static SentryInAppLogic *inAppLogic;
             NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-            // We don't now if it the UIViewController uses a nib or not.
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass
-                                                                      isNib:YES];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
         }
     }
 }
 
-+ (void)swizzleViewControllerSubClass:(Class)class isNib:(BOOL)isNib
++ (void)swizzleViewControllerSubClass:(Class)class
 {
     if (![SentryUIViewControllerSwizziling shouldSwizzleViewController:class])
         return;
