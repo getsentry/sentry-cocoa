@@ -59,6 +59,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
 class ViewWithLoadViewController: UIViewController {
     override func loadView() {
+        super.loadView()
         // empty on purpose
     }
 }
