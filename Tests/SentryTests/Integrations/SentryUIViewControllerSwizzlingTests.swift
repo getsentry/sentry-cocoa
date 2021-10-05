@@ -17,6 +17,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentryUIViewControllerSwizziling.start(with: Options(), dispatchQueue: TestSentryDispatchQueueWrapper())
+        clearTestState()
     }
 
     func testShouldSwizzle_TestViewController() {
@@ -37,28 +38,27 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertFalse(result)
     }
     
-    func testViewControllerWithoutLoadView_LoadViewNotSwizzled() {
-        testLoadViewSwizzle(viewController: TestViewController.self, loadViewSwizzled: false)
+    func testViewControllerWithoutLoadView_NoTransactionBoundToScope() {
+        let controller = TestViewController()
+        
+        controller.loadView()
+
+        XCTAssertNil(SentrySDK.span)
     }
     
-    func testViewControllerWithLoadView_LoadViewSwizzled() {
-        testLoadViewSwizzle(viewController: ViewWithLoadViewController.self, loadViewSwizzled: true)
+    func testViewControllerWithLoadView_TransactionBoundToScope() {
+        let controller = ViewWithLoadViewController()
+        
+        controller.loadView()
+        
+        let span = SentrySDK.span
+        XCTAssertNotNil(span)
+        
+        let transactionName = Dynamic(span).name.asString
+        let expectedTransactionName = SentryUIViewControllerSanitizer.sanitizeViewControllerName( controller)
+        XCTAssertEqual(expectedTransactionName, transactionName)
     }
-    
-    private func testLoadViewSwizzle(viewController: AnyClass, loadViewSwizzled: Bool) {
-        SentryUIViewControllerSwizziling.swizzleViewControllerSubClass(viewController)
-        
-        let selector = NSSelectorFromString("loadView")
-        let viewControllerImp = class_getMethodImplementation(UIViewController.self, selector)
-        let classLoadViewImp = class_getMethodImplementation(viewController, selector)
-        
-        if loadViewSwizzled {
-            XCTAssertNotEqual(viewControllerImp, classLoadViewImp)
-        } else {
-            XCTAssertEqual(viewControllerImp, classLoadViewImp)
-        }
-        
-    }
+
 }
 
 class ViewWithLoadViewController: UIViewController {
