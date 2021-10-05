@@ -4,7 +4,7 @@
 
 @implementation SentrySubClassFinder
 
-+ (NSArray<Class> *)classGetSubclasses:(Class)parentClass
++ (NSArray<Class> *)getSubclassesOf:(Class)parentClass
 {
     int amountOfClasses = objc_getClassList(NULL, 0);
     Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * amountOfClasses);

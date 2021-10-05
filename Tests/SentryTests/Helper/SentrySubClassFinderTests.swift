@@ -4,24 +4,21 @@ import XCTest
 class SentrySubClassFinderTests: XCTestCase {
 
     func testGetSubClassesOfParent() {
-        
-        let actual = SentrySubClassFinder.classGetSubclasses(Parent.self)
+        let actual = SentrySubClassFinder.getSubclassesOf(Parent.self)
         let expected = [Child1.self, Child2.self, GrandChild1.self, GrandChild2.self]
         
         assert(expected, actual)
     }
     
     func testGetSubClassesOfChild1() {
-        
-        let actual = SentrySubClassFinder.classGetSubclasses(Child1.self)
+        let actual = SentrySubClassFinder.getSubclassesOf(Child1.self)
         let expected = [GrandChild2.self, GrandChild1.self]
         
         assert(expected, actual)
     }
     
     func testGetSubClassesOfChild2() {
-        
-        let actual = SentrySubClassFinder.classGetSubclasses(Child2.self)
+        let actual = SentrySubClassFinder.getSubclassesOf(Child2.self)
         
         XCTAssertEqual(0, actual.count)
     }

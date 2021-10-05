@@ -24,8 +24,9 @@ static SentryInAppLogic *inAppLogic;
                                                    inAppExcludes:options.inAppExcludes];
 
     [SentryUIViewControllerSwizziling swizzleRootViewController];
-    [dispatchQueue
-        dispatchAsyncWithBlock:^{ [SentryUIViewControllerSwizziling swizzleViewControllers]; }];
+    [dispatchQueue dispatchAsyncWithBlock:^{
+        [SentryUIViewControllerSwizziling swizzleCustomViewControllers];
+    }];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -37,10 +38,10 @@ static SentryInAppLogic *inAppLogic;
  * Swizzle the some init methods of the view controller,
  * so we can swizzle user view controller subclass on demand.
  */
-+ (void)swizzleViewControllers
++ (void)swizzleCustomViewControllers
 {
     NSArray<Class> *viewControllers =
-        [SentrySubClassFinder classGetSubclasses:[UIViewController class]];
+        [SentrySubClassFinder getSubclassesOf:[UIViewController class]];
     for (Class viewController in viewControllers) {
         [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
     }
