@@ -6,6 +6,7 @@
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryInAppLogic.h>
 #import <SentryOptions.h>
+#import <SentrySubClassFinder.h>
 #import <UIViewController+Sentry.h>
 #import <objc/runtime.h>
 
@@ -44,35 +45,10 @@ static SentryInAppLogic *inAppLogic;
 + (void)swizzleViewControllers
 {
     NSArray<Class> *viewControllers =
-        [SentryUIViewControllerSwizziling classGetSubclasses:[UIViewController class]];
+        [SentrySubClassFinder classGetSubclasses:[UIViewController class]];
     for (Class viewController in viewControllers) {
         [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController isNib:NO];
     }
-}
-
-+ (NSArray<Class> *)classGetSubclasses:(Class)parentClass
-{
-    int amountOfClasses = objc_getClassList(NULL, 0);
-    Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * amountOfClasses);
-    amountOfClasses = objc_getClassList(classes, amountOfClasses);
-
-    NSMutableArray<Class> *result = [NSMutableArray array];
-    for (NSInteger i = 0; i < amountOfClasses; i++) {
-        Class superClass = classes[i];
-        do {
-            superClass = class_getSuperclass(superClass);
-        } while (superClass && superClass != parentClass);
-
-        if (superClass == nil) {
-            continue;
-        }
-
-        [result addObject:classes[i]];
-    }
-
-    free(classes);
-
-    return result;
 }
 
 /**
@@ -155,7 +131,7 @@ static SentryInAppLogic *inAppLogic;
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
     [SentryUIViewControllerSwizziling swizzleViewLayoutSubViews:class];
-    [SentryUIViewControllerSwizziling swizzleLoadView:class isNib:isNib];
+    [SentryUIViewControllerSwizziling swizzleLoadView:class];
     [SentryUIViewControllerSwizziling swizzleViewDidLoad:class];
     [SentryUIViewControllerSwizziling swizzleViewWillAppear:class];
     [SentryUIViewControllerSwizziling swizzleViewDidAppear:class];
@@ -177,18 +153,20 @@ static SentryInAppLogic *inAppLogic;
     return [inAppLogic isInApp:classImageName];
 }
 
-+ (void)swizzleLoadView:(Class)class isNib:(BOOL)isNib
++ (void)swizzleLoadView:(Class)class
 {
     // The UIViewController only searches for a nib file if you do not override the loadView method.
     // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
     // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
-    if (![class respondsToSelector:@selector(loadView)]) {
+    SEL selector = NSSelectorFromString(@"loadView");
+    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP classLoadViewImp = class_getMethodImplementation(class, selector);
+    if (viewControllerImp == classLoadViewImp) {
         return;
     }
 
-    SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
