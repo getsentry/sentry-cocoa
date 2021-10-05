@@ -5,6 +5,7 @@ import XCTest
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
     override func setUp() {
+        super.setUp()
         let options = Options()
         let imageName = String(
             cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
@@ -14,6 +15,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     override func tearDown() {
+        super.tearDown()
         SentryUIViewControllerSwizziling.start(with: Options(), dispatchQueue: TestSentryDispatchQueueWrapper())
     }
 
