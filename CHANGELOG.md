@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Crash for Custom ViewController init on iOS 15 (#1361)
+
 ## 7.4.2
 
 - fix: Crash When Observing Span Finished (#1360)
