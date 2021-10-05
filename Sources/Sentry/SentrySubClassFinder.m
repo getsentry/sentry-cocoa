@@ -1,5 +1,5 @@
+#import "SentrySubClassFinder.h"
 #import <Foundation/Foundation.h>
-#import <SentrySubClassFinder.h>
 #import <objc/runtime.h>
 
 @implementation SentrySubClassFinder
