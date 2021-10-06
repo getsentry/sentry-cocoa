@@ -17,8 +17,8 @@ static NSString *const SENTRY_IO_OPERATION = @"IO";
 
 - (BOOL)traceWriteToFile:(NSString *)path
                  options:(NSDataWritingOptions)writeOptionsMask
-                   error:(NSError * *)error
-                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError * *))method;
+                   error:(NSError **)error
+                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method;
 
 @end
 

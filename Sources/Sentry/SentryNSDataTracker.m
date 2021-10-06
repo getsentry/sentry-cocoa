@@ -44,12 +44,16 @@ SentryNSDataTracker ()
     }
 }
 
-- (BOOL)traceWriteToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile method:(BOOL (^)(NSString *, BOOL))method {
-    SentrySpanId* spanId = [self.tracker startSpanWithName:@"WRITING_FILE" operation:SENTRY_IO_OPERATION];
-    
-    id<SentrySpan> span  = [self.tracker getSpan:spanId];
+- (BOOL)traceWriteToFile:(NSString *)path
+              atomically:(BOOL)useAuxiliaryFile
+                  method:(BOOL (^)(NSString *, BOOL))method
+{
+    SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
+                                                 operation:SENTRY_IO_OPERATION];
+
+    id<SentrySpan> span = [self.tracker getSpan:spanId];
     [span setDataValue:path forKey:@"path"];
-    
+
     BOOL result = method(path, useAuxiliaryFile);
     [self.tracker finishSpan:spanId];
     return result;
@@ -57,17 +61,18 @@ SentryNSDataTracker ()
 
 - (BOOL)traceWriteToFile:(NSString *)path
                  options:(NSDataWritingOptions)writeOptionsMask
-                   error:(NSError * *)error
-                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError * *))method {
-    SentrySpanId* spanId = [self.tracker startSpanWithName:@"WRITING_FILE" operation:SENTRY_IO_OPERATION];
-    
-    id<SentrySpan> span  = [self.tracker getSpan:spanId];
+                   error:(NSError **)error
+                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
+{
+    SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
+                                                 operation:SENTRY_IO_OPERATION];
+
+    id<SentrySpan> span = [self.tracker getSpan:spanId];
     [span setDataValue:path forKey:@"path"];
-    
+
     BOOL result = method(path, writeOptionsMask, error);
     [self.tracker finishSpan:spanId];
     return result;
 }
-
 
 @end
