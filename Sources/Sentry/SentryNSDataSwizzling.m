@@ -25,26 +25,29 @@
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
         SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
-        SentrySWReplacement({ return SentrySWCallOriginal(path, useAuxiliaryFile); }),
+        SentrySWReplacement({
+            return [SentryNSDataTracker.sharedInstance
+                    traceWriteToFile:path
+                    atomically:useAuxiliaryFile
+                    method:^BOOL(NSString * _Nonnull filePath, BOOL isAtomically) {
+                        return SentrySWCallOriginal(filePath, isAtomically);
+                    }];
+        }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileAtomicallySelector);
 
     SEL writeToFileOptionsErrorSelector = NSSelectorFromString(@"writeToFile:options:error:");
     SentrySwizzleInstanceMethod(NSData.class, writeToFileOptionsErrorSelector,
         SentrySWReturnType(BOOL),
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
-        SentrySWReplacement({ return SentrySWCallOriginal(path, writeOptionsMask, error); }),
+        SentrySWReplacement({
+            return [SentryNSDataTracker.sharedInstance traceWriteToFile:path
+                                                                options:writeOptionsMask
+                                                                  error:error
+                                                                 method:^BOOL(NSString * filePath, NSDataWritingOptions options, NSError * * outError) {
+                return SentrySWCallOriginal(filePath, options, outError);
+            }];
+        }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
 }
 #pragma clang diagnostic pop
 @end
-
-/*
- - writeToFile:atomically:
- Writes the data object's bytes to the file specified by a given path.
- - writeToFile:options:error:
- Writes the data object's bytes to the file specified by a given path.
- - writeToURL:atomically:
- Writes the data object's bytes to the location specified by a given URL.
- - writeToURL:options:error:
- Writes the data object's bytes to the location specified by a given URL.
- */
