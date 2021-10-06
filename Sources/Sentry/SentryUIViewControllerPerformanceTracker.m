@@ -235,9 +235,9 @@ SentryUIViewControllerPerformanceTracker ()
 }
 
 /**
- * When a custom UIViewController is a subclass of another UIViewController, the SDK swizzles both
- * functions, which would create one span for each UIViewController leading to duplicate spans in
- * the transaction. To fix this, we only allow one span per lifecycle method at a time.
+ * When a custom UIViewController is a subclass of another custom UIViewController, the SDK swizzles
+ * both functions, which would create one span for each UIViewController leading to duplicate spans
+ * in the transaction. To fix this, we only allow one span per lifecycle method at a time.
  */
 - (void)limitOverride:(NSString *)description
                target:(UIViewController *)viewController

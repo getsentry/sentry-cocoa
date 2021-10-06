@@ -3,6 +3,18 @@
 ## Unrelease
 
 - feat: Tracking file IO (#1350)
+## 7.4.2
+
+- fix: Crash When Observing Span Finished (#1360)
+
+## 7.4.1
+
+- fix: HTTP instrumentation KVO crash (#1354)
+
+## 7.4.0
+
+- feat: Add enableNetworkTracking flag (#1349)
+- fix: Memory Leak for Span (#1352)
 
 ## 7.3.0
 

@@ -46,6 +46,7 @@ SentryOptions ()
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
+        self.enableNetworkTracking = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
@@ -214,6 +215,10 @@ SentryOptions ()
 
     if (nil != options[@"enableAutoPerformanceTracking"]) {
         self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
+    }
+
+    if (nil != options[@"enableNetworkTracking"]) {
+        self.enableNetworkTracking = [options[@"enableNetworkTracking"] boolValue];
     }
 
     NSNumber *tracesSampleRate = options[@"tracesSampleRate"];

@@ -1,6 +1,11 @@
+import ObjectiveC
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+class TestViewController: UIViewController {
+}
+
 class SentryUIPerformanceTrackerTests: XCTestCase {
 
     let loadView = "loadView"
@@ -16,7 +21,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
     let spanOperation = "spanOperation"
     
     private class Fixture {
-        let viewController = UIViewController()
+        let viewController = TestViewController()
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
         
@@ -40,13 +45,13 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
-    
+
     func testUILifeCycle() {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
         var transactionSpan: Span!
-        
+                
         let callbackExpectation = expectation(description: "Callback Expectation")
         callbackExpectation.expectedFulfillmentCount = 6
         
