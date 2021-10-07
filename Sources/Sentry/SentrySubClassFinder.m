@@ -1,4 +1,5 @@
 #import "SentrySubClassFinder.h"
+#import "SentryLog.h"
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
@@ -6,22 +7,27 @@
 
 + (NSArray<Class> *)getSubclassesOf:(Class)parentClass
 {
-    int amountOfClasses = objc_getClassList(NULL, 0);
-    Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * amountOfClasses);
-    amountOfClasses = objc_getClassList(classes, amountOfClasses);
+    int numClasses = objc_getClassList(NULL, 0);
+    Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * numClasses);
+    numClasses = objc_getClassList(classes, numClasses);
 
     NSMutableArray<Class> *result = [NSMutableArray new];
-    for (NSInteger i = 0; i < amountOfClasses; i++) {
+
+    if (numClasses <= 0) {
+        [SentryLog logWithMessage:@"No classes found when retrieving class list."
+                         andLevel:kSentryLevelError];
+        return result;
+    }
+
+    for (NSInteger i = 0; i < numClasses; i++) {
         Class superClass = classes[i];
         do {
             superClass = class_getSuperclass(superClass);
         } while (superClass && superClass != parentClass);
 
-        if (superClass == nil) {
-            continue;
+        if (superClass != nil) {
+            [result addObject:classes[i]];
         }
-
-        [result addObject:classes[i]];
     }
 
     free(classes);
