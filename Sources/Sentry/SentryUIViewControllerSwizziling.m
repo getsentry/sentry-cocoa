@@ -1,8 +1,10 @@
 #import "SentryUIViewControllerSwizziling.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
+#import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryInAppLogic.h>
 #import <SentryOptions.h>
 #import <UIViewController+Sentry.h>
@@ -16,43 +18,39 @@
 static SentryInAppLogic *inAppLogic;
 
 + (void)startWithOptions:(SentryOptions *)options
+           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                    inAppExcludes:options.inAppExcludes];
-    [SentryUIViewControllerSwizziling swizzleViewControllerInits];
+
+    [SentryUIViewControllerSwizziling swizzleRootViewController];
+
+    // Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and
+    // then swizzle them. As there is no straightforward way to get all sub-classes in Objective-C,
+    // the code first retrieves all classes in the runtime, iterates over all classes, and checks
+    // for every class if UIViewController is a parent. Cause loading all classes can take a few
+    // milliseconds, do this on a background thread, which should be fine because the SDK swizzles
+    // the root view controller and its children above. Previously, the code intercepted the
+    // ViewController initializers with swizzling to swizzle the lifecycle methods. This approach
+    // led to UIViewControllers crashing when using a convenience initializer, see GH-1355. The
+    // error occurred because our swizzling logic adds the method to swizzle if the class doesn't
+    // implement it. It seems like adding an extra initializer causes problems with the rules for
+    // initialization in Swift, see
+    // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
+
+    [dispatchQueue dispatchAsyncWithBlock:^{
+        NSArray<Class> *viewControllers =
+            [SentrySubClassFinder getSubclassesOf:[UIViewController class]];
+        for (Class viewController in viewControllers) {
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
+        }
+    }];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
-
-/**
- * Swizzle the some init methods of the view controller,
- * so we can swizzle user view controller subclass on demand.
- */
-+ (void)swizzleViewControllerInits
-{
-    static const void *swizzleViewControllerInitWithCoder = &swizzleViewControllerInitWithCoder;
-    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
-    SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSCoder * coder), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:NO];
-            return SentrySWCallOriginal(coder);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithCoder);
-
-    static const void *swizzleViewControllerInitWithNib = &swizzleViewControllerInitWithNib;
-    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
-    SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
-        SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:[self class] isNib:YES];
-            return SentrySWCallOriginal(nibName, bundle);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewControllerInitWithNib);
-
-    [SentryUIViewControllerSwizziling swizzleRootViewController];
-}
 
 /**
  * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view controller
@@ -119,14 +117,12 @@ static SentryInAppLogic *inAppLogic;
             NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-            // We don't now if it the UIViewController uses a nib or not.
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass
-                                                                      isNib:YES];
+            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
         }
     }
 }
 
-+ (void)swizzleViewControllerSubClass:(Class)class isNib:(BOOL)isNib
++ (void)swizzleViewControllerSubClass:(Class)class
 {
     if (![SentryUIViewControllerSwizziling shouldSwizzleViewController:class])
         return;
@@ -134,7 +130,7 @@ static SentryInAppLogic *inAppLogic;
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
     [SentryUIViewControllerSwizziling swizzleViewLayoutSubViews:class];
-    [SentryUIViewControllerSwizziling swizzleLoadView:class isNib:isNib];
+    [SentryUIViewControllerSwizziling swizzleLoadView:class];
     [SentryUIViewControllerSwizziling swizzleViewDidLoad:class];
     [SentryUIViewControllerSwizziling swizzleViewWillAppear:class];
     [SentryUIViewControllerSwizziling swizzleViewDidAppear:class];
@@ -156,18 +152,20 @@ static SentryInAppLogic *inAppLogic;
     return [inAppLogic isInApp:classImageName];
 }
 
-+ (void)swizzleLoadView:(Class)class isNib:(BOOL)isNib
++ (void)swizzleLoadView:(Class)class
 {
     // The UIViewController only searches for a nib file if you do not override the loadView method.
     // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
     // for a nib file and doesn't load a view. This would lead to crashes as no view is loaded. As a
     // workaround, we skip swizzling the loadView and accept that the SKD doesn't create a span for
     // loadView if the UIViewController doesn't implement it.
-    if (isNib) {
+    SEL selector = NSSelectorFromString(@"loadView");
+    IMP viewControllerImp = class_getMethodImplementation([UIViewController class], selector);
+    IMP classLoadViewImp = class_getMethodImplementation(class, selector);
+    if (viewControllerImp == classLoadViewImp) {
         return;
     }
 
-    SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared

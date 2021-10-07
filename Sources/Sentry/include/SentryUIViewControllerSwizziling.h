@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-@class SentryOptions;
+@class SentryOptions, SentryDispatchQueueWrapper;
 
 /**
  * Class is responsible to swizzle UI key methods
@@ -13,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryUIViewControllerSwizziling : NSObject
 
-+ (void)startWithOptions:(SentryOptions *)options;
++ (void)startWithOptions:(SentryOptions *)options
+           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 @end
 

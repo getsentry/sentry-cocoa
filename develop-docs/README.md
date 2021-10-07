@@ -6,6 +6,10 @@ This page contains internal documentation for development.
 
 ![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
 
+## Generating classes
+
+You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
+
 ## Generating Diagrams
 
 The diagrams are created with [PlantUml](http://plantuml.com). The advantage of PlantUml
