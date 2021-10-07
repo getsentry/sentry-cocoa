@@ -24,7 +24,7 @@ do
         super.viewDidLoad()
        } 
 
-       func$i() -> Bool {
+       func a$i() -> Bool {
            return true
        }
     }" >> $viewControllers
