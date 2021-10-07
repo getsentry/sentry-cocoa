@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.4.3
 
 - fix: Crash for Custom ViewController init on iOS 15 (#1361)
 
