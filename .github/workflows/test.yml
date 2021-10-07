@@ -46,10 +46,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
       - run: ./scripts/ci-select-xcode.sh 
-      - run: bundle install
 
       - name: Run Fastlane
-        run: bundle exec fastlane ui_tests
+        run: fastlane ui_tests
         shell: sh

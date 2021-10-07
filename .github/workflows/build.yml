@@ -14,9 +14,7 @@ jobs:
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
       - run: ./scripts/ci-select-xcode.sh 
-      - run: bundle install
 
       - name: Run Fastlane
         env:
@@ -27,8 +25,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-        run: |
-          bundle exec fastlane build_ios_swift
+        run: fastlane build_ios_swift
         shell: sh
 
   build-sample:
