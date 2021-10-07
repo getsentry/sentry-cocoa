@@ -44,9 +44,9 @@ SentryNSDataTracker ()
     }
 }
 
-- (BOOL)traceWriteToFile:(NSString *)path
-              atomically:(BOOL)useAuxiliaryFile
-                  method:(BOOL (^)(NSString *, BOOL))method
+- (BOOL)measureWriteToFile:(NSString *)path
+                atomically:(BOOL)useAuxiliaryFile
+                    method:(BOOL (^)(NSString *, BOOL))method
 {
     SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
                                                  operation:SENTRY_IO_OPERATION];
@@ -59,10 +59,10 @@ SentryNSDataTracker ()
     return result;
 }
 
-- (BOOL)traceWriteToFile:(NSString *)path
-                 options:(NSDataWritingOptions)writeOptionsMask
-                   error:(NSError **)error
-                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
+- (BOOL)measureWriteToFile:(NSString *)path
+                   options:(NSDataWritingOptions)writeOptionsMask
+                     error:(NSError **)error
+                    method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
     SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
                                                  operation:SENTRY_IO_OPERATION];

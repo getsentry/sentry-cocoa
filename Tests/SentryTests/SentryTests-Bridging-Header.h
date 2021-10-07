@@ -73,6 +73,8 @@
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
 #import "SentryMigrateSessionInit.h"
+#import "SentryNSDataSwizzling.h"
+#import "SentryNSDataTracker.h"
 #import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNetworkTracker.h"
