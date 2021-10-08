@@ -9,19 +9,21 @@ class SentryNSDataTrackerTests: XCTestCase {
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
         
-        init() {
+        func getSut() -> SentryNSDataTracker {
             let result = SentryNSDataTracker.sharedInstance
             Dynamic(result).tracker = self.tracker
-        }
-        
-        func getSut() -> SentryNSDataTracker {
             CurrentDate.setCurrentDateProvider(dateProvider)
             return SentryNSDataTracker.sharedInstance
         }
         
     }
     
-    private let fixture = Fixture()
+    private var fixture : Fixture!
+    
+    override func setUp() {
+        super.setUp()
+        fixture = Fixture()
+    }
     
     func testWritePathAtomically() {
         let sut = fixture.getSut()
