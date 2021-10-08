@@ -25,7 +25,13 @@ class SwizzlingCallTests: XCTestCase {
     
 #endif
     
-    func testSwizzling() {
+    func testNSDataSwizzling() {
+        let data = NSData()
+        data.write(toFile: "TEST", atomically: false)
+        try? data.write(toFile: "TEST", options: .atomic)
+    }
+    
+    func testURLSessionConfigurationSwizzling() {
         let task = URLSession.shared.dataTask(with: URL(string: "http://localhost/")!)
         task.resume()
         

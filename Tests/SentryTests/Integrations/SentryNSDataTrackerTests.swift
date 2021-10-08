@@ -6,8 +6,16 @@ class SentryNSDataTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
+        let tracker = SentryPerformanceTracker()
+        let dateProvider = TestCurrentDateProvider()
+        
+        init() {
+            let result = SentryNSDataTracker.sharedInstance
+            Dynamic(result).tracker = self.tracker
+        }
         
         func getSut() -> SentryNSDataTracker {
+            CurrentDate.setCurrentDateProvider(dateProvider)
             return SentryNSDataTracker.sharedInstance
         }
         
@@ -66,5 +74,53 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(methodOptions, .withoutOverwriting)
         XCTAssertEqual(methodError?.domain, "Test Error")
+    }
+    
+    func testWriteAtomically_CheckTrace() {
+        let sut = fixture.getSut()
+        var span: Span?
+                
+        sut.measureWrite(toFile: fixture.filePath, atomically: false) { _, _ in
+            span = self.firstSpan(tracker: self.fixture.tracker)
+            XCTAssertFalse(span!.isFinished)
+            self.advanceTime(bySeconds: 4)
+            return true
+        }
+        
+        assertSpanDuration(span: span!, expectedDuration: 4)
+        XCTAssertTrue(span!.isFinished)
+        XCTAssertEqual(span?.data?["path"] as! String, fixture.filePath)
+        XCTAssertNotNil(span)
+    }
+    
+    func testWriteWithOptionsAndError_CheckTrace() {
+        let sut = fixture.getSut()
+        var span: Span?
+        
+        try! sut.measureWrite(toFile: fixture.filePath, options: .atomic) { _, _, _ in
+            span = self.firstSpan(tracker: self.fixture.tracker)
+            XCTAssertFalse(span!.isFinished)
+            self.advanceTime(bySeconds: 3)
+            return true
+        }
+        
+        assertSpanDuration(span: span!, expectedDuration: 3)
+        XCTAssertTrue(span!.isFinished)
+        XCTAssertEqual(span?.data?["path"] as! String, fixture.filePath)
+        XCTAssertNotNil(span)
+    }
+    
+    private func firstSpan(tracker: SentryPerformanceTracker) -> Span {
+        let result = Dynamic(tracker).spans as [SpanId: Span]?
+        return result!.first!.value
+    }
+    
+    private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
+        let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
+        XCTAssertEqual(duration, expectedDuration)
+    }
+    
+    private func advanceTime(bySeconds: TimeInterval) {
+        fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
     }
 }
