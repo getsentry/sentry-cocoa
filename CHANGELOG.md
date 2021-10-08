@@ -3,6 +3,8 @@
 ## Unrelease
 
 - feat: Tracking file IO (#1350)
+- feat: Tracking file IO writing (#1350)
+
 ## 7.4.2
 
 - fix: Crash When Observing Span Finished (#1360)
