@@ -18,7 +18,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         
     }
     
-    private var fixture : Fixture!
+    private var fixture: Fixture!
     
     override func setUp() {
         super.setUp()

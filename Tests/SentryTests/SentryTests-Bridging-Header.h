@@ -124,4 +124,3 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
-#import "SentryNSDataTracker.h"
