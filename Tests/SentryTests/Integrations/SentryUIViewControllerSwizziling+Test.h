@@ -10,6 +10,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)swizzleViewControllerSubClass:(Class)class;
 
++ (void)swizzleSubclassesOf:(Class)parentClass
+              dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+               swizzleBlock:(void (^)(Class))block;
+
 @end
 
 #endif
