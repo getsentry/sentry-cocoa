@@ -12,9 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
  * so Sentry can track UI performance.
  */
 @interface SentryUIViewControllerSwizziling : NSObject
+SENTRY_NO_INIT
 
-+ (void)startWithOptions:(SentryOptions *)options
-           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+- (instancetype)initWithOptions:(SentryOptions *)options
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (void)start;
 
 @end
 
