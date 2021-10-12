@@ -120,15 +120,6 @@ static BOOL appStartMeasurementRead;
     context.spanDescription = description;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-
-    if (_waitForChildren) {
-        // Observe when the child finishes
-        [child addObserver:self
-                forKeyPath:NSStringFromSelector(@selector(timestamp))
-                   options:NSKeyValueObservingOptionNew
-                   context:nil];
-    }
-
     @synchronized(self.children) {
         [self.children addObject:child];
     }
@@ -136,22 +127,12 @@ static BOOL appStartMeasurementRead;
     return child;
 }
 
-/**
- * Is called when a span finishes and checks if we can finish.
- */
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
-                       context:(void *)context
+- (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
-    if ([keyPath isEqualToString:NSStringFromSelector(@selector(timestamp))]) {
-        SentrySpan *finishedSpan = object;
-        if (finishedSpan.timestamp != nil) {
-            [finishedSpan removeObserver:self
-                              forKeyPath:NSStringFromSelector(@selector(timestamp))
-                                 context:nil];
-            [self canBeFinished];
-        }
+    // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
+    // calls finish on the rootSpan.
+    if (finishedSpan != self.rootSpan) {
+        [self canBeFinished];
     }
 }
 

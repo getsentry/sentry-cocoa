@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- fix: Crash for Call Should be on Main Thread (#1371)
+
+## 7.4.3
+
+- fix: Crash for Custom ViewController init on iOS 15 (#1361)
+
+## 7.4.2
+
+- fix: Crash When Observing Span Finished (#1360)
+
+## 7.4.1
+
+- fix: HTTP instrumentation KVO crash (#1354)
+
+## 7.4.0
+
 - feat: Add enableNetworkTracking flag (#1349)
 - fix: Memory Leak for Span (#1352)
 

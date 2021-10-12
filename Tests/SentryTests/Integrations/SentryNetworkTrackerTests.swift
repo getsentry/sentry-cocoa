@@ -47,7 +47,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-      
+    
     func testCaptureCompletion() {
         let task = createDataTask()
         let span = spanForTask(task: task)!
@@ -199,7 +199,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(task.observationInfo)
         
         task.state = .completed
-        XCTAssertNotNil(task.observationInfo)
+        XCTAssertNil(task.observationInfo)
         XCTAssertFalse(spans!.first!.isFinished)
     }
     
@@ -300,6 +300,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs!.count, 1)
         XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+    }
+    
+    func testWhenNoSpan_RemoveObserver() {
+        let task = createDataTask()
+        let _ = spanForTask(task: task)!
+        
+        objc_removeAssociatedObjects(task)
+        
+        task.state = .completed
+        task.state = .completed
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(1, breadcrumbs?.count)
     }
     
     func testBreadcrumbNotFound() {

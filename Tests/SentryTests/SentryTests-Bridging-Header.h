@@ -114,6 +114,7 @@
 #import "SentryTransportFactory.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryUIViewControllerSanitizer.h"
+#import "SentryUIViewControllerSwizziling+Test.h"
 #import "SentryUIViewControllerSwizziling.h"
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
