@@ -87,9 +87,8 @@ static SentryInAppLogic *inAppLogic;
                 NSInteger index = [i integerValue];
                 block(classes[index]);
             }
+            free(classes);
         }];
-
-        free(classes);
     }];
 }
 
