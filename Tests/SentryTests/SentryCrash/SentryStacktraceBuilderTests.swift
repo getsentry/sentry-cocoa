@@ -74,7 +74,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         
         let expectation = expectation(description: "testAsyncStacktraces")
         
-        
         fixture.queue.async {
             self.asyncFrame1(expectation: expectation)
         }
