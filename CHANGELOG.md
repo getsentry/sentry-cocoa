@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Crash for Call Should be on Main Thread (#1371)
+
 ## 7.4.3
 
 - fix: Crash for Custom ViewController init on iOS 15 (#1361)

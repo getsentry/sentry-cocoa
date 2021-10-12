@@ -5,19 +5,19 @@ class SentryStacktraceBuilderTests: XCTestCase {
     
     private class Fixture {
         let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
-        
+
         var sut: SentryStacktraceBuilder {
             return SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
         }
     }
-    
+
     private var fixture: Fixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = Fixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -73,7 +73,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         }
         
         let expect = expectation(description: "testAsyncStacktraces")
-        
+
         fixture.queue.async {
             self.asyncFrame1(expect: expect)
         }
@@ -95,7 +95,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
     
     func asyncAssertion(expect: XCTestExpectation) {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
         let filteredFrames = actual.frames.filter { frame in
             return frame.function?.contains("testAsyncStacktraces") ?? false ||
             frame.function?.contains("asyncFrame1") ?? false ||
@@ -105,10 +105,10 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let startFrames = actual.frames.filter { frame in
             return frame.stackStart?.boolValue ?? false
         }
-        
+
         XCTAssertTrue(filteredFrames.count >= 4, "The Stacktrace must include the async callers.")
         XCTAssertTrue(startFrames.count >= 3, "The Stacktrace must have async continuation markers.")
-        
+
         expect.fulfill()
     }
 }
