@@ -4,7 +4,7 @@ import XCTest
 class SentryStacktraceBuilderTests: XCTestCase {
     
     private class Fixture {
-        let queue = DispatchQueue(label: "SentryStacktraceBuilderTests", qos: .default, attributes: [])
+        let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
         
         var sut: SentryStacktraceBuilder {
             return SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
