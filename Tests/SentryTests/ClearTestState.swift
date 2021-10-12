@@ -9,12 +9,12 @@ func clearTestState() {
     CurrentDate.setCurrentDateProvider(nil)
     SentryNetworkTracker.sharedInstance.disable()
     
-    let swizzling = SentryUIViewControllerSwizziling(options: Options(), dispatchQueue: SentryDispatchQueueWrapper())
-    swizzling.start()
-    
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     let framesTracker = SentryFramesTracker.sharedInstance()
     framesTracker.stop()
     framesTracker.resetFrames()
+    
+    let swizzling = SentryUIViewControllerSwizziling(options: Options(), dispatchQueue: SentryDispatchQueueWrapper())
+    swizzling.start()
     #endif
 }
