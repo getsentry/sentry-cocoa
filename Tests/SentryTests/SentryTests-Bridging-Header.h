@@ -100,7 +100,6 @@
 #import "SentrySpanId.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
-#import "SentrySubClassFinder.h"
 #import "SentrySysctl.h"
 #import "SentrySystemEventsBreadcrumbs.h"
 #import "SentryTestIntegration.h"

@@ -6,9 +6,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryUIViewControllerSwizziling (Test)
 
-+ (BOOL)shouldSwizzleViewController:(Class)class;
+- (BOOL)shouldSwizzleViewController:(Class)class;
 
-+ (void)swizzleViewControllerSubClass:(Class)class;
+- (void)swizzleViewControllerSubClass:(Class)class;
+
+- (void)swizzleSubclassesOf:(Class)parentClass
+              dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+               swizzleBlock:(void (^)(Class))block;
 
 @end
 
