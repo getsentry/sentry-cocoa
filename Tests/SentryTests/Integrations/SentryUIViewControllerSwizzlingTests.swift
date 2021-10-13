@@ -3,37 +3,44 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
+    
+    private class Fixture {
+        var sut: SentryUIViewControllerSwizziling {
+            let options = Options()
+            let imageName = String(
+                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: imageName.lastPathComponent)
+            return SentryUIViewControllerSwizziling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        }
+    }
+    
+    private var fixture: Fixture!
 
     override func setUp() {
         super.setUp()
-        let options = Options()
-        let imageName = String(
-            cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
-            encoding: .utf8)! as NSString
-        options.add(inAppInclude: imageName.lastPathComponent)
-        SentryUIViewControllerSwizziling.start(with: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        fixture = Fixture()
     }
     
     override func tearDown() {
         super.tearDown()
-        SentryUIViewControllerSwizziling.start(with: Options(), dispatchQueue: TestSentryDispatchQueueWrapper())
         clearTestState()
     }
 
     func testShouldSwizzle_TestViewController() {
-        let result = SentryUIViewControllerSwizziling.shouldSwizzleViewController(TestViewController.self)
+        let result = fixture.sut.shouldSwizzleViewController(TestViewController.self)
 
         XCTAssertTrue(result)
     }
     
     func testShouldNotSwizzle_NoImageClass() {
-        let result = SentryUIViewControllerSwizziling.shouldSwizzleViewController(UIApplication.self)
+        let result = fixture.sut.shouldSwizzleViewController(UIApplication.self)
 
         XCTAssertFalse(result)
     }
     
     func testShouldNotSwizzle_UIViewController() {
-        let result = SentryUIViewControllerSwizziling.shouldSwizzleViewController(UIViewController.self)
+        let result = fixture.sut.shouldSwizzleViewController(UIViewController.self)
 
         XCTAssertFalse(result)
     }
@@ -47,6 +54,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
+        fixture.sut.start()
         let controller = ViewWithLoadViewController()
         
         controller.loadView()
@@ -81,7 +89,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var actual: [AnyClass] = []
-        SentryUIViewControllerSwizziling.swizzleSubclasses(of: type, dispatchQueue: SentryDispatchQueueWrapper()) { subClass in
+        fixture.sut.swizzleSubclasses(of: type, dispatchQueue: SentryDispatchQueueWrapper()) { subClass in
             XCTAssertTrue(Thread.isMainThread, "Block must be executed on the main thread.")
             actual.append(subClass)
             expect.fulfill()

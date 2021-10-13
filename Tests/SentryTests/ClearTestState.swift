@@ -13,5 +13,8 @@ func clearTestState() {
     let framesTracker = SentryFramesTracker.sharedInstance()
     framesTracker.stop()
     framesTracker.resetFrames()
+    
+    let swizzling = SentryUIViewControllerSwizziling(options: Options(), dispatchQueue: SentryDispatchQueueWrapper())
+    swizzling.start()
     #endif
 }
