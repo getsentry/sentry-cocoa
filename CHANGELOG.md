@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.4.4
 
 - fix: Crash for Call Should be on Main Thread (#1371)
 
