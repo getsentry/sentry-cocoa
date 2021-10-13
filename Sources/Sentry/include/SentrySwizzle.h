@@ -365,10 +365,14 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                             SentrySWReplacement                                                    \
                         } @finally {                                                               \
                             if (!swizzleInfo.originalCalled)                                       \
-                                @throw(                                                            \
-                                    [NSException exceptionWithName:@"SwizzlingError"               \
-                                                            reason:@"Original method not called"   \
-                                                          userInfo:nil]);                          \
+                                @throw([NSException                                                \
+                                    exceptionWithName:@"SwizzlingError"                            \
+                                               reason:[NSString stringWithFormat:                  \
+                                                                    @"Original '%@' method not "   \
+                                                                    @"called for class '%@'",      \
+                                                                NSStringFromSelector(selector),    \
+                                                                NSStringFromClass(classToSwizzle)] \
+                                             userInfo:nil]);                                       \
                         }                                                                          \
                     };                                                                             \
                 }                                                                                  \
@@ -390,9 +394,14 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          SentrySWReplacement                                                       \
                      } @finally {                                                                  \
                          if (!swizzleInfo.originalCalled)                                          \
-                             @throw([NSException exceptionWithName:@"Swizzling Error"              \
-                                                            reason:@"Original method not called"   \
-                                                          userInfo:nil]);                          \
+                             @throw([NSException                                                   \
+                                 exceptionWithName:@"Swizzling Error"                              \
+                                            reason:[NSString stringWithFormat:                     \
+                                                                 @"Original '%@' method not "      \
+                                                                 @"called for class '%@'",         \
+                                                             NSStringFromSelector(selector),       \
+                                                             NSStringFromClass(classToSwizzle)]    \
+                                          userInfo:nil]);                                          \
                      }                                                                             \
                  };                                                                                \
              }];
