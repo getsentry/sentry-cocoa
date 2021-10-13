@@ -3,6 +3,7 @@ import Foundation
 class TestClient: Client {
     
     let sentryFileManager: SentryFileManager
+    let queue = DispatchQueue(label: "TestClient", attributes: .concurrent)
     
     override init?(options: Options) {
         sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
@@ -13,96 +14,96 @@ class TestClient: Client {
         sentryFileManager
     }
     
-    var sessions: [SentrySession] = []
+    var captureSessionInvocations = Invocations<SentrySession>()
     override func capture(session: SentrySession) {
-        sessions.append(session)
+        captureSessionInvocations.record(session)
     }
     
-    var captureEventArguments: [Event] = []
+    var captureEventInvocations = Invocations<Event>()
     override func capture(event: Event) -> SentryId {
-        captureEventArguments.append(event)
+        captureEventInvocations.record(event)
         return event.eventId
     }
     
-    var captureEventWithScopeArguments: [(event: Event, scope: Scope)] = []
+    var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope)>()
     override func capture(event: Event, scope: Scope) -> SentryId {
-        captureEventWithScopeArguments.append((event, scope))
+        captureEventWithScopeInvocations.record((event, scope))
         return event.eventId
     }
     
-    var captureMessageArguments: [String] = []
+    var captureMessageInvocations = Invocations<String>()
     override func capture(message: String) -> SentryId {
-        captureMessageArguments.append(message)
+        self.captureMessageInvocations.record(message)
         return SentryId()
     }
     
-    var captureMessageWithScopeArguments: [(message: String, scope: Scope)] = []
+    var captureMessageWithScopeInvocations = Invocations<(message: String, scope: Scope)>()
     override func capture(message: String, scope: Scope) -> SentryId {
-        captureMessageWithScopeArguments.append((message, scope))
+        captureMessageWithScopeInvocations.record((message, scope))
         return SentryId()
     }
     
-    var captureErrorArguments: [Error] = []
+    var captureErrorInvocations = Invocations<Error>()
     override func capture(error: Error) -> SentryId {
-        captureErrorArguments.append(error)
+        captureErrorInvocations.record(error)
         return SentryId()
     }
     
-    var captureErrorWithScopeArguments: [(error: Error, scope: Scope)] = []
+    var captureErrorWithScopeInvocations = Invocations<(error: Error, scope: Scope)>()
     override func capture(error: Error, scope: Scope) -> SentryId {
-        captureErrorWithScopeArguments.append((error, scope))
+        captureErrorWithScopeInvocations.record((error, scope))
         return SentryId()
     }
     
-    var captureExceptionArguments: [NSException] = []
+    var captureExceptionInvocations = Invocations<NSException>()
     override func capture(exception: NSException) -> SentryId {
-        captureExceptionArguments.append(exception)
+        captureExceptionInvocations.record(exception)
         return SentryId()
     }
     
-    var captureExceptionWithScopeArguments: [(exception: NSException, scope: Scope)] = []
+    var captureExceptionWithScopeInvocations = Invocations<(exception: NSException, scope: Scope)>()
     override func capture(exception: NSException, scope: Scope) -> SentryId {
-        captureExceptionWithScopeArguments.append((exception, scope))
+        captureExceptionWithScopeInvocations.record((exception, scope))
         return SentryId()
     }
     
-    var captureErrorWithSessionArguments: [(error: Error, session: SentrySession, scope: Scope)] = []
+    var captureErrorWithSessionInvocations = Invocations<(error: Error, session: SentrySession, scope: Scope)>()
     override func captureError(_ error: Error, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureErrorWithSessionArguments.append((error, session, scope))
-               return SentryId()
+        captureErrorWithSessionInvocations.record((error, session, scope))
+        return SentryId()
     }
     
-    var captureExceptionWithSessionArguments: [(exception: NSException, session: SentrySession, scope: Scope)] = []
+    var captureExceptionWithSessionInvocations = Invocations<(exception: NSException, session: SentrySession, scope: Scope)>()
     override func capture(_ exception: NSException, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureExceptionWithSessionArguments.append((exception, session, scope))
+        captureExceptionWithSessionInvocations.record((exception, session, scope))
         return SentryId()
     }
     
-    var captureCrashEventArguments: [(event: Event, scope: Scope)] = []
+    var captureCrashEventInvocations = Invocations<(event: Event, scope: Scope)>()
     override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
-        captureCrashEventArguments.append((event, scope))
+        captureCrashEventInvocations.record((event, scope))
         return SentryId()
     }
     
-    var captureCrashEventWithSessionArguments: [(event: Event, session: SentrySession, scope: Scope)] = []
+    var captureCrashEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
     override func captureCrash(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
-        captureCrashEventWithSessionArguments.append((event, session, scope))
+        captureCrashEventWithSessionInvocations.record((event, session, scope))
         return SentryId()
     }
     
-    var capturedUserFeedback: [UserFeedback] = []
+    var captureUserFeedbackInvocations = Invocations<UserFeedback>()
     override func capture(userFeedback: UserFeedback) {
-        capturedUserFeedback.append(userFeedback)
+        captureUserFeedbackInvocations.record(userFeedback)
     }
     
-    var capturedEnvelopes: [SentryEnvelope] = []
+    var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
     override func capture(envelope: SentryEnvelope) {
-        capturedEnvelopes.append(envelope)
+        captureEnvelopeInvocations.record(envelope)
     }
     
-    var storedEnvelopes: [SentryEnvelope] = []
+    var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
     override func store(_ envelope: SentryEnvelope) {
-        storedEnvelopes.append(envelope)
+        storedEnvelopeInvocations.record(envelope)
     }
 }
 
@@ -126,5 +127,4 @@ class TestFileManager: SentryFileManager {
         deleteTimestampLastInForegroundInvocations += 1
         timestampLastInForeground = nil
     }
-    
 }
