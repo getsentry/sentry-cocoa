@@ -143,14 +143,14 @@ SentryUIViewControllerSwizziling ()
 
     // Check if delegate responds to window, which it doesn't have to.
     if (![app.delegate respondsToSelector:@selector(window)]) {
-        NSString *message
-            = @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController.";
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
+                            @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     if (app.delegate.window == nil) {
-        NSString *message = @"UIViewControllerSwizziling UIApplicationDelegate.window is nil. "
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
                             @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
@@ -158,9 +158,9 @@ SentryUIViewControllerSwizziling ()
 
     UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
-        NSString *message
-            = @"UIViewControllerSwizziling UIApplicationDelegate.window.rootViewController is nil. "
-              @"Skipping swizzleRootViewController.";
+        NSString *message = @"UIViewControllerSwizziling: "
+                            @"UIApplicationDelegate.window.rootViewController is nil. "
+                            @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
