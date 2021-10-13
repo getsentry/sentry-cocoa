@@ -110,7 +110,7 @@ class SentryClientTest: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        SentrySDK.crashedLastRunCalled = false
+        clearTestState()
     }
     
     func testCaptureMessage() {
