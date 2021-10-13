@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Original method not called exception overriding previous exception (#1378)
+
 ## 7.4.4
 
 - fix: Crash for Call Should be on Main Thread (#1371)
