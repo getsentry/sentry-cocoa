@@ -363,6 +363,9 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                         _SentrySWDel2Arg(__unsafe_unretained id self, SentrySWArguments)) {        \
                         @try {                                                                     \
                             SentrySWReplacement                                                    \
+                        } @catch (id ex) {                                                         \
+                            swizzleInfo.originalCalled = YES;                                      \
+                            @throw ex;                                                             \
                         } @finally {                                                               \
                             if (!swizzleInfo.originalCalled)                                       \
                                 @throw(                                                            \
@@ -388,6 +391,9 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                      _SentrySWDel2Arg(__unsafe_unretained id self, SentrySWArguments)) {           \
                      @try {                                                                        \
                          SentrySWReplacement                                                       \
+                     } @catch (id ex) {                                                            \
+                         swizzleInfo.originalCalled = YES;                                         \
+                         @throw ex;                                                                \
                      } @finally {                                                                  \
                          if (!swizzleInfo.originalCalled)                                          \
                              @throw([NSException exceptionWithName:@"Swizzling Error"              \

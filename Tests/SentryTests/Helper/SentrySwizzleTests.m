@@ -84,6 +84,10 @@ static NSMutableString *_logString = nil;
 {
 };
 
+- (void)methodForSwizzlingWithException
+{
+};
+
 - (NSString *)string
 {
     return @"ABC";
@@ -351,6 +355,31 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
         SentrySwizzleModeAlways, NULL);
 
     XCTAssertThrows([a methodForSwizzlingWithoutCallOriginal]);
+}
+
+- (void)testSwizzleDontCallOverrideException
+{
+    const NSString *error = @"SOME SWIZZLING ERROR";
+    SEL selector = @selector(methodForSwizzlingWithException);
+    SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
+
+    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
+            @throw error;
+            SentrySWCallOriginal();
+            // We need to use SentrySWCallOriginal in SentrySWReplacement, otherwise the code does
+            // not compile But a wrong logic can prevent it to be called
+        }),
+        SentrySwizzleModeAlways, NULL);
+
+    id catchError;
+    @try {
+        [a methodForSwizzlingWithException];
+    } @catch (id exception) {
+        catchError = exception;
+    }
+
+    XCTAssertEqual(error, catchError);
 }
 
 @end
