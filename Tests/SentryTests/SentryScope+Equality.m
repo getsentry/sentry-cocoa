@@ -1,7 +1,8 @@
 
 #import "SentryScope+Equality.h"
 
-@implementation SentryScope (Equality)
+@implementation
+SentryScope (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other
 {
