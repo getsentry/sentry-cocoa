@@ -6,8 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Expose the internal test init for testing. */
-@interface
-SentryClient (TestInit)
+@interface SentryClient (TestInit)
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    andTransport:(id<SentryTransport>)transport

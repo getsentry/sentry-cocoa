@@ -57,8 +57,7 @@
 /**
  * Deep key search methods for NSDictionary.
  */
-@interface
-NSDictionary (SentryDeepSearch)
+@interface NSDictionary (SentryDeepSearch)
 
 #pragma mark - Lookups
 
@@ -133,8 +132,7 @@ NSDictionary (SentryDeepSearch)
 /**
  * Deep key search methods for NSDictionary.
  */
-@interface
-NSArray (DeepSearch)
+@interface NSArray (DeepSearch)
 
 #pragma mark - Lookups
 

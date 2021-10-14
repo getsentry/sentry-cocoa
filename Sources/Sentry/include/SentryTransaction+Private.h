@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryTransaction (Private)
+@interface SentryTransaction (Private)
 
 - (void)setMeasurementValue:(id)value forKey:(NSString *)key;
 

@@ -3,8 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryScope (Equality)
+@interface SentryScope (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other;
 - (BOOL)isEqualToScope:(SentryScope *)scope;

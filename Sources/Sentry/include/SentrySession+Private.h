@@ -3,8 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySession (Private)
+@interface SentrySession (Private)
 
 - (void)setFlagInit;
 

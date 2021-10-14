@@ -1,7 +1,6 @@
 #import "NSData+Sentry.h"
 
-@implementation
-NSData (Sentry)
+@implementation NSData (Sentry)
 
 - (NSData *)nullTerminated
 {

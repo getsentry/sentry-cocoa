@@ -1,7 +1,6 @@
 #import "SentryMessage+Equality.h"
 
-@implementation
-SentryMessage (Equality)
+@implementation SentryMessage (Equality)
 
 - (BOOL)isEqual:(id)other
 {

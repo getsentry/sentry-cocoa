@@ -5,8 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryLogOutput;
 
-@interface
-SentryLog (TestInit)
+@interface SentryLog (TestInit)
 
 + (void)setLogOutput:(nullable SentryLogOutput *)output;
 

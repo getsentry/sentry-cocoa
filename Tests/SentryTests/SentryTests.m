@@ -6,8 +6,7 @@
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
 
-@interface
-SentryBreadcrumbTracker (Private)
+@interface SentryBreadcrumbTracker (Private)
 
 + (NSString *)sanitizeViewControllerName:(NSString *)controller;
 

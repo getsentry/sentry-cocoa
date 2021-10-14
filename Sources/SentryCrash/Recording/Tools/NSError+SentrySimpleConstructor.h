@@ -29,8 +29,7 @@
 /**
  * Simpler interface for constructing NSError objects.
  */
-@interface
-NSError (SentrySimpleConstructor)
+@interface NSError (SentrySimpleConstructor)
 
 /** Convenience constructor to make an error with the specified localized
  * description.

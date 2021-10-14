@@ -5,8 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-UIViewController (Sentry)
+@interface UIViewController (Sentry)
 
 /**
  * An array of view controllers that are descendants, meaning children, grandchildren, ... , of the

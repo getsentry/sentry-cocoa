@@ -3,8 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Expose the internal test init for testing. */
-@interface
-SentryHub (TestInit)
+@interface SentryHub (TestInit)
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope

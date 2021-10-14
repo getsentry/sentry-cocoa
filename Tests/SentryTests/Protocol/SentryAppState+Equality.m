@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation
-SentryAppState (Equality)
+@implementation SentryAppState (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other
 {

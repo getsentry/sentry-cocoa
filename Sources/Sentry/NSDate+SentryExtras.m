@@ -2,8 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation
-NSDate (SentryExtras)
+@implementation NSDate (SentryExtras)
 
 + (NSDateFormatter *)getIso8601Formatter
 {
