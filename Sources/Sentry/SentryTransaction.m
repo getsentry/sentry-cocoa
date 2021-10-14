@@ -14,7 +14,7 @@ SentryTransaction ()
 
 - (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
 {
-    if ([super init]) {
+    if (self = [super init]) {
         self.timestamp = trace.timestamp;
         self.startTimestamp = trace.startTimestamp;
         self.trace = trace;
