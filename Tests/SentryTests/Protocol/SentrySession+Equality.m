@@ -1,7 +1,8 @@
 #import "SentrySession+Equality.h"
 #import "SentryUser.h"
 
-@implementation SentrySession (Equality)
+@implementation
+SentrySession (Equality)
 
 - (BOOL)isEqual:(id _Nullable)other
 {

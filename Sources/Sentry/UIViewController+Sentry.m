@@ -2,7 +2,8 @@
 
 #if SENTRY_HAS_UIKIT
 
-@implementation UIViewController (Sentry)
+@implementation
+UIViewController (Sentry)
 
 - (NSArray<UIViewController *> *)descendantViewControllers
 {
