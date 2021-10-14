@@ -3,7 +3,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
-@interface SentryFramesTracker (TestInit)
+@interface
+SentryFramesTracker (TestInit)
 
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
