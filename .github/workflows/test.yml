@@ -41,13 +41,16 @@ jobs:
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
   ui-tests:
-    name: UI for Sample Apps
+    name: UI Tests for ${{matrix.target}}
     runs-on: macos-11
+    strategy:
+      matrix:
+        target: ["ios_swiftui", "ios_objc", "ios_swift", "tvos_swift" ]
 
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 
 
       - name: Run Fastlane
-        run: fastlane ui_tests
+        run: fastlane ui_tests_${{matrix.target}}
         shell: sh
