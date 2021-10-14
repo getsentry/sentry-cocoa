@@ -33,6 +33,12 @@ class Invocations<T> {
         }
     }
     
+    var isEmpty: Bool {
+        return queue.sync {
+            return self._invocations.isEmpty
+        }
+    }
+    
     func record(_ invocation: T) {
         queue.async(flags: .barrier) {
             self._invocations.append(invocation)
