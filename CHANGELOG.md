@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Init for Span, Tracer, Transaction (#1385)
+
 ## 7.4.4
 
 - fix: Crash for Call Should be on Main Thread (#1371)
