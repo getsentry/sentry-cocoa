@@ -1,6 +1,7 @@
 #import "SentrySdkInfo+Equality.h"
 
-@implementation SentrySdkInfo (Equality)
+@implementation
+SentrySdkInfo (Equality)
 
 - (BOOL)isEqual:(id _Nullable)object
 {

@@ -4,7 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySDK (Private)
+@interface
+SentrySDK (Private)
 
 + (void)captureCrashEvent:(SentryEvent *)event;
 
