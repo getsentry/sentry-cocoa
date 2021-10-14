@@ -394,14 +394,19 @@ class SentryHubTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testCatpureMultipleExceptionWithSessionInParallel() {
-        captureConcurrentWithSession(count: 10) { sut in
+        let captureCount = 100
+        captureConcurrentWithSession(count: captureCount) { sut in
             sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
         }
         
-        XCTAssertEqual(10, fixture.client.captureExceptionWithSessionInvocations.count)
-        for i in 0...9 {
-            let arguments = fixture.client.captureExceptionWithSessionInvocations.invocations[i]
-            XCTAssertEqual(i + 1, Int(arguments.session.errors))
+        let invocations = fixture.client.captureExceptionWithSessionInvocations.invocations
+        XCTAssertEqual(captureCount, invocations.count)
+        for i in 1...captureCount {
+            // The session error count must not be in order as we use a concurrent DispatchQueue
+            XCTAssertTrue(
+                invocations.contains { $0.session.errors == i },
+                "No session captured with \(i) amount of errors."
+            )
         }
     }
     
@@ -409,14 +414,19 @@ class SentryHubTests: XCTestCase {
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
     func testCatpureMultipleErrorsWithSessionInParallel() {
-        captureConcurrentWithSession(count: 10) { sut in
+        let captureCount = 100
+        captureConcurrentWithSession(count: captureCount) { sut in
             sut.capture(error: self.fixture.error, scope: self.fixture.scope)
         }
         
-        XCTAssertEqual(10, fixture.client.captureErrorWithSessionInvocations.count)
-        for i in 0...9 {
-            let arguments = fixture.client.captureErrorWithSessionInvocations.invocations[i]
-            XCTAssertEqual(i + 1, Int(arguments.session.errors))
+        let invocations = fixture.client.captureErrorWithSessionInvocations.invocations
+        XCTAssertEqual(captureCount, invocations.count)
+        for i in 1..<captureCount {
+            // The session error count must not be in order as we use a concurrent DispatchQueue
+            XCTAssertTrue(
+                invocations.contains { $0.session.errors == i },
+                "No session captured with \(i) amount of errors."
+            )
         }
     }
     
@@ -580,7 +590,7 @@ class SentryHubTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
 
         let group = DispatchGroup()
-        for _ in 0...count - 1 {
+        for _ in 0..<count {
             group.enter()
             queue.async {
                 capture(sut)
