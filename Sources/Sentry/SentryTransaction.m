@@ -2,6 +2,8 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryTransaction ()
 
@@ -55,3 +57,5 @@ SentryTransaction ()
     return serializedData;
 }
 @end
+
+NS_ASSUME_NONNULL_END
