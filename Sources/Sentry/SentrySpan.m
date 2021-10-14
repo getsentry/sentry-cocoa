@@ -17,7 +17,7 @@ SentrySpan ()
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
-    if ([self initWithContext:context]) {
+    if (self = [self initWithContext:context]) {
         _tracer = tracer;
     }
     return self;
