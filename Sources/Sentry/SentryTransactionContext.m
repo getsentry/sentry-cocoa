@@ -29,11 +29,11 @@
                 parentSpanId:(SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled
 {
-    if ([super initWithTraceId:traceId
-                        spanId:spanId
-                      parentId:parentSpanId
-                     operation:operation
-                       sampled:false]) {
+    if (self = [super initWithTraceId:traceId
+                               spanId:spanId
+                             parentId:parentSpanId
+                            operation:operation
+                              sampled:false]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = parentSampled;
     }

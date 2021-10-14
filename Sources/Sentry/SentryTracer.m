@@ -71,7 +71,7 @@ static BOOL appStartMeasurementRead;
                                        hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren
 {
-    if ([super init]) {
+    if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
