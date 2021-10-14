@@ -9,6 +9,8 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryPerformanceTracker ()
 
@@ -145,7 +147,7 @@ SentryPerformanceTracker ()
     }
 }
 
-- (id<SentrySpan>)getSpan:(SentrySpanId *)spanId
+- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId
 {
     @synchronized(self.spans) {
         return self.spans[spanId];
@@ -153,3 +155,5 @@ SentryPerformanceTracker ()
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
