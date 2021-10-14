@@ -2,6 +2,8 @@
 #import "SentryId.h"
 #import "SentrySpanId.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryTraceHeader
 
 @synthesize traceId = _traceId;
@@ -29,3 +31,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

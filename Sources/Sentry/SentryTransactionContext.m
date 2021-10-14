@@ -1,5 +1,7 @@
 #import "SentryTransactionContext.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryTransactionContext
 
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
@@ -26,7 +28,7 @@
                    operation:(nonnull NSString *)operation
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
-                parentSpanId:(SentrySpanId *)parentSpanId
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled
 {
     if (self = [super initWithTraceId:traceId
@@ -41,3 +43,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
