@@ -35,4 +35,4 @@ case $PLATFORM in
         ;;
 esac
 
-xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Release GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" test | xcpretty -t && exit ${PIPESTATUS[0]}
+xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" test | xcpretty -t && exit ${PIPESTATUS[0]}
