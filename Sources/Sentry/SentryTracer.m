@@ -16,6 +16,8 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import <SentryScreenFrames.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
 /**
@@ -141,17 +143,17 @@ static BOOL appStartMeasurementRead;
     return self.rootSpan.context;
 }
 
-- (NSDate *)timestamp
+- (nullable NSDate *)timestamp
 {
     return self.rootSpan.timestamp;
 }
 
-- (void)setTimestamp:(NSDate *)timestamp
+- (void)setTimestamp:(nullable NSDate *)timestamp
 {
     self.rootSpan.timestamp = timestamp;
 }
 
-- (NSDate *)startTimestamp
+- (nullable NSDate *)startTimestamp
 {
     return self.rootSpan.startTimestamp;
 }
@@ -170,7 +172,7 @@ static BOOL appStartMeasurementRead;
     return _traceState;
 }
 
-- (void)setStartTimestamp:(NSDate *)startTimestamp
+- (void)setStartTimestamp:(nullable NSDate *)startTimestamp
 {
     self.rootSpan.startTimestamp = startTimestamp;
 
@@ -179,7 +181,7 @@ static BOOL appStartMeasurementRead;
 #endif
 }
 
-- (NSDictionary<NSString *, id> *)data
+- (nullable NSDictionary<NSString *, id> *)data
 {
     return self.rootSpan.data;
 }
@@ -194,7 +196,7 @@ static BOOL appStartMeasurementRead;
     return self.rootSpan.isFinished;
 }
 
-- (void)setDataValue:(id)value forKey:(NSString *)key
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
     [self.rootSpan setDataValue:value forKey:key];
 }
@@ -351,23 +353,28 @@ static BOOL appStartMeasurementRead;
 - (NSArray<SentrySpan *> *)buildAppStartSpans:
     (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
-    if (appStartMeasurement == nil || appStartMeasurement.type == SentryAppStartTypeUnknown) {
+    if (appStartMeasurement == nil) {
+        return @[];
+    }
+
+    NSString *operation;
+    NSString *type;
+
+    switch (appStartMeasurement.type) {
+    case SentryAppStartTypeCold:
+        operation = @"app.start.cold";
+        type = @"Cold Start";
+        break;
+    case SentryAppStartTypeWarm:
+        operation = @"app.start.warm";
+        type = @"Warm Start";
+        break;
+    default:
         return @[];
     }
 
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
-
-    NSString *operation;
-    NSString *type;
-
-    if (appStartMeasurement.type == SentryAppStartTypeCold) {
-        operation = @"app.start.cold";
-        type = @"Cold Start";
-    } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
-        operation = @"app.start.warm";
-        type = @"Warm Start";
-    }
 
     SentrySpan *appStartSpan = [self buildSpan:_rootSpan.context.spanId
                                      operation:operation
@@ -489,3 +496,5 @@ static BOOL appStartMeasurementRead;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
