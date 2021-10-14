@@ -350,7 +350,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: sessionData)
 
-        XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests[3].httpBody, "Envelope with only session item should be sent.")
+        XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")
     }
 
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
@@ -373,9 +373,9 @@ class SentryHttpTransportTests: XCTestCase {
 
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
-        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests[1].httpBody, "Cached envelope was not sent first.")
+        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests.invocations[1].httpBody, "Cached envelope was not sent first.")
 
-        XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests[2].httpBody, "Cached envelope was not sent first.")
+        XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
     }
 
     func testPerformanceOfSending() {
