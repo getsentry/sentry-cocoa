@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Gets the active span id.
  */
-- (nullable SentrySpanId *)activeSpan;
+- (nullable SentrySpanId *)activeSpanId;
 
 /**
  * Push active span to the span stack.
