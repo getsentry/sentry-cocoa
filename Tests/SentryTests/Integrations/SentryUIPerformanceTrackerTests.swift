@@ -378,7 +378,7 @@ class SentryUIPerformanceTrackerTests: XCTestCase {
     }
     
     private func getStack(tracker: SentryPerformanceTracker) -> [Span] {
-        let result = Dynamic(tracker).activeStack as [Span]?
+        let result = Dynamic(tracker).activeSpanStack as [Span]?
         return result!
     }
     
