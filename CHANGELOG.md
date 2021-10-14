@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 7.4.5
 
+- fix: Remove Check for Original Method Call When Swizzling (#1383)
 - fix: Init for Span, Tracer, Transaction (#1385)
 
 ## 7.4.4
