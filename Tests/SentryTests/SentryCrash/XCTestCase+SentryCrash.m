@@ -26,7 +26,8 @@
 
 #import "XCTestCase+SentryCrash.h"
 
-@implementation XCTestCase (XCTestCase_SentryCrash)
+@implementation
+XCTestCase (XCTestCase_SentryCrash)
 
 - (NSString *)createTempPath
 {
