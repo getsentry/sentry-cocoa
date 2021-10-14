@@ -17,7 +17,7 @@ SentrySpan ()
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
-    if ([self initWithContext:context]) {
+    if (self = [self initWithContext:context]) {
         _tracer = tracer;
     }
     return self;
@@ -25,7 +25,7 @@ SentrySpan ()
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
 {
-    if ([super init]) {
+    if (self = [super init]) {
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
