@@ -53,7 +53,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(span.timestamp, TestData.timestamp)
         XCTAssertTrue(span.isFinished)
         
-        let lastEvent = client.captureEventWithScopeArguments[0].event
+        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
@@ -78,7 +78,7 @@ class SentrySpanTests: XCTestCase {
         childSpan.finish()
         span.finish()
         
-        let lastEvent = client.captureEventWithScopeArguments[0].event
+        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
         let serializedData = lastEvent.serialize()
         
         let spans = serializedData["spans"] as! [Any]
@@ -94,7 +94,7 @@ class SentrySpanTests: XCTestCase {
         span.startChild(operation: fixture.someOperation)
         
         span.finish()
-        let lastEvent = client.captureEventWithScopeArguments[0].event
+        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
         let serializedData = lastEvent.serialize()
         
         let spans = serializedData["spans"] as! [Any]

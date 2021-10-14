@@ -6,7 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Used to make properties visible for testing.
  */
-@interface SentryFileManager (TestProperties)
+@interface
+SentryFileManager (TestProperties)
 
 @property (nonatomic, copy) NSString *eventsPath;
 

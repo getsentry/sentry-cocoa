@@ -20,6 +20,9 @@ test:
 	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
 
+analyze:
+	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release | xcpretty -t
+
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0

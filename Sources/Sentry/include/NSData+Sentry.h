@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSData (Sentry)
+@interface
+NSData (Sentry)
 
 /**
  * Adds a null character to the end of the byte array. This helps when strings should be null
