@@ -70,7 +70,12 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
     
-    private let fixture = Fixture()
+    private var fixture: Fixture!
+    
+    override func setUp() {
+        super.setUp()
+        fixture = Fixture()
+    }
     
     func testSerialize() {
         let scope = fixture.scope
