@@ -68,13 +68,27 @@ SentryUIViewControllerSwizziling ()
 {
     [dispatchQueue dispatchAsyncWithBlock:^{
         int numClasses = objc_getClassList(NULL, 0);
-        Class *classes = (__unsafe_unretained Class *)malloc(sizeof(Class) * numClasses);
-        numClasses = objc_getClassList(classes, numClasses);
 
         if (numClasses <= 0) {
-            [SentryLog logWithMessage:@"No classes found when retrieving class list."
-                             andLevel:kSentryLevelError];
+            NSString *msg =
+                [NSString stringWithFormat:@"No classes found when retrieving class list for %@.",
+                          parentClass];
+            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
+            return;
         }
+
+        int memSize = sizeof(Class) * numClasses;
+        Class *classes = (__unsafe_unretained Class *)malloc(memSize);
+
+        if (classes == NULL && memSize) {
+            NSString *msg = [NSString
+                stringWithFormat:@"Couldn't allocate memory for retrieving class list for %@",
+                parentClass];
+            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
+            return;
+        }
+
+        numClasses = objc_getClassList(classes, numClasses);
 
         // Storing the actual classes in an NSArray would call initialize of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
@@ -83,9 +97,20 @@ SentryUIViewControllerSwizziling ()
         NSMutableArray *indexesToSwizzle = [NSMutableArray new];
         for (NSInteger i = 0; i < numClasses; i++) {
             Class superClass = classes[i];
-            do {
+
+            // Don't add the parent class to list of sublcasses
+            if (superClass == parentClass) {
+                continue;
+            }
+
+            // Using a do while loop, like pointed out in Cocoa with Love
+            // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
+            // can lead to EXC_I386_GPFLT which, stands for General Protection Fault and means we
+            // are doing something we shouldn't do. It's safer to use a regular while loop to check
+            // if superClass is valid.
+            while (superClass && superClass != parentClass) {
                 superClass = class_getSuperclass(superClass);
-            } while (superClass && superClass != parentClass);
+            }
 
             if (superClass != nil) {
                 [indexesToSwizzle addObject:@(i)];
