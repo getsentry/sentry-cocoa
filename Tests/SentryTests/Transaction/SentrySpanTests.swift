@@ -1,6 +1,7 @@
 import XCTest
 
 class SentrySpanTests: XCTestCase {
+    
     private class Fixture {
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
@@ -9,6 +10,7 @@ class SentrySpanTests: XCTestCase {
         let extraValue = "extra_value"
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
+        let tracer = SentryTracer()
          
         init() {
             options = Options()
@@ -178,7 +180,7 @@ class SentrySpanTests: XCTestCase {
     func testMergeTagsInSerialization() {
         let context = SpanContext(operation: fixture.someOperation)
         context.setTag(value: fixture.someTransaction, key: fixture.extraKey)
-        let span = SentrySpan(context: context)
+        let span = SentrySpan(transaction: fixture.tracer, context: context)
         
         let originalSerialization = span.serialize()
         XCTAssertEqual((originalSerialization["tags"] as! Dictionary)[fixture.extraKey], fixture.someTransaction)
@@ -201,7 +203,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderSampled() {
-        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .yes))
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
@@ -211,7 +213,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderUndecided() {
-        let span = SentrySpan(context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
@@ -221,7 +223,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testSetExtra_ForwardsToSetData() {
-        let sut = SentrySpan(context: SpanContext(operation: "test"))
+        let sut = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: "test"))
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])

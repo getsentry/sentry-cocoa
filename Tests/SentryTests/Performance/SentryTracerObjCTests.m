@@ -30,7 +30,7 @@
     }
 
     XCTAssertNotNil(child);
-    XCTAssertNil(child.tracer);
+    XCTAssertNil(child.transaction);
     [child finish];
 }
 
