@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.4.6
 
 - fix: Crash when Getting Subclasses (#1396)
 
