@@ -17,11 +17,13 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryHub ()
 
-@property (nonatomic, strong) SentryClient *_Nullable client;
-@property (nonatomic, strong) SentryScope *_Nullable scope;
+@property (nullable, nonatomic, strong) SentryClient *client;
+@property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentryTracesSampler *sampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
@@ -32,8 +34,8 @@ SentryHub ()
     NSObject *_sessionLock;
 }
 
-- (instancetype)initWithClient:(SentryClient *_Nullable)client
-                      andScope:(SentryScope *_Nullable)scope
+- (instancetype)initWithClient:(nullable SentryClient *)client
+                      andScope:(nullable SentryScope *)scope
 {
     if (self = [super init]) {
         _client = client;
@@ -48,8 +50,8 @@ SentryHub ()
 }
 
 /** Internal constructor for testing */
-- (instancetype)initWithClient:(SentryClient *_Nullable)client
-                      andScope:(SentryScope *_Nullable)scope
+- (instancetype)initWithClient:(nullable SentryClient *)client
+                      andScope:(nullable SentryScope *)scope
                andCrashAdapter:(SentryCrashAdapter *)crashAdapter
         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
@@ -126,7 +128,7 @@ SentryHub ()
     [[_client fileManager] deleteCurrentSession];
 }
 
-- (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp
+- (void)closeCachedSessionWithTimestamp:(nullable NSDate *)timestamp
 {
     SentryFileManager *fileManager = [_client fileManager];
     SentrySession *session = [fileManager readCurrentSession];
@@ -398,12 +400,12 @@ SentryHub ()
     [self.scope addBreadcrumb:crumb];
 }
 
-- (SentryClient *_Nullable)getClient
+- (nullable SentryClient *)getClient
 {
     return _client;
 }
 
-- (void)bindClient:(SentryClient *_Nullable)client
+- (void)bindClient:(nullable SentryClient *)client
 {
     self.client = client;
 }
@@ -447,7 +449,7 @@ SentryHub ()
     return NO;
 }
 
-- (id _Nullable)getIntegration:(NSString *)integrationName
+- (nullable id)getIntegration:(NSString *)integrationName
 {
     NSArray *integrations = _client.options.integrations;
     if (![integrations containsObject:integrationName]) {
@@ -456,7 +458,7 @@ SentryHub ()
     return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
-- (void)setUser:(SentryUser *_Nullable)user
+- (void)setUser:(nullable SentryUser *)user
 {
     SentryScope *scope = self.scope;
     if (nil != scope) {
@@ -508,3 +510,5 @@ SentryHub ()
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
