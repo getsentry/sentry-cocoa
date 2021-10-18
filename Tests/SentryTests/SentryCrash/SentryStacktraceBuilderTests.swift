@@ -16,6 +16,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        clearTestState()
     }
 
     override func tearDown() {
