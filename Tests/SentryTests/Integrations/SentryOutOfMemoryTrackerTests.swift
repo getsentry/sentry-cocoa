@@ -93,7 +93,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testDifferentOSVersions_NoOOM() {
@@ -101,7 +101,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testIsDebugging_NoOOM() {
@@ -114,7 +114,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testTerminatedNormally_NoOOM() {
@@ -125,7 +125,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testCrashReport_NoOOM() {
@@ -135,7 +135,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testAppWasInBackground_NoOOM() {
@@ -146,7 +146,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.stop()
         
         sut.start()
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeArguments.count)
+        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
     }
     
     func testAppWasInForeground_OOM() {
@@ -216,8 +216,8 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     private func assertOOMEventSent() {
-        XCTAssertEqual(1, fixture.client.captureCrashEventArguments.count)
-        let crashEvent = fixture.client.captureCrashEventArguments.first?.event
+        XCTAssertEqual(1, fixture.client.captureCrashEventInvocations.count)
+        let crashEvent = fixture.client.captureCrashEventInvocations.first?.event
         
         XCTAssertEqual(SentryLevel.fatal, crashEvent?.level)
         XCTAssertEqual([], crashEvent?.breadcrumbs)

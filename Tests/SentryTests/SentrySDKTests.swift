@@ -147,25 +147,6 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
-
-    func testStartWithConfigureOptions_UrlSessionDelegate() {
-        let urlSessionDelegateSpy = UrlSessionDelegateSpy()
-
-        let predicate = NSPredicate { (_, _) -> Bool in
-            urlSessionDelegateSpy.delegateCalled
-        }
-        let expectation = self.expectation(for: predicate, evaluatedWith: nil)
-        expectation.expectationDescription = "urlSession_didReceive_completionHandler will be called on UrlSessionDelegateSpy"
-
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.urlSessionDelegate = urlSessionDelegateSpy
-        }
-
-        SentrySDK.capture(message: "")
-
-        wait(for: [expectation], timeout: 10)
-    }
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
@@ -304,8 +285,8 @@ class SentrySDKTests: XCTestCase {
         let envelope = SentryEnvelope(event: TestData.event)
         SentrySDK.capture(envelope)
         
-        XCTAssertEqual(1, fixture.client.capturedEnvelopes.count)
-        XCTAssertEqual(envelope.header.eventId, fixture.client.capturedEnvelopes.first?.header.eventId)
+        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.captureEnvelopeInvocations.first?.header.eventId)
     }
     
     func testStoreEnvelope() {
@@ -314,14 +295,14 @@ class SentrySDKTests: XCTestCase {
         let envelope = SentryEnvelope(event: TestData.event)
         SentrySDK.store(envelope)
         
-        XCTAssertEqual(1, fixture.client.storedEnvelopes.count)
-        XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopes.first?.header.eventId)
+        XCTAssertEqual(1, fixture.client.storedEnvelopeInvocations.count)
+        XCTAssertEqual(envelope.header.eventId, fixture.client.storedEnvelopeInvocations.first?.header.eventId)
     }
     
     func testStoreEnvelope_WhenNoClient_NoCrash() {
         SentrySDK.store(SentryEnvelope(event: TestData.event))
         
-        XCTAssertEqual(0, fixture.client.storedEnvelopes.count)
+        XCTAssertEqual(0, fixture.client.storedEnvelopeInvocations.count)
     }
     
     func testCaptureUserFeedback() {
@@ -329,8 +310,8 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.capture(userFeedback: fixture.userFeedback)
         let client = fixture.client
-        XCTAssertEqual(1, client.capturedUserFeedback.count)
-        if let actual = client.capturedUserFeedback.first {
+        XCTAssertEqual(1, client.captureUserFeedbackInvocations.count)
+        if let actual = client.captureUserFeedbackInvocations.first {
             let expected = fixture.userFeedback
             XCTAssertEqual(expected.eventId, actual.eventId)
             XCTAssertEqual(expected.name, actual.name)
@@ -461,9 +442,9 @@ class SentrySDKTests: XCTestCase {
         
         SentrySDK.startSession()
         
-        XCTAssertEqual(1, fixture.client.sessions.count)
+        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.sessions.first
+        let actual = fixture.client.captureSessionInvocations.first
         let expected = SentrySession(releaseName: fixture.options.releaseName ?? "")
         
         XCTAssertEqual(expected.flagInit, actual?.flagInit)
@@ -483,9 +464,9 @@ class SentrySDKTests: XCTestCase {
         advanceTime(bySeconds: 1)
         SentrySDK.endSession()
         
-        XCTAssertEqual(2, fixture.client.sessions.count)
+        XCTAssertEqual(2, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.sessions[1]
+        let actual = fixture.client.captureSessionInvocations.invocations[1]
         
         XCTAssertNil(actual.flagInit)
         XCTAssertEqual(0, actual.errors)
@@ -604,30 +585,30 @@ class SentrySDKTests: XCTestCase {
     
     private func assertEventCaptured(expectedScope: Scope) {
         let client = fixture.client
-        XCTAssertEqual(1, client.captureEventWithScopeArguments.count)
-        XCTAssertEqual(fixture.event, client.captureEventWithScopeArguments.first?.event)
-        XCTAssertEqual(expectedScope, client.captureEventWithScopeArguments.first?.scope)
+        XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)
+        XCTAssertEqual(fixture.event, client.captureEventWithScopeInvocations.first?.event)
+        XCTAssertEqual(expectedScope, client.captureEventWithScopeInvocations.first?.scope)
     }
     
     private func assertErrorCaptured(expectedScope: Scope) {
         let client = fixture.client
-        XCTAssertEqual(1, client.captureErrorWithScopeArguments.count)
-        XCTAssertEqual(fixture.error.localizedDescription, client.captureErrorWithScopeArguments.first?.error.localizedDescription)
-        XCTAssertEqual(expectedScope, client.captureErrorWithScopeArguments.first?.scope)
+        XCTAssertEqual(1, client.captureErrorWithScopeInvocations.count)
+        XCTAssertEqual(fixture.error.localizedDescription, client.captureErrorWithScopeInvocations.first?.error.localizedDescription)
+        XCTAssertEqual(expectedScope, client.captureErrorWithScopeInvocations.first?.scope)
     }
     
     private func assertExceptionCaptured(expectedScope: Scope) {
         let client = fixture.client
-        XCTAssertEqual(1, client.captureExceptionWithScopeArguments.count)
-        XCTAssertEqual(fixture.exception, client.captureExceptionWithScopeArguments.first?.exception)
-        XCTAssertEqual(expectedScope, client.captureExceptionWithScopeArguments.first?.scope)
+        XCTAssertEqual(1, client.captureExceptionWithScopeInvocations.count)
+        XCTAssertEqual(fixture.exception, client.captureExceptionWithScopeInvocations.first?.exception)
+        XCTAssertEqual(expectedScope, client.captureExceptionWithScopeInvocations.first?.scope)
     }
     
     private func assertMessageCaptured(expectedScope: Scope) {
         let client = fixture.client
-        XCTAssertEqual(1, client.captureMessageWithScopeArguments.count)
-        XCTAssertEqual(fixture.message, client.captureMessageWithScopeArguments.first?.message)
-        XCTAssertEqual(expectedScope, client.captureMessageWithScopeArguments.first?.scope)
+        XCTAssertEqual(1, client.captureMessageWithScopeInvocations.count)
+        XCTAssertEqual(fixture.message, client.captureMessageWithScopeInvocations.first?.message)
+        XCTAssertEqual(expectedScope, client.captureMessageWithScopeInvocations.first?.scope)
     }
     
     private func assertHubScopeNotChanged() {

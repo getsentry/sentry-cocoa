@@ -21,7 +21,11 @@ SentryPerformanceTrackingIntegration ()
         SentryDispatchQueueWrapper *dispatchQueue =
             [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
                                                   attributes:attributes];
-        [SentryUIViewControllerSwizziling startWithOptions:options dispatchQueue:dispatchQueue];
+        SentryUIViewControllerSwizziling *swizzling =
+            [[SentryUIViewControllerSwizziling alloc] initWithOptions:options
+                                                        dispatchQueue:dispatchQueue];
+
+        [swizzling start];
 #else
         [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
                                   @"start] does nothing."

@@ -7,6 +7,8 @@
 #import "SentryTracer.h"
 #import "SentryUser.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryTraceStateUser
 
 - (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment
@@ -154,3 +156,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

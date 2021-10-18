@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryTracer (Test)
+@interface
+SentryTracer (Test)
 
 + (void)resetAppStartMeasurmentRead;
 

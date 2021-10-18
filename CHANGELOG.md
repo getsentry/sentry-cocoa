@@ -4,6 +4,19 @@
 
 - feat: Tracking file IO (#1350)
 - feat: Tracking file IO writing (#1350)
+## 7.4.6
+
+- fix: Crash when Getting Subclasses (#1396)
+
+## 7.4.5
+
+- fix: Remove Check for Original Method Call When Swizzling (#1383)
+- fix: Init for Span, Tracer, Transaction (#1385)
+
+## 7.4.4
+
+- fix: Crash for Call Should be on Main Thread (#1371)
+
 ## 7.4.3
 
 - fix: Crash for Custom ViewController init on iOS 15 (#1361)

@@ -1,7 +1,6 @@
 #import "SentryUIViewControllerSwizziling.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
-#import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import <SentryDispatchQueueWrapper.h>
@@ -13,37 +12,119 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
+@interface
+SentryUIViewControllerSwizziling ()
+
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+
+@end
+
 @implementation SentryUIViewControllerSwizziling
 
-static SentryInAppLogic *inAppLogic;
-
-+ (void)startWithOptions:(SentryOptions *)options
-           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+- (instancetype)initWithOptions:(SentryOptions *)options
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
-    inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                   inAppExcludes:options.inAppExcludes];
+    if (self = [super init]) {
+        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                            inAppExcludes:options.inAppExcludes];
+        self.dispatchQueue = dispatchQueue;
+    }
 
-    [SentryUIViewControllerSwizziling swizzleRootViewController];
+    return self;
+}
 
-    // Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and
-    // then swizzle them. As there is no straightforward way to get all sub-classes in Objective-C,
-    // the code first retrieves all classes in the runtime, iterates over all classes, and checks
-    // for every class if UIViewController is a parent. Cause loading all classes can take a few
-    // milliseconds, do this on a background thread, which should be fine because the SDK swizzles
-    // the root view controller and its children above. Previously, the code intercepted the
-    // ViewController initializers with swizzling to swizzle the lifecycle methods. This approach
-    // led to UIViewControllers crashing when using a convenience initializer, see GH-1355. The
-    // error occurred because our swizzling logic adds the method to swizzle if the class doesn't
-    // implement it. It seems like adding an extra initializer causes problems with the rules for
-    // initialization in Swift, see
-    // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
+- (void)start
+{
+    [self swizzleRootViewController];
 
+    [self swizzleSubclassesOf:[UIViewController class]
+                dispatchQueue:self.dispatchQueue
+                 swizzleBlock:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
+}
+
+/**
+ * To be able to test this we put the logic in a extra method.
+ *
+ * Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and then
+ * swizzle them. As there is no straightforward way to get all sub-classes in Objective-C, the code
+ * first retrieves all classes in the runtime, iterates over all classes, and checks for every class
+ * if UIViewController is a parent. Cause loading all classes can take a few milliseconds, do this
+ * on a background thread, which should be fine because the SDK swizzles the root view controller
+ * and its children above. After finding all subclasses of the UIViewController, this method
+ * swizzles them on the main thread. Swizzling the UIViewControllers on a background thread led to
+ * crashes, see GH-1366.
+ *
+ * Previously, the code intercepted the ViewController initializers with
+ * swizzling to swizzle the lifecycle methods. This approach led to UIViewControllers crashing when
+ * using a convenience initializer, see GH-1355. The error occurred because our swizzling logic adds
+ * the method to swizzle if the class doesn't implement it. It seems like adding an extra
+ * initializer causes problems with the rules for initialization in Swift, see
+ * https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
+ */
+- (void)swizzleSubclassesOf:(Class)parentClass
+              dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+               swizzleBlock:(void (^)(Class))block
+{
     [dispatchQueue dispatchAsyncWithBlock:^{
-        NSArray<Class> *viewControllers =
-            [SentrySubClassFinder getSubclassesOf:[UIViewController class]];
-        for (Class viewController in viewControllers) {
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewController];
+        int numClasses = objc_getClassList(NULL, 0);
+
+        if (numClasses <= 0) {
+            NSString *msg =
+                [NSString stringWithFormat:@"No classes found when retrieving class list for %@.",
+                          parentClass];
+            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
+            return;
         }
+
+        int memSize = sizeof(Class) * numClasses;
+        Class *classes = (__unsafe_unretained Class *)malloc(memSize);
+
+        if (classes == NULL && memSize) {
+            NSString *msg = [NSString
+                stringWithFormat:@"Couldn't allocate memory for retrieving class list for %@",
+                parentClass];
+            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
+            return;
+        }
+
+        numClasses = objc_getClassList(classes, numClasses);
+
+        // Storing the actual classes in an NSArray would call initialize of the class, which we
+        // must avoid as we are on a background thread here and dealing with UIViewControllers,
+        // which assume they are running on the main thread. Therefore, we store the indexes instead
+        // so we can search for the subclasses on a background thread.
+        NSMutableArray *indexesToSwizzle = [NSMutableArray new];
+        for (NSInteger i = 0; i < numClasses; i++) {
+            Class superClass = classes[i];
+
+            // Don't add the parent class to list of sublcasses
+            if (superClass == parentClass) {
+                continue;
+            }
+
+            // Using a do while loop, like pointed out in Cocoa with Love
+            // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
+            // can lead to EXC_I386_GPFLT which, stands for General Protection Fault and means we
+            // are doing something we shouldn't do. It's safer to use a regular while loop to check
+            // if superClass is valid.
+            while (superClass && superClass != parentClass) {
+                superClass = class_getSuperclass(superClass);
+            }
+
+            if (superClass != nil) {
+                [indexesToSwizzle addObject:@(i)];
+            }
+        }
+
+        // We must swizzle the UIViewControllers on the main thread. Otherwise, we could crash.
+        [dispatchQueue dispatchOnMainQueue:^{
+            for (NSNumber *i in indexesToSwizzle) {
+                NSInteger index = [i integerValue];
+                block(classes[index]);
+            }
+            free(classes);
+        }];
     }];
 }
 
@@ -60,7 +141,7 @@ static SentryInAppLogic *inAppLogic;
  * could also use objc_getClassList to lookup sub classes of UIViewController, but the lookup can
  * take around 60ms, which is not acceptable.
  */
-+ (void)swizzleRootViewController
+- (void)swizzleRootViewController
 {
     if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
         NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
@@ -87,14 +168,14 @@ static SentryInAppLogic *inAppLogic;
 
     // Check if delegate responds to window, which it doesn't have to.
     if (![app.delegate respondsToSelector:@selector(window)]) {
-        NSString *message
-            = @"UIApplicationDelegate.window is nil. Skipping swizzleRootViewController.";
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
+                            @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
     if (app.delegate.window == nil) {
-        NSString *message = @"UIViewControllerSwizziling UIApplicationDelegate.window is nil. "
+        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
                             @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
@@ -102,9 +183,9 @@ static SentryInAppLogic *inAppLogic;
 
     UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
-        NSString *message
-            = @"UIViewControllerSwizziling UIApplicationDelegate.window.rootViewController is nil. "
-              @"Skipping swizzleRootViewController.";
+        NSString *message = @"UIViewControllerSwizziling: "
+                            @"UIApplicationDelegate.window.rootViewController is nil. "
+                            @"Skipping swizzleRootViewController.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
@@ -117,29 +198,29 @@ static SentryInAppLogic *inAppLogic;
             NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-            [SentryUIViewControllerSwizziling swizzleViewControllerSubClass:viewControllerClass];
+            [self swizzleViewControllerSubClass:viewControllerClass];
         }
     }
 }
 
-+ (void)swizzleViewControllerSubClass:(Class)class
+- (void)swizzleViewControllerSubClass:(Class)class
 {
-    if (![SentryUIViewControllerSwizziling shouldSwizzleViewController:class])
+    if (![self shouldSwizzleViewController:class])
         return;
 
     // This are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
-    [SentryUIViewControllerSwizziling swizzleViewLayoutSubViews:class];
-    [SentryUIViewControllerSwizziling swizzleLoadView:class];
-    [SentryUIViewControllerSwizziling swizzleViewDidLoad:class];
-    [SentryUIViewControllerSwizziling swizzleViewWillAppear:class];
-    [SentryUIViewControllerSwizziling swizzleViewDidAppear:class];
+    [self swizzleViewLayoutSubViews:class];
+    [self swizzleLoadView:class];
+    [self swizzleViewDidLoad:class];
+    [self swizzleViewWillAppear:class];
+    [self swizzleViewDidAppear:class];
 }
 
 /**
  * For testing.
  */
-+ (BOOL)shouldSwizzleViewController:(Class)class
+- (BOOL)shouldSwizzleViewController:(Class)class
 {
     // Some apple classes do not return an imageName
     const char *imageName = class_getImageName(class);
@@ -149,10 +230,10 @@ static SentryInAppLogic *inAppLogic;
     // Swizzling only inApp classes to avoid track every UIKit view controller
     // interaction.
     NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
-    return [inAppLogic isInApp:classImageName];
+    return [self.inAppLogic isInApp:classImageName];
 }
 
-+ (void)swizzleLoadView:(Class)class
+- (void)swizzleLoadView:(Class)class
 {
     // The UIViewController only searches for a nib file if you do not override the loadView method.
     // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
@@ -175,7 +256,7 @@ static SentryInAppLogic *inAppLogic;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleViewDidLoad:(Class)class
+- (void)swizzleViewDidLoad:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
@@ -187,7 +268,7 @@ static SentryInAppLogic *inAppLogic;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleViewWillAppear:(Class)class
+- (void)swizzleViewWillAppear:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
@@ -199,7 +280,7 @@ static SentryInAppLogic *inAppLogic;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleViewDidAppear:(Class)class
+- (void)swizzleViewDidAppear:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
@@ -211,7 +292,7 @@ static SentryInAppLogic *inAppLogic;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleViewLayoutSubViews:(Class)class
+- (void)swizzleViewLayoutSubViews:(Class)class
 {
     SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
     SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void), SentrySWArguments(),

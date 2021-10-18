@@ -64,7 +64,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     }
     
     private func assertNoEventsSent() {
-        XCTAssertEqual(0, testClient.captureEventWithScopeArguments.count)
+        XCTAssertEqual(0, testClient.captureEventWithScopeInvocations.count)
     }
     
     private func assertNoReportsStored() {
