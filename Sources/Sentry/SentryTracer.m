@@ -72,7 +72,7 @@ static BOOL appStartMeasurementRead;
                            waitForChildren:(BOOL)waitForChildren
 {
     if (self = [super init]) {
-        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
+        self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
         self.hub = hub;
@@ -121,7 +121,7 @@ static BOOL appStartMeasurementRead;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+    SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
     @synchronized(self.children) {
         [self.children addObject:child];
     }
@@ -463,7 +463,7 @@ static BOOL appStartMeasurementRead;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    return [[SentrySpan alloc] initWithContext:context];
+    return [[SentrySpan alloc] initWithTransaction:self context:context];
 }
 
 - (NSDictionary *)serialize
@@ -490,7 +490,7 @@ static BOOL appStartMeasurementRead;
     if ([span isKindOfClass:[SentryTracer class]]) {
         return span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
-        return [(SentrySpan *)span tracer];
+        return [(SentrySpan *)span transaction];
     }
     return nil;
 }

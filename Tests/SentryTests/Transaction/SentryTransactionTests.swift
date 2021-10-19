@@ -4,7 +4,7 @@ class SentryTransactionTests: XCTestCase {
     
     private class Fixture {
         static var transaction: Transaction {
-            let span = SentrySpan(context: SpanContext(operation: "some"))
+            let span = SentrySpan(transaction: SentryTracer(), context: SpanContext(operation: "some"))
             return Transaction(trace: span, children: [])
         }
     }
