@@ -44,35 +44,56 @@ SentryNSDataTracker ()
     }
 }
 
-- (BOOL)measureWriteToFile:(NSString *)path
-                atomically:(BOOL)useAuxiliaryFile
-                    method:(BOOL (^)(NSString *, BOOL))method
+- (SentrySpanId *)startTrackingForNSData:(NSData *)data filePath:(NSString *)path
 {
-    SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
-                                                 operation:SENTRY_IO_OPERATION];
+
+    if (![self shouldTrackPath:path])
+        return nil;
+
+    SentrySpanId *spanId = [self.tracker startSpanWithName:[path lastPathComponent]
+                                                 operation:SENTRY_IO_WRITE_OPERATION];
 
     id<SentrySpan> span = [self.tracker getSpan:spanId];
-    [span setDataValue:path forKey:@"path"];
+    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"length"];
+
+    return spanId;
+}
+
+- (BOOL)measureNSData:(NSData *)data
+          writeToFile:(NSString *)path
+           atomically:(BOOL)useAuxiliaryFile
+               method:(BOOL (^)(NSString *, BOOL))method
+{
+    SentrySpanId *spanId = [self startTrackingForNSData:data filePath:path];
 
     BOOL result = method(path, useAuxiliaryFile);
-    [self.tracker finishSpan:spanId];
+
+    if (spanId != nil) {
+        [self.tracker finishSpan:spanId];
+    }
     return result;
 }
 
-- (BOOL)measureWriteToFile:(NSString *)path
-                   options:(NSDataWritingOptions)writeOptionsMask
-                     error:(NSError **)error
-                    method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
+- (BOOL)measureNSData:(NSData *)data
+          writeToFile:(NSString *)path
+              options:(NSDataWritingOptions)writeOptionsMask
+                error:(NSError **)error
+               method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
-    SentrySpanId *spanId = [self.tracker startSpanWithName:@"WRITING_FILE"
-                                                 operation:SENTRY_IO_OPERATION];
-
-    id<SentrySpan> span = [self.tracker getSpan:spanId];
-    [span setDataValue:path forKey:@"path"];
+    SentrySpanId *spanId = [self startTrackingForNSData:data filePath:path];
 
     BOOL result = method(path, writeOptionsMask, error);
-    [self.tracker finishSpan:spanId];
+
+    if (spanId != nil) {
+        [self.tracker finishSpan:spanId];
+    }
+
     return result;
+}
+
+- (BOOL)shouldTrackPath:(NSString *)path
+{
+    return ![path containsString:@"/io.sentry/"];
 }
 
 @end

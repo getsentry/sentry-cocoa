@@ -44,6 +44,8 @@ ViewController ()
         initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
     NSURLSessionDataTask *task = [session dataTaskWithURL:url];
     [task resume];
+
+    [self saveSomeData];
 }
 
 - (IBAction)addBreadcrumb:(id)sender
@@ -154,6 +156,22 @@ ViewController ()
             }
         }
     });
+}
+
+- (IBAction)writeData:(id)sender
+{
+    [self saveSomeData];
+}
+
+- (void)saveSomeData
+{
+    NSURL *appDir = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory
+                                                         inDomains:NSUserDomainMask]
+                        .firstObject;
+    appDir = [appDir URLByAppendingPathComponent:@"data.txt"];
+
+    NSData *data = [@"This is some data to be saved" dataUsingEncoding:NSUTF8StringEncoding];
+    [data writeToURL:appDir atomically:true];
 }
 
 @end

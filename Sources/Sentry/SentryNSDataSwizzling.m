@@ -27,11 +27,12 @@
         SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
         SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
-                measureWriteToFile:path
-                        atomically:useAuxiliaryFile
-                            method:^BOOL(NSString *_Nonnull filePath, BOOL isAtomically) {
-                                return SentrySWCallOriginal(filePath, isAtomically);
-                            }];
+                measureNSData:self
+                  writeToFile:path
+                   atomically:useAuxiliaryFile
+                       method:^BOOL(NSString *_Nonnull filePath, BOOL isAtomically) {
+                           return SentrySWCallOriginal(filePath, isAtomically);
+                       }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileAtomicallySelector);
 
@@ -41,13 +42,14 @@
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
         SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
-                measureWriteToFile:path
-                           options:writeOptionsMask
-                             error:error
-                            method:^BOOL(NSString *filePath, NSDataWritingOptions options,
-                                NSError **outError) {
-                                return SentrySWCallOriginal(filePath, options, outError);
-                            }];
+                measureNSData:self
+                  writeToFile:path
+                      options:writeOptionsMask
+                        error:error
+                       method:^BOOL(
+                           NSString *filePath, NSDataWritingOptions options, NSError **outError) {
+                           return SentrySWCallOriginal(filePath, options, outError);
+                       }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
 }

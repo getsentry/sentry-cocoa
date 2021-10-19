@@ -2,7 +2,6 @@
 
 ## Unrelease
 
-- feat: Tracking file IO (#1350)
 - feat: Tracking file IO writing (#1350)
 
 ## 7.4.6
