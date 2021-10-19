@@ -6,7 +6,7 @@ import XCTest
 class TestViewController: UIViewController {
 }
 
-class SentryUIPerformanceTrackerTests: XCTestCase {
+class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     let loadView = "loadView"
     let viewWillLoad = "viewWillLoad"
