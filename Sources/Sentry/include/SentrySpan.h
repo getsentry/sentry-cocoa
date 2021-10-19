@@ -33,7 +33,7 @@ SENTRY_NO_INIT
 /**
  * The Transaction this span is associated with.
  */
-@property (nonatomic, readonly, weak) SentryTracer *transaction;
+@property (nullable, nonatomic, readonly, weak) SentryTracer *transaction;
 
 /**
  * Init a SentrySpan with given transaction and context.
