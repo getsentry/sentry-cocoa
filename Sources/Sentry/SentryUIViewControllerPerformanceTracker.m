@@ -71,15 +71,14 @@ SentryUIViewControllerPerformanceTracker ()
     SentrySpanId *spanId
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
-    // If the user manually call loadView outside the lifecycle
-    // we don't start a new transaction and override the previous id stored.
+    // If the user manually calls loadView outside the lifecycle we don't start a new transaction
+    // and override the previous id stored.
     if (spanId == nil) {
         NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
         spanId = [self.tracker startSpanWithName:name
                                        operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION];
 
-        // use the target itself to store the spanId to avoid using a global
-        // mapper.
+        // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -152,7 +151,7 @@ SentryUIViewControllerPerformanceTracker ()
                            [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
                                                          // viewWillAppear
 
-                           // if we still tracking this UIViewController, finishes the transaction
+                           // If we are still tracking this UIViewController finish the transaction
                            // and remove associated span id.
                            [self.tracker finishSpan:spanId];
                            objc_setAssociatedObject(controller,
