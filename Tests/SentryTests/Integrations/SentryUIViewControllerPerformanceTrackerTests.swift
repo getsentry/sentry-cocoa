@@ -14,6 +14,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let viewWillAppear = "viewWillAppear"
     let viewAppearing = "viewAppearing"
     let viewDidAppear = "viewDidAppear"
+    let viewWillDisappear = "viewWillDisappear"
     let viewWillLayoutSubviews = "viewWillLayoutSubviews"
     let viewDidLayoutSubviews = "viewDidLayoutSubviews"
     let layoutSubviews = "layoutSubViews"
@@ -46,7 +47,37 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         fixture = Fixture()
     }
 
-    func testUILifeCycle() {
+    func testUILifeCycle_ViewDidAppear() {
+        testUILifeCycle(transactionStatus: SentrySpanStatus.undefined) { sut, viewController, tracker, callbackExpectation, transactionSpan in
+            sut.viewControllerViewDidAppear(viewController) {
+                let blockSpan = self.getStack(tracker).last!
+                XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
+                XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidAppear)
+                callbackExpectation.fulfill()
+            }
+            
+            // Simulate call to viewWillDisappear later on. As the transaction is already
+            // finished above in viewDidAppear nothing should happend here.
+            sut.viewControllerViewWillDisappear(viewController) {
+                self.assertTrackerIsEmpty(tracker)
+            }
+        }
+    }
+    
+    func testUILifeCycle_NoViewDidAppear_OnlyViewWillDisappear() {
+        // Don't call viewDidAppear on purpose.
+        
+        testUILifeCycle(transactionStatus: SentrySpanStatus.cancelled) { sut, viewController, tracker, callbackExpectation, transactionSpan in
+            sut.viewControllerViewWillDisappear(viewController) {
+                let blockSpan = self.getStack(tracker).last!
+                XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
+                XCTAssertEqual(blockSpan.context.spanDescription, self.viewWillDisappear)
+                callbackExpectation.fulfill()
+            }
+        }
+    }
+    
+    private func testUILifeCycle(transactionStatus: SentrySpanStatus, lifecycleEndingMethod: (SentryUIViewControllerPerformanceTracker, UIViewController, SentryPerformanceTracker, XCTestExpectation, Span) -> Void) {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
@@ -108,17 +139,17 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(viewAppearingSpan.context.parentSpanId, transactionSpan.context.spanId)
         XCTAssertEqual(viewAppearingSpan.context.spanDescription, self.viewAppearing)
         
-        sut.viewControllerViewDidAppear(viewController) {
-            let blockSpan = self.getStack(tracker).last!
-            XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
-            XCTAssertEqual(blockSpan.context.spanDescription, self.viewDidAppear)
-            callbackExpectation.fulfill()
-        }
-
+        lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, transactionSpan)
+        
+        XCTAssertEqual(transactionStatus.rawValue, viewAppearingSpan.context.status.rawValue)
+        
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(transactionSpan.isFinished)
+        XCTAssertEqual(transactionStatus.rawValue, transactionSpan.context.status.rawValue)
         
         wait(for: [callbackExpectation], timeout: 0)
+        
+        assertTrackerIsEmpty(tracker)
     }
     
     func testTimeMeasurement() {
