@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -24,7 +24,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="95.5" width="398" height="484.5"/>
+                                <rect key="frame" x="8" y="95.5" width="398" height="514.5"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -110,8 +110,15 @@
                                             <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E8m-GA-zvY"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tJQ-Kd-2YE" userLabel="Show SwiftUI">
+                                        <rect key="frame" x="0.0" y="360" width="398" height="30"/>
+                                        <state key="normal" title="Show  SwiftUI"/>
+                                        <connections>
+                                            <segue destination="UCZ-cM-HEm" kind="show" id="5Oc-8Q-7th"/>
+                                        </connections>
+                                    </button>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
-                                        <rect key="frame" x="0.0" y="360" width="398" height="124.5"/>
+                                        <rect key="frame" x="0.0" y="390" width="398" height="124.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>
@@ -194,7 +201,6 @@
         <!--Lorem Ipsum View Controller-->
         <scene sceneID="HP6-1Y-hca">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController id="2jd-n4-Ihk" customClass="LoremIpsumViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="hTi-ne-s8a">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
@@ -224,8 +230,25 @@
                         <outlet property="textView" destination="sla-j3-cfX" id="Xua-md-Bb1"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1224.6376811594205" y="-148.66071428571428"/>
+        </scene>
+        <!--Swift UI View Controller-->
+        <scene sceneID="n60-c0-jtc">
+            <objects>
+                <viewController id="UCZ-cM-HEm" userLabel="Swift UI View Controller" customClass="SwiftUIViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="6SO-jx-UPC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="7Us-Pk-Ydq"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="QmZ-4q-QY6"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Vty-ve-Rzm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="268" y="-534"/>
         </scene>
     </scenes>
     <resources>

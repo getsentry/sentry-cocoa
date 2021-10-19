@@ -18,6 +18,8 @@
 		7B3427F825876A5200056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
 		7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B371C34268B08F300207D8D /* DSNStorage.swift */; };
 		7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
+		7B4F33F8271EBD2500C8591E /* SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33F7271EBD2500C8591E /* SwiftUI.swift */; };
+		7B4F33FB271EBE0C00C8591E /* SwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */; };
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
 		7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */; };
@@ -86,6 +88,8 @@
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
 		7B371C34268B08F300207D8D /* DSNStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
 		7B4AC43F25D16AA00070736A /* RandomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
+		7B4F33F7271EBD2500C8591E /* SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
+		7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewController.swift; sourceTree = "<group>"; };
 		7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B64386A26A6C544000D0F65 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -162,6 +166,8 @@
 				7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */,
 				7B4AC43F25D16AA00070736A /* RandomErrors.swift */,
 				7B371C34268B08F300207D8D /* DSNStorage.swift */,
+				7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */,
+				7B4F33F7271EBD2500C8591E /* SwiftUI.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
@@ -316,7 +322,9 @@
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
+				7B4F33F8271EBD2500C8591E /* SwiftUI.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
+				7B4F33FB271EBE0C00C8591E /* SwiftUIViewController.swift in Sources */,
 				637AFDAC243B02760034958B /* SceneDelegate.swift in Sources */,
 				7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */,
 				7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */,
