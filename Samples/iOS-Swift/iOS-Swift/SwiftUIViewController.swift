@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
-import UIKit
 import SwiftUI
+import UIKit
 
 class SwiftUIViewController: UIViewController {
     
