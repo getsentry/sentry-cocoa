@@ -84,7 +84,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
-        let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
+        let layoutSubViewsSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         XCTAssertEqual(layoutSubViewsSpan.context.parentSpanId, transactionSpan.context.spanId)
         XCTAssertEqual(layoutSubViewsSpan.context.spanDescription, self.layoutSubviews)
         
@@ -104,7 +104,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertFalse(transactionSpan.isFinished)
         
-        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        let viewAppearingSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         XCTAssertEqual(viewAppearingSpan.context.parentSpanId, transactionSpan.context.spanId)
         XCTAssertEqual(viewAppearingSpan.context.spanDescription, self.viewAppearing)
         
@@ -155,7 +155,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 3)
         
-        let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
+        let layoutSubViewsSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         advanceTime(bySeconds: 4)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
@@ -173,9 +173,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
-        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        let viewAppearingSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         advanceTime(bySeconds: 4)
-        
+                
         sut.viewControllerViewDidAppear(viewController) {
             lastSpan = self.getStack(tracker: tracker).last!
             self.advanceTime(bySeconds: 5)
@@ -212,7 +212,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 3)
         
-        let layoutSubViewsSpan = self.getStack(tracker: tracker).last!
+        let layoutSubViewsSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         advanceTime(bySeconds: 4)
         
         sut.viewControllerViewDidLayoutSubViews(viewController) {
@@ -228,7 +228,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         assertSpanDuration(span: lastSpan!, expectedDuration: 1)
         
-        let viewAppearingSpan = self.getStack(tracker: tracker).last!
+        let viewAppearingSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
         advanceTime(bySeconds: 4)
         
         sut.viewControllerViewDidAppear(viewController) {
@@ -370,6 +370,61 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
         wait(for: [callbackExpectation], timeout: 0)
+    }
+    
+    func testMultiplesViewController() {
+        let sut = fixture.getSut()
+        let firstController = TestViewController()
+        let secondController = TestViewController()
+        let tracker = fixture.tracker
+        
+        var firstTransaction: SentryTracer!
+        var secondTransaction: SentryTracer!
+        
+        sut.viewControllerViewDidLoad(firstController) {
+            firstTransaction = self.getStack(tracker: tracker).first as? SentryTracer
+        }
+
+        sut.viewControllerViewDidLoad(secondController) {
+            secondTransaction = self.getStack(tracker: tracker).first as? SentryTracer
+        }
+        
+        //Callback methods intentionally left blank from now on
+        sut.viewControllerViewWillLayoutSubViews(firstController) {
+        }
+       
+        sut.viewControllerViewWillLayoutSubViews(secondController) {
+        }
+                
+        sut.viewControllerViewDidLayoutSubViews(firstController) {
+        }
+        
+        var firstSpanChildren: [Span]? = Dynamic(firstTransaction).children as [Span]?
+        XCTAssertEqual(firstSpanChildren?.count, 4)
+        
+        sut.viewControllerViewDidLayoutSubViews(secondController) {
+        }
+                
+        var secondSpanChildren: [Span]? = Dynamic(secondTransaction).children as [Span]?
+        XCTAssertEqual(secondSpanChildren?.count, 4)
+        
+        sut.viewControllerViewWillAppear(firstController) {
+        }
+       
+        sut.viewControllerViewWillAppear(secondController) {
+        }
+                
+        sut.viewControllerViewDidAppear(firstController) {
+        }
+        
+        firstSpanChildren = Dynamic(firstTransaction).children as [Span]?
+        XCTAssertEqual(firstSpanChildren?.count, 7)
+        
+        sut.viewControllerViewDidAppear(secondController) {
+        }
+                
+        secondSpanChildren = Dynamic(secondTransaction).children as [Span]?
+        XCTAssertEqual(secondSpanChildren?.count, 7)
     }
     
     private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {

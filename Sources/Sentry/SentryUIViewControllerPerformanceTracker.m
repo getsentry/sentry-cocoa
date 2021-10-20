@@ -112,8 +112,7 @@ SentryUIViewControllerPerformanceTracker ()
                            objc_setAssociatedObject(controller,
                                &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID,
                                viewAppearingId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-                           [self.tracker pushActiveSpan:viewAppearingId];
+                           [self.tracker popActiveSpan];
                        }
                    }];
 }
@@ -136,13 +135,13 @@ SentryUIViewControllerPerformanceTracker ()
                            SentrySpanId *viewAppearingId = objc_getAssociatedObject(
                                controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
                            if (viewAppearingId != nil) {
-                               [self.tracker popActiveSpan]; // pop viewAppearingSpan pushed at
-                                                             // viewWillAppear
                                [self.tracker finishSpan:viewAppearingId];
                                objc_setAssociatedObject(controller,
                                    &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
                                    OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            }
+
+                           [self.tracker pushActiveSpan:spanId];
 
                            [self.tracker
                                measureSpanWithDescription:@"viewDidAppear"
@@ -190,7 +189,7 @@ SentryUIViewControllerPerformanceTracker ()
                                &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                                layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-                           [self.tracker pushActiveSpan:layoutSubViewId];
+                           [self.tracker popActiveSpan];
                        }
                    }];
 }
@@ -214,11 +213,10 @@ SentryUIViewControllerPerformanceTracker ()
                                controller, &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID);
 
                            if (layoutSubViewId != nil) {
-                               [self.tracker popActiveSpan]; // Pop layoutSubView span pushed at
-                                                             // viewWillAppear
                                [self.tracker finishSpan:layoutSubViewId];
                            }
 
+                           [self.tracker pushActiveSpan:spanId];
                            [self.tracker
                                measureSpanWithDescription:@"viewDidLayoutSubviews"
                                                 operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
