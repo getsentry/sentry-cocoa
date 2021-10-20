@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: UIViewControllerPerformanceTracker bug with multiple ViewControllers being displayed (#1409)
+
 ## 7.4.6
 
 - fix: Crash when Getting Subclasses (#1396)
