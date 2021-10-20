@@ -48,7 +48,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 
     func testUILifeCycle_ViewDidAppear() {
-        testUILifeCycle(transactionStatus: SentrySpanStatus.undefined) { sut, viewController, tracker, callbackExpectation, transactionSpan in
+        testUILifeCycle(finishStatus: SentrySpanStatus.undefined) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {
                 let blockSpan = self.getStack(tracker).last!
                 XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
@@ -67,7 +67,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     func testUILifeCycle_NoViewDidAppear_OnlyViewWillDisappear() {
         // Don't call viewDidAppear on purpose.
         
-        testUILifeCycle(transactionStatus: SentrySpanStatus.cancelled) { sut, viewController, tracker, callbackExpectation, transactionSpan in
+        testUILifeCycle(finishStatus: SentrySpanStatus.cancelled) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewWillDisappear(viewController) {
                 let blockSpan = self.getStack(tracker).last!
                 XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
@@ -77,7 +77,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
     }
     
-    private func testUILifeCycle(transactionStatus: SentrySpanStatus, lifecycleEndingMethod: (SentryUIViewControllerPerformanceTracker, UIViewController, SentryPerformanceTracker, XCTestExpectation, Span) -> Void) {
+    private func testUILifeCycle(finishStatus: SentrySpanStatus, lifecycleEndingMethod: (SentryUIViewControllerPerformanceTracker, UIViewController, SentryPerformanceTracker, XCTestExpectation, Span) -> Void) {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker
@@ -141,11 +141,11 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, transactionSpan)
         
-        XCTAssertEqual(transactionStatus.rawValue, viewAppearingSpan.context.status.rawValue)
+        XCTAssertEqual(finishStatus.rawValue, viewAppearingSpan.context.status.rawValue)
         
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(transactionSpan.isFinished)
-        XCTAssertEqual(transactionStatus.rawValue, transactionSpan.context.status.rawValue)
+        XCTAssertEqual(finishStatus.rawValue, transactionSpan.context.status.rawValue)
         
         wait(for: [callbackExpectation], timeout: 0)
         

@@ -152,44 +152,44 @@ SentryUIViewControllerPerformanceTracker ()
           lifecycleMethod:(NSString *)lifecycleMethod
          callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    void (^limitOverrideBlock)(void) = ^{
+        SentrySpanId *spanId
+            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+            // We are no longer tracking this UIViewController, just call the base
+            // method.
+            callbackToOrigin();
+        } else {
+            SentrySpanId *viewAppearingId = objc_getAssociatedObject(
+                controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
+            if (viewAppearingId != nil) {
+                [self.tracker popActiveSpan]; // pop viewAppearingSpan pushed at
+                                              // viewWillAppear
+                [self.tracker finishSpan:viewAppearingId withStatus:status];
+                objc_setAssociatedObject(controller,
+                    &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
+                    OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }
+
+            [self.tracker measureSpanWithDescription:lifecycleMethod
+                                           operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                             inBlock:callbackToOrigin];
+            [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
+                                          // viewWillAppear
+
+            // If we are still tracking this UIViewController finish the transaction
+            // and remove associated span id.
+            [self.tracker finishSpan:spanId withStatus:status];
+            objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
+                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    };
+
     [self limitOverride:lifecycleMethod
                   target:controller
         callbackToOrigin:callbackToOrigin
-                   block:^{
-                       SentrySpanId *spanId = objc_getAssociatedObject(
-                           controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-
-                       if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
-                           // We are no longer tracking this UIViewController, just call the base
-                           // method.
-                           callbackToOrigin();
-                       } else {
-                           SentrySpanId *viewAppearingId = objc_getAssociatedObject(
-                               controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
-                           if (viewAppearingId != nil) {
-                               [self.tracker popActiveSpan]; // pop viewAppearingSpan pushed at
-                                                             // viewWillAppear
-                               [self.tracker finishSpan:viewAppearingId withStatus:status];
-                               objc_setAssociatedObject(controller,
-                                   &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
-                                   OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                           }
-
-                           [self.tracker
-                               measureSpanWithDescription:lifecycleMethod
-                                                operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                                  inBlock:callbackToOrigin];
-                           [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
-                                                         // viewWillAppear
-
-                           // If we are still tracking this UIViewController finish the transaction
-                           // and remove associated span id.
-                           [self.tracker finishSpan:spanId withStatus:status];
-                           objc_setAssociatedObject(controller,
-                               &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
-                               OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                       }
-                   }];
+                   block:limitOverrideBlock];
 }
 
 - (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
