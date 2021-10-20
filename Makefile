@@ -40,7 +40,7 @@ build-carthage-xcframework-sample:
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
-build-carthage-framework
+build-carthage-framework:
 	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
