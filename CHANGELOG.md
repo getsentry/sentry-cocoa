@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.4.7
 
 - fix: Only enable APM when traceRate set (#1417)
 - fix: Crash in Span when Tracer nil (#1416)
