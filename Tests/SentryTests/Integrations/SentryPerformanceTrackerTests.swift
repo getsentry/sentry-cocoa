@@ -130,7 +130,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(child!.context.spanId, grandchild!.context.parentSpanId)
     }
     
-    func testWaitingForChild(){
+    func testWaitingForChild() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
         sut.pushActiveSpan(spanId)
