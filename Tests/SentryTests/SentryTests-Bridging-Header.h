@@ -81,6 +81,7 @@
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryPerformanceTracker.h"
+#import "SentryPerformanceTrackingIntegration.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitCategory.h"
