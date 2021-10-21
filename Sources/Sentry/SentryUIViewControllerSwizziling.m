@@ -214,6 +214,7 @@ SentryUIViewControllerSwizziling ()
     [self swizzleLoadView:class];
     [self swizzleViewDidLoad:class];
     [self swizzleViewWillAppear:class];
+    [self swizzleViewWillDisappear:class];
     [self swizzleViewDidAppear:class];
 }
 
@@ -288,6 +289,18 @@ SentryUIViewControllerSwizziling ()
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerViewDidAppear:self
                            callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+}
+
+- (void)swizzleViewWillDisappear:(Class)class
+{
+    SEL selector = NSSelectorFromString(@"viewWillDisappear:");
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
+        SentrySWArguments(BOOL animated), SentrySWReplacement({
+            [SentryUIViewControllerPerformanceTracker.shared
+                viewControllerViewWillDisappear:self
+                               callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
