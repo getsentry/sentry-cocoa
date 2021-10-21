@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Clear unfinished transaction in UIViewController APM (#1408)
+
 ## 7.4.6
 
 - fix: Crash when Getting Subclasses (#1396)

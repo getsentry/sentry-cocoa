@@ -61,6 +61,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(void (^)(void))callback;
 
+- (void)viewControllerViewWillDisappear:(UIViewController *)controller
+                       callbackToOrigin:(void (^)(void))callbackToOrigin;
+
 /**
  * Measures viewController`s viewDidAppear: method.
  * This method also finishes the span created at
