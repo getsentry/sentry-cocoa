@@ -1,3 +1,4 @@
+import Sentry
 import XCTest
 
 class SentrySpanTests: XCTestCase {
@@ -227,6 +228,23 @@ class SentrySpanTests: XCTestCase {
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+    }
+    
+    func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
+        // Span has a weak reference to tracer. If we don't keep a reference
+        // to tracer ARC will deallocate the tracer.
+        let sutGenerator : () -> Span = {
+            let tracer = SentryTracer()
+            return SentrySpan(transaction: tracer, context: SpanContext(operation: ""))
+        }
+        
+        let sut = sutGenerator()
+
+        let actual = sut.startChild(operation: fixture.someOperation)
+        XCTAssertTrue(SentryNoOpSpan.shared() === actual)
+        
+        let actualWithDescription = sut.startChild(operation: fixture.someOperation, description: fixture.someDescription)
+        XCTAssertTrue(SentryNoOpSpan.shared() === actualWithDescription)
     }
     
     @available(tvOS 10.0, *)

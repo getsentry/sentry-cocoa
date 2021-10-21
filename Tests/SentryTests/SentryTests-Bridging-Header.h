@@ -77,6 +77,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNetworkTracker.h"
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryNoOpSpan.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryPerformanceTracker.h"
