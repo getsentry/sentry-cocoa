@@ -6,7 +6,9 @@
 @interface
 SentryPerformanceTrackingIntegration ()
 
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryUIViewControllerSwizziling *swizzling;
+#endif
 
 @end
 
