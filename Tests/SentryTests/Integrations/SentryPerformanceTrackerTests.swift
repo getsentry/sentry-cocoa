@@ -130,6 +130,22 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(child!.context.spanId, grandchild!.context.parentSpanId)
     }
     
+    func testWaitingForChild(){
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        sut.pushActiveSpan(spanId)
+        let childSpanId = startSpan(tracker: sut)
+        sut.popActiveSpan()
+        sut.finishSpan(spanId)
+        sut.pushActiveSpan(childSpanId)
+        
+        sut.finishSpan(childSpanId)
+        
+        let granChildSpanId = self.startSpan(tracker: sut)
+        sut.finishSpan(granChildSpanId)
+        sut.popActiveSpan()
+    }
+    
     func testMeasureSpanWithBlock() {
         let sut = fixture.getSut()
         var span: Span?
