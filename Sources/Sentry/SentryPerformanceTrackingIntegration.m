@@ -15,17 +15,16 @@ SentryPerformanceTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog
-            logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start SentryPerformanceTrackingIntegration."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
     if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not start SentryPerformanceTrackingIntegration."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
