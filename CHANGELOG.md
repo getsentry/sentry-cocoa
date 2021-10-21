@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- fix: UIViewControllerPerformanceTracker bug with multiple ViewControllers being displayed (#1409)
+- fix: Instrumenting multiple UIViewControllers (#1409)
 
 ## 7.4.6
 
