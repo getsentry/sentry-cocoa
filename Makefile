@@ -33,6 +33,7 @@ build-xcframework:
 	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
 
 build-carthage-xcframework-sample:
+	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
@@ -43,6 +44,7 @@ build-framework:
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
 
 build-carthage-framework-sample:
+	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/Framework/ && carthage update
 	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
