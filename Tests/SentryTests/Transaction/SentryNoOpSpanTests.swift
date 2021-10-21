@@ -13,10 +13,12 @@ class SentryNoOpSpanTests: XCTestCase {
     func testStartChild_ReturnsSameInstance() {
         let sut = SentryNoOpSpan.shared()
         
-        let child = sut.startChild(operation: "op")
+        let child = sut.startChild(operation: "operation")
+        XCTAssertNil(child.context.spanDescription)
+        XCTAssertEqual("", child.context.operation)
         XCTAssertTrue(sut === child)
         
-        let childWithDescription = sut.startChild(operation: "op", description: "descr")
+        let childWithDescription = sut.startChild(operation: "", description: "descr")
         
         XCTAssertTrue(sut === childWithDescription)
     }

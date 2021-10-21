@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
         _context = [[SentrySpanContext alloc] initWithTraceId:SentryId.empty
                                                        spanId:SentrySpanId.empty
                                                      parentId:nil
-                                                    operation:@"op"
+                                                    operation:@""
                                                       sampled:kSentrySampleDecisionUndecided];
     }
     return self;

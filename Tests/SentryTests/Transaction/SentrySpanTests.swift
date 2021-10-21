@@ -232,7 +232,7 @@ class SentrySpanTests: XCTestCase {
     
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
         // Span has a weak reference to tracer. If we don't keep a reference
-        // to tracer ARC will deallocate the tracer.
+        // to the tracer ARC will deallocate the tracer.
         let sutGenerator : () -> Span = {
             let tracer = SentryTracer()
             return SentrySpan(transaction: tracer, context: SpanContext(operation: ""))
