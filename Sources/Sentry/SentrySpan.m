@@ -1,6 +1,7 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
+#import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
 
@@ -35,6 +36,10 @@ SentrySpan ()
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
+    if (self.transaction == nil) {
+        return [SentryNoOpSpan shared];
+    }
+
     return [self.transaction startChildWithParentId:[self.context spanId]
                                           operation:operation
                                         description:description];
