@@ -41,6 +41,9 @@ build-carthage-xcframework-sample:
 
 # Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
 build-carthage-framework:
+	@echo "--> Carthage: creating JSON"
+	./scripts/create-carthage-json.sh
+
 	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip

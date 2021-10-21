@@ -64,9 +64,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: make build-carthage-xcframework
-        shell: sh 
+        shell: sh
       - run: make build-carthage-xcframework-sample
-        shell: sh  
+        shell: sh
 
       - name: Archiving Carthage zips
         uses: actions/upload-artifact@v2
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
       - run: make build-carthage-framework
-        shell: sh 
+        shell: sh
       - run: make build-carthage-framework-sample
         shell: sh
 
