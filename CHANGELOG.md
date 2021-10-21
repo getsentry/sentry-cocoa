@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Instrumenting multiple UIViewControllers (#1409)
+- fix: Clear unfinished transaction in UIViewController APM (#1408)
 
 ## 7.4.6
 

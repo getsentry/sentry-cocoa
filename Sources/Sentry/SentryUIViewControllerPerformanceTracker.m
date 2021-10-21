@@ -120,44 +120,74 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerViewDidAppear:(UIViewController *)controller
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-    [self limitOverride:@"viewDidAppear"
+    [self finishTransaction:controller
+                     status:kSentrySpanStatusUndefined
+            lifecycleMethod:@"viewDidAppear"
+           callbackToOrigin:callbackToOrigin];
+}
+
+/**
+ * According to the apple docs, see
+ * https://developer.apple.com/documentation/uikit/uiviewcontroller: Not all ‘will’ callback methods
+ * are paired with only a ‘did’ callback method. You need to ensure that if you start a process in a
+ * ‘will’ callback method, you end the process in both the corresponding ‘did’ and the opposite
+ * ‘will’ callback method.
+ *
+ * As stated above viewWillAppear doesn't need to be followed by a viewDidAppear. A viewWillAppear
+ * can also be followed by a viewWillDisappear. Therefore, we finish the transaction in
+ * viewWillDisappear, if it wasn't already finished in viewDidAppear.
+ */
+- (void)viewControllerViewWillDisappear:(UIViewController *)controller
+                       callbackToOrigin:(void (^)(void))callbackToOrigin
+{
+    [self finishTransaction:controller
+                     status:kSentrySpanStatusCancelled
+            lifecycleMethod:@"viewWillDisappear"
+           callbackToOrigin:callbackToOrigin];
+}
+
+- (void)finishTransaction:(UIViewController *)controller
+                   status:(SentrySpanStatus)status
+          lifecycleMethod:(NSString *)lifecycleMethod
+         callbackToOrigin:(void (^)(void))callbackToOrigin
+{
+    void (^limitOverrideBlock)(void) = ^{
+        SentrySpanId *spanId
+            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+
+        if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
+            // We are no longer tracking this UIViewController, just call the base
+            // method.
+            callbackToOrigin();
+        } else {
+            SentrySpanId *viewAppearingId = objc_getAssociatedObject(
+                controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
+            if (viewAppearingId != nil) {
+                [self.tracker finishSpan:viewAppearingId withStatus:status];
+                objc_setAssociatedObject(controller,
+                    &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
+                    OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }
+
+            [self.tracker pushActiveSpan:spanId];
+            [self.tracker measureSpanWithDescription:lifecycleMethod
+                                           operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                             inBlock:callbackToOrigin];
+            [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
+                                          // viewWillAppear
+
+            // If we are still tracking this UIViewController finish the transaction
+            // and remove associated span id.
+            [self.tracker finishSpan:spanId withStatus:status];
+            objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
+                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    };
+
+    [self limitOverride:lifecycleMethod
                   target:controller
         callbackToOrigin:callbackToOrigin
-                   block:^{
-                       SentrySpanId *spanId = objc_getAssociatedObject(
-                           controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
-
-                       if (spanId == nil || ![self.tracker isSpanAlive:spanId]) {
-                           // We are no longer tracking this UIViewController, just call the base
-                           // method.
-                           callbackToOrigin();
-                       } else {
-                           SentrySpanId *viewAppearingId = objc_getAssociatedObject(
-                               controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
-                           if (viewAppearingId != nil) {
-                               [self.tracker finishSpan:viewAppearingId];
-                               objc_setAssociatedObject(controller,
-                                   &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
-                                   OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                           }
-
-                           [self.tracker pushActiveSpan:spanId];
-
-                           [self.tracker
-                               measureSpanWithDescription:@"viewDidAppear"
-                                                operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                                  inBlock:callbackToOrigin];
-                           [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
-                                                         // viewWillAppear
-
-                           // If we are still tracking this UIViewController finish the transaction
-                           // and remove associated span id.
-                           [self.tracker finishSpan:spanId];
-                           objc_setAssociatedObject(controller,
-                               &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
-                               OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                       }
-                   }];
+                   block:limitOverrideBlock];
 }
 
 - (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller

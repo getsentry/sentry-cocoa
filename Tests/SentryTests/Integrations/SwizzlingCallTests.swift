@@ -16,6 +16,7 @@ class SwizzlingCallTests: XCTestCase {
         testViewController.viewWillLayoutSubviews()
         testViewController.viewDidLayoutSubviews()
         testViewController.viewWillAppear(false)
+        testViewController.viewWillDisappear(false)
         testViewController.viewDidAppear(false)
         
         let viewController = UIViewController()
