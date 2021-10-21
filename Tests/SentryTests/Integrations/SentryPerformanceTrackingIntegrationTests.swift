@@ -2,17 +2,15 @@ import XCTest
 
 class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testSwizzlingInitialized_WhenAPMandTracingEnabled() {
         let sut = SentryPerformanceTrackingIntegration()
         
         let options = Options()
         options.tracesSampleRate = 0.1
         sut.install(with: options)
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         XCTAssertNotNil(Dynamic(sut).swizzling.asObject)
-#else
-        XCTAssertNil(Dynamic(sut).swizzling.asObject)
-#endif
     }
     
     func testSwizzlingNotInitialized_WhenTracingDisabled() {
@@ -22,4 +20,5 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
+#endif
 }
