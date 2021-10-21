@@ -26,10 +26,7 @@ analyze:
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
-build-carthage-xcframework:
-	@echo "--> Carthage: creating JSON"
-	./scripts/create-carthage-json.sh
-
+build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
 	carthage build --use-xcframeworks --no-skip-current
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
@@ -40,10 +37,7 @@ build-carthage-xcframework-sample:
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
-build-carthage-framework:
-	@echo "--> Carthage: creating JSON"
-	./scripts/create-carthage-json.sh
-
+build-framework:
 	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
 	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip

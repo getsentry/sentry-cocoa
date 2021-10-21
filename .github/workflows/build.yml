@@ -58,17 +58,19 @@ jobs:
           CODE_SIGNING_ALLOWED="NO"
           build
 
-  build-carthage-xcframework:
-    name: Build & Validate Carthage XCFramework
+  build-xcframework:
+    name: Build & Validate XCFramework
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
-      - run: make build-carthage-xcframework
+      - run: make build-xcframework
+        shell: sh
+      - run: ./scripts/create-carthage-json.sh
         shell: sh
       - run: make build-carthage-xcframework-sample
         shell: sh
 
-      - name: Archiving Carthage zips
+      - name: Archiving XCFramework.zip
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.sha }}
@@ -76,18 +78,20 @@ jobs:
             ${{ github.workspace }}/*.zip
 
   # The framework requires Xcode 12          
-  build-carthage-framework:
-    name: Build & Validate Carthage Framework
+  build-framework:
+    name: Build & Validate Framework
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
-      - run: make build-carthage-framework
+      - run: make build-framework
+        shell: sh
+      - run: ./scripts/create-carthage-json.sh
         shell: sh
       - run: make build-carthage-framework-sample
         shell: sh
 
-      - name: Archiving Carthage zips
+      - name: Archiving Framework.zip
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.sha }}
