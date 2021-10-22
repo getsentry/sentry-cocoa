@@ -1,9 +1,9 @@
 #import "SentrySubClassFinder.h"
 #import "SentryDefines.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
+#import "SentryObjCRuntimeWrapper.h"
 #import <Foundation/Foundation.h>
-#import <SentryDispatchQueueWrapper.h>
-#import <SentryObjCRuntimeWrapper.h>
 #import <objc/runtime.h>
 
 @interface
