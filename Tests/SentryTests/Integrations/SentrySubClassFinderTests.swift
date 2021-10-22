@@ -80,7 +80,7 @@ class SentrySubClassFinderTests: XCTestCase {
     }
 }
 
-class Parent: UIViewController {}
+class Parent {}
 class Child1: Parent {}
 class Child2: Parent {}
 class GrandChild1: Child1 {}
