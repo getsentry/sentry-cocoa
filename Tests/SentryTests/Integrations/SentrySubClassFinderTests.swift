@@ -15,7 +15,6 @@ class SentrySubClassFinderTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryInitializeNotCalled.resetWasInitializerCalled()
     }
     
     override func tearDown() {
@@ -71,7 +70,7 @@ class SentrySubClassFinderTests: XCTestCase {
             actual.append(subClass)
         }
         
-        XCTAssertFalse(SentryInitializeNotCalled.wasInitializerCalled())
+        XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
     private func testActOnSubclassesOf(_ type: AnyClass, expected: [AnyClass]) {

@@ -19,7 +19,4 @@ func clearTestState() {
     let swizzling = SentryUIViewControllerSwizziling(options: Options(), dispatchQueue: SentryDispatchQueueWrapper())
     swizzling.start()
     #endif
-    
-    SentryInitializeNotCalled.resetWasInitializerCalled()
-    
 }

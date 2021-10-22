@@ -66,7 +66,7 @@
 #import "SentryHub+TestInit.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
-#import "SentryInitializeNotCalled.h"
+#import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInstallation.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog+TestInit.h"
