@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.4.7
+
+- fix: Only enable APM when traceRate set (#1417)
+- fix: Crash in Span when Tracer nil (#1416)
+- fix: Instrumenting multiple UIViewControllers (#1409)
+- fix: Clear unfinished transaction in UIViewController APM (#1408)
+
 ## 7.4.6
 
 - fix: Crash when Getting Subclasses (#1396)
