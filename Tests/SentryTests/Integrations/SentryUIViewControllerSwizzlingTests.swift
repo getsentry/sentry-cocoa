@@ -90,7 +90,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         options.add(inAppInclude: imageName.lastPathComponent)
         let swizzleSubClass = SentryUIViewControllerSwizzlingForTest(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
-        swizzleSubClass.swizzleSubclasses(of: Child1.self, dispatchQueue: SentryDispatchQueueWrapper()) { subClass in
+        swizzleSubClass.swizzleSubclasses(of: Child1.self, dispatchQueue: SentryDispatchQueueWrapper()) { _ in
             XCTAssertTrue(Thread.isMainThread, "Block must be executed on the main thread.")
             expect.fulfill()
         }
@@ -136,7 +136,7 @@ class ViewWithLoadViewController: UIViewController {
     }
 }
 
-class SentryUIViewControllerSwizzlingForTest : SentryUIViewControllerSwizziling {
+class SentryUIViewControllerSwizzlingForTest: SentryUIViewControllerSwizziling {
     
     var swizzleSubClassLoops = 0
     
