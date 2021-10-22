@@ -79,6 +79,28 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         testSwizzleSubclassesOf(Child2.self, expected: [])
     }
     
+    func testSwizzleSubclasses_forWrongNumberOfClasses() {
+        let expect = expectation(description: "")
+        expect.expectedFulfillmentCount = 2
+        
+        let options = Options()
+        let imageName = String(
+            cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+            encoding: .utf8)! as NSString
+        options.add(inAppInclude: imageName.lastPathComponent)
+        let swizzleSubClass = SentryUIViewControllerSwizzlingForTest(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        
+        swizzleSubClass.swizzleSubclasses(of: Child1.self, dispatchQueue: SentryDispatchQueueWrapper()) { subClass in
+            XCTAssertTrue(Thread.isMainThread, "Block must be executed on the main thread.")
+            expect.fulfill()
+        }
+        
+        wait(for: [expect], timeout: 1)
+                
+        //This means that swizzleSubClass was reset because the number of classes changed.
+        XCTAssertEqual(swizzleSubClass.swizzleSubClassLoops, 2)
+    }
+    
     private func testSwizzleSubclassesOf(_ type: AnyClass, expected: [AnyClass]) {
         let expect = expectation(description: "")
         
@@ -111,6 +133,20 @@ class ViewWithLoadViewController: UIViewController {
     override func loadView() {
         super.loadView()
         // empty on purpose
+    }
+}
+
+class SentryUIViewControllerSwizzlingForTest : SentryUIViewControllerSwizziling {
+    
+    var swizzleSubClassLoops = 0
+    
+    override func classListSize() -> Int32 {
+        return swizzleSubClassLoops > 1 ? super.classListSize() : 1
+    }
+    
+    override func swizzleSubclasses(of parentClass: AnyClass, dispatchQueue: SentryDispatchQueueWrapper, swizzleBlock block: @escaping (AnyClass) -> Void) {
+        swizzleSubClassLoops += 1
+        super.swizzleSubclasses(of: parentClass, dispatchQueue: dispatchQueue, swizzleBlock: block)
     }
 }
 

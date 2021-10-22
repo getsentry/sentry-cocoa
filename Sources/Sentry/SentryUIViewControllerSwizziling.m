@@ -44,6 +44,14 @@ SentryUIViewControllerSwizziling ()
 }
 
 /**
+ * Return the total number of classes.
+ * This method can be override for test purpose.
+ */
+- (int)classListSize {
+    return objc_getClassList(NULL, 0);
+}
+
+/**
  * To be able to test this we put the logic in a extra method.
  *
  * Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and then
@@ -67,7 +75,7 @@ SentryUIViewControllerSwizziling ()
                swizzleBlock:(void (^)(Class))block
 {
     [dispatchQueue dispatchAsyncWithBlock:^{
-        int numClasses = objc_getClassList(NULL, 0);
+        int numClasses = [self classListSize];
 
         if (numClasses <= 0) {
             NSString *msg =
@@ -87,9 +95,19 @@ SentryUIViewControllerSwizziling ()
             [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
             return;
         }
-
-        numClasses = objc_getClassList(classes, numClasses);
-
+        
+        int finalNumClasses = objc_getClassList(classes, numClasses);
+        
+        //A new class could be dynamically registered with `objc_registerClassPair` after the first objc_getClassList call
+        //If that happens, numClasses here could became bigger than the `classes` array leading to a crash,
+        //in that case we abort the process and start it over to include the new classes
+        if (finalNumClasses > numClasses) {
+            free(classes);
+            [self swizzleSubclassesOf:parentClass dispatchQueue:dispatchQueue swizzleBlock:block];
+            return;
+        }
+        numClasses = finalNumClasses;
+        
         // Storing the actual classes in an NSArray would call initialize of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
         // which assume they are running on the main thread. Therefore, we store the indexes instead
@@ -127,6 +145,7 @@ SentryUIViewControllerSwizziling ()
         }];
     }];
 }
+
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
