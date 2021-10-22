@@ -15,7 +15,7 @@
 #import "SentryAttachment.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryClassGenerator.h"
+#import "SentryClassRegistrator.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryConcurrentRateLimitsDictionary.h"

@@ -1,8 +1,8 @@
-#import "SentryClassGenerator.h"
+#import "SentryClassRegistrator.h"
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
-@implementation SentryClassGenerator
+@implementation SentryClassRegistrator
 
 + (void)registerClass:(NSString *)name
 {
