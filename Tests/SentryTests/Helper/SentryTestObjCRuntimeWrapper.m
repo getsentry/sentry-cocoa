@@ -26,7 +26,13 @@ SentryTestObjCRuntimeWrapper ()
     if (self.beforeGetClassList != nil) {
         self.beforeGetClassList();
     }
-    return [self.objcRuntimeWrapper getClassList:buffer bufferCount:bufferCount];
+    int numClasses = [self.objcRuntimeWrapper getClassList:buffer bufferCount:bufferCount];
+
+    if (self.numClasses != nil) {
+        numClasses = self.numClasses(numClasses);
+    }
+
+    return numClasses;
 }
 
 @end

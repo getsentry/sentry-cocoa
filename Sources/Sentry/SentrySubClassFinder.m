@@ -53,7 +53,17 @@ SentrySubClassFinder ()
         // Don't assign the result getClassList again to numClasses because if a class is registered
         // in the meantime our buffer would not be big enough and we would crash when iterating over
         // the classes below.
-        [self.objcRuntimeWrapper getClassList:classes bufferCount:numClasses];
+        int secondNumClasses = [self.objcRuntimeWrapper getClassList:classes
+                                                         bufferCount:numClasses];
+
+        // Only set the numClasses to secondNumClasses in the very unlikely case the number of
+        // classes decreased. If the number of classes increased, which can happen, we only iterate
+        // over the inital number of classes. We don't want to retry the whole process and are fine
+        // with possibly skipping a few newly added classes as they could anyway be added later in
+        // the lifetime of the app.
+        if (secondNumClasses < numClasses) {
+            numClasses = secondNumClasses;
+        }
 
         // Storing the actual classes in an NSArray would call initialize of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,

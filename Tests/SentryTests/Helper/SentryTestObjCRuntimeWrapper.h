@@ -8,4 +8,6 @@
 
 @property (nullable, nonatomic, copy) void (^beforeGetClassList)(void);
 
+@property (nullable, nonatomic, copy) int (^numClasses)(int);
+
 @end
