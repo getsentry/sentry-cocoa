@@ -15,6 +15,7 @@ class SentrySubClassFinderTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentryInitializeNotCalled.resetWasInitializerCalled()
     }
     
     override func tearDown() {
