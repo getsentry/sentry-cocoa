@@ -48,7 +48,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 
     func testUILifeCycle_ViewDidAppear() {
-        testUILifeCycle(finishStatus: SentrySpanStatus.undefined) { sut, viewController, tracker, callbackExpectation, transactionSpan in
+        testUILifeCycle(finishStatus: SentrySpanStatus.ok) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {
                 let blockSpan = self.getStack(tracker).last!
                 XCTAssertEqual(blockSpan.context.parentSpanId, transactionSpan.context.spanId)
