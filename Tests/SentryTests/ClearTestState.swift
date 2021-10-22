@@ -20,4 +20,6 @@ func clearTestState() {
     swizzling.start()
     #endif
     
+    SentryInitializeNotCalled.resetWasInitializerCalled()
+    
 }

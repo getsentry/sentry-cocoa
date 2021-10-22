@@ -11,12 +11,6 @@ SentryUIViewControllerSwizziling (Test)
 
 - (void)swizzleViewControllerSubClass:(Class)class;
 
-- (int)classListSize;
-
-- (void)swizzleSubclassesOf:(Class)parentClass
-              dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-               swizzleBlock:(void (^)(Class))block;
-
 @end
 
 #endif
