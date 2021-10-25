@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDispatchQueueWrapper {
-    // Don't use a normal property, because on RN a user got a warning "Property with 'retain (or
+    // Don't use a normal property because on RN a user got a warning "Property with 'retain (or
     // strong)' attribute must be of object type". A dispatch queue is since iOS 6.0 an NSObject so
     // it should work with strong, but nevertheless, we use an instance variable to fix this
     // warning.
