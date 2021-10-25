@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Dispatch Queue ARC Warning for RN (#1424)
+
 ## 7.4.8
 
 - fix: Crash when objc_getClassList returns different values (#1420)
