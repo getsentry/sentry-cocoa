@@ -69,7 +69,7 @@ SentrySubClassFinder ()
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
         // which assume they are running on the main thread. Therefore, we store the indexes instead
         // so we can search for the subclasses on a background thread.
-        NSMutableArray *indexesToSwizzle = [NSMutableArray new];
+        NSMutableArray<NSNumber *> *indexesToSwizzle = [NSMutableArray new];
         for (NSInteger i = 0; i < numClasses; i++) {
             Class superClass = classes[i];
 
@@ -92,7 +92,6 @@ SentrySubClassFinder ()
             }
         }
 
-        // We must swizzle the UIViewControllers on the main thread. Otherwise, we could crash.
         [self.dispatchQueue dispatchOnMainQueue:^{
             for (NSNumber *i in indexesToSwizzle) {
                 NSInteger index = [i integerValue];

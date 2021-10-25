@@ -40,19 +40,24 @@ class SentrySubClassFinderTests: XCTestCase {
         var invocations = -1
         fixture.runtimeWrapper.numClasses = { numClasses in
             invocations += 1
-            if invocations > 0 {
-                return 0
-            }
-            return numClasses
+            return invocations > 0 ? 0 : numClasses
         }
         
         testActOnSubclassesOf(Child1.self, expected: [])
     }
     
-    func testActOnSubclasses_NoClassesFound_ReturnsNoChildren() {
-        fixture.runtimeWrapper.numClasses = { _ in
-            return 0
+    func testActOnSubclasses_SecondClassListReturnsOneLess_ReturnsChildren() {
+        var invocations = -1
+        fixture.runtimeWrapper.numClasses = { numClasses in
+            invocations += 1
+            return invocations > 0 ? numClasses - 1 : numClasses
         }
+        
+        testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
+    }
+    
+    func testActOnSubclasses_NoClassesFound_ReturnsNoChildren() {
+        fixture.runtimeWrapper.numClasses = { _ in 0 }
         
         testActOnSubclassesOf(Child1.self, expected: [])
     }
