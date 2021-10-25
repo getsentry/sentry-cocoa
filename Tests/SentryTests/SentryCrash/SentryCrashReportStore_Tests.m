@@ -65,6 +65,12 @@
     self.appName = @"myapp";
 }
 
+- (void)tearDown
+{
+    [super tearDown];
+    sentrycrashcrs_deleteAllReports();
+}
+
 - (void)prepareReportStoreWithPathEnd:(NSString *)pathEnd
 {
     self.reportStorePath = [self.tempPath stringByAppendingPathComponent:pathEnd];
