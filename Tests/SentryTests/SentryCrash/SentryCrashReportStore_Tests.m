@@ -68,7 +68,8 @@
 - (void)tearDown
 {
     [super tearDown];
-    sentrycrashcrs_deleteAllReports();
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:self.tempPath error:nil];
 }
 
 - (void)prepareReportStoreWithPathEnd:(NSString *)pathEnd
