@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.4.8
 
 - fix: Crash when objc_getClassList returns different values (#1420)
 
