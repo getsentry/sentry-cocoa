@@ -66,45 +66,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let expectedTransactionName = SentryUIViewControllerSanitizer.sanitizeViewControllerName( controller)
         XCTAssertEqual(expectedTransactionName, transactionName)
     }
-    
-    func testSwizzleSubclassesOfParent() {
-        testSwizzleSubclassesOf(Parent.self, expected: [Child1.self, Child2.self, GrandChild1.self, GrandChild2.self])
-    }
-    
-    func testSwizzleSubclassesOfChild1() {
-        testSwizzleSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
-    }
-
-    func testSwizzleSubclassesOfChild2() {
-        testSwizzleSubclassesOf(Child2.self, expected: [])
-    }
-    
-    private func testSwizzleSubclassesOf(_ type: AnyClass, expected: [AnyClass]) {
-        let expect = expectation(description: "")
-        
-        if expected.isEmpty {
-            expect.isInverted = true
-        } else {
-            expect.expectedFulfillmentCount = expected.count
-        }
-        
-        var actual: [AnyClass] = []
-        fixture.sut.swizzleSubclasses(of: type, dispatchQueue: SentryDispatchQueueWrapper()) { subClass in
-            XCTAssertTrue(Thread.isMainThread, "Block must be executed on the main thread.")
-            actual.append(subClass)
-            expect.fulfill()
-        }
-        
-        wait(for: [expect], timeout: 1)
-        
-        let count = actual.filter { element in
-            return expected.contains { ex in
-                return element == ex
-            }
-        }.count
-        
-        XCTAssertEqual(expected.count, count)
-    }
 }
 
 class ViewWithLoadViewController: UIViewController {
@@ -113,11 +74,5 @@ class ViewWithLoadViewController: UIViewController {
         // empty on purpose
     }
 }
-
-class Parent: UIViewController {}
-class Child1: Parent {}
-class Child2: Parent {}
-class GrandChild1: Child1 {}
-class GrandChild2: Child1 {}
 
 #endif

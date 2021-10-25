@@ -1,6 +1,8 @@
 #import "SentryUIViewControllerSwizziling.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
+#import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import <SentryDispatchQueueWrapper.h>
@@ -38,94 +40,36 @@ SentryUIViewControllerSwizziling ()
 {
     [self swizzleRootViewController];
 
-    [self swizzleSubclassesOf:[UIViewController class]
-                dispatchQueue:self.dispatchQueue
-                 swizzleBlock:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
+    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
+        initWithDispatchQueue:self.dispatchQueue
+           objcRuntimeWrapper:[[SentryDefaultObjCRuntimeWrapper alloc] init]];
+
+    // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
+    // the SubClassFinder does this on a background thread, which should be fine because the SDK
+    // swizzles the root view controller and its children above. After finding all subclasses of the
+    // UIViewController, we swizzles them on the main thread. Swizzling the UIViewControllers on a
+    // background thread led to crashes, see GH-1366.
+
+    // Previously, the code intercepted the ViewController initializers with swizzling to swizzle
+    // the lifecycle methods. This approach led to UIViewControllers crashing when using a
+    // convenience initializer, see GH-1355. The error occurred because our swizzling logic adds the
+    // method to swizzle if the class doesn't implement it. It seems like adding an extra
+    // initializer causes problems with the rules for initialization in Swift, see
+    // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
+    [subClassFinder
+        actOnSubclassesOf:[UIViewController class]
+                    block:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
 }
 
 /**
  * To be able to test this we put the logic in a extra method.
  *
- * Swizzle all custom UIViewControllers. First, fetch all subclasses of UIViewController and then
- * swizzle them. As there is no straightforward way to get all sub-classes in Objective-C, the code
- * first retrieves all classes in the runtime, iterates over all classes, and checks for every class
- * if UIViewController is a parent. Cause loading all classes can take a few milliseconds, do this
- * on a background thread, which should be fine because the SDK swizzles the root view controller
- * and its children above. After finding all subclasses of the UIViewController, this method
- * swizzles them on the main thread. Swizzling the UIViewControllers on a background thread led to
- * crashes, see GH-1366.
  *
- * Previously, the code intercepted the ViewController initializers with
- * swizzling to swizzle the lifecycle methods. This approach led to UIViewControllers crashing when
- * using a convenience initializer, see GH-1355. The error occurred because our swizzling logic adds
- * the method to swizzle if the class doesn't implement it. It seems like adding an extra
- * initializer causes problems with the rules for initialization in Swift, see
- * https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
  */
 - (void)swizzleSubclassesOf:(Class)parentClass
               dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                swizzleBlock:(void (^)(Class))block
 {
-    [dispatchQueue dispatchAsyncWithBlock:^{
-        int numClasses = objc_getClassList(NULL, 0);
-
-        if (numClasses <= 0) {
-            NSString *msg =
-                [NSString stringWithFormat:@"No classes found when retrieving class list for %@.",
-                          parentClass];
-            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
-            return;
-        }
-
-        int memSize = sizeof(Class) * numClasses;
-        Class *classes = (__unsafe_unretained Class *)malloc(memSize);
-
-        if (classes == NULL && memSize) {
-            NSString *msg = [NSString
-                stringWithFormat:@"Couldn't allocate memory for retrieving class list for %@",
-                parentClass];
-            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
-            return;
-        }
-
-        numClasses = objc_getClassList(classes, numClasses);
-
-        // Storing the actual classes in an NSArray would call initialize of the class, which we
-        // must avoid as we are on a background thread here and dealing with UIViewControllers,
-        // which assume they are running on the main thread. Therefore, we store the indexes instead
-        // so we can search for the subclasses on a background thread.
-        NSMutableArray *indexesToSwizzle = [NSMutableArray new];
-        for (NSInteger i = 0; i < numClasses; i++) {
-            Class superClass = classes[i];
-
-            // Don't add the parent class to list of sublcasses
-            if (superClass == parentClass) {
-                continue;
-            }
-
-            // Using a do while loop, like pointed out in Cocoa with Love
-            // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
-            // can lead to EXC_I386_GPFLT which, stands for General Protection Fault and means we
-            // are doing something we shouldn't do. It's safer to use a regular while loop to check
-            // if superClass is valid.
-            while (superClass && superClass != parentClass) {
-                superClass = class_getSuperclass(superClass);
-            }
-
-            if (superClass != nil) {
-                [indexesToSwizzle addObject:@(i)];
-            }
-        }
-
-        // We must swizzle the UIViewControllers on the main thread. Otherwise, we could crash.
-        [dispatchQueue dispatchOnMainQueue:^{
-            for (NSNumber *i in indexesToSwizzle) {
-                NSInteger index = [i integerValue];
-                block(classes[index]);
-            }
-            free(classes);
-        }];
-    }];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working

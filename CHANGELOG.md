@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Crash when objc_getClassList returns different values (#1420)
+
 ## 7.4.7
 
 - fix: Only enable APM when traceRate set (#1417)
