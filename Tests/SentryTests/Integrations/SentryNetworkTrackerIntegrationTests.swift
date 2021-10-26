@@ -3,7 +3,7 @@ import XCTest
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
-    private static let testURL = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")!
+    private static let testURL = URL(fileURLWithPath: "")
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
@@ -166,7 +166,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     /**
      * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
-     * SentryNetworkSwizzling#swizzleNSURLSessionConfiguration.
+     * SentryNetworkTrackingIntegration#swizzleNSURLSessionConfiguration.
      */
     private func canHeaderBeAdded() -> Bool {
         let selector = NSSelectorFromString("HTTPAdditionalHeaders")
