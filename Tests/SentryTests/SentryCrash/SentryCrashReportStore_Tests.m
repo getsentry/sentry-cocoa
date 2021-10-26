@@ -65,6 +65,13 @@
     self.appName = @"myapp";
 }
 
+- (void)tearDown
+{
+    [super tearDown];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:self.tempPath error:nil];
+}
+
 - (void)prepareReportStoreWithPathEnd:(NSString *)pathEnd
 {
     self.reportStorePath = [self.tempPath stringByAppendingPathComponent:pathEnd];
