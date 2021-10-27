@@ -99,7 +99,7 @@ platform :ios do
     testflight
 
     download_dsyms(
-      app_identifier: app_identifier
+      app_identifier: app_identifier,
       wait_for_dsym_processing: true,
       build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
