@@ -103,37 +103,91 @@ SentryUIViewControllerSwizziling ()
         return;
     }
 
+    if (![self swizzleRootViewControllerFromAppDelegate:app]) {
+        NSString *message
+            = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+              @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification notification.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+
+        if (@available(iOS 13.0, *)) {
+            [NSNotificationCenter.defaultCenter
+                addObserver:self
+                   selector:@selector(swizzleRootViewControllerFromSceneDelegate:)
+                       name:UISceneWillConnectNotification
+                     object:nil];
+        } else {
+            message = @"UIViewControllerSwizziling: iOS version older then 13."
+                      @"There is no UISceneWillConnectNotification notification. Could not find a "
+                      @"rootViewController";
+
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        }
+    }
+}
+
+/**
+ * If the iOS version is 13 or newer, and the project does not use a custom Window initialization
+ * the app uses a UIScenes to manage windows instead of the old AppDelegate.
+ * We wait for the first scene to connect to the app in order to find the rootViewController.
+ */
+- (void)swizzleRootViewControllerFromSceneDelegate:(NSNotification *)notification
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:@"UISceneWillConnectNotification"
+                                                object:nil];
+
+    if (@available(iOS 13.0, *)) {
+        if ([notification.object isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *scene = notification.object;
+            for (UIWindow *window in scene.windows) {
+                if (window.rootViewController != nil) {
+                    [self swizzleRootViewControllerAndDescendant:window.rootViewController];
+                }
+            }
+        }
+    }
+}
+
+- (BOOL)swizzleRootViewControllerFromAppDelegate:(UIApplication *)app
+{
     if (app.delegate == nil) {
         NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate is nil. Skipping "
-                            @"swizzleRootViewController.";
+                            @"swizzleRootViewControllerFromAppDelegate.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
+        return false;
     }
 
     // Check if delegate responds to window, which it doesn't have to.
     if (![app.delegate respondsToSelector:@selector(window)]) {
         NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
-                            @"Skipping swizzleRootViewController.";
+                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
+        return false;
     }
 
     if (app.delegate.window == nil) {
         NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
-                            @"Skipping swizzleRootViewController.";
+                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
+        return false;
     }
 
     UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
         NSString *message = @"UIViewControllerSwizziling: "
                             @"UIApplicationDelegate.window.rootViewController is nil. "
-                            @"Skipping swizzleRootViewController.";
+                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
+        return false;
     }
 
+    [self swizzleRootViewControllerAndDescendant:rootViewController];
+
+    return true;
+}
+
+- (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
+{
     NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
