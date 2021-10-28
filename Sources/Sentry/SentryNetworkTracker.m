@@ -4,7 +4,6 @@
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptions.h"
-#import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
