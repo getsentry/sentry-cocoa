@@ -243,6 +243,16 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) BOOL experimentalEnableTraceSampling;
 
+/**
+ * Wether the SDK should use swizzling or not. Default is YES.
+ *
+ * @discussion When turned off the following features are disabled: breadcrumbs for touch events and
+ * navigation with UIViewControllers, automatic instrumentation for UIViewControllers, automatic
+ * instrumentation for HTTP requests, and automatically added sentry-trace header to HTTP requests
+ * for distributed tracing.
+ */
+@property (nonatomic, assign) BOOL enableSwizzling;
+
 @end
 
 NS_ASSUME_NONNULL_END

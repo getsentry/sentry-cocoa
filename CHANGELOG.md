@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add one flag to disable all swizzling (#1430)
 - fix: Dispatch Queue ARC Warning for RN (#1424)
 
 ## 7.4.8

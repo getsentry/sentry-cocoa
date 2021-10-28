@@ -13,6 +13,8 @@
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
 #import "SentryAttachment.h"
+#import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
+#import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClassRegistrator.h"

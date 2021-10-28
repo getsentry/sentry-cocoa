@@ -61,6 +61,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
     }
     
+    func testNetworkTrackerDisabled_WhenSwizzlingDisabled() {
+        testNetworkTrackerDisabled { options in
+            options.enableSwizzling = false
+        }
+    }
+    
     func testNSURLSessionConfiguration_ActiveSpan_HeadersAdded() {
         startSDK()
         
