@@ -1,7 +1,6 @@
 #import "SentryUIViewControllerSwizziling.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryLog.h"
-#import "SentryPerformanceTracker.h"
 #import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
