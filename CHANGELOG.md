@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Dispatch Queue ARC Warning for RN (#1424)
+- feat: Swizzling rootViewController from UIScenes (#1427)
 
 ## 7.4.8
 
