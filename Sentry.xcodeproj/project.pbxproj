@@ -2037,8 +2037,6 @@
 				7BE0DC3A272AE8DE004FA8B7 /* UIViewController */,
 				8E5D38E2261D4B57000D363D /* SentryPerformanceTrackingIntegration.h */,
 				8E5D38DB261D4A3E000D363D /* SentryPerformanceTrackingIntegration.m */,
-				8EAE9809261E9F530073B6B3 /* SentryPerformanceTracker.h */,
-				8EBF870726140D37001A6853 /* SentryPerformanceTracker.m */,
 				7BF9EF752722B34700B5BBEF /* SentrySubClassFinder.h */,
 				7BF9EF772722B35D00B5BBEF /* SentrySubClassFinder.m */,
 			);
@@ -2048,10 +2046,12 @@
 		7BE0DC3A272AE8DE004FA8B7 /* UIViewController */ = {
 			isa = PBXGroup;
 			children = (
-				8EAE980A261E9F530073B6B3 /* SentryUIViewControllerPerformanceTracker.h */,
-				8EAE9804261E87120073B6B3 /* SentryUIViewControllerPerformanceTracker.m */,
 				8EA1ED0C2669028C00E62B98 /* SentryUIViewControllerSwizziling.h */,
 				8EA1ED092668F8C400E62B98 /* SentryUIViewControllerSwizziling.m */,
+				8EAE980A261E9F530073B6B3 /* SentryUIViewControllerPerformanceTracker.h */,
+				8EAE9804261E87120073B6B3 /* SentryUIViewControllerPerformanceTracker.m */,
+				8EAE9809261E9F530073B6B3 /* SentryPerformanceTracker.h */,
+				8EBF870726140D37001A6853 /* SentryPerformanceTracker.m */,
 			);
 			name = UIViewController;
 			sourceTree = "<group>";
