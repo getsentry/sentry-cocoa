@@ -66,9 +66,9 @@ SentryPerformanceTracker ()
             self.spans[spanId] = newSpan;
         }
     } else {
-        [SentryLog
-            logWithMessage:@"startSpanWithName:operation: spanId is nil. This should not happen."
-                  andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"startSpanWithName:operation: spanId is nil."
+                         andLevel:kSentryLevelError];
+        return [SentrySpanId empty];
     }
 
     return spanId;
