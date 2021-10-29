@@ -1,8 +1,6 @@
 #import "SentryFramesTrackingIntegration.h"
-#import "SentryDisplayLinkWrapper.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
