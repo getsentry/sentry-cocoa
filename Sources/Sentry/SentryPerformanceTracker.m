@@ -60,8 +60,14 @@ SentryPerformanceTracker ()
 
     SentrySpanId *spanId = newSpan.context.spanId;
 
-    @synchronized(self.spans) {
-        self.spans[spanId] = newSpan;
+    if (spanId != nil) {
+        @synchronized(self.spans) {
+            self.spans[spanId] = newSpan;
+        }
+    } else {
+        [SentryLog logWithMessage:@"startSpanWithName:operation: spanId is nil."
+                         andLevel:kSentryLevelError];
+        return [SentrySpanId empty];
     }
 
     return spanId;

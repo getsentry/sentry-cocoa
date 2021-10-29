@@ -129,6 +129,7 @@
 #import "SentryUIViewControllerSwizziling.h"
 #import "SentryUserFeedback.h"
 #import "TestSentryCrashAdapter.h"
+#import "TestSentrySpan.h"
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
