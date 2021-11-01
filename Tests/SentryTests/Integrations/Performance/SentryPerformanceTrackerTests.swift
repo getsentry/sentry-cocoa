@@ -240,6 +240,16 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(sut.isSpanAlive(spanId))
     }
     
+    func testActiveStackReturnNilChildSpan() {
+        let sut = fixture.getSut()
+        let activeSpans = Dynamic(sut).activeSpanStack as NSMutableArray?
+        activeSpans?.add(TestSentrySpan())
+                
+        let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        
+        XCTAssertEqual(spanId, SpanId.empty)
+    }
+        
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)

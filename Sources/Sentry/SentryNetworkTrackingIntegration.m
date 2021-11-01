@@ -38,6 +38,13 @@
         return;
     }
 
+    if (!options.enableSwizzling) {
+        [SentryLog logWithMessage:
+                       @"Not going to enable NetworkTracking because enableSwizzling is disabled."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
     [SentryNetworkTracker.sharedInstance enable];
     [SentryNetworkTrackingIntegration swizzleNSURLSessionConfiguration];
     [SentryNetworkTrackingIntegration swizzleURLSessionTaskResume];
