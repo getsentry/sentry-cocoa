@@ -482,6 +482,11 @@
     [self testBooleanField:@"enableNetworkTracking"];
 }
 
+- (void)testEnableSwizzling
+{
+    [self testBooleanField:@"enableSwizzling"];
+}
+
 - (void)testTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];

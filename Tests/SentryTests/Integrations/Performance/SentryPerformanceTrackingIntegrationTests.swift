@@ -20,5 +20,27 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
+    
+    func testSwizzlingNotInitialized_WhenAPMDisabled() {
+        let sut = SentryPerformanceTrackingIntegration()
+        
+        let options = Options()
+        options.tracesSampleRate = 0.1
+        options.enableAutoPerformanceTracking = false
+        sut.install(with: options)
+
+        XCTAssertNil(Dynamic(sut).swizzling.asObject)
+    }
+    
+    func testSwizzlingNotInitialized_WhenSwizzlingDisabled() {
+        let sut = SentryPerformanceTrackingIntegration()
+        
+        let options = Options()
+        options.tracesSampleRate = 0.1
+        options.enableSwizzling = false
+        sut.install(with: options)
+
+        XCTAssertNil(Dynamic(sut).swizzling.asObject)
+    }
 #endif
 }

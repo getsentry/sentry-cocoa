@@ -5,10 +5,10 @@
 #import "SentryOptions.h"
 #import "SentrySystemEventsBreadcrumbs.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface
 SentryAutoBreadcrumbTrackingIntegration ()
-
-@property (nonatomic, weak) SentryOptions *options;
 
 @property (nonatomic, strong) SentryBreadcrumbTracker *tracker;
 @property (nonatomic, strong) SentrySystemEventsBreadcrumbs *system_events;
@@ -19,8 +19,27 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
-    self.options = options;
-    [self enableAutomaticBreadcrumbTracking];
+    [self installWithOptions:options
+                     tracker:[[SentryBreadcrumbTracker alloc] init]
+                systemEvents:[[SentrySystemEventsBreadcrumbs alloc] init]];
+}
+
+/**
+ * For testing.
+ */
+- (void)installWithOptions:(nonnull SentryOptions *)options
+                   tracker:(SentryBreadcrumbTracker *)tracker
+              systemEvents:(SentrySystemEventsBreadcrumbs *)systemEvents
+{
+    self.tracker = tracker;
+    [self.tracker start];
+
+    if (options.enableSwizzling) {
+        [self.tracker startSwizzle];
+    }
+
+    self.system_events = systemEvents;
+    [self.system_events start];
 }
 
 - (void)uninstall
@@ -33,12 +52,6 @@ SentryAutoBreadcrumbTrackingIntegration ()
     }
 }
 
-- (void)enableAutomaticBreadcrumbTracking
-{
-    self.tracker = [SentryBreadcrumbTracker alloc];
-    [self.tracker start];
-    self.system_events = [SentrySystemEventsBreadcrumbs alloc];
-    [self.system_events start];
-}
-
 @end
+
+NS_ASSUME_NONNULL_END

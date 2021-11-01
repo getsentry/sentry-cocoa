@@ -30,6 +30,13 @@ SentryPerformanceTrackingIntegration ()
         return;
     }
 
+    if (!options.enableSwizzling) {
+        [SentryLog logWithMessage:@"enableSwizzling disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
 #if SENTRY_HAS_UIKIT
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);

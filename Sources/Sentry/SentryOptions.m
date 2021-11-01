@@ -49,6 +49,7 @@ SentryOptions ()
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
+        _enableSwizzling = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -248,6 +249,10 @@ SentryOptions ()
 
     if (options[@"experimentalEnableTraceSampling"] != nil) {
         _experimentalEnableTraceSampling = [options[@"experimentalEnableTraceSampling"] boolValue];
+    }
+
+    if (options[@"enableSwizzling"] != nil) {
+        _enableSwizzling = [options[@"enableSwizzling"] boolValue];
     }
 }
 
