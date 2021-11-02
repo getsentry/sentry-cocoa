@@ -98,10 +98,10 @@ SentryUIViewControllerPerformanceTracker ()
                            // method.
                            callbackToOrigin();
                        } else {
-                           [self.tracker pushActiveSpan:spanId];
                            [self.tracker
                                measureSpanWithDescription:@"viewWillAppear"
                                                 operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                             parentSpanId:spanId
                                                   inBlock:callbackToOrigin];
 
                            SentrySpanId *viewAppearingId = [self.tracker
@@ -111,7 +111,6 @@ SentryUIViewControllerPerformanceTracker ()
                            objc_setAssociatedObject(controller,
                                &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID,
                                viewAppearingId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                           [self.tracker popActiveSpan];
                        }
                    }];
 }
@@ -168,12 +167,10 @@ SentryUIViewControllerPerformanceTracker ()
                     OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             }
 
-            [self.tracker pushActiveSpan:spanId];
             [self.tracker measureSpanWithDescription:lifecycleMethod
                                            operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                        parentSpanId:spanId
                                              inBlock:callbackToOrigin];
-            [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
-                                          // viewWillAppear
 
             // If we are still tracking this UIViewController finish the transaction
             // and remove associated span id.
@@ -204,10 +201,10 @@ SentryUIViewControllerPerformanceTracker ()
                            // method.
                            callbackToOrigin();
                        } else {
-                           [self.tracker pushActiveSpan:spanId];
                            [self.tracker
                                measureSpanWithDescription:@"viewWillLayoutSubviews"
                                                 operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                             parentSpanId:spanId
                                                   inBlock:callbackToOrigin];
 
                            SentrySpanId *layoutSubViewId = [self.tracker
@@ -217,8 +214,6 @@ SentryUIViewControllerPerformanceTracker ()
                            objc_setAssociatedObject(controller,
                                &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID,
                                layoutSubViewId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-                           [self.tracker popActiveSpan];
                        }
                    }];
 }
@@ -245,14 +240,12 @@ SentryUIViewControllerPerformanceTracker ()
                                [self.tracker finishSpan:layoutSubViewId];
                            }
 
-                           [self.tracker pushActiveSpan:spanId];
                            [self.tracker
                                measureSpanWithDescription:@"viewDidLayoutSubviews"
                                                 operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
+                                             parentSpanId:spanId
                                                   inBlock:callbackToOrigin];
 
-                           [self.tracker popActiveSpan]; // Pop ViewControllerSpan pushed at
-                                                         // viewWillAppear
                            objc_setAssociatedObject(controller,
                                &SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, nil,
                                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
