@@ -645,14 +645,12 @@
 - (void)testDefaultTracesSampler
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
     XCTAssertNil(options.tracesSampler);
 }
 
 - (void)testGarbageTracesSampler_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : @"fault" }];
-
     XCTAssertNil(options.tracesSampler);
 }
 
