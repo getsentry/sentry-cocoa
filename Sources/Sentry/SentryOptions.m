@@ -235,6 +235,7 @@ SentryOptions ()
 
     [self setBool:options[@"experimentalEnableTraceSampling"]
             block:^(BOOL value) { self->_experimentalEnableTraceSampling = value; }];
+    
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 }
@@ -242,7 +243,7 @@ SentryOptions ()
 - (void)setBool:(id)value block:(void (^)(BOOL))block
 {
     // Entries in the dictionary can be NSNull. Especially, on React-Native, this can happen.
-    if (value != nil && ![value isEqualTo:[NSNull null]]) {
+    if (value != nil && ![value isEqual:[NSNull null]]) {
         block([value boolValue]);
     }
 }
