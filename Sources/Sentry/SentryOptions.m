@@ -235,7 +235,7 @@ SentryOptions ()
 
     [self setBool:options[@"experimentalEnableTraceSampling"]
             block:^(BOOL value) { self->_experimentalEnableTraceSampling = value; }];
-    
+
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 }
