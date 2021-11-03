@@ -111,6 +111,12 @@ class SentryTracerTests: XCTestCase {
         }
     }
     
+    func testFinish_CheckDefaultStatus() {
+        let sut = fixture.getSut()
+        sut.finish()
+        XCTAssertEqual(sut.context.status, .ok)
+    }
+    
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
         let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil, waitForChildren: false)
         

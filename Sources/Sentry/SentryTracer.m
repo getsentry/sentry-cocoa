@@ -223,7 +223,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)finish
 {
-    [self finishWithStatus:kSentrySpanStatusUndefined];
+    [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
