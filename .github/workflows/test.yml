@@ -67,5 +67,5 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       - name: Run Fastlane
-        run: fastlane ui_tests_ios-objc
+        run: fastlane ui_tests_ios_objc
         shell: sh
