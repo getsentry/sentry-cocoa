@@ -72,7 +72,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(expectedTransactionName, transactionName)
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene() {
         let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
@@ -88,8 +88,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     @available(iOS 13.0, *)
-    func testSwizzle_fromScene_invalideNotification() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+    func testSwizzle_fromScene_invalidNotification() {
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let window = UIWindow()
         window.rootViewController = TestViewController()
