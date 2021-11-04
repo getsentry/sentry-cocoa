@@ -108,7 +108,7 @@ SentryUIViewControllerSwizziling ()
               @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification notification.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-        if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0 *)) {
+        if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
             [NSNotificationCenter.defaultCenter
                 addObserver:self
                    selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
@@ -131,7 +131,7 @@ SentryUIViewControllerSwizziling ()
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
         if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
