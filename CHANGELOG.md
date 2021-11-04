@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.5.1
 
 - fix: SentryOptions initWithDict type errors (#1443)
 - fix: Transaction default status should be OK (#1439)
