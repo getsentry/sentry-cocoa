@@ -115,6 +115,7 @@ platform :ios do
       scheme: "iOS-Swift",
       archive_path: "iOS-Swift",
       xcargs: "build-for-testing",
+      export_method:"development"
       derived_data_path: "DerivedData"
     )
   end
