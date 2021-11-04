@@ -116,8 +116,13 @@ platform :ios do
       scheme: "iOS-Swift",
       archive_path: "iOS-Swift",
       xcargs: "build-for-testing",
-      export_method:"development",
-      derived_data_path: "DerivedData"
+      derived_data_path: "DerivedData",
+      export_options: {
+				method: "development",
+				provisioningProfiles: { 
+					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
+				}
+			}
     )
   end
 
