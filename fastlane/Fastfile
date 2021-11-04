@@ -120,8 +120,8 @@ platform :ios do
       export_options: {
 				method: "development",
         provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift",
-          "io.sentry.iOS-SwiftUITests.xctrunner" => "Provisioning Profile Name 2"
+          "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
+          "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
         }
 			}
     )
