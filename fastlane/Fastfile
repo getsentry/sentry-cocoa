@@ -150,8 +150,7 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift",
-          "io.sentry.iOS-SwiftUITests.xctrunner" => "match AppStore io.sentry.iOS-SwiftUITests.xctrunner",
+          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift"
         }
 			}
     )
