@@ -77,7 +77,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         
         let window = UIWindow()
         window.rootViewController = TestViewController()
-        let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: NSSet(array: [window]))
+        let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: [window])
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: mockWindowScene)
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
@@ -97,7 +97,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
-    func testSwizzle_fromScene_invalidNotification_NoRootViewControllerInWindow() {
+    func testSwizzle_fromScene_invalidNotification_ObjectNotAnArray() {
         let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let window = UIWindow()

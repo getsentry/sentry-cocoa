@@ -149,16 +149,16 @@ SentryUIViewControllerSwizziling ()
         }
 
         id windows = [notification.object performSelector:@selector(windows)];
-        if (![windows isKindOfClass:[NSSet class]]) {
+        if (![windows isKindOfClass:[NSArray class]]) {
             NSString *message
                 = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UISceneWillConnectNotification. Windows is not a set";
+                  @"UISceneWillConnectNotification. Windows is not an array";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return;
         }
 
-        NSSet *windowSet = windows;
-        for (id window in windowSet) {
+        NSArray *windowList = windows;
+        for (id window in windowList) {
             if ([window isKindOfClass:[UIWindow class]]
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
