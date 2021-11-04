@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- fix: SentryOptions initWithDict type errors (#1443)
+- fix: Transaction default status should be OK (#1439)
+
 ## 7.5.0
 
 - feat: Add one flag to disable all swizzling (#1430)

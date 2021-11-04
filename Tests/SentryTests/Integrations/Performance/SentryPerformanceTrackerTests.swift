@@ -211,7 +211,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         sut.finishSpan(spanId)
         let status = Dynamic(span).finishStatus as SentrySpanStatus?
         
-        XCTAssertEqual(status!, .undefined)
+        XCTAssertEqual(status!, .ok)
         XCTAssertTrue(span!.isFinished)
         XCTAssertTrue(blockCalled)
     }

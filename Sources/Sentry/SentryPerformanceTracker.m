@@ -139,7 +139,7 @@ SentryPerformanceTracker ()
 
 - (void)finishSpan:(SentrySpanId *)spanId
 {
-    [self finishSpan:spanId withStatus:kSentrySpanStatusUndefined];
+    [self finishSpan:spanId withStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status

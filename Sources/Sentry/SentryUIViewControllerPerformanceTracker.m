@@ -125,7 +125,7 @@ SentryUIViewControllerPerformanceTracker ()
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
     [self finishTransaction:controller
-                     status:kSentrySpanStatusUndefined
+                     status:kSentrySpanStatusOk
             lifecycleMethod:@"viewDidAppear"
            callbackToOrigin:callbackToOrigin];
 }
