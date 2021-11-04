@@ -89,11 +89,17 @@ platform :ios do
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
+
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_KEY"]
+    )
     
     testflight
 
     download_dsyms(
-      username: ENV["FASTLANE_USER"],
+      app_identifier: app_identifier,
       wait_for_dsym_processing: true,
       build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
@@ -106,25 +112,32 @@ platform :ios do
     )
   end
 
-  lane :objc_ui_tests do
+  lane :ui_tests_ios_swiftui do
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-SwiftUI"
+    )
+  end
+
+  lane :ui_tests_ios_objc do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-ObjectiveC"
     )
+  end
 
-  lane :ui_tests do
-    run_tests(workspace: "Sentry.xcworkspace",
-      devices: ["iPhone 8"],
-      scheme: "iOS-SwiftUI")
+  lane :ui_tests_ios_swift do
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift"
+    )
+  end
 
-    run_tests(workspace: "Sentry.xcworkspace",
-        devices: ["iPhone 8"],
-        scheme: "iOS-Swift")
-
-    run_tests(workspace: "Sentry.xcworkspace",
-      devices: ["Apple TV"],
-      scheme: "tvOS-Swift")
-
+  lane :ui_tests_tvos_swift do
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: "tvOS-Swift"
+    )
   end
 
 end

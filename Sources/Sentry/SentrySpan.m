@@ -1,6 +1,7 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
+#import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
 
@@ -15,17 +16,10 @@ SentrySpan ()
     NSMutableDictionary<NSString *, id> *_tags;
 }
 
-- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
+- (instancetype)initWithTransaction:(SentryTracer *)transaction context:(SentrySpanContext *)context
 {
-    if ([self initWithContext:context]) {
-        _tracer = tracer;
-    }
-    return self;
-}
-
-- (instancetype)initWithContext:(SentrySpanContext *)context
-{
-    if ([super init]) {
+    if (self = [super init]) {
+        _transaction = transaction;
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
@@ -42,9 +36,13 @@ SentrySpan ()
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
-    return [self.tracer startChildWithParentId:[self.context spanId]
-                                     operation:operation
-                                   description:description];
+    if (self.transaction == nil) {
+        return [SentryNoOpSpan shared];
+    }
+
+    return [self.transaction startChildWithParentId:[self.context spanId]
+                                          operation:operation
+                                        description:description];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
@@ -102,6 +100,9 @@ SentrySpan ()
 - (void)finish
 {
     self.timestamp = [SentryCurrentDate date];
+    if (self.transaction != nil) {
+        [self.transaction spanFinished:self];
+    }
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status

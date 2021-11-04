@@ -2,11 +2,8 @@
 #import "SentryBreadcrumb.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
-#import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceState.h"
 #import "SentryTracer.h"
@@ -34,7 +31,7 @@ SentryNetworkTracker ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.isEnabled = NO;
+        _isEnabled = NO;
     }
     return self;
 }
@@ -42,14 +39,14 @@ SentryNetworkTracker ()
 - (void)enable
 {
     @synchronized(self) {
-        self.isEnabled = YES;
+        _isEnabled = YES;
     }
 }
 
 - (void)disable
 {
     @synchronized(self) {
-        self.isEnabled = NO;
+        _isEnabled = NO;
     }
 }
 
@@ -135,6 +132,19 @@ SentryNetworkTracker ()
 
     id<SentrySpan> netSpan;
     @synchronized(sessionTask) {
+        // It is crucial always to remove the observer, as it does not automatically remove itself
+        // when its object is deallocated. Therefore not removing the observer can result in a
+        // memory access exception. Theoretically, the state of the NSURLSessionTask could change
+        // concurrently. Even removing the observer in the synchronized block doesn't prevent us
+        // from potentially calling remove twice, which would lead to an NSRangeException.
+        // Therefore, we have to wrap the call into a try catch. See:
+        // https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOBasics.html#//apple_ref/doc/uid/20002252-178612
+        @try {
+            [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
+        } @catch (NSException *__unused exception) {
+            // Safe to ignore
+        }
+
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
         // We'll just go through once
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, nil,
@@ -157,8 +167,11 @@ SentryNetworkTracker ()
 
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
-        [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
-                      forKey:@"http.status_code"];
+
+        if (netSpan != nil) {
+            [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
+                          forKey:@"http.status_code"];
+        }
         breadcrumbData[@"status_code"] = statusCode;
         breadcrumbData[@"reason"] =
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
@@ -170,8 +183,6 @@ SentryNetworkTracker ()
     if (netSpan == nil) {
         return;
     }
-
-    [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
 
     [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
     [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
@@ -249,6 +260,12 @@ SentryNetworkTracker ()
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
+    @synchronized(self) {
+        if (!self.isEnabled) {
+            return headers;
+        }
+    }
+
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
         return headers;

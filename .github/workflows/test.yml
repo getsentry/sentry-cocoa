@@ -1,0 +1,71 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+      - release/**
+  pull_request:
+
+jobs:
+  unit-tests:
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
+    runs-on: macos-11 
+    strategy:
+      matrix:
+        # Can't run tests on watchOS because XCTest is not available  
+        platform: ["macOS","Catalyst", "iOS", "tvOS"]
+        
+        # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
+        # which is only available since iOS 13 / Xcode 11.
+        xcode: ["13.0", "12.5.1", "11.7"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - name: Running tests
+        # We call a script with the platform so the destination
+        # passed to xcodebuild doesn't ends up in the job name, 
+        # because GitHub Actions don't provide an easy way of 
+        # manipulating string in expressions.
+        run: ./scripts/xcode-test.sh ${{matrix.platform}}
+
+      # We can upload all coverage reports, because codecov merges them.
+      # See https://docs.codecov.io/docs/merging-reports
+      # Checkout .codecov.yml to see the config of Codecov
+      - name: Push code coverage to codecov
+        uses: codecov/codecov-action@v1
+        
+        # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
+        # so the coverage report shows a reduced coverage.
+        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
+
+  ui-tests:
+    name: UI Tests for ${{matrix.target}}
+    runs-on: macos-11
+    strategy:
+      matrix:
+        target: ["ios_swiftui", "ios_swift", "tvos_swift" ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 
+
+      - name: Run Fastlane
+        run: fastlane ui_tests_${{matrix.target}}
+        shell: sh
+
+  ui-tests-objc:
+    name: UI Tests for ObjC with Xcode ${{matrix.xcode}}
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["11.7", "10.3"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - name: Run Fastlane
+        run: fastlane ui_tests_ios-objc
+        shell: sh

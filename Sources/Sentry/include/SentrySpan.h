@@ -31,28 +31,21 @@ SENTRY_NO_INIT
 @property (readonly) BOOL isFinished;
 
 /**
- * The SentryTracer this span is associated with.
+ * The Transaction this span is associated with.
  */
-@property (nonatomic, readonly) SentryTracer *tracer;
+@property (nullable, nonatomic, readonly, weak) SentryTracer *transaction;
 
 /**
- * Init a SentrySpan with given tracer and context.
+ * Init a SentrySpan with given transaction and context.
  *
- * @param tracer The tracer responsible for this span.
+ * @param transaction The Transaction this span is associated with.
  * @param context This span context information.
  *
  * @return SentrySpan
  */
-- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context;
+- (instancetype)initWithTransaction:(SentryTracer *)transaction
+                            context:(SentrySpanContext *)context;
 
-/**
- * Init a SentrySpan with given context.
- *
- * @param context This span context information.
- *
- * @return SentrySpan
- */
-- (instancetype)initWithContext:(SentrySpanContext *)context;
 @end
 
 NS_ASSUME_NONNULL_END

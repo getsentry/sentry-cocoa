@@ -88,27 +88,27 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
                 
-        XCTAssertNil(sut.activeSpan())
+        XCTAssertNil(sut.activeSpanId())
         
         sut.pushActiveSpan(spanId)
-        XCTAssertEqual(sut.activeSpan(), spanId)
+        XCTAssertEqual(sut.activeSpanId(), spanId)
         
         let childSpanId = startSpan(tracker: sut)
         sut.pushActiveSpan(childSpanId)
-        XCTAssertEqual(sut.activeSpan(), childSpanId)
+        XCTAssertEqual(sut.activeSpanId(), childSpanId)
         
         let grandChildSpanId = startSpan(tracker: sut)
         sut.pushActiveSpan(grandChildSpanId)
-        XCTAssertEqual(sut.activeSpan(), grandChildSpanId)
+        XCTAssertEqual(sut.activeSpanId(), grandChildSpanId)
         
         sut.popActiveSpan()
-        XCTAssertEqual(sut.activeSpan(), childSpanId)
+        XCTAssertEqual(sut.activeSpanId(), childSpanId)
         
         sut.popActiveSpan()
-        XCTAssertEqual(sut.activeSpan(), spanId)
+        XCTAssertEqual(sut.activeSpanId(), spanId)
         
         sut.popActiveSpan()
-        XCTAssertNil(sut.activeSpan())
+        XCTAssertNil(sut.activeSpanId())
     }
     
     func testStartSpan_FromChild_CheckParent() {
@@ -137,7 +137,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let expect = expectation(description: "Callback Expectation")
         
         sut.measureSpan(withDescription: fixture.someTransaction, operation: fixture.someOperation) {
-            let spanId = sut.activeSpan()!
+            let spanId = sut.activeSpanId()!
             
             span = sut.getSpan(spanId)
             
@@ -146,7 +146,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             expect.fulfill()
         }
         
-        XCTAssertNil(sut.activeSpan())
+        XCTAssertNil(sut.activeSpanId())
         XCTAssertTrue(span!.isFinished)
         wait(for: [expect], timeout: 0)
     }
@@ -160,7 +160,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             expect.fulfill()
         }
         
-        XCTAssertNil(sut.activeSpan())
+        XCTAssertNil(sut.activeSpanId())
         wait(for: [expect], timeout: 0)
     }
     
@@ -204,7 +204,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let status = Dynamic(span).finishStatus as SentrySpanStatus?
         
-        XCTAssertEqual(status!, .undefined)
+        XCTAssertEqual(status!, .ok)
         XCTAssertTrue(span!.isFinished)
     }
     
@@ -240,6 +240,16 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(sut.isSpanAlive(spanId))
     }
     
+    func testActiveStackReturnNilChildSpan() {
+        let sut = fixture.getSut()
+        let activeSpans = Dynamic(sut).activeSpanStack as NSMutableArray?
+        activeSpans?.add(TestSentrySpan())
+                
+        let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
+        
+        XCTAssertEqual(spanId, SpanId.empty)
+    }
+        
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
@@ -294,7 +304,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let stack = getStack(tracker: sut)
         XCTAssertEqual(0, stack.count)
-        XCTAssertNil(sut.activeSpan())
+        XCTAssertNil(sut.activeSpanId())
     }
     
     private func getSpans(tracker: SentryPerformanceTracker) -> [SpanId: Span] {
@@ -303,7 +313,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     private func getStack(tracker: SentryPerformanceTracker) -> [Span] {
-        let result = Dynamic(tracker).activeStack as [Span]?
+        let result = Dynamic(tracker).activeSpanStack as [Span]?
         return result!
     }
     
