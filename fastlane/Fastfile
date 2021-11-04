@@ -108,7 +108,7 @@ platform :ios do
       keychain_name: keychain_name,
       keychain_password: keychain_password,
       readonly: true,
-      app_identifier: "io.sentry.sample.iOS-Swift"
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
     sync_code_signing(
@@ -116,7 +116,7 @@ platform :ios do
       keychain_name: keychain_name,
       keychain_password: keychain_password,
       readonly: true,
-      app_identifier: "io.sentry.iOS-SwiftUITests.xctrunner"
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
 		build_app(
