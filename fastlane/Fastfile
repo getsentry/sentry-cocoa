@@ -126,9 +126,8 @@ platform :ios do
       derived_data_path: "DerivedData",
       skip_archive: true,
       export_options: {
-				method: "app-store",
+				method: "development",
         provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift",
           "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
         }
 			}
