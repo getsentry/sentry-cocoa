@@ -85,7 +85,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(swizzler.viewControllers.count, 1)
         XCTAssertTrue(swizzler.viewControllers[0] is TestViewController)
     }
-    
 
     func testSwizzle_fromScene_invalidNotification_NoObject() {
         let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
