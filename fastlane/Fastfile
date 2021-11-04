@@ -119,9 +119,10 @@ platform :ios do
       derived_data_path: "DerivedData",
       export_options: {
 				method: "development",
-				provisioningProfiles: { 
-					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
-				}
+        provisioningProfiles: { 
+          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift",
+          "io.sentry.iOS-SwiftUITests.xctrunner" => "Provisioning Profile Name 2"
+        }
 			}
     )
   end
