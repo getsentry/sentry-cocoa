@@ -107,7 +107,8 @@ platform :ios do
       type: "development", 
       keychain_name: keychain_name,
       keychain_password: keychain_password,
-      readonly: true
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
 		build_app(
