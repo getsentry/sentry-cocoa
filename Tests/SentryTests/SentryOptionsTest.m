@@ -212,7 +212,7 @@
 
 - (void)testBeforeSend
 {
-    SentryEvent * (^callback)(SentryEvent *event) = ^(SentryEvent *event) { return event; };
+    SentryBeforeSendEventCallback callback = ^(SentryEvent *event) { return event; };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : callback }];
 
     XCTAssertEqual(callback, options.beforeSend);
@@ -225,9 +225,23 @@
     XCTAssertNil(options.beforeSend);
 }
 
+- (void)testGarbageBeforeSend_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : @"fault" }];
+
+    XCTAssertNil(options.beforeSend);
+}
+
+- (void)testNSNullBeforeSend_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : [NSNull null] }];
+
+    XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
+}
+
 - (void)testBeforeBreadcrumb
 {
-    SentryBreadcrumb * (^callback)(SentryBreadcrumb *event)
+    SentryBeforeBreadcrumbCallback callback
         = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : callback }];
 
@@ -241,10 +255,17 @@
     XCTAssertNil(options.beforeBreadcrumb);
 }
 
+- (void)testGarbageBeforeBreadcrumb_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : @"fault" }];
+
+    XCTAssertEqual(nil, options.beforeBreadcrumb);
+}
+
 - (void)testOnCrashedLastRun
 {
     __block BOOL onCrashedLastRunCalled = NO;
-    void (^callback)(SentryEvent *event) = ^(SentryEvent *event) {
+    SentryOnCrashedLastRunCallback callback = ^(SentryEvent *event) {
         onCrashedLastRunCalled = YES;
         XCTAssertNotNil(event);
     };
@@ -263,12 +284,19 @@
     XCTAssertNil(options.onCrashedLastRun);
 }
 
+- (void)testGarbageOnCrashedLastRun_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : @"fault" }];
+
+    XCTAssertNil(options.onCrashedLastRun);
+}
+
 - (void)testIntegrations
 {
     NSArray<NSString *> *integrations = @[ @"integration1", @"integration2" ];
     SentryOptions *options = [self getValidOptions:@{ @"integrations" : integrations }];
 
-    XCTAssertEqual(integrations, options.integrations);
+    [self assertArrayEquals:integrations actual:options.integrations];
 }
 
 - (void)testDefaultIntegrations
@@ -389,13 +417,62 @@
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertNil(options.parsedDsn);
+    [self assertDefaultValues:options];
+}
 
+- (void)testNSNull_SetsDefaultValue
+{
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
+        @"dsn" : [NSNull null],
+        @"enabled" : [NSNull null],
+        @"debug" : [NSNull null],
+        @"diagnosticLevel" : [NSNull null],
+        @"release" : [NSNull null],
+        @"environment" : [NSNull null],
+        @"dist" : [NSNull null],
+        @"maxBreadcrumbs" : [NSNull null],
+        @"maxCacheItems" : [NSNull null],
+        @"beforeSend" : [NSNull null],
+        @"beforeBreadcrumb" : [NSNull null],
+        @"onCrashedLastRun" : [NSNull null],
+        @"integrations" : [NSNull null],
+        @"sampleRate" : [NSNull null],
+        @"enableAutoSessionTracking" : [NSNull null],
+        @"enableOutOfMemoryTracking" : [NSNull null],
+        @"sessionTrackingIntervalMillis" : [NSNull null],
+        @"attachStacktrace" : [NSNull null],
+        @"stitchAsyncCode" : [NSNull null],
+        @"maxAttachmentSize" : [NSNull null],
+        @"sendDefaultPii" : [NSNull null],
+        @"enableAutoPerformanceTracking" : [NSNull null],
+        @"enableNetworkTracking" : [NSNull null],
+        @"tracesSampleRate" : [NSNull null],
+        @"tracesSampler" : [NSNull null],
+        @"inAppIncludes" : [NSNull null],
+        @"inAppExcludes" : [NSNull null],
+        @"urlSessionDelegate" : [NSNull null],
+        @"experimentalEnableTraceSampling" : [NSNull null],
+        @"enableSwizzling" : [NSNull null],
+    }
+                                                didFailWithError:nil];
+
+    XCTAssertNotNil(options.parsedDsn);
+    [self assertDefaultValues:options];
+}
+
+- (void)assertDefaultValues:(SentryOptions *)options
+{
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-    XCTAssertNil(options.parsedDsn);
+    XCTAssertNil(options.environment);
+    XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertEqual(30, options.maxCacheItems);
+    XCTAssertNil(options.beforeSend);
+    XCTAssertNil(options.beforeBreadcrumb);
+    XCTAssertNil(options.onCrashedLastRun);
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
@@ -405,9 +482,16 @@
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
     XCTAssertEqual(YES, options.enableNetworkTracking);
+    XCTAssertNil(options.tracesSampleRate);
+    XCTAssertNil(options.tracesSampler);
+    XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
+    XCTAssertEqual(@[], options.inAppExcludes);
+    XCTAssertNil(options.urlSessionDelegate);
     XCTAssertFalse(options.experimentalEnableTraceSampling);
+    XCTAssertEqual(YES, options.enableSwizzling);
 }
 
 - (void)testSetValidDsn
@@ -561,7 +645,12 @@
 - (void)testDefaultTracesSampler
 {
     SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.tracesSampler);
+}
 
+- (void)testGarbageTracesSampler_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"tracesSampler" : @"fault" }];
     XCTAssertNil(options.tracesSampler);
 }
 
@@ -632,16 +721,7 @@
 - (void)testDefaultInAppIncludes
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
-    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-    NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
-    NSArray<NSString *> *expected;
-    if (nil == bundleExecutable) {
-        expected = @[];
-    } else {
-        expected = @[ bundleExecutable ];
-    }
-    XCTAssertEqualObjects(expected, options.inAppIncludes);
+    XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
 }
 
 - (void)testInAppExcludes
@@ -732,6 +812,19 @@
     BOOL result;
     [invocation getReturnValue:&result];
 
+    return result;
+}
+
+- (NSArray<NSString *> *)getDefaultInAppIncludes
+{
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+    NSArray<NSString *> *result;
+    if (nil == bundleExecutable) {
+        result = @[];
+    } else {
+        result = @[ bundleExecutable ];
+    }
     return result;
 }
 
