@@ -114,13 +114,12 @@ platform :ios do
 		build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
-      archive_path: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       export_options: {
 				method: "development",
         provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
+          "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift 1636022273",
           "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
         }
 			}
