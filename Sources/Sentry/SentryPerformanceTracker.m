@@ -113,7 +113,7 @@ SentryPerformanceTracker ()
     }
 }
 
-- (bool)pushActiveSpan:(SentrySpanId *)spanId
+- (BOOL)pushActiveSpan:(SentrySpanId *)spanId
 {
     id<SentrySpan> toActiveSpan;
     @synchronized(self.spans) {
