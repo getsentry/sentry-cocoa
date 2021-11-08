@@ -121,13 +121,13 @@ SentryPerformanceTracker ()
     }
 
     if (toActiveSpan == nil) {
-        return false;
+        return NO;
     }
 
     @synchronized(self.activeSpanStack) {
         [self.activeSpanStack addObject:toActiveSpan];
     }
-    return true;
+    return YES;
 }
 
 - (void)popActiveSpan
