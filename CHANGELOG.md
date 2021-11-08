@@ -4,6 +4,7 @@
 
 - fix: SentryOptions initWithDict type errors (#1443)
 - fix: Transaction default status should be OK (#1439)
+- fix: AppStart Transaction for Apps Using UIScenes (#1427)
 
 ## 7.5.0
 
