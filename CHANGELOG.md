@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.5.2
+
+### Various fixes & improvements
+
+- fix: AppStart Transaction for Apps Using UIScenes (#1427) by @brustolin
+
 ## 7.5.1
 
 - fix: SentryOptions initWithDict type errors (#1443)
