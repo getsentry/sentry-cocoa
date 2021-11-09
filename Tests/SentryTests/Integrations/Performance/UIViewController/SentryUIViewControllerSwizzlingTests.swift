@@ -149,7 +149,9 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testSwizzle_fromApplication() {
         let window = UIWindow()
         window.rootViewController = UIViewController()
-        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: MockApplication(MockApplication.MockApplicationDelegate(window))))
+        let delegate = MockApplication.MockApplicationDelegate(window)
+        let app = MockApplication(delegate)
+        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: app))
     }
     
 }
