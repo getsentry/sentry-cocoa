@@ -39,7 +39,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testShouldNotSwizzle_NoImageClass() {
-        let result = fixture.sut.shouldSwizzleViewController(UIApplication.self)
+        let noImageClass: AnyClass = objc_allocateClassPair(NSObject.self, "NoImageClass", 0)!
+        let result = fixture.sut.shouldSwizzleViewController(noImageClass)
 
         XCTAssertFalse(result)
     }
@@ -129,6 +130,50 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
     
+    func testSwizzle_fromApplication_noDelegate() {
+        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication()))
+    }
+    
+    func testSwizzle_fromApplication_noWindowMethod() {
+        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication(MockApplication.MockApplicationDelegateNoWindow())))
+    }
+    
+    func testSwizzle_fromApplication_noWindow() {
+        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication(MockApplication.MockApplicationDelegate(nil))))
+    }
+    
+    func testSwizzle_fromApplication_noRootViewController_InWindow() {
+        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication(MockApplication.MockApplicationDelegate(UIWindow()))))
+    }
+    
+    func testSwizzle_fromApplication() {
+        let window = UIWindow()
+        window.rootViewController = UIViewController()
+        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: MockApplication(MockApplication.MockApplicationDelegate(window))))
+    }
+    
+}
+
+class MockApplication: NSObject, SentryUIApplication {
+    class MockApplicationDelegate: NSObject, UIApplicationDelegate {
+        var window: UIWindow?
+        
+        init(_ window: UIWindow?) {
+            self.window = window
+        }
+    }
+    
+    class MockApplicationDelegateNoWindow: NSObject, UIApplicationDelegate {
+    }
+    
+    weak var delegate: UIApplicationDelegate?
+    
+    override init() {
+    }
+    
+    init(_ delegate: UIApplicationDelegate?) {
+        self.delegate = delegate
+    }
 }
 
 class ViewWithLoadViewController: UIViewController {
