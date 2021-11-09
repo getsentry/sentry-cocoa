@@ -59,7 +59,8 @@ platform :ios do
     sh("security list-keychain -d user -s #{keychain_name}")
 
     sync_code_signing(
-      type: "appstore", 
+      type: "appstore",
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
       keychain_name: keychain_name,
       keychain_password: keychain_password,
       readonly: true
@@ -79,7 +80,7 @@ platform :ios do
 			export_options: {
 				method: "app-store",
 				provisioningProfiles: { 
-					app_identifier => "match AppStore io.sentry.sample.iOS-Swift",
+					"io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift",
           "io.sentry.sample.iOS-Swift.Clip" => "match AppStore io.sentry.sample.iOS-Swift.Clip"
 				}
 			},
