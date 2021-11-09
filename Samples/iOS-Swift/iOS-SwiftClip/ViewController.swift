@@ -1,5 +1,5 @@
-import UIKit
 import Sentry
+import UIKit
 
 class ViewController: UIViewController {
 
@@ -13,4 +13,3 @@ class ViewController: UIViewController {
     }
     
 }
-
