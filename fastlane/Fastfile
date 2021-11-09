@@ -79,7 +79,8 @@ platform :ios do
 			export_options: {
 				method: "app-store",
 				provisioningProfiles: { 
-					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
+					app_identifier => "match AppStore io.sentry.sample.iOS-Swift",
+          "io.sentry.sample.iOS-Swift.Clip" => "match AppStore io.sentry.sample.iOS-Swift.Clip"
 				}
 			},
       archive_path: "iOS-Swift"
