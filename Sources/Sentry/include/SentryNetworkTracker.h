@@ -11,6 +11,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"http.client";
 @property (class, readonly, nonatomic) SentryNetworkTracker *sharedInstance;
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask;
+- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)state;
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers;
 

@@ -69,6 +69,18 @@
             SentrySWCallOriginal();
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+
+    SEL setStateselector = NSSelectorFromString(@"setState:");
+    Method method = class_getInstanceMethod(NSURLSessionTask.class, setStateselector);
+    if (method != NULL) {
+        SentrySwizzleInstanceMethod(NSURLSessionTask.class, setStateselector,
+            SentrySWReturnType(void), SentrySWArguments(NSURLSessionTaskState state),
+            SentrySWReplacement({
+                [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
+                SentrySWCallOriginal(state);
+            }),
+            SentrySwizzleModeOncePerClassAndSuperclasses, (void *)setStateselector);
+    }
 }
 
 + (void)swizzleNSURLSessionConfiguration
