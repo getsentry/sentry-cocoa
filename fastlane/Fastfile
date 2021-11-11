@@ -104,14 +104,6 @@ platform :ios do
     sh("security list-keychain -d user -s #{keychain_name}")
 
     sync_code_signing(
-      type: "appstore", 
-      keychain_name: keychain_name,
-      keychain_password: keychain_password,
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
-    )
-
-    sync_code_signing(
       type: "development", 
       keychain_name: keychain_name,
       keychain_password: keychain_password,
@@ -119,38 +111,17 @@ platform :ios do
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
-    # run_tests(
-    #   workspace: "Sentry.xcworkspace",
-    #   scheme: "iOS-Swift",
-    #   build_for_testing: true,
-    #   derived_data_path: "DerivedData",
-    #   xcargs: "-sdk iphoneos",
-    #   destination: "generic/platform=iOS"
-    # )
-
-    # Dir.chdir("..") do
-    #   sh("make build-for-appcenter")
-    # end
-
-    # xcodebuild(
-    #   clean: true,
-    #   workspace: 'Sentry.xcworkspace',
-    #   scheme: 'iOS-Swift',
-    #   destination: 'generic/platform=iOS',
-    #   configuration: 'Development',
-    #   xcargs: "build-for-testing -derivedDataPath DerivedData"
-    # )
-
 		build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true,
-      export_method: "app-store",
+      export_method: "development",
       export_options: {
         provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match AppStore io.sentry.sample.iOS-Swift"
+          "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
+          "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
         }
 			}
     )
