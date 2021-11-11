@@ -55,7 +55,7 @@ jobs:
         shell: sh
 
   ios-swift-appcenter:
-    name: Run UI tests for iOS Swift
+    name: AppCenter for iOS Swift
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
@@ -75,12 +75,12 @@ jobs:
 
       - name: Run in AppCenter
         shell: sh
-        run: >
+        run: >-
           appcenter test run xcuitest 
-            --app "philipphofmann/iOS-Swift-Test"
-            --devices c66f3f4c 
-            --test-series "master" 
-            --locale "en_US" 
-            --build-dir DerivedData/Build/Products/Debug-iphoneos/ 
-            --token ${{ secrets.APP_CENTER_TOKEN }}
+          --app "philipphofmann/iOS-Swift-Test"
+          --devices c66f3f4c 
+          --test-series "master" 
+          --locale "en_US" 
+          --build-dir DerivedData/Build/Products/Debug-iphoneos/ 
+          --token ${{ secrets.APP_CENTER_TOKEN }}
         
