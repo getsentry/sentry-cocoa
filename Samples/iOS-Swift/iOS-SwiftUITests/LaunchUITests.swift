@@ -10,5 +10,7 @@ class LaunchUITests: XCTestCase {
     func testLaunch() {
         let app = XCUIApplication()
         app.launch()
+        
+        XCTAssertTrue(false)
     }
 }
