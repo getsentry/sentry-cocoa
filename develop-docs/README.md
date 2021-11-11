@@ -4,7 +4,7 @@ This page contains internal documentation for development.
 
 ## Code Signing
 
-This repository follows [codesiging.guide](https://codesigning.guide/) in combination with [fastlane match](https://docs.fastlane.tools/actions/match/).
+This repository follows the [codesiging.guide](https://codesigning.guide/) in combination with [fastlane match](https://docs.fastlane.tools/actions/match/).
 Therefore the sample apps use manuel code signing, see [fastlane docs](https://docs.fastlane.tools/codesigning/xcode-project/):
 > In most cases, fastlane will work out of the box with Xcode 9 and up if you selected manual code signing and choose a provisioning profile name for each of your targets.
 
