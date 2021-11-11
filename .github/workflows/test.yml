@@ -74,7 +74,8 @@ jobs:
         shell: sh 
 
       - name: Run in AppCenter
-        run: >-
+        shell: sh
+        run: >
           appcenter test run xcuitest 
             --app "philipphofmann/iOS-Swift-Test"
             --devices c66f3f4c 
@@ -82,3 +83,4 @@ jobs:
             --locale "en_US" 
             --build-dir DerivedData/Build/Products/Debug-iphoneos/ 
             --token ${{ secrets.APP_CENTER_TOKEN }}
+        
