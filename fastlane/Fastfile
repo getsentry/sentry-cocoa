@@ -124,14 +124,14 @@ platform :ios do
       scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true,
-      export_method: "development",
-      export_options: {
-        provisioningProfiles: { 
-          "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
-          "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
-        }
-			}
+      skip_archive: true
+      # export_method: "development",
+      # export_options: {
+      #   provisioningProfiles: { 
+      #     "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
+      #     "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
+      #   }
+			# }
     )
 
   end
