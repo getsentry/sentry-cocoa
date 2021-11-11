@@ -11,6 +11,10 @@ SentryUIViewControllerSwizziling (Test)
 
 - (void)swizzleViewControllerSubClass:(Class)class;
 
+- (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification;
+
+- (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController;
+
 @end
 
 #endif
