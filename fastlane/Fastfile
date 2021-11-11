@@ -103,13 +103,13 @@ platform :ios do
     sh("security unlock-keychain -p '#{keychain_password}' #{keychain_name}")
     sh("security list-keychain -d user -s #{keychain_name}")
 
-    sync_code_signing(
-      type: "appstore", 
-      keychain_name: keychain_name,
-      keychain_password: keychain_password,
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"]
-    )
+    # sync_code_signing(
+    #   type: "appstore", 
+    #   keychain_name: keychain_name,
+    #   keychain_password: keychain_password,
+    #   readonly: true,
+    #   app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests"]
+    # )
 
     sync_code_signing(
       type: "development", 
@@ -124,17 +124,15 @@ platform :ios do
       scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true,
-      xcargs: "-allowProvisioningUpdates"
-      # export_method: "development",
-      # export_options: {
-      #   provisioningProfiles: { 
-      #     "io.sentry.sample.iOS-Swift" => "match Development io.sentry.sample.iOS-Swift",
-      #     "io.sentry.iOS-SwiftUITests.xctrunner" => "match Development io.sentry.iOS-SwiftUITests.xctrunner"
-      #   }
-			# }
+      skip_archive: true
     )
 
+  end
+
+  lane :sync_signing do
+    match(type: "development", app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"])
+    # match(type: "mac_installer_distribution", app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests"])
+    match(type: "appstore", app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.iOS-SwiftUITests.xctrunner"])
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
