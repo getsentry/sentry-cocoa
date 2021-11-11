@@ -78,7 +78,7 @@ jobs:
         run: >-
           appcenter test run xcuitest 
           --app "philipphofmann/iOS-Swift-Test"
-          --devices c66f3f4c 
+          --devices "philipphofmann/ios-swift-pr" 
           --test-series "master" 
           --locale "en_US" 
           --build-dir DerivedData/Build/Products/Debug-iphoneos/ 
