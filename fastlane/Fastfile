@@ -124,7 +124,8 @@ platform :ios do
       scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      xcargs: "-allowProvisioningUpdates"
       # export_method: "development",
       # export_options: {
       #   provisioningProfiles: { 
