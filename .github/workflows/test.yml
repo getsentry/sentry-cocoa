@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release/**
-  pull_request:
 
 jobs:
   unit-tests:
