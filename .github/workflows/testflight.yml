@@ -23,11 +23,11 @@ jobs:
       - name: Bump Bundle Version
         env: 
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
-        run: bundle exec fastlane bump_bundle_version
+        run: fastlane bump_bundle_version
         shell: sh
 
       - name: Remove preview version suffixes
-        run: bundle exec fastlane remove_preview_version_suffixes
+        run: fastlane remove_preview_version_suffixes
         shell: sh
 
       - name: Run Fastlane
@@ -42,8 +42,8 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          bundle exec fastlane build_ios_swift
-          bundle exec fastlane ios_swift_to_testflight
+          fastlane build_ios_swift
+          fastlane ios_swift_to_testflight
         shell: sh
 
       - name: Archiving
