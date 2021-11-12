@@ -16,10 +16,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
 
       - name: Install SentryCli
-        run: brew install getsentry/tools/sentry-cli
-
-      - name: Setup fastlane
-        run: bundle install   
+        run: brew install getsentry/tools/sentry-cli 
 
       # We upload a new version to TestFlight on every commit on Master
       # So we need to bump the bundle version each time
