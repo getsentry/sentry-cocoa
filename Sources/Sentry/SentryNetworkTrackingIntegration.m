@@ -4,6 +4,7 @@
 #import "SentryOptions.h"
 #import "SentrySwizzle.h"
 #import <objc/runtime.h>
+#import "SentrySessionTaskSearch.h"
 
 @implementation SentryNetworkTrackingIntegration
 
@@ -62,66 +63,26 @@
 
 + (void)swizzleURLSessionTask
 {
-    /**
-     * In order to be able to track a network request, we need to know when it starts and when it
-     * finishes. NSURLSessionTask has a `resume` method that starts the request, and the only way to
-     * know when it finishes is to check the task `state`. Using KVO is not working, so we are
-     * swizzling `setState:`. Depending on the iOS version NSURLSessionTask does not implements
-     * `setState:` and Apple uses a subclass returned by NSURLSession that implementes `setState:`.
-     * We need to discover which class to swizzle.
-     */
-
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull"
-    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:nil];
-#pragma clang diagnostic pop
-
-    Class classToSwizzle;
-
-    Class currentClass = [localDataTask class];
+    NSArray<Class> *classesToSwizzle = [SentrySessionTaskSearch urkSessionTaskClassesToTrack];
+    
     SEL setStateSelector = NSSelectorFromString(@"setState:");
-
-    while (class_getInstanceMethod(currentClass, setStateSelector)) {
-        Class superClass = [currentClass superclass];
-        IMP classResumeIMP
-            = method_getImplementation(class_getInstanceMethod(currentClass, setStateSelector));
-        IMP superclassResumeIMP
-            = method_getImplementation(class_getInstanceMethod(superClass, setStateSelector));
-        if (classResumeIMP != superclassResumeIMP) {
-            classToSwizzle = currentClass;
-            break;
-        }
-        currentClass = superClass;
-    }
-
-    [localDataTask cancel];
-    [session finishTasksAndInvalidate];
-
-    if (classToSwizzle == nil) {
-        [SentryLog
-            logWithMessage:@"SentryNetworkSwizzling: Didn't find a NSURLSessionTask sub class that "
-                           @"implements `setState:` not able to track network requests"
-                  andLevel:kSentryLevelDebug];
-        return;
-    }
-
     SEL resumeSelector = NSSelectorFromString(@"resume");
-    SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
+    
+    for (Class classToSwizzle in classesToSwizzle) {
+        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
+                                    SentrySWArguments(), SentrySWReplacement({
             [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
             SentrySWCallOriginal();
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
-
-    SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
-        SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
+                                    SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
+        
+        SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
+                                    SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
             [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
             SentrySWCallOriginal(state);
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)setStateSelector);
+                                    SentrySwizzleModeOncePerClassAndSuperclasses, (void *)setStateSelector);
+    }
 }
 
 + (void)swizzleNSURLSessionConfiguration

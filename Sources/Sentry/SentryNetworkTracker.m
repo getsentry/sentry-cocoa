@@ -133,7 +133,7 @@ SentryNetworkTracker ()
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (state == NSURLSessionTaskStateCompleted) {
+    if (state == NSURLSessionTaskStateCompleted || state == NSURLSessionTaskStateCanceling) {
         SentryLevel breadcrumbLevel
             = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
         SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
