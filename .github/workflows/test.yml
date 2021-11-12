@@ -73,6 +73,11 @@ jobs:
         run: fastlane build_ios_swift_ui_test
         shell: sh 
 
+      ## AppCenter CLI can't handle multiple apps within DerivedData
+      ## Therefore we remove the AppClip
+      - name: Remove AppClip
+        run: rm -r DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftClip.app
+
       - name: Run in AppCenter
         shell: sh
         run: >-
