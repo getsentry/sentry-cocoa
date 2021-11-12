@@ -16,18 +16,21 @@ jobs:
       - uses: ruby/setup-ruby@v1
 
       - name: Install SentryCli
-        run: brew install getsentry/tools/sentry-cli 
+        run: brew install getsentry/tools/sentry-cli
+
+      - name: Setup fastlane
+        run: bundle install   
 
       # We upload a new version to TestFlight on every commit on Master
       # So we need to bump the bundle version each time
       - name: Bump Bundle Version
         env: 
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
-        run: fastlane bump_bundle_version
+        run: bundle exec fastlane bump_bundle_version
         shell: sh
 
       - name: Remove preview version suffixes
-        run: fastlane remove_preview_version_suffixes
+        run: bundle exec fastlane remove_preview_version_suffixes
         shell: sh
 
       - name: Run Fastlane
@@ -42,8 +45,8 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          fastlane build_ios_swift
-          fastlane ios_swift_to_testflight
+          bundle exec fastlane build_ios_swift
+          bundle exec fastlane ios_swift_to_testflight
         shell: sh
 
       - name: Archiving
