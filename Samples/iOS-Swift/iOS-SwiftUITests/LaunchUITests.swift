@@ -10,5 +10,15 @@ class LaunchUITests: XCTestCase {
     func testLaunch() {
         let app = XCUIApplication()
         app.launch()
+        
+        func visitScreen(buttonText: String) {
+            app.buttons[buttonText].tap()
+            app.swipeDown(velocity: .fast)
+        }
+        
+        visitScreen(buttonText: "Lorem Ipsum")
+        visitScreen(buttonText: "Test Navigation Transaction")
+        visitScreen(buttonText: "Show Nib")
+        visitScreen(buttonText: "Show SwiftUI")
     }
 }
