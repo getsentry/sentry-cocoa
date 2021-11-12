@@ -35,10 +35,16 @@ platform :ios do
   end
 
   ioSwiftInfoPlistPath = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
+  ioSwiftClipInfoPlistPath = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
   lane :bump_bundle_version do
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
@@ -55,6 +61,11 @@ platform :ios do
 
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleShortVersionString", 
       value: version
     )
