@@ -47,7 +47,10 @@ platform :ios do
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
-    version = get_version_number(xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj")
+    version = get_version_number(
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      target: "iOS-Swift"
+      )
     version = version.split("-", -1)[0]
 
     set_info_plist_value(

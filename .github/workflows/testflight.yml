@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/fix-testflight-upload
 
 jobs:
 
