@@ -35,10 +35,16 @@ platform :ios do
   end
 
   ioSwiftInfoPlistPath = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
+  ioSwiftClipInfoPlistPath = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
   lane :bump_bundle_version do
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
@@ -47,11 +53,19 @@ platform :ios do
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
-    version = get_version_number(xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj")
+    version = get_version_number(
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      target: "iOS-Swift"
+      )
     version = version.split("-", -1)[0]
 
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleShortVersionString", 
       value: version
     )
