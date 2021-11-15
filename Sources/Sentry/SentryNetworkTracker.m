@@ -133,7 +133,7 @@ SentryNetworkTracker ()
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (state == NSURLSessionTaskStateCompleted || state == NSURLSessionTaskStateCanceling) {
+    if (sessionTask.state == NSURLSessionTaskStateRunning) {
         SentryLevel breadcrumbLevel
             = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
         SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
@@ -173,7 +173,7 @@ SentryNetworkTracker ()
     [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
-    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
+    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:state]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
@@ -185,9 +185,9 @@ SentryNetworkTracker ()
     return -1;
 }
 
-- (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task
+- (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task state:(NSURLSessionTaskState)state
 {
-    switch (task.state) {
+    switch (state) {
     case NSURLSessionTaskStateSuspended:
         return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
