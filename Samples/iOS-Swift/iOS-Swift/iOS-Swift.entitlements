@@ -6,9 +6,5 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
-	<key>com.apple.developer.associated-appclip-app-identifiers</key>
-	<array>
-    	<string>$(AppIdentifierPrefix)com.app.appclipbundleid</string>
-	</array>
 </dict>
 </plist>
