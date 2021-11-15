@@ -6,5 +6,9 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<key>com.apple.developer.associated-appclip-app-identifiers</key>
+	<array>
+		<string>io.sentry.sample.iOS-Swift.Clip</string>
+	</array>
 </dict>
 </plist>
