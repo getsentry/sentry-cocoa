@@ -12,7 +12,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 @property (class, readonly, nonatomic) SentryNetworkTracker *sharedInstance;
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask;
-- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)state;
+- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState;
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers;
 
