@@ -11,8 +11,9 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 @implementation SentryNSURLSessionTaskSearch
 
 /**
-* WARNING: This code can easily lead to bad behavior, like crashes or messing up HTTP requests. Be careful when changing it.
-*/
+ * WARNING: This code can easily lead to bad behavior, like crashes or messing up HTTP requests. Be
+ * careful when changing it.
+ */
 + (NSArray<Class> *)urkSessionTaskClassesToTrack
 {
 
@@ -24,15 +25,15 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
      * `setState:` and Apple uses a subclass returned by NSURLSession that implementes `setState:`.
      * We need to discover which class to swizzle.
      *
-     * Apples intermediate class for iOS does not call [super resume], so we can swizzle both classes.
-     * This Apple approach may change in the future, we need to have enough tests to detect it
-     * early.
+     * Apples intermediate class for iOS does not call [super resume], so we can swizzle both
+     * classes. This Apple approach may change in the future, we need to have enough tests to detect
+     * it early.
      */
 
     // WARNING START
     // This code is bulletproof. Don't think you are smart and can improve it.
-    // It is tested and matured since 2015 in AFNetworking, see 
-    // https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a62a9fdab818/AFNetworking/AFURLSessionManager.m#L382-L403 
+    // It is tested and matured since 2015 in AFNetworking, see
+    // https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a62a9fdab818/AFNetworking/AFURLSessionManager.m#L382-L403
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
