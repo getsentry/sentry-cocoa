@@ -9,8 +9,6 @@
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
-static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
-
 @interface
 SentryNetworkTracker ()
 

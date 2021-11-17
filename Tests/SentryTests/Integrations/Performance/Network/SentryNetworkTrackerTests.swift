@@ -28,10 +28,6 @@ class SentryNetworkTrackerTests: XCTestCase {
             result.enable()
             return result
         }
-        
-        var mutableUrlRequest: URLRequest {
-            return URLRequest(url: SentryNetworkTrackerTests.testURL)
-        }
     }
 
     private var fixture: Fixture!
@@ -53,6 +49,36 @@ class SentryNetworkTrackerTests: XCTestCase {
         let span = spanForTask(task: task)!
         
         assertCompletedSpan(task, span)
+    }
+    
+    func test_CallResumeTwice_OneSpan() {
+        let task = createDataTask()
+        
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        
+        sut.urlSessionTaskResume(task)
+        sut.urlSessionTaskResume(task)
+        
+        let spans = Dynamic(transaction).children as [Span]?
+        
+        XCTAssertEqual(spans?.count, 1)
+    }
+    
+    func test_noURL() {
+        let task = URLSessionDataTaskMock()
+        let span = spanForTask(task: task)
+        XCTAssertNil(span)
+    }
+    
+    func test_NoTransaction() {
+        let task = createDataTask()
+        
+        let sut = fixture.getSut()
+        sut.urlSessionTaskResume(task)
+        let span = objc_getAssociatedObject(task, SENTRY_NETWORK_REQUEST_TRACKER_SPAN)
+        
+        XCTAssertNil(span)
     }
     
     func testCaptureDownloadTask() {
@@ -340,6 +366,28 @@ class SentryNetworkTrackerTests: XCTestCase {
         let breadcrumb = breadcrumbs!.first
 
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "POST")
+    }
+    
+    func test_NoBreadcrumb_forSentryAPI() {
+        let sut = fixture.getSut()
+        let task = fixture.sentryTask
+        
+        setTaskState(task, state: .running)
+        sut.urlSessionTask(task, setState: .completed)
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(breadcrumbs?.count, 0)
+    }
+    
+    func test_NoBreadcrumb_WithoutURK() {
+        let sut = fixture.getSut()
+        let task = URLSessionDataTaskMock()
+        
+        setTaskState(task, state: .running)
+        sut.urlSessionTask(task, setState: .completed)
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(breadcrumbs?.count, 0)
     }
     
     func testResumeAfterCompleted_OnlyOneSpanCreated() {

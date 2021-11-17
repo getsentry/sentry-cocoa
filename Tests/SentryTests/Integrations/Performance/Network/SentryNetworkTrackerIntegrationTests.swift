@@ -149,10 +149,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             expect.fulfill()
         }
         
+        //There is no way to predict what will happen calling this order of events
         dataTask.resume()
         dataTask.suspend()
         dataTask.resume()
         dataTask.cancel()
+        
         wait(for: [expect], timeout: 5)
         
         let scope = SentrySDK.currentHub().scope
