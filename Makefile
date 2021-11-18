@@ -16,9 +16,19 @@ format:
 .PHONY: format
 
 test:
+	make run-test-server
 	@echo "--> Running all tests"
 	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
+
+run-test-server:
+	cd ./test-server && swift build && swift run
+.PHONY: run-test-server
+
+## kills the process listening on 8080
+kill-test-server:
+	lsof -i :8080 -sTCP:LISTEN |awk 'NR > 1 {print $2}'|xargs kill -15
+.PHONY: kill-test-server
 
 analyze:
 	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release | xcpretty -t
