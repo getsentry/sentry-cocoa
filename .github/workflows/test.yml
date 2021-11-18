@@ -27,8 +27,8 @@ jobs:
         env:
           cache-name: cache-swift-build
         with:
-          path: /test-server/.build
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server) }}
+          path: ./test-server/.build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server') }}
 
       - run: swift build
         working-directory: test-server
