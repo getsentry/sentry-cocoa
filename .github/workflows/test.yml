@@ -21,6 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Cache Swift Packages
         uses: actions/cache@v2
         env:
@@ -28,11 +29,17 @@ jobs:
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/Package.swift') }}
+
       - run: swift build
         working-directory: test-server
-      - run: swift run &
+
+      - name: Run Test Server in Background
+        run: swift run &
         working-directory: test-server
+
+      # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
