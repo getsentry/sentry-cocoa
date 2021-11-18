@@ -25,4 +25,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/no-changes-in-high-risk-files.sh
