@@ -25,11 +25,6 @@ run-test-server:
 	cd ./test-server && swift build && swift run
 .PHONY: run-test-server
 
-## kills the process listening on 8080
-kill-test-server:
-	lsof -i :8080 -sTCP:LISTEN |awk 'NR > 1 {print $2}'|xargs kill -15
-.PHONY: kill-test-server
-
 analyze:
 	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release | xcpretty -t
 

@@ -42,11 +42,6 @@ The's tests depend on our test server. To run the automated tests, you first nee
 make run-test-server
 ```
 
-Use the following to shutdown the test server.
-```sh
-make kill-test-server
-```
-
 Test guidelines:
 
 * We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.

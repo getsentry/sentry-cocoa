@@ -3,14 +3,13 @@ import XCTest
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
-    private static let testURL = URL(string: "https://localhost:8080/sentry-logo-black.png")!
+    private static let testURL = URL(string: "http://localhost:8080/sentry-logo-black.png")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
-        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerIntegrationTests.testURL)
         
         init() {
             options = Options()
