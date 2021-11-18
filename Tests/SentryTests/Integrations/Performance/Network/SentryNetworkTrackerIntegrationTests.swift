@@ -139,7 +139,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 5)
     }
     
-    func testWhenTaskCancelledOrSuspended_OnlyOneBreadcrumb() {
+    func flaky_testWhenTaskCancelledOrSuspended_OnlyOneBreadcrumb() {
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")
