@@ -1,11 +1,11 @@
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { req in
+    app.get { _ in
         return "It works!"
     }
 
-    app.get("hello") { req -> String in
+    app.get("hello") { _ -> String in
         return "Hello, world!"
     }
 }
