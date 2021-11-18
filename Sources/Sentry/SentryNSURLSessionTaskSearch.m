@@ -18,6 +18,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 {
 
     /**
+     *
      * In order to be able to track a network request, we need to know when it starts and when it
      * finishes. NSURLSessionTask has a `resume` method that starts the request, and the only way to
      * know when it finishes is to check the task `state`. Using KVO is not working,
