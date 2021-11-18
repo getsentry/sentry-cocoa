@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: swift run
+      - run: swift run &
         working-directory: test-server
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Running tests
