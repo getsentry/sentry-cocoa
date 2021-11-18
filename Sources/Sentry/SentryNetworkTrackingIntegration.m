@@ -2,7 +2,7 @@
 #import "SentryLog.h"
 #import "SentryNetworkTracker.h"
 #import "SentryOptions.h"
-#import "SentrySessionTaskSearch.h"
+#import "SentryNSURLSessionTaskSearch.h"
 #import "SentrySwizzle.h"
 #import <objc/runtime.h>
 
@@ -63,7 +63,7 @@
 
 + (void)swizzleURLSessionTask
 {
-    NSArray<Class> *classesToSwizzle = [SentrySessionTaskSearch urkSessionTaskClassesToTrack];
+    NSArray<Class> *classesToSwizzle = [SentryNSURLSessionTaskSearch urlSessionTaskClassesToTrack];
 
     SEL setStateSelector = NSSelectorFromString(@"setState:");
     SEL resumeSelector = NSSelectorFromString(@"resume");

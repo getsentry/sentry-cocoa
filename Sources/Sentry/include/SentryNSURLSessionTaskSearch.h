@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySessionTaskSearch : NSObject
+@interface SentryNSURLSessionTaskSearch : NSObject
 
 + (NSArray<Class> *)urlSessionTaskClassesToTrack;
 

@@ -5,7 +5,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
  * under the MIT license
  */
 
-#import "SentrySessionTaskSearch.h"
+#import "SentryNSURLSessionTaskSearch.h"
 #import <objc/runtime.h>
 
 @implementation SentryNSURLSessionTaskSearch
@@ -14,18 +14,19 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
  * WARNING: This code can easily lead to bad behavior, like crashes or messing up HTTP requests. Be
  * careful when changing it.
  */
-+ (NSArray<Class> *)urkSessionTaskClassesToTrack
++ (NSArray<Class> *)urlSessionTaskClassesToTrack
 {
 
     /**
      * In order to be able to track a network request, we need to know when it starts and when it
      * finishes. NSURLSessionTask has a `resume` method that starts the request, and the only way to
-     * know when it finishes is to check the task `state`. Using KVO is not working, so we are
-     * swizzling `setState:`. Depending on the iOS version NSURLSessionTask, does not implement
+     * know when it finishes is to check the task `state`. Using KVO is not working,
+     * It randomly crashs an app. We hade two issues open because of this, #1328 and #1448. Instead we are
+     * swizzling `setState:`. From iOS 10 to 13, NSURLSessionTask does not implement
      * `setState:` and Apple uses a subclass returned by NSURLSession that implementes `setState:`.
      * We need to discover which class to swizzle.
      *
-     * Apples intermediate class for iOS does not call [super resume], so we can swizzle both
+     * Apples intermediate classes for iOS does not call [super resume], so we can swizzle both
      * classes. This Apple approach may change in the future, we need to have enough tests to detect
      * it early.
      */
