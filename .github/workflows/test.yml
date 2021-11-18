@@ -21,6 +21,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Cache Swift Packages
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-swift-packages
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/Package.swift') }}
       - run: swift run &
         working-directory: test-server
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
