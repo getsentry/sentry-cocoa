@@ -29,6 +29,7 @@ jobs:
           path: ./test-server/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/Package.swift') }}
       - run: swift build
+        working-directory: test-server
       - run: swift run &
         working-directory: test-server
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
