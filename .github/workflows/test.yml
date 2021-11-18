@@ -30,6 +30,8 @@ jobs:
           path: ./test-server/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server') }}
 
+      - run: ls -l test-server/.build
+
       # Only build if necessary
       - run: swift build
         if: hashFiles('./test-server/.build/debug/Run') != ''
