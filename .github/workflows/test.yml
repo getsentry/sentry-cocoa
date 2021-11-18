@@ -32,6 +32,7 @@ jobs:
 
       # Only build if necessary
       - run: swift build
+      # The hash is empty if the file doesn't exist.
         if: hashFiles('./test-server/.build/debug/Run') == ''
         working-directory: test-server
 
