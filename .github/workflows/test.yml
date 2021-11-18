@@ -22,13 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Swift Packages
+      - name: Cache Swift Build
         uses: actions/cache@v2
         env:
-          cache-name: cache-swift-packages
+          cache-name: cache-swift-build
         with:
-          path: ./test-server/.build
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/Package.swift') }}
+          path: /test-server/.build/
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server) }}
 
       - run: swift build
         working-directory: test-server
