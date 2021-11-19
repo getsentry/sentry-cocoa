@@ -80,6 +80,7 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSError.h"
 #import "SentryNSURLRequest.h"
+#import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNoOpSpan.h"

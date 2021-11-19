@@ -109,7 +109,7 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-    if (state == NSURLSessionTaskStateRunning) {
+    if (newState == NSURLSessionTaskStateRunning) {
         return;
     }
 
@@ -171,7 +171,7 @@ SentryNetworkTracker ()
     [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
-    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:state]];
+    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
