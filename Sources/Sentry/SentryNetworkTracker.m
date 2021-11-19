@@ -107,7 +107,7 @@ SentryNetworkTracker ()
     }
 }
 
-- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)state
+- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
     if (state == NSURLSessionTaskStateRunning) {
         return;

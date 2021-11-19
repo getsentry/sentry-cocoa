@@ -379,7 +379,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
     
-    func test_NoBreadcrumb_WithoutURK() {
+    func test_NoBreadcrumb_WithoutURL() {
         let sut = fixture.getSut()
         let task = URLSessionDataTaskMock()
         
