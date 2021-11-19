@@ -2,7 +2,7 @@ import XCTest
 
 class LaunchUITests: XCTestCase {
     
-    private let timeout : TimeInterval = 10
+    private let timeout: TimeInterval = 10
 
     override func setUpWithError() throws {
         try super.setUpWithError()
