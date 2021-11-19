@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+- fix: Use swizzling instead of KVO for network tracking (#1452) 
+
 ## 7.5.2
 
 ### Various fixes & improvements
