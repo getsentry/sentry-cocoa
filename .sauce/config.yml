@@ -17,13 +17,17 @@ suites:
   - name: "iOS-Swift"
     devices:
       - name: "iPhone.*"
+        orientation: "portrait"
         platformVersion: "15.1"
 
       - name: "iPhone.*"
+        orientation: "portrait"
         platformVersion: "14.8"
 
-      - name: "iPhone.*"
-        platformVersion: "13.7"  
+      # iPhone seems not to work reliably on iOS 13.7
+      - name: "iPad.*"
+        orientation: "portrait"
+        platformVersion: "13.7"
       
 artifacts:
   download:
