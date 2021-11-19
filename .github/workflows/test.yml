@@ -21,7 +21,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache Swift Build
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-swift-build
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server') }}
+
+      # Only build when the cache couldn't be restored.
+      - run: swift build
+      # The hash is empty if the file doesn't exist.
+        if: hashFiles('./test-server/.build/debug/Run') == ''
+        working-directory: test-server
+
+      - name: Run Test Server in Background
+        run: swift run &
+        working-directory: test-server
+
+      # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
