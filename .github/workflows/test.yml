@@ -93,6 +93,9 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - name: Remove AppClip
-        run: saucectl run --accessKey ${{ secrets.SAUCE_LABS_ACCESS_KEY }}
+      - name: Run Tests in Saucelab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: saucectl run
         
