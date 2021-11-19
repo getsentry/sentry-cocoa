@@ -81,7 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 
-      - run: npm install saucectl
+      - run: npm install -g saucectl
 
       - run: fastlane build_ios_swift_ui_test
         env:
