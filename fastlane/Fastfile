@@ -109,15 +109,15 @@ platform :ios do
 
   lane :build_ios_swift_ui_test do
 
-    match_ci
+    # match_ci
 
-    sync_code_signing(
-      type: "development",
-      keychain_name: ci_keychain_name,
-      keychain_password: ci_keychain_password,
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
-    )
+    # sync_code_signing(
+    #   type: "development",
+    #   keychain_name: ci_keychain_name,
+    #   keychain_password: ci_keychain_password,
+    #   readonly: true,
+    #   app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
+    # )
 
 		build_app(
       workspace: "Sentry.xcworkspace",
