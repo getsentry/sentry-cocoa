@@ -73,6 +73,9 @@ jobs:
           repository: 'Alamofire/Alamofire'
           ref: '26b8c9a41aa03f0356f957ab62e9ca6b1068afe0'
 
+      - name: Install Firewalk
+        run: brew install alamofire/alamofire/firewalk && firewalk &
+     
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is be the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
@@ -89,9 +92,6 @@ jobs:
         shell: bash
       
       - run: git apply sentry.patch  
-      
-      - name: Install Firewalk
-        run: brew install alamofire/alamofire/firewalk && firewalk &
 
       - name: Run Tests
         run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty
