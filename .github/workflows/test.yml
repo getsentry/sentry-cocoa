@@ -70,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: 'https://github.com/Alamofire/Alamofire'
+          repository: 'Alamofire/Alamofire'
           ref: '26b8c9a41aa03f0356f957ab62e9ca6b1068afe0'
       
       - run: ./scripts/ci-select-xcode.sh 13.0
