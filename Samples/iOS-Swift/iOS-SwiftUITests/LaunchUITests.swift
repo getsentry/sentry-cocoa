@@ -1,6 +1,6 @@
 import XCTest
 
-class LaunchTests: XCTestCase {
+class LaunchUITests: XCTestCase {
     
     private let timeout: TimeInterval = 10
     private let app: XCUIApplication = XCUIApplication()
@@ -20,6 +20,21 @@ class LaunchTests: XCTestCase {
         app.terminate()
     }
 
+    func testLoremIpsum() {
+        app.buttons["Lorem Ipsum"].tap()
+        XCTAssertTrue(app.textViews.firstMatch.waitForExistence(timeout: timeout), "Lorem Ipsum not loaded.")
+    }
+    
+    func testNavigationTransaction() {
+        app.buttons["Test Navigation Transaction"].tap()
+        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
+    }
+    
+    func testShowNib() {
+        app.buttons["Show Nib"].tap()
+        XCTAssertTrue(app.buttons["Button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
+    }
+    
     func testShowSwiftUI() {
         app.buttons["Show SwiftUI"].tap()
         XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
