@@ -74,6 +74,16 @@ jobs:
       # the github.sha is be the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
       - run: curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+
+      - name: Set SPM revision to current git commit
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            sed -i '' 's/263f695460c0fb9effff194c967a53166ec7931d/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
+          else
+            sed -i '' 's/263f695460c0fb9effff194c967a53166ec7931d/${{ github.sha }}/g' sentry.patch 
+          fi  
+        shell: bash
+      
       - run: git apply sentry.patch  
       
       # - run: git apply mypatch.patch
