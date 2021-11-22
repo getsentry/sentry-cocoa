@@ -91,8 +91,11 @@ jobs:
       - run: git apply sentry.patch  
 
       - name: Install Firewalk
-        run: brew install alamofire/alamofire/firewalk && firewalk &
+        run: brew install alamofire/alamofire/firewalk
 
+      - name: Start Firewalk
+        run: firewalk &
+ 
       - name: Validate Firewalk is Running
         run: curl http://localhost:8080/
 
