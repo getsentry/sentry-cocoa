@@ -62,22 +62,25 @@ jobs:
 
 
   web-request-tests:
-    name: Web Request Integration Tests
+    name: Integration Tests Web Requests
     runs-on: macos-11
-    strategy:
-      matrix:
-        destination: ["OS=15.0,name=iPhone 13 Pro"]
     steps:
       - uses: actions/checkout@v2
         with:
           repository: 'Alamofire/Alamofire'
           ref: '26b8c9a41aa03f0356f957ab62e9ca6b1068afe0'
+
+      # Use github.event.pull_request.head.sha instead of github.sha when available as 
+      # the github.sha is be the pre merge commit id for PRs.
+      # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+      - run: curl https://github.com/getsentry/sentry-cocoa/blob/ci/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch  
+      - run: git apply add-sentry-to-alamofire.patch    
       
       # - run: git apply mypatch.patch
       - name: Install Firewalk
         run: brew install alamofire/alamofire/firewalk && firewalk &
       - name: iOS
-        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "${{ matrix.destination }}" clean test | xcpretty
+        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" clean test | xcpretty
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}
