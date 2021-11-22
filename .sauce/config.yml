@@ -18,7 +18,7 @@ suites:
     devices:
       - name: "iPhone.*"
         orientation: "portrait"
-        platformVersion: "12.4"
+        platformVersion: "10.3.2"
         
       - name: "iPhone.*"
         orientation: "portrait"
