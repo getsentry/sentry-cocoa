@@ -18,16 +18,16 @@ suites:
     devices:
       - name: "iPhone.*"
         orientation: "portrait"
+        platformVersion: "10.3.3"
+        
+      - name: "iPhone.*"
+        orientation: "portrait"
         platformVersion: "15.1"
 
       - name: "iPhone.*"
         orientation: "portrait"
         platformVersion: "14.8"
-        
-      - name: "iPhone.*"
-        orientation: "portrait"
-        platformVersion: "10.2.1"
-
+      
       # Tests don't work currently on iOS 13.7, because Start of XCUITest-Runner times out.
       
 artifacts:
