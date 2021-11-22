@@ -77,7 +77,7 @@ jobs:
       - name: Install Firewalk
         run: brew install alamofire/alamofire/firewalk && firewalk &
       - name: iOS
-      - run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "${{ matrix.destination }}" clean test | xcpretty
+        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "${{ matrix.destination }}" clean test | xcpretty
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}
