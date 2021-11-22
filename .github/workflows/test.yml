@@ -61,9 +61,12 @@ jobs:
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
 
+  # Ensure the swizzling of network classes doesn't break the normal functionality of web requests.
+  # We borrow the tests of Alamofire under the MIT license: https://github.com/Alamofire/Alamofire.
   web-request-tests:
     name: Integration Web Requests
     runs-on: macos-11
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
         with:
@@ -86,10 +89,12 @@ jobs:
       
       - run: git apply sentry.patch  
       
-      # - run: git apply mypatch.patch
       - name: Install Firewalk
-        run: brew install alamofire/alamofire/firewalk && firewalk &
-      - name: iOS
+        run: brew install alamofire/alamofire/firewalk
+      - name: Run Firewalk
+        run: firewalk &
+        
+      - name: Run Tests
         run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" clean test | xcpretty
 
   ui-tests:
