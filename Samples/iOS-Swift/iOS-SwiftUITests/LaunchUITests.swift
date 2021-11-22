@@ -1,24 +1,46 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
+    
+    private let timeout: TimeInterval = 10
+    private let app: XCUIApplication = XCUIApplication()
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
+        
+        app.launch()
+        XCUIDevice.shared.orientation = .portrait
+        
+        waitForExistenseOfMainScreen()
+    }
+    
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        app.terminate()
     }
 
-    func testLaunch() {
-        let app = XCUIApplication()
-        app.launch()
-        
-        func visitScreen(buttonText: String) {
-            app.buttons[buttonText].tap()
-            app.swipeDown(velocity: .fast)
-        }
-        
-        visitScreen(buttonText: "Lorem Ipsum")
-        visitScreen(buttonText: "Test Navigation Transaction")
-        visitScreen(buttonText: "Show Nib")
-        visitScreen(buttonText: "Show SwiftUI")
+    func testLoremIpsum() {
+        app.buttons["Lorem Ipsum"].tap()
+        XCTAssertTrue(app.textViews.firstMatch.waitForExistence(timeout: timeout), "Lorem Ipsum not loaded.")
+    }
+    
+    func testNavigationTransaction() {
+        app.buttons["Test Navigation Transaction"].tap()
+        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
+    }
+    
+    func testShowNib() {
+        app.buttons["Show Nib"].tap()
+        XCTAssertTrue(app.buttons["Button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
+    }
+    
+    func testShowSwiftUI() {
+        app.buttons["Show SwiftUI"].tap()
+        XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
+    }
+    
+    private func waitForExistenseOfMainScreen() {
+        XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
     }
 }
