@@ -1,5 +1,5 @@
-import UIKit
 import Sentry
+import UIKit
 
 class ViewController: UIViewController {
     @IBOutlet weak var dsnTextField: UITextField!
@@ -179,4 +179,3 @@ class ViewController: UIViewController {
     }
 
 }
-
