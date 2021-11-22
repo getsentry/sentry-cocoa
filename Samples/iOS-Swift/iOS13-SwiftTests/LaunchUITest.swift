@@ -19,7 +19,6 @@ class LaunchUITests: XCTestCase {
         try super.tearDownWithError()
         app.terminate()
     }
-
    
     func testShowSwiftUI() {
         app.buttons["Show SwiftUI"].tap()
