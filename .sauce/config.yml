@@ -11,7 +11,7 @@ retries: 2
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftTests-Runner.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
   - name: "iOS-Swift"

@@ -32,13 +32,13 @@ class LaunchUITests: XCTestCase {
     
     func testShowNib() {
         app.buttons["Show Nib"].tap()
-        XCTAssertTrue(app.buttons["Button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
+        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
     }
     
-    func testShowSwiftUI() {
+   /* func testShowSwiftUI() {
         app.buttons["Show SwiftUI"].tap()
         XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
-    }
+    }*/
     
     private func waitForExistenseOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
