@@ -5,11 +5,46 @@ platform :ios do
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
   team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
+  desc "Run match for local development"
+  lane :match_local do
+    match(
+      type: "development", 
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
+    )
+    match(
+      type: "appstore", 
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
+    )
+  end
+
+  ci_keychain_name = "ios-swift.keychain"
+  ci_keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
+
+  lane :match_ci do
+    # CI can hang when Xcode is trying to sign the app because
+    # a modal window pops up to access the signing key's keychain. This modal
+    # lets the action hang. A workaround is to create a local keychain and
+    # store the signing keys in there.
+    # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
+    # Doing this with Fastlane makes it easier to debug issues locally.
+    sh("security delete-keychain #{ci_keychain_name} || true") # Delete the keychain if it already exists
+    sh("security create-keychain -p '#{ci_keychain_password}'  #{ci_keychain_name}")
+    sh("security set-keychain-settings -lut 21600 #{ci_keychain_name}")
+    sh("security unlock-keychain -p '#{ci_keychain_password}' #{ci_keychain_name}")
+    sh("security list-keychain -d user -s #{ci_keychain_name}")
+  end
+
   ioSwiftInfoPlistPath = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
+  ioSwiftClipInfoPlistPath = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
   lane :bump_bundle_version do
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleVersion", 
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
@@ -18,11 +53,19 @@ platform :ios do
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
-    version = get_version_number(xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj")
+    version = get_version_number(
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      target: "iOS-Swift"
+      )
     version = version.split("-", -1)[0]
 
     set_info_plist_value(
       path: ioSwiftInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: ioSwiftClipInfoPlistPath, 
       key: "CFBundleShortVersionString", 
       value: version
     )
@@ -43,32 +86,14 @@ platform :ios do
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
 
-    keychain_name = "ios-swift.keychain"
-    keychain_password = ENV["FASTLANE_KEYCHAIN_PASSWORD"]
-
-    # CI can hang when Xcode is trying to sign the app because
-    # a modal window pops up to access the signing key's keychain. This modal
-    # lets the action hang. A workaround is to create a local keychain and
-    # store the signing keys in there.
-    # https://github.com/actions/virtual-environments/issues/1820#issuecomment-719549887
-    # Doing this with Fastlane makes it easier to debug issues locally.
-    sh("security delete-keychain #{keychain_name} || true") # Delete the keychain if it already exists
-    sh("security create-keychain -p '#{keychain_password}'  #{keychain_name}")
-    sh("security set-keychain-settings -lut 21600 #{keychain_name}")
-    sh("security unlock-keychain -p '#{keychain_password}' #{keychain_name}")
-    sh("security list-keychain -d user -s #{keychain_name}")
+    match_ci
 
     sync_code_signing(
       type: "appstore", 
-      keychain_name: keychain_name,
-      keychain_password: keychain_password,
-      readonly: true
-    )
-
-    app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-      key_content: ENV["APP_STORE_CONNECT_KEY"]
+      keychain_name: ci_keychain_name,
+      keychain_password: ci_keychain_password,
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"]
     )
 
 		build_app(
@@ -76,13 +101,30 @@ platform :ios do
       scheme: "iOS-Swift",
 			include_bitcode: true,
       include_symbols: false,
-			export_options: {
-				method: "app-store",
-				provisioningProfiles: { 
-					app_identifier => "match AppStore io.sentry.sample.iOS-Swift"
-				}
-			},
+      export_method: "app-store",
       archive_path: "iOS-Swift"
+    )
+
+  end
+
+  lane :build_ios_swift_ui_test do
+
+    match_ci
+
+    sync_code_signing(
+      type: "development",
+      keychain_name: ci_keychain_name,
+      keychain_password: ci_keychain_password,
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
+    )
+
+		build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+      xcargs: "build-for-testing",
+      derived_data_path: "DerivedData",
+      skip_archive: true
     )
 
   end
