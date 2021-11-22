@@ -73,8 +73,8 @@ jobs:
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is be the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - run: curl https://github.com/getsentry/sentry-cocoa/blob/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch  
-      - run: git apply add-sentry-to-alamofire.patch    
+      - run: curl https://github.com/getsentry/sentry-cocoa/blob/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+      - run: git apply sentry.patch  
       
       # - run: git apply mypatch.patch
       - name: Install Firewalk
