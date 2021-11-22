@@ -28,7 +28,7 @@ jobs:
           cache-name: cache-swift-build
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/**') }}
 
       # Only build when the cache couldn't be restored.
       - run: swift build
@@ -117,14 +117,15 @@ jobs:
         run: fastlane ui_tests_${{matrix.target}}
         shell: sh
 
-  ios-swift-appcenter:
-    name: AppCenter for iOS Swift
+  ios-swift-saucelabs:
+    name: SauceLabs for iOS Swift
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 
+      - run: npm install -g saucectl
 
-      - name: Run Fastlane
+      - run: fastlane build_ios_swift_ui_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -133,22 +134,10 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-        run: fastlane build_ios_swift_ui_test
-        shell: sh 
 
-      ## AppCenter CLI can't handle multiple apps within DerivedData
-      ## Therefore we remove the AppClip
-      - name: Remove AppClip
-        run: rm -r DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftClip.app
-
-      - name: Run in AppCenter
-        shell: sh
-        run: >-
-          appcenter test run xcuitest 
-          --app "philipphofmann/iOS-Swift-Test"
-          --devices "philipphofmann/ios-swift-pr" 
-          --test-series "master" 
-          --locale "en_US" 
-          --build-dir DerivedData/Build/Products/Debug-iphoneos/ 
-          --token ${{ secrets.APP_CENTER_TOKEN }}
+      - name: Run Tests in Saucelab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: saucectl run
         
