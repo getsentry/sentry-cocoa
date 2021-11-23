@@ -22,13 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Swift Build
+      - name: Cache for Test Server
         uses: actions/cache@v2
-        env:
-          cache-name: cache-swift-build
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./test-server/**') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       # Only build when the cache couldn't be restored.
       - run: swift build
