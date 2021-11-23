@@ -88,7 +88,7 @@ jobs:
           fi  
         shell: bash
       
-      - run: git apply sentry.patch  
+      # - run: git apply sentry.patch  
 
       - name: Install Firewalk
         run: brew install alamofire/alamofire/firewalk
