@@ -24,8 +24,6 @@ jobs:
 
       - name: Cache Swift Build
         uses: actions/cache@v2
-        env:
-          cache-name: cache-swift-build
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
