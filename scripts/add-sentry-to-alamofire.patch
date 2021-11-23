@@ -1,5 +1,5 @@
 diff --git a/Alamofire.xcodeproj/project.pbxproj b/Alamofire.xcodeproj/project.pbxproj
-index f3e5d1a..9bea514 100644
+index f3e5d1a..2b3096d 100644
 --- a/Alamofire.xcodeproj/project.pbxproj
 +++ b/Alamofire.xcodeproj/project.pbxproj
 @@ -402,6 +402,7 @@
@@ -80,7 +80,7 @@ index f3e5d1a..9bea514 100644
 +			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
 +			requirement = {
 +				kind = revision;
-+				revision = 263f695460c0fb9effff194c967a53166ec7931d;
++				revision = __GITHUB_REVISION_PLACEHOLDER__;
 +			};
 +		};
 +/* End XCRemoteSwiftPackageReference section */
@@ -96,10 +96,10 @@ index f3e5d1a..9bea514 100644
  	rootObject = F8111E2A19A95C8B0040E7D1 /* Project object */;
  }
 diff --git a/Tests/BaseTestCase.swift b/Tests/BaseTestCase.swift
-index fe54ffc..a8037eb 100644
+index fe54ffc..d85da5e 100644
 --- a/Tests/BaseTestCase.swift
 +++ b/Tests/BaseTestCase.swift
-@@ -25,8 +25,31 @@
+@@ -25,8 +25,39 @@
  import Alamofire
  import Foundation
  import XCTest
@@ -121,11 +121,19 @@ index fe54ffc..a8037eb 100644
 +                    // Discard all traces.
 +                    return 0
 +                }
++                
 +            }
 +            
 +            SentryInitialized = true
 +        }
 +        
++        // Bind transaction to scope so we add spans to it
++        transaction = SentrySDK.startTransaction(name: "Alamofire", operation: "alamofire", bindToScope: true)
++    }
++    
++    override class func tearDown() {
++        super.tearDown()
++        transaction.finish()
 +    }
 +    
      let timeout: TimeInterval = 10

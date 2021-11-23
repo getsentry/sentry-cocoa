@@ -82,9 +82,9 @@ jobs:
       - name: Set SPM revision to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/263f695460c0fb9effff194c967a53166ec7931d/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
           else
-            sed -i '' 's/263f695460c0fb9effff194c967a53166ec7931d/${{ github.sha }}/g' sentry.patch 
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
           fi  
         shell: bash
       
