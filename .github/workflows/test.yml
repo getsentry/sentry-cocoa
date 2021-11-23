@@ -87,6 +87,8 @@ jobs:
             sed -i '' 's/263f695460c0fb9effff194c967a53166ec7931d/${{ github.sha }}/g' sentry.patch 
           fi  
         shell: bash
+
+      - run: cat sentry.patch
       
       - run: git apply sentry.patch  
 
