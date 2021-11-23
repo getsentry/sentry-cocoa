@@ -82,7 +82,13 @@ jobs:
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
       - name: Download Patch
-        run: curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+          else
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+          fi  
+        shell: bash
 
       - name: Set SPM revision to current git commit
         run: >-
