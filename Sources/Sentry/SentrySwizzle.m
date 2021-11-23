@@ -25,7 +25,7 @@ SentrySwizzleInfo ()
     @synchronized(self) {
         self.originalCalled = true;
     }
-#    end
+#endif
 
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();
@@ -33,7 +33,7 @@ SentrySwizzleInfo ()
 
 @end
 
-#    pragma mark └ SentrySwizzle
+#pragma mark └ SentrySwizzle
 
 @implementation SentrySwizzle
 
