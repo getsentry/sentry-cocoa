@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Swift Build
+      - name: Cache for Test Server
         uses: actions/cache@v2
         with:
           path: ./test-server/.build
