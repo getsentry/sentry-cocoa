@@ -124,8 +124,6 @@ index fe54ffc..03bc71b 100644
  
  class BaseTestCase: XCTestCase {
 +    
-+    private static var transaction: Span!
-+    
 +    override class func setUp() {
 +        super.setUp()
 +        
@@ -137,15 +135,10 @@ index fe54ffc..03bc71b 100644
 +                }
 +            }
 +            
-+            transaction = SentrySDK.startTransaction(name: "Test", operation: "alamofire", bindToScope: true)
 +            SentryInitialized = true
 +        }
 +    }
 +    
-+    override class func tearDown() {
-+        super.tearDown()
-+        transaction.finish()
-+    }
 +    
      let timeout: TimeInterval = 10
  
