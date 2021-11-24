@@ -5,10 +5,12 @@ import UIKit
 class TraceTestViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
-        
+    @IBOutlet weak var spanView: SentryTransactionView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
+        spanView.span = SentrySDK.span
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -24,9 +26,15 @@ class TraceTestViewController: UIViewController {
                 } else if let image = data {
                     self.imageView.image = UIImage(data: image)
                 }
+                self.spanView.refresh()
             }
         }
         
         dataTask.resume()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        spanView.refresh()
     }
 }

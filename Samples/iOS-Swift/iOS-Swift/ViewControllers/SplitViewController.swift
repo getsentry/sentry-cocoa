@@ -1,4 +1,5 @@
 import Foundation
+import Sentry
 import UIKit
 
 class SplitViewController: UISplitViewController {
@@ -36,16 +37,21 @@ class SplitRootViewController: UIViewController {
 
 class SplitViewSecondaryController: UIViewController {
     
+    var spanView: SentryTransactionView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
         
-        let label = UILabel()
-        label.text = "This is Split Secondary Controller"
+        spanView = SentryTransactionView(frame: self.view.bounds)
+        spanView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        spanView.span = SentrySDK.span
         
-        label.sizeToFit()
-        label.center = view.center
-        
-        view.addSubview(label)
+        view.addSubview(spanView)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        spanView.refresh()
     }
 }

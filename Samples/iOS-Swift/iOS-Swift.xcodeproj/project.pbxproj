@@ -52,6 +52,8 @@
 		D8F3D055274E572F00B56F8C /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D051274E572F00B56F8C /* RandomErrors.swift */; };
 		D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */; };
 		D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
+		D8F3D05F274E6A8B00B56F8C /* SentryTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D05E274E6A8B00B56F8C /* SentryTransactionView.swift */; };
+		D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D061274EBD4800B56F8C /* SpanExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -189,6 +191,8 @@
 		D8F3D04F274E572F00B56F8C /* DSNStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
 		D8F3D051274E572F00B56F8C /* RandomErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
 		D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
+		D8F3D05E274E6A8B00B56F8C /* SentryTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTransactionView.swift; sourceTree = "<group>"; };
+		D8F3D061274EBD4800B56F8C /* SpanExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -279,6 +283,8 @@
 		637AFDA8243B02760034958B /* iOS-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				D8F3D060274EBD3000B56F8C /* Extensions */,
+				D8F3D05C274E6A5700B56F8C /* View */,
 				D8DBDA74274D4E1600007380 /* Tools */,
 				D8DBDA73274D4DF900007380 /* ViewControllers */,
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
@@ -360,6 +366,22 @@
 				D8F3D051274E572F00B56F8C /* RandomErrors.swift */,
 			);
 			path = Tools;
+			sourceTree = "<group>";
+		};
+		D8F3D05C274E6A5700B56F8C /* View */ = {
+			isa = PBXGroup;
+			children = (
+				D8F3D05E274E6A8B00B56F8C /* SentryTransactionView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		D8F3D060274EBD3000B56F8C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D8F3D061274EBD4800B56F8C /* SpanExtension.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -589,8 +611,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F3D05F274E6A8B00B56F8C /* SentryTransactionView.swift in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
+				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
