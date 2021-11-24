@@ -21,8 +21,10 @@ case $PLATFORM in
         DESTINATION="platform=macOS,variant=Mac Catalyst"
         ;;
 
+    # Must be iPhone 8 as we have xcbaselines for it. If you change this, 
+    # make shure baselines exists.
     "iOS")
-        DESTINATION="platform=iOS Simulator,OS=latest,name=iPhone 11"
+        DESTINATION="platform=iOS Simulator,OS=latest,name=iPhone 8"
         ;;
 
     "tvOS")
