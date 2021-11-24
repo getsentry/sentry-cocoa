@@ -11,6 +11,14 @@ jobs:
       - name: Run SwiftLint
         run: swiftlint
 
+  xcode-analyze:
+    name: Xcode Analyze
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 13.0
+      - run: make analyze
+
   validate-podspec:
     name: Validate Podspec
     runs-on: macos-11
