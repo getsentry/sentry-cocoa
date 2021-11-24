@@ -14,8 +14,9 @@
 #    import <UIKit/UIKit.h>
 
 /**
- * UIApplication must conform to SentryUIApplication
- * in order to swizzle work.
+ * 'swizzleRootViewControllerFromUIApplication:' requires an object that conforms to
+ * 'SentryUIApplication' to swizzle it. This category makes UIApplication conform to
+ * SentryUIApplication in order to be used by 'SentryUIViewControllerSwizziling'.
  */
 @interface
 UIApplication (SentryUIApplication) <SentryUIApplication>
