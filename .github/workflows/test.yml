@@ -60,6 +60,59 @@ jobs:
         # so the coverage report shows a reduced coverage.
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
+
+  # Ensure the swizzling of network classes doesn't break the normal functionality of web requests.
+  # We borrow the tests of Alamofire under the MIT license: https://github.com/Alamofire/Alamofire.
+  # The following steps checkout Alamofire and apply a github patch to the project. The patch adds
+  # Sentry to the tests with auto performance monitoring enabled. While the tests are running a 
+  # transaction is bound to the scope, so the Sentry SDK adds spans to the transaction. This doesn't
+  # validate if the Sentry SDK adds proper spans. It only validates that the swizzling logic
+  # doesn't break web requests.
+  web-request-tests:
+    name: Integration Web Requests
+    runs-on: macos-11
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: 'Alamofire/Alamofire'
+          ref: '26b8c9a41aa03f0356f957ab62e9ca6b1068afe0'
+     
+      # Use github.event.pull_request.head.sha instead of github.sha when available as 
+      # the github.sha is the pre merge commit id for PRs.
+      # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+      - name: Download Patch
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+          else
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+          fi  
+        shell: bash
+
+      - name: Set SPM revision to current git commit
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
+          else
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
+          fi  
+        shell: bash
+      
+      - run: git apply sentry.patch  
+
+      - name: Install Firewalk
+        run: brew install alamofire/alamofire/firewalk
+
+      - name: Start Firewalk
+        run: firewalk &
+ 
+      - name: Validate Firewalk is running
+        run: curl http://localhost:8080/
+
+      - name: Run tests
+        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty
+
   ui-tests:
     name: UI Tests for ${{matrix.target}}
     runs-on: macos-11
