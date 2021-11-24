@@ -27,6 +27,7 @@ jobs:
         languages: ${{ matrix.language }}
 
     - run: >-
+        env NSUnbufferedIO=YES
         xcodebuild 
         -workspace Sentry.xcworkspace 
         -scheme Sentry 
