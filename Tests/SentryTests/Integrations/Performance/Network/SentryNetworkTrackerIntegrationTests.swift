@@ -3,14 +3,13 @@ import XCTest
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
-    private static let testURL = URL(fileURLWithPath: "")
+    private static let testURL = URL(string: "http://localhost:8080/sentry-logo-black.png")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let options: Options
-        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerIntegrationTests.testURL)
         
         init() {
             options = Options()
@@ -139,7 +138,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 5)
     }
     
-    func testWhenTaskCancelledOrSuspended_OnlyOneBreadcrumb() {
+    func flaky_testWhenTaskCancelledOrSuspended_OnlyOneBreadcrumb() {
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")
@@ -149,10 +148,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             expect.fulfill()
         }
         
+        //There is no way to predict what will happen calling this order of events
         dataTask.resume()
         dataTask.suspend()
         dataTask.resume()
         dataTask.cancel()
+        
         wait(for: [expect], timeout: 5)
         
         let scope = SentrySDK.currentHub().scope

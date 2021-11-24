@@ -10,7 +10,13 @@ NS_ASSUME_NONNULL_BEGIN
 static int64_t const DATA_BYTES_RECEIVED = 256;
 static int64_t const DATA_BYTES_SENT = 652;
 
-@interface URLSessionDataTaskMock : NSURLSessionDataTask
+@protocol URLSessionTaskMock
+
+@property (nonatomic) NSURLSessionTaskState state;
+
+@end
+
+@interface URLSessionDataTaskMock : NSURLSessionDataTask <URLSessionTaskMock>
 
 @property (nullable, readonly) NSDate *resumeDate;
 @property (nonatomic) NSURLSessionTaskState state;
@@ -25,7 +31,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
-@interface URLSessionDownloadTaskMock : NSURLSessionDownloadTask
+@interface URLSessionDownloadTaskMock : NSURLSessionDownloadTask <URLSessionTaskMock>
 
 @property (nonatomic) NSURLSessionTaskState state;
 
@@ -37,7 +43,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
-@interface URLSessionUploadTaskMock : NSURLSessionUploadTask
+@interface URLSessionUploadTaskMock : NSURLSessionUploadTask <URLSessionTaskMock>
 
 @property (nonatomic) NSURLSessionTaskState state;
 
@@ -47,7 +53,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
-@interface URLSessionStreamTaskMock : NSURLSessionStreamTask
+@interface URLSessionStreamTaskMock : NSURLSessionStreamTask <URLSessionTaskMock>
 
 @property (nonatomic) NSURLSessionTaskState state;
 
@@ -57,7 +63,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
-@interface URLSessionUnsupportedTaskMock : NSURLSessionTask
+@interface URLSessionUnsupportedTaskMock : NSURLSessionTask <URLSessionTaskMock>
 
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 

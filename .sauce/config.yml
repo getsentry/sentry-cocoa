@@ -1,0 +1,38 @@
+apiVersion: v1alpha
+kind: xcuitest
+sauce:
+  region: us-west-1
+  concurrency: 2
+
+defaults:
+  timeout: 5m
+
+retries: 2
+
+xcuitest:
+  app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+
+suites:
+  - name: "iOS-Swift"
+    devices:
+      - name: "iPhone.*"
+        orientation: "portrait"
+        platformVersion: "10.3.2"
+        
+      - name: "iPhone.*"
+        orientation: "portrait"
+        platformVersion: "15.1"
+
+      - name: "iPhone.*"
+        orientation: "portrait"
+        platformVersion: "14.8"
+      
+      # Tests don't work currently on iOS 13.7, because Start of XCUITest-Runner times out.
+      
+artifacts:
+  download:
+    when: always
+    match:
+      - "*.junit.xml"
+    directory: ./artifacts/

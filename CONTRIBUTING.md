@@ -36,13 +36,19 @@ With that, the repo is fully set up and you are ready to run all commands.
 
 ## Tests
 
+The's tests depend on our test server. To run the automated tests, you first need to have the server running locally with
+
+```sh
+make run-test-server
+```
+
 Test guidelines:
 
 * We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
 * Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
 * Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
 
-Test can either be ran inside from Xcode or via 
+Test can either be ran inside from Xcode or via
 
 ```sh
 make test
