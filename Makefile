@@ -16,13 +16,13 @@ format:
 .PHONY: format
 
 test:
-	make run-test-server
 	@echo "--> Running all tests"
 	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
 .PHONY: test
 
 run-test-server:
-	cd ./test-server && swift build && swift run
+	cd ./test-server && swift build 
+	cd ./test-server && swift run &
 .PHONY: run-test-server
 
 analyze:
