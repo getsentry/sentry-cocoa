@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="203" width="398" height="544.5"/>
+                                <rect key="frame" x="8" y="95.5" width="398" height="484.5"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
@@ -120,6 +120,7 @@
                                     </button>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
                                         <rect key="frame" x="0.0" y="420" width="398" height="124.5"/>
+
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>

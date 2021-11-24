@@ -35,6 +35,7 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
     }
     
+
     func testShowTableView() {
         app.buttons["Show TableView"].tap()
         

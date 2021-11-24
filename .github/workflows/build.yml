@@ -51,6 +51,7 @@ jobs:
       
       # Disable code signing. We just want to make sure these compile.
       - run: >-
+          env NSUnbufferedIO=YES
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
