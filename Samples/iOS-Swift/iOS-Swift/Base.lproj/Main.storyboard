@@ -181,26 +181,17 @@
                                     <constraint firstAttribute="width" constant="240" id="uUA-q8-18d"/>
                                 </constraints>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4UZ-hv-pk7" customClass="SentryTransactionView" customModule="iOS_Swift" customModuleProvider="target">
-                                <rect key="frame" x="8" y="371" width="398" height="447"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="MSB-Vw-wUr"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="MSB-Vw-wUr" firstAttribute="bottom" secondItem="4UZ-hv-pk7" secondAttribute="bottom" constant="44" id="4AI-Gb-W1z"/>
                             <constraint firstItem="oQQ-QQ-VWP" firstAttribute="centerX" secondItem="MSB-Vw-wUr" secondAttribute="centerX" id="M7C-iR-4Pj"/>
-                            <constraint firstItem="MSB-Vw-wUr" firstAttribute="trailing" secondItem="4UZ-hv-pk7" secondAttribute="trailing" constant="8" id="OjD-37-1FI"/>
-                            <constraint firstItem="4UZ-hv-pk7" firstAttribute="leading" secondItem="MSB-Vw-wUr" secondAttribute="leading" constant="8" id="Zna-Rs-KNX"/>
-                            <constraint firstItem="4UZ-hv-pk7" firstAttribute="top" secondItem="oQQ-QQ-VWP" secondAttribute="bottom" constant="23" id="mXY-OU-r7s"/>
                             <constraint firstItem="oQQ-QQ-VWP" firstAttribute="top" secondItem="MSB-Vw-wUr" secondAttribute="top" constant="20" id="oO9-N9-5Qw"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Navigation Transaction" id="Afi-mu-igL"/>
                     <connections>
                         <outlet property="imageView" destination="oQQ-QQ-VWP" id="ePP-uk-wGM"/>
-                        <outlet property="spanView" destination="4UZ-hv-pk7" id="KE8-eb-KJP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JzG-vp-oCD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

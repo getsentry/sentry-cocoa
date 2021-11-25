@@ -36,22 +36,15 @@ class SplitRootViewController: UIViewController {
 }
 
 class SplitViewSecondaryController: UIViewController {
-    
-    var spanView: SentryTransactionView!
-    
+       
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
-        
-        spanView = SentryTransactionView(frame: self.view.bounds)
-        spanView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        spanView.span = SentrySDK.span
-        
-        view.addSubview(spanView)
+    
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        spanView.refresh()
+    
     }
 }

@@ -23,4 +23,7 @@ extension Span {
         return self.perform(sel)?.takeUnretainedValue() as? Span
     }
     
+    func performOnFinish(_ callback : () -> Void) {
+        let object: NSObject
+    }
 }

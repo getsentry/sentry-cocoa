@@ -40,7 +40,6 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
-        
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {

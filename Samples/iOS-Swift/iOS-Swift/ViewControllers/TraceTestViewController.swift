@@ -5,12 +5,13 @@ import UIKit
 class TraceTestViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var spanView: SentryTransactionView!
+    var span: Span?
+    var spanObserver: SpanObserver?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        spanView.span = SentrySDK.span
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -26,15 +27,24 @@ class TraceTestViewController: UIViewController {
                 } else if let image = data {
                     self.imageView.image = UIImage(data: image)
                 }
-                self.spanView.refresh()
             }
         }
         
         dataTask.resume()
+        span = SentrySDK.span
+        spanObserver = SpanObserver(span: span!.rootSpan()!)
+        spanObserver?.performOnFinish {
+            self.assertTransaction()
+        }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        spanView.refresh()
+    @objc func assertTransaction() {
+        UIAssert.notNil(self.span, "Transaction was not created")
+        
+        let children = self.span?.children()
+        
+        UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
+        
+        spanObserver?.releaseOnFinish()
     }
 }
