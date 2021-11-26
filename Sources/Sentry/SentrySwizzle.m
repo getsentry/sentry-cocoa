@@ -131,7 +131,7 @@ swizzledClassesForKey(const void *key)
 }
 
 + (BOOL)swizzleInstanceMethod:(SEL)selector
-                      inClass:(Class)classToSwizzle
+                      inClass:(nonnull Class)classToSwizzle
                 newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key

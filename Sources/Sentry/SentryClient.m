@@ -241,7 +241,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
-- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (nullable SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
+                                            withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
