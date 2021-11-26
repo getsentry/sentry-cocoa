@@ -26,7 +26,8 @@ run-test-server:
 .PHONY: run-test-server
 
 analyze:
-	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release | xcpretty -t
+	rm -r analyzer
+	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.

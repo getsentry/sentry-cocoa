@@ -72,7 +72,7 @@
 - (void)batteryStateChanged:(NSNotification *)notification
 {
     // Notifications for battery level change are sent no more frequently than once per minute
-    NSMutableDictionary *batteryData = [self getBatteryStatus:notification.object];
+    NSMutableDictionary<NSString *, id> *batteryData = [self getBatteryStatus:notification.object];
     batteryData[@"action"] = @"BATTERY_STATE_CHANGE";
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
@@ -82,7 +82,7 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
-- (NSMutableDictionary<NSString *, NSNumber *> *)getBatteryStatus:(UIDevice *)currentDevice
+- (NSMutableDictionary<NSString *, id> *)getBatteryStatus:(UIDevice *)currentDevice
 {
     // borrowed and adapted from
     // https://github.com/apache/cordova-plugin-battery-status/blob/master/src/ios/CDVBattery.m
@@ -94,7 +94,7 @@
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
-    NSMutableDictionary<NSString *, NSNumber *> *batteryData = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, id> *batteryData = [NSMutableDictionary new];
 
     // W3C spec says level must be null if it is unknown
     if ((currentState != UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
