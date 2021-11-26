@@ -88,8 +88,7 @@ SentryOptions ()
                       didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (self = [self init]) {
-        [self validateOptions:options didFailWithError:error];
-        if (nil != error && nil != *error) {
+        if (![self validateOptions:options didFailWithError:error]) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
                       andLevel:kSentryLevelError];
@@ -115,7 +114,7 @@ SentryOptions ()
 /**
  * Populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options
+- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
@@ -238,6 +237,12 @@ SentryOptions ()
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
+
+    if (nil != error && nil != *error) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block

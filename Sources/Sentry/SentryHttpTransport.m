@@ -68,7 +68,7 @@ SentryHttpTransport ()
 }
 
 - (void)sendEvent:(SentryEvent *)event
-       traceState:(SentryTraceState *)traceState
+       traceState:(nullable SentryTraceState *)traceState
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
