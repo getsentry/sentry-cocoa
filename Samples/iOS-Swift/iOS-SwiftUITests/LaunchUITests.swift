@@ -41,24 +41,15 @@ class LaunchUITests: XCTestCase {
     func testShowTableView() {
         app.buttons["Show TableView"].tap()
         
-        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "Show TableView not loaded.")
+        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "TableView not loaded.")
     }
     
     func testSplitView() {
-        /*app.buttons["Show SplitView"].tap()
+        app.buttons["Show SplitView"].tap()
         
-        //Wait the screen to appear
-        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "Show TableView not loaded.")
+        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "SplitView not loaded.")
         
-        //Wait the transaction to finish
-        XCTAssertTrue(app.staticTexts["children: 11"].waitForExistence(timeout: timeout), "Wrong number of children")
-          
-        //Tap back button
-        app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].tap()
-        
-        XCTAssertTrue(app.navigationBars["Root ViewController"].buttons["Close"].waitForExistence(timeout: timeout), "Show TableView not loaded.")
-          
-        app.navigationBars["Root ViewController"].buttons["Close"].tap()*/
+        assertApp()
     }
         
     private func waitForExistenseOfMainScreen() {

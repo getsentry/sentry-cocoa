@@ -38,7 +38,7 @@ class TraceTestViewController: UIViewController {
         }
     }
     
-    @objc func assertTransaction() {
+    func assertTransaction() {
         UIAssert.notNil(self.span, "Transaction was not created")
         
         let children = self.span?.children()

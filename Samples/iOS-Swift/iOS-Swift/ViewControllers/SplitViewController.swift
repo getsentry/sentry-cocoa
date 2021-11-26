@@ -36,15 +36,28 @@ class SplitRootViewController: UIViewController {
 }
 
 class SplitViewSecondaryController: UIViewController {
+    
+    var span: Span?
+    var spanObserver: SpanObserver?
        
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
     
+        span = SentrySDK.span
+        spanObserver = SpanObserver(span: span!.rootSpan()!)
+        spanObserver?.performOnFinish {
+            self.assertTransaction()
+        }
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    
+   
+    func assertTransaction() {
+        UIAssert.notNil(self.span, "Transaction was not created")
+        
+        let children = self.span?.children()
+        
+        UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
+        
+        spanObserver?.releaseOnFinish()
     }
 }

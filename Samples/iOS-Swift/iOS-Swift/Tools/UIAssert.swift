@@ -15,7 +15,13 @@ class UIAssert {
         view.message = success ? "ASSERT: SUCCESS" : "ASSERT: FAIL"
         view.errorMessage = success ? "" : errorMessage
         
-        guard let targetView = UIApplication.shared.delegate?.window??.rootViewController?.view else { return }
+        guard var targetViewController = UIApplication.shared.delegate?.window??.rootViewController else { return }
+        
+        while targetViewController.presentedViewController != nil {
+            targetViewController = targetViewController.presentedViewController!
+        }
+        
+        guard let targetView = targetViewController.view else { return }
         
         if view.superview != targetView {
             view.removeFromSuperview()
