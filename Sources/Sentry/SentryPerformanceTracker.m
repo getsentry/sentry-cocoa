@@ -89,14 +89,21 @@ SentryPerformanceTracker ()
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block
 {
-    if (![self isSpanAlive:parentSpanId]) {
-        block();
-        return;
-    }
+    [self activateSpan:parentSpanId
+           duringBlock:^{
+               [self measureSpanWithDescription:description operation:operation inBlock:block];
+           }];
+}
 
-    [self pushActiveSpan:parentSpanId];
-    [self measureSpanWithDescription:description operation:operation inBlock:block];
-    [self popActiveSpan];
+- (void)activateSpan:(SentrySpanId *)spanId duringBlock:(void (^)(void))block
+{
+
+    if ([self pushActiveSpan:spanId]) {
+        block();
+        [self popActiveSpan];
+    } else {
+        block();
+    }
 }
 
 - (nullable SentrySpanId *)activeSpanId
@@ -106,18 +113,21 @@ SentryPerformanceTracker ()
     }
 }
 
-- (void)pushActiveSpan:(SentrySpanId *)spanId
+- (BOOL)pushActiveSpan:(SentrySpanId *)spanId
 {
     id<SentrySpan> toActiveSpan;
     @synchronized(self.spans) {
         toActiveSpan = self.spans[spanId];
     }
 
-    if (toActiveSpan != nil) {
-        @synchronized(self.activeSpanStack) {
-            [self.activeSpanStack addObject:toActiveSpan];
-        }
+    if (toActiveSpan == nil) {
+        return NO;
     }
+
+    @synchronized(self.activeSpanStack) {
+        [self.activeSpanStack addObject:toActiveSpan];
+    }
+    return YES;
 }
 
 - (void)popActiveSpan
