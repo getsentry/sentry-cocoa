@@ -15,7 +15,10 @@
 
 /**
  * 'swizzleRootViewControllerFromUIApplication:' requires an object that conforms to
- * 'SentryUIApplication' to swizzle it. This category makes UIApplication conform to
+ * 'SentryUIApplication' to swizzle it, this way, instead of relying on UIApplication, we can test
+ * with a mock class.
+ *
+ * This category makes UIApplication conform to
  * SentryUIApplication in order to be used by 'SentryUIViewControllerSwizziling'.
  */
 @interface

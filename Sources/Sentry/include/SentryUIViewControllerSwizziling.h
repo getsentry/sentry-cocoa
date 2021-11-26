@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This is a protocol to define which properties and methods the swizzler required from
- * UIApplication.
+ * UIApplication. This way, instead of relying on UIApplication, we can test with a mock class.
  */
 @protocol SentryUIApplication
 
