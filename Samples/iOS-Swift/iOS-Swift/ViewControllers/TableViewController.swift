@@ -1,7 +1,30 @@
 import Foundation
+import Sentry
 import UIKit
 
 class TableViewController: UITableViewController {
+    var span: Span?
+    var spanObserver: SpanObserver?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        span = SentrySDK.span
+        spanObserver = SpanObserver(span: span!.rootSpan()!)
+        spanObserver?.performOnFinish {
+            self.assertTransaction()
+        }
+    }
+    
+    func assertTransaction() {
+        UIAssert.notNil(self.span, "Transaction was not created")
+        
+        let children = self.span?.children()
+        
+        UIAssert.isEqual(children?.count, 5, "Transaction did not complete")
+        
+        spanObserver?.releaseOnFinish()
+    }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -13,11 +36,11 @@ class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CELL") ?? UITableViewCell(style: .default, reuseIdentifier: "CELL")
+        cell.selectionStyle = .none
         
-        let g = Double(indexPath.row) / 99
-        let r = 1.0 - g
+        let w = 1.0 - (Double(indexPath.row) / 99)
         
-        cell.backgroundColor = UIColor(red: r, green: g, blue: 0, alpha: 1)
+        cell.backgroundColor = UIColor(white: w, alpha: 1)
         
         return cell
     }

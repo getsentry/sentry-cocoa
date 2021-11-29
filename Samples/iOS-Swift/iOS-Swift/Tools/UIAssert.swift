@@ -48,7 +48,7 @@ class UIAssert {
     static func isEqual<T>(_ first: T, _ second: T, _ errorMessage: String? = nil)  where T: Equatable {
         shared.assert(success: first == second, errorMessage: errorMessage)
     }
-    
+        
     static func notNil(_ value: Any?, _ errorMessage: String? = nil) {
         shared.assert(success: value != nil, errorMessage: errorMessage)
     }

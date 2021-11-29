@@ -28,20 +28,19 @@ class LaunchUITests: XCTestCase {
     func testNavigationTransaction() {
         app.buttons["Test Navigation Transaction"].tap()
         XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
-                
         assertApp()
-        
     }
     
     func testShowNib() {
         app.buttons["Show Nib"].tap()
-        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
+        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Nib ViewController not loaded.")
+        assertApp()
     }
 
     func testShowTableView() {
         app.buttons["Show TableView"].tap()
-        
         XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "TableView not loaded.")
+        assertApp()
     }
     
     func testSplitView() {

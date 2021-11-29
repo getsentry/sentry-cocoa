@@ -42,8 +42,14 @@ class TraceTestViewController: UIViewController {
         UIAssert.notNil(self.span, "Transaction was not created")
         
         let children = self.span?.children()
-        
+                
         UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
+        
+        let span = children?.first(where: { $0.context.operation == "http.client" })
+        
+        UIAssert.isEqual(span!.data!["url"] as! String, "/sentry-logo-black.png", "Could not read url data value")
+        UIAssert.isEqual(span!.tags["http.status_code"]!, "200", "Could not read status_code tag value")
+        UIAssert.notNil(span, "Network Request not found")
         
         spanObserver?.releaseOnFinish()
     }
