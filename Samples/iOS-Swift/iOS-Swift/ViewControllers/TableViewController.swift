@@ -39,10 +39,8 @@ class TableViewController: UITableViewController {
         cell.selectionStyle = .none
         
         let w = 1.0 - (Double(indexPath.row) / 99)
-        
         cell.backgroundColor = UIColor(white: w, alpha: 1)
-        
+
         return cell
     }
-    
 }

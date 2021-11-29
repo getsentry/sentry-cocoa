@@ -36,7 +36,6 @@ class SplitRootViewController: UIViewController {
 }
 
 class SplitViewSecondaryController: UIViewController {
-    
     var span: Span?
     var spanObserver: SpanObserver?
        
@@ -59,5 +58,6 @@ class SplitViewSecondaryController: UIViewController {
         UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
         
         spanObserver?.releaseOnFinish()
+
     }
 }

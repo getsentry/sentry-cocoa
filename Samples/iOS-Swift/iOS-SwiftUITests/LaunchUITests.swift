@@ -42,18 +42,21 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "TableView not loaded.")
         assertApp()
     }
+
+    func testShowTableView() {
+        app.buttons["Show TableView"].tap()
+        
+        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "Show TableView not loaded.")
+    }
     
     func testSplitView() {
         app.buttons["Show SplitView"].tap()
-        
         XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "SplitView not loaded.")
-        
         assertApp()
     }
         
     private func waitForExistenseOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
-        
     }
     
     private func assertApp() {
