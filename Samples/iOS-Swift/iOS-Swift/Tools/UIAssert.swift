@@ -1,4 +1,5 @@
 import Foundation
+import Sentry
 import UIKit
 
 class UIAssert {
@@ -7,13 +8,20 @@ class UIAssert {
     
     private let view = AssertView()
 
+    private var isFailed = false
+    
     private init() {
         view.translatesAutoresizingMaskIntoConstraints = false
     }
     
     func assert(success: Bool, errorMessage: String?) {
+        if isFailed {
+            return
+        }
+        
         view.message = success ? "ASSERT: SUCCESS" : "ASSERT: FAIL"
         view.errorMessage = success ? "" : errorMessage
+        isFailed = !success
         
         guard var targetViewController = UIApplication.shared.delegate?.window??.rootViewController else { return }
         
@@ -37,6 +45,10 @@ class UIAssert {
         }
     }
     
+    func reset() {
+        isFailed = false
+    }
+    
     static func isTrue(_ value: Bool, _ errorMessage: String? = nil) {
         shared.assert(success: value, errorMessage: errorMessage)
     }
@@ -57,4 +69,21 @@ class UIAssert {
         shared.assert(success: value == nil, errorMessage: errorMessage)
     }
     
+    static func hasViewControllerLifeCycle(_ span: Span, _ viewController: String) {
+        guard let children = span.children() else {
+            shared.assert(success: false, errorMessage: "\(viewController) span has no children")
+            return
+        }
+        
+        let loadViewSpan = children.first { $0.context.spanDescription == "loadView" }
+        let viewDidLoadSpan = children.first { $0.context.spanDescription == "viewDidLoad" }
+        let viewWillAppearSpan = children.first { $0.context.spanDescription == "viewWillAppear" }
+        let viewDidAppearSpan = children.first { $0.context.spanDescription == "viewDidAppear" }
+        
+        notNil(loadViewSpan, "\(viewController) has no loadView span")
+        notNil(viewDidLoadSpan, "\(viewController) has no viewDidLoad span")
+        notNil(viewWillAppearSpan, "\(viewController) has no viewWillAppear span")
+        notNil(viewDidAppearSpan, "\(viewController) has no viewDidAppear span")
+        
+    }
 }

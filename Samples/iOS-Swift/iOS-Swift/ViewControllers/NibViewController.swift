@@ -30,5 +30,7 @@ class NibViewController: UIViewController {
         UIAssert.isEqual(children?.count, 4, "Transaction did not complete")
                
         spanObserver?.releaseOnFinish()
+        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
+
     }
 }

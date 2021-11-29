@@ -52,5 +52,7 @@ class TraceTestViewController: UIViewController {
         UIAssert.notNil(span, "Network Request not found")
         
         spanObserver?.releaseOnFinish()
+        
+        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
     }
 }

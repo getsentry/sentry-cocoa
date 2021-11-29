@@ -84,6 +84,7 @@ class AssertView: UIView {
     }
     
     private func close() {
+        UIAssert.shared.reset()
         removeFromSuperview()
     }
     

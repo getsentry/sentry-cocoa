@@ -58,6 +58,7 @@ class SplitViewSecondaryController: UIViewController {
         UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
         
         spanObserver?.releaseOnFinish()
+        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
 
     }
 }

@@ -24,6 +24,8 @@ class TableViewController: UITableViewController {
         UIAssert.isEqual(children?.count, 5, "Transaction did not complete")
         
         spanObserver?.releaseOnFinish()
+        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
+
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
