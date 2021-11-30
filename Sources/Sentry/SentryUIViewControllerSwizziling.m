@@ -70,6 +70,8 @@ SentryUIViewControllerSwizziling ()
     [subClassFinder
         actOnSubclassesOf:[UIViewController class]
                     block:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
+    
+    [self swizzleUIViewController];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -222,6 +224,31 @@ SentryUIViewControllerSwizziling ()
     }
 }
 
+/**
+ * We need to swizzle UIViewController 'loadView'
+ * because we can`t do it for controllers that use Nib files.
+ * But because of a protection in SentryUIViewControllerPerformanceTracker
+ * we don`t get two spans for those ViewController that have their loadView swizzled.
+ */
+- (void)swizzleUIViewController {
+    SEL selector = NSSelectorFromString(@"loadView");
+    SentryUIViewControllerSwizziling *_self = self;
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void), SentrySWArguments(),
+                                SentrySWReplacement({
+        
+        //Since this will be executed for every ViewController,
+        //we should not create transactions for classes that should no be swizzled.
+        if ([_self shouldSwizzleViewController:[self class]]) {
+            [SentryUIViewControllerPerformanceTracker.shared
+             viewControllerLoadView:self
+             callbackToOrigin:^{ SentrySWCallOriginal(); }];
+        } else {
+            SentrySWCallOriginal();
+        }
+    }),
+                                SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+}
+
 - (void)swizzleViewControllerSubClass:(Class)class
 {
     if (![self shouldSwizzleViewController:class])
@@ -273,7 +300,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerLoadView:self
                       callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewDidLoad:(Class)class
@@ -285,7 +312,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewDidLoad:self
                          callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewWillAppear:(Class)class
@@ -297,7 +324,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewWillAppear:self
                             callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewDidAppear:(Class)class
@@ -309,7 +336,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewDidAppear:self
                            callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewWillDisappear:(Class)class
@@ -321,7 +348,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewWillDisappear:self
                                callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewLayoutSubViews:(Class)class
@@ -333,7 +360,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewWillLayoutSubViews:self
                                     callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)willSelector);
+        SentrySwizzleModeOncePerClass, (void *)willSelector);
 
     SEL didSelector = NSSelectorFromString(@"viewDidLayoutSubviews");
     SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void), SentrySWArguments(),
@@ -342,7 +369,7 @@ SentryUIViewControllerSwizziling ()
                 viewControllerViewDidLayoutSubViews:self
                                    callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)didSelector);
+        SentrySwizzleModeOncePerClass, (void *)didSelector);
 }
 
 @end
