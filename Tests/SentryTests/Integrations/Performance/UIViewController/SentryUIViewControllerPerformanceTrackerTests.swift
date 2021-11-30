@@ -22,6 +22,16 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let spanOperation = "spanOperation"
     
     private class Fixture {
+        
+        var options: Options {
+            let options = Options()
+            let imageName = String(
+                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: imageName.lastPathComponent)
+            return options
+        }
+        
         let viewController = TestViewController()
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
@@ -45,8 +55,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.start(options: fixture.options)
     }
 
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testUILifeCycle_ViewDidAppear() {
         testUILifeCycle(finishStatus: SentrySpanStatus.ok) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {

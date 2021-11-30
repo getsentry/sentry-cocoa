@@ -7,11 +7,13 @@
 #import "SentrySpanId.h"
 #import "SentryUIViewControllerSanitizer.h"
 #import <objc/runtime.h>
+#import <SentryInAppLogic.h>
 
 @interface
 SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
@@ -29,6 +31,11 @@ SentryUIViewControllerPerformanceTracker ()
 {
     if (self = [super init]) {
         self.tracker = SentryPerformanceTracker.shared;
+        
+        SentryOptions* options = [SentrySDK options];
+        
+        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                            inAppExcludes:options.inAppExcludes];
     }
     return self;
 }
@@ -38,6 +45,13 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerLoadView:(UIViewController *)controller
               callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    // Since this will be executed for every ViewController,
+    // we should not create transactions for classes that should no be swizzled.
+    if (![self.inAppLogic isClassInApp:[controller class]]) {
+        callbackToOrigin();
+        return;
+    }
+    
     [self limitOverride:@"loadView"
                   target:controller
         callbackToOrigin:callbackToOrigin

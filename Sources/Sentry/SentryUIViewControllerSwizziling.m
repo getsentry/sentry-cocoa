@@ -233,20 +233,14 @@ SentryUIViewControllerSwizziling ()
 - (void)swizzleUIViewController
 {
     SEL selector = NSSelectorFromString(@"loadView");
-    SentryUIViewControllerSwizziling *_self = self;
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
-            // Since this will be executed for every ViewController,
-            // we should not create transactions for classes that should no be swizzled.
-            if ([_self shouldSwizzleViewController:[self class]]) {
-                [SentryUIViewControllerPerformanceTracker.shared
-                    viewControllerLoadView:self
-                          callbackToOrigin:^{ SentrySWCallOriginal(); }];
-            } else {
-                SentrySWCallOriginal();
-            }
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+                                SentrySWArguments(), SentrySWReplacement({
+        [SentryUIViewControllerPerformanceTracker.shared
+         viewControllerLoadView:self
+         callbackToOrigin:^{ SentrySWCallOriginal(); }];
+        
+    }),
+                                SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
 - (void)swizzleViewControllerSubClass:(Class)class
@@ -269,15 +263,7 @@ SentryUIViewControllerSwizziling ()
  */
 - (BOOL)shouldSwizzleViewController:(Class)class
 {
-    // Some apple classes do not return an imageName
-    const char *imageName = class_getImageName(class);
-    if (imageName == nil)
-        return NO;
-
-    // Swizzling only inApp classes to avoid track every UIKit view controller
-    // interaction.
-    NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
-    return [self.inAppLogic isInApp:classImageName];
+    return [self.inAppLogic isClassInApp:class];
 }
 
 - (void)swizzleLoadView:(Class)class
