@@ -15,11 +15,8 @@
 		637AFDB3243B02770034958B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		637AFDB6243B02770034958B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		7B3427F825876A5200056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
-		7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B371C34268B08F300207D8D /* DSNStorage.swift */; };
-		7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
 		7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64386A26A6C544000D0F65 /* LaunchUITests.swift */; };
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
-		7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
 		D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */; };
 		D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */; };
@@ -29,8 +26,6 @@
 		D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB2243B02770034958B /* Assets.xcassets */; };
 		D8269A51274C0F6C00BD5BD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637AFDB4243B02770034958B /* LaunchScreen.storyboard */; };
 		D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427F725876A5200056519 /* Tongariro.jpg */; };
-		D8269A53274C0F7C00BD5BD5 /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AC43F25D16AA00070736A /* RandomErrors.swift */; };
-		D8269A54274C0F7F00BD5BD5 /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B371C34268B08F300207D8D /* DSNStorage.swift */; };
 		D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
 		D8269A56274C0F9E00BD5BD5 /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
 		D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
@@ -49,6 +44,14 @@
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
+		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
+		D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
+		D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
+		D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D051274E572F00B56F8C /* RandomErrors.swift */; };
+		D8F3D055274E572F00B56F8C /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D051274E572F00B56F8C /* RandomErrors.swift */; };
+		D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */; };
+		D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -155,15 +158,12 @@
 		637AFDB7243B02770034958B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		7B3427F725876A5200056519 /* Tongariro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tongariro.jpg; sourceTree = "<group>"; };
-		7B371C34268B08F300207D8D /* DSNStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
-		7B4AC43F25D16AA00070736A /* RandomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
 		7B4F33F7271EBD2500C8591E /* SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
 		7B4F33FA271EBE0C00C8591E /* SwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewController.swift; sourceTree = "<group>"; };
 		7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B64386A26A6C544000D0F65 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
-		7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -184,6 +184,11 @@
 		D85DAA4B274C244F004DF43C /* LaunchUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITest.swift; sourceTree = "<group>"; };
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
+		D8DBDA75274D591F00007380 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		D8DBDA77274D5FC400007380 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		D8F3D04F274E572F00B56F8C /* DSNStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
+		D8F3D051274E572F00B56F8C /* RandomErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
+		D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -274,21 +279,17 @@
 		637AFDA8243B02760034958B /* iOS-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				D8DBDA74274D4E1600007380 /* Tools */,
+				D8DBDA73274D4DF900007380 /* ViewControllers */,
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
 				637AFDAD243B02760034958B /* ViewController.swift */,
-				7BFC8B0826D4D2C1000D3504 /* LoremIpsumViewController.swift */,
-				7B4AC43F25D16AA00070736A /* RandomErrors.swift */,
-				7B371C34268B08F300207D8D /* DSNStorage.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
 				7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */,
 				637AFDB4243B02770034958B /* LaunchScreen.storyboard */,
 				637AFDB7243B02770034958B /* Info.plist */,
-				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
-				D890CD3B26CEE2FA001246CF /* NibViewController.xib */,
-				D890CD3E26CEE31B001246CF /* NibViewController.swift */,
 			);
 			path = "iOS-Swift";
 			sourceTree = "<group>";
@@ -337,6 +338,28 @@
 				D85DAA4B274C244F004DF43C /* LaunchUITest.swift */,
 			);
 			path = "iOS13-SwiftTests";
+			sourceTree = "<group>";
+		};
+		D8DBDA73274D4DF900007380 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */,
+				D890CD3B26CEE2FA001246CF /* NibViewController.xib */,
+				D890CD3E26CEE31B001246CF /* NibViewController.swift */,
+				D8DBDA75274D591F00007380 /* TableViewController.swift */,
+				D8DBDA77274D5FC400007380 /* SplitViewController.swift */,
+				D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		D8DBDA74274D4E1600007380 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				D8F3D04F274E572F00B56F8C /* DSNStorage.swift */,
+				D8F3D051274E572F00B56F8C /* RandomErrors.swift */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -569,10 +592,12 @@
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
+				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
-				7BFC8B0926D4D2C1000D3504 /* LoremIpsumViewController.swift in Sources */,
-				7B371C35268B08F300207D8D /* DSNStorage.swift in Sources */,
-				7B4AC44025D16AA00070736A /* RandomErrors.swift in Sources */,
+				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
+				D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */,
+				D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */,
+				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -591,12 +616,13 @@
 				D8269A57274C0FA100BD5BD5 /* NibViewController.swift in Sources */,
 				D8269A4E274C09A400BD5BD5 /* SwiftUIViewController.swift in Sources */,
 				D8269A4F274C09A400BD5BD5 /* SwiftUI.swift in Sources */,
+				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				D8269A58274C0FC700BD5BD5 /* ViewController.swift in Sources */,
-				D8269A54274C0F7F00BD5BD5 /* DSNStorage.swift in Sources */,
+				D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */,
+				D8F3D055274E572F00B56F8C /* RandomErrors.swift in Sources */,
 				D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */,
 				D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */,
 				D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */,
-				D8269A53274C0F7C00BD5BD5 /* RandomErrors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -34,13 +34,28 @@ class LaunchUITests: XCTestCase {
         app.buttons["Show Nib"].tap()
         XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Show Nib not loaded.")
     }
+
+    func testShowTableView() {
+        app.buttons["Show TableView"].tap()
+        
+        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "Show TableView not loaded.")
+    }
     
-   /* func testShowSwiftUI() {
-        app.buttons["Show SwiftUI"].tap()
-        XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
-    }*/
-    
+    func testSplitView() {
+        app.buttons["Show SplitView"].tap()
+        
+        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "Show TableView not loaded.")
+          
+        app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].tap()
+        
+        XCTAssertTrue(app.navigationBars["Root ViewController"].buttons["Close"].waitForExistence(timeout: timeout), "Show TableView not loaded.")
+          
+        app.navigationBars["Root ViewController"].buttons["Close"].tap()
+    }
+        
     private func waitForExistenseOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
+        
     }
+    
 }
