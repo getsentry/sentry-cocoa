@@ -183,8 +183,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSString *exceptionValue;
 
-    // If the error has a custom event value in it's user info dictionary, use that.
-    NSString *customExceptionValue = [[error userInfo] valueForKey:SentryErrorEventValueUserInfoKey];
+    // If the error has a debug description, use that.
+    NSString *customExceptionValue = [[error userInfo] valueForKey:NSDebugDescriptionErrorKey];
     if (customExceptionValue != nil) {
         exceptionValue = customExceptionValue;
     } else {
