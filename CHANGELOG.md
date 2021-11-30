@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Sending OOM when SDK is closed (#1487)
+- fix: Create span for loadView (#1495)
 
 ## 7.5.3
 
