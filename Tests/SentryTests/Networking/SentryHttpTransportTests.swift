@@ -97,6 +97,7 @@ class SentryHttpTransportTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
+        fixture.requestManager.waitForAllRequests()
     }
 
     func testInitSendsCachedEnvelopes() {
@@ -378,7 +379,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
     }
 
-    func testPerformanceOfSending() {
+    func tesPerformanceOfSending() {
         self.measure {
             givenNoInternetConnection()
             for _ in 0...5 {
@@ -391,7 +392,7 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
-    func testSendEnvelopesConcurrent() {
+    func tesSendEnvelopesConcurrent() {
         self.measure {
             fixture.requestManager.responseDelay = 0.000_1
 
