@@ -288,6 +288,58 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureErrorUsesCustomErrorDescriptionFromSwiftLocalizedError() {
+        let eventId = fixture.getSut().capture(error: TestError.invalidTest)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Invalid Test", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
+    func testCaptureErrorUsesCustomErrorDescriptionFromUserInfo() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [NSLocalizedDescriptionKey: "Custom error description"]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Custom error description", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
+    func testCaptureErrorUsesErrorCodeAsDescriptionIfNoCustomDescriptionProvided() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [:]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Code: 999", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
     func testCaptureErrorWithComplexUserInfo() {
         let url = URL(string: "https://github.com/getsentry")!
         let error = NSError(domain: "domain", code: 0, userInfo: ["url": url])
@@ -912,7 +964,7 @@ class SentryClientTest: XCTestCase {
         let exception = exceptions[0]
         XCTAssertEqual(error.domain, exception.type)
         
-        XCTAssertEqual("Code: \(error.code)", exception.value)
+        XCTAssertEqual(error.localizedDescription, exception.value)
         
         XCTAssertNil(exception.threadId)
         XCTAssertNil(exception.stacktrace)
@@ -985,9 +1037,16 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.userFeedbackInvocations.count)
     }
 
-    private enum TestError: Error {
+    private enum TestError: Error, LocalizedError {
         case invalidTest
         case testIsFailing
         case somethingElse
+
+        var errorDescription: String? {
+            if self == .invalidTest {
+                return "Invalid Test"
+            }
+            return nil
+        }
     }
 }
