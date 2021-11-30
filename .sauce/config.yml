@@ -5,7 +5,9 @@ sauce:
   concurrency: 2
 
 defaults:
-  timeout: 5m
+  # Tests timeout frequently when multiple GitHub Actions run in parallel and the timeout is 
+  # to small.
+  timeout: 20m
 
 retries: 2
 
