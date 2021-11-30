@@ -234,13 +234,12 @@ SentryUIViewControllerSwizziling ()
 {
     SEL selector = NSSelectorFromString(@"loadView");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-                                SentrySWArguments(), SentrySWReplacement({
-        [SentryUIViewControllerPerformanceTracker.shared
-         viewControllerLoadView:self
-         callbackToOrigin:^{ SentrySWCallOriginal(); }];
-        
-    }),
-                                SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        SentrySWArguments(), SentrySWReplacement({
+            [SentryUIViewControllerPerformanceTracker.shared
+                viewControllerLoadView:self
+                      callbackToOrigin:^{ SentrySWCallOriginal(); }];
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
 - (void)swizzleViewControllerSubClass:(Class)class

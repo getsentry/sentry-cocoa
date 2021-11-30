@@ -6,8 +6,8 @@
 #import "SentryScope.h"
 #import "SentrySpanId.h"
 #import "SentryUIViewControllerSanitizer.h"
-#import <objc/runtime.h>
 #import <SentryInAppLogic.h>
+#import <objc/runtime.h>
 
 @interface
 SentryUIViewControllerPerformanceTracker ()
@@ -31,9 +31,9 @@ SentryUIViewControllerPerformanceTracker ()
 {
     if (self = [super init]) {
         self.tracker = SentryPerformanceTracker.shared;
-        
-        SentryOptions* options = [SentrySDK options];
-        
+
+        SentryOptions *options = [SentrySDK options];
+
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
     }
@@ -51,7 +51,7 @@ SentryUIViewControllerPerformanceTracker ()
         callbackToOrigin();
         return;
     }
-    
+
     [self limitOverride:@"loadView"
                   target:controller
         callbackToOrigin:callbackToOrigin

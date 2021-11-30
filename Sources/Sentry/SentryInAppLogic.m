@@ -50,7 +50,6 @@ SentryInAppLogic ()
     if (imageName == nil)
         return NO;
 
-    
     NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
     return [self isInApp:classImageName];
 }
