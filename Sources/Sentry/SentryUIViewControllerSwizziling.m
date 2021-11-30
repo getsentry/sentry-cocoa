@@ -70,7 +70,7 @@ SentryUIViewControllerSwizziling ()
     [subClassFinder
         actOnSubclassesOf:[UIViewController class]
                     block:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
-    
+
     [self swizzleUIViewController];
 }
 
@@ -230,23 +230,23 @@ SentryUIViewControllerSwizziling ()
  * But because of a protection in SentryUIViewControllerPerformanceTracker
  * we don`t get two spans for those ViewController that have their loadView swizzled.
  */
-- (void)swizzleUIViewController {
+- (void)swizzleUIViewController
+{
     SEL selector = NSSelectorFromString(@"loadView");
     SentryUIViewControllerSwizziling *_self = self;
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void), SentrySWArguments(),
-                                SentrySWReplacement({
-        
-        //Since this will be executed for every ViewController,
-        //we should not create transactions for classes that should no be swizzled.
-        if ([_self shouldSwizzleViewController:[self class]]) {
-            [SentryUIViewControllerPerformanceTracker.shared
-             viewControllerLoadView:self
-             callbackToOrigin:^{ SentrySWCallOriginal(); }];
-        } else {
-            SentrySWCallOriginal();
-        }
-    }),
-                                SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
+        SentrySWArguments(), SentrySWReplacement({
+            // Since this will be executed for every ViewController,
+            // we should not create transactions for classes that should no be swizzled.
+            if ([_self shouldSwizzleViewController:[self class]]) {
+                [SentryUIViewControllerPerformanceTracker.shared
+                    viewControllerLoadView:self
+                          callbackToOrigin:^{ SentrySWCallOriginal(); }];
+            } else {
+                SentrySWCallOriginal();
+            }
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
 - (void)swizzleViewControllerSubClass:(Class)class
