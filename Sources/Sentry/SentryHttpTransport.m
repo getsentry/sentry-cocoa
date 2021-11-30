@@ -206,7 +206,6 @@ SentryHttpTransport ()
     [self.requestManager
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-
             // If the response is not nil we had an internet connection.
             // We don't worry about errors here.
             if (nil != response) {
