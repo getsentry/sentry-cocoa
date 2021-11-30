@@ -4,7 +4,14 @@ on:
     branches:
       - master
       - release/**
+
   pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'test-server/**'
+      - 'Samples/**'
+      - '.github/workflows/**'
 
 jobs:
   unit-tests:
