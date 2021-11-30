@@ -950,7 +950,7 @@ class SentryClientTest: XCTestCase {
         let exception = exceptions[0]
         XCTAssertEqual(error.domain, exception.type)
         
-        XCTAssertEqual(error.localizedDescription, exception.value)
+        XCTAssertEqual("Code: \(error.code)", exception.value)
         
         XCTAssertNil(exception.threadId)
         XCTAssertNil(exception.stacktrace)
@@ -1023,16 +1023,9 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.userFeedbackInvocations.count)
     }
 
-    private enum TestError: Error, LocalizedError {
+    private enum TestError: Error {
         case invalidTest
         case testIsFailing
         case somethingElse
-
-        var errorDescription: String? {
-            if self == .invalidTest {
-                return "Invalid Test"
-            }
-            return nil
-        }
     }
 }
