@@ -183,17 +183,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSString *exceptionValue;
 
-    // To check that the error description is the default, we can construct a new error
-    // with the same code and domain and an empty user info and compare the descriptions.
-    NSString *defaultErrorDescription = [NSError errorWithDomain:error.domain code:error.code userInfo:nil].localizedDescription;
-
-    if ([[error localizedDescription] isEqualToString:defaultErrorDescription]) {
-        // If no custom error description has been set, the system default will be something
-        // like: "The operation couldn't be completed (domain code)" - we can shorten this to
-        // just the code.
-        exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
+    // If the error has a custom event value in it's user info dictionary, use that.
+    NSString *customExceptionValue = [[error userInfo] valueForKey:SentryErrorEventValueUserInfoKey];
+    if (customExceptionValue != nil) {
+        exceptionValue = customExceptionValue;
     } else {
-        exceptionValue = [error localizedDescription];
+        exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
     }
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:error.domain];

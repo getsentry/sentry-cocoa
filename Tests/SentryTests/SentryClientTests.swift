@@ -288,25 +288,11 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureErrorUsesCustomErrorDescriptionFromSwiftLocalizedError() {
-        let eventId = fixture.getSut().capture(error: TestError.invalidTest)
-
-        eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
-            do {
-                let exceptions = try XCTUnwrap(actual.exceptions)
-                XCTAssertEqual("Invalid Test", try XCTUnwrap(exceptions.first).value)
-            } catch {
-                XCTFail("Exception expected but was nil")
-            }
-        }
-    }
-
-    func testCaptureErrorUsesCustomErrorDescriptionFromUserInfo() {
+    func testCaptureErrorUsesCustomErrorDescriptionWhenSet() {
         let error = NSError(
             domain: "com.sentry",
             code: 999,
-            userInfo: [NSLocalizedDescriptionKey: "Custom error description"]
+            userInfo: [SentryErrorEventValueUserInfoKey: "Custom error description"]
         )
         let eventId = fixture.getSut().capture(error: error)
 
