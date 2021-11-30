@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Sources/**'
+      - 'Samples/iOS-Swift/**'
+      - '.github/workflows/**'
 
 jobs:
 
