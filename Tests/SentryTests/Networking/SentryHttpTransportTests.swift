@@ -379,7 +379,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
     }
 
-    func tesPerformanceOfSending() {
+    func testPerformanceOfSending() {
         self.measure {
             givenNoInternetConnection()
             for _ in 0...5 {
@@ -392,7 +392,7 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
-    func tesSendEnvelopesConcurrent() {
+    func testSendEnvelopesConcurrent() {
         self.measure {
             fixture.requestManager.responseDelay = 0.000_1
 
