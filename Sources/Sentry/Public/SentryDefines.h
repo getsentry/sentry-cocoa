@@ -118,9 +118,3 @@ static NSString *_Nonnull const SentryLevelNames[] = {
 };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
-
-
-/**
- * A key that can be used to set a custom error event value using the error's user info dictionary.
- */
-static NSString *_Nonnull const SentryErrorEventValueUserInfoKey = @"SentryErrorEventValue";

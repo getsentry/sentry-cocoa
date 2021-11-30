@@ -288,11 +288,11 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureErrorUsesCustomErrorDescriptionWhenSet() {
+    func testCaptureErrorUsesErrorDebugDescriptionWhenSet() {
         let error = NSError(
             domain: "com.sentry",
             code: 999,
-            userInfo: [SentryErrorEventValueUserInfoKey: "Custom error description"]
+            userInfo: [NSDebugDescriptionErrorKey: "Custom error description"]
         )
         let eventId = fixture.getSut().capture(error: error)
 
