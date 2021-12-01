@@ -208,7 +208,7 @@ class BlockAllRequestsProtocol: URLProtocol {
     }
 
     override func startLoading() {
-        if (client != nil) {
+        if client != nil {
             client?.urlProtocol(self, didFailWithError: BlockAllRequestsProtocol.error )
         } else {
             XCTFail("Couldn't block request because client was nil.")
