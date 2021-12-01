@@ -227,8 +227,8 @@ SentryUIViewControllerSwizzling ()
 /**
  * We need to swizzle UIViewController 'loadView'
  * because we can`t do it for controllers that use Nib files.
- * But because of a protection in SentryUIViewControllerPerformanceTracker
- * we don`t get two spans for those ViewController that have their loadView swizzled.
+ * SentryUIViewControllerPerformanceTracker makes sure we don't get two spans
+ * if the loadView of an actual UIViewController is swizzled.
  */
 - (void)swizzleUIViewController
 {
