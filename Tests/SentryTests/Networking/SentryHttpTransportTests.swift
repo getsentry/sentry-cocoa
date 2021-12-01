@@ -97,6 +97,7 @@ class SentryHttpTransportTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
+        fixture.requestManager.waitForAllRequests()
     }
 
     func testInitSendsCachedEnvelopes() {
