@@ -32,6 +32,10 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut() -> SentryOutOfMemoryTracker {
+            return getSut(fileManager: self.fileManager)
+        }
+        
+        func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
             let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
             return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
@@ -93,7 +97,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        assertNoOOMSent()
     }
     
     func testDifferentOSVersions_NoOOM() {
@@ -101,7 +105,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        assertNoOOMSent()
     }
     
     func testIsDebugging_NoOOM() {
@@ -114,7 +118,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        assertNoOOMSent()
     }
     
     func testTerminatedNormally_NoOOM() {
@@ -125,7 +129,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        assertNoOOMSent()
     }
     
     func testCrashReport_NoOOM() {
@@ -135,7 +139,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        assertNoOOMSent()
     }
     
     func testAppWasInBackground_NoOOM() {
@@ -146,13 +150,13 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.stop()
         
         sut.start()
-        XCTAssertEqual(0, fixture.client.captureMessageWithScopeInvocations.count)
+        
+        assertNoOOMSent()
     }
     
     func testAppWasInForeground_OOM() {
         sut.start()
         goToForeground()
-        sut.stop()
 
         sut.start()
         assertOOMEventSent()
@@ -161,7 +165,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
         TestNotificationCenter.hybridSdkDidBecomeActive()
-        sut.stop()
         
         sut.start()
         assertOOMEventSent()
@@ -171,7 +174,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.start()
         goToForeground()
         TestNotificationCenter.hybridSdkDidBecomeActive()
-        sut.stop()
         
         sut.start()
         assertOOMEventSent()
@@ -181,7 +183,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.start()
         TestNotificationCenter.hybridSdkDidBecomeActive()
         goToForeground()
-        sut.stop()
         
         sut.start()
         assertOOMEventSent()
@@ -194,6 +195,30 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         // 1 for start
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
+    }
+    
+    func testStartThenStop_NoOOM() {
+        sut.start()
+        goToForeground()
+        sut.stop()
+
+        sut.start()
+     
+        assertNoOOMSent()
+    }
+    
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
+        let fileManager = try TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut(fileManager: fileManager)
+        
+        sut.start()
+        sut.stop()
+        
+        TestNotificationCenter.hybridSdkDidBecomeActive()
+        goToForeground()
+        terminateApp()
+        
+        XCTAssertEqual(1, fileManager.readAppStateInvocations.count)
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {
@@ -231,6 +256,10 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         XCTAssertNotNil(exception?.mechanism)
         XCTAssertEqual(false, exception?.mechanism?.handled)
         XCTAssertEqual("out_of_memory", exception?.mechanism?.type)
+    }
+    
+    private func assertNoOOMSent() {
+        XCTAssertEqual(0, fixture.client.captureCrashEventInvocations.count)
     }
 }
 

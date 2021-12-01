@@ -127,4 +127,10 @@ class TestFileManager: SentryFileManager {
         deleteTimestampLastInForegroundInvocations += 1
         timestampLastInForeground = nil
     }
+    
+    var readAppStateInvocations = Invocations<Void>()
+    override func readAppState() -> SentryAppState? {
+        readAppStateInvocations.record(Void())
+        return nil
+    }
 }
