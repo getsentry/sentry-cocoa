@@ -15,8 +15,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
             return options
         }
         
-        var sut: SentryUIViewControllerSwizziling {
-            return SentryUIViewControllerSwizziling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        var sut: SentryUIViewControllerSwizzling {
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
         }
     }
     
@@ -77,7 +77,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 
     func testSwizzle_fromScene() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let window = UIWindow()
         window.rootViewController = TestViewController()
@@ -92,7 +92,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_NoObject() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: nil)
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
@@ -102,7 +102,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_ObjectNotAnArray() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let window = UIWindow()
         window.rootViewController = TestViewController()
@@ -116,7 +116,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_WrongObjectType() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: "Other type of Object")
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
@@ -126,7 +126,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_ObjectWithWrongWindowProperty() {
-        let swizzler = TestSentryUIViewControllerSwizziling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: ObjectWithWindowsProperty(resultOfWindows: "Windows property of the wrong type"))
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
         
@@ -202,7 +202,7 @@ class ObjectWithWindowsProperty: NSObject {
     }
 }
 
-class TestSentryUIViewControllerSwizziling: SentryUIViewControllerSwizziling {
+class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
     
     var viewControllers = [UIViewController]()
     
