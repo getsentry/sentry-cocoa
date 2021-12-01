@@ -1,11 +1,11 @@
-#import "SentryUIViewControllerSwizziling.h"
+#import "SentryUIViewControllerSwizzling.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
 @interface
-SentryUIViewControllerSwizziling (Test)
+SentryUIViewControllerSwizzling (Test)
 
 - (BOOL)shouldSwizzleViewController:(Class)class;
 

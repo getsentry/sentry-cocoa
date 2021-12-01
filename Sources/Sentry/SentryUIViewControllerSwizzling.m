@@ -1,4 +1,4 @@
-#import "SentryUIViewControllerSwizziling.h"
+#import "SentryUIViewControllerSwizzling.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryLog.h"
 #import "SentrySubClassFinder.h"
@@ -19,21 +19,21 @@
  * with a mock class.
  *
  * This category makes UIApplication conform to
- * SentryUIApplication in order to be used by 'SentryUIViewControllerSwizziling'.
+ * SentryUIApplication in order to be used by 'SentryUIViewControllerSwizzling'.
  */
 @interface
 UIApplication (SentryUIApplication) <SentryUIApplication>
 @end
 
 @interface
-SentryUIViewControllerSwizziling ()
+SentryUIViewControllerSwizzling ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
 
-@implementation SentryUIViewControllerSwizziling
+@implementation SentryUIViewControllerSwizzling
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue

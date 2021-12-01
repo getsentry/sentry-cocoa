@@ -1,13 +1,13 @@
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
-#import "SentryUIViewControllerSwizziling.h"
+#import "SentryUIViewControllerSwizzling.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
 
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIViewControllerSwizziling *swizzling;
+@property (nonatomic, strong) SentryUIViewControllerSwizzling *swizzling;
 #endif
 
 @end
@@ -43,8 +43,8 @@ SentryPerformanceTrackingIntegration ()
     SentryDispatchQueueWrapper *dispatchQueue =
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
                                               attributes:attributes];
-    self.swizzling = [[SentryUIViewControllerSwizziling alloc] initWithOptions:options
-                                                                 dispatchQueue:dispatchQueue];
+    self.swizzling = [[SentryUIViewControllerSwizzling alloc] initWithOptions:options
+                                                                dispatchQueue:dispatchQueue];
 
     [self.swizzling start];
 #else
