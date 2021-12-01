@@ -12,7 +12,8 @@
 @interface
 SentryNetworkTracker ()
 
-@property (nonatomic, assign) BOOL isEnabled;
+@property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
+@property (nonatomic, assign) BOOL isBreadcrumbEnabled;
 
 @end
 
@@ -29,29 +30,39 @@ SentryNetworkTracker ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        _isEnabled = NO;
+        _isNetworkTrackingEnabled = NO;
+        _isBreadcrumbEnabled = NO;
     }
     return self;
 }
 
-- (void)enable
+- (void)enableNetworkTracking
 {
     @synchronized(self) {
-        _isEnabled = YES;
+        _isNetworkTrackingEnabled = YES;
     }
 }
+
+- (void)enableBreadcrumbs
+{
+    @synchronized(self) {
+        _isBreadcrumbEnabled = YES;
+    }
+}
+
 
 - (void)disable
 {
     @synchronized(self) {
-        _isEnabled = NO;
+        _isBreadcrumbEnabled = NO;
+        _isNetworkTrackingEnabled = NO;
     }
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
     @synchronized(self) {
-        if (!self.isEnabled) {
+        if (!self.isNetworkTrackingEnabled) {
             return;
         }
     }
@@ -159,10 +170,7 @@ SentryNetworkTracker ()
 }
 
 - (void)breadcrumbForSessionTask:(NSURLSessionTask *)sessionTask {
-    if (SentrySDK.options.enableNetworkBreadcrumbs != true) {
-        [SentryLog logWithMessage:@"Breadcrumb for network request not created."
-                                  @"enableNetworkBreadcrumbs is disabled."
-                         andLevel:kSentryLevelDebug];
+    if (!self.isBreadcrumbEnabled) {
         return;
     }
     
@@ -261,7 +269,7 @@ SentryNetworkTracker ()
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
     @synchronized(self) {
-        if (!self.isEnabled) {
+        if (!self.isNetworkTrackingEnabled) {
             return headers;
         }
     }

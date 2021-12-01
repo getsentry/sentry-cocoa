@@ -10,45 +10,49 @@
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    // We are aware that the SDK only creates breadcrumbs for HTTP requests if performance is
-    // enabled. A proper fix is not straight forward as we need several checks on SentryOptions in
-    // SentryNetworkTracker. As we have a problem with KVO, see
-    // https://github.com/getsentry/sentry-cocoa/issues/1328, we don't know if we can keep the
-    // SentryNetworkTracker (written on 29th of September 2021). Therefore we accept this tradeof
-    // for now.
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.enableNetworkTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
-                  andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.enableSwizzling) {
+   if (!options.enableSwizzling) {
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         return;
     }
+    
+    BOOL needNetworkTracking = true;
+    
+    if (!options.isTracingEnabled) {
+        [SentryLog logWithMessage:
+                       @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
+                         andLevel:kSentryLevelDebug];
+        needNetworkTracking = false;
+    }
 
-    [SentryNetworkTracker.sharedInstance enable];
-    [SentryNetworkTrackingIntegration swizzleNSURLSessionConfiguration];
-    [SentryNetworkTrackingIntegration swizzleURLSessionTask];
+    if (needNetworkTracking && !options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
+                                  @"enableAutoPerformanceTracking is disabled."
+                         andLevel:kSentryLevelDebug];
+        needNetworkTracking = false;
+    }
+
+    if (needNetworkTracking && !options.enableNetworkTracking) {
+        [SentryLog
+            logWithMessage:
+                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
+                  andLevel:kSentryLevelDebug];
+        needNetworkTracking = false;
+    }
+
+    if (needNetworkTracking) {
+        [SentryNetworkTracker.sharedInstance enableNetworkTracking];
+        [SentryNetworkTrackingIntegration swizzleNSURLSessionConfiguration];
+    }
+    
+    if (options.enableNetworkBreadcrumbs) {
+        [SentryNetworkTracker.sharedInstance enableBreadcrumbs];
+    }
+    
+    if (needNetworkTracking && options.enableNetworkBreadcrumbs) {
+        [SentryNetworkTrackingIntegration swizzleURLSessionTask];
+    }
 }
 
 - (void)uninstall
@@ -69,13 +73,13 @@
     SEL resumeSelector = NSSelectorFromString(@"resume");
 
     for (Class classToSwizzle in classesToSwizzle) {
-        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
+         SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
             SentrySWArguments(), SentrySWReplacement({
                 [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
                 SentrySWCallOriginal();
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
-
+  
         SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
             SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
                 [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
