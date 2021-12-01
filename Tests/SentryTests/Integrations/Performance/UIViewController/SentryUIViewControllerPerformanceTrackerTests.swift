@@ -396,6 +396,25 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0)
     }
     
+    func testLoadView_withUIViewController() {
+        let sut = fixture.getSut()
+        let viewController = UIViewController()
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        
+        XCTAssertTrue(getStack(tracker).isEmpty)
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            transactionSpan = spans.first
+            callbackExpectation.fulfill()
+        }
+               
+        XCTAssertNil(transactionSpan)
+        wait(for: [callbackExpectation], timeout: 0)
+    }
+    
     func testSecondLoadView() {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
