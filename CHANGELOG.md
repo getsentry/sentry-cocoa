@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.5.4
+
+- fix: Sending OOM when SDK is closed (#1487)
+
 ## 7.5.3
 
 - fix: Use swizzling instead of KVO for network tracking (#1452)
