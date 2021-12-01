@@ -132,19 +132,8 @@ SentryNetworkTracker ()
     }
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
-        SentryLevel breadcrumbLevel
-            = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
-        SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
-                                                                      category:@"http"];
-        breadcrumb.type = @"http";
-        NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
-        breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
-        breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
-        breadcrumbData[@"request_body_size"] =
-            [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-        breadcrumbData[@"response_body_size"] =
-            [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
-
+        [self breadcrumbForSessionTask:sessionTask];
+        
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
         if (responseStatusCode != -1) {
@@ -154,13 +143,7 @@ SentryNetworkTracker ()
                 [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
                               forKey:@"http.status_code"];
             }
-            breadcrumbData[@"status_code"] = statusCode;
-            breadcrumbData[@"reason"] =
-                [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
         }
-
-        breadcrumb.data = breadcrumbData;
-        [SentrySDK addBreadcrumb:breadcrumb];
     }
 
     if (netSpan == nil) {
@@ -173,6 +156,40 @@ SentryNetworkTracker ()
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+}
+
+- (void)breadcrumbForSessionTask:(NSURLSessionTask *)sessionTask {
+    if (SentrySDK.options.enableNetworkBreadcrumbs != true) {
+        [SentryLog logWithMessage:@"Breadcrumb for network request not created."
+                                  @"enableNetworkBreadcrumbs is disabled."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+    
+    SentryLevel breadcrumbLevel
+        = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
+                                                                  category:@"http"];
+    breadcrumb.type = @"http";
+    NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
+    breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
+    breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
+    breadcrumbData[@"request_body_size"] =
+        [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    breadcrumbData[@"response_body_size"] =
+        [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
+
+    NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+
+    if (responseStatusCode != -1) {
+        NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
+        breadcrumbData[@"status_code"] = statusCode;
+        breadcrumbData[@"reason"] =
+            [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
+    }
+
+    breadcrumb.data = breadcrumbData;
+    [SentrySDK addBreadcrumb:breadcrumb];
 }
 
 - (NSInteger)urlResponseStatusCode:(NSURLResponse *)response
