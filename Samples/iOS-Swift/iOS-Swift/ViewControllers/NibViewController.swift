@@ -15,10 +15,11 @@ class NibViewController: UIViewController {
         button.layer.cornerRadius = 10
         button.layer.masksToBounds = true
         
-        span = SentrySDK.span
-        spanObserver = SpanObserver(span: span!.rootSpan()!)
-        spanObserver?.performOnFinish {
-            self.assertTransaction()
+        if let rootSpan = SentrySDK.span?.rootSpan()  {
+            spanObserver = SpanObserver(span: rootSpan)
+            spanObserver?.performOnFinish {
+                self.assertTransaction()
+            }
         }
     }
     
