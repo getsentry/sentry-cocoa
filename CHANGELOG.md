@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Create span for loadView (#1495)
+- feat: Support for ignored signals with SIGN_IGN (#1489)
 
 ## 7.5.4
 
