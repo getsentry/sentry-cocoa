@@ -50,7 +50,6 @@ SentryNetworkTracker ()
     }
 }
 
-
 - (void)disable
 {
     @synchronized(self) {
@@ -144,7 +143,7 @@ SentryNetworkTracker ()
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
         [self breadcrumbForSessionTask:sessionTask];
-        
+
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
         if (responseStatusCode != -1) {
@@ -169,13 +168,13 @@ SentryNetworkTracker ()
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
-- (void)breadcrumbForSessionTask:(NSURLSessionTask *)sessionTask {
+- (void)breadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
+{
     if (!self.isBreadcrumbEnabled) {
         return;
     }
-    
-    SentryLevel breadcrumbLevel
-        = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
+
+    SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
     breadcrumb.type = @"http";

@@ -64,7 +64,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
-
 /**
  * Enable breadcrumbs to be created for each network request.
  * Default value is YES.

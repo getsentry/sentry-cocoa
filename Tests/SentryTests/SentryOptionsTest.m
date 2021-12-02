@@ -175,10 +175,11 @@
 
 - (void)testEnableNetworkBreadcrumbs
 {
-    NSNumber* enableNetworkBreadcrumbs = @NO;
-    
-    SentryOptions *options = [self getValidOptions:@{@"enableNetworkBreadcrumbs": enableNetworkBreadcrumbs}];
-    
+    NSNumber *enableNetworkBreadcrumbs = @NO;
+
+    SentryOptions *options =
+        [self getValidOptions:@{ @"enableNetworkBreadcrumbs" : enableNetworkBreadcrumbs }];
+
     XCTAssertFalse(options.enableNetworkBreadcrumbs);
 }
 
@@ -441,7 +442,7 @@
         @"environment" : [NSNull null],
         @"dist" : [NSNull null],
         @"maxBreadcrumbs" : [NSNull null],
-        @"enableNetworkBreadcrumbs": [NSNull null],
+        @"enableNetworkBreadcrumbs" : [NSNull null],
         @"maxCacheItems" : [NSNull null],
         @"beforeSend" : [NSNull null],
         @"beforeBreadcrumb" : [NSNull null],

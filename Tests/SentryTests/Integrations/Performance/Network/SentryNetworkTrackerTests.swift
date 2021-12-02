@@ -292,7 +292,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
     }
     
-    func testNoBreadcrumb_DisablingBreadcrumb(){
+    func testNoBreadcrumb_DisablingBreadcrumb() {
         assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
             $0.disable()
             $0.enableNetworkTracking()
@@ -302,7 +302,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumbs?.count, 0)
     }
     
-    func testBreadcrumb_DisablingNetworkTracking(){
+    func testBreadcrumb_DisablingNetworkTracking() {
         let sut = fixture.getSut()
         let task = createDataTask()
         
@@ -514,7 +514,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) {
         let sut = fixture.getSut()
-        configSut?(sut);
+        configSut?(sut)
         
         let task = createDataTask()
         

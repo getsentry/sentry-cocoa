@@ -10,15 +10,15 @@
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-   if (!options.enableSwizzling) {
+    if (!options.enableSwizzling) {
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     BOOL needNetworkTracking = true;
-    
+
     if (!options.isTracingEnabled) {
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
@@ -45,11 +45,11 @@
         [SentryNetworkTracker.sharedInstance enableNetworkTracking];
         [SentryNetworkTrackingIntegration swizzleNSURLSessionConfiguration];
     }
-    
+
     if (options.enableNetworkBreadcrumbs) {
         [SentryNetworkTracker.sharedInstance enableBreadcrumbs];
     }
-    
+
     if (needNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
     }
@@ -73,13 +73,13 @@
     SEL resumeSelector = NSSelectorFromString(@"resume");
 
     for (Class classToSwizzle in classesToSwizzle) {
-         SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
+        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
             SentrySWArguments(), SentrySWReplacement({
                 [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
                 SentrySWCallOriginal();
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
-  
+
         SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
             SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
                 [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
