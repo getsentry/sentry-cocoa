@@ -66,6 +66,25 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
     }
     
+    func testBreadcrumbDisabled_WhenSwizzlingDisabled() {
+        fixture.options.enableSwizzling = false
+        startSDK()
+        
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+    }
+    
+    func testBreadcrumbDisabled() {
+        fixture.options.enableNetworkBreadcrumbs = false
+        startSDK()
+        
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+    }
+    
+    func testBreadcrumbEnabled() {
+        startSDK()
+        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+    }
+    
     func testNSURLSessionConfiguration_ActiveSpan_HeadersAdded() {
         startSDK()
         
@@ -170,7 +189,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         _ = startTransactionBoundToScope()
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
-    
+     
     /**
      * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
      * SentryNetworkTrackingIntegration#swizzleNSURLSessionConfiguration.

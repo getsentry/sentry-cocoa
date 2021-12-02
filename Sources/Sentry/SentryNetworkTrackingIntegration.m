@@ -50,7 +50,7 @@
         [SentryNetworkTracker.sharedInstance enableBreadcrumbs];
     }
     
-    if (needNetworkTracking && options.enableNetworkBreadcrumbs) {
+    if (needNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
     }
 }
