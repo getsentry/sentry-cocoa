@@ -23,34 +23,34 @@
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
                          andLevel:kSentryLevelDebug];
-        needNetworkTracking = false;
+        shouldEnableNetworkTracking = false;
     }
 
-    if (needNetworkTracking && !options.enableAutoPerformanceTracking) {
+    if (shouldEnableNetworkTracking && !options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
                                   @"enableAutoPerformanceTracking is disabled."
                          andLevel:kSentryLevelDebug];
-        needNetworkTracking = false;
+        shouldEnableNetworkTracking = false;
     }
 
-    if (needNetworkTracking && !options.enableNetworkTracking) {
+    if (shouldEnableNetworkTracking && !options.enableNetworkTracking) {
         [SentryLog
             logWithMessage:
                 @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
                   andLevel:kSentryLevelDebug];
-        needNetworkTracking = false;
+        shouldEnableNetworkTracking = false;
     }
 
-    if (needNetworkTracking) {
+    if (shouldEnableNetworkTracking) {
         [SentryNetworkTracker.sharedInstance enableNetworkTracking];
         [SentryNetworkTrackingIntegration swizzleNSURLSessionConfiguration];
     }
 
     if (options.enableNetworkBreadcrumbs) {
-        [SentryNetworkTracker.sharedInstance enableBreadcrumbs];
+        [SentryNetworkTracker.sharedInstance enableNetworkBreadcrumbs];
     }
 
-    if (needNetworkTracking || options.enableNetworkBreadcrumbs) {
+    if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
     }
 }

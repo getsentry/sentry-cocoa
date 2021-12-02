@@ -13,7 +13,7 @@
 SentryNetworkTracker ()
 
 @property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
-@property (nonatomic, assign) BOOL isBreadcrumbEnabled;
+@property (nonatomic, assign) BOOL isNetworkBreadcrumbEnabled;
 
 @end
 
@@ -31,7 +31,7 @@ SentryNetworkTracker ()
 {
     if (self = [super init]) {
         _isNetworkTrackingEnabled = NO;
-        _isBreadcrumbEnabled = NO;
+        _isNetworkBreadcrumbEnabled = NO;
     }
     return self;
 }
@@ -43,17 +43,17 @@ SentryNetworkTracker ()
     }
 }
 
-- (void)enableBreadcrumbs
+- (void)enableNetworkBreadcrumbs
 {
     @synchronized(self) {
-        _isBreadcrumbEnabled = YES;
+        _isNetworkBreadcrumbEnabled = YES;
     }
 }
 
 - (void)disable
 {
     @synchronized(self) {
-        _isBreadcrumbEnabled = NO;
+        _isNetworkBreadcrumbEnabled = NO;
         _isNetworkTrackingEnabled = NO;
     }
 }
@@ -142,7 +142,7 @@ SentryNetworkTracker ()
     }
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
-        [self breadcrumbForSessionTask:sessionTask];
+        [self addBreadcrumbForSessionTask:sessionTask];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
@@ -170,7 +170,7 @@ SentryNetworkTracker ()
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
 {
-    if (!self.isBreadcrumbEnabled) {
+    if (!self.isNetworkBreadcrumbEnabled) {
         return;
     }
 

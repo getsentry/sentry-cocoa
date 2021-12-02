@@ -1,3 +1,5 @@
+import Sentry
+import SwiftUI
 import XCTest
 
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
@@ -70,19 +72,19 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         fixture.options.enableSwizzling = false
         startSDK()
         
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
     }
     
     func testBreadcrumbDisabled() {
         fixture.options.enableNetworkBreadcrumbs = false
         startSDK()
         
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
     }
     
     func testBreadcrumbEnabled() {
         startSDK()
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isBreadcrumbEnabled)
+        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
     }
     
     func testNSURLSessionConfiguration_ActiveSpan_HeadersAdded() {
@@ -180,6 +182,25 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
     
+    func test_SwizzleWorked_WithNetworkRequest() {
+        startSDK()
+        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let expect = expectation(description: "Callback Expectation")
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
+            expect.fulfill()
+        }
+        
+        dataTask.resume()
+        wait(for: [expect], timeout: 5)
+        
+        let children = Dynamic(transaction).children as [Span]?
+        
+        XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
+        XCTAssertTrue(children![0].isFinished) //Span was finished in task setState swizzle.
+    }
+    
     private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
@@ -189,7 +210,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         _ = startTransactionBoundToScope()
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
-     
+        
     /**
      * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
      * SentryNetworkTrackingIntegration#swizzleNSURLSessionConfiguration.

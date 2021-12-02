@@ -26,7 +26,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         func getSut() -> SentryNetworkTracker {
             let result = SentryNetworkTracker.sharedInstance
             result.enableNetworkTracking()
-            result.enableBreadcrumbs()
+            result.enableNetworkBreadcrumbs()
             return result
         }
     }
@@ -81,7 +81,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertNil(span)
     }
-    
+        
     func testCaptureDownloadTask() {
         let task = createDownloadTask()
         let span = spanForTask(task: task)

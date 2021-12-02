@@ -23,7 +23,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 - (void)disable;
 
 @property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
-@property (nonatomic, readonly) BOOL isBreadcrumbEnabled;
+@property (nonatomic, readonly) BOOL isNetworkBreadcrumbEnabled;
 
 @end
 
