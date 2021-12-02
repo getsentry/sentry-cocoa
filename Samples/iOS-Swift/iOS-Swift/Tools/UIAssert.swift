@@ -79,11 +79,13 @@ class UIAssert {
         let viewDidLoadSpan = children.first { $0.context.spanDescription == "viewDidLoad" }
         let viewWillAppearSpan = children.first { $0.context.spanDescription == "viewWillAppear" }
         let viewDidAppearSpan = children.first { $0.context.spanDescription == "viewDidAppear" }
+        let viewAppearingSpan = children.first { $0.context.spanDescription == "viewAppearing" }
         
         notNil(loadViewSpan, "\(viewController) has no loadView span")
         notNil(viewDidLoadSpan, "\(viewController) has no viewDidLoad span")
         notNil(viewWillAppearSpan, "\(viewController) has no viewWillAppear span")
         notNil(viewDidAppearSpan, "\(viewController) has no viewDidAppear span")
+        notNil(viewAppearingSpan, "\(viewController) has no viewAppearing span")
         
     }
 }

@@ -43,7 +43,9 @@ class TraceTestViewController: UIViewController {
         
         let children = self.span?.children()
                 
-        UIAssert.isEqual(children?.count, 11, "Transaction did not complete")
+        let expectation = 12
+        
+        UIAssert.isEqual(children?.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children?.count ?? 0)")
         
         let span = children?.first(where: { $0.context.operation == "http.client" })
         

@@ -27,10 +27,24 @@ class NibViewController: UIViewController {
         
         let children = self.span?.children()
                 
-        UIAssert.isEqual(children?.count, 4, "Transaction did not complete")
+        let expectation = 5
+        
+        UIAssert.isEqual(children?.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children?.count ?? 0)")
                
         spanObserver?.releaseOnFinish()
         UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
-
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+    
 }

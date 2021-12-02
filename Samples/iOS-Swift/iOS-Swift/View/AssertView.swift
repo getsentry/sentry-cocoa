@@ -64,11 +64,11 @@ class AssertView: UIView {
         let constraints = [
             assertLabel.topAnchor.constraint(equalTo: guide.topAnchor, constant: 16),
             assertLabel.leftAnchor.constraint(equalTo: guide.leftAnchor, constant: 16),
-            assertLabel.rightAnchor.constraint(equalTo: guide.rightAnchor, constant: 16),
+            assertLabel.rightAnchor.constraint(equalTo: guide.rightAnchor, constant: -16),
             
             errorLabel.topAnchor.constraint(equalTo: assertLabel.bottomAnchor, constant: 16),
             errorLabel.leftAnchor.constraint(equalTo: guide.leftAnchor, constant: 16),
-            errorLabel.rightAnchor.constraint(equalTo: guide.rightAnchor, constant: 16),
+            errorLabel.rightAnchor.constraint(equalTo: guide.rightAnchor, constant: -16),
             errorLabel.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: 0)
         ]
         NSLayoutConstraint.activate(constraints)
