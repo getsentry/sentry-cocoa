@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.beforeSend = { event in
                 return event
             }
-            options.debug = false
+            options.debug = true
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.sessionTrackingIntervalMillis = 5_000
