@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7B51664C2758C6F000C0A720 /* iOS15_SwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51664B2758C6F000C0A720 /* iOS15_SwiftUIApp.swift */; };
+		7B51664C2758C6F000C0A720 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51664B2758C6F000C0A720 /* App.swift */; };
 		7B51664E2758C6F000C0A720 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51664D2758C6F000C0A720 /* ContentView.swift */; };
 		7B5166502758C6F400C0A720 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B51664F2758C6F400C0A720 /* Assets.xcassets */; };
 		7B5166532758C6F400C0A720 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B5166522758C6F400C0A720 /* Preview Assets.xcassets */; };
@@ -48,7 +48,7 @@
 
 /* Begin PBXFileReference section */
 		7B5166482758C6F000C0A720 /* iOS15-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS15-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B51664B2758C6F000C0A720 /* iOS15_SwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS15_SwiftUIApp.swift; sourceTree = "<group>"; };
+		7B51664B2758C6F000C0A720 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		7B51664D2758C6F000C0A720 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7B51664F2758C6F400C0A720 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B5166522758C6F400C0A720 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 		7B51664A2758C6F000C0A720 /* iOS15-SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
-				7B51664B2758C6F000C0A720 /* iOS15_SwiftUIApp.swift */,
+				7B51664B2758C6F000C0A720 /* App.swift */,
 				7B51664D2758C6F000C0A720 /* ContentView.swift */,
 				7B51664F2758C6F400C0A720 /* Assets.xcassets */,
 				7B5166512758C6F400C0A720 /* Preview Content */,
@@ -261,7 +261,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B51664E2758C6F000C0A720 /* ContentView.swift in Sources */,
-				7B51664C2758C6F000C0A720 /* iOS15_SwiftUIApp.swift in Sources */,
+				7B51664C2758C6F000C0A720 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
