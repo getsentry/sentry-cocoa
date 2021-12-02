@@ -1,9 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- feat: Support for ignored signals with SIGN_IGN (#1489)
+
 ## 7.5.4
 
 - fix: Sending OOM when SDK is closed (#1487)
-- feat: Don't mark a signal as a crash if the signal was ignored via `SIG_IGN` (#1489)
 
 ## 7.5.3
 
