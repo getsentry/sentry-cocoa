@@ -17,7 +17,7 @@
         return;
     }
 
-    BOOL needNetworkTracking = true;
+    BOOL shouldEnableNetworkTracking = YES;
 
     if (!options.isTracingEnabled) {
         [SentryLog logWithMessage:

@@ -18,7 +18,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 
 - (void)enableNetworkTracking;
 
-- (void)enableBreadcrumbs;
+- (void)enableNetworkBreadcrumbs;
 
 - (void)disable;
 

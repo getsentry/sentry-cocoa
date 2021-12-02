@@ -168,7 +168,7 @@ SentryNetworkTracker ()
     [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
-- (void)breadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
+- (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
 {
     if (!self.isBreadcrumbEnabled) {
         return;
