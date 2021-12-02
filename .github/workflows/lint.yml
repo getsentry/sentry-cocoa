@@ -1,6 +1,20 @@
 name: lint
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'test-server/**'
+      - 'Samples/**'
+
   pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'test-server/**'
+      - 'Samples/**'
 
 jobs:
   swift-lint:
