@@ -39,19 +39,29 @@ class TraceTestViewController: UIViewController {
     }
     
     func assertTransaction() {
-        UIAssert.notNil(self.span, "Transaction was not created")
+        guard let span = self.span else {
+            UIAssert.fail("Transaction was not created")
+            return
+        }
         
-        let children = self.span?.children()
+        guard let children = span.children() else {
+            UIAssert.fail("Transaction has no children")
+            return
+        }
                 
         let expectation = 12
         
-        UIAssert.isEqual(children?.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children?.count ?? 0)")
+        UIAssert.isEqual(children.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children.count)")
         
-        let span = children?.first(where: { $0.context.operation == "http.client" })
+        guard let child = children.first(where: { $0.context.operation == "http.client" }) else {
+            UIAssert.fail("Did not found http request child")
+            return
+        }
         
-        UIAssert.isEqual(span!.data!["url"] as! String, "/sentry-logo-black.png", "Could not read url data value")
-        UIAssert.isEqual(span!.tags["http.status_code"]!, "200", "Could not read status_code tag value")
-        UIAssert.notNil(span, "Network Request not found")
+        
+        UIAssert.isEqual(child.data?["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
+        
+        UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
         
         spanObserver?.releaseOnFinish()
         

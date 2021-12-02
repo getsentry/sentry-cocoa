@@ -23,16 +23,23 @@ class NibViewController: UIViewController {
     }
     
     func assertTransaction() {
-        UIAssert.notNil(self.span, "Transaction was not created")
+        guard let span = self.span else {
+            UIAssert.fail("Transaction was not created")
+            return
+        }
         
-        let children = self.span?.children()
+        guard let children = span.children() else {
+            UIAssert.fail("Transaction has no children")
+            return
+        }
                 
         let expectation = 5
         
-        UIAssert.isEqual(children?.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children?.count ?? 0)")
-               
+        UIAssert.isEqual(children.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children.count)")
+        UIAssert.notNil(self.span, "Transaction was not created")
+                     
         spanObserver?.releaseOnFinish()
-        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
+        UIAssert.hasViewControllerLifeCycle(span, "TraceTestViewController")
     }
 
     override func viewDidAppear(_ animated: Bool) {

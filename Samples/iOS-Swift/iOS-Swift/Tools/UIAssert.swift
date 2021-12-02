@@ -25,8 +25,8 @@ class UIAssert {
         
         guard var targetViewController = UIApplication.shared.delegate?.window??.rootViewController else { return }
         
-        while targetViewController.presentedViewController != nil {
-            targetViewController = targetViewController.presentedViewController!
+        while let presented = targetViewController.presentedViewController {
+            targetViewController = presented
         }
         
         guard let targetView = targetViewController.view else { return }
@@ -67,6 +67,10 @@ class UIAssert {
     
     static func isNil(_ value: Any?, _ errorMessage: String? = nil) {
         shared.assert(success: value == nil, errorMessage: errorMessage)
+    }
+    
+    static func fail(_ errorMessage: String? = nil) {
+        shared.assert(success: false, errorMessage: errorMessage)
     }
     
     static func hasViewControllerLifeCycle(_ span: Span, _ viewController: String) {
