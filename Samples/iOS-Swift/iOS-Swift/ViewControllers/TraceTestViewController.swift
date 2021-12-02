@@ -31,7 +31,7 @@ class TraceTestViewController: UIViewController {
         }
         
         dataTask.resume()
-        if let rootSpan = SentrySDK.span?.rootSpan()  {
+        if let rootSpan = SentrySDK.span?.rootSpan() {
             spanObserver = SpanObserver(span: rootSpan)
             spanObserver?.performOnFinish {
                 self.assertTransaction()
