@@ -159,7 +159,7 @@ SentryOptions ()
 
     [self setBool:options[@"enableNetworkBreadcrumbs"]
             block:^(BOOL value) { self->_enableNetworkBreadcrumbs = value; }];
-    
+
     if ([options[@"maxCacheItems"] isKindOfClass:[NSNumber class]]) {
         self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
     }
