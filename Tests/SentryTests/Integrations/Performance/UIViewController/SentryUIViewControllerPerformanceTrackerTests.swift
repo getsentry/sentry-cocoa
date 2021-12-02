@@ -22,6 +22,16 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let spanOperation = "spanOperation"
     
     private class Fixture {
+        
+        var options: Options {
+            let options = Options()
+            let imageName = String(
+                cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
+                encoding: .utf8)! as NSString
+            options.add(inAppInclude: imageName.lastPathComponent)
+            return options
+        }
+        
         let viewController = TestViewController()
         let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
@@ -45,8 +55,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.start(options: fixture.options)
     }
 
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+    
     func testUILifeCycle_ViewDidAppear() {
         testUILifeCycle(finishStatus: SentrySpanStatus.ok) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {
@@ -377,6 +393,25 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(transactionSpan.isFinished)
         
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 2)
+        wait(for: [callbackExpectation], timeout: 0)
+    }
+    
+    func testLoadView_withUIViewController() {
+        let sut = fixture.getSut()
+        let viewController = UIViewController()
+        let tracker = fixture.tracker
+        var transactionSpan: Span!
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        
+        XCTAssertTrue(getStack(tracker).isEmpty)
+        
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            transactionSpan = spans.first
+            callbackExpectation.fulfill()
+        }
+               
+        XCTAssertNil(transactionSpan)
         wait(for: [callbackExpectation], timeout: 0)
     }
     
