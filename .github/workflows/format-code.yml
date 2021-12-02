@@ -1,6 +1,11 @@
 name: format code
 on:
   pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'test-server/**'
+      - 'Samples/**'
 
 jobs:
 
