@@ -4,7 +4,13 @@ on:
     branches:
       - master
       - release/**
+
   pull_request:
+    paths:
+      - 'Sources/**'
+      - 'test-server/**'
+      - 'Samples/**'
+      - '.github/workflows/**'
 
 jobs:
   # We had issues that the release build was broken on master.
