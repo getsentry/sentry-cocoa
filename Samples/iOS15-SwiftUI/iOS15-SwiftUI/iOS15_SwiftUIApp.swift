@@ -1,5 +1,5 @@
-import SwiftUI
 import Sentry
+import SwiftUI
 
 @main
 struct iOS15_SwiftUIApp: App {
