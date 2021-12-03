@@ -66,6 +66,6 @@ class TraceTestViewController: UIViewController {
         
         spanObserver?.releaseOnFinish()
         
-        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
+        UIAssert.hasViewControllerLifeCycle(span, "TraceTestViewController")
     }
 }

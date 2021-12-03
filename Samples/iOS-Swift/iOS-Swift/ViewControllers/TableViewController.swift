@@ -34,7 +34,7 @@ class TableViewController: UITableViewController {
         UIAssert.isEqual(children.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children.count)")
         
         spanObserver?.releaseOnFinish()
-        UIAssert.hasViewControllerLifeCycle(self.span!, "TraceTestViewController")
+        UIAssert.hasViewControllerLifeCycle(span, "TraceTestViewController")
 
     }
     
