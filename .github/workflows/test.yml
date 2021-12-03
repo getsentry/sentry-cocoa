@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
