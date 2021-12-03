@@ -9,7 +9,8 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let rootSpan = SentrySDK.span?.rootSpan() {
+        if let span = SentrySDK.span, let rootSpan = span.rootSpan() {
+            self.span = span
             spanObserver = SpanObserver(span: rootSpan)
             spanObserver?.performOnFinish {
                 self.assertTransaction()

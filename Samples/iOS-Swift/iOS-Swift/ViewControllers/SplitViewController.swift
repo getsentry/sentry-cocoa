@@ -43,12 +43,14 @@ class SplitViewSecondaryController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
     
-        if let rootSpan = SentrySDK.span?.rootSpan() {
+        if let span = SentrySDK.span, let rootSpan = span.rootSpan() {
+            self.span = span
             spanObserver = SpanObserver(span: rootSpan)
             spanObserver?.performOnFinish {
                 self.assertTransaction()
             }
         }
+        
     }
    
     func assertTransaction() {
