@@ -5,7 +5,7 @@ import XCTest
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
-    private static let testURL = URL(string: "http://localhost:8080/sentry-logo-black.png")!
+    private static let testURL = URL(string: "http://localhost:8080/hello")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
@@ -182,13 +182,15 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
     
-    func test_SwizzleWorked_WithNetworkRequest() {
+    func testGetRequest_SpanCreatedAndTraceHeaderAdded() {
         startSDK()
         let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
-        let expect = expectation(description: "Callback Expectation")
+        let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (_, _, _) in
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (data, _, _) in
+            let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
+            XCTAssertEqual("Hello, world! Trace header added.", response)
             expect.fulfill()
         }
         
@@ -198,7 +200,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let children = Dynamic(transaction).children as [Span]?
         
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-        XCTAssertTrue(children![0].isFinished) //Span was finished in task setState swizzle.
+        let networkSpan = children![0]
+        XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
+        XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.context.operation)
+        XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testURL)", networkSpan.context.spanDescription)
+        
+        XCTAssertEqual("200", networkSpan.tags["http.status_code"])
     }
     
     private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
