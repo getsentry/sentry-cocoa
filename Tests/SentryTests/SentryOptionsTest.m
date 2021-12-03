@@ -173,6 +173,11 @@
     XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
+- (void)testEnableNetworkBreadcrumbs
+{
+    [self testBooleanField:@"enableNetworkBreadcrumbs"];
+}
+
 - (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -432,6 +437,7 @@
         @"environment" : [NSNull null],
         @"dist" : [NSNull null],
         @"maxBreadcrumbs" : [NSNull null],
+        @"enableNetworkBreadcrumbs" : [NSNull null],
         @"maxCacheItems" : [NSNull null],
         @"beforeSend" : [NSNull null],
         @"beforeBreadcrumb" : [NSNull null],
@@ -469,6 +475,7 @@
     XCTAssertNil(options.environment);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
+    XCTAssertTrue(options.enableNetworkBreadcrumbs);
     XCTAssertEqual(30, options.maxCacheItems);
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);

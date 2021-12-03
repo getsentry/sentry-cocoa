@@ -25,7 +25,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         func getSut() -> SentryNetworkTracker {
             let result = SentryNetworkTracker.sharedInstance
-            result.enable()
+            result.enableNetworkTracking()
+            result.enableNetworkBreadcrumbs()
             return result
         }
     }
@@ -80,7 +81,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertNil(span)
     }
-    
+        
     func testCaptureDownloadTask() {
         let task = createDownloadTask()
         let span = spanForTask(task: task)
@@ -291,6 +292,36 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
     }
     
+    func testNoBreadcrumb_DisablingBreadcrumb() {
+        assertStatus(status: .ok, state: .completed, response: createResponse(code: 200)) {
+            $0.disable()
+            $0.enableNetworkTracking()
+        }
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(breadcrumbs?.count, 0)
+    }
+    
+    func testBreadcrumb_DisablingNetworkTracking() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        
+        sut.urlSessionTaskResume(task)
+        task.setResponse(createResponse(code: 200))
+        
+        sut.urlSessionTask(task, setState: .completed)
+        
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(breadcrumbs?.count, 1)
+        
+        let breadcrumb = breadcrumbs!.first
+        XCTAssertEqual(breadcrumb!.category, "http")
+        XCTAssertEqual(breadcrumb!.level, .info)
+        XCTAssertEqual(breadcrumb!.type, "http")
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
+    }
+    
     func testBreadcrumbWithoutSpan() {
         let task = createDataTask()
         let _ = spanForTask(task: task)!
@@ -481,8 +512,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.state = state
     }
     
-    func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse) {
+    func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) {
         let sut = fixture.getSut()
+        configSut?(sut)
+        
         let task = createDataTask()
         
         let transaction = startTransaction()
