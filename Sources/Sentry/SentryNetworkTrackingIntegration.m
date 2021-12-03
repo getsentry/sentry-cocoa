@@ -23,14 +23,14 @@
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
                          andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = false;
+        shouldEnableNetworkTracking = NO;
     }
 
     if (shouldEnableNetworkTracking && !options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
                                   @"enableAutoPerformanceTracking is disabled."
                          andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = false;
+        shouldEnableNetworkTracking = NO;
     }
 
     if (shouldEnableNetworkTracking && !options.enableNetworkTracking) {
@@ -38,7 +38,7 @@
             logWithMessage:
                 @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
                   andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = false;
+        shouldEnableNetworkTracking = NO;
     }
 
     if (shouldEnableNetworkTracking) {
