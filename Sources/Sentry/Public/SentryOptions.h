@@ -65,6 +65,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
+ * When enabled, the SDK adds breadcrumbs for each network request. Default value is YES.
+ * As this feature uses swizzling, disabling enableSwizzling also disables this feature.
+ */
+@property (nonatomic, assign) BOOL enableNetworkBreadcrumbs;
+
+/**
  * The maximum number of envelopes to keep in cache. Default is 30.
  */
 @property (nonatomic, assign) NSUInteger maxCacheItems;

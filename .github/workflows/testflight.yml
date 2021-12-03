@@ -6,7 +6,7 @@ on:
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
-      - '.github/workflows/**'
+      - '.github/workflows/testflight.yml'
 
 jobs:
 
