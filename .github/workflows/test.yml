@@ -34,8 +34,6 @@ jobs:
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
 
       # Only build when the cache couldn't be restored.
       - run: swift build
