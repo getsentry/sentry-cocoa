@@ -16,11 +16,14 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers;
 
-- (void)enable;
+- (void)enableNetworkTracking;
+
+- (void)enableNetworkBreadcrumbs;
 
 - (void)disable;
 
-@property (nonatomic, assign, readonly) BOOL isEnabled;
+@property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
+@property (nonatomic, readonly) BOOL isNetworkBreadcrumbEnabled;
 
 @end
 

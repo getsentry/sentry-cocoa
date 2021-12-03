@@ -46,6 +46,7 @@ SentryOptions ()
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
         self.enableNetworkTracking = YES;
+        self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
@@ -155,6 +156,9 @@ SentryOptions ()
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
+
+    [self setBool:options[@"enableNetworkBreadcrumbs"]
+            block:^(BOOL value) { self->_enableNetworkBreadcrumbs = value; }];
 
     if ([options[@"maxCacheItems"] isKindOfClass:[NSNumber class]]) {
         self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
