@@ -17,7 +17,7 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
     runs-on: macos-11 
-    strategy:
+    strategy:      
       matrix:
         # Can't run tests on watchOS because XCTest is not available  
         platform: ["macOS","Catalyst", "iOS", "tvOS"]
@@ -33,14 +33,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server') }}
 
-      # Only build when the cache couldn't be restored.
       - run: swift build
-      # The hash is empty if the file doesn't exist.
-        if: hashFiles('./test-server/.build/debug/Run') == ''
         working-directory: test-server
 
       - name: Run Test Server in Background
