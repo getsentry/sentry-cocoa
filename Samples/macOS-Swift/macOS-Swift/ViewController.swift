@@ -48,6 +48,11 @@ class ViewController: NSViewController {
         SentrySDK.crash()
     }
     
+    @IBAction func cppException(_ sender: Any) {
+        let wrapper = CppWrapper()
+        wrapper.throwCPPException()
+    }
+    
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()
