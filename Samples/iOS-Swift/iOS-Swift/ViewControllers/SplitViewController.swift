@@ -38,8 +38,7 @@ class SplitRootViewController: UIViewController {
 class SplitViewSecondaryController: UIViewController {
     
     var spanObserver: SpanObserver?
-    var assertView:  AssertView!
-    
+    var assertView: AssertView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
