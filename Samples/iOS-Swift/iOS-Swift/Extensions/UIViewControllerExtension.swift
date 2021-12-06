@@ -1,10 +1,3 @@
-//
-//  UIViewControllerExtension.swift
-//  iOS-Swift
-//
-//  Created by Dhiogo Brustolin on 06/12/21.
-//  Copyright © 2021 Sentry. All rights reserved.
-//
 
 import Foundation
 import Sentry
