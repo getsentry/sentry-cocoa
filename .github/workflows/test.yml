@@ -36,10 +36,7 @@ jobs:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server') }}
 
-      # Only build when the cache couldn't be restored.
       - run: swift build
-      # The hash is empty if the file doesn't exist.
-        if: hashFiles('./test-server/.build/debug/Run') == ''
         working-directory: test-server
 
       - name: Run Test Server in Background
