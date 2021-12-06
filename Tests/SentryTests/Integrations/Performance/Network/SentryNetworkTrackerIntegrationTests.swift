@@ -266,7 +266,6 @@ class BlockAllRequestsProtocol: URLProtocol {
         } else {
             XCTFail("Couldn't block request because client was nil.")
         }
-        
     }
 
     override func stopLoading() {
