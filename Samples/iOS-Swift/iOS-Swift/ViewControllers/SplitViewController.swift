@@ -57,7 +57,6 @@ class SplitViewSecondaryController: UIViewController {
         NSLayoutConstraint.activate(constraints)
 
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
-
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,5 +69,4 @@ class SplitViewSecondaryController: UIViewController {
         UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 11, viewController: "SplitViewSecondaryController")
         UIAssert.shared.targetView = nil
     }
-
 }
