@@ -79,17 +79,16 @@ class UIAssert {
             return
         }
         
-        let loadViewSpan = children.first { $0.context.spanDescription == "loadView" }
-        let viewDidLoadSpan = children.first { $0.context.spanDescription == "viewDidLoad" }
-        let viewWillAppearSpan = children.first { $0.context.spanDescription == "viewWillAppear" }
-        let viewDidAppearSpan = children.first { $0.context.spanDescription == "viewDidAppear" }
-        let viewAppearingSpan = children.first { $0.context.spanDescription == "viewAppearing" }
+        func hasChildren(spanDescriptions: [String]) {
+            spanDescriptions.forEach { spanDescription in
+                let span = children.first { $0.context.spanDescription == spanDescription }
+                notNil(span, "\(viewController) has no \(spanDescription) span")
+            }
+        }
         
-        notNil(loadViewSpan, "\(viewController) has no loadView span")
-        notNil(viewDidLoadSpan, "\(viewController) has no viewDidLoad span")
-        notNil(viewWillAppearSpan, "\(viewController) has no viewWillAppear span")
-        notNil(viewDidAppearSpan, "\(viewController) has no viewDidAppear span")
-        notNil(viewAppearingSpan, "\(viewController) has no viewAppearing span")
+        hasChildren(spanDescriptions: [
+            "loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"
+        ])    
         
     }
 }
