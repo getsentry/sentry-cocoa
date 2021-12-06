@@ -191,7 +191,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testURL) { (data, _, _) in
             let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             
-            if (self.canHeaderBeAdded()) {
+            if self.canHeaderBeAdded() {
                 XCTAssertEqual("Hello, world! Trace header added.", response)
             } else {
                 XCTAssertEqual("Hello, world!", response)
