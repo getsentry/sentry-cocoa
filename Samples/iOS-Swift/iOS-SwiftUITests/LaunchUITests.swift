@@ -56,7 +56,7 @@ class LaunchUITests: XCTestCase {
     private func assertApp() {
         let confirmation = app.staticTexts["ASSERT_MESSAGE"]
         let errorMessage = app.staticTexts["ASSERT_ERROR"]
-        XCTAssertTrue(confirmation.waitForExistence(timeout: timeout), "Assertion Not Found")
+        XCTAssertTrue(confirmation.waitForExistence(timeout: timeout), "Assertion Message Not Found")
         
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
     }
