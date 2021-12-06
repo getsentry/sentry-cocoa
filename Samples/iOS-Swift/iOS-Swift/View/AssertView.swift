@@ -5,6 +5,7 @@ import UIKit
 class AssertView: UIView {
     
     var span: Span?
+    var autoHide = true
     
     private var assertLabel: UILabel!
     private var errorLabel: UILabel!
@@ -85,6 +86,9 @@ class AssertView: UIView {
     
     private func close() {
         UIAssert.shared.reset()
+        if autoHide {
+            removeFromSuperview()
+        }
     }
     
 }

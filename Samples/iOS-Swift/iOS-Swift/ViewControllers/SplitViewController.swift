@@ -38,16 +38,32 @@ class SplitRootViewController: UIViewController {
 class SplitViewSecondaryController: UIViewController {
     
     var spanObserver: SpanObserver?
-       
+    var assertView:  AssertView!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
+        
+        assertView = AssertView()
+        assertView.autoHide = false
+        assertView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(assertView)
+        
+        let constraints = [
+            assertView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0),
+            assertView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0),
+            assertView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ]
+        NSLayoutConstraint.activate(constraints)
+        
         spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
     }
     
     func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
-        UIAssert.shared.targetView = self.view
+        UIAssert.shared.targetView = assertView
         UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 11, viewController: "SplitViewSecondaryController")
         UIAssert.shared.targetView = nil
     }

@@ -10,7 +10,7 @@ class UIAssert {
 
     private var isFailed = false
     
-    var targetView: UIView?
+    var targetView: AssertView?
     
     private init() {
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -21,17 +21,18 @@ class UIAssert {
             return
         }
         
-        view.message = success ? "ASSERT: SUCCESS" : "ASSERT: FAIL"
-        view.errorMessage = success ? "" : errorMessage
+        let assetView = targetView ?? view;
+                
+        assetView.message = success ? "ASSERT: SUCCESS" : "ASSERT: FAIL"
+        assetView.errorMessage = success ? "" : errorMessage
         isFailed = !success
         
-        var tempView = targetView
-        if tempView == nil {
-            guard let window = UIApplication.shared.delegate?.window else { return }
-            tempView = window
+        if targetView != nil {
+            return
         }
         
-        guard let target = tempView else { return }
+        guard let window = UIApplication.shared.delegate?.window else { return }
+        guard let target = window else { return }
         
         if view.superview != target {
             view.removeFromSuperview()
