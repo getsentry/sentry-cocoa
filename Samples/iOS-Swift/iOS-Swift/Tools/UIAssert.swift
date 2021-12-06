@@ -21,7 +21,7 @@ class UIAssert {
             return
         }
         
-        let assetView = targetView ?? view;
+        let assetView = targetView ?? view
                 
         assetView.message = success ? "ASSERT: SUCCESS" : "ASSERT: FAIL"
         assetView.errorMessage = success ? "" : errorMessage
