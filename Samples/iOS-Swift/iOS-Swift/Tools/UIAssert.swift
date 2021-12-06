@@ -10,7 +10,7 @@ class UIAssert {
 
     private var isFailed = false
     
-    var targetView : UIView?
+    var targetView: UIView?
     
     private init() {
         view.translatesAutoresizingMaskIntoConstraints = false
