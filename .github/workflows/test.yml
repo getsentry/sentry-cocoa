@@ -18,8 +18,8 @@ jobs:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
     runs-on: macos-11 
     strategy:
+      fail-fast: false        
       matrix:
-        fail-fast: false
         # Can't run tests on watchOS because XCTest is not available  
         platform: ["macOS","Catalyst", "iOS", "tvOS"]
         
