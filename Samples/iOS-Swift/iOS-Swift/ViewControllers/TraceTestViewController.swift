@@ -5,7 +5,6 @@ import UIKit
 class TraceTestViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
-    var span: Span?
     var spanObserver: SpanObserver?
     
     override func viewDidLoad() {
@@ -31,30 +30,16 @@ class TraceTestViewController: UIViewController {
         }
         
         dataTask.resume()
-        if let span = SentrySDK.span, let rootSpan = span.rootSpan() {
-            self.span = span
-            spanObserver = SpanObserver(span: rootSpan)
-            spanObserver?.performOnFinish {
-                self.assertTransaction()
-            }
-        }
+        spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
     }
     
-    func assertTransaction() {
-        guard let span = self.span else {
-            UIAssert.fail("Transaction was not created")
-            return
-        }
-        
+    func assertTransaction(span: Span) {
+        spanObserver?.releaseOnFinish()
         guard let children = span.children() else {
             UIAssert.fail("Transaction has no children")
             return
         }
-                
-        let expectation = 12
-        
-        UIAssert.isEqual(children.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children.count)")
-        
+ 
         guard let child = children.first(where: { $0.context.operation == "http.client" }) else {
             UIAssert.fail("Did not found http request child")
             return
@@ -63,9 +48,7 @@ class TraceTestViewController: UIViewController {
         UIAssert.isEqual(child.data?["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
         
         UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
-        
-        spanObserver?.releaseOnFinish()
-        
-        UIAssert.hasViewControllerLifeCycle(span, "TraceTestViewController")
+                
+        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 12, viewController: "TraceTestViewController")
     }
 }

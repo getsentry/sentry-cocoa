@@ -4,10 +4,16 @@ import Sentry
 class SpanObserver: NSObject {
 
     let span: Span
-    private var callbacks: [String: () -> Void] = [:]
+    private var callbacks: [String: (Span) -> Void] = [:]
     
     init(span: Span) {
         self.span = span
+    }
+    
+    convenience init?(callback: @escaping (Span) -> Void) {
+        guard let span = SentrySDK.span else { return nil }
+        self.init(span: span)
+        self.performOnFinish(callback: callback)
     }
     
     deinit {
@@ -16,7 +22,7 @@ class SpanObserver: NSObject {
         }
     }
     
-    func performOnFinish(callback : @escaping () -> Void) {
+    func performOnFinish(callback : @escaping (Span) -> Void) {
         addSpanObserver(forKeyPath: "timestamp", callback: callback)
     }
     
@@ -26,12 +32,15 @@ class SpanObserver: NSObject {
         }
     }
     
-    func addSpanObserver(forKeyPath keyPath: String, callback : @escaping () -> Void) {
+    func addSpanObserver(forKeyPath keyPath: String, callback : @escaping (Span) -> Void) {
         callbacks[keyPath] = callback
+        //The given span may be a SentryTracer that wont respond to KVO. We need to get the root Span
+        let span = span.rootSpan() ?? span
         (span as? NSObject)?.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
     }
     
     func removeSpanObserver(forKeyPath keyPath: String) {
+        let span = span.rootSpan() ?? span //see `addSpanObserver`
         (span as? NSObject)?.removeObserver(self, forKeyPath: keyPath)
         callbacks.removeValue(forKey: keyPath)
     }
@@ -41,7 +50,7 @@ class SpanObserver: NSObject {
         
         guard let callback = callbacks[key] else { return }
         
-        callback()
+        callback(span)
     }
     
 }

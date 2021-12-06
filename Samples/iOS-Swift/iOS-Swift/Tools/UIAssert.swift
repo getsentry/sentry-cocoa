@@ -73,11 +73,13 @@ class UIAssert {
         shared.assert(success: false, errorMessage: errorMessage)
     }
     
-    static func hasViewControllerLifeCycle(_ span: Span, _ viewController: String) {
-        guard let children = span.children() else {
+    static func checkForViewControllerLifeCycle(_ transaction: Span, expectingSpans: Int, viewController: String) {
+        guard let children = transaction.children() else {
             shared.assert(success: false, errorMessage: "\(viewController) span has no children")
             return
         }
+        
+        UIAssert.isEqual(children.count, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans), got \(children.count)")
         
         func hasChildren(spanDescriptions: [String]) {
             spanDescriptions.forEach { spanDescription in

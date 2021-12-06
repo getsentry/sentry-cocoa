@@ -3,39 +3,17 @@ import Sentry
 import UIKit
 
 class TableViewController: UITableViewController {
-    var span: Span?
     var spanObserver: SpanObserver?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let span = SentrySDK.span, let rootSpan = span.rootSpan() {
-            self.span = span
-            spanObserver = SpanObserver(span: rootSpan)
-            spanObserver?.performOnFinish {
-                self.assertTransaction()
-            }
-        }
+        spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
     }
     
-    func assertTransaction() {
-        guard let span = self.span else {
-            UIAssert.fail("Transaction was not created")
-            return
-        }
-        
-        guard let children = span.children() else {
-            UIAssert.fail("Transaction has no children")
-            return
-        }
-                
-        let expectation = 5
-        
-        UIAssert.isEqual(children.count, expectation, "Transaction did not complete. Expecting \(expectation), got \(children.count)")
-        
+    func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
-        UIAssert.hasViewControllerLifeCycle(span, "TraceTestViewController")
-
+        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 5, viewController: "TableViewController")
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

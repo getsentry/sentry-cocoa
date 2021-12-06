@@ -39,6 +39,7 @@
 		D840D52F273A07F600CDF142 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D840D52D273A07F600CDF142 /* LaunchScreen.storyboard */; };
 		D840D534273A07F600CDF142 /* iOS-SwiftClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = D840D520273A07F400CDF142 /* iOS-SwiftClip.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D840D53C273A08F100CDF142 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D840D53B273A08F100CDF142 /* Assets.xcassets */; };
+		D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */; };
 		D85DAA4C274C244F004DF43C /* LaunchUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85DAA4B274C244F004DF43C /* LaunchUITest.swift */; };
 		D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
@@ -185,6 +186,7 @@
 		D840D530273A07F600CDF142 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D840D531273A07F600CDF142 /* iOS_SwiftClip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS_SwiftClip.entitlements; sourceTree = "<group>"; };
 		D840D53B273A08F100CDF142 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtension.swift; sourceTree = "<group>"; };
 		D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS13-SwiftTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D85DAA4B274C244F004DF43C /* LaunchUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITest.swift; sourceTree = "<group>"; };
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
@@ -389,6 +391,7 @@
 			children = (
 				D8F3D061274EBD4800B56F8C /* SpanExtension.swift */,
 				D8D7BB4B2750095800044146 /* UIViewExtension.swift */,
+				D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -622,6 +625,7 @@
 			files = (
 				D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
+				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				D8F3D062274EBD4800B56F8C /* SpanExtension.swift in Sources */,
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
