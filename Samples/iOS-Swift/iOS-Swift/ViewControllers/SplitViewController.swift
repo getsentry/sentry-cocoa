@@ -80,6 +80,11 @@ class SplitViewSecondaryController: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        log("ViewDidAppear")
+        super.viewDidAppear(animated)
+    }
+    
     func log(_ text: String) {
         processLabel.text! += "\(text)\n"
     }
