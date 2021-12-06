@@ -39,6 +39,7 @@ class SplitViewSecondaryController: UIViewController {
     
     var spanObserver: SpanObserver?
     var assertView: AssertView!
+    var processLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,8 +48,15 @@ class SplitViewSecondaryController: UIViewController {
         assertView = AssertView()
         assertView.autoHide = false
         assertView.translatesAutoresizingMaskIntoConstraints = false
+       
+        processLabel = UILabel()
+        processLabel.text = ""
+        processLabel.numberOfLines = 0
+        processLabel.textColor = UIColor.black
+        processLabel.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(assertView)
+        view.addSubview(processLabel)
         
         let constraints = [
             assertView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0),
@@ -57,14 +65,32 @@ class SplitViewSecondaryController: UIViewController {
         ]
         NSLayoutConstraint.activate(constraints)
         
-        spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
+        let labelConstraints = [
+            processLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16),
+            processLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16),
+            processLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
+        ]
+        NSLayoutConstraint.activate(labelConstraints)
+        
+        log("ViewDidLoad")
+        spanObserver = createTransactionObserver(forCallback: assertTransaction)
+        
+        if spanObserver != nil {
+            log("Observing Transaction")
+        }
+    }
+    
+    func log(_ text: String) {
+        processLabel.text! += "\(text)\n"
     }
     
     func assertTransaction(span: Span) {
+        log("Asserting Transaction")
         spanObserver?.releaseOnFinish()
         UIAssert.shared.targetView = assertView
         UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 11, viewController: "SplitViewSecondaryController")
         UIAssert.shared.targetView = nil
+        log("Asserting Ended")
     }
 
 }

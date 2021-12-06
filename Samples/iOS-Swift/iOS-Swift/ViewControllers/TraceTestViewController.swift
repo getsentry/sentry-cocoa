@@ -30,7 +30,7 @@ class TraceTestViewController: UIViewController {
         }
         
         dataTask.resume()
-        spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
+        spanObserver = createTransactionObserver(forCallback: assertTransaction)
     }
     
     func assertTransaction(span: Span) {

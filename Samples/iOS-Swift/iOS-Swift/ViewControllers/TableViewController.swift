@@ -8,7 +8,7 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
+        spanObserver = createTransactionObserver(forCallback: assertTransaction)
     }
     
     func assertTransaction(span: Span) {
