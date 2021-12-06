@@ -5,10 +5,12 @@ import UIKit
 class UIAssert {
     
     static let shared = UIAssert()
-    
+
     private let view = AssertView()
 
     private var isFailed = false
+    
+    var targetView : UIView?
     
     private init() {
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -23,18 +25,23 @@ class UIAssert {
         view.errorMessage = success ? "" : errorMessage
         isFailed = !success
         
-        guard let window = UIApplication.shared.delegate?.window else { return }
-        guard let targetView = window else { return }
+        var tempView = targetView
+        if tempView == nil {
+            guard let window = UIApplication.shared.delegate?.window else { return }
+            tempView = window
+        }
         
-        if view.superview != targetView {
+        guard let target = tempView else { return }
+        
+        if view.superview != target {
             view.removeFromSuperview()
             
-            targetView.addSubview(view)
+            target.addSubview(view)
             
             let constraints = [
-                view.leftAnchor.constraint(equalTo: targetView.leftAnchor, constant: 0),
-                view.rightAnchor.constraint(equalTo: targetView.rightAnchor, constant: 0),
-                view.bottomAnchor.constraint(equalTo: targetView.bottomAnchor, constant: 0)
+                view.leftAnchor.constraint(equalTo: target.leftAnchor, constant: 0),
+                view.rightAnchor.constraint(equalTo: target.rightAnchor, constant: 0),
+                view.bottomAnchor.constraint(equalTo: target.bottomAnchor, constant: 0)
             ]
             NSLayoutConstraint.activate(constraints)
         }

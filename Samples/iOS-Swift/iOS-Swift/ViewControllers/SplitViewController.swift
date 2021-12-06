@@ -42,13 +42,14 @@ class SplitViewSecondaryController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
-    
         spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
     }
-   
+    
     func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
+        UIAssert.shared.targetView = self.view
         UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 11, viewController: "SplitViewSecondaryController")
+        UIAssert.shared.targetView = nil
     }
 
 }
