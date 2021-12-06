@@ -19,6 +19,7 @@ jobs:
     runs-on: macos-11 
     strategy:
       matrix:
+        fail-fast: false
         # Can't run tests on watchOS because XCTest is not available  
         platform: ["macOS","Catalyst", "iOS", "tvOS"]
         
