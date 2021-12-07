@@ -119,7 +119,7 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-    if (self.isNetworkTrackingEnabled == false && self.isNetworkBreadcrumbEnabled == false) {
+    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled) {
         return;
     }
 
