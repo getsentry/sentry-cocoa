@@ -152,7 +152,7 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-      - run: |
+        run: |
           # As SauceLabs is a bit flaky we retry 2 times
           saucectl run || saucectl run
         
