@@ -21,30 +21,30 @@ class LaunchUITests: XCTestCase {
     }
 
     func testLoremIpsum() {
-        app.buttons["Lorem Ipsum"].tap()
+        app.buttons["loremIpsumButton"].tap()
         XCTAssertTrue(app.textViews.firstMatch.waitForExistence(timeout: timeout), "Lorem Ipsum not loaded.")
     }
     
     func testNavigationTransaction() {
-        app.buttons["Test Navigation Transaction"].tap()
+        app.buttons["testNavigationTransactionButton"].tap()
         XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
         assertApp()
     }
     
     func testShowNib() {
-        app.buttons["Show Nib"].tap()
+        app.buttons["showNibButton"].tap()
         XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Nib ViewController not loaded.")
         assertApp()
     }
 
     func testShowTableView() {
-        app.buttons["Show TableView"].tap()
+        app.buttons["showTableViewButton"].tap()
         XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "TableView not loaded.")
         assertApp()
     }
     
     func testSplitView() {
-        app.buttons["Show SplitView"].tap()
+        app.buttons["showSplitViewButton"].tap()
         XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "SplitView not loaded.")
         
         // This validation is currently not working on iOS 10.
@@ -54,7 +54,7 @@ class LaunchUITests: XCTestCase {
     }
         
     private func waitForExistenseOfMainScreen() {
-        XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
+        XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
     }
     
     private func assertApp() {
