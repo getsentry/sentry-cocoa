@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: iOS13-Swift build (#1522)
 - fix: Check task support on setState: (#1523)
 - fix: Create span for loadView (#1495)
 - feat: Add flag to control network requests breadcrumbs (#1505)
