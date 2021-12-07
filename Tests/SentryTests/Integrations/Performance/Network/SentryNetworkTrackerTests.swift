@@ -88,7 +88,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertNotNil(span)
         setTaskState(task, state: .completed)
-        XCTAssertNil(task.observationInfo)
         XCTAssertTrue(span!.isFinished)
     }
     
@@ -98,16 +97,20 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         XCTAssertNotNil(span)
         setTaskState(task, state: .completed)
-        XCTAssertNil(task.observationInfo)
         XCTAssertTrue(span!.isFinished)
     }
     
     func testIgnoreStreamTask() {
         let task = createStreamTask()
         let span = spanForTask(task: task)
-        
+        //Ignored during resume
         XCTAssertNil(span)
-        XCTAssertNil(task.observationInfo)
+        
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+        //ignored during state change
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let breadcrumb = breadcrumbs?.first
+        XCTAssertNil(breadcrumb)
     }
 
     func testIgnoreSentryApi() {
