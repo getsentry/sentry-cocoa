@@ -113,7 +113,10 @@ jobs:
         run: curl http://localhost:8080/
 
       - name: Run tests
-        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty
+        run: |
+          # Alamofire tests need to fail twice in a row
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty || \
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}
