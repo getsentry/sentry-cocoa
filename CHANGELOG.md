@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.6.0
 
 - fix: Create span for loadView (#1495)
 - feat: Add flag to control network requests breadcrumbs (#1505)
