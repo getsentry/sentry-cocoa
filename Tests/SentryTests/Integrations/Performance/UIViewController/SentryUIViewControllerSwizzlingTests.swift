@@ -25,6 +25,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.start(options: fixture.options)
     }
     
     override func tearDown() {
@@ -34,7 +35,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
     func testShouldSwizzle_TestViewController() {
         let result = fixture.sut.shouldSwizzleViewController(TestViewController.self)
-
         XCTAssertTrue(result)
     }
     
@@ -47,16 +47,19 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     func testShouldNotSwizzle_UIViewController() {
         let result = fixture.sut.shouldSwizzleViewController(UIViewController.self)
-
         XCTAssertFalse(result)
     }
     
-    func testViewControllerWithoutLoadView_NoTransactionBoundToScope() {
-        let controller = TestViewController()
-        
+    func testUIViewController_loadView_noTransactionBoundToScope() {
+        let controller = UIViewController()
         controller.loadView()
-
         XCTAssertNil(SentrySDK.span)
+    }
+    
+    func testViewControllerWithoutLoadView_TransactionBoundToScope() {
+        let controller = TestViewController()
+        controller.loadView()
+        XCTAssertNotNil(SentrySDK.span)
     }
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
@@ -69,7 +72,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertNotNil(span)
         
         let transactionName = Dynamic(span).name.asString
-        let expectedTransactionName = SentryUIViewControllerSanitizer.sanitizeViewControllerName( controller)
+        let expectedTransactionName = SentryUIViewControllerSanitizer.sanitizeViewControllerName(controller)
         XCTAssertEqual(expectedTransactionName, transactionName)
     }
 
