@@ -113,7 +113,10 @@ jobs:
         run: curl http://localhost:8080/
 
       - name: Run tests
-        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty
+        # Alamofire tests need to fail twice in a row
+        run: for i in {1..2}; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty && break ; done
+          
+          
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}
@@ -152,7 +155,9 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: |
-          # As SauceLabs is a bit flaky we retry 2 times
-          saucectl run || saucectl run
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..2}; do saucectl run && break ; done
+          
+          
         
