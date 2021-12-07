@@ -43,6 +43,10 @@ class LaunchUITests: XCTestCase {
         assertApp()
     }
     
+    /**
+     * This test is currently not working on iOS 10.
+     */
+    @available(iOS 11.0, *)
     func testSplitView() {
         app.buttons["Show SplitView"].tap()
         XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "SplitView not loaded.")
