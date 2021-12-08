@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.6.1
 
 - fix: iOS13-Swift build (#1522)
 - fix: Check task support on setState: (#1523)
