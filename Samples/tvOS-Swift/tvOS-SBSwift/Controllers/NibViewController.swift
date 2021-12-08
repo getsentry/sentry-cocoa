@@ -1,11 +1,9 @@
-
 import Foundation
 import UIKit
 
-class NibViewController : UIViewController {
+class NibViewController: UIViewController {
     
-    @IBOutlet var button : UIButton!
-    
+    @IBOutlet var button: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()

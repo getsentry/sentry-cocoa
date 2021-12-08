@@ -1,20 +1,20 @@
-import UIKit
 import Sentry
+import UIKit
 
 class ViewController: UICollectionViewController {
 
     struct Action {
-        var title : String
+        var title: String
         var callback : () -> Void
     }
     
-    var actions : [Action]!
+    var actions: [Action]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(white: 0.8, alpha: 1)
         self.navigationController!.navigationBar.backgroundColor = UIColor.black
-        self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor : UIColor.white]
+        self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
@@ -25,9 +25,9 @@ class ViewController: UICollectionViewController {
         self.collectionView.register(ActionCell.self, forCellWithReuseIdentifier: "ActionCell")
         
         actions = [
-            Action(title: "Open TableViewController", callback:openTableView),
-            Action(title: "Open Nib ViewController", callback:openNibViewController),
-            Action(title: "Open SplitViewController", callback:openSplitViewController),
+            Action(title: "Open TableViewController", callback: openTableView),
+            Action(title: "Open Nib ViewController", callback: openNibViewController),
+            Action(title: "Open SplitViewController", callback: openSplitViewController)
         ]
     }
     
@@ -64,4 +64,3 @@ class ViewController: UICollectionViewController {
         self.present(splitVC, animated: false, completion: nil)
     }
 }
-

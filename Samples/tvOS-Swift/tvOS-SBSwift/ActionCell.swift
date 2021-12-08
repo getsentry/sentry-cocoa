@@ -1,10 +1,9 @@
 import Foundation
 import UIKit
 
-
-class ActionCell : UICollectionViewCell {
+class ActionCell: UICollectionViewCell {
     
-    var titleLabel : UILabel!
+    var titleLabel: UILabel!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
