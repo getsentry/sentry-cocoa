@@ -15,6 +15,13 @@
 		7BA61D70247FA32600C130A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7BA61D6E247FA32600C130A8 /* LaunchScreen.storyboard */; };
 		7BA61D79247FA35500C130A8 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; };
 		7BA61D7A247FA35500C130A8 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA61D78247FA35500C130A8 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D822A4232760D15000E7B241 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4222760D15000E7B241 /* AppDelegate.swift */; };
+		D822A4252760D15000E7B241 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822A4242760D15000E7B241 /* ViewController.swift */; };
+		D822A4282760D15000E7B241 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D822A4262760D15000E7B241 /* Main.storyboard */; };
+		D822A42A2760D15100E7B241 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D822A4292760D15100E7B241 /* Assets.xcassets */; };
+		D822A42D2760D15100E7B241 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D822A42B2760D15100E7B241 /* LaunchScreen.storyboard */; };
+		D822A4322760D7E100E7B241 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D822A4312760D7E100E7B241 /* Sentry.framework */; };
+		D822A4332760D7E100E7B241 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D822A4312760D7E100E7B241 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +46,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D822A4342760D7E100E7B241 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D822A4332760D7E100E7B241 /* Sentry.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +71,13 @@
 		7BA61D6F247FA32600C130A8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7BA61D71247FA32600C130A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BA61D78247FA35500C130A8 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D822A4202760D15000E7B241 /* tvOS-SBSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tvOS-SBSwift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D822A4222760D15000E7B241 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D822A4242760D15000E7B241 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D822A4272760D15000E7B241 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D822A4292760D15100E7B241 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D822A42C2760D15100E7B241 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D822A4312760D7E100E7B241 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +93,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BA61D79247FA35500C130A8 /* Sentry.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D822A41D2760D15000E7B241 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D822A4322760D7E100E7B241 /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +121,7 @@
 			children = (
 				7BA61D64247FA32600C130A8 /* tvOS-Swift */,
 				7B64388726A6C71A000D0F65 /* tvOS-SwiftUITests */,
+				D822A4212760D15000E7B241 /* tvOS-SBSwift */,
 				7BA61D63247FA32600C130A8 /* Products */,
 				7BA61D77247FA35500C130A8 /* Frameworks */,
 			);
@@ -98,6 +132,7 @@
 			children = (
 				7BA61D62247FA32600C130A8 /* tvOS-Swift.app */,
 				7B64388626A6C71A000D0F65 /* tvOS-SwiftUITests.xctest */,
+				D822A4202760D15000E7B241 /* tvOS-SBSwift.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,9 +153,22 @@
 		7BA61D77247FA35500C130A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D822A4312760D7E100E7B241 /* Sentry.framework */,
 				7BA61D78247FA35500C130A8 /* Sentry.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D822A4212760D15000E7B241 /* tvOS-SBSwift */ = {
+			isa = PBXGroup;
+			children = (
+				D822A4222760D15000E7B241 /* AppDelegate.swift */,
+				D822A4242760D15000E7B241 /* ViewController.swift */,
+				D822A4262760D15000E7B241 /* Main.storyboard */,
+				D822A4292760D15100E7B241 /* Assets.xcassets */,
+				D822A42B2760D15100E7B241 /* LaunchScreen.storyboard */,
+			);
+			path = "tvOS-SBSwift";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,13 +210,31 @@
 			productReference = 7BA61D62247FA32600C130A8 /* tvOS-Swift.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D822A41F2760D15000E7B241 /* tvOS-SBSwift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D822A4302760D15100E7B241 /* Build configuration list for PBXNativeTarget "tvOS-SBSwift" */;
+			buildPhases = (
+				D822A41C2760D15000E7B241 /* Sources */,
+				D822A41D2760D15000E7B241 /* Frameworks */,
+				D822A41E2760D15000E7B241 /* Resources */,
+				D822A4342760D7E100E7B241 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "tvOS-SBSwift";
+			productName = "tvOS-SBSwift";
+			productReference = D822A4202760D15000E7B241 /* tvOS-SBSwift.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		7BA61D5A247FA32600C130A8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1250;
+				LastSwiftUpdateCheck = 1310;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "GetSentry LLC";
 				TargetAttributes = {
@@ -178,6 +244,9 @@
 					};
 					7BA61D61247FA32600C130A8 = {
 						CreatedOnToolsVersion = 11.5;
+					};
+					D822A41F2760D15000E7B241 = {
+						CreatedOnToolsVersion = 13.1;
 					};
 				};
 			};
@@ -196,6 +265,7 @@
 			targets = (
 				7BA61D61247FA32600C130A8 /* tvOS-Swift */,
 				7B64388526A6C71A000D0F65 /* tvOS-SwiftUITests */,
+				D822A41F2760D15000E7B241 /* tvOS-SBSwift */,
 			);
 		};
 /* End PBXProject section */
@@ -215,6 +285,16 @@
 				7BA61D70247FA32600C130A8 /* LaunchScreen.storyboard in Resources */,
 				7B34280025876DF000056519 /* Tongariro.jpg in Resources */,
 				7BA61D6A247FA32600C130A8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D822A41E2760D15000E7B241 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D822A42D2760D15100E7B241 /* LaunchScreen.storyboard in Resources */,
+				D822A42A2760D15100E7B241 /* Assets.xcassets in Resources */,
+				D822A4282760D15000E7B241 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +318,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D822A41C2760D15000E7B241 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D822A4252760D15000E7B241 /* ViewController.swift in Sources */,
+				D822A4232760D15000E7B241 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -253,6 +342,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				7BA61D6F247FA32600C130A8 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		D822A4262760D15000E7B241 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D822A4272760D15000E7B241 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		D822A42B2760D15100E7B241 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D822A42C2760D15100E7B241 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -456,6 +561,58 @@
 			};
 			name = Release;
 		};
+		D822A42E2760D15100E7B241 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+			};
+			name = Debug;
+		};
+		D822A42F2760D15100E7B241 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.tvOS-SBSwift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -482,6 +639,15 @@
 			buildConfigurations = (
 				7BA61D75247FA32600C130A8 /* Debug */,
 				7BA61D76247FA32600C130A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D822A4302760D15100E7B241 /* Build configuration list for PBXNativeTarget "tvOS-SBSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D822A42E2760D15100E7B241 /* Debug */,
+				D822A42F2760D15100E7B241 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
