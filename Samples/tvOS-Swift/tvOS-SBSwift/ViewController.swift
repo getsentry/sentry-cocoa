@@ -10,18 +10,28 @@ class ViewController: UICollectionViewController {
     
     var actions : [Action]!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(white: 0.8, alpha: 1)
+        self.navigationController!.navigationBar.backgroundColor = UIColor.black
+        self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor : UIColor.white]
+        
+        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
+        layout.itemSize = CGSize(width: (UIScreen.main.bounds.width / 4) - 20, height: 200)
+        layout.minimumInteritemSpacing = 20
+
+        self.collectionView.collectionViewLayout = layout
+        self.collectionView.register(ActionCell.self, forCellWithReuseIdentifier: "ActionCell")
         
         actions = [
-            Action(title: "", callback:addBreadcrumb),
-            
+            Action(title: "Open TableViewController", callback:openTableView),
+            Action(title: "Open Nib ViewController", callback:openNibViewController),
+            Action(title: "Open SplitViewController", callback:openSplitViewController),
         ]
-        
     }
-
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+    
+       override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
@@ -29,151 +39,29 @@ class ViewController: UICollectionViewController {
         return actions.count
     }
     
-    
-    
-    
-    func addBreadcrumb() {
-        let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
-        crumb.message = "tapped addBreadcrumb"
-        crumb.type = "user"
-        SentrySDK.addBreadcrumb(crumb: crumb)
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let result = collectionView.dequeueReusableCell(withReuseIdentifier: "ActionCell", for: indexPath) as! ActionCell
+        result.titleLabel.text = actions[indexPath.item].title
+        return result
     }
     
-    @IBAction func captureMessage(_ sender: Any) {
-        let eventId = SentrySDK.capture(message: "Yeah captured a message")
-        // Returns eventId in case of successfull processed event
-        // otherwise nil
-        print("\(String(describing: eventId))")
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        actions[indexPath.item].callback()
     }
-    
-    @IBAction func captureUserFeedback(_ sender: Any) {
-        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
-
-        let eventId = SentrySDK.capture(error: error) { scope in
-            scope.setLevel(.fatal)
-        }
         
-        let userFeedback = UserFeedback(eventId: eventId)
-        userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        SentrySDK.capture(userFeedback: userFeedback)
+    private func openTableView() {
+        let tableVC = TableViewController()
+        navigationController?.pushViewController(tableVC, animated: true)
     }
     
-    @IBAction func captureError(_ sender: Any) {
-        do {
-            try RandomErrorGenerator.generate()
-        } catch {
-            SentrySDK.capture(error: error) { (scope) in
-                // Changes in here will only be captured for this event
-                // The scope in this callback is a clone of the current scope
-                // It contains all data but mutations only influence the event being sent
-                scope.setTag(value: "value", key: "myTag")
-            }
-        }
+    private func openNibViewController() {
+        let nibVC = NibViewController()
+        navigationController?.pushViewController(nibVC, animated: true)
     }
     
-    @IBAction func captureNSException(_ sender: Any) {
-        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        let scope = Scope()
-        scope.setLevel(.fatal)
-        // By explicity just passing the scope, only the data in this scope object will be added to the event
-        // The global scope (calls to configureScope) will be ignored
-        // Only do this if you know what you are doing, you loose a lot of useful info
-        // If you just want to mutate what's in the scope use the callback, see: captureError
-        SentrySDK.capture(exception: exception, scope: scope)
+    private func openSplitViewController() {
+        let splitVC = SplitViewController(style: .doubleColumn)
+        self.present(splitVC, animated: false, completion: nil)
     }
-    
-    @IBAction func captureTransaction(_ sender: Any) {
-        let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
-        let span = transaction.startChild(operation: "user", description: "calls out")
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-            span.finish()
-        })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
-            transaction.finish()
-        })
-    }
-   
-    @IBAction func crash(_ sender: Any) {
-        SentrySDK.crash()
-    }
-    
-    @IBAction func asyncCrash(_ sender: Any) {
-        DispatchQueue.main.async {
-            self.asyncCrash1()
-        }
-    }
-    
-    func asyncCrash1() {
-        DispatchQueue.main.async {
-            self.asyncCrash2()
-        }
-    }
-    
-    func asyncCrash2() {
-        DispatchQueue.main.async {
-            SentrySDK.crash()
-        }
-    }
-
-    @IBAction func oomCrash(_ sender: Any) {
-        DispatchQueue.main.async {
-            let megaByte = 1_024 * 1_024
-            let memoryPageSize = NSPageSize()
-            let memoryPages = megaByte / memoryPageSize
-
-            while true {
-                // Allocate one MB and set one element of each memory page to something.
-                let ptr = UnsafeMutablePointer<Int8>.allocate(capacity: megaByte)
-                for i in 0..<memoryPages {
-                    ptr[i * memoryPageSize] = 40
-                }
-            }
-        }
-    }
-
-    @IBAction func dsnChanged(_ sender: UITextField) {
-        let options = Options()
-        options.dsn = sender.text
-        
-        if let dsn = options.dsn {
-            sender.backgroundColor = UIColor.systemGreen
-            
-            dispatchQueue.async {
-                DSNStorage.shared.saveDSN(dsn: dsn)
-            }
-        } else {
-            sender.backgroundColor = UIColor.systemRed
-            
-            dispatchQueue.async {
-                DSNStorage.shared.deleteDSN()
-            }
-        }
-    }
-    
-    @IBAction func resetDSN(_ sender: Any) {
-        self.dsnTextField.text = AppDelegate.defaultDSN
-        self.dsnTextField.backgroundColor = UIColor.systemGreen
-        
-        dispatchQueue.async {
-            DSNStorage.shared.saveDSN(dsn: AppDelegate.defaultDSN)
-        }
-    }
-    
-    @IBAction func showNibController(_ sender: Any) {
-        let nib = NibViewController()
-        nib.title = "Nib View Controller"
-        navigationController?.pushViewController(nib, animated: false)
-    }
-    
-    @IBAction func showTableViewController(_ sender: Any) {
-        let controller = TableViewController(style: .plain)
-        controller.title = "Table View Controller"
-        navigationController?.pushViewController(controller, animated: false)
-    }
-
 }
 
