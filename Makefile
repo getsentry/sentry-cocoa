@@ -1,3 +1,9 @@
+init:
+	brew bundle
+	rbenv install --skip-existing
+	rbenv exec gem update bundler
+	rbenv exec bundle update
+
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
@@ -17,7 +23,7 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | xcpretty -t
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Debug GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | rbenv exec bundle exec xcpretty -t
 .PHONY: test
 
 run-test-server:
@@ -27,7 +33,7 @@ run-test-server:
 
 analyze:
 	rm -r analyzer
-	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t
+	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | rbenv exec bundle exec xcpretty -t
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.

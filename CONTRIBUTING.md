@@ -11,6 +11,8 @@ We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form 
 
 ## Setting up an Environment
 
+💡 You might be able to do everything described below by running `make init`.
+
 You need to install bundler and all dependencies locally to run tests:
 
 ```
@@ -36,7 +38,7 @@ With that, the repo is fully set up and you are ready to run all commands.
 
 ## Tests
 
-The's tests depend on our test server. To run the automated tests, you first need to have the server running locally with
+The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
 
 ```sh
 make run-test-server
