@@ -16,6 +16,7 @@
 {
     [SentryNSDataTracker.sharedInstance disable];
 }
+
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
