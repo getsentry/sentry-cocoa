@@ -288,6 +288,7 @@ DEPENDENCIES
   fastlane
   fastlane-plugin-sentry
   rest-client
+  xcpretty
 
 BUNDLED WITH
    2.2.33
