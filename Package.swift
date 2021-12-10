@@ -19,6 +19,9 @@ let package = Package(
                 "SentryCrash/"
             ],
             publicHeadersPath: "Sentry/Public/",
+            cSettings: [
+                .define("NS_BLOCK_ASSERTIONS", to: "1", .when(configuration: .release))
+            ],
             cxxSettings: [
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath("Sentry/include"),
