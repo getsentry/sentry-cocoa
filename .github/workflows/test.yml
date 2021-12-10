@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - run: swift build
         working-directory: test-server
