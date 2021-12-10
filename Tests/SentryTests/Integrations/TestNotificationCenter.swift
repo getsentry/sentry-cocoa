@@ -65,4 +65,8 @@ class TestNotificationCenter {
         NotificationCenter.default.post(Notification(name: UIWindow.didBecomeVisibleNotification))
         #endif
     }
+    
+    static func localeDidChange() {
+        NotificationCenter.default.post(Notification(name: NSLocale.currentLocaleDidChangeNotification))
+    }
 }
