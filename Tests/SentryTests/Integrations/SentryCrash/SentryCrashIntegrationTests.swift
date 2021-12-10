@@ -143,10 +143,8 @@ class SentryCrashIntegrationTests: XCTestCase {
     #endif
     
     func testEndSessionAsCrashed_NoClientSet() {
-        let hub = SentryHub(client: nil, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        let (sut, _) = givenSutWithGlobalHub()
         
-        let sut = fixture.getSut()
         sut.install(with: Options())
         
         let fileManager = fixture.fileManager
@@ -168,9 +166,8 @@ class SentryCrashIntegrationTests: XCTestCase {
     }
     
     func testEndSessionAsCrashed_NoCurrentSession() {
-        SentrySDK.setCurrentHub(fixture.hub)
+        let (sut, _) = givenSutWithGlobalHub()
         
-        let sut = fixture.getSut()
         sut.install(with: Options())
         
         let fileManager = fixture.fileManager
@@ -204,16 +201,53 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertTrue(fixture.sentryCrash.deactivateAsyncHooksCalled)
     }
     
-    func testOSCorrectlySetToScopeContext() {
-        let hub = fixture.hub
-        SentrySDK.setCurrentHub(hub)
+    func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
+        let (sut, hub) = givenSutWithGlobalHub()
+
+        sut.install(with: Options())
+
+        let locale = "garbage"
+        setLocaleToGlobalScope(locale: locale)
         
-        let sut = fixture.getSut()
+        sut.uninstall()
+        
+        TestNotificationCenter.localeDidChange()
+        
+        assertLocaleOnHub(locale: locale, hub: hub)
+    }
+    
+    func testOSCorrectlySetToScopeContext() {
+        let (sut, hub) = givenSutWithGlobalHub()
+        
         sut.install(with: Options())
         
-        let context = hub.scope.serialize()["context"]as? [String: Any] ?? ["": ""]
+        assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
+    }
+    
+    func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() {
+        let (sut, hub) = givenSutWithGlobalHub()
         
-        assertContext(context: context)
+        sut.install(with: Options())
+        
+        SentrySDK.configureScope { scope in
+            scope.removeContext(key: "device")
+        }
+        
+        TestNotificationCenter.localeDidChange()
+        
+        assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
+    }
+    
+    func testLocaleChanged_DifferentLocale_SetsCurrentLocale() {
+        let (sut, hub) = givenSutWithGlobalHub()
+        
+        sut.install(with: Options())
+        
+        setLocaleToGlobalScope(locale: "garbage")
+        
+        TestNotificationCenter.localeDidChange()
+        
+        assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
     
     private func givenCurrentSession() -> SentrySession {
@@ -237,6 +271,26 @@ class SentryCrashIntegrationTests: XCTestCase {
         fixture.fileManager.store(appState)
     }
     #endif
+    
+    private func givenSutWithGlobalHub() -> (SentryCrashIntegration, SentryHub) {
+        let sut = fixture.getSut()
+        let hub = fixture.hub
+        SentrySDK.setCurrentHub(hub)
+
+        return (sut, hub)
+    }
+    
+    private func setLocaleToGlobalScope(locale: String) {
+        SentrySDK.configureScope { scope in
+            guard var device = scope.contextDictionary["device"] as? [String: Any] else {
+                XCTFail("No device found on context.")
+                return
+            }
+            
+            device["locale"] = locale
+            scope.setContext(value: device, key: "device")
+        }
+    }
     
     private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
         if let actual = userInfo[key] as? String {
@@ -279,6 +333,19 @@ class SentryCrashIntegrationTests: XCTestCase {
         XCTAssertEqual("tvOS", os["name"] as? String)
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
         #endif
+        
+        XCTAssertEqual(Locale.autoupdatingCurrent.identifier, device["locale"] as? String)
+    }
+    
+    private func assertLocaleOnHub(locale: String, hub: SentryHub) {
+        let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
+        
+        guard let device = context["device"] as? [String: Any] else {
+            XCTFail("No device found on context.")
+            return
+        }
+        
+        XCTAssertEqual(locale, device["locale"] as? String)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
