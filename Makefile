@@ -1,5 +1,5 @@
 init:
-	wehich brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
