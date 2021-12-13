@@ -6,12 +6,10 @@ lint:
 
 # Format all h,c,cpp and m files
 format:
-	@find . -type f \
-		-name "*.h" \
-		-o -name "*.c" \
-		-o -name "*.cpp" \
-		-o -name "*.m" \
+	@find . -type f \( -name "*.h" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" \) -and \
+		! \( -path "**.build/*" -or -path "**/libs/**" \) \
 		| xargs clang-format -i -style=file
+	
 	swiftlint autocorrect
 .PHONY: format
 

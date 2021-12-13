@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Send Locale with Events (#1539)
+
 ## 7.6.1
 
 - fix: iOS13-Swift build (#1522)
