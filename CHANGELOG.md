@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- build: Disable NSAssertions for Release Builds (#1544)
 - feat: Send Locale with Events (#1539)
 
 ## 7.6.1
