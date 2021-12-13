@@ -11,30 +11,7 @@ We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form 
 
 ## Setting up an Environment
 
-💡 You might be able to do everything described below by running `make init`.
-
-You need to install bundler and all dependencies locally to run tests:
-
-```
-gem install bundler
-bundle install
-```
-
-
-All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). To install Clang Format:
-
-```sh
-npm install -g clang-format
-# OR
-brew install clang-format
-# OR
-apt-get install clang-format
-```
-
-[Install SwiftLint](https://github.com/realm/SwiftLint#installation) for linting and 
-formatting Swift code.
-
-With that, the repo is fully set up and you are ready to run all commands.
+Run `make init` to get started. This will install `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
 
 ## Tests
 
@@ -60,14 +37,14 @@ make test
 Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
 as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
 
-Only PRs with properly formatted code are acccepted. To format all code run:
+All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). Simply run the make task before submitting your changes for review:
 
 ```sh
 make format
 ```
 
 ## Linting
-We use Swiftlint and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
+We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
 
 ```sh
 make lint
