@@ -27,9 +27,11 @@ jobs:
       - name: Set Sentry Pod to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 'pod 'Sentry'/pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.event.pull_request.head.sha }}'/g' Podfile
+            ESCAPED_REPLACE=$(printf '%q\n' "pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.event.pull_request.head.sha }}'")
+            sed -i '' 'pod \'Sentry\'/$ESCAPED_REPLACE/g' Podfile
           else
-            sed -i '' 'pod 'Sentry'/pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.sha }}'/g' Podfile
+            ESCAPED_REPLACE=$(printf '%q\n' "pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.sha }}'")
+            sed -i '' 'pod \'Sentry\'/$ESCAPED_REPLACE/g' Podfile
           fi  
         shell: bash
 
