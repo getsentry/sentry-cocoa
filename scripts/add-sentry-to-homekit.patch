@@ -11,14 +11,40 @@ index d2d83b14..6756f31b 100644
  pod 'UIColor_Hex_Swift'
  pod 'Version'
  pod 'XCGLogger'
+diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
+index 8e0e35f4..0cb45503 100644
+--- a/Sources/App/AppDelegate.swift
++++ b/Sources/App/AppDelegate.swift
+@@ -13,6 +13,7 @@ import SafariServices
+ import Shared
+ import UIKit
+ import XCGLogger
++import Sentry
+ 
+ let keychain = Constants.Keychain
+ 
+@@ -125,6 +126,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+         _ application: UIApplication,
+         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+     ) -> Bool {
++        SentrySDK.start { options in
++            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
++            options.tracesSampleRate = 1.0
++        }
++        
+         if NSClassFromString("XCTest") != nil {
+             return true
+         }
 diff --git a/Sources/Shared/Environment/CrashReporter.swift b/Sources/Shared/Environment/CrashReporter.swift
-index b8eb37f0..0fdbd214 100644
+index b8eb37f0..046e7851 100644
 --- a/Sources/Shared/Environment/CrashReporter.swift
 +++ b/Sources/Shared/Environment/CrashReporter.swift
-@@ -22,32 +22,15 @@ public class CrashReporterImpl: CrashReporter {
+@@ -20,34 +20,6 @@ public class CrashReporterImpl: CrashReporter {
+         Current.Log.add(destination: with(SentryLogDestination()) {
+             $0.outputLevel = .warning
          })
- 
-         SentrySDK.start { options in
+-
+-        SentrySDK.start { options in
 -            options.dsn = "https://762c198b86594fa2b6bedf87028db34d@o427061.ingest.sentry.io/5372775"
 -            options.debug = Current.appConfiguration == .Debug
 -            options.enableAutoSessionTracking = Current.settingsStore.privacy.analytics
@@ -44,15 +70,7 @@ index b8eb37f0..0fdbd214 100644
 -            }
 -
 -            options.integrations = integrations
-+            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-+            // options.tracesSampler = { _ in
-+            //     // Discard all traces, but let APM run.
-+            //     return 0
-+            // }
-+            options.tracesSampleRate = 1.0
-         }
-+
-+        SentrySDK.capture(message: "Hello from Home Assistant")
+-        }
      }
  
      public func setUserProperty(value: String?, name: String) {
