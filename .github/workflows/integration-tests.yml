@@ -22,18 +22,27 @@ jobs:
           ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
       
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
-      # the github.sha is be the pre merge commit id for PRs.
+      # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Set Sentry Pod to current git commit
+      - name: Download Patch
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            ESCAPED_REPLACE=$(printf '%q' "pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.event.pull_request.head.sha }}'")
-            sed -i '' 'pod \'Sentry\'/$ESCAPED_REPLACE/g' Podfile
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-homekit.patch --output sentry.patch
           else
-            ESCAPED_REPLACE=$(printf '%q' "pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '${{ github.sha }}'")
-            sed -i '' 'pod \'Sentry\'/$ESCAPED_REPLACE/g' Podfile
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-homekit.patch --output sentry.patch
           fi  
         shell: bash
+
+      - name: Set SPM revision to current git commit
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
+          else
+            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
+          fi  
+        shell: bash
+      
+      - run: git apply sentry.patch  
 
       - uses: actions/cache@v2
         name: "Cache: Pods"
