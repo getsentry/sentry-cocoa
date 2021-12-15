@@ -29,25 +29,8 @@ jobs:
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Download Patch
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-homekit.patch --output sentry.patch
-          else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-homekit.patch --output sentry.patch
-          fi  
-        shell: bash
-
-      - name: Set SPM revision to current git commit
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
-          else
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
-          fi  
-        shell: bash
-      
-      - run: git apply sentry.patch  
+      - name: Download and Apply Patch
+        run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
       - uses: actions/cache@v2
         name: "Cache: Pods"
@@ -85,29 +68,12 @@ jobs:
         with:
           repository: 'videolan/vlc-ios'
           ref: 'f2d4a28031509f263255457c91703b6d2f388b65'
-      
+
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Download Patch
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-vlc.patch --output sentry.patch
-          else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-vlc.patch --output sentry.patch
-          fi  
-        shell: bash
-
-      - name: Set SPM revision to current git commit
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
-          else
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
-          fi  
-        shell: bash
-      
-      - run: git apply sentry.patch
+      - name: Download and Apply Patch
+        run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
 
       - uses: actions/cache@v2
         name: "Cache: Pods"
