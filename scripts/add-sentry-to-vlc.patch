@@ -1,0 +1,40 @@
+diff --git a/Podfile b/Podfile
+index efdc34e6..95a5a944 100644
+--- a/Podfile
++++ b/Podfile
+@@ -10,6 +10,8 @@ def shared_pods
+   pod 'AFNetworking', '~>4.0'
+ 
+   pod 'AppCenter', '~>4.1'
++  pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
++  
+   # debug
+   pod 'SwiftLint', '~> 0.25.0', :configurations => ['Debug']
+ end
+diff --git a/Sources/VLCAppDelegate.m b/Sources/VLCAppDelegate.m
+index 45e05469..cbddbe19 100644
+--- a/Sources/VLCAppDelegate.m
++++ b/Sources/VLCAppDelegate.m
+@@ -23,6 +23,7 @@
+ #import <AppCenter/AppCenter.h>
+ #import <AppCenterAnalytics/AppCenterAnalytics.h>
+ #import <AppCenterCrashes/AppCenterCrashes.h>
++#import <Sentry/Sentry.h>
+ 
+ NSString *VLCAppCenterAppID = @"0114ca8e-2652-44ce-588d-2ebd035c3577";
+ 
+@@ -136,6 +137,14 @@ NSString *VLCAppCenterAppID = @"0114ca8e-2652-44ce-588d-2ebd035c3577";
+ - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+ {
+     [MSACAppCenter start:VLCAppCenterAppID withServices:@[[MSACAnalytics class], [MSACCrashes class]]];
++    
++    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
++        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
++        options.tracesSampler = ^NSNumber * (SentrySamplingContext * samplingContext) {
++            // Discard all traces.
++            return @0;
++            };
++    }];
+ 
+     self.orientationLock = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscape;
+ 
