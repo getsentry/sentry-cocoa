@@ -39,7 +39,7 @@ jobs:
         shell: bash
 
       - name: Download and Apply Patch
-        run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
+        run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
       - uses: actions/cache@v2
         name: "Cache: Pods"
@@ -91,7 +91,7 @@ jobs:
         shell: bash
 
       - name: Download and Apply Patch
-        run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
+        run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
 
       - uses: actions/cache@v2
         name: "Cache: Pods"
