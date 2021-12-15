@@ -32,9 +32,9 @@ jobs:
       - name: Download Apply Patch Script
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           fi  
         shell: bash
 
@@ -84,9 +84,9 @@ jobs:
       - name: Download Apply Patch Script
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           fi  
         shell: bash
 
