@@ -7,11 +7,10 @@ on:
 
 jobs:
 
-  # We borrow the tests of Home Assistant under the MIT license: https://github.com/home-assistant/iOS.
+  # We borrow the tests of Home Assistant under the Apache license: https://github.com/home-assistant/iOS.
   # The following steps checkout Home Assistant and apply a github patch to the project. The patch adds
-  # Sentry to the tests with auto performance monitoring enabled. While the tests are running a 
-  # transaction is bound to the scope, so the Sentry SDK adds spans to the transaction. This doesn't
-  # validate if the Sentry SDK adds proper spans.
+  # Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
+  # adding our SDK doesn't cause any major issues.
   home-assistant-tests:
     runs-on: macos-11
     strategy:
@@ -72,6 +71,10 @@ jobs:
       - name: Run tests
         run: bundle exec fastlane test
 
+  # We borrow the tests of VLC iOS under the GPLv2 (or later) and the MPLv2: https://github.com/videolan/vlc-ios
+  # The following steps checkout VLC and apply a github patch to the project. The patch adds
+  # Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
+  # adding our SDK doesn't cause any major issues.
   vlc-tests:
     runs-on: macos-11
     steps:
@@ -90,7 +93,7 @@ jobs:
           else
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           fi
-          
+
           chmod +x apply-patch.sh
         shell: bash
 

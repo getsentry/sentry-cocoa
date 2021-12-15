@@ -83,25 +83,19 @@ jobs:
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Download Patch
+      - name: Download Apply Patch Script
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha  }}/scripts/add-sentry-to-alamofire.patch --output sentry.patch
-          fi  
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
+          fi
+          
+          chmod +x apply-patch.sh
         shell: bash
 
-      - name: Set SPM revision to current git commit
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.event.pull_request.head.sha }}/g' sentry.patch 
-          else
-            sed -i '' 's/__GITHUB_REVISION_PLACEHOLDER__/${{ github.sha }}/g' sentry.patch 
-          fi  
-        shell: bash
-      
-      - run: git apply sentry.patch  
+      - name: Download and Apply Patch
+        run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-alamofire
 
       - name: Install Firewalk
         run: brew install alamofire/alamofire/firewalk
