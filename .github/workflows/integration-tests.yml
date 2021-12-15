@@ -35,7 +35,8 @@ jobs:
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           else
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
-          fi  
+          fi
+
           chmod +x apply-patch.sh
         shell: bash
 
@@ -89,6 +90,7 @@ jobs:
           else
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           fi
+          
           chmod +x apply-patch.sh
         shell: bash
 
