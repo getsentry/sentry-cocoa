@@ -9,7 +9,7 @@ if [[ "$PULL_REQUEST_SHA" != "" ]]; then
     SHA=$PULL_REQUEST_SHA
 else
     SHA=$GITHUB_SHA
-fi  
+fi
 
 curl "https://raw.githubusercontent.com/getsentry/sentry-cocoa/${SHA}/scripts/${PATCH_FILE}.patch" --output sentry.patch
 

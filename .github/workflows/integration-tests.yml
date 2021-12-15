@@ -29,6 +29,15 @@ jobs:
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+      - name: Download Apply Patch Script
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh
+          else
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh
+          fi  
+        shell: bash
+
       - name: Download and Apply Patch
         run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
@@ -72,6 +81,15 @@ jobs:
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+      - name: Download Apply Patch Script
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh
+          else
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh
+          fi  
+        shell: bash
+
       - name: Download and Apply Patch
         run: ./scripts/apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
 
