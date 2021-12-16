@@ -44,9 +44,9 @@ SentryNSDataTracker ()
     }
 }
 
-- (SentrySpanId *)startTrackingForNSData:(NSData *)data filePath:(NSString *)path
+- (SentrySpanId *)startTrackingWritingNSData:(NSData *)data
+                                    filePath:(NSString *)path
 {
-
     if (![self shouldTrackPath:path])
         return nil;
 
@@ -54,7 +54,8 @@ SentryNSDataTracker ()
                                                  operation:SENTRY_IO_WRITE_OPERATION];
 
     id<SentrySpan> span = [self.tracker getSpan:spanId];
-    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"length"];
+    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
+    [span setDataValue:path forKey:@"file.path"];
 
     return spanId;
 }
@@ -64,7 +65,7 @@ SentryNSDataTracker ()
            atomically:(BOOL)useAuxiliaryFile
                method:(BOOL (^)(NSString *, BOOL))method
 {
-    SentrySpanId *spanId = [self startTrackingForNSData:data filePath:path];
+    SentrySpanId *spanId = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, useAuxiliaryFile);
 
@@ -80,7 +81,7 @@ SentryNSDataTracker ()
                 error:(NSError **)error
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
-    SentrySpanId *spanId = [self startTrackingForNSData:data filePath:path];
+    SentrySpanId *spanId = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, writeOptionsMask, error);
 
@@ -90,6 +91,31 @@ SentryNSDataTracker ()
 
     return result;
 }
+
+
+
+- (NSData *)measureNSDataFromFile:(NSString *)path
+                           method:(id (^)(NSString *))method {
+    return  method(path);
+}
+
+
+- (NSData *)measureNSDataFromFile:(NSString *)path
+                          options:(NSDataReadingOptions)readOptionsMask
+                            error:(NSError **)error
+                           method:(id (^)(NSString *, NSDataReadingOptions, NSError **))method {
+    return method(path, readOptionsMask, error);
+}
+
+
+- (NSData *)measureNSDataFromURL:(NSString *)url
+                         options:(NSDataReadingOptions)readOptionsMask
+                           error:(NSError **)error
+                          method:(id (^)(NSString *, NSDataReadingOptions, NSError **))method {
+    return method(url, readOptionsMask, error);
+}
+
+
 
 - (BOOL)shouldTrackPath:(NSString *)path
 {

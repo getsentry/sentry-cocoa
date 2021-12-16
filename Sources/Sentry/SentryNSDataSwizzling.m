@@ -53,6 +53,36 @@
                        }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
+    
+    SEL initWithContentOfFileOptionsErrorSelector = NSSelectorFromString(@"initWithContentsOfFile:options:error:");
+    SentrySwizzleInstanceMethod(NSData.class,
+                                initWithContentOfFileOptionsErrorSelector,
+                                SentrySWReturnType(NSData *),
+                                SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error),
+                                SentrySWReplacement({
+        return SentrySWCallOriginal(path, options, error);
+    }),
+    SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentOfFileOptionsErrorSelector);
+    
+    SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
+    SentrySwizzleInstanceMethod(NSData.class,
+                                initWithContentsOfFileSelector,
+                                SentrySWReturnType(NSData *),
+                                SentrySWArguments(NSString * path),
+                                SentrySWReplacement({
+        return SentrySWCallOriginal(path);
+    }),
+    SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentsOfFileSelector);
+    
+    SEL initWithContentsOfURLOptionsErrorSelector = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
+    SentrySwizzleInstanceMethod(NSData.class,
+                                initWithContentsOfURLOptionsErrorSelector,
+                                SentrySWReturnType(NSData *),
+                                SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
+                                SentrySWReplacement({
+            return SentrySWCallOriginal(url, options, error);
+    }),
+    SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentsOfURLOptionsErrorSelector);
 }
 #pragma clang diagnostic pop
 @end
