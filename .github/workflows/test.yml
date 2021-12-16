@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: 'Alamofire/Alamofire'
-          ref: '26b8c9a41aa03f0356f957ab62e9ca6b1068afe0'
+          ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
      
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
@@ -129,8 +129,10 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 
 
+      # GitHub Actions sometimes fail to launch the UI tests. 
+      # Therefore we retry
       - name: Run Fastlane
-        run: fastlane ui_tests_${{matrix.target}}
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
 
   ios-swift-saucelabs:
