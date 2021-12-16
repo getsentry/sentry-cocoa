@@ -76,24 +76,27 @@ class UIAssert {
         shared.assert(success: false, errorMessage: errorMessage)
     }
     
-    static func checkForViewControllerLifeCycle(_ transaction: Span, expectingSpans: Int, viewController: String) {
-        guard let children = transaction.children() else {
+    static func checkForViewControllerLifeCycle(_ transaction: Span, expectingSpans: Int, viewController: String, stepsToCheck: [String]? = nil, checkExcess: Bool = false) {
+        guard var children = transaction.children() else {
             shared.assert(success: false, errorMessage: "\(viewController) span has no children")
             return
         }
         
-        UIAssert.isEqual(children.count, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans), got \(children.count)")
+        let numberOfSpans = children.count
+        let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"]
+        var missing = [String]()
         
-        func hasChildren(spanDescriptions: [String]) {
-            spanDescriptions.forEach { spanDescription in
-                let span = children.first { $0.context.spanDescription == spanDescription }
-                notNil(span, "\(viewController) has no \(spanDescription) span")
+        steps.forEach { spanDescription in
+            let index = children.firstIndex { $0.context.spanDescription == spanDescription }
+            
+            if let spanIndex = index {
+                children.remove(at: spanIndex)
+            } else {
+                missing.append(spanDescription)
             }
         }
         
-        hasChildren(spanDescriptions: [
-            "loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"
-        ])    
-        
+        UIAssert.isEqual(missing.count, 0, "Following spans not found: \(missing.joined(separator: ", "))")
+        UIAssert.isEqual(numberOfSpans, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans) spans, got \(children.count)")
     }
 }
