@@ -5,8 +5,9 @@ class LaunchUITests: XCTestCase {
     private let timeout: TimeInterval = 10
     private let app: XCUIApplication = XCUIApplication()
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() {
+        super.setUp()
+        
         continueAfterFailure = false
         
         app.launch()
@@ -15,9 +16,10 @@ class LaunchUITests: XCTestCase {
         waitForExistenseOfMainScreen()
     }
     
-    override func tearDownWithError() throws {
-        try super.tearDownWithError()
+    override func tearDown() {
         app.terminate()
+        
+        super.tearDown()
     }
 
     func testLoremIpsum() {
