@@ -91,26 +91,22 @@ jobs:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 13.2
 
-      # GitHub Actions sometimes fail to launch the UI tests. 
-      # Therefore we retry
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
         shell: sh     
           
 
+  # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ui-ios-12:
-    name: UI Tests for ${{matrix.device}}
+    name: UI Tests for iOS 12
     runs-on: macos-10.15
-    strategy:
-      matrix:
-        device: ["iPhone 8 (12.4)"]
 
     steps:
       - uses: actions/checkout@v2
 
-      # GitHub Actions sometimes fail to launch the UI tests. 
-      # Therefore we retry
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
         shell: sh     
            
