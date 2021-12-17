@@ -15,7 +15,7 @@ suites:
   - name: "iOS-Swift"
     devices:
       - name: "iPhone.*"
-        platformVersion: "15.1"
+        platformVersion: "15.2"
 
       - name: "iPhone.*"
         platformVersion: "14.8"
