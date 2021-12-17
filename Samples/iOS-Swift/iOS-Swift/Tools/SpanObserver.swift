@@ -7,7 +7,8 @@ class SpanObserver: NSObject {
     private var callbacks: [String: (Span) -> Void] = [:]
     
     init(span: Span) {
-        self.span = span
+        //The given span may be a SentryTracer that wont respond to KVO. We need to get the root Span
+        self.span = span.rootSpan() ?? span
     }
     
     convenience init?(callback: @escaping (Span) -> Void) {
@@ -34,13 +35,10 @@ class SpanObserver: NSObject {
     
     func addSpanObserver(forKeyPath keyPath: String, callback : @escaping (Span) -> Void) {
         callbacks[keyPath] = callback
-        //The given span may be a SentryTracer that wont respond to KVO. We need to get the root Span
-        let span = span.rootSpan() ?? span
         (span as? NSObject)?.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
     }
     
     func removeSpanObserver(forKeyPath keyPath: String) {
-        let span = span.rootSpan() ?? span //see `addSpanObserver`
         (span as? NSObject)?.removeObserver(self, forKeyPath: keyPath)
         callbacks.removeValue(forKey: keyPath)
     }
