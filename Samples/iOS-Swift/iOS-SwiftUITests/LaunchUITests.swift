@@ -29,7 +29,8 @@ class LaunchUITests: XCTestCase {
     
     func testNavigationTransaction() {
         app.buttons["testNavigationTransactionButton"].tap()
-        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
+        // We load an image from the web so increase the timeout
+        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: 30), "Navigation transaction not loaded.")
         assertApp()
     }
     
