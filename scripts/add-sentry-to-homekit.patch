@@ -1,0 +1,76 @@
+diff --git a/Podfile b/Podfile
+index d2d83b14..6756f31b 100644
+--- a/Podfile
++++ b/Podfile
+@@ -30,7 +30,7 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
+ pod 'PromiseKit'
+ 
+ pod 'RealmSwift'
+-pod 'Sentry'
++pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => 'c9b42ad58ddce3b26df04133cf0c6355ede22410'
+ pod 'UIColor_Hex_Swift'
+ pod 'Version'
+ pod 'XCGLogger'
+diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
+index 8e0e35f4..0cb45503 100644
+--- a/Sources/App/AppDelegate.swift
++++ b/Sources/App/AppDelegate.swift
+@@ -13,6 +13,7 @@ import SafariServices
+ import Shared
+ import UIKit
+ import XCGLogger
++import Sentry
+ 
+ let keychain = Constants.Keychain
+ 
+@@ -125,6 +126,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+         _ application: UIApplication,
+         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+     ) -> Bool {
++        SentrySDK.start { options in
++            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
++            options.tracesSampleRate = 1.0
++        }
++        
+         if NSClassFromString("XCTest") != nil {
+             return true
+         }
+diff --git a/Sources/Shared/Environment/CrashReporter.swift b/Sources/Shared/Environment/CrashReporter.swift
+index b8eb37f0..046e7851 100644
+--- a/Sources/Shared/Environment/CrashReporter.swift
++++ b/Sources/Shared/Environment/CrashReporter.swift
+@@ -20,34 +20,6 @@ public class CrashReporterImpl: CrashReporter {
+         Current.Log.add(destination: with(SentryLogDestination()) {
+             $0.outputLevel = .warning
+         })
+-
+-        SentrySDK.start { options in
+-            options.dsn = "https://762c198b86594fa2b6bedf87028db34d@o427061.ingest.sentry.io/5372775"
+-            options.debug = Current.appConfiguration == .Debug
+-            options.enableAutoSessionTracking = Current.settingsStore.privacy.analytics
+-            options.maxBreadcrumbs = 1000
+-
+-            var integrations = type(of: options).defaultIntegrations()
+-
+-            let analyticsIntegrations = Set([
+-                "SentryAutoBreadcrumbTrackingIntegration",
+-                "SentryAutoSessionTrackingIntegration",
+-            ])
+-
+-            let crashesIntegrations = Set([
+-                "SentryCrashIntegration",
+-            ])
+-
+-            if !Current.settingsStore.privacy.crashes {
+-                integrations.removeAll(where: { crashesIntegrations.contains($0) })
+-            }
+-
+-            if !Current.settingsStore.privacy.analytics {
+-                integrations.removeAll(where: { analyticsIntegrations.contains($0) })
+-            }
+-
+-            options.integrations = integrations
+-        }
+     }
+ 
+     public func setUserProperty(value: String?, name: String) {

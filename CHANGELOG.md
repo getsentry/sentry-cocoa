@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.7.0
 
 - build: Disable NSAssertions for Release Builds (#1544)
 - feat: Send Locale with Events (#1539)
