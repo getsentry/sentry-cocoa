@@ -15,10 +15,9 @@ suites:
   - name: "iOS-Swift"
     devices:
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "10.3.2"
+        
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "11.4.1"
       
 artifacts:

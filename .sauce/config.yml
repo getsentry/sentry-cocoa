@@ -15,15 +15,12 @@ suites:
   - name: "iOS-Swift"
     devices:
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "15.1"
 
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "14.8"
       
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "13.7"
       
 artifacts:

@@ -107,7 +107,7 @@ jobs:
         run: for i in {1..2}; do saucectl run && break ; done
 
   ios-10-swift-saucelabs:
-    name: SauceLabs for iOS Swift on iOS 10
+    name: SauceLabs for iOS Swift Xcode 12
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2

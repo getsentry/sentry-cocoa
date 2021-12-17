@@ -2,7 +2,6 @@ import XCTest
 
 class LaunchUITests: XCTestCase {
     
-    private let timeout: TimeInterval = 10
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
@@ -11,20 +10,18 @@ class LaunchUITests: XCTestCase {
         continueAfterFailure = false
         
         app.launch()
-        XCUIDevice.shared.orientation = .portrait
         
         waitForExistenseOfMainScreen()
     }
     
     override func tearDown() {
         app.terminate()
-        
         super.tearDown()
     }
 
     func testLoremIpsum() {
         app.buttons["loremIpsumButton"].tap()
-        XCTAssertTrue(app.textViews.firstMatch.waitForExistence(timeout: timeout), "Lorem Ipsum not loaded.")
+        XCTAssertTrue(app.textViews.firstMatch.waitForExistence(), "Lorem Ipsum not loaded.")
     }
     
     func testNavigationTransaction() {
@@ -36,13 +33,13 @@ class LaunchUITests: XCTestCase {
     
     func testShowNib() {
         app.buttons["showNibButton"].tap()
-        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Nib ViewController not loaded.")
+        XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(), "Nib ViewController not loaded.")
         assertApp()
     }
 
     func testShowTableView() {
         app.buttons["showTableViewButton"].tap()
-        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(timeout: timeout), "TableView not loaded.")
+        XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(), "TableView not loaded.")
         assertApp()
     }
     
@@ -57,7 +54,7 @@ class LaunchUITests: XCTestCase {
     }
         
     private func waitForExistenseOfMainScreen() {
-        XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
+        XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(), "Home Screen doesn't exist.")
     }
     
     private func assertApp() {
@@ -68,4 +65,14 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
     }
     
+}
+
+let timeout = TimeInterval(10)
+
+extension XCUIElement {
+
+    @discardableResult
+    func waitForExistence() -> Bool {
+        self.waitForExistence(timeout: timeout)
+    }
 }
