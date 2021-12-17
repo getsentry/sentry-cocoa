@@ -97,4 +97,20 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
         shell: sh     
           
-        
+
+  ui-tests-swift-ui-ios-12:
+    name: UI Tests for ${{matrix.device}}
+    runs-on: macos-10.15
+    strategy:
+      matrix:
+        device: ["iPhone 8 (12.4)"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # GitHub Actions sometimes fail to launch the UI tests. 
+      # Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        shell: sh     
+           
