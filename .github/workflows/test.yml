@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - release/**
+      - ci/**
 
   pull_request:
     paths:
@@ -14,60 +15,77 @@ on:
       - '.github/workflows/**'
 
 jobs:
-  unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
-    runs-on: macos-11 
-    strategy:      
-      matrix:
-        # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS","Catalyst", "iOS", "tvOS"]
+  # unit-tests:
+  #   name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
+  #   runs-on: macos-11 
+  #   strategy:      
+  #     matrix:
+  #       # Can't run tests on watchOS because XCTest is not available  
+  #       platform: ["macOS","Catalyst", "iOS", "tvOS"]
         
-        # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
-        # which is only available since iOS 13 / Xcode 11.
-        xcode: ["13.0", "12.5.1", "11.7"]
+  #       # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
+  #       # which is only available since iOS 13 / Xcode 11.
+  #       xcode: ["13.0", "12.5.1", "11.7"]
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Cache for Test Server
-        uses: actions/cache@v2
-        with:
-          path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+  #     - name: Cache for Test Server
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: ./test-server/.build
+  #         key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
-      - run: swift build
-        working-directory: test-server
+  #     - run: swift build
+  #       working-directory: test-server
 
-      - name: Run Test Server in Background
-        run: swift run &
-        working-directory: test-server
+  #     - name: Run Test Server in Background
+  #       run: swift run &
+  #       working-directory: test-server
 
-      # Select Xcode after starting server, because the server needs Xcode 13
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+  #     # Select Xcode after starting server, because the server needs Xcode 13
+  #     - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      - name: Running tests
-        # We call a script with the platform so the destination
-        # passed to xcodebuild doesn't ends up in the job name, 
-        # because GitHub Actions don't provide an easy way of 
-        # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}}
+  #     - name: Running tests
+  #       # We call a script with the platform so the destination
+  #       # passed to xcodebuild doesn't ends up in the job name, 
+  #       # because GitHub Actions don't provide an easy way of 
+  #       # manipulating string in expressions.
+  #       run: ./scripts/xcode-test.sh ${{matrix.platform}}
 
-      # We can upload all coverage reports, because codecov merges them.
-      # See https://docs.codecov.io/docs/merging-reports
-      # Checkout .codecov.yml to see the config of Codecov
-      - name: Push code coverage to codecov
-        uses: codecov/codecov-action@v1
+  #     # We can upload all coverage reports, because codecov merges them.
+  #     # See https://docs.codecov.io/docs/merging-reports
+  #     # Checkout .codecov.yml to see the config of Codecov
+  #     - name: Push code coverage to codecov
+  #       uses: codecov/codecov-action@v1
         
-        # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
-        # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}        
+  #       # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
+  #       # so the coverage report shows a reduced coverage.
+  #       if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}        
 
-  ui-tests:
-    name: UI Tests for ${{matrix.target}}
+  # ui-tests:
+  #   name: UI Tests for ${{matrix.target}}
+  #   runs-on: macos-11
+  #   strategy:
+  #     matrix:
+  #       target: ["ios_swiftui", "ios_objc", "tvos_swift" ]
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - run: ./scripts/ci-select-xcode.sh 
+
+  #     # GitHub Actions sometimes fail to launch the UI tests. 
+  #     # Therefore we retry
+  #     - name: Run Fastlane
+  #       run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
+  #       shell: sh
+
+  ui-tests-swift-ui:
+    name: UI Tests for ${{matrix.device}}
     runs-on: macos-11
     strategy:
       matrix:
-        target: ["ios_swiftui", "ios_objc", "tvos_swift" ]
+        device: ["iPhone 8 (15.2)", "iPhone 8 (14.5)"]
 
     steps:
       - uses: actions/checkout@v2
@@ -76,34 +94,7 @@ jobs:
       # GitHub Actions sometimes fail to launch the UI tests. 
       # Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
-        shell: sh
-
-  ios-swift-saucelabs:
-    name: SauceLabs for iOS Swift
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 
-      - run: npm install -g saucectl
-
-      - run: fastlane build_ios_swift_ui_test
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-
-      - name: Run Tests in Saucelab
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        
-        # As SauceLabs is a bit flaky we retry 2 times
-        run: for i in {1..2}; do saucectl run && break ; done
-          
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        shell: sh     
           
         
