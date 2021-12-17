@@ -2,7 +2,7 @@ apiVersion: v1alpha
 kind: xcuitest
 sauce:
   region: us-west-1
-  concurrency: 2
+  concurrency: 1
 
 defaults:
   timeout: 20m
@@ -16,13 +16,7 @@ suites:
     devices:
       - name: "iPhone.*"
         orientation: "portrait"
-        platformVersion: "15.1"
-
-      - name: "iPhone.*"
-        orientation: "portrait"
-        platformVersion: "14.8"
-      
-      # Tests don't work currently on iOS 13.7, because Start of XCUITest-Runner times out.
+        platformVersion: "10.3.2"
       
 artifacts:
   download:

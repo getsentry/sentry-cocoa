@@ -105,6 +105,32 @@ jobs:
         
         # As SauceLabs is a bit flaky we retry 2 times
         run: for i in {1..2}; do saucectl run && break ; done
+
+  ios-10-swift-saucelabs:
+    name: SauceLabs for iOS Swift
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 12.5.1
+      - run: npm install -g saucectl
+
+      - run: fastlane build_ios_swift_ui_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+
+      - name: Run Tests in Saucelab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..2}; do saucectl run -config ""./sauce/config-ios-10.yml" && break ; done
           
           
         
