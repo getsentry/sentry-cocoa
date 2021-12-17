@@ -2,7 +2,7 @@ apiVersion: v1alpha
 kind: xcuitest
 sauce:
   region: us-west-1
-  concurrency: 1
+  concurrency: 2
 
 defaults:
   timeout: 20m
@@ -17,6 +17,9 @@ suites:
       - name: "iPhone.*"
         orientation: "portrait"
         platformVersion: "10.3.2"
+      - name: "iPhone.*"
+        orientation: "portrait"
+        platformVersion: "11.4.1"
       
 artifacts:
   download:
