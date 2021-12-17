@@ -130,7 +130,7 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         
         # As SauceLabs is a bit flaky we retry 2 times
-        run: for i in {1..2}; do saucectl run -config ./sauce/config-ios-10.yml && break ; done
+        run: for i in {1..2}; do saucectl run -config ./.sauce/config-ios-10.yml && break ; done
           
           
         
