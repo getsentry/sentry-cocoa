@@ -80,13 +80,12 @@ jobs:
   #       run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
   #       shell: sh
 
-  ios-swift-saucelabs:
-    name: SauceLabs for iOS Swift
+  ios-swift-ui-tests:
+    name: UITests for iOS Swift
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 13.2
-      - run: npm install -g saucectl
 
       - run: fastlane build_ios_swift_ui_test
         env:
@@ -98,7 +97,8 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - name: Run Tests in Saucelab
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
@@ -106,14 +106,13 @@ jobs:
         # As SauceLabs is a bit flaky we retry 2 times
         run: for i in {1..2}; do saucectl run && break ; done
 
-  ios-10-swift-saucelabs:
-    name: SauceLabs for iOS Swift Xcode 12
+  ios-10-swift-ui-tests:
+    name: UITests for iOS Swift Xcode 12
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh 12.5.1
-      - run: npm install -g saucectl
-
+      
       - run: fastlane build_ios_swift_ui_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -124,7 +123,8 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - name: Run Tests in Saucelab
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
