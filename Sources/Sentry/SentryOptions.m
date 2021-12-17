@@ -24,7 +24,7 @@ SentryOptions ()
         @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
         @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
         @"SentryIOTrackingIntegration"
-        
+
     ];
 }
 

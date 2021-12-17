@@ -30,29 +30,27 @@ static NSString *const SENTRY_IO_READ_OPERATION = @"file.write";
                 error:(NSError **)error
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method;
 
-
 /**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
-- (NSData *)measureNSDataFromFile:(NSString *)path
-                     method:(id (^)(NSString *))method;
-
+- (NSData *)measureNSDataFromFile:(NSString *)path method:(NSData * (^)(NSString *))method;
 
 /**
  * Measure NSData 'initWithContentsOfFile:options:error:' method.
  */
 - (NSData *)measureNSDataFromFile:(NSString *)path
-                    options:(NSDataReadingOptions)readOptionsMask
-                      error:(NSError **)error
-                     method:(id (^)(NSString *, NSDataReadingOptions, NSError **))method;
+                          options:(NSDataReadingOptions)readOptionsMask
+                            error:(NSError **)error
+                           method:
+                               (NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method;
 
 /**
  * Measure NSData 'initWithContentsOfURL:options:error:' method.
  */
-- (NSData *)measureNSDataFromURL:(NSString *)url
-                   options:(NSDataReadingOptions)readOptionsMask
-                     error:(NSError **)error
-                    method:(id (^)(NSString *, NSDataReadingOptions, NSError **))method;
+- (NSData *)measureNSDataFromURL:(NSURL *)url
+                         options:(NSDataReadingOptions)readOptionsMask
+                           error:(NSError **)error
+                          method:(NSData * (^)(NSURL *, NSDataReadingOptions, NSError **))method;
 
 @end
 
