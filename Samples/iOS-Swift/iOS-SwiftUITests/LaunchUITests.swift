@@ -38,7 +38,7 @@ class LaunchUITests: XCTestCase {
     
     func testSplitView() {
         app.buttons["showSplitViewButton"].tap()
-        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(timeout: timeout), "SplitView not loaded.")
+        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(), "SplitView not loaded.")
         
         // This validation is currently not working on iOS 10.
         if #available(iOS 11.0, *) {
@@ -53,19 +53,17 @@ class LaunchUITests: XCTestCase {
     private func assertApp() {
         let confirmation = app.staticTexts["ASSERT_MESSAGE"]
         let errorMessage = app.staticTexts["ASSERT_ERROR"]
-        XCTAssertTrue(confirmation.waitForExistence(timeout: timeout), "Assertion Message Not Found")
+        XCTAssertTrue(confirmation.waitForExistence(), "Assertion Message Not Found")
         
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
     }
     
 }
 
-let timeout = TimeInterval(10)
-
 extension XCUIElement {
 
     @discardableResult
     func waitForExistence() -> Bool {
-        self.waitForExistence(timeout: timeout)
+        self.waitForExistence(timeout: TimeInterval(10))
     }
 }
