@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- build: Disable NSAssertions for Release Builds (#1545)
+
+## 7.7.0
+
+- feat: Send Locale with Events (#1539)
+
 ## 7.6.1
 
 - fix: iOS13-Swift build (#1522)
