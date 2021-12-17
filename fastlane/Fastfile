@@ -173,7 +173,6 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device]
-      # devices: ["iPhone 8 (15.2)", "iPhone 8 (14.3)"]
     )
   end
 
