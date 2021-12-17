@@ -89,7 +89,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 
+      - run: ./scripts/ci-select-xcode.sh 13.2
 
       # GitHub Actions sometimes fail to launch the UI tests. 
       # Therefore we retry
