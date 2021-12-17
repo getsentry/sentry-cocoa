@@ -15,10 +15,10 @@ suites:
   - name: "iOS-Swift"
     devices:
       - name: "iPhone.*"
-        platformVersion: "10.*"
-
+        platformVersion: "10.3.3"
+        
       - name: "iPhone.*"
-        platformVersion: "11.*"
+        platformVersion: "11.4"
       
 artifacts:
   download:
