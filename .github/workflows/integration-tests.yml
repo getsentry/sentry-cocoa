@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/**
 
 jobs:
 
@@ -161,3 +162,100 @@ jobs:
       # Run the tests twice in case they are flaky.
         run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty && break ; done
 
+
+  ui-tests-xcode-13:
+    name: UITests for iOS Swift
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 13.2
+
+      - run: fastlane build_ios_swift_ui_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        with:
+          name: DerivedData-Xcode13
+          path: |
+            ${{ github.workspace }}/DerivedData/*
+
+  ui-tests-xcode-12:
+    name: UITests for iOS Swift Xcode 12
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 12.5.1
+      
+      - run: fastlane build_ios_swift_ui_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        with:
+          name: DerivedData-Xcode12
+          path: |
+            ${{ github.workspace }}/DerivedData/*
+
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..5}; do saucectl run --select-suite iOS-10 && break ; done
+
+  ui-tests-ios-15:
+    name: UITests for iOS Swift Xcode 12
+    runs-on: macos-11
+    needs: ui-tests-xcode-13
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: DerivedData-Xcode13
+
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..5}; do saucectl run --select-suite iOS-15 && break ; done     
+          
+  ui-tests-ios-11:
+    name: UITests for iOS Swift Xcode 12
+    runs-on: macos-11
+    needs: ui-tests-xcode-12
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: DerivedData-Xcode12
+
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..5}; do saucectl run --select-suite iOS-11 && break ; done     
