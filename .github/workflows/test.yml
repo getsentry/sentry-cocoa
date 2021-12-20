@@ -80,7 +80,7 @@ jobs:
   #       run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
   #       shell: sh
 
-  ios-swift-ui-tests:
+  ui-tests-xcode-13:
     name: UITests for iOS Swift
     runs-on: macos-11
     steps:
@@ -97,16 +97,14 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - run: npm install -g saucectl
-      - name: Run Tests in SauceLab
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        
-        # As SauceLabs is a bit flaky we retry 2 times
-        run: for i in {1..2}; do saucectl run && break ; done
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        with:
+          name: DerivedData-Xcode13
+          path: |
+            ${{ github.workspace }}/DerivedData/*
 
-  ios-10-swift-ui-tests:
+  ui-tests-xcode-12:
     name: UITests for iOS Swift Xcode 12
     runs-on: macos-11
     steps:
@@ -122,6 +120,13 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        with:
+          name: DerivedData-Xcode12
+          path: |
+            ${{ github.workspace }}/DerivedData/*
 
       - run: npm install -g saucectl
       - name: Run Tests in SauceLab
@@ -130,7 +135,44 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         
         # As SauceLabs is a bit flaky we retry 2 times
-        run: for i in {1..2}; do saucectl run -c ./.sauce/config-ios-10.yml && break ; done
-          
-          
+        run: for i in {1..5}; do saucectl run --select-suite iOS-10 && break ; done
+
+  ui-tests-ios-15:
+    name: UITests for iOS Swift Xcode 12
+    runs-on: macos-11
+    needs: ui-tests-xcode-13
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: DerivedData-Xcode13
+
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..5}; do saucectl run --select-suite iOS-15 && break ; done     
+          
+  ui-tests-ios-11:
+    name: UITests for iOS Swift Xcode 12
+    runs-on: macos-11
+    needs: ui-tests-xcode-12
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: DerivedData-Xcode12
+
+      - run: npm install -g saucectl
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        
+        # As SauceLabs is a bit flaky we retry 2 times
+        run: for i in {1..5}; do saucectl run --select-suite iOS-11 && break ; done       
