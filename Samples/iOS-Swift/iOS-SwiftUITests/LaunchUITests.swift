@@ -35,7 +35,7 @@ class LaunchUITests: XCTestCase {
     
     func testShowNib() {
         app.buttons["showNibButton"].tap()
-        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(timeout: timeout), "Nib ViewController not loaded.")
+        XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(timeout: timeout), "Nib ViewController not loaded.")
         assertApp()
     }
 
