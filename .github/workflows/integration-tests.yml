@@ -162,7 +162,7 @@ jobs:
       # Run the tests twice in case they are flaky.
         run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty && break ; done
 
-  ui-tests-xcode:
+  build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
     runs-on: macos-11
     strategy:      
@@ -192,10 +192,10 @@ jobs:
             ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 
-  ui-tests-ios-15:
-    name: UITests iOS 15
+  run-ui-tests:
+    name: Run UITests iOS ${{ matrix.iOS }}
     runs-on: macos-11
-    needs: ui-tests-xcode
+    needs: build-ui-tests
     strategy:      
       matrix:
         include:
@@ -219,7 +219,7 @@ jobs:
 
       - uses: actions/download-artifact@v2
         with:
-          name: DerivedData-Xcode--${{matrix.xcode}}
+          name: DerivedData-Xcode-${{matrix.xcode}}
 
       - run: npm install -g saucectl
 
