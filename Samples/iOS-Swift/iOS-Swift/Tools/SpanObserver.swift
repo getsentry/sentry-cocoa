@@ -35,13 +35,13 @@ class SpanObserver: NSObject {
     func addSpanObserver(forKeyPath keyPath: String, callback : @escaping (Span) -> Void) {
         callbacks[keyPath] = callback
         //The given span may be a SentryTracer that wont respond to KVO. We need to get the root Span
-        let span = span.rootSpan() ?? span
-        (span as? NSObject)?.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
+        let spanToObserve = span.rootSpan() ?? span
+        (spanToObserve as? NSObject)?.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
     }
     
     func removeSpanObserver(forKeyPath keyPath: String) {
-        let span = span.rootSpan() ?? span //see `addSpanObserver`
-        (span as? NSObject)?.removeObserver(self, forKeyPath: keyPath)
+        let spanToObserve = span.rootSpan() ?? span //see `addSpanObserver`
+        (spanToObserve as? NSObject)?.removeObserver(self, forKeyPath: keyPath)
         callbacks.removeValue(forKey: keyPath)
     }
     

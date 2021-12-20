@@ -1,7 +1,7 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
-    
+
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
@@ -34,7 +34,7 @@ class LaunchUITests: XCTestCase {
     
     func testShowNib() {
         app.buttons["showNibButton"].tap()
-        XCTAssertTrue(app.buttons["a lonely button"].waitForExistence(), "Nib ViewController not loaded.")
+        XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(), "Nib ViewController not loaded.")
         assertApp()
     }
 
