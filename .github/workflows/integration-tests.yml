@@ -188,8 +188,8 @@ jobs:
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
-            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+            **/Debug-iphoneos/iOS-Swift.app
+            **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 
   run-ui-tests:
@@ -197,6 +197,7 @@ jobs:
     runs-on: macos-11
     needs: build-ui-tests
     strategy:      
+      fail-fast: false
       matrix:
         include:
           - xcode: "13.2"
