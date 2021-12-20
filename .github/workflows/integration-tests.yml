@@ -185,7 +185,8 @@ jobs:
         with:
           name: DerivedData-Xcode13
           path: |
-            ${{ github.workspace }}/DerivedData/*
+            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
   ui-tests-xcode-12:
     name: UITests for iOS Swift Xcode 12
@@ -209,7 +210,8 @@ jobs:
         with:
           name: DerivedData-Xcode12
           path: |
-            ${{ github.workspace }}/DerivedData/*
+            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+            ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 
   ui-tests-ios-15:
