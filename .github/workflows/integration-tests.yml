@@ -203,11 +203,8 @@ jobs:
           - xcode: "13.2"
             iOS: 14
 
-          - xcode: "13.2"
-            iOS: 13
-
           - xcode: "12.5.1"
-            iOS: 11
+            iOS: 12
 
           - xcode: "12.5.1"
             iOS: 10

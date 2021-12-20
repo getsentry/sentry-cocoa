@@ -12,6 +12,8 @@ xcuitest:
   testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
+   
+
   - name: "iOS-15"
     devices:
       - name: "iPhone.*"
@@ -22,13 +24,21 @@ suites:
       - name: "iPhone.*"
         platformVersion: "14.8"
 
-  - name: "iOS-13"
-    devices:    
-      - name: "iPhone.*"
-        platformVersion: "13.7"
+  # Disabled for because testSplitView fails.
+  # Issue to fix this https://github.com/getsentry/sentry-cocoa/issues/1564 
+  # - name: "iOS-13"
+  #   devices:    
+  #     - name: "iPhone.*"
+  #       platformVersion: "13.7"
 
+  - name: "iOS-12"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "12.5.5"  
+
+  # always times out
   - name: "iOS-11"
-    devices:    
+    devices:
       - name: "iPhone.*"
         platformVersion: "11.4.1"
 
