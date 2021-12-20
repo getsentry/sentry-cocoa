@@ -8,7 +8,7 @@ class LaunchUITests: XCTestCase {
         super.setUp()
         
         continueAfterFailure = false
-        
+        XCUIDevice.shared.orientation = .portrait
         app.launch()
         
         waitForExistenseOfMainScreen()
