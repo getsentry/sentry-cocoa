@@ -164,7 +164,7 @@ jobs:
 
 
   ui-tests-xcode-13:
-    name: UITests for iOS Swift
+    name: Build UITests with Xcode 13
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
@@ -189,7 +189,7 @@ jobs:
             ${{ github.workspace }}/DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
   ui-tests-xcode-12:
-    name: UITests for iOS Swift Xcode 12
+    name: Build UITests with Xcode 12
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
