@@ -60,12 +60,9 @@ jobs:
   # adding our SDK doesn't cause any major issues.
   home-assistant-tests:
     runs-on: macos-11
-    strategy:
-      matrix:
-        xcode: ['13.2']
     timeout-minutes: 60
     env:
-      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v2
         with:
@@ -98,7 +95,7 @@ jobs:
             Tools/MaterialDesignIcons.ttf
             Tools/MaterialDesignIcons.json
           key: >-
-            ${{ runner.os }}-pods-${{ matrix.xcode }}-
+            ${{ runner.os }}-pods-xcode-13.2
             ${{ hashFiles('**/Gemfile.lock', '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
 
       - uses: actions/cache@v2
