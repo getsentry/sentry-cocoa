@@ -1,7 +1,7 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
-    
+
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
@@ -26,7 +26,7 @@ class LaunchUITests: XCTestCase {
     
     func testNavigationTransaction() {
         app.buttons["testNavigationTransactionButton"].tap()
-        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
+        XCTAssertTrue(app.images.firstMatch.waitForExistence(), "Navigation transaction not loaded.")
         assertApp()
     }
     
