@@ -24,6 +24,12 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.textViews.firstMatch.waitForExistence(), "Lorem Ipsum not loaded.")
     }
     
+    func testNavigationTransaction() {
+        app.buttons["testNavigationTransactionButton"].tap()
+        XCTAssertTrue(app.images.firstMatch.waitForExistence(timeout: timeout), "Navigation transaction not loaded.")
+        assertApp()
+    }
+    
     func testShowNib() {
         app.buttons["showNibButton"].tap()
         XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(), "Nib ViewController not loaded.")
