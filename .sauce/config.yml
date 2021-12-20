@@ -24,19 +24,16 @@ suites:
       - name: "iPhone.*"
         platformVersion: "14.8"
 
-  # Disabled for because testSplitView fails.
-  # Issue to fix this https://github.com/getsentry/sentry-cocoa/issues/1564 
-  # - name: "iOS-13"
-  #   devices:    
-  #     - name: "iPhone.*"
-  #       platformVersion: "13.7"
+  - name: "iOS-13"
+    devices:    
+      - name: "iPhone.*"
+        platformVersion: "13.7"
 
   - name: "iOS-12"
     devices:
       - name: "iPhone.*"
         platformVersion: "12.5.5"  
 
-  # always times out
   - name: "iOS-11"
     devices:
       - name: "iPhone.*"
