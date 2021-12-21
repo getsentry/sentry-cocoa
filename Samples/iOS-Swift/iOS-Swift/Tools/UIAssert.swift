@@ -97,6 +97,6 @@ class UIAssert {
         }
         
         UIAssert.isEqual(missing.count, 0, "Following spans not found: \(missing.joined(separator: ", "))")
-        UIAssert.isEqual(numberOfSpans, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans) spans, got \(children.count)")
+        UIAssert.isEqual(numberOfSpans, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans) spans, got \(numberOfSpans)")
     }
 }
