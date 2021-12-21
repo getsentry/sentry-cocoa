@@ -79,31 +79,33 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
 
-  ios-swift-saucelabs:
-    name: SauceLabs for iOS Swift
+  ui-tests-swift-ui:
+    name: UI Tests for ${{matrix.device}}
     runs-on: macos-11
+    strategy:
+      matrix:
+        device: ["iPhone 8 (15.2)", "iPhone 8 (14.5)", "iPhone 8 (13.7)"]
+
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 
-      - run: npm install -g saucectl
+      - run: ./scripts/ci-select-xcode.sh 13.2
 
-      - run: fastlane build_ios_swift_ui_test
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        shell: sh
 
-      - name: Run Tests in Saucelab
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        
-        # As SauceLabs is a bit flaky we retry 2 times
-        run: for i in {1..2}; do saucectl run && break ; done
-          
-          
-        
+
+  # macos-11 doesn't have a simulator for iOS 12
+  ui-tests-swift-ui-ios-12:
+    name: UI Tests for iOS 12
+    runs-on: macos-10.15
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
+        shell: sh
+

@@ -168,10 +168,11 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_swift do
+  lane :ui_tests_ios_swift do |options|
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift"
+      scheme: "iOS-Swift",
+      device: options[:device]
     )
   end
 

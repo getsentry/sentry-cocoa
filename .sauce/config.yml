@@ -5,8 +5,6 @@ sauce:
   concurrency: 2
 
 defaults:
-  # Tests timeout frequently when multiple GitHub Actions run in parallel and the timeout is 
-  # to small.
   timeout: 20m
 
 xcuitest:
@@ -14,21 +12,37 @@ xcuitest:
   testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
-  - name: "iOS-Swift"
+   
+
+  - name: "iOS-15"
     devices:
       - name: "iPhone.*"
-        orientation: "portrait"
-        platformVersion: "10.3.2"
-        
-      - name: "iPhone.*"
-        orientation: "portrait"
-        platformVersion: "15.1"
+        platformVersion: "15.2"
 
+  - name: "iOS-14"
+    devices:
       - name: "iPhone.*"
-        orientation: "portrait"
         platformVersion: "14.8"
-      
-      # Tests don't work currently on iOS 13.7, because Start of XCUITest-Runner times out.
+
+  - name: "iOS-13"
+    devices:    
+      - name: "iPhone.*"
+        platformVersion: "13.7"
+
+  - name: "iOS-12"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "12.5.5"  
+
+  - name: "iOS-11"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "11.4.1"
+
+  - name: "iOS-10"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "10.3.2"
       
 artifacts:
   download:
