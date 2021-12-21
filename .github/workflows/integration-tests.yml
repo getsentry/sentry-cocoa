@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/**
 
 jobs:
 
@@ -51,7 +52,14 @@ jobs:
 
       - name: Run tests
         # Run the tests twice in case they are flaky.
-        run: for i in {1..2}; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" test | xcpretty && break ; done
+        # We skip one test because it also fails sometimes when not adding Sentry to Alamofire.
+        run: |
+          for i in {1..2}; do \
+          set -o pipefail && env NSUnbufferedIO=YES \
+          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro"\
+          -skip-testing:Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried \
+          test | xcpretty \
+          && break ; done
 
   # We borrow the tests of Home Assistant under the Apache license: https://github.com/home-assistant/iOS.
   # The following steps checkout Home Assistant and apply a github patch to the project. The patch adds
