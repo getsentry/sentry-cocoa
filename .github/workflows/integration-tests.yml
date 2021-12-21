@@ -18,6 +18,13 @@ jobs:
     name: Integration Web Requests
     runs-on: macos-11
     timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        a: [1,2,3,4,5]
+        b: [1,2,3,4,5]
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -56,8 +63,7 @@ jobs:
         run: |
           for i in {1..2}; do \
           set -o pipefail && env NSUnbufferedIO=YES \
-          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" \
-          -skip-testing:Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried \
+          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.0,name=iPhone 13 Pro" -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried" \
           test | xcpretty \
           && break ; done
 
