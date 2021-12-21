@@ -17,13 +17,6 @@ jobs:
     name: Integration Web Requests
     runs-on: macos-11
     timeout-minutes: 15
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        a: [1,2,3,4,5]
-        b: [1,2,3,4,5]
-
     steps:
       - uses: actions/checkout@v2
         with:
