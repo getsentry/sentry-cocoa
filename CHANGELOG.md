@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add IO performance transactions for NSData (#1557)
+- feat: Auto I/O spans for NSData (#1557)
 - build: Disable NSAssertions for Release Builds (#1545)
 
 ## 7.7.0
