@@ -93,8 +93,8 @@ jobs:
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
-        shell: sh     
-          
+        shell: sh
+
 
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ui-ios-12:
@@ -107,5 +107,5 @@ jobs:
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
-        shell: sh     
-           
+        shell: sh
+
