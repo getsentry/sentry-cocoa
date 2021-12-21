@@ -8,16 +8,14 @@ class LaunchUITests: XCTestCase {
         super.setUp()
         
         continueAfterFailure = false
-        
-        app.launch()
         XCUIDevice.shared.orientation = .portrait
+        app.launch()
         
         waitForExistenseOfMainScreen()
     }
     
     override func tearDown() {
         app.terminate()
-        
         super.tearDown()
     }
 
