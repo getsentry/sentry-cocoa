@@ -15,7 +15,8 @@ class SentryNSDataTrackerTests: XCTestCase {
             let result = SentryNSDataTracker.sharedInstance
             Dynamic(result).tracker = self.tracker
             CurrentDate.setCurrentDateProvider(dateProvider)
-            return SentryNSDataTracker.sharedInstance
+            result.enable()
+            return result
         }
         
     }
@@ -25,6 +26,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        fixture.getSut().enable()
     }
     
     func testWritePathAtomically() {
@@ -93,7 +95,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         assertSpanDuration(span: span!, expectedDuration: 4)
         XCTAssertTrue(span!.isFinished)
-        XCTAssertEqual(span?.data?["length"] as! Int, fixture.data.count)
+        XCTAssertEqual(span?.data?["file.size"] as! Int, fixture.data.count)
         XCTAssertNotNil(span)
     }
     
@@ -110,7 +112,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         assertSpanDuration(span: span!, expectedDuration: 3)
         XCTAssertTrue(span!.isFinished)
-        XCTAssertEqual(span?.data?["length"] as! Int, fixture.data.count)
+        XCTAssertEqual(span?.data?["file.size"] as! Int, fixture.data.count)
         XCTAssertNotNil(span)
     }
     
