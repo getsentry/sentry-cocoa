@@ -7,14 +7,16 @@ on:
     types: [opened]
   issue_comment:
     types: [created]
+env:
+  MY_GITHUB_TOKEN: ${{ secrets.SENTRY_GITHUB_PROJECTS }}
 
 jobs:
   assign_to_project:
     runs-on: ubuntu-latest
+    name: Add new issues and PRs to Mobile Team Project
     steps:
-      - uses: alex-page/github-project-automation-plus@5bcba1c1c091a222584d10913e5c060d32c44044
-        if: github.event.action == 'opened'
-        with:
-          project: Mobile Platform Team V2
-          column: Needs Discussion
-          repo-token: ${{ secrets.SENTRY_GITHUB_PROJECTS }}
+    - uses: srggrs/assign-one-project-github-action@4fc2b23bdaaac08e64dcc590a6e138d2f9b8c86e
+      if: github.event.action == 'opened'
+      with:
+        project: 'https://github.com/orgs/getsentry/projects/19'
+        column_name: 'Needs Discussion'
