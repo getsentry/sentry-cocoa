@@ -16,7 +16,7 @@ jobs:
     name: Add new issues and PRs to Mobile Team Project
     steps:
     - uses: srggrs/assign-one-project-github-action@4fc2b23bdaaac08e64dcc590a6e138d2f9b8c86e
-      if: github.event.action == 'opened'
+      # if: github.event.action == 'opened'
       with:
         project: 'https://github.com/orgs/getsentry/projects/19'
         column_name: 'Needs Discussion'
