@@ -1,0 +1,12 @@
+diff --git a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift b/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
+index 3b5406d8..2d4481f5 100644
+--- a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
++++ b/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
+@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+             // Sampling 100% - In Production you probably want to adjust this
+             options.tracesSampleRate = 1.0
+             options.sessionTrackingIntervalMillis = 5_000
++            options.environment = "device-tests"
+         }
+         
+         return true
