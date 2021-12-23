@@ -1,13 +1,15 @@
 #import "SentryNSDataTracker.h"
+#import "SentryHub+Private.h"
+#import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
+#import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
 
 @interface
 SentryNSDataTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
-
-@property (nonatomic, strong) SentryPerformanceTracker *tracker;
 
 @end
 
@@ -25,7 +27,6 @@ SentryNSDataTracker ()
 {
     if (self = [super init]) {
         self.isEnabled = NO;
-        self.tracker = SentryPerformanceTracker.shared;
     }
     return self;
 }
@@ -53,31 +54,47 @@ SentryNSDataTracker ()
         : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
-- (SentrySpanId *)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
+- (id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
+{
+    if (!self.isEnabled || ![self shouldTrackPath:path])
+        return nil;
+    __block id<SentrySpan> ioSpan;
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        ioSpan = [span startChildWithOperation:SENTRY_IO_WRITE_OPERATION
+                                   description:[self transactionDescriptionForFile:path
+                                                                          fileSize:data.length]];
+    }];
+
+    // We only create a span if there is a transaction in the scope,
+    // otherwise we have nothing else to do here.
+    if (ioSpan == nil)
+        return nil;
+
+    [ioSpan setDataValue:path forKey:@"file.path"];
+    return ioSpan;
+}
+
+- (id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
 {
     if (!self.isEnabled || ![self shouldTrackPath:path])
         return nil;
 
-    SentrySpanId *spanId = [self.tracker
-        startSpanWithName:[self transactionDescriptionForFile:path fileSize:data.length]
-                operation:SENTRY_IO_WRITE_OPERATION];
+    __block id<SentrySpan> ioSpan;
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        ioSpan = [span startChildWithOperation:SENTRY_IO_READ_OPERATION
+                                   description:[self transactionDescriptionForFile:path
+                                                                          fileSize:0]];
+    }];
 
-    id<SentrySpan> span = [self.tracker getSpan:spanId];
-    [span setDataValue:path forKey:@"file.path"];
-    return spanId;
+    [ioSpan setDataValue:path forKey:@"file.path"];
+
+    return ioSpan;
 }
 
-- (SentrySpanId *)startTrackingReadingFilePath:(NSString *)path
+- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
 {
-    return [self.tracker startSpanWithName:[self transactionDescriptionForFile:path fileSize:0]
-                                 operation:SENTRY_IO_READ_OPERATION];
-}
-
-- (void)finishTrackingNSData:(NSData *)data spanId:(SentrySpanId *)spanId
-{
-    id<SentrySpan> span = [self.tracker getSpan:spanId];
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
-    [self.tracker finishSpan:spanId];
+    [span finish];
 }
 
 - (BOOL)measureNSData:(NSData *)data
@@ -85,12 +102,12 @@ SentryNSDataTracker ()
            atomically:(BOOL)useAuxiliaryFile
                method:(BOOL (^)(NSString *, BOOL))method
 {
-    SentrySpanId *spanId = [self startTrackingWritingNSData:data filePath:path];
+    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, useAuxiliaryFile);
 
-    if (spanId != nil) {
-        [self finishTrackingNSData:data spanId:spanId];
+    if (span != nil) {
+        [self finishTrackingNSData:data span:span];
     }
     return result;
 }
@@ -101,12 +118,12 @@ SentryNSDataTracker ()
                 error:(NSError **)error
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
-    SentrySpanId *spanId = [self startTrackingWritingNSData:data filePath:path];
+    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, writeOptionsMask, error);
 
-    if (spanId != nil) {
-        [self finishTrackingNSData:data spanId:spanId];
+    if (span != nil) {
+        [self finishTrackingNSData:data span:span];
     }
 
     return result;
@@ -114,12 +131,12 @@ SentryNSDataTracker ()
 
 - (NSData *)measureNSDataFromFile:(NSString *)path method:(NSData * (^)(NSString *))method
 {
-    SentrySpanId *spanId = [self startTrackingReadingFilePath:path];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:path];
 
     NSData *result = method(path);
 
-    if (spanId != nil) {
-        [self finishTrackingNSData:result spanId:spanId];
+    if (span != nil) {
+        [self finishTrackingNSData:result span:span];
     }
 
     return result;
@@ -130,12 +147,12 @@ SentryNSDataTracker ()
                             error:(NSError **)error
                            method:(NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method
 {
-    SentrySpanId *spanId = [self startTrackingReadingFilePath:path];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:path];
 
     NSData *result = method(path, readOptionsMask, error);
 
-    if (spanId != nil) {
-        [self finishTrackingNSData:result spanId:spanId];
+    if (span != nil) {
+        [self finishTrackingNSData:result span:span];
     }
 
     return result;
@@ -149,12 +166,12 @@ SentryNSDataTracker ()
     if (![url.scheme isEqualToString:NSURLFileScheme])
         return method(url, readOptionsMask, error);
 
-    SentrySpanId *spanId = [self startTrackingReadingFilePath:url.absoluteString];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:url.absoluteString];
 
     NSData *result = method(url, readOptionsMask, error);
 
-    if (spanId != nil) {
-        [self finishTrackingNSData:result spanId:spanId];
+    if (span != nil) {
+        [self finishTrackingNSData:result span:span];
     }
 
     return result;

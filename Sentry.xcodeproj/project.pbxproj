@@ -550,6 +550,7 @@
 		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
 		D8751FA5274743710032F4DE /* SentryNSURLSessionTaskSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8751FA4274743710032F4DE /* SentryNSURLSessionTaskSearchTests.swift */; };
 		D875ED0B276CC84700422FAC /* SentryNSDataTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D875ED0A276CC84700422FAC /* SentryNSDataTrackerTests.swift */; };
+		D885266427739D01001269FC /* SentryIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D885266327739D01001269FC /* SentryIOTrackingIntegrationTests.swift */; };
 		D88817D826D7149100BF2251 /* SentryTraceState.m in Sources */ = {isa = PBXBuildFile; fileRef = D88817D626D7149100BF2251 /* SentryTraceState.m */; };
 		D88817DA26D72AB800BF2251 /* SentryTraceState.h in Headers */ = {isa = PBXBuildFile; fileRef = D88817D926D72AB800BF2251 /* SentryTraceState.h */; };
 		D88817DD26D72BA500BF2251 /* SentryTraceStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */; };
@@ -1169,6 +1170,7 @@
 		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D8751FA4274743710032F4DE /* SentryNSURLSessionTaskSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSURLSessionTaskSearchTests.swift; sourceTree = "<group>"; };
 		D875ED0A276CC84700422FAC /* SentryNSDataTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryNSDataTrackerTests.swift; sourceTree = "<group>"; };
+		D885266327739D01001269FC /* SentryIOTrackingIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryIOTrackingIntegrationTests.swift; sourceTree = "<group>"; };
 		D88817D626D7149100BF2251 /* SentryTraceState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTraceState.m; sourceTree = "<group>"; };
 		D88817D926D72AB800BF2251 /* SentryTraceState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryTraceState.h; path = include/SentryTraceState.h; sourceTree = "<group>"; };
 		D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceStateTests.swift; sourceTree = "<group>"; };
@@ -1390,7 +1392,6 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
-				D8ACE3C32762185E00F5A213 /* IO */,
 				7BE0DC33272AE74A004FA8B7 /* Breadcrumbs */,
 				7BE0DC34272AE78C004FA8B7 /* OutOfMemory */,
 				7BE0DC39272AE8B3004FA8B7 /* Performance */,
@@ -2062,6 +2063,7 @@
 		7BE0DC39272AE8B3004FA8B7 /* Performance */ = {
 			isa = PBXGroup;
 			children = (
+				D8ACE3C32762185E00F5A213 /* IO */,
 				7BE0DC37272AE83E004FA8B7 /* AppStartTracking */,
 				7BE0DC38272AE874004FA8B7 /* FramesTracking */,
 				7BE0DC3B272AE8EB004FA8B7 /* Network */,
@@ -2300,6 +2302,7 @@
 			isa = PBXGroup;
 			children = (
 				D875ED0A276CC84700422FAC /* SentryNSDataTrackerTests.swift */,
+				D885266327739D01001269FC /* SentryIOTrackingIntegrationTests.swift */,
 			);
 			path = IO;
 			sourceTree = "<group>";
@@ -2884,6 +2887,7 @@
 				63FE721620DA66EC00CDBAE8 /* SentryCrashReportFixer_Tests.m in Sources */,
 				7B6C5ED6264E62CA0010D138 /* SentryTransactionTests.swift in Sources */,
 				7BE3C7772445E50A00A38442 /* TestCurrentDateProvider.swift in Sources */,
+				D885266427739D01001269FC /* SentryIOTrackingIntegrationTests.swift in Sources */,
 				7BBD18992449DE9D00427C76 /* TestRateLimits.swift in Sources */,
 				8E4A038625F76A7600000D77 /* TypeMapping.swift in Sources */,
 				7B04A9AB24EA5F8D00E710B1 /* SentryUserTests.swift in Sources */,

@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 static NSString *const SENTRY_IO_WRITE_OPERATION = @"file.write";
 
-static NSString *const SENTRY_IO_READ_OPERATION = @"file.write";
+static NSString *const SENTRY_IO_READ_OPERATION = @"file.read";
 
 @interface SentryNSDataTracker : NSObject
 
@@ -33,24 +33,26 @@ static NSString *const SENTRY_IO_READ_OPERATION = @"file.write";
 /**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
-- (NSData *)measureNSDataFromFile:(NSString *)path method:(NSData * (^)(NSString *))method;
+- (nullable NSData *)measureNSDataFromFile:(NSString *)path
+                                    method:(NSData *_Nullable (^)(NSString *))method;
 
 /**
  * Measure NSData 'initWithContentsOfFile:options:error:' method.
  */
-- (NSData *)measureNSDataFromFile:(NSString *)path
-                          options:(NSDataReadingOptions)readOptionsMask
-                            error:(NSError **)error
-                           method:
-                               (NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method;
+- (nullable NSData *)measureNSDataFromFile:(NSString *)path
+                                   options:(NSDataReadingOptions)readOptionsMask
+                                     error:(NSError **)error
+                                    method:(NSData *_Nullable (^)(
+                                               NSString *, NSDataReadingOptions, NSError **))method;
 
 /**
  * Measure NSData 'initWithContentsOfURL:options:error:' method.
  */
-- (NSData *)measureNSDataFromURL:(NSURL *)url
-                         options:(NSDataReadingOptions)readOptionsMask
-                           error:(NSError **)error
-                          method:(NSData * (^)(NSURL *, NSDataReadingOptions, NSError **))method;
+- (nullable NSData *)measureNSDataFromURL:(NSURL *)url
+                                  options:(NSDataReadingOptions)readOptionsMask
+                                    error:(NSError **)error
+                                   method:(NSData *_Nullable (^)(
+                                              NSURL *, NSDataReadingOptions, NSError **))method;
 
 @end
 

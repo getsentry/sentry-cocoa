@@ -13,7 +13,8 @@ SentryIOTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
-    if (options.enableSwizzling && options.enableAutoPerformanceTracking) {
+    if (options.enableSwizzling && options.enableAutoPerformanceTracking
+        && options.enableIOTracking) {
         [SentryNSDataSwizzling start];
     }
 }

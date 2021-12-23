@@ -188,6 +188,13 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableNetworkTracking;
 
 /**
+ * THIS FLAG IS EXPERIMENTAL.
+ * When enabled, the SDK tracks performance for IO
+ * reads and writes if auto performance tracking is enabled. The default is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL enableIOTracking;
+
+/**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
  * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
  * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
