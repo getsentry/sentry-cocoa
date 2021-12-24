@@ -20,7 +20,11 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         
         init() {
             let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-            fileURL = paths[0].appendingPathComponent("TestFile")
+            let docDir = paths[0]
+            if  !FileManager.default.fileExists(atPath: docDir.path) {
+                try? FileManager.default.createDirectory(at: docDir, withIntermediateDirectories: true, attributes: nil)
+            }
+            fileURL = docDir.appendingPathComponent("TestFile")
             filePath = fileURL?.path
         }
     }
@@ -156,14 +160,19 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
     }
     
     func test_DataConsistency_readUrl() {
+        SentrySDK.start(options: fixture.options)
+        
         let randomValue = UUID().uuidString
         try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
+        print("\(String(describing: fixture.fileURL))")
         let data = try! Data(contentsOf: fixture.fileURL, options: .uncached)
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
     
     func test_DataConsistency_readPath() {
+        SentrySDK.start(options: fixture.options)
+        
         let randomValue = UUID().uuidString
         try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
         let data = NSData(contentsOfFile: fixture.filePath)! as Data
