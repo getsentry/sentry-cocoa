@@ -6,13 +6,11 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         let filePath = "Some Path"
         let sentryPath = "/io.sentry/envelope.data"
-        let tracker = SentryPerformanceTracker()
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
                 
         func getSut() -> SentryNSDataTracker {
             let result = SentryNSDataTracker.sharedInstance
-            Dynamic(result).tracker = self.tracker
             CurrentDate.setCurrentDateProvider(dateProvider)
             result.enable()
             return result

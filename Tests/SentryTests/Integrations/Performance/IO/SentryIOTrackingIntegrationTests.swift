@@ -6,7 +6,6 @@ import XCTest
 class SentryIOTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
-        let tracker = SentryPerformanceTracker()
         let data = "SOME DATA".data(using: .utf8)!
         let filePath: String!
         let fileURL: URL!
@@ -88,6 +87,42 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
             try? fixture.data.write(to: fixture.fileURL, options: .atomic)
         }
     }
+        
+    func test_ReadingTrackingDisabled_forIOOption() {
+        SentrySDK.start { options in
+            options.enableAutoPerformanceTracking = true
+            options.enableSwizzling = true
+            options.enableIOTracking = false
+        }
+        
+        assertSpans {
+            let _ = try? Data(contentsOf: fixture.fileURL)
+        }
+    }
+    
+    func test_ReadingTrackingDisabled_forSwizzlingOption() {
+        SentrySDK.start { options in
+            options.enableAutoPerformanceTracking = true
+            options.enableSwizzling = false
+            options.enableIOTracking = true
+        }
+        
+        assertSpans {
+            let _ = try? Data(contentsOf: fixture.fileURL)
+        }
+    }
+    
+    func test_ReadingTrackingDisabled_forAutoPerformanceTrackingOption() {
+        SentrySDK.start { options in
+            options.enableAutoPerformanceTracking = false
+            options.enableSwizzling = true
+            options.enableIOTracking = true
+        }
+        
+        assertSpans {
+            let _ = try? Data(contentsOf: fixture.fileURL)
+        }
+    }
     
     func test_ReadingURL_Tracking() {
         SentrySDK.start(options: fixture.options)
@@ -118,6 +153,22 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
             let data = try? NSData(contentsOfFile: fixture.filePath, options: .uncached)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
+    }
+    
+    func test_DataConsistency_readUrl() {
+        let randomValue = UUID().uuidString
+        try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
+        let data = try! Data(contentsOf: fixture.fileURL, options: .uncached)
+        let readValue = String(data: data, encoding: .utf8)
+        XCTAssertEqual(randomValue, readValue)
+    }
+    
+    func test_DataConsistency_readPath() {
+        let randomValue = UUID().uuidString
+        try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
+        let data = NSData(contentsOfFile: fixture.filePath)! as Data
+        let readValue = String(data: data, encoding: .utf8)
+        XCTAssertEqual(randomValue, readValue)
     }
     
     private func assertSpans(_ spansCount: Int = 0, _ block : () -> Void) {
