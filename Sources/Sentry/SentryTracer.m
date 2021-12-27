@@ -132,8 +132,9 @@ static BOOL appStartMeasurementRead;
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
-    // calls finish on the rootSpan.
-    if (finishedSpan != self.rootSpan) {
+    // calls finish on the rootSpan. If the root span is finished, it alread finished every
+    // unfinished child.
+    if (finishedSpan != self.rootSpan && !self.rootSpan.isFinished) {
         [self canBeFinished];
     }
 }
@@ -263,6 +264,15 @@ static BOOL appStartMeasurementRead;
     if (_hub == nil)
         return;
 
+    @synchronized(_children) {
+        for (id<SentrySpan> span in _children) {
+            if (!span.isFinished) {
+                [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+                span.timestamp = self.timestamp;
+            }
+        }
+    }
+
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
             [self->_hub.scope setSpan:nil];
@@ -280,15 +290,8 @@ static BOOL appStartMeasurementRead;
 
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
-
         [_children addObjectsFromArray:appStartSpans];
-
-        spans = [_children
-            filteredArrayUsingPredicate:[NSPredicate
-                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
-                                                NSDictionary<NSString *, id> *_Nullable bindings) {
-                                                return span.isFinished;
-                                            }]];
+        spans = [_children copy];
     }
 
     if (appStartMeasurement != nil) {
