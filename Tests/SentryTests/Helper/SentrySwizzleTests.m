@@ -262,6 +262,42 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     XCTAssertEqualObjects(@(4.), [SentrySwizzleTestClass_C sumFloat:0.5 withDouble:1.5]);
 }
 
+- (void)testClassUnswizzling
+{
+    XCTAssertEqualObjects(@(2.), [SentrySwizzleTestClass_B sumFloat:0.5 withDouble:1.5]);
+    SentrySwizzleClassMethod([SentrySwizzleTestClass_B class], @selector(sumFloat:withDouble:),
+        SentrySWReturnType(NSNumber *), SentrySWArguments(float floatSummand, double doubleSummand),
+        SentrySWReplacement({
+            NSNumber *result = SentrySWCallOriginal(floatSummand, doubleSummand);
+            return @([result doubleValue] * 2.);
+        }));
+
+    XCTAssertEqualObjects(@(4.), [SentrySwizzleTestClass_B sumFloat:0.5 withDouble:1.5]);
+    SentryUnswizzleClassMethod([SentrySwizzleTestClass_B class], @selector(sumFloat:withDouble:));
+    XCTAssertEqualObjects(@(2.), [SentrySwizzleTestClass_B sumFloat:0.5 withDouble:1.5]);
+}
+
+- (void)testInstanceUnswizzling
+{
+    SEL selector = @selector(string);
+    SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
+
+    XCTAssertTrue([[a string] isEqualToString:@"ABC"]);
+
+    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(NSString *),
+        SentrySWArguments(), SentrySWReplacement({
+            NSString *res = SentrySWCallOriginal();
+            return [res stringByAppendingString:@"DEF"];
+        }),
+        SentrySwizzleModeAlways, NULL);
+
+    XCTAssertTrue([[a string] isEqualToString:@"ABCDEF"]);
+
+    SentryUnswizzleInstanceMethod([a class], selector, NULL);
+
+    XCTAssertTrue([[a string] isEqualToString:@"ABC"]);
+}
+
 #pragma mark - Test Assertions
 #if !defined(NS_BLOCK_ASSERTIONS)
 

@@ -104,8 +104,45 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 
+    SEL newSelector = NSSelectorFromString(
+        [NSString stringWithFormat:@"SENTRY_SWIZZLED_%@", NSStringFromSelector(selector)]);
+
+    class_addMethod(classToSwizzle, newSelector, originalIMP, "NIL");
+
     pthread_mutex_unlock(&gLock);
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+static void
+unswizzle(Class classToSwizzle, SEL selector)
+{
+    SEL newSelector = NSSelectorFromString(
+        [NSString stringWithFormat:@"SENTRY_SWIZZLED_%@", NSStringFromSelector(selector)]);
+    Method newMethod = class_getInstanceMethod(classToSwizzle, newSelector);
+
+    if (newMethod == nil) {
+        return;
+    }
+
+    Method method = class_getInstanceMethod(classToSwizzle, selector);
+
+    IMP implementation = method_getImplementation(method);
+    IMP newImplementation = method_getImplementation(newMethod);
+
+    if (newImplementation == nil) {
+        Class superclass = class_getSuperclass(classToSwizzle);
+        newImplementation = method_getImplementation(class_getInstanceMethod(superclass, selector));
+    }
+
+    const char *methodType = method_getTypeEncoding(method);
+
+    class_replaceMethod(classToSwizzle, selector, newImplementation, methodType);
+
+    imp_removeBlock(implementation);
+}
+
+#pragma clang diagnostic pop
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary()
@@ -166,6 +203,28 @@ swizzledClassesForKey(const void *key)
     return YES;
 }
 
++ (BOOL)unswizzleInstanceMethod:(SEL)selector
+                        inClass:(nonnull Class)classToSwizzle
+                            key:(const void *)key
+{
+    @synchronized(swizzledClassesDictionary()) {
+        if (key) {
+            NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
+            if (![swizzledClasses containsObject:classToSwizzle]) {
+                return NO;
+            }
+        }
+    }
+
+    unswizzle(classToSwizzle, selector);
+
+    if (key) {
+        [swizzledClassesForKey(key) removeObject:classToSwizzle];
+    }
+
+    return YES;
+}
+
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle
              newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock
@@ -175,6 +234,11 @@ swizzledClassesForKey(const void *key)
                   newImpFactory:factoryBlock
                            mode:SentrySwizzleModeAlways
                             key:NULL];
+}
+
++ (void)unswizzleClassMethod:(SEL)selector inClass:(Class)classToSwizzle
+{
+    [self unswizzleInstanceMethod:selector inClass:object_getClass(classToSwizzle) key:NULL];
 }
 
 @end

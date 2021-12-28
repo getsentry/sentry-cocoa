@@ -287,6 +287,8 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
++ (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToSwizzle key:(const void *)key;
+
 #pragma mark └ Swizzle Class method
 
 /**
@@ -337,6 +339,8 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                    inClass:(Class)classToSwizzle
              newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock;
 
++ (void)unswizzleClassMethod:(SEL)selector inClass:(Class)classToSwizzle;
+
 @end
 
 #pragma mark - Implementation details
@@ -351,6 +355,12 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // To prevent comma issues if there are no arguments we add one dummy argument
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
+
+#define SentryUnswizzleClassMethod(classToSwizzle, selector)                                       \
+    [SentrySwizzle unswizzleClassMethod:selector inClass:classToSwizzle]
+
+#define SentryUnswizzleInstanceMethod(classToSwizzle, selector, KEY)                               \
+    [SentrySwizzle unswizzleInstanceMethod:selector inClass:classToSwizzle key:KEY]
 
 #if TEST
 #    define _SentrySWReplacement(code...)                                                          \
