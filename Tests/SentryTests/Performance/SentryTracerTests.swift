@@ -236,12 +236,12 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinish_WithUnfinishedChildren() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
         let child3 = sut.startChild(operation: fixture.transactionOperation)
         child2.finish()
-        fixture.currentDateProvider.setDate(date: Date(timeIntervalSinceNow: 0.1))
         sut.finish()
         
         XCTAssertTrue(child1.isFinished)
