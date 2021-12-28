@@ -132,9 +132,8 @@ static BOOL appStartMeasurementRead;
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
-    // calls finish on the rootSpan. If the root span is finished, it alread finished every
-    // unfinished child.
-    if (finishedSpan != self.rootSpan && !self.rootSpan.isFinished) {
+    // calls finish on the rootSpan.
+    if (finishedSpan != self.rootSpan) {
         [self canBeFinished];
     }
 }
@@ -252,6 +251,12 @@ static BOOL appStartMeasurementRead;
 
 - (void)canBeFinished
 {
+    // Transaction already finished and captured.
+    // Sending another transaction and spans with
+    // the same SentryId would be an error.
+    if (self.rootSpan.isFinished)
+        return;
+
     if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
@@ -268,6 +273,9 @@ static BOOL appStartMeasurementRead;
         for (id<SentrySpan> span in _children) {
             if (!span.isFinished) {
                 [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+
+                // Unfinished children should have the same
+                // end timestamp as their parent transaction
                 span.timestamp = self.timestamp;
             }
         }
