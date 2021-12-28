@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add a way to reverse swizzling (#1593)
 - build: Disable NSAssertions for Release Builds (#1545)
 
 ## 7.7.0
