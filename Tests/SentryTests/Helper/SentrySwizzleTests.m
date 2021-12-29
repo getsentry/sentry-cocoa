@@ -1,3 +1,4 @@
+#import "GULSwizzlingCache.h"
 #import "SentrySwizzle.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
@@ -167,16 +168,15 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 @implementation SentrySwizzleTests
 
-+ (void)setUp
-{
-    [self swizzleDeallocs];
-    [self swizzleCalc];
-}
-
 - (void)setUp
 {
     [super setUp];
     CLEAR_LOG();
+}
+
+- (void)tearDown
+{
+    [SentrySwizzle resetSwizzling];
 }
 
 + (void)swizzleDeallocs
@@ -201,6 +201,8 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 - (void)testDeallocSwizzling
 {
+    [SentrySwizzleTests swizzleDeallocs];
+
     @autoreleasepool {
         id object = [SentrySwizzleTestClass_D new];
         object = nil;
@@ -224,6 +226,7 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 - (void)testCalcSwizzling
 {
+    [SentrySwizzleTests swizzleCalc];
     SentrySwizzleTestClass_D *object = [SentrySwizzleTestClass_D new];
     int res = [object calc:2];
     XCTAssertTrue(res == ((2 * (-1) * 3) + 17) * 5 * 11 - 20, @"%d", res);

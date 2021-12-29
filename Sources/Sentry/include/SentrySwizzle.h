@@ -287,7 +287,16 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
+/**
+ Revert any previously swizzling done in the class for the selector, and cleans the the swizzling
+ key indicator.
+ */
 + (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToSwizzle key:(const void *)key;
+
+/**
+ Revert all previously swizzling.
+ */
++ (void)resetSwizzling;
 
 #pragma mark └ Swizzle Class method
 

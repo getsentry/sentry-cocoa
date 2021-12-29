@@ -552,6 +552,8 @@
 		D88817D826D7149100BF2251 /* SentryTraceState.m in Sources */ = {isa = PBXBuildFile; fileRef = D88817D626D7149100BF2251 /* SentryTraceState.m */; };
 		D88817DA26D72AB800BF2251 /* SentryTraceState.h in Headers */ = {isa = PBXBuildFile; fileRef = D88817D926D72AB800BF2251 /* SentryTraceState.h */; };
 		D88817DD26D72BA500BF2251 /* SentryTraceStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */; };
+		D8E92FEB277C841800D1D8F5 /* GULSwizzlingCache.h in Headers */ = {isa = PBXBuildFile; fileRef = D8E92FEA277C841800D1D8F5 /* GULSwizzlingCache.h */; };
+		D8E92FED277C843200D1D8F5 /* GULSwizzlingCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E92FEC277C843200D1D8F5 /* GULSwizzlingCache.m */; };
 		D8FFE50C2703DBB400607131 /* SwizzlingCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -1164,6 +1166,8 @@
 		D88817D626D7149100BF2251 /* SentryTraceState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTraceState.m; sourceTree = "<group>"; };
 		D88817D926D72AB800BF2251 /* SentryTraceState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryTraceState.h; path = include/SentryTraceState.h; sourceTree = "<group>"; };
 		D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceStateTests.swift; sourceTree = "<group>"; };
+		D8E92FEA277C841800D1D8F5 /* GULSwizzlingCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GULSwizzlingCache.h; path = include/GULSwizzlingCache.h; sourceTree = "<group>"; };
+		D8E92FEC277C843200D1D8F5 /* GULSwizzlingCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlingCache.m; sourceTree = "<group>"; };
 		D8FFE50B2703DAAE00607131 /* SwizzlingCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwizzlingCallTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1426,6 +1430,8 @@
 				7BF9EF832722D07B00B5BBEF /* SentryObjCRuntimeWrapper.h */,
 				7BF9EF7B2722B90E00B5BBEF /* SentryDefaultObjCRuntimeWrapper.h */,
 				7BF9EF7D2722B91F00B5BBEF /* SentryDefaultObjCRuntimeWrapper.m */,
+				D8E92FEA277C841800D1D8F5 /* GULSwizzlingCache.h */,
+				D8E92FEC277C843200D1D8F5 /* GULSwizzlingCache.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -2435,6 +2441,7 @@
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
 				63FE70A120DA4C1000CDBAE8 /* SentryCrashCString.h in Headers */,
 				7B7D873424864C6600D2ECFF /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
+				D8E92FEB277C841800D1D8F5 /* GULSwizzlingCache.h in Headers */,
 				7BA61CC8247D125400C130A8 /* SentryThreadInspector.h in Headers */,
 				7BE1E32824F7AE08009D3AD0 /* SentrySession+Private.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
@@ -2760,6 +2767,7 @@
 				63FE71A020DA4C1100CDBAE8 /* SentryCrashInstallation.m in Sources */,
 				63FE713520DA4C1100CDBAE8 /* SentryCrashMemory.c in Sources */,
 				63FE714520DA4C1100CDBAE8 /* SentryCrashObjC.c in Sources */,
+				D8E92FED277C843200D1D8F5 /* GULSwizzlingCache.m in Sources */,
 				63FE710520DA4C1000CDBAE8 /* SentryCrashLogger.c in Sources */,
 				63FE70E920DA4C1000CDBAE8 /* SentryCrashMonitor_User.c in Sources */,
 				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,

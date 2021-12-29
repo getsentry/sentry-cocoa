@@ -3,6 +3,8 @@
 #import <objc/runtime.h>
 #include <pthread.h>
 
+#include "GULSwizzlingCache.h"
+
 #pragma mark - Swizzling
 
 #pragma mark └ SentrySwizzleInfo
@@ -102,47 +104,58 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 
     pthread_mutex_lock(&gLock);
 
+#if TEST
+    IMP currImp = class_getMethodImplementation(classToSwizzle, selector);
+    [GULSwizzlingCache cacheCurrentIMP:currImp
+                             forNewIMP:newIMP
+                              forClass:classToSwizzle
+                          withSelector:selector];
+#endif
+
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
-
-    SEL newSelector = NSSelectorFromString(
-        [NSString stringWithFormat:@"SENTRY_SWIZZLED_%@", NSStringFromSelector(selector)]);
-
-    class_addMethod(classToSwizzle, newSelector, originalIMP, "NIL");
 
     pthread_mutex_unlock(&gLock);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
 static void
 unswizzle(Class classToSwizzle, SEL selector)
 {
-    SEL newSelector = NSSelectorFromString(
-        [NSString stringWithFormat:@"SENTRY_SWIZZLED_%@", NSStringFromSelector(selector)]);
-    Method newMethod = class_getInstanceMethod(classToSwizzle, newSelector);
+#if TEST
+    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&gLock);
 
-    if (newMethod == nil) {
-        return;
-    }
-
+    NSCAssert(
+        classToSwizzle != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
     Method method = class_getInstanceMethod(classToSwizzle, selector);
 
-    IMP implementation = method_getImplementation(method);
-    IMP newImplementation = method_getImplementation(newMethod);
+    NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
+    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:classToSwizzle
+                                                               withSelector:selector];
+    NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
+    IMP currentImp = method_setImplementation(method, originalImp);
+    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
+    NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
+    [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:currentImp
+                                                        selector:selector
+                                                          aClass:classToSwizzle];
 
-    if (newImplementation == nil) {
-        Class superclass = class_getSuperclass(classToSwizzle);
-        newImplementation = method_getImplementation(class_getInstanceMethod(superclass, selector));
-    }
+    pthread_mutex_unlock(&gLock);
 
-    const char *methodType = method_getTypeEncoding(method);
-
-    class_replaceMethod(classToSwizzle, selector, newImplementation, methodType);
-
-    imp_removeBlock(implementation);
+#endif
 }
 
-#pragma clang diagnostic pop
++ (void)resetSwizzling
+{
+    NSArray *cached = [[GULSwizzlingCache sharedInstance] cachedClasses];
+    for (int i = 0; i < cached.count; i++) {
+        CFArrayRef item = (__bridge CFArrayRef)cached[i];
+        Class class = (Class)CFArrayGetValueAtIndex(item, 0);
+        SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
+        unswizzle(class, selector);
+    }
+
+    [swizzledClassesDictionary() removeAllObjects];
+}
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary()

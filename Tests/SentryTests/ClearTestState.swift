@@ -1,4 +1,5 @@
 import Foundation
+import Sentry
 
 func clearTestState() {
     SentrySDK.close()
@@ -16,4 +17,7 @@ func clearTestState() {
     framesTracker.stop()
     framesTracker.resetFrames()
     #endif
+    
+    SentrySwizzle.resetSwizzling()
+    
 }

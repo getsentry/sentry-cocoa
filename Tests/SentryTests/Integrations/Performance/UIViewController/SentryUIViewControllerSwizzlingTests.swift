@@ -12,6 +12,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
+            options.tracesSampleRate = 1
             return options
         }
         
@@ -56,7 +57,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertNil(SentrySDK.span)
     }
     
-    func testViewControllerWithoutLoadView_TransactionBoundToScope() {
+    func testViewControllerWithoutLoadView_transactionBoundToScope() {
         let controller = TestViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span)
