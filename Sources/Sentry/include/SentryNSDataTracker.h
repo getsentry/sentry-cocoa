@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString *const SENTRY_IO_WRITE_OPERATION = @"file.write";
+static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
 
-static NSString *const SENTRY_IO_READ_OPERATION = @"file.read";
+static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
 @interface SentryNSDataTracker : NSObject
 
