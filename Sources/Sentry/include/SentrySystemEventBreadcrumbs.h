@@ -4,7 +4,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@interface SentrySystemEventsBreadcrumbs : NSObject
+@interface SentrySystemEventBreadcrumbs : NSObject
 
 - (void)start;
 
