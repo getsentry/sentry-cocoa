@@ -2,7 +2,7 @@
  * File copied from
 `l`:
   * https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzlingCache.h
- * 
+ *
  * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,6 +77,6 @@
  */
 - (void)clearCacheForSwizzledIMP:(IMP)swizzledIMP selector:(SEL)selector aClass:(Class)aClass;
 
-- (NSArray *)cachedClasses;
+- (NSArray<NSArray *> *)cachedClasses;
 
 @end

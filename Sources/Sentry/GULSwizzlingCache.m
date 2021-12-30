@@ -84,9 +84,6 @@ GULSwizzlingCache ()
 - (NSArray *)cachedClasses
 {
     NSDictionary *imps = (__bridge NSDictionary *)_originalImps;
-
-    // CFArrayRef array = imps.allKeys;
-    // Class class = CFArrayGetValueAtIndex(array, 0);
     return imps.allKeys;
 }
 

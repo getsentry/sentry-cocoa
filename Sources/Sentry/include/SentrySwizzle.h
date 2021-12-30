@@ -287,17 +287,6 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key;
 
-/**
- Revert any previously swizzling done in the class for the selector, and cleans the the swizzling
- key indicator.
- */
-+ (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToSwizzle key:(const void *)key;
-
-/**
- Revert all previously swizzling.
- */
-+ (void)resetSwizzling;
-
 #pragma mark └ Swizzle Class method
 
 /**
@@ -348,7 +337,32 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                    inClass:(Class)classToSwizzle
              newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock;
 
+#if TEST
+
+#    pragma mark - Unswizzle
+/**
+ Revert any previously swizzling done in the class for the instance selector, and cleans the the
+ swizzling key indicator.
+ */
++ (BOOL)unswizzleInstanceMethod:(SEL)selector inClass:(Class)classToSwizzle key:(const void *)key;
+
+/**
+ Revert any previously swizzling done in the class for the selector.
+ */
 + (void)unswizzleClassMethod:(SEL)selector inClass:(Class)classToSwizzle;
+
+/**
+ Revert all previously swizzling.
+ */
++ (void)unswizzleAllClasses;
+
+#    define SentryUnswizzleClassMethod(classToSwizzle, selector)                                   \
+        [SentrySwizzle unswizzleClassMethod:selector inClass:classToSwizzle]
+
+#    define SentryUnswizzleInstanceMethod(classToSwizzle, selector, KEY)                           \
+        [SentrySwizzle unswizzleInstanceMethod:selector inClass:classToSwizzle key:KEY]
+
+#endif
 
 @end
 
@@ -364,12 +378,6 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // To prevent comma issues if there are no arguments we add one dummy argument
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
-
-#define SentryUnswizzleClassMethod(classToSwizzle, selector)                                       \
-    [SentrySwizzle unswizzleClassMethod:selector inClass:classToSwizzle]
-
-#define SentryUnswizzleInstanceMethod(classToSwizzle, selector, KEY)                               \
-    [SentrySwizzle unswizzleInstanceMethod:selector inClass:classToSwizzle key:KEY]
 
 #if TEST
 #    define _SentrySWReplacement(code...)                                                          \

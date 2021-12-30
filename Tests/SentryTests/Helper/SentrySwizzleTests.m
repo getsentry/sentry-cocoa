@@ -176,7 +176,7 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 - (void)tearDown
 {
-    [SentrySwizzle resetSwizzling];
+    [SentrySwizzle unswizzleAllClasses];
 }
 
 + (void)swizzleDeallocs

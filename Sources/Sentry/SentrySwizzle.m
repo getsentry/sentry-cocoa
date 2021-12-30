@@ -36,6 +36,7 @@ SentrySwizzleInfo ()
 @end
 
 #pragma mark └ SentrySwizzle
+static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
 @implementation SentrySwizzle
 
@@ -47,8 +48,6 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
     NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
         NSStringFromSelector(selector), class_isMetaClass(classToSwizzle) ? @"class" : @"instance",
         classToSwizzle);
-
-    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
     // To keep things thread-safe, we fill in the originalIMP later,
     // with the result of the class_replaceMethod call below.
@@ -117,48 +116,6 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
     pthread_mutex_unlock(&gLock);
 }
 
-static void
-unswizzle(Class classToSwizzle, SEL selector)
-{
-#if TEST
-    static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_lock(&gLock);
-
-    NSCAssert(
-        classToSwizzle != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
-    Method method = class_getInstanceMethod(classToSwizzle, selector);
-
-    NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
-    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:classToSwizzle
-                                                               withSelector:selector];
-    NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
-    IMP currentImp = method_setImplementation(method, originalImp);
-    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
-    NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
-    [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:currentImp
-                                                        selector:selector
-                                                          aClass:classToSwizzle];
-
-    pthread_mutex_unlock(&gLock);
-
-#endif
-}
-
-+ (void)resetSwizzling
-{
-    NSArray *cached = [[GULSwizzlingCache sharedInstance] cachedClasses];
-    for (int i = 0; i < cached.count; i++) {
-        CFArrayRef item = (__bridge CFArrayRef)cached[i];
-        Class class = (Class)CFArrayGetValueAtIndex(item, 0);
-        SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
-        unswizzle(class, selector);
-    }
-
-    @synchronized(swizzledClassesDictionary()) {
-        [swizzledClassesDictionary() removeAllObjects];
-    }
-}
-
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary()
 {
@@ -218,29 +175,6 @@ swizzledClassesForKey(const void *key)
     return YES;
 }
 
-+ (BOOL)unswizzleInstanceMethod:(SEL)selector
-                        inClass:(nonnull Class)classToSwizzle
-                            key:(const void *)key
-{
-    @synchronized(swizzledClassesDictionary()) {
-        if (key) {
-            NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
-            if (![swizzledClasses containsObject:classToSwizzle]) {
-                return NO;
-            }
-        }
-        }
-        
-        unswizzle(classToSwizzle, selector);
-        
-        if (key) {
-            [swizzledClassesForKey(key) removeObject:classToSwizzle];
-        }
-    }
-
-    return YES;
-}
-
 + (void)swizzleClassMethod:(SEL)selector
                    inClass:(Class)classToSwizzle
              newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock
@@ -252,9 +186,75 @@ swizzledClassesForKey(const void *key)
                             key:NULL];
 }
 
+#if TEST
+
+static void
+unswizzle(Class classToSwizzle, SEL selector)
+{
+    // Code extract from
+    // https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzler%2BUnswizzle.m
+
+    pthread_mutex_lock(&gLock);
+
+    NSCAssert(
+        classToSwizzle != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
+    Method method = class_getInstanceMethod(classToSwizzle, selector);
+
+    NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
+    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:classToSwizzle
+                                                               withSelector:selector];
+    NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
+    IMP currentImp = method_setImplementation(method, originalImp);
+    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
+    NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
+    [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:currentImp
+                                                        selector:selector
+                                                          aClass:classToSwizzle];
+
+    pthread_mutex_unlock(&gLock);
+}
+
++ (void)unswizzleAllClasses
+{
+    @synchronized(swizzledClassesDictionary()) {
+        NSArray *cached = [[GULSwizzlingCache sharedInstance] cachedClasses];
+        for (int i = 0; i < cached.count; i++) {
+            CFArrayRef item = (__bridge CFArrayRef)cached[i];
+            Class class = (Class)CFArrayGetValueAtIndex(item, 0);
+            SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
+            unswizzle(class, selector);
+        }
+
+        [swizzledClassesDictionary() removeAllObjects];
+    }
+}
+
++ (BOOL)unswizzleInstanceMethod:(SEL)selector
+                        inClass:(nonnull Class)classToSwizzle
+                            key:(const void *)key
+{
+    @synchronized(swizzledClassesDictionary()) {
+        if (key) {
+            NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
+            if (![swizzledClasses containsObject:classToSwizzle]) {
+                return NO;
+            }
+        }
+
+        unswizzle(classToSwizzle, selector);
+
+        if (key) {
+            [swizzledClassesForKey(key) removeObject:classToSwizzle];
+        }
+    }
+
+    return YES;
+}
+
 + (void)unswizzleClassMethod:(SEL)selector inClass:(Class)classToSwizzle
 {
     [self unswizzleInstanceMethod:selector inClass:object_getClass(classToSwizzle) key:NULL];
 }
+#endif
 
 @end
