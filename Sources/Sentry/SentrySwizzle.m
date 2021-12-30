@@ -154,7 +154,9 @@ unswizzle(Class classToSwizzle, SEL selector)
         unswizzle(class, selector);
     }
 
-    [swizzledClassesDictionary() removeAllObjects];
+    @synchronized(swizzledClassesDictionary()) {
+        [swizzledClassesDictionary() removeAllObjects];
+    }
 }
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
@@ -227,12 +229,13 @@ swizzledClassesForKey(const void *key)
                 return NO;
             }
         }
-    }
-
-    unswizzle(classToSwizzle, selector);
-
-    if (key) {
-        [swizzledClassesForKey(key) removeObject:classToSwizzle];
+        }
+        
+        unswizzle(classToSwizzle, selector);
+        
+        if (key) {
+            [swizzledClassesForKey(key) removeObject:classToSwizzle];
+        }
     }
 
     return YES;
