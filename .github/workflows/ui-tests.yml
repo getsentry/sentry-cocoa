@@ -1,0 +1,79 @@
+name: UI Tests
+on:
+  # Schedule the UI tests so we can see in Sentry how the duration of transactions
+  # changes over time.
+  schedule:
+    - cron: '* */4 * * *'
+  push:
+    branches:
+      - master
+
+jobs:
+  build-ui-tests:
+    name: Build UITests with Xcode ${{matrix.xcode}}
+    runs-on: macos-11
+    strategy:      
+      matrix:
+        xcode: ["13.2", "12.5.1"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - run: git apply ./scripts/set-device-tests-environment.patch
+      
+      - run: fastlane build_ios_swift_ui_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        with:
+          name: DerivedData-Xcode-${{matrix.xcode}}
+          path: |
+            **/Debug-iphoneos/iOS-Swift.app
+            **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+
+
+  run-ui-tests:
+    name: Run UITests iOS ${{ matrix.iOS }}
+    runs-on: ubuntu-latest
+    needs: build-ui-tests
+    strategy:      
+      fail-fast: false
+      matrix:
+        include:
+          - xcode: "13.2"
+            iOS: 15
+
+          - xcode: "13.2"
+            iOS: 14
+
+          # iOS 13 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1564
+          # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
+          # iOS 11 keeps timing out and we don't know how to fix it.
+
+          - xcode: "12.5.1"
+            iOS: 10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: DerivedData-Xcode-${{matrix.xcode}}
+
+      - run: npm install -g saucectl
+
+      # As SauceLabs is a bit flaky we retry 5 times
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: for i in {1..5}; do saucectl run --select-suite iOS-${{ matrix.iOS }} && break ; done     
