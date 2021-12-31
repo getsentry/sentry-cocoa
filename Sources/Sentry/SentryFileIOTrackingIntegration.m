@@ -1,7 +1,7 @@
 #import "SentryFileIOTrackingIntegration.h"
+#import "SentryLog.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryOptions.h"
-#import "SentryLog.h"
 
 @implementation SentryFileIOTrackingIntegration
 
@@ -13,21 +13,22 @@
                          andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable FileIOTracking because enableAutoPerformanceTracking is disabled."
+        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because "
+                                  @"enableAutoPerformanceTracking is disabled."
                          andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     if (!options.enableFileIOTracking) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
-                         andLevel:kSentryLevelDebug];
+        [SentryLog
+            logWithMessage:
+                @"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
+                  andLevel:kSentryLevelDebug];
         return;
     }
-    
+
     [SentryNSDataSwizzling start];
 }
 
