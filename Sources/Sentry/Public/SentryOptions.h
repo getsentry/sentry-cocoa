@@ -193,7 +193,7 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK tracks performance for IO
  * reads and writes if auto performance tracking is enabled. The default is <code>NO</code>
  */
-@property (nonatomic, assign) BOOL enableIOTracking;
+@property (nonatomic, assign) BOOL enableFileIOTracking;
 
 /**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards

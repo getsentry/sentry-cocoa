@@ -403,7 +403,7 @@
 
 - (void)testEnableIOTracking
 {
-    [self testBooleanField:@"enableIOTracking" defaultValue:NO];
+    [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
 }
 
 - (void)testEnableTraceSampling
@@ -505,7 +505,7 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(NO, options.enableIOTracking);
+    XCTAssertEqual(NO, options.enableFileIOTracking);
 }
 
 - (void)testSetValidDsn

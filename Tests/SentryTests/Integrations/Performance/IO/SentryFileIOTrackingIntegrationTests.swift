@@ -3,7 +3,7 @@ import Foundation
 import Sentry
 import XCTest
 
-class SentryIOTrackingIntegrationTests: XCTestCase {
+class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
         let data = "SOME DATA".data(using: .utf8)!
@@ -13,7 +13,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         var options: Options {
             let result = Options()
             result.enableAutoPerformanceTracking = true
-            result.enableIOTracking = true
+            result.enableFileIOTracking = true
             result.enableSwizzling = true
             return result
         }
@@ -46,7 +46,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = true
             options.enableSwizzling = true
-            options.enableIOTracking = false
+            options.enableFileIOTracking = false
         }
         
         assertSpans {
@@ -58,7 +58,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = true
             options.enableSwizzling = false
-            options.enableIOTracking = true
+            options.enableFileIOTracking = true
         }
         
         assertSpans {
@@ -70,7 +70,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = false
             options.enableSwizzling = true
-            options.enableIOTracking = true
+            options.enableFileIOTracking = true
         }
         
         assertSpans {
@@ -96,7 +96,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = true
             options.enableSwizzling = true
-            options.enableIOTracking = false
+            options.enableFileIOTracking = false
         }
         
         assertSpans {
@@ -108,7 +108,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = true
             options.enableSwizzling = false
-            options.enableIOTracking = true
+            options.enableFileIOTracking = true
         }
         
         assertSpans {
@@ -120,7 +120,7 @@ class SentryIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start { options in
             options.enableAutoPerformanceTracking = false
             options.enableSwizzling = true
-            options.enableIOTracking = true
+            options.enableFileIOTracking = true
         }
         
         assertSpans {
