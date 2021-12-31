@@ -189,9 +189,10 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableNetworkTracking;
 
 /**
- * THIS FLAG IS EXPERIMENTAL.
- * When enabled, the SDK tracks performance for IO
- * reads and writes if auto performance tracking is enabled. The default is <code>NO</code>
+ * This feature is EXPERIMENTAL.
+ *
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
  */
 @property (nonatomic, assign) BOOL enableFileIOTracking;
 
