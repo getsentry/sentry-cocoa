@@ -440,7 +440,7 @@ SentryCrashReportConverter ()
 }
 
 /**
- * Get the message of fatalError, assert, and precondition to set is as the exception value if the
+ * Get the message of fatalError, assert, and precondition to set it as the exception value if the
  * crashInfo contains the message.
  *
  * Swift puts the messages of fatalError, assert, and precondition into the crashInfo of the
