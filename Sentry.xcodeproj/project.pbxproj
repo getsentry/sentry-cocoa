@@ -246,6 +246,7 @@
 		7B30B67E26527894006B2752 /* SentryDisplayLinkWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B30B67D26527894006B2752 /* SentryDisplayLinkWrapper.m */; };
 		7B30B68026527C3C006B2752 /* SentryFramesTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30B67F26527C3C006B2752 /* SentryFramesTrackerTests.swift */; };
 		7B30B68226527C55006B2752 /* TestDisplayLinkWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30B68126527C55006B2752 /* TestDisplayLinkWrapper.swift */; };
+		7B31C291277B04A000337126 /* SentryCrashPlatformSpecificDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B31C290277B04A000337126 /* SentryCrashPlatformSpecificDefines.h */; };
 		7B3398632459C14000BD9C96 /* SentryEnvelopeRateLimit.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B3398622459C14000BD9C96 /* SentryEnvelopeRateLimit.h */; };
 		7B3398652459C15200BD9C96 /* SentryEnvelopeRateLimit.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B3398642459C15200BD9C96 /* SentryEnvelopeRateLimit.m */; };
 		7B3398672459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3398662459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift */; };
@@ -825,6 +826,7 @@
 		7B30B67F26527C3C006B2752 /* SentryFramesTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFramesTrackerTests.swift; sourceTree = "<group>"; };
 		7B30B68126527C55006B2752 /* TestDisplayLinkWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDisplayLinkWrapper.swift; sourceTree = "<group>"; };
 		7B30B6882653AEA8006B2752 /* SentryFramesTracker+TestInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryFramesTracker+TestInit.h"; sourceTree = "<group>"; };
+		7B31C290277B04A000337126 /* SentryCrashPlatformSpecificDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryCrashPlatformSpecificDefines.h; sourceTree = "<group>"; };
 		7B3398622459C14000BD9C96 /* SentryEnvelopeRateLimit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeRateLimit.h; path = include/SentryEnvelopeRateLimit.h; sourceTree = "<group>"; };
 		7B3398642459C15200BD9C96 /* SentryEnvelopeRateLimit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeRateLimit.m; sourceTree = "<group>"; };
 		7B3398662459C4AE00BD9C96 /* SentryEnvelopeRateLimitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeRateLimitTests.swift; sourceTree = "<group>"; };
@@ -1738,6 +1740,7 @@
 				71F11CDEF5952DF5CC69AC74 /* SentryCrashUUIDConversion.h */,
 				A2475E1A25FB63D7007D9080 /* SentryHook.c */,
 				A2475E1625FB63AF007D9080 /* SentryHook.h */,
+				7B31C290277B04A000337126 /* SentryCrashPlatformSpecificDefines.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -2432,6 +2435,7 @@
 				63FE715120DA4C1100CDBAE8 /* SentryCrashDebug.h in Headers */,
 				63FE70F520DA4C1000CDBAE8 /* SentryCrashMonitor_System.h in Headers */,
 				7BE3C7672445C0CA00A38442 /* SentryCurrentDate.h in Headers */,
+				7B31C291277B04A000337126 /* SentryCrashPlatformSpecificDefines.h in Headers */,
 				7B610D602512390E00B0B5D9 /* SentrySDK+Private.h in Headers */,
 				7BE3C76F2445C2F800A38442 /* SentryDefaultCurrentDateProvider.h in Headers */,
 				7B6C5EE0264E8E050010D138 /* SentryFramesTracker.h in Headers */,

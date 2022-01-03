@@ -3,6 +3,7 @@
 ## Unreleased
 
 - feat: Auto I/O spans for NSData (#1557)
+- feat: Support for fatalError, assert, precondition (#1596)
 - feat: Include unfinished spans in transactions (#1592)
 - build: Disable NSAssertions for Release Builds (#1545)
 
