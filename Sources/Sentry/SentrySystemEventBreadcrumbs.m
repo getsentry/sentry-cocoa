@@ -1,4 +1,4 @@
-#import "SentrySystemEventsBreadcrumbs.h"
+#import "SentrySystemEventBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
@@ -8,7 +8,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@implementation SentrySystemEventsBreadcrumbs
+@implementation SentrySystemEventBreadcrumbs
 
 - (void)start
 {
