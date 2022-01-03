@@ -49,7 +49,7 @@ class ViewController: UIViewController {
         SentrySDK.addBreadcrumb(crumb: crumb)
     }
     
-    @IBAction func captureMessage(_ sender: Any) {
+    @IBAction func captureMessage(_ sender: Any) {        
         let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
@@ -92,6 +92,10 @@ class ViewController: UIViewController {
         // Only do this if you know what you are doing, you loose a lot of useful info
         // If you just want to mutate what's in the scope use the callback, see: captureError
         SentrySDK.capture(exception: exception, scope: scope)
+    }
+    
+    @IBAction func captureFatalError(_ sender: Any) {
+        fatalError("This is a fatal error. Oh no 😬.")
     }
     
     @IBAction func captureTransaction(_ sender: Any) {

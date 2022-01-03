@@ -10,7 +10,7 @@ class ViewController: NSViewController {
         SentrySDK.addBreadcrumb(crumb: crumb)
     }
     
-    @IBAction func captureMessage(_ sender: Any) {
+    @IBAction func captureMessage(_ sender: Any) {    
         let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil

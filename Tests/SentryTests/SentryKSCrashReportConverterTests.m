@@ -242,8 +242,8 @@
 
 - (void)testFatalError
 {
-    [self isValidReport:@"Resources/fatalError"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatalError"];
+    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -251,10 +251,44 @@
         event.exceptions.firstObject.value, @"crash: > fatal error > hello my crash is here");
 }
 
+- (void)testFatalErrorBinaryiPhone
+{
+    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-iphone"
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+}
+
+- (void)testFatalErrorBinaryMac
+{
+    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-mac"
+                 expectedValue:@"macOS_Swift/ViewController.swift:14: Assertion failed: hello\n"];
+}
+
+- (void)testFatalErrorBinarySimulator
+{
+    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-simulator"
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+}
+
+- (void)testFatalErrorBinaryMessage2
+{
+    [self testFatalErrorBinary:@"Resources/fatal-error-binary-images-message2"
+                 expectedValue:@"iOS_Swift/ViewController.swift:53: Fatal error: Hello fatal\n"];
+}
+
+- (void)testFatalErrorBinary:(NSString *)reportPath expectedValue:(NSString *)expectedValue
+{
+    [self isValidReport:reportPath];
+    NSDictionary *rawCrash = [self getCrashReport:reportPath];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertEqualObjects(event.exceptions.firstObject.value, expectedValue);
+}
+
 - (void)testUserInfo
 {
-    [self isValidReport:@"Resources/fatalError"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatalError"];
+    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     reportConverter.userContext = @{
