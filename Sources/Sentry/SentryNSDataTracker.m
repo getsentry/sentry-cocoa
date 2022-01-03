@@ -60,7 +60,7 @@ SentryNSDataTracker ()
         return nil;
     __block id<SentrySpan> ioSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:SENTRY_IO_WRITE_OPERATION
+        ioSpan = [span startChildWithOperation:SENTRY_FILE_WRITE_OPERATION
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:data.length]];
     }];
@@ -81,7 +81,7 @@ SentryNSDataTracker ()
 
     __block id<SentrySpan> ioSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:SENTRY_IO_READ_OPERATION
+        ioSpan = [span startChildWithOperation:SENTRY_FILE_READ_OPERATION
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:0]];
     }];
