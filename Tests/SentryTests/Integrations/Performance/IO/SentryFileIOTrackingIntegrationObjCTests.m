@@ -16,7 +16,6 @@ SentryTracer ()
 
 @end
 
-
 /**
  * Not all NSData methods have an equivalent in Swift.
  * This tests will assure NSData methods are working properly.
@@ -32,9 +31,12 @@ SentryTracer ()
     NSArray *directories = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory
                                                                 inDomains:NSUserDomainMask];
     NSURL *docDir = directories.firstObject;
-    
-    [NSFileManager.defaultManager createDirectoryAtURL:docDir withIntermediateDirectories:YES attributes:nil error:nil];
-    
+
+    [NSFileManager.defaultManager createDirectoryAtURL:docDir
+                           withIntermediateDirectories:YES
+                                            attributes:nil
+                                                 error:nil];
+
     fileUrl = [docDir URLByAppendingPathComponent:@"TestFile"];
     filePath = fileUrl.path;
 }
@@ -56,29 +58,29 @@ SentryTracer ()
 
 - (void)test_dataWithContentsOfFile
 {
-    [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfFile:self->filePath]];
-    }];
+    [self assertTransaction:^{ [self assertData:[NSData dataWithContentsOfFile:self->filePath]]; }];
 }
 
 - (void)test_dataWithContentsOfFileOptionsError
 {
     [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfFile:self->filePath options:NSDataReadingUncached error:nil]];
+        [self assertData:[NSData dataWithContentsOfFile:self->filePath
+                                                options:NSDataReadingUncached
+                                                  error:nil]];
     }];
 }
 
 - (void)test_dataWithContentsOfURL
 {
-    [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfURL:self->fileUrl]];
-    }];
+    [self assertTransaction:^{ [self assertData:[NSData dataWithContentsOfURL:self->fileUrl]]; }];
 }
 
 - (void)test_dataWithContentsOfURLOptionsError
 {
     [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfURL:self->fileUrl options:NSDataReadingUncached error:nil]];
+        [self assertData:[NSData dataWithContentsOfURL:self->fileUrl
+                                               options:NSDataReadingUncached
+                                                 error:nil]];
     }];
 }
 
@@ -98,17 +100,13 @@ SentryTracer ()
 
 - (void)test_writeToFileAtomically
 {
-    [self assertTransaction:^{
-        [self->someData writeToFile:self->filePath atomically:true];
-    }];
+    [self assertTransaction:^{ [self->someData writeToFile:self->filePath atomically:true]; }];
     [self assertDataWritten];
 }
 
 - (void)test_writeToUrlAtomically
 {
-    [self assertTransaction:^{
-        [self->someData writeToURL:self->fileUrl atomically:true];
-    }];
+    [self assertTransaction:^{ [self->someData writeToURL:self->fileUrl atomically:true]; }];
     [self assertDataWritten];
 }
 
@@ -128,28 +126,33 @@ SentryTracer ()
     [self assertDataWritten];
 }
 
-- (void)test_NSFileManagerContentAtPath {
+- (void)test_NSFileManagerContentAtPath
+{
     [self assertTransaction:^{
         [self assertData:[NSFileManager.defaultManager contentsAtPath:self->filePath]];
     }];
 }
 
-- (void)test_NSFileManagerCreateFile {
+- (void)test_NSFileManagerCreateFile
+{
     [self assertTransaction:^{
-        [NSFileManager.defaultManager createFileAtPath:self->filePath contents:self->someData attributes:nil];
+        [NSFileManager.defaultManager createFileAtPath:self->filePath
+                                              contents:self->someData
+                                            attributes:nil];
     }];
     [self assertDataWritten];
 }
 
+- (void)assertData:(NSData *)data
+{
+    NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-- (void)assertData:(NSData *)data {
-    NSString* content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
     XCTAssertTrue([content isEqualToString:@"SOME DATA"]);
     XCTAssertEqual(data.length, 9);
 }
 
-- (void)assertDataWritten {
+- (void)assertDataWritten
+{
     [self assertData:[NSData dataWithContentsOfFile:filePath]];
 }
 

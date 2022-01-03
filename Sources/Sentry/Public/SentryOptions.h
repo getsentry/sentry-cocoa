@@ -263,8 +263,8 @@ NS_SWIFT_NAME(Options)
  *
  * @discussion When turned off the following features are disabled: breadcrumbs for touch events and
  * navigation with UIViewControllers, automatic instrumentation for UIViewControllers, automatic
- * instrumentation for HTTP requests, and automatically added sentry-trace header to HTTP requests
- * for distributed tracing.
+ * instrumentation for HTTP requests, automatic instrumentation for file IO with NSData, and
+ * automatically added sentry-trace header to HTTP requests for distributed tracing.
  */
 @property (nonatomic, assign) BOOL enableSwizzling;
 
