@@ -1,7 +1,7 @@
 # ThreadSanitizer suppressions file
 # For syntax details, see https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions
 
-# Races in SentryCrash we don't want to fix
+# Races in SentryCrash
 race:sentrycrashccd_getThreadName
 race:sentrycrashccd_init
 race:updateThreadList
@@ -9,10 +9,11 @@ race:handleDealloc
 race:monitorCachedData
 race:TestThread.m
 race:uninstallExceptionHandler
+racesentrycrashcm_setDeadlockHandlerWatchdogInterval
 
 # These methods use Double-Checked Locking and ThreadSanitizers produces
 # false alarms for them.
-# race:getAppStartMeasurement
+race:getAppStartMeasurement
 
 # Races to fix
 race:returnResponse

@@ -65,6 +65,8 @@ jobs:
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-11 
+    timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v2
 
