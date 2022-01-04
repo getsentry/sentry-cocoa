@@ -93,7 +93,7 @@ SentryNSURLRequest ()
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
-    
+
     return self;
 }
 
