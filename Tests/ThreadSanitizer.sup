@@ -9,7 +9,7 @@ race:handleDealloc
 race:monitorCachedData
 race:TestThread.m
 race:uninstallExceptionHandler
-racesentrycrashcm_setDeadlockHandlerWatchdogInterval
+race:sentrycrashcm_setDeadlockHandlerWatchdogInterval
 
 # These methods use Double-Checked Locking and ThreadSanitizers produces
 # false alarms for them.
