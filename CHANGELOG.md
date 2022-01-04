@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.8.0
 
 - feat: Support for fatalError, assert, precondition (#1596)
 - feat: Include unfinished spans in transactions (#1592)
