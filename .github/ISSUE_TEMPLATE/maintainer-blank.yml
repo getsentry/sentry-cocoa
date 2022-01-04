@@ -1,5 +1,5 @@
-name: ⬜️ Blank Issue
-description: Blank Issue
+name: Blank Issue
+description: Blank Issue. Reserved for maintainers.
 labels: ["Platform: Cocoa"]
 body:
   - type: textarea
