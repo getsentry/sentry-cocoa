@@ -62,6 +62,8 @@ jobs:
         # so the coverage report shows a reduced coverage.
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}  
 
+  # We don't run all unit tests with Thread Sanitizer enabled because
+  # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-11 
