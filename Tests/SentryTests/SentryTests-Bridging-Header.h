@@ -114,7 +114,7 @@
 #import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentrySysctl.h"
-#import "SentrySystemEventsBreadcrumbs.h"
+#import "SentrySystemEventBreadcrumbs.h"
 #import "SentryTestIntegration.h"
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
