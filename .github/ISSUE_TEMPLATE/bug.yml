@@ -1,0 +1,73 @@
+name: 🐞 Bug Report
+description: Tell us about something that's not working the way we (probably) intend.
+labels: ["Platform: Cocoa", "Type: Bug"]
+body:
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Platform
+      description: Which platform do you use?
+      options:
+        - iOS
+        - tvOS
+        - macOS
+        - watchOS
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installed
+    attributes:
+      label: installed
+      description: sentry-cocoa installed with
+      options:
+        - Swift Package Manager
+        - CocoaPods
+        - Carthage
+        - Manually
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version of sentry-cocoa do you use?
+      placeholder: 7.7.0 ← should look like this
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can we see what you're seeing? Specific is terrific.
+      placeholder: |-
+        1. foo
+        2. bar
+        3. baz
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+      description: Logs? Screenshots? Yes, please.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |-
+        ## Thanks 🙏
+        Check our [triage docs](https://open.sentry.io/triage/) for what to expect next.
+    validations:
+      required: false
