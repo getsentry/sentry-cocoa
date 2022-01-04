@@ -83,6 +83,7 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 13.0
 
+      # Don't use xcpretty -t to be able to see the log output of the ThreadSanitizer
       - name: Running tests
         run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test
 
