@@ -5,7 +5,7 @@
 # Therefore we print a hint to find the threading issues.
 
 # Don't use xcpretty -t to be able to see the log output of the ThreadSanitizer
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test
+env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test | tee thread-sanitizer.log | xcpretty -t
 
 testStatus=$?
 
