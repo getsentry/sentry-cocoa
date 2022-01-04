@@ -1,13 +1,13 @@
 @testable import Sentry
 import XCTest
 
-class SentrySystemEventsBreadcrumbsTest: XCTestCase {
+class SentrySystemEventBreadcrumbsTest: XCTestCase {
     
     // This feature only works on iOS
     #if os(iOS)
     
     private class Fixture {
-        func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventsBreadcrumbs {
+        func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
             do {
                 let options = try Options(dict: ["dsn": "https://username@sentry.io/1"])
                 let client = Client(options: options)
@@ -17,14 +17,14 @@ class SentrySystemEventsBreadcrumbsTest: XCTestCase {
                 XCTFail("Failed to setup test")
             }
             
-            let systemEvents = SentrySystemEventsBreadcrumbs()
+            let systemEvents = SentrySystemEventBreadcrumbs()
             systemEvents.start(currentDevice)
             return systemEvents
         }
     }
     
     private let fixture = Fixture()
-    private var sut: SentrySystemEventsBreadcrumbs!
+    private var sut: SentrySystemEventBreadcrumbs!
     
     internal class MyUIDevice: UIDevice {
         private var _batteryLevel: Float

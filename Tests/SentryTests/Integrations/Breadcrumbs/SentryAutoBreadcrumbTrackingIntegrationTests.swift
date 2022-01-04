@@ -21,7 +21,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     func testInstallWithSwizzleEnabled_StartSwizzleCalled() {
         let sut = fixture.sut
         
-        sut.install(with: Options(), tracker: fixture.tracker, systemEvents: SentrySystemEventsBreadcrumbs())
+        sut.install(with: Options(), breadcrumbTracker: fixture.tracker, systemEventBreadcrumbs: SentrySystemEventBreadcrumbs())
         
         XCTAssertEqual(1, fixture.tracker.startInvocations.count)
         XCTAssertEqual(1, fixture.tracker.startSwizzleInvocations.count)
@@ -32,7 +32,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
         let options = Options()
         options.enableSwizzling = false
-        sut.install(with: options, tracker: fixture.tracker, systemEvents: SentrySystemEventsBreadcrumbs())
+        sut.install(with: options, breadcrumbTracker: fixture.tracker, systemEventBreadcrumbs: SentrySystemEventBreadcrumbs())
         
         XCTAssertEqual(1, fixture.tracker.startInvocations.count)
         XCTAssertEqual(0, fixture.tracker.startSwizzleInvocations.count)
