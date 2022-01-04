@@ -84,7 +84,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 13.0
 
       - name: Running tests
-        run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test | xcpretty -t
+        run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test
 
 
   ui-tests:
