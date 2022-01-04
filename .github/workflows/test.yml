@@ -63,7 +63,7 @@ jobs:
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}  
 
   thread-sanitizer:
-    name: Run unit test with Thread Sanitizer
+    name: Unit iOS - Thread Sanitizer
     runs-on: macos-11 
     steps:
       - uses: actions/checkout@v2
@@ -84,7 +84,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 13.0
 
       - name: Running tests
-        run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test | xcpretty -t && exit
+        run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test | xcpretty -t
 
 
   ui-tests:
