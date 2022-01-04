@@ -65,7 +65,8 @@ jobs:
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
     runs-on: macos-11 
-    timeout-minutes: 15
+    # When there are threading issues the tests sometimes keep hanging
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v2
@@ -85,10 +86,8 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 13.0
 
-      # Don't use xcpretty -t to be able to see the log output of the ThreadSanitizer
-      - name: Running tests
-        run: env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" test
-
+      - name: Running tests with ThreadSanitizer
+        run: ./scripts/run-thread-sanitizer.sh
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}
