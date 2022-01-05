@@ -60,7 +60,42 @@ jobs:
         
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}        
+        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}  
+
+  # We don't run all unit tests with Thread Sanitizer enabled because
+  # that adds a significant overhead.
+  thread-sanitizer:
+    name: Unit iOS - Thread Sanitizer
+    runs-on: macos-11 
+    # When there are threading issues the tests sometimes keep hanging
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache for Test Server
+        uses: actions/cache@v2
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+
+      - run: swift build
+        working-directory: test-server
+
+      - name: Run Test Server in Background
+        run: swift run &
+        working-directory: test-server
+
+      - run: ./scripts/ci-select-xcode.sh 13.0
+
+      - name: Running tests with ThreadSanitizer
+        run: ./scripts/tests-with-thread-sanitizer.sh
+      
+      - name: Archiving Test Logs
+        uses: actions/upload-artifact@v2
+        with:
+          path: thread-sanitizer.log
+
 
   ui-tests:
     name: UI Tests for ${{matrix.target}}

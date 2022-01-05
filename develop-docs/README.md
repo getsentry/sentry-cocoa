@@ -10,6 +10,20 @@ Therefore the sample apps use manual code signing, see [fastlane docs](https://d
 
 Reach out to @philipphofmann if you need access to the match git repository.
 
+## Unit Tests with Thread Sanitizer
+
+CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
+The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
+It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
+To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
+
+### Further Reading
+
+* [ThreadSanitizerSuppressions](https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
+* [Running Tests with Clang's AddressSanitizer](https://pspdfkit.com/blog/2016/test-with-asan/)
+* [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
+* [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
+
 ## Auto UI Performance Class Overview
 
 ![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
