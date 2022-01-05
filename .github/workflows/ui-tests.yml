@@ -8,6 +8,11 @@ on:
     branches:
       - master
 
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+
 jobs:
   build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
