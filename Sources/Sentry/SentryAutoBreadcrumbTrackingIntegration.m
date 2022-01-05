@@ -3,15 +3,15 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
-#import "SentrySystemEventsBreadcrumbs.h"
+#import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryAutoBreadcrumbTrackingIntegration ()
 
-@property (nonatomic, strong) SentryBreadcrumbTracker *tracker;
-@property (nonatomic, strong) SentrySystemEventsBreadcrumbs *system_events;
+@property (nonatomic, strong) SentryBreadcrumbTracker *breadcrumbTracker;
+@property (nonatomic, strong) SentrySystemEventBreadcrumbs *systemEventBreadcrumbs;
 
 @end
 
@@ -20,35 +20,35 @@ SentryAutoBreadcrumbTrackingIntegration ()
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
     [self installWithOptions:options
-                     tracker:[[SentryBreadcrumbTracker alloc] init]
-                systemEvents:[[SentrySystemEventsBreadcrumbs alloc] init]];
+             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc] init]];
 }
 
 /**
  * For testing.
  */
 - (void)installWithOptions:(nonnull SentryOptions *)options
-                   tracker:(SentryBreadcrumbTracker *)tracker
-              systemEvents:(SentrySystemEventsBreadcrumbs *)systemEvents
+         breadcrumbTracker:(SentryBreadcrumbTracker *)breadcrumbTracker
+    systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs
 {
-    self.tracker = tracker;
-    [self.tracker start];
+    self.breadcrumbTracker = breadcrumbTracker;
+    [self.breadcrumbTracker start];
 
     if (options.enableSwizzling) {
-        [self.tracker startSwizzle];
+        [self.breadcrumbTracker startSwizzle];
     }
 
-    self.system_events = systemEvents;
-    [self.system_events start];
+    self.systemEventBreadcrumbs = systemEventBreadcrumbs;
+    [self.systemEventBreadcrumbs start];
 }
 
 - (void)uninstall
 {
-    if (nil != self.tracker) {
-        [self.tracker stop];
+    if (nil != self.breadcrumbTracker) {
+        [self.breadcrumbTracker stop];
     }
-    if (nil != self.system_events) {
-        [self.system_events stop];
+    if (nil != self.systemEventBreadcrumbs) {
+        [self.systemEventBreadcrumbs stop];
     }
 }
 
