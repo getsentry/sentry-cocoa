@@ -53,7 +53,6 @@ static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
                                     error:(NSError **)error
                                    method:(NSData *_Nullable (^)(
                                               NSURL *, NSDataReadingOptions, NSError **))method;
-
 @end
 
 NS_ASSUME_NONNULL_END

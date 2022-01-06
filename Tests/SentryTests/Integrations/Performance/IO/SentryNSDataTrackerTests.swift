@@ -5,7 +5,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
-        let sentryPath = "/io.sentry/envelope.data"
+        let sentryPath = try! SentryFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
                 
@@ -196,7 +196,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
         
-        assertDataSpan(span, path: url.absoluteString, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
+        assertDataSpan(span, path: url.path, operation: SENTRY_FILE_READ_OPERATION, size: fixture.data.count)
     }
     
     func testDontTrackSentryFilesRead() {
@@ -215,6 +215,31 @@ class SentryNSDataTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
+    func testTransactionDescription() {
+        let sut = Dynamic(fixture.getSut())
+        var result = sut.transactionDescription(forFile: "file/test", fileSize: 12) as String?
+        XCTAssertEqual(result, "test (12 bytes)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 0) as String?
+        XCTAssertEqual(result, "test")
+        
+        result = sut.transactionDescription(forFile: "file\test", fileSize: 12) as String?
+        XCTAssertEqual(result, "file\test (12 bytes)")
+        
+        //iOS converter does not use the more common file size measurament of 1024 bytes equal 1KB
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024) as String?
+        XCTAssertEqual(result, "test (1 KB)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024 * 1_023) as String?
+        XCTAssertEqual(result, "test (1,023 KB)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024 * 1_024) as String?
+        XCTAssertEqual(result, "test (1 MB)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024 * 1_024 * 1_024) as String?
+        XCTAssertEqual(result, "test (1 GB)")
+    }
+    
     private func firstSpan(_ transaction: Span) -> Span? {
         let result = Dynamic(transaction).children as [Span]?
         return result?.first
@@ -226,6 +251,15 @@ class SentryNSDataTrackerTests: XCTestCase {
         XCTAssertTrue(span?.isFinished ?? false)
         XCTAssertEqual(span?.data?["file.size"] as? Int, size)
         XCTAssertEqual(span?.data?["file.path"] as? String, path)
+        
+        let lastComponent = (path as NSString).lastPathComponent
+        
+        if operation == SENTRY_FILE_READ_OPERATION {
+            XCTAssertEqual(span?.context.spanDescription, lastComponent)
+        } else {
+            let bytesDescription = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .binary)
+            XCTAssertEqual(span?.context.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
+        }
     }
     
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) {

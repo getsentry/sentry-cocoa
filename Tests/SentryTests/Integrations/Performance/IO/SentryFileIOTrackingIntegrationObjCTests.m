@@ -1,3 +1,4 @@
+#import "SentryNSDataTracker.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySpan.h"
@@ -164,7 +165,27 @@ SentryTracer ()
 
     block();
 
+    SentrySpan *ioSpan = parentTransaction.children.firstObject;
+    NSString *operation = ioSpan.context.operation;
+
     XCTAssertEqual(parentTransaction.children.count, 1);
+    XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
+    XCTAssertTrue([ioSpan.data[@"file.path"] isEqualToString:filePath]);
+
+    NSString *filename = filePath.lastPathComponent;
+
+    if ([operation isEqualToString:SENTRY_FILE_READ_OPERATION]) {
+        XCTAssertTrue([ioSpan.context.spanDescription isEqualToString:filename]);
+    } else if ([operation isEqualToString:SENTRY_FILE_WRITE_OPERATION]) {
+        NSString *expectedString = [NSString
+            stringWithFormat:@"%@ (%@)", filename,
+            [NSByteCountFormatter stringFromByteCount:someData.length
+                                           countStyle:NSByteCountFormatterCountStyleBinary]];
+
+        XCTAssertTrue([ioSpan.context.spanDescription isEqualToString:expectedString]);
+    } else {
+        XCTFail("Invalid operation");
+    }
 }
 
 @end

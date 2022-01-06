@@ -1,4 +1,6 @@
 #import "SentryNSDataTracker.h"
+#import "SentryClient+Private.h"
+#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
@@ -43,58 +45,6 @@ SentryNSDataTracker ()
     @synchronized(self) {
         self.isEnabled = NO;
     }
-}
-
-- (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
-{
-    return size > 0
-        ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
-                    [NSByteCountFormatter stringFromByteCount:size
-                                                   countStyle:NSByteCountFormatterCountStyleFile]]
-        : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
-}
-
-- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
-{
-    if (!self.isEnabled || ![self shouldTrackPath:path])
-        return nil;
-    __block id<SentrySpan> ioSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:SENTRY_FILE_WRITE_OPERATION
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:data.length]];
-    }];
-
-    // We only create a span if there is a transaction in the scope,
-    // otherwise we have nothing else to do here.
-    if (ioSpan == nil)
-        return nil;
-
-    [ioSpan setDataValue:path forKey:@"file.path"];
-    return ioSpan;
-}
-
-- (id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
-{
-    if (!self.isEnabled || ![self shouldTrackPath:path])
-        return nil;
-
-    __block id<SentrySpan> ioSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        ioSpan = [span startChildWithOperation:SENTRY_FILE_READ_OPERATION
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:0]];
-    }];
-
-    [ioSpan setDataValue:path forKey:@"file.path"];
-
-    return ioSpan;
-}
-
-- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
-{
-    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
-    [span finish];
 }
 
 - (BOOL)measureNSData:(NSData *)data
@@ -163,10 +113,14 @@ SentryNSDataTracker ()
                            error:(NSError **)error
                           method:(NSData * (^)(NSURL *, NSDataReadingOptions, NSError **))method
 {
+
+    // We dont track reads from a url that is not a file url
+    // because these reads are handled by NSURLSession and
+    // SentryNetworkTracker will create spans in these cases.
     if (![url.scheme isEqualToString:NSURLFileScheme])
         return method(url, readOptionsMask, error);
 
-    id<SentrySpan> span = [self startTrackingReadingFilePath:url.absoluteString];
+    id<SentrySpan> span = [self startTrackingReadingFilePath:url.path];
 
     NSData *result = method(url, readOptionsMask, error);
 
@@ -177,9 +131,56 @@ SentryNSDataTracker ()
     return result;
 }
 
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path
+                             operation:(NSString *)operation
+                                  size:(NSUInteger)size
+{
+    @synchronized(self) {
+        if (!self.isEnabled || ![self shouldTrackPath:path])
+            return nil;
+    }
+
+    __block id<SentrySpan> ioSpan;
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        ioSpan = [span startChildWithOperation:operation
+                                   description:[self transactionDescriptionForFile:path
+                                                                          fileSize:size]];
+    }];
+
+    [ioSpan setDataValue:path forKey:@"file.path"];
+    return ioSpan;
+}
+
+- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
+{
+    return [self spanForPath:path operation:SENTRY_FILE_WRITE_OPERATION size:data.length];
+}
+
+- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+{
+    return [self spanForPath:path operation:SENTRY_FILE_READ_OPERATION size:0];
+}
+
+- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
+{
+    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
+    [span finish];
+}
+
 - (BOOL)shouldTrackPath:(NSString *)path
 {
-    return ![path containsString:@"/io.sentry/"];
+    SentryFileManager *fileManager = [SentrySDK.currentHub getClient].fileManager;
+
+    return ![path hasPrefix:fileManager.sentryPath];
+}
+
+- (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
+{
+    return size > 0
+        ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
+                    [NSByteCountFormatter stringFromByteCount:size
+                                                   countStyle:NSByteCountFormatterCountStyleBinary]]
+        : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
 @end

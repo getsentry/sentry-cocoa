@@ -14,6 +14,12 @@
         return;
     }
 
+    if (!options.isTracingEnabled) {
+        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because tracing is disabled."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
     if (!options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:@"Not going to enable FileIOTracking because "
                                   @"enableAutoPerformanceTracking is disabled."
