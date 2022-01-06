@@ -45,7 +45,7 @@ SentryNSDataTracker ()
     }
 }
 
-- (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(unsigned long)size
+- (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
 {
     return size > 0
         ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
@@ -54,7 +54,7 @@ SentryNSDataTracker ()
         : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
-- (id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
+- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
 {
     if (!self.isEnabled || ![self shouldTrackPath:path])
         return nil;

@@ -18,7 +18,7 @@ SentryTracer ()
 
 /**
  * Not all NSData methods have an equivalent in Swift.
- * This tests will assure NSData methods are working properly.
+ * These tests assure NSData methods are working properly.
  */
 @implementation SentryFileIOTrackingIntegrationObjCTests {
     NSString *filePath;
