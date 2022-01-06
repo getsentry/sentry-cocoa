@@ -59,88 +59,122 @@ SentryTracer ()
 
 - (void)test_dataWithContentsOfFile
 {
-    [self assertTransaction:^{ [self assertData:[NSData dataWithContentsOfFile:self->filePath]]; }];
+    [self assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                  block:^{
+                                      [self assertData:[NSData
+                                                           dataWithContentsOfFile:self->filePath]];
+                                  }];
 }
 
 - (void)test_dataWithContentsOfFileOptionsError
 {
-    [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfFile:self->filePath
-                                                options:NSDataReadingUncached
-                                                  error:nil]];
-    }];
+    [self
+        assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                block:^{
+                                    [self
+                                        assertData:[NSData
+                                                       dataWithContentsOfFile:self->filePath
+                                                                      options:NSDataReadingUncached
+                                                                        error:nil]];
+                                }];
 }
 
 - (void)test_dataWithContentsOfURL
 {
-    [self assertTransaction:^{ [self assertData:[NSData dataWithContentsOfURL:self->fileUrl]]; }];
+    [self
+        assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                block:^{
+                                    [self assertData:[NSData dataWithContentsOfURL:self->fileUrl]];
+                                }];
 }
 
 - (void)test_dataWithContentsOfURLOptionsError
 {
-    [self assertTransaction:^{
-        [self assertData:[NSData dataWithContentsOfURL:self->fileUrl
-                                               options:NSDataReadingUncached
-                                                 error:nil]];
-    }];
+    [self
+        assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                block:^{
+                                    [self assertData:[NSData
+                                                         dataWithContentsOfURL:self->fileUrl
+                                                                       options:NSDataReadingUncached
+                                                                         error:nil]];
+                                }];
 }
 
 - (void)test_initWithContentsOfURL
 {
-    [self assertTransaction:^{
-        [self assertData:[[NSData alloc] initWithContentsOfURL:self->fileUrl]];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                  block:^{
+                                      [self assertData:[[NSData alloc]
+                                                           initWithContentsOfURL:self->fileUrl]];
+                                  }];
 }
 
 - (void)test_initWithContentsOfFile
 {
-    [self assertTransaction:^{
-        [self assertData:[[NSData alloc] initWithContentsOfFile:self->filePath]];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                  block:^{
+                                      [self assertData:[[NSData alloc]
+                                                           initWithContentsOfFile:self->filePath]];
+                                  }];
 }
 
 - (void)test_writeToFileAtomically
 {
-    [self assertTransaction:^{ [self->someData writeToFile:self->filePath atomically:true]; }];
+    [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
+                                  block:^{
+                                      [self->someData writeToFile:self->filePath atomically:true];
+                                  }];
     [self assertDataWritten];
 }
 
 - (void)test_writeToUrlAtomically
 {
-    [self assertTransaction:^{ [self->someData writeToURL:self->fileUrl atomically:true]; }];
+    [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
+                                  block:^{
+                                      [self->someData writeToURL:self->fileUrl atomically:true];
+                                  }];
     [self assertDataWritten];
 }
 
 - (void)test_writeToFileOptionsError
 {
-    [self assertTransaction:^{
-        [self->someData writeToFile:self->filePath options:NSDataWritingAtomic error:nil];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
+                                  block:^{
+                                      [self->someData writeToFile:self->filePath
+                                                          options:NSDataWritingAtomic
+                                                            error:nil];
+                                  }];
     [self assertDataWritten];
 }
 
 - (void)test_writeToUrlOptionsError
 {
-    [self assertTransaction:^{
-        [self->someData writeToURL:self->fileUrl options:NSDataWritingAtomic error:nil];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
+                                  block:^{
+                                      [self->someData writeToURL:self->fileUrl
+                                                         options:NSDataWritingAtomic
+                                                           error:nil];
+                                  }];
     [self assertDataWritten];
 }
 
 - (void)test_NSFileManagerContentAtPath
 {
-    [self assertTransaction:^{
-        [self assertData:[NSFileManager.defaultManager contentsAtPath:self->filePath]];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_READ_OPERATION
+                                  block:^{
+                                      [self assertData:[NSFileManager.defaultManager
+                                                           contentsAtPath:self->filePath]];
+                                  }];
 }
 
 - (void)test_NSFileManagerCreateFile
 {
-    [self assertTransaction:^{
-        [NSFileManager.defaultManager createFileAtPath:self->filePath
-                                              contents:self->someData
-                                            attributes:nil];
-    }];
+    [self assertTransactionForOperation:SENTRY_FILE_WRITE_OPERATION
+                                  block:^{
+                                      [NSFileManager.defaultManager createFileAtPath:self->filePath
+                                                                            contents:self->someData
+                                                                          attributes:nil];
+                                  }];
     [self assertDataWritten];
 }
 
@@ -148,8 +182,8 @@ SentryTracer ()
 {
     NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    XCTAssertTrue([content isEqualToString:@"SOME DATA"]);
-    XCTAssertEqual(data.length, 9);
+    XCTAssertEqualObjects(content, @"SOME DATA");
+    XCTAssertEqual(data.length, someData.length);
 }
 
 - (void)assertDataWritten
@@ -157,7 +191,7 @@ SentryTracer ()
     [self assertData:[NSData dataWithContentsOfFile:filePath]];
 }
 
-- (void)assertTransaction:(void (^)(void))block
+- (void)assertTransactionForOperation:(NSString *)operation block:(void (^)(void))block
 {
     SentryTracer *parentTransaction = [SentrySDK startTransactionWithName:@"Transaction"
                                                                 operation:@"Test"
@@ -166,25 +200,23 @@ SentryTracer ()
     block();
 
     SentrySpan *ioSpan = parentTransaction.children.firstObject;
-    NSString *operation = ioSpan.context.operation;
 
     XCTAssertEqual(parentTransaction.children.count, 1);
     XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
-    XCTAssertTrue([ioSpan.data[@"file.path"] isEqualToString:filePath]);
+    XCTAssertEqualObjects(ioSpan.data[@"file.path"], filePath);
+    XCTAssertEqualObjects(operation, ioSpan.context.operation);
 
     NSString *filename = filePath.lastPathComponent;
 
     if ([operation isEqualToString:SENTRY_FILE_READ_OPERATION]) {
-        XCTAssertTrue([ioSpan.context.spanDescription isEqualToString:filename]);
-    } else if ([operation isEqualToString:SENTRY_FILE_WRITE_OPERATION]) {
+        XCTAssertEqualObjects(ioSpan.context.spanDescription, filename);
+    } else {
         NSString *expectedString = [NSString
             stringWithFormat:@"%@ (%@)", filename,
             [NSByteCountFormatter stringFromByteCount:someData.length
                                            countStyle:NSByteCountFormatterCountStyleBinary]];
 
-        XCTAssertTrue([ioSpan.context.spanDescription isEqualToString:expectedString]);
-    } else {
-        XCTFail("Invalid operation");
+        XCTAssertEqualObjects(ioSpan.context.spanDescription, expectedString);
     }
 }
 
