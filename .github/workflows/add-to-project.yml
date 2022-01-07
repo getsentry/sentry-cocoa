@@ -1,0 +1,20 @@
+name: Add to Project
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  assign_to_project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alex-page/github-project-automation-plus@5bcba1c1c091a222584d10913e5c060d32c44044
+        # if: github.event.action == 'opened'
+        with:
+          project: "Mobile Platform Team V1"
+          column: "Needs Discussion"
+          repo-token: ${{ secrets.SENTRY_GITHUB_PROJECTS }}
