@@ -137,8 +137,7 @@ SentryNSDataTracker ()
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
-        if (!self.isEnabled)
-        {
+        if (!self.isEnabled) {
             return nil;
         }
     }
@@ -147,7 +146,7 @@ SentryNSDataTracker ()
         return nil;
     }
 
-    if (![self shouldTrackPath:path]) {
+    if ([self ignoreFile:path]) {
         return nil;
     }
 
