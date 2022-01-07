@@ -139,7 +139,7 @@ SentryNSDataTracker ()
         if (!self.isEnabled)
             return nil;
     }
-    
+
     if (![self shouldTrackPath:path]) {
         return nil;
     }
