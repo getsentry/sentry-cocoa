@@ -1,6 +1,7 @@
 #import "SentryNSDataTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryFileManager.h"
+#import "SentryFormatter.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
@@ -136,8 +137,13 @@ SentryNSDataTracker ()
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
-        if (!self.isEnabled || ![self shouldTrackPath:path])
+        if (!self.isEnabled) {
             return nil;
+        }
+    }
+
+    if ([self ignoreFile:path]) {
+        return nil;
     }
 
     __block id<SentrySpan> ioSpan;
@@ -147,7 +153,14 @@ SentryNSDataTracker ()
                                                                           fileSize:size]];
     }];
 
+    if (ioSpan == nil) {
+        [SentryLog logWithMessage:@"No transaction bound to scope. Won't track file IO operation."
+                         andLevel:kSentryLevelDebug];
+        return nil;
+    }
+
     [ioSpan setDataValue:path forKey:@"file.path"];
+
     return ioSpan;
 }
 
@@ -167,20 +180,18 @@ SentryNSDataTracker ()
     [span finish];
 }
 
-- (BOOL)shouldTrackPath:(NSString *)path
+- (BOOL)ignoreFile:(NSString *)path
 {
     SentryFileManager *fileManager = [SentrySDK.currentHub getClient].fileManager;
 
-    return ![path hasPrefix:fileManager.sentryPath];
+    return [path hasPrefix:fileManager.sentryPath];
 }
 
 - (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
 {
-    return size > 0
-        ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
-                    [NSByteCountFormatter stringFromByteCount:size
-                                                   countStyle:NSByteCountFormatterCountStyleBinary]]
-        : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
+    return size > 0 ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
+                                [SentryFormatter bytesCountDescription:size]]
+                    : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
 @end

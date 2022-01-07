@@ -25,20 +25,25 @@ SentryTracer ()
     NSString *filePath;
     NSURL *fileUrl;
     NSData *someData;
+    NSURL *fileDirectory;
+    BOOL deleteFileDirectory;
 }
 
 - (void)inititialize
 {
     NSArray *directories = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory
                                                                 inDomains:NSUserDomainMask];
-    NSURL *docDir = directories.firstObject;
+    fileDirectory = directories.firstObject;
 
-    [NSFileManager.defaultManager createDirectoryAtURL:docDir
-                           withIntermediateDirectories:YES
-                                            attributes:nil
-                                                 error:nil];
+    if (![NSFileManager.defaultManager fileExistsAtPath:fileDirectory.path]) {
+        deleteFileDirectory = true;
+        [NSFileManager.defaultManager createDirectoryAtURL:fileDirectory
+                               withIntermediateDirectories:YES
+                                                attributes:nil
+                                                     error:nil];
+    }
 
-    fileUrl = [docDir URLByAppendingPathComponent:@"TestFile"];
+    fileUrl = [fileDirectory URLByAppendingPathComponent:@"TestFile"];
     filePath = fileUrl.path;
 }
 
@@ -55,6 +60,14 @@ SentryTracer ()
         options.enableFileIOTracking = YES;
         options.tracesSampleRate = @1;
     }];
+}
+
+- (void)tearDown
+{
+    [NSFileManager.defaultManager removeItemAtURL:fileUrl error:nil];
+    if (deleteFileDirectory) {
+        [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
+    }
 }
 
 - (void)test_dataWithContentsOfFile

@@ -226,9 +226,14 @@ class SentryNSDataTrackerTests: XCTestCase {
         result = sut.transactionDescription(forFile: "file\test", fileSize: 12) as String?
         XCTAssertEqual(result, "file\test (12 bytes)")
         
-        //iOS converter does not use the more common file size measurament of 1024 bytes equal 1KB
         result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024) as String?
         XCTAssertEqual(result, "test (1 KB)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_025) as String?
+        XCTAssertEqual(result, "test (1 KB)")
+        
+        result = sut.transactionDescription(forFile: "file/test", fileSize: 1_034) as String?
+        XCTAssertEqual(result, "test (1.01 KB)")
         
         result = sut.transactionDescription(forFile: "file/test", fileSize: 1_024 * 1_023) as String?
         XCTAssertEqual(result, "test (1,023 KB)")
