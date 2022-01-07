@@ -136,8 +136,12 @@ SentryNSDataTracker ()
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
-        if (!self.isEnabled || ![self shouldTrackPath:path])
+        if (!self.isEnabled)
             return nil;
+    }
+    
+    if (![self shouldTrackPath:path]) {
+        return nil;
     }
 
     __block id<SentrySpan> ioSpan;
