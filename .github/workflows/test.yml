@@ -15,42 +15,72 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}}
-    runs-on: macos-11 
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
+    runs-on: ${{matrix.runs-on}}
     strategy:      
+      fail-fast: false
       matrix:
+        runs-on: [ macos-11 ]
+        
         # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS","Catalyst", "iOS", "tvOS"]
+        platform: ["macOS", "Catalyst", "iOS", "tvOS"]
         
         # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
         # which is only available since iOS 13 / Xcode 11.
         xcode: ["13.0", "12.5.1", "11.7"]
 
+        test-destination-os: ["latest"]
+
+        # Test on iOS 12.4
+        include:
+          - runs-on: macos-10.15
+            platform: "iOS"
+            xcode: "11.7"
+            test-destination-os: "12.4"
+
     steps:
       - uses: actions/checkout@v2
 
+      # As we use swift-tools-version:5.5 the test server only compiles with Xcode 13.
+      # macos-10.15 doesn't have Xcode 13 and macos-11 doesn't have a simulator with
+      # iOS 12. Ideally, we would compile the test-server on macos-11 and use it on
+      # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
+      # xcode-test.sh
       - name: Cache for Test Server
+        if: ${{ matrix.runs-on == 'macos-11'}}  
         uses: actions/cache@v2
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
-      - run: swift build
-        working-directory: test-server
-
       - name: Run Test Server in Background
-        run: swift run &
+        if: ${{ matrix.runs-on == 'macos-11'}}  
+        run: | 
+          swift build
+          swift run &
         working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
+      # we can't run the tests with Xcode 10.3. Therefore we use a workaround with a symlink pointed out in:
+      # https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
+      - name: Prepare iOS 12.4 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}  
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
+          xcrun simctl list runtimes
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
+          xcrun simctl list devices 12.4
 
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}}
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}}
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
