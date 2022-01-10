@@ -163,7 +163,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     func test_ReadingBigFile() {
         SentrySDK.start(options: fixture.getOptions())
         
-        let jsonFile = Bundle(for: SentryFileIOTrackingIntegrationTests.self).path(forResource: "fatal-error-binary-images-message2", ofType: "json")!
+        guard let jsonFile = Bundle(for: type(of: self)).path(forResource: "Resources/fatal-error-binary-images-message2", ofType: "json") else {
+            XCTFail("Could not open Resource")
+            return
+        }
         
         assertSpans(1) {
             let data = try? NSData(contentsOfFile: jsonFile, options: .uncached)
@@ -172,7 +175,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
     
     func test_WritingBigFile() {
-        let jsonFile = Bundle(for: SentryFileIOTrackingIntegrationTests.self).path(forResource: "fatal-error-binary-images-message2", ofType: "json")!
+        guard let jsonFile = Bundle(for: type(of: self)).path(forResource: "Resources/fatal-error-binary-images-message2", ofType: "json") else {
+            XCTFail("Could not open Resource")
+            return
+        }
         
         guard let data = try? NSData(contentsOfFile: jsonFile, options: .uncached) else {
             XCTFail("Could not load File")
