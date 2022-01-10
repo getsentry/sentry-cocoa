@@ -11,16 +11,6 @@ set -euo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 DESTINATION=""
-EXTRA_ARGS=""
-
-# The following tests fail on iOS 12.4. We ignore them for now and are going to fix them later.
-if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
-    EXTRA_ARGS="
-        -skip-testing:\"Sentry/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded\" 
-        -skip-testing:\"Sentry/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs\" 
-        -skip-testing:\"Sentry/SentrySDKTests/testMemoryFootprintOfTransactions\" 
-        -skip-testing:\"Sentry/SentryUIViewControllerSwizzlingTests/testSwizzle_fromScene\""
-fi
 
 case $PLATFORM in
 
@@ -46,7 +36,19 @@ case $PLATFORM in
         ;;
 esac
 
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test \
-    GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-    $EXTRA_ARGS \
-    test | xcpretty -t && exit ${PIPESTATUS[0]}
+# The following tests fail on iOS 12.4. We ignore them for now and are going to fix them later.
+if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
+    echo "Running iOS 12.4 tests."
+
+    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test \
+        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
+        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
+        -skip-testing:"SentryTests/SentryUIViewControllerSwizzlingTests/testSwizzle_fromScene" \
+        test | xcpretty -t && exit ${PIPESTATUS[0]}
+else 
+    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test \
+        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
+        test | xcpretty -t && exit ${PIPESTATUS[0]}
+fi
