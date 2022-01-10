@@ -95,83 +95,83 @@ jobs:
 
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
-  # thread-sanitizer:
-  #   name: Unit iOS - Thread Sanitizer
-  #   runs-on: macos-11 
-  #   # When there are threading issues the tests sometimes keep hanging
-  #   timeout-minutes: 20
+  thread-sanitizer:
+    name: Unit iOS - Thread Sanitizer
+    runs-on: macos-11 
+    # When there are threading issues the tests sometimes keep hanging
+    timeout-minutes: 20
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: Cache for Test Server
-  #       uses: actions/cache@v2
-  #       with:
-  #         path: ./test-server/.build
-  #         key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+      - name: Cache for Test Server
+        uses: actions/cache@v2
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
-  #     - run: swift build
-  #       working-directory: test-server
+      - run: swift build
+        working-directory: test-server
 
-  #     - name: Run Test Server in Background
-  #       run: swift run &
-  #       working-directory: test-server
+      - name: Run Test Server in Background
+        run: swift run &
+        working-directory: test-server
 
-  #     - run: ./scripts/ci-select-xcode.sh 13.0
+      - run: ./scripts/ci-select-xcode.sh 13.0
 
-  #     - name: Running tests with ThreadSanitizer
-  #       run: ./scripts/tests-with-thread-sanitizer.sh
+      - name: Running tests with ThreadSanitizer
+        run: ./scripts/tests-with-thread-sanitizer.sh
       
-  #     - name: Archiving Test Logs
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         path: thread-sanitizer.log
+      - name: Archiving Test Logs
+        uses: actions/upload-artifact@v2
+        with:
+          path: thread-sanitizer.log
 
 
-  # ui-tests:
-  #   name: UI Tests for ${{matrix.target}}
-  #   runs-on: macos-11
-  #   strategy:
-  #     matrix:
-  #       target: ["ios_swiftui", "ios_objc", "tvos_swift" ]
+  ui-tests:
+    name: UI Tests for ${{matrix.target}}
+    runs-on: macos-11
+    strategy:
+      matrix:
+        target: ["ios_swiftui", "ios_objc", "tvos_swift" ]
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: ./scripts/ci-select-xcode.sh 
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 
 
-  #     # GitHub Actions sometimes fail to launch the UI tests. 
-  #     # Therefore we retry
-  #     - name: Run Fastlane
-  #       run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
-  #       shell: sh
+      # GitHub Actions sometimes fail to launch the UI tests. 
+      # Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
+        shell: sh
 
-  # ui-tests-swift-ui:
-  #   name: UI Tests for ${{matrix.device}}
-  #   runs-on: macos-11
-  #   strategy:
-  #     matrix:
-  #       device: ["iPhone 8 (15.2)", "iPhone 8 (14.5)", "iPhone 8 (13.7)"]
+  ui-tests-swift-ui:
+    name: UI Tests for ${{matrix.device}}
+    runs-on: macos-11
+    strategy:
+      matrix:
+        device: ["iPhone 8 (15.2)", "iPhone 8 (14.5)", "iPhone 8 (13.7)"]
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: ./scripts/ci-select-xcode.sh 13.2
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/ci-select-xcode.sh 13.2
 
-  #     # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-  #     - name: Run Fastlane
-  #       run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
-  #       shell: sh
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        shell: sh
 
 
-  # # macos-11 doesn't have a simulator for iOS 12
-  # ui-tests-swift-ui-ios-12:
-  #   name: UI Tests for iOS 12
-  #   runs-on: macos-10.15
+  # macos-11 doesn't have a simulator for iOS 12
+  ui-tests-swift-ui-ios-12:
+    name: UI Tests for iOS 12
+    runs-on: macos-10.15
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #     # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-  #     - name: Run Fastlane
-  #       run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
-  #       shell: sh
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
+      - name: Run Fastlane
+        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
+        shell: sh
 

@@ -38,7 +38,7 @@ esac
 
 # The following tests fail on iOS 12.4. We ignore them for now and are going to fix them later.
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
-    echo "Running iOS 12.4 tests."
+    echo "Skipping tests for iOS 12.4."
 
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
