@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release/**
-      - ci/test-ios12
 
   pull_request:
     paths:
