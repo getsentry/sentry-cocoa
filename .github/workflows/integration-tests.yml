@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - master
+  
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
 
 jobs:
 
