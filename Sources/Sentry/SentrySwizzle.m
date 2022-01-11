@@ -207,10 +207,6 @@ unswizzle(Class classToSwizzle, SEL selector)
     IMP currentImp = method_setImplementation(method, originalImp);
     __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
     NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
-    [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:currentImp
-                                                        selector:selector
-                                                          aClass:classToSwizzle];
-
     pthread_mutex_unlock(&gLock);
 }
 
