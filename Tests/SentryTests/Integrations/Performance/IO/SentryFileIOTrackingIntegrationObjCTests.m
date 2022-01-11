@@ -68,6 +68,7 @@ SentryTracer ()
     if (deleteFileDirectory) {
         [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
     }
+    [SentrySDK close];
 }
 
 - (void)test_dataWithContentsOfFile
