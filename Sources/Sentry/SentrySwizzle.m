@@ -228,8 +228,16 @@ unswizzleCFArray(const void *key, const void *value, void *context)
 
     NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
     NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
-    IMP currentImp = method_setImplementation(method, originalImp);
-    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
+
+    const char *methodType = method_getTypeEncoding(method);
+
+    IMP previousImp = class_replaceMethod(class, selector, originalImp, methodType);
+
+    if (previousImp == NULL) {
+        Class superclass = class_getSuperclass(class);
+        previousImp = method_getImplementation(class_getInstanceMethod(superclass, selector));
+    }
+    __unused BOOL didRemoveBlock = imp_removeBlock(previousImp);
     NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
 }
 
