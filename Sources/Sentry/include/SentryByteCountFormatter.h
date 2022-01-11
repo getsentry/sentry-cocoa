@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryByteCountFormatter : NSObject
 
-+ (NSString *)bytesCountDescription:(NSUInteger)bytes;
++ (NSString *)bytesCountDescription:(unsigned long)bytes;
 
 @end
 

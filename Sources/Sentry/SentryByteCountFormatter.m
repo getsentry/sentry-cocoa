@@ -2,7 +2,7 @@
 
 @implementation SentryByteCountFormatter
 
-+ (NSString *)bytesCountDescription:(NSUInteger)bytes
++ (NSString *)bytesCountDescription:(unsigned long)bytes
 {
     const NSArray *units = @[ @"bytes", @"KB", @"MB", @"GB", @"TB" ];
     int index = 0;
@@ -10,7 +10,7 @@
     double result = bytes;
 
     while (result >= 1024 && index < units.count - 1) {
-        result /= 1024;
+        result /= 1024.0;
         index++;
     }
 
