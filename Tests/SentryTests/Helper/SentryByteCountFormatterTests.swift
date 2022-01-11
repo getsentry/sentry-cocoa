@@ -18,12 +18,6 @@ class SentryByteCountFormatterTests: XCTestCase {
         assertDescription(baseValue: 1_024 * 1_024 * 1_024, unitName: "GB")
     }
     
-    func testTBDescription() {
-        let baseValue: UInt = 1_024 * 1_024 * 1_024 * 1_024
-        assertDescription(baseValue: baseValue, unitName: "TB")
-        XCTAssertEqual("1,024 TB", SentryByteCountFormatter.bytesCountDescription(baseValue * 1_024))
-    }
-    
     func assertDescription(baseValue: UInt, unitName: String) {
         XCTAssertEqual("1 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue))
         XCTAssertEqual("512 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue * 512))

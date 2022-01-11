@@ -4,7 +4,7 @@
 
 + (NSString *)bytesCountDescription:(unsigned long)bytes
 {
-    const NSArray *units = @[ @"bytes", @"KB", @"MB", @"GB", @"TB" ];
+    const NSArray *units = @[ @"bytes", @"KB", @"MB", @"GB" ];
     int index = 0;
 
     double result = bytes;
