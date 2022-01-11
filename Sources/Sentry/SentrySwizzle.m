@@ -103,15 +103,21 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 
     pthread_mutex_lock(&gLock);
 
+    originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
+
 #if TEST
-    IMP currImp = class_getMethodImplementation(classToSwizzle, selector);
-    [GULSwizzlingCache cacheCurrentIMP:currImp
+    IMP imp = originalIMP;
+
+    if (imp == NULL) {
+        Class superclass = class_getSuperclass(classToSwizzle);
+        imp = method_getImplementation(class_getInstanceMethod(superclass, selector));
+    }
+
+    [GULSwizzlingCache cacheCurrentIMP:imp
                              forNewIMP:newIMP
                               forClass:classToSwizzle
                           withSelector:selector];
 #endif
-
-    originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 
     pthread_mutex_unlock(&gLock);
 }
