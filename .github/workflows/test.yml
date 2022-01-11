@@ -84,6 +84,13 @@ jobs:
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}}
 
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
@@ -93,12 +100,6 @@ jobs:
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}  
-
-      - name: Archiving DerivedData
-        uses: actions/upload-artifact@v2
-        with:
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**
 
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
