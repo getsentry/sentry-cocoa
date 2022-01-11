@@ -76,6 +76,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(expectedTransactionName, transactionName)
     }
 
+    // UIScene is available from iOS 13 and above.
+    @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene() {
         let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
         
@@ -90,6 +92,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertTrue(swizzler.viewControllers[0] is TestViewController)
     }
     
+    // UIScene is available from iOS 13 and above.
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_NoObject() {
         let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
@@ -100,6 +103,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
     
+    // UIScene is available from iOS 13 and above.
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_ObjectNotAnArray() {
         let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
@@ -114,6 +118,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
     
+    // UIScene is available from iOS 13 and above.
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_WrongObjectType() {
         let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
@@ -124,6 +129,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
     
+    // UIScene is available from iOS 13 and above.
     @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testSwizzle_fromScene_invalidNotification_ObjectWithWrongWindowProperty() {
         let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
