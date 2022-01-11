@@ -214,9 +214,11 @@ swizzledClassesForKey(const void *key)
 static void
 unswizzleCFArray(const void *key, const void *value, void *context)
 {
-    CFArrayRef item = key;
-    Class class = (Class)CFArrayGetValueAtIndex(item, 0);
-    SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
+    CFArrayRef classSELCArray = key;
+    IMP originalImp = value;
+
+    Class class = (Class)CFArrayGetValueAtIndex(classSELCArray, 0);
+    SEL selector = (SEL)CFArrayGetValueAtIndex(classSELCArray, 1);
 
     // Code extract from
     // https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzler%2BUnswizzle.m
@@ -225,8 +227,6 @@ unswizzleCFArray(const void *key, const void *value, void *context)
     Method method = class_getInstanceMethod(class, selector);
 
     NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
-    IMP originalImp =
-        [[GULSwizzlingCache sharedInstance] cachedIMPForClass:class withSelector:selector];
     NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
     IMP currentImp = method_setImplementation(method, originalImp);
     __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
