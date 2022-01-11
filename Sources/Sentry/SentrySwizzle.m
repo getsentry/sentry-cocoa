@@ -217,16 +217,20 @@ unswizzle(Class classToSwizzle, SEL selector)
 + (void)unswizzleAllClasses
 {
     @synchronized(swizzledClassesDictionary()) {
-        NSArray *cached = [[GULSwizzlingCache sharedInstance] cachedClasses];
-        for (int i = 0; i < cached.count; i++) {
-            CFArrayRef item = (__bridge CFArrayRef)cached[i];
-            Class class = (Class)CFArrayGetValueAtIndex(item, 0);
-            SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
-            unswizzle(class, selector);
-        }
-
+        CFMutableDictionaryRef cached = [[GULSwizzlingCache sharedInstance] originalImps];
+        CFDictionaryApplyFunction(cached, unswizzleCFArray, NULL);
+        [[GULSwizzlingCache sharedInstance] clearCache];
         [swizzledClassesDictionary() removeAllObjects];
     }
+}
+
+static void
+unswizzleCFArray(const void *key, const void *value, void *context)
+{
+    CFArrayRef item = key;
+    Class class = (Class)CFArrayGetValueAtIndex(item, 0);
+    SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
+    unswizzle(class, selector);
 }
 
 + (BOOL)unswizzleInstanceMethod:(SEL)selector

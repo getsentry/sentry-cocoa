@@ -77,6 +77,8 @@
  */
 - (void)clearCacheForSwizzledIMP:(IMP)swizzledIMP selector:(SEL)selector aClass:(Class)aClass;
 
-- (NSArray<NSArray *> *)cachedClasses;
+- (CFMutableDictionaryRef)originalImps;
+
+- (void)clearCache;
 
 @end

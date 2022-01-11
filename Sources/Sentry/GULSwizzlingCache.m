@@ -81,12 +81,6 @@ GULSwizzlingCache ()
     CFRelease(classSELPair);
 }
 
-- (NSArray<NSArray *> *)cachedClasses
-{
-    NSDictionary *imps = (__bridge NSDictionary *)_originalImps;
-    return imps.allKeys;
-}
-
 + (void)cacheCurrentIMP:(IMP)currentIMP
               forNewIMP:(IMP)newIMP
                forClass:(Class)aClass
