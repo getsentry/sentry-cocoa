@@ -188,28 +188,6 @@ swizzledClassesForKey(const void *key)
 
 #if TEST
 
-static void
-unswizzle(Class classToSwizzle, SEL selector)
-{
-    // Code extract from
-    // https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzler%2BUnswizzle.m
-
-    pthread_mutex_lock(&gLock);
-
-    NSCAssert(
-        classToSwizzle != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
-    Method method = class_getInstanceMethod(classToSwizzle, selector);
-
-    NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
-    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:classToSwizzle
-                                                               withSelector:selector];
-    NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
-    IMP currentImp = method_setImplementation(method, originalImp);
-    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
-    NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
-    pthread_mutex_unlock(&gLock);
-}
-
 + (void)unswizzleAllClasses
 {
     @synchronized(swizzledClassesDictionary()) {
@@ -226,35 +204,25 @@ unswizzleCFArray(const void *key, const void *value, void *context)
     CFArrayRef item = key;
     Class class = (Class)CFArrayGetValueAtIndex(item, 0);
     SEL selector = (SEL)CFArrayGetValueAtIndex(item, 1);
-    unswizzle(class, selector);
+
+    // Code extract from
+    // https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzler%2BUnswizzle.m
+
+    pthread_mutex_lock(&gLock);
+
+    NSCAssert(class != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
+    Method method = class_getInstanceMethod(class, selector);
+
+    NSCAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
+    IMP originalImp =
+        [[GULSwizzlingCache sharedInstance] cachedIMPForClass:class withSelector:selector];
+    NSCAssert(originalImp, @"This class/selector combination hasn't been swizzled");
+    IMP currentImp = method_setImplementation(method, originalImp);
+    __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
+    NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
+    pthread_mutex_unlock(&gLock);
 }
 
-+ (BOOL)unswizzleInstanceMethod:(SEL)selector
-                        inClass:(nonnull Class)classToSwizzle
-                            key:(const void *)key
-{
-    @synchronized(swizzledClassesDictionary()) {
-        if (key) {
-            NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
-            if (![swizzledClasses containsObject:classToSwizzle]) {
-                return NO;
-            }
-        }
-
-        unswizzle(classToSwizzle, selector);
-
-        if (key) {
-            [swizzledClassesForKey(key) removeObject:classToSwizzle];
-        }
-    }
-
-    return YES;
-}
-
-+ (void)unswizzleClassMethod:(SEL)selector inClass:(Class)classToSwizzle
-{
-    [self unswizzleInstanceMethod:selector inClass:object_getClass(classToSwizzle) key:NULL];
-}
 #endif
 
 @end

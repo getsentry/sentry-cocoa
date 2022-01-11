@@ -255,33 +255,6 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     XCTAssertEqualObjects(@(4.), [SentrySwizzleTestClass_C sumFloat:0.5 withDouble:1.5]);
 }
 
-- (void)testClassUnswizzling
-{
-    XCTAssertEqualObjects(@(2.), [SentrySwizzleTestClass_B sumFloat:0.5 withDouble:1.5]);
-    [self swizzleTestClassB];
-
-    XCTAssertEqualObjects(@(4.), [SentrySwizzleTestClass_B sumFloat:0.5 withDouble:1.5]);
-    SentryUnswizzleClassMethod([SentrySwizzleTestClass_B class], @selector(sumFloat:withDouble:));
-
-    [self assertOriginalImpl_TestClassB];
-}
-
-- (void)testInstanceUnswizzling
-{
-    SEL selector = @selector(string);
-    SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
-
-    XCTAssertTrue([[a string] isEqualToString:@"ABC"]);
-
-    [self swizzleInstanceMethodTestClassA:a selector:selector];
-
-    XCTAssertTrue([[a string] isEqualToString:@"ABCDEF"]);
-
-    SentryUnswizzleInstanceMethod([a class], selector, NULL);
-
-    [self assertOriginalImpl_TestClassA:a];
-}
-
 - (void)testUnswizzleAllClasses
 {
     [self swizzleTestClassB];
