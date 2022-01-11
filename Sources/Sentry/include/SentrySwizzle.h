@@ -337,14 +337,12 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                    inClass:(Class)classToSwizzle
              newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock;
 
-
-#    pragma mark - Unswizzle
+#pragma mark - Unswizzle
 
 /**
  Revert all previously swizzling.
  */
 + (void)unswizzleAllClasses;
-
 
 @end
 
