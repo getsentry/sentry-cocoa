@@ -168,12 +168,6 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 @implementation SentrySwizzleTests
 
-+ (void)setUp
-{
-    [self swizzleDeallocs];
-    [self swizzleCalc];
-}
-
 - (void)setUp
 {
     [super setUp];
