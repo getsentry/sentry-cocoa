@@ -192,10 +192,10 @@ swizzledClassesForKey(const void *key)
 {
     pthread_mutex_lock(&gLock);
     @synchronized(swizzledClassesDictionary()) {
-        
+
         CFMutableDictionaryRef cached = [[GULSwizzlingCache sharedInstance] originalImps];
         CFDictionaryApplyFunction(cached, unswizzleCFArray, NULL);
-        
+
         [[GULSwizzlingCache sharedInstance] clearCache];
         [swizzledClassesDictionary() removeAllObjects];
     }
