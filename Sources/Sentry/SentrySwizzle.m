@@ -190,12 +190,16 @@ swizzledClassesForKey(const void *key)
 
 + (void)unswizzleAllClasses
 {
+    pthread_mutex_lock(&gLock);
     @synchronized(swizzledClassesDictionary()) {
+        
         CFMutableDictionaryRef cached = [[GULSwizzlingCache sharedInstance] originalImps];
         CFDictionaryApplyFunction(cached, unswizzleCFArray, NULL);
+        
         [[GULSwizzlingCache sharedInstance] clearCache];
         [swizzledClassesDictionary() removeAllObjects];
     }
+    pthread_mutex_unlock(&gLock);
 }
 
 static void
@@ -208,8 +212,6 @@ unswizzleCFArray(const void *key, const void *value, void *context)
     // Code extract from
     // https://github.com/google/GoogleUtilities/blob/797005ad8a1f0614063933e2fa010a5d13cb09d0/GoogleUtilities/SwizzlerTestHelpers/GULSwizzler%2BUnswizzle.m
 
-    pthread_mutex_lock(&gLock);
-
     NSCAssert(class != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
     Method method = class_getInstanceMethod(class, selector);
 
@@ -220,7 +222,6 @@ unswizzleCFArray(const void *key, const void *value, void *context)
     IMP currentImp = method_setImplementation(method, originalImp);
     __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
     NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
-    pthread_mutex_unlock(&gLock);
 }
 
 #endif
