@@ -1,6 +1,6 @@
-#import "SentryFormatter.h"
+#import "SentryByteCountFormatter.h"
 
-@implementation SentryFormatter
+@implementation SentryByteCountFormatter
 
 + (NSString *)bytesCountDescription:(NSUInteger)bytes
 {
@@ -17,7 +17,8 @@
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"];
     [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
-    [formatter setPositiveFormat:@"#,##0.##"];
+    [formatter setRoundingMode:NSNumberFormatterRoundFloor];
+    [formatter setPositiveFormat:@"#,##0"];
 
     return [NSString stringWithFormat:@"%@ %@",
                      [formatter stringFromNumber:[NSNumber numberWithDouble:result]], units[index]];

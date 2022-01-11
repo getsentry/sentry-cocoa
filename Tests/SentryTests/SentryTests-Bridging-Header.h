@@ -17,6 +17,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryByteCountFormatter.h"
 #import "SentryClassRegistrator.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"

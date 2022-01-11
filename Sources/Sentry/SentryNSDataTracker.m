@@ -1,7 +1,7 @@
 #import "SentryNSDataTracker.h"
+#import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryFileManager.h"
-#import "SentryFormatter.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker.h"
@@ -194,7 +194,7 @@ SentryNSDataTracker ()
 - (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
 {
     return size > 0 ? [NSString stringWithFormat:@"%@ (%@)", [path lastPathComponent],
-                                [SentryFormatter bytesCountDescription:size]]
+                                [SentryByteCountFormatter bytesCountDescription:size]]
                     : [NSString stringWithFormat:@"%@", [path lastPathComponent]];
 }
 
