@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release/**
-      - ci/flaky-tests
 
   pull_request:
     paths:
@@ -30,7 +29,7 @@ jobs:
         # which is only available since iOS 13 / Xcode 11.
         xcode: ["13.0", "12.5.1", "11.7"]
         
-        extra-run: [1,2,3,4,5,6,7,8,9]
+        extra-run: [1,2,3,4,5]
 
         test-destination-os: ["latest"]
 

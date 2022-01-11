@@ -18,6 +18,5 @@ func clearTestState() {
     framesTracker.resetFrames()
     #endif
     
-    SentrySwizzle.unswizzleAllClasses()
-    
+//    SentrySwizzle.unswizzleAllClasses()
 }
