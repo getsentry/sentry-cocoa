@@ -103,13 +103,11 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 
     pthread_mutex_lock(&gLock);
 
-#if TEST
     IMP currImp = class_getMethodImplementation(classToSwizzle, selector);
     [GULSwizzlingCache cacheCurrentIMP:currImp
                              forNewIMP:newIMP
                               forClass:classToSwizzle
                           withSelector:selector];
-#endif
 
     originalIMP = class_replaceMethod(classToSwizzle, selector, newIMP, methodType);
 
@@ -186,8 +184,6 @@ swizzledClassesForKey(const void *key)
                             key:NULL];
 }
 
-#if TEST
-
 + (void)unswizzleAllClasses
 {
     pthread_mutex_lock(&gLock);
@@ -223,7 +219,5 @@ unswizzleCFArray(const void *key, const void *value, void *context)
     __unused BOOL didRemoveBlock = imp_removeBlock(currentImp);
     NSCAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
 }
-
-#endif
 
 @end
