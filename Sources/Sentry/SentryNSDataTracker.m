@@ -187,8 +187,7 @@ SentryNSDataTracker ()
 - (BOOL)ignoreFile:(NSString *)path
 {
     SentryFileManager *fileManager = [SentrySDK.currentHub getClient].fileManager;
-
-    return [path hasPrefix:fileManager.sentryPath];
+    return fileManager.sentryPath != nil && [path hasPrefix:fileManager.sentryPath];
 }
 
 - (NSString *)transactionDescriptionForFile:(NSString *)path fileSize:(NSUInteger)size
