@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Load invalid CrashState json (#1625)
+
 ## 7.8.0
 
 - feat: Support for fatalError, assert, precondition (#1596)
