@@ -76,13 +76,12 @@ class UIAssert {
         shared.assert(success: false, errorMessage: errorMessage)
     }
     
-    static func checkForViewControllerLifeCycle(_ transaction: Span, expectingSpans: Int, viewController: String, stepsToCheck: [String]? = nil, checkExcess: Bool = false) {
+    static func checkForViewControllerLifeCycle(_ transaction: Span, viewController: String, stepsToCheck: [String]? = nil, checkExcess: Bool = false) {
         guard var children = transaction.children() else {
             shared.assert(success: false, errorMessage: "\(viewController) span has no children")
             return
         }
         
-        let numberOfSpans = children.count
         let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"]
         var missing = [String]()
         
@@ -97,6 +96,5 @@ class UIAssert {
         }
         
         UIAssert.isEqual(missing.count, 0, "Following spans not found: \(missing.joined(separator: ", "))")
-        UIAssert.isEqual(numberOfSpans, expectingSpans, "Transaction did not complete. Expecting \(expectingSpans) spans, got \(numberOfSpans)")
     }
 }
