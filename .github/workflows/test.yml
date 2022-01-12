@@ -82,6 +82,14 @@ jobs:
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}}
 
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
