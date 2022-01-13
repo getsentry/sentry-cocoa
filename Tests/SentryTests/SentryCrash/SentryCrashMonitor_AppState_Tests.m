@@ -144,7 +144,7 @@
 - (void)testInitWithWrongCrashState
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:@"CrashState_wrong"
+    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_wrong"
                                                                         ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
