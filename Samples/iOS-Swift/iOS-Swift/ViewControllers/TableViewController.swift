@@ -13,7 +13,7 @@ class TableViewController: UITableViewController {
     
     func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
-        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 5, viewController: "TableViewController")
+        UIAssert.checkForViewControllerLifeCycle(span, viewController: "TableViewController")
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

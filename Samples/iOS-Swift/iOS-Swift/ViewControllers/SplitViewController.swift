@@ -66,7 +66,7 @@ class SplitViewSecondaryController: UIViewController {
     func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
         UIAssert.shared.targetView = assertView
-        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 11, viewController: "SplitViewSecondaryController")
+        UIAssert.checkForViewControllerLifeCycle(span, viewController: "SplitViewSecondaryController")
         UIAssert.shared.targetView = nil
     }
 }
