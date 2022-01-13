@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Set SentryEvent timestamp to be the time the event was created (#1629)
+
 ## 7.8.0
 
 - feat: Support for fatalError, assert, precondition (#1596)
