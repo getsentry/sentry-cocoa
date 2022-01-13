@@ -19,7 +19,7 @@ class NibViewController: UIViewController {
     
     func assertTransaction(span: Span) {
         spanObserver?.releaseOnFinish()
-        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: 5, viewController: "NibViewController")
+        UIAssert.checkForViewControllerLifeCycle(span, viewController: "NibViewController")
     }
 
     override func viewDidAppear(_ animated: Bool) {

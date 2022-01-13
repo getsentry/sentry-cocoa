@@ -22,7 +22,8 @@ SentryOptions ()
         @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
         @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
         @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration"
+        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
+        @"SentryFileIOTrackingIntegration"
     ];
 }
 
@@ -46,6 +47,7 @@ SentryOptions ()
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
         self.enableNetworkTracking = YES;
+        self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
@@ -213,6 +215,9 @@ SentryOptions ()
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];
+
+    [self setBool:options[@"enableFileIOTracking"]
+            block:^(BOOL value) { self->_enableFileIOTracking = value; }];
 
     if ([options[@"tracesSampleRate"] isKindOfClass:[NSNumber class]]) {
         self.tracesSampleRate = options[@"tracesSampleRate"];

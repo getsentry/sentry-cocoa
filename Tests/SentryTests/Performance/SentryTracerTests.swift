@@ -242,6 +242,12 @@ class SentryTracerTests: XCTestCase {
         let child2 = sut.startChild(operation: fixture.transactionOperation)
         let child3 = sut.startChild(operation: fixture.transactionOperation)
         child2.finish()
+        
+        //Without this sleep sut.timestamp and child2.timestamp sometimes
+        //are equal we need to make sure that SentryTracer is not changing
+        //the timestamp value of proper finished spans.
+        Thread.sleep(forTimeInterval: 0.1)
+        
         sut.finish()
         
         XCTAssertTrue(child1.isFinished)

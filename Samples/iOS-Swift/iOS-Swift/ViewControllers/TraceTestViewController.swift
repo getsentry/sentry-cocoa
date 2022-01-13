@@ -75,6 +75,6 @@ class TraceTestViewController: UIViewController {
         
         UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
                 
-        UIAssert.checkForViewControllerLifeCycle(span, expectingSpans: lifeCycleSteps.count, viewController: "TraceTestViewController", stepsToCheck: lifeCycleSteps)
+        UIAssert.checkForViewControllerLifeCycle(span, viewController: "TraceTestViewController", stepsToCheck: lifeCycleSteps)
     }
 }

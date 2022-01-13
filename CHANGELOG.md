@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- fix: Load invalid CrashState json (#1625)
+- feat: Auto I/O spans for NSData (#1557)
+
 ## 7.8.0
 
 - feat: Support for fatalError, assert, precondition (#1596)

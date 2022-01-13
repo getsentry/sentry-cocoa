@@ -189,6 +189,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableNetworkTracking;
 
 /**
+ * This feature is EXPERIMENTAL.
+ *
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
+ */
+@property (nonatomic, assign) BOOL enableFileIOTracking;
+
+/**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
  * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
  * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
@@ -255,8 +263,8 @@ NS_SWIFT_NAME(Options)
  *
  * @discussion When turned off the following features are disabled: breadcrumbs for touch events and
  * navigation with UIViewControllers, automatic instrumentation for UIViewControllers, automatic
- * instrumentation for HTTP requests, and automatically added sentry-trace header to HTTP requests
- * for distributed tracing.
+ * instrumentation for HTTP requests, automatic instrumentation for file IO with NSData, and
+ * automatically added sentry-trace header to HTTP requests for distributed tracing.
  */
 @property (nonatomic, assign) BOOL enableSwizzling;
 
