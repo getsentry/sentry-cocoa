@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- fix: Set SentryEvent timestamp to be the time the event was created (#1629)
+- fix: Set timestamp in init of event (#1629)
 
 ## 7.8.0
 
