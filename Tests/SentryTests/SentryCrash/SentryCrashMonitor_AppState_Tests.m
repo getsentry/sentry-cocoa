@@ -34,6 +34,14 @@
 
 @implementation SentryCrashMonitor_AppState_Tests
 
+- (void)tearDown
+{
+    [super tearDown];
+
+    NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
+    [NSFileManager.defaultManager removeItemAtPath:stateFile error:nil];
+}
+
 - (void)initializeCrashState
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
@@ -131,6 +139,46 @@
 
     XCTAssertFalse(context.crashedThisLaunch, @"");
     XCTAssertTrue(context.crashedLastLaunch, @"");
+}
+
+- (void)testInitWithWrongCrashState
+{
+    NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
+    NSString *jsonPath =
+        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_wrong"
+                                                       ofType:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
+    [jsonData writeToFile:stateFile atomically:true];
+
+    [self initializeCrashState];
+    SentryCrash_AppState context = *sentrycrashstate_currentState();
+
+    XCTAssertTrue(context.applicationIsInForeground, @"");
+    XCTAssertFalse(context.applicationIsActive, @"");
+
+    XCTAssertEqual(context.activeDurationSinceLastCrash, 0.0, @"");
+    XCTAssertEqual(context.backgroundDurationSinceLastCrash, 0.0, @"");
+    XCTAssertEqual(context.launchesSinceLastCrash, 1, @"");
+    XCTAssertEqual(context.sessionsSinceLastCrash, 1, @"");
+
+    XCTAssertEqual(context.activeDurationSinceLaunch, 0.0, @"");
+    XCTAssertEqual(context.backgroundDurationSinceLaunch, 0.0, @"");
+    XCTAssertEqual(context.sessionsSinceLaunch, 1, @"");
+
+    XCTAssertFalse(context.crashedThisLaunch, @"");
+    XCTAssertFalse(context.crashedLastLaunch, @"");
+
+    [self initializeCrashState];
+    context = *sentrycrashstate_currentState();
+    XCTAssertEqual(context.launchesSinceLastCrash, 2, @"");
+    XCTAssertEqual(context.sessionsSinceLastCrash, 2, @"");
+
+    [jsonData writeToFile:stateFile atomically:true];
+
+    [self initializeCrashState];
+    context = *sentrycrashstate_currentState();
+    XCTAssertEqual(context.launchesSinceLastCrash, 1, @"");
+    XCTAssertEqual(context.sessionsSinceLastCrash, 1, @"");
 }
 
 - (void)testActRelaunch

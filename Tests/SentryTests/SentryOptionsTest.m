@@ -401,6 +401,11 @@
     [self testBooleanField:@"stitchAsyncCode" defaultValue:NO];
 }
 
+- (void)testEnableIOTracking
+{
+    [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
+}
+
 - (void)testEnableTraceSampling
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -460,6 +465,7 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
+        @"enableIOTracking" : [NSNull null],
     }
                                                 didFailWithError:nil];
 
@@ -499,6 +505,7 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
+    XCTAssertEqual(NO, options.enableFileIOTracking);
 }
 
 - (void)testSetValidDsn
