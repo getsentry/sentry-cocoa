@@ -1,7 +1,19 @@
+import Sentry
 import XCTest
 
 class SentryEventTests: XCTestCase {
 
+    func testInitWithLevel() {
+        let dateProvider = TestCurrentDateProvider()
+        CurrentDate.setCurrentDateProvider(dateProvider)
+        
+        let event = Event(level: .debug)
+        
+        XCTAssertEqual(event.platform, "cocoa")
+        XCTAssertEqual(event.level, .debug)
+        XCTAssertEqual(event.timestamp, dateProvider.date())
+    }
+    
     func testSerialize() {
         let event = TestData.event
         let actual = event.serialize()

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Set timestamp in init of event (#1629)
 - fix: Load invalid CrashState json (#1625)
 - feat: Auto I/O spans for NSData (#1557)
 
