@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.9.0
 
 - fix: Crash in SentrySubClassFinder (#1635)
 - fix: Set timestamp in init of event (#1629)
