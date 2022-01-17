@@ -18,7 +18,7 @@ body:
   - type: dropdown
     id: installed
     attributes:
-      label: installed
+      label: Installed
       description: sentry-cocoa installed with
       options:
         - Swift Package Manager
