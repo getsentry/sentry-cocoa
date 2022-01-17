@@ -35,4 +35,9 @@ SentryTestObjCRuntimeWrapper ()
     return numClasses;
 }
 
+- (void)countIterateClasses
+{
+    self.iterateClassesInvocations++;
+}
+
 @end
