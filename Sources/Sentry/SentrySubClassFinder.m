@@ -29,12 +29,12 @@ SentrySubClassFinder ()
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         Class *classes = NULL;
         int numClasses = -1;
-        int retriesForGettingClasses = 1;
+        int attemptsForGettingClasses = 2;
 
         // The number of classes may change between the two invocations of class_getSuperclass. If
         // this or any other error happens, we retry once. We don't want to retry this in a loop
         // because of the danger of an endless loop.
-        for (int i = 0; numClasses == -1 && i <= retriesForGettingClasses; i++) {
+        for (int i = 0; numClasses == -1 && i < attemptsForGettingClasses; i++) {
             numClasses = [self getClassList:&classes];
 
             if (numClasses < 0) {
