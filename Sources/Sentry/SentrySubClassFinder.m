@@ -49,7 +49,7 @@ SentrySubClassFinder ()
             [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
             return;
         }
-        
+
         // Only for testing. We want to know in tests if the code iterated over the classes, because
         // iterating in edge cases could lead to crashses. Ideally, we would wrap
         // class_getSuperclass in the SentryObjCRuntimeWrapper and count its invocations. As
