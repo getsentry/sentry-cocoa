@@ -10,6 +10,6 @@
 
 @property (nullable, nonatomic, copy) int (^numClasses)(int);
 
-@property (nonatomic, assign) NSUInteger getSuperclassInvocations;
+@property (nonatomic, assign) NSUInteger iterateClassesInvocations;
 
 @end

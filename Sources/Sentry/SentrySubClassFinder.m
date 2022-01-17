@@ -49,6 +49,14 @@ SentrySubClassFinder ()
             [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
             return;
         }
+        
+        // Only for testing. We want to know in tests if the code iterated over the classes, because
+        // iterating in edge cases could lead to crashses. Ideally, we would wrap
+        // class_getSuperclass in the SentryObjCRuntimeWrapper and count its invocations. As
+        // class_getSuperclass is called in a tight loop doing so would slow down the code
+        // significantly. This is pragmatic workaround to find out in tests if the code iterated
+        // over the classes.
+        [self.objcRuntimeWrapper countIterateClasses];
 
         // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
@@ -74,7 +82,7 @@ SentrySubClassFinder ()
             // are doing something we shouldn't do. It's safer to use a regular while loop to check
             // if superClass is valid.
             while (superClass && superClass != parentClass) {
-                superClass = [self.objcRuntimeWrapper getSuperclass:superClass];
+                superClass = class_getSuperclass(superClass);
             }
 
             if (superClass) {

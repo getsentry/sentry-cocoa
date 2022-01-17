@@ -35,10 +35,9 @@ SentryTestObjCRuntimeWrapper ()
     return numClasses;
 }
 
-- (Class)getSuperclass:(Class)cls
+- (void)countIterateClasses
 {
-    self.getSuperclassInvocations++;
-    return [self.objcRuntimeWrapper getSuperclass:cls];
+    self.iterateClassesInvocations++;
 }
 
 @end

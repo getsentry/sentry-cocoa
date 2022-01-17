@@ -9,9 +9,9 @@
     return objc_getClassList(buffer, bufferCount);
 }
 
-- (Class)getSuperclass:(Class)cls
+- (void)countIterateClasses
 {
-    return class_getSuperclass(cls);
+    // Do nothing
 }
 
 @end
