@@ -9,4 +9,9 @@
     return objc_getClassList(buffer, bufferCount);
 }
 
+- (Class)getSuperclass:(Class)cls
+{
+    return class_getSuperclass(cls);
+}
+
 @end

@@ -35,4 +35,10 @@ SentryTestObjCRuntimeWrapper ()
     return numClasses;
 }
 
+- (Class)getSuperclass:(Class)cls
+{
+    self.getSuperclassInvocations++;
+    return [self.objcRuntimeWrapper getSuperclass:cls];
+}
+
 @end
