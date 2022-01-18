@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - test/IO-for-UI
 
   pull_request:
     paths:
