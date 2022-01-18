@@ -212,7 +212,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let randomValue = UUID().uuidString
         try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
         print("\(String(describing: fixture.fileURL))")
-        let data = try! Data(contentsOf: fixture.fileURL, options: .uncached)
+        guard let data = try? Data(contentsOf: fixture.fileURL, options: .uncached) else {
+            XCTFail("Could not load resource file")
+            return
+        }
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
@@ -222,7 +225,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         let randomValue = UUID().uuidString
         try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
-        let data = NSData(contentsOfFile: fixture.filePath)! as Data
+        guard let data = try? NSData(contentsOfFile: fixture.filePath) as Data else {
+            XCTFail("Could not load resource file")
+            return
+        }
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
