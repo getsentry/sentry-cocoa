@@ -43,6 +43,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         try? fixture.data.write(to: fixture.fileURL)
+        
+        XCUIDevice.shared.orientation = .portrait
+        
+        XCUIApplication().launch()
     }
 
     override func tearDown() {
