@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - master
-      - test/IO-for-UI
 
   pull_request:
     paths:
@@ -25,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-     # - run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
+      - run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
       - run: git apply ./scripts/set-device-tests-environment.patch
       
       - run: fastlane build_ios_swift_ui_test
