@@ -5,7 +5,6 @@ import XCTest
 //This test is also executed under iOS-SwiftUITests
 //Thats why we need to keep it generic without access
 //to any private part of the sdk
-/*
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
@@ -44,10 +43,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         try? fixture.data.write(to: fixture.fileURL)
-        
-        XCUIDevice.shared.orientation = .portrait
-        
-        XCUIApplication().launch()
     }
 
     override func tearDown() {
@@ -249,4 +244,3 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(children?.count, spansCount)
     }
 }
-*/
