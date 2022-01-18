@@ -51,6 +51,10 @@
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8B5B467279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B5B466279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift */; };
+		D8B5B4692791956F005EEF5E /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
+		D8B5B4712791C142005EEF5E /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D8B5B4702791C142005EEF5E /* fatal-error-binary-images-message2.json */; };
+		D8B5B4732791C39D005EEF5E /* ClearTestState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B5B4722791C39D005EEF5E /* ClearTestState.swift */; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
@@ -197,6 +201,9 @@
 		D85DAA4B274C244F004DF43C /* LaunchUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITest.swift; sourceTree = "<group>"; };
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
+		D8B5B466279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFileIOTrackingIntegrationTests.swift; sourceTree = "<group>"; };
+		D8B5B4702791C142005EEF5E /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
+		D8B5B4722791C39D005EEF5E /* ClearTestState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTestState.swift; sourceTree = "<group>"; };
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
 		D8D7BB4B2750095800044146 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
@@ -222,6 +229,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8B5B4692791956F005EEF5E /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,7 +325,10 @@
 		7B64386926A6C544000D0F65 /* iOS-SwiftUITests */ = {
 			isa = PBXGroup;
 			children = (
+				D8B5B46F2791C0FC005EEF5E /* Resources */,
 				7B64386A26A6C544000D0F65 /* LaunchUITests.swift */,
+				D8B5B466279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift */,
+				D8B5B4722791C39D005EEF5E /* ClearTestState.swift */,
 				7B64386C26A6C544000D0F65 /* Info.plist */,
 			);
 			path = "iOS-SwiftUITests";
@@ -358,6 +369,14 @@
 				D85DAA4B274C244F004DF43C /* LaunchUITest.swift */,
 			);
 			path = "iOS13-SwiftTests";
+			sourceTree = "<group>";
+		};
+		D8B5B46F2791C0FC005EEF5E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D8B5B4702791C142005EEF5E /* fatal-error-binary-images-message2.json */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		D8DBDA73274D4DF900007380 /* ViewControllers */ = {
@@ -590,6 +609,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8B5B4712791C142005EEF5E /* fatal-error-binary-images-message2.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -651,7 +671,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8B5B467279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
+				D8B5B4732791C39D005EEF5E /* ClearTestState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
