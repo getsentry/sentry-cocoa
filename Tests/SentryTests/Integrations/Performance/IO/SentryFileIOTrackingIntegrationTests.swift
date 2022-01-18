@@ -8,7 +8,7 @@ import XCTest
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
-        let data = "SOME DATA".data(using: .utf8)!
+        let data = "SOME DATA".data(using: .utf8) ?? Data()
         let filePath: String!
         let fileURL: URL!
         let fileDirectory: URL!
