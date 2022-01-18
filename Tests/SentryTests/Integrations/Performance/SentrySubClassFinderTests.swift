@@ -29,9 +29,21 @@ class SentrySubClassFinderTests: XCTestCase {
         testActOnSubclassesOf(Child2.self, expected: [])
     }
     
-    func testActOnSubclassesOfChild2_WhenNewClassRegistered_ReturnsChildren() {
+    func testActOnSubclassesOfChild2_WhenNewClassesRegistered_ReturnNoChildren() {
         fixture.runtimeWrapper.beforeGetClassList = {
             SentryClassRegistrator.registerClass(SentryId().sentryIdString)
+        }
+        testActOnSubclassesOf(Child1.self, expected: [])
+        XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
+    }
+    
+    func testActOnSubclassesOfChild2_WhenNewClassOnlyOnceRegistered_ReturnsChildren() {
+        var invocations = 0
+        fixture.runtimeWrapper.beforeGetClassList = {
+            if invocations == 1 {
+                SentryClassRegistrator.registerClass(SentryId().sentryIdString)
+            }
+            invocations += 1
         }
         testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
     }
@@ -54,6 +66,17 @@ class SentrySubClassFinderTests: XCTestCase {
         }
         
         testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
+    }
+    
+    func testActOnSubclasses_ClassListKeepsReturnsOneLess_ReturnsNoChildren() {
+        var invocations = -1
+        fixture.runtimeWrapper.numClasses = { numClasses in
+            invocations += 1
+            return numClasses - Int32(invocations)
+        }
+        
+        testActOnSubclassesOf(Child1.self, expected: [])
+        XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
     }
     
     func testActOnSubclasses_NoClassesFound_ReturnsNoChildren() {
