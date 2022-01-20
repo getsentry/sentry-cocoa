@@ -64,7 +64,6 @@ public:
     /**
      * Constructs a \ref ThreadHandle using a native handle type.
      * @param handle The native thread handle.
-     * @return An instance of \ref ThreadHandle
      */
     explicit ThreadHandle(NativeHandle handle) noexcept;
 
