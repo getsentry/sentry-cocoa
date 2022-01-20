@@ -1,6 +1,6 @@
 // Copyright (c) Specto Inc. All rights reserved.
 
-#include "Time.h"
+#include "SpectoTime.h"
 
 #include <cassert>
 

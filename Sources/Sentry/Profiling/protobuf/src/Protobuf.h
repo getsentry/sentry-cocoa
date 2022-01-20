@@ -6,7 +6,7 @@
 #include "Path.h"
 #include "Log.h"
 #include "Thread.h"
-#include "Time.h"
+#include "SpectoTime.h"
 #include "ScopeGuard.h"
 //#include "spectoproto./entry/entry_generated.pb.h"
 

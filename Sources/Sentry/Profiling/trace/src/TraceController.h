@@ -5,7 +5,7 @@
 #include "TraceEventSubject.h"
 #include "PluginRegistry.h"
 #include "Thread.h"
-#include "Time.h"
+#include "SpectoTime.h"
 #include "TraceID.h"
 //#include "spectoproto./trace/trace_metadata_generated.pb.h"
 

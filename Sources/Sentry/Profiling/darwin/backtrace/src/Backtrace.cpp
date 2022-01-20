@@ -9,7 +9,7 @@
 #include "Compiler.h"
 #include "StackBounds.h"
 #include "StackFrame.h"
-#include "Time.h"
+#include "SpectoTime.h"
 //#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <cassert>
