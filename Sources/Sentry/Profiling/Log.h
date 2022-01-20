@@ -20,7 +20,7 @@
 
 #define SPDLOG_ACTIVE_LEVEL SPECTO_ACTIVE_LOG_LEVEL
 
-#include "fmt/format.h"
+//#include "fmt/format.h"
 #include "spdlog/spdlog.h"
 
 #include <cerrno>
