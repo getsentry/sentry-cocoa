@@ -61,3 +61,7 @@ MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 // Although `YES` is the default for iOS targets, command-line output via `xcodebuild -showBuildSettings`
 // will not emit this value unless it is explicitly set.
 SUPPORTS_MACCATALYST = YES
+
+// settings for Specto C++ port
+CLANG_CXX_LANGUAGE_STANDARD = c++17
+HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Integrations/Performance/Profiling/**
