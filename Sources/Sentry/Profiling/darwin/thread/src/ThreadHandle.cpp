@@ -3,7 +3,7 @@
 #include "ThreadHandle.h"
 
 #include "MemorySafety.h"
-#include "Log.h"
+#include "DarwinLog.h"
 #include "Log.h"
 
 #include <cstdint>

@@ -4,7 +4,7 @@
 
 #include "Backtrace.h"
 #include "ThreadMetadataCache.h"
-#include "Log.h"
+#include "DarwinLog.h"
 #include "ThreadPriority.h"
 #include "Exception.h"
 

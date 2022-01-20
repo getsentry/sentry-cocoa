@@ -3,7 +3,7 @@
 #include "Backtrace.h"
 
 #include "ThreadMetadataCache.h"
-#include "Log.h"
+#include "DarwinLog.h"
 #include "ThreadHandle.h"
 #include "ThreadState.h"
 #include "Compiler.h"
