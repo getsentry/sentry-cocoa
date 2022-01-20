@@ -6,8 +6,8 @@
 #error Non-Apple platforms are not supported!
 #endif
 
-#include "cpp/darwin/thread/src/ThreadHandle.h"
-#include "cpp/stack/src/StackBounds.h"
+#include "ThreadHandle.h"
+#include "StackBounds.h"
 
 #include <cstddef>
 #include <cstdint>

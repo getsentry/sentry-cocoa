@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "cpp/filesystem/src/Path.h"
-#include "cpp/util/src/spimpl.h"
+#include "Path.h"
+#include "spimpl.h"
 
 namespace specto {
 namespace proto {

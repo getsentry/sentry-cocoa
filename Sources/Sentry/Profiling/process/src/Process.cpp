@@ -2,10 +2,10 @@
 
 #include "Process.h"
 
-#include "cpp/debugger/src/Debugger.h"
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/protobuf/src/Protobuf.h"
-#include "cpp/signals/src/Handling.h"
+#include "Debugger.h"
+#include "Filesystem.h"
+#include "Protobuf.h"
+#include "Handling.h"
 
 namespace specto::process {
 

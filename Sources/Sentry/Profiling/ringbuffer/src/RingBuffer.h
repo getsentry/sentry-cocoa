@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 #include "external/com_github_rmind_ringbuf/src/ringbuf.h"
 
 // clang-format on

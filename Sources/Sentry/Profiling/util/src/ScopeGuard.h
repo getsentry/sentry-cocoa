@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <functional>
 #include <utility>

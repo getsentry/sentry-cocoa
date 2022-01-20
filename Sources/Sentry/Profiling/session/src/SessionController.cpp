@@ -2,12 +2,12 @@
 
 #include "SessionController.h"
 
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/log/src/Log.h"
-#include "cpp/protobuf/src/Protobuf.h"
-#include "cpp/thread/src/Thread.h"
-#include "cpp/trace/src/TraceConsumer.h"
-#include "cpp/util/src/ScopeGuard.h"
+#include "Filesystem.h"
+#include "Log.h"
+#include "Protobuf.h"
+#include "Thread.h"
+#include "TraceConsumer.h"
+#include "ScopeGuard.h"
 #include "spectoproto/session/session_metadata_generated.pb.h"
 
 #include <cassert>

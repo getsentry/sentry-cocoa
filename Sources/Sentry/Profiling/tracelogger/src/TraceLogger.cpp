@@ -5,7 +5,7 @@
 #include "Packet.h"
 #include "PacketStreamID.h"
 #include "PacketWriter.h"
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <atomic>
 #include <cassert>

@@ -6,8 +6,8 @@
 #error Non-Apple platforms are not supported!
 #endif
 
-#include "cpp/darwin/thread/src/ThreadHandle.h"
-#include "cpp/util/src/spimpl.h"
+#include "ThreadHandle.h"
+#include "spimpl.h"
 
 #include <memory>
 

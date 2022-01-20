@@ -3,13 +3,13 @@
 #include "Backtrace.h"
 
 #include "ThreadMetadataCache.h"
-#include "cpp/darwin/log/src/Log.h"
-#include "cpp/darwin/thread/src/ThreadHandle.h"
-#include "cpp/darwin/thread/src/ThreadState.h"
-#include "cpp/portability/src/Compiler.h"
-#include "cpp/stack/src/StackBounds.h"
-#include "cpp/stack/src/StackFrame.h"
-#include "cpp/time/src/Time.h"
+#include "Log.h"
+#include "ThreadHandle.h"
+#include "ThreadState.h"
+#include "Compiler.h"
+#include "StackBounds.h"
+#include "StackFrame.h"
+#include "Time.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 
 #include <cassert>

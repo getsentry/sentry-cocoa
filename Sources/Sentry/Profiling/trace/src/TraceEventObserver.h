@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/traceid/src/TraceID.h"
+#include "TraceID.h"
 #include "spectoproto/error/error_generated.pb.h"
 
 namespace specto {

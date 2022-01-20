@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "cpp/filesystem/src/Path.h"
-#include "cpp/log/src/Log.h"
-#include "cpp/memory/src/Memory.h"
-#include "cpp/util/src/ArraySize.h"
+#include "Path.h"
+#include "Log.h"
+#include "Memory.h"
+#include "ArraySize.h"
 
 #include <stack>
 

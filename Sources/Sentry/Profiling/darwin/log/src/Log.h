@@ -6,7 +6,7 @@
 #error Non-Apple platforms are not supported!
 #endif
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <mach/kern_return.h>
 #include <mach/message.h>

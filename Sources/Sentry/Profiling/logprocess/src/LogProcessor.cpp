@@ -2,9 +2,9 @@
 
 #include "LogProcessor.h"
 
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/lz4stream/src/LZ4Stream.h"
-#include "cpp/util/src/ScopeGuard.h"
+#include "Filesystem.h"
+#include "LZ4Stream.h"
+#include "ScopeGuard.h"
 #include "fmt/format.h"
 
 #include <fstream>

@@ -3,9 +3,9 @@
 #include "TraceBufferConsumer.h"
 
 #include "TraceConsumer.h"
-#include "cpp/exception/src/Exception.h"
-#include "cpp/tracelogger/src/EntryParser.h"
-#include "cpp/util/src/ScopeGuard.h"
+#include "Exception.h"
+#include "EntryParser.h"
+#include "ScopeGuard.h"
 
 #include <cassert>
 #include <utility>

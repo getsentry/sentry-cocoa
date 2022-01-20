@@ -2,7 +2,7 @@
 
 #include "RingBufferPacketReader.h"
 
-#include "cpp/ringbuffer/src/RingBuffer.h"
+#include "RingBuffer.h"
 
 #include <cassert>
 

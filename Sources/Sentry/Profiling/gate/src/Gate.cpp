@@ -2,8 +2,8 @@
 
 #include "Gate.h"
 
-#include "cpp/configuration/src/GlobalConfiguration.h"
-#include "cpp/exception/src/Exception.h"
+#include "GlobalConfiguration.h"
+#include "Exception.h"
 
 namespace specto::gate {
 

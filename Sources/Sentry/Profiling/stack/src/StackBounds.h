@@ -3,7 +3,7 @@
 #pragma once
 
 #include "StackFrame.h"
-#include "cpp/portability/src/CPU.h"
+#include "CPU.h"
 
 #include <cstdint>
 

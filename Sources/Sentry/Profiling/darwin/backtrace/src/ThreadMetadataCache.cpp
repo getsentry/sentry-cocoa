@@ -2,8 +2,8 @@
 
 #include "ThreadMetadataCache.h"
 
-#include "cpp/darwin/thread/src/ThreadHandle.h"
-#include "cpp/stack/src/StackBounds.h"
+#include "ThreadHandle.h"
+#include "StackBounds.h"
 #include "spectoproto/backtrace/backtrace_generated.pb.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 

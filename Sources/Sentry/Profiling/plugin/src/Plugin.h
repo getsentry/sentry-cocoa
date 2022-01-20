@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/tracelogger/src/TraceLogger.h"
+#include "TraceLogger.h"
 #include "spectoproto/error/error_generated.pb.h"
 #include "spectoproto/trace/configuration_generated.pb.h"
 

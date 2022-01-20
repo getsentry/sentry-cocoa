@@ -4,7 +4,7 @@
 
 #include "Packet.h"
 #include "PacketStreamID.h"
-#include "cpp/util/src/Pool.h"
+#include "Pool.h"
 
 #include <cstddef>
 #include <functional>

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/filesystem/src/Path.h"
+#include "Path.h"
 
 namespace specto {
 /** Notified when trace files change their state within the TraceFileManager. */

@@ -19,9 +19,9 @@
 
 #include "Handling.h"
 
-#include "cpp/debugger/src/Debugger.h"
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/io/src/IO.h"
+#include "Debugger.h"
+#include "Filesystem.h"
+#include "IO.h"
 
 #include <atomic>
 #include <csignal>

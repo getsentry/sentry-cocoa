@@ -2,10 +2,10 @@
 
 #include "TraceFileTraceConsumer.h"
 
-#include "cpp/exception/src/Exception.h"
-#include "cpp/log/src/Log.h"
-#include "cpp/traceio/src/TraceFileWriter.h"
-#include "cpp/util/src/ThreadPool.h"
+#include "Exception.h"
+#include "Log.h"
+#include "TraceFileWriter.h"
+#include "ThreadPool.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 
 #include <cassert>

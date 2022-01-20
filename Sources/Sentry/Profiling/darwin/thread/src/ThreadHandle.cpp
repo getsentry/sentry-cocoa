@@ -3,8 +3,8 @@
 #include "ThreadHandle.h"
 
 #include "MemorySafety.h"
-#include "cpp/darwin/log/src/Log.h"
-#include "cpp/log/src/Log.h"
+#include "Log.h"
+#include "Log.h"
 
 #include <cstdint>
 #include <dispatch/dispatch.h>

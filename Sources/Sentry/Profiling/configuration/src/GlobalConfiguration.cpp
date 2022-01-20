@@ -2,7 +2,7 @@
 
 #include "GlobalConfiguration.h"
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 #include "spectoproto/global/global_generated.pb.h"
 
 #include <memory>

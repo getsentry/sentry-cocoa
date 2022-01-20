@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/traceid/src/TraceID.h"
+#include "TraceID.h"
 
 #include <cstddef>
 #include <memory>

@@ -7,9 +7,9 @@
 #endif
 
 #include "ThreadHandle.h"
-#include "cpp/portability/src/CPU.h"
-#include "cpp/portability/src/Compiler.h"
-#include "cpp/stack/src/StackFrame.h"
+#include "CPU.h"
+#include "Compiler.h"
+#include "StackFrame.h"
 
 #include <cstdint>
 #include <mach/mach.h>

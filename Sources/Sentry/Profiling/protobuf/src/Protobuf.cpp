@@ -2,7 +2,7 @@
 
 #include "Protobuf.h"
 
-#include "cpp/time/src/Time.h"
+#include "Time.h"
 
 namespace specto::protobuf {
 

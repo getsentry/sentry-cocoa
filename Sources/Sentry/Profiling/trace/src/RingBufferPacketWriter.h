@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "cpp/tracelogger/src/PacketWriter.h"
-#include "cpp/util/src/spimpl.h"
+#include "PacketWriter.h"
+#include "spimpl.h"
 
 #include <memory>
 

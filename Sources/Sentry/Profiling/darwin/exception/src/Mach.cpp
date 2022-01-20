@@ -19,12 +19,12 @@
 
 #include "Mach.h"
 
-#include "cpp/debugger/src/Debugger.h"
-#include "cpp/io/src/IO.h"
-#include "cpp/log/src/Log.h"
-#include "cpp/memory/src/Memory.h"
-#include "cpp/signals/src/Handling.h"
-#include "cpp/util/src/ArraySize.h"
+#include "Debugger.h"
+#include "IO.h"
+#include "Log.h"
+#include "Memory.h"
+#include "Handling.h"
+#include "ArraySize.h"
 
 #include <atomic>
 #include <cstdint>

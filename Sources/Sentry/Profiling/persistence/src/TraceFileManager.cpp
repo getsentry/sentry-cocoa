@@ -2,8 +2,8 @@
 
 #include "TraceFileManager.h"
 
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/log/src/Log.h"
+#include "Filesystem.h"
+#include "Log.h"
 #include "spectoproto/persistence/persistence_generated.pb.h"
 
 #include <algorithm>

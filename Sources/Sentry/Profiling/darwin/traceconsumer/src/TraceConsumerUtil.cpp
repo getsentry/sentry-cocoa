@@ -2,11 +2,11 @@
 
 #include "TraceConsumerUtil.h"
 
-#include "cpp/log/src/Log.h"
-#include "cpp/persistence/src/TraceFileManager.h"
-#include "cpp/trace/src/TraceConsumer.h"
-#include "cpp/trace/src/TraceConsumerMultiProxy.h"
-#include "cpp/traceconsumers/tracefile/src/TraceFileTraceConsumer.h"
+#include "Log.h"
+#include "TraceFileManager.h"
+#include "TraceConsumer.h"
+#include "TraceConsumerMultiProxy.h"
+#include "TraceFileTraceConsumer.h"
 
 using namespace specto;
 

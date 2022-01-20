@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/trace/src/TraceConsumer.h"
+#include "TraceConsumer.h"
 
 namespace specto {
 

@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "cpp/persistence/src/TraceFileManager.h"
-#include "cpp/trace/src/TraceConsumer.h"
-#include "cpp/util/src/spimpl.h"
+#include "TraceFileManager.h"
+#include "TraceConsumer.h"
+#include "spimpl.h"
 
 #include <memory>
 

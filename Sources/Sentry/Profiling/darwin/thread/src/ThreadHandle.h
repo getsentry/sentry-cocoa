@@ -6,8 +6,8 @@
 #error Non-Apple platforms are not supported!
 #endif
 
-#include "cpp/stack/src/StackBounds.h"
-#include "cpp/thread/src/Thread.h"
+#include "StackBounds.h"
+#include "Thread.h"
 
 #include <chrono>
 #include <mach/mach.h>

@@ -25,7 +25,7 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <condition_variable>
 #include <functional>

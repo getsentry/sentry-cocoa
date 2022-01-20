@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 #include "external/com_github_lz4_lz4/lib/lz4frame.h"
 
 // Returns whether the error code is an LZ4 error. If it is an error, it

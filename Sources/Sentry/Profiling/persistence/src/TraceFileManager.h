@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "cpp/filesystem/src/Path.h"
-#include "cpp/persistence/src/TraceFileEventSubject.h"
-#include "cpp/traceid/src/TraceID.h"
+#include "Path.h"
+#include "TraceFileEventSubject.h"
+#include "TraceID.h"
 
 #include <memory>
 #include <vector>

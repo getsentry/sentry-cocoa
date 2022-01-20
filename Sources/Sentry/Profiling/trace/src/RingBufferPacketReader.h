@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/tracelogger/src/PacketReader.h"
+#include "PacketReader.h"
 
 #include <memory>
 #include <utility>

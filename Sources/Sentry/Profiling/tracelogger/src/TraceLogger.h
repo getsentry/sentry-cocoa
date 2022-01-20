@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/time/src/Time.h"
+#include "Time.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 
 #include <algorithm>

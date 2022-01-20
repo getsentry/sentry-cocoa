@@ -2,7 +2,7 @@
 
 #include "Path.h"
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <algorithm>
 #include <libgen.h>

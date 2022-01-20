@@ -3,10 +3,10 @@
 #pragma once
 
 #include "TraceEventSubject.h"
-#include "cpp/plugin/src/PluginRegistry.h"
-#include "cpp/thread/src/Thread.h"
-#include "cpp/time/src/Time.h"
-#include "cpp/traceid/src/TraceID.h"
+#include "PluginRegistry.h"
+#include "Thread.h"
+#include "Time.h"
+#include "TraceID.h"
 #include "spectoproto/trace/trace_metadata_generated.pb.h"
 
 #include <chrono>

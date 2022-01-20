@@ -2,8 +2,8 @@
 
 #include "RingBufferPacketWriter.h"
 
-#include "cpp/log/src/Log.h"
-#include "cpp/ringbuffer/src/RingBuffer.h"
+#include "Log.h"
+#include "RingBuffer.h"
 
 #include <cassert>
 #include <utility>

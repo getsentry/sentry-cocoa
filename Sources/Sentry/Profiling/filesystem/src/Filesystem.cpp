@@ -2,9 +2,9 @@
 
 #include "Filesystem.h"
 
-#include "cpp/log/src/Log.h"
-#include "cpp/portability/src/CPU.h"
-#include "cpp/util/src/ScopeGuard.h"
+#include "Log.h"
+#include "CPU.h"
+#include "ScopeGuard.h"
 
 #include <cerrno>
 #include <cstdio>

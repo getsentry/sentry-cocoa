@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "cpp/time/src/Time.h"
-#include "cpp/traceid/src/TraceID.h"
+#include "Time.h"
+#include "TraceID.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 
 #include <memory>

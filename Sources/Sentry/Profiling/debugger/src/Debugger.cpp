@@ -19,7 +19,7 @@
 
 #include "Debugger.h"
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 #include <sys/sysctl.h>
 #include <unistd.h>

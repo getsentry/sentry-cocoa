@@ -4,9 +4,9 @@
 
 #include "Backtrace.h"
 #include "ThreadMetadataCache.h"
-#include "cpp/darwin/log/src/Log.h"
-#include "cpp/darwin/thread/src/ThreadPriority.h"
-#include "cpp/exception/src/Exception.h"
+#include "Log.h"
+#include "ThreadPriority.h"
+#include "Exception.h"
 
 #include <chrono>
 #include <mach/clock.h>

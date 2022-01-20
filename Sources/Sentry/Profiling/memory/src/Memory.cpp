@@ -19,8 +19,8 @@
 
 #include "Memory.h"
 
-#include "cpp/device/src/Device.h"
-#include "cpp/log/src/Log.h"
+#include "Device.h"
+#include "Log.h"
 
 #include <cstdint>
 #include <stdatomic.h>

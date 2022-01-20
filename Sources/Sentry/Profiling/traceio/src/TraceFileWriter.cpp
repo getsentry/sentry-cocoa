@@ -3,8 +3,8 @@
 #include "TraceFileWriter.h"
 
 #include "LZ4.h"
-#include "cpp/filesystem/src/Filesystem.h"
-#include "cpp/util/src/ScopeGuard.h"
+#include "Filesystem.h"
+#include "ScopeGuard.h"
 #include "external/com_github_lz4_lz4/lib/lz4frame.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 

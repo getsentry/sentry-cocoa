@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/persistence/src/TraceFileEventObserver.h"
+#include "TraceFileEventObserver.h"
 
 #include <functional>
 #include <memory>

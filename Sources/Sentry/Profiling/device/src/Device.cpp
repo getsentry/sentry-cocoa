@@ -19,7 +19,7 @@
 
 #include "Device.h"
 
-#include "cpp/log/src/Log.h"
+#include "Log.h"
 
 namespace specto::device {
 

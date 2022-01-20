@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/filesystem/src/Path.h"
+#include "Path.h"
 #include "spectoproto/entry/entry_generated.pb.h"
 
 namespace specto {

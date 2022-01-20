@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cpp/portability/src/CPU.h"
+#include "CPU.h"
 
 #include <cstdint>
 
