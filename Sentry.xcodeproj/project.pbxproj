@@ -482,6 +482,174 @@
 		7DC83100239826280043DD9A /* SentryIntegrationProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7DC8310A2398283C0043DD9A /* SentryCrashIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DC831082398283C0043DD9A /* SentryCrashIntegration.h */; };
 		7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC831092398283C0043DD9A /* SentryCrashIntegration.m */; };
+		8405A54827990730001B38A1 /* SamplingProfilerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A51B27990730001B38A1 /* SamplingProfilerTest.cpp */; };
+		8405A54927990730001B38A1 /* BacktraceTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A51C27990730001B38A1 /* BacktraceTest.cpp */; };
+		8405A54B27990730001B38A1 /* Symbolicate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A51F27990730001B38A1 /* Symbolicate.h */; };
+		8405A54C27990730001B38A1 /* Symbolicate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52027990730001B38A1 /* Symbolicate.cpp */; };
+		8405A54D27990730001B38A1 /* SamplingProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52227990730001B38A1 /* SamplingProfiler.h */; };
+		8405A54E27990730001B38A1 /* Backtrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52327990730001B38A1 /* Backtrace.h */; };
+		8405A54F27990730001B38A1 /* SamplingProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52427990730001B38A1 /* SamplingProfiler.cpp */; };
+		8405A55027990730001B38A1 /* ThreadMetadataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */; };
+		8405A55127990730001B38A1 /* Backtrace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52627990730001B38A1 /* Backtrace.cpp */; };
+		8405A55227990730001B38A1 /* ThreadMetadataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52727990730001B38A1 /* ThreadMetadataCache.h */; };
+		8405A55427990730001B38A1 /* TraceConsumerUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52B27990730001B38A1 /* TraceConsumerUtil.cpp */; };
+		8405A55527990730001B38A1 /* TraceConsumerUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52C27990730001B38A1 /* TraceConsumerUtil.h */; };
+		8405A55727990730001B38A1 /* MemoryMappedImages.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53027990730001B38A1 /* MemoryMappedImages.cpp */; };
+		8405A55827990731001B38A1 /* MemoryMappedImages.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53127990730001B38A1 /* MemoryMappedImages.h */; };
+		8405A55A27990731001B38A1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53527990730001B38A1 /* Log.cpp */; };
+		8405A55B27990731001B38A1 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53627990730001B38A1 /* Log.h */; };
+		8405A55D27990731001B38A1 /* ThreadHandleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53A27990730001B38A1 /* ThreadHandleTest.cpp */; };
+		8405A55F27990731001B38A1 /* ThreadHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53D27990730001B38A1 /* ThreadHandle.cpp */; };
+		8405A56027990731001B38A1 /* ThreadPriority.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53E27990730001B38A1 /* ThreadPriority.h */; };
+		8405A56127990731001B38A1 /* ThreadState.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53F27990730001B38A1 /* ThreadState.h */; };
+		8405A56227990731001B38A1 /* MemorySafety.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A54027990730001B38A1 /* MemorySafety.cpp */; };
+		8405A56327990731001B38A1 /* ThreadHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A54127990730001B38A1 /* ThreadHandle.h */; };
+		8405A56427990731001B38A1 /* MemorySafety.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A54227990730001B38A1 /* MemorySafety.h */; };
+		8405A56627990731001B38A1 /* Mach.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A54627990730001B38A1 /* Mach.cpp */; };
+		8405A56727990731001B38A1 /* Mach.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A54727990730001B38A1 /* Mach.h */; };
+		8405A56E27990770001B38A1 /* Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A56B27990770001B38A1 /* Device.h */; };
+		8405A56F27990770001B38A1 /* Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A56C27990770001B38A1 /* Device.cpp */; };
+		8405A57727990780001B38A1 /* GlobalConfigurationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A57227990780001B38A1 /* GlobalConfigurationTest.cpp */; };
+		8405A57927990780001B38A1 /* GlobalConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A57527990780001B38A1 /* GlobalConfiguration.cpp */; };
+		8405A57A27990780001B38A1 /* GlobalConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A57627990780001B38A1 /* GlobalConfiguration.h */; };
+		8405A58127990789001B38A1 /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A57E27990789001B38A1 /* Debugger.cpp */; };
+		8405A58227990789001B38A1 /* Debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A57F27990789001B38A1 /* Debugger.h */; };
+		8405A5F9279907D3001B38A1 /* IO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A586279907D3001B38A1 /* IO.cpp */; };
+		8405A5FA279907D3001B38A1 /* IO.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A587279907D3001B38A1 /* IO.h */; };
+		8405A5FB279907D3001B38A1 /* LoggingConfigurationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A58A279907D3001B38A1 /* LoggingConfigurationTest.cpp */; };
+		8405A5FD279907D3001B38A1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A58D279907D3001B38A1 /* Log.cpp */; };
+		8405A5FE279907D3001B38A1 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A58E279907D3001B38A1 /* Log.h */; };
+		8405A5FF279907D3001B38A1 /* BlockSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A58F279907D3001B38A1 /* BlockSink.h */; };
+		8405A600279907D3001B38A1 /* LogHookSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A590279907D3001B38A1 /* LogHookSink.h */; };
+		8405A601279907D3001B38A1 /* FilesystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A593279907D3001B38A1 /* FilesystemTest.cpp */; };
+		8405A602279907D3001B38A1 /* PathTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A594279907D3001B38A1 /* PathTest.cpp */; };
+		8405A604279907D3001B38A1 /* Filesystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A597279907D3001B38A1 /* Filesystem.h */; };
+		8405A605279907D3001B38A1 /* Path.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A598279907D3001B38A1 /* Path.h */; };
+		8405A606279907D3001B38A1 /* Filesystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A599279907D3001B38A1 /* Filesystem.cpp */; };
+		8405A607279907D3001B38A1 /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A59A279907D3001B38A1 /* Path.cpp */; };
+		8405A608279907D3001B38A1 /* SessionControllerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A59D279907D3001B38A1 /* SessionControllerTest.cpp */; };
+		8405A60A279907D3001B38A1 /* SessionController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5A0279907D3001B38A1 /* SessionController.h */; };
+		8405A60B279907D3001B38A1 /* SessionController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5A1279907D3001B38A1 /* SessionController.cpp */; };
+		8405A60C279907D3001B38A1 /* LogProcessorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5A4279907D3001B38A1 /* LogProcessorTest.cpp */; };
+		8405A60E279907D3001B38A1 /* LogProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5A7279907D3001B38A1 /* LogProcessor.cpp */; };
+		8405A60F279907D3001B38A1 /* LogProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5A8279907D3001B38A1 /* LogProcessor.h */; };
+		8405A610279907D3001B38A1 /* PluginRegistryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5AB279907D3001B38A1 /* PluginRegistryTest.cpp */; };
+		8405A612279907D3001B38A1 /* Plugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5AE279907D3001B38A1 /* Plugin.h */; };
+		8405A613279907D3001B38A1 /* PluginRegistry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5AF279907D3001B38A1 /* PluginRegistry.h */; };
+		8405A614279907D3001B38A1 /* Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5B0279907D3001B38A1 /* Plugin.cpp */; };
+		8405A615279907D3001B38A1 /* PluginRegistry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5B1279907D3001B38A1 /* PluginRegistry.cpp */; };
+		8405A616279907D3001B38A1 /* TraceFileManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5B4279907D3001B38A1 /* TraceFileManagerTest.cpp */; };
+		8405A617279907D3001B38A1 /* TraceFileEventSubjectTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5B5279907D3001B38A1 /* TraceFileEventSubjectTest.cpp */; };
+		8405A619279907D3001B38A1 /* TestTraceFileEventObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5B8279907D3001B38A1 /* TestTraceFileEventObserver.h */; };
+		8405A61A279907D3001B38A1 /* TestTraceFileEventObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5B9279907D3001B38A1 /* TestTraceFileEventObserver.cpp */; };
+		8405A61B279907D3001B38A1 /* TraceFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5BB279907D3001B38A1 /* TraceFileManager.h */; };
+		8405A61C279907D3001B38A1 /* TraceFileEventObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5BC279907D3001B38A1 /* TraceFileEventObserver.cpp */; };
+		8405A61D279907D3001B38A1 /* TraceFileEventSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5BD279907D3001B38A1 /* TraceFileEventSubject.h */; };
+		8405A61E279907D3001B38A1 /* TraceFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5BE279907D3001B38A1 /* TraceFileManager.cpp */; };
+		8405A61F279907D3001B38A1 /* TraceFileEventSubject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5BF279907D3001B38A1 /* TraceFileEventSubject.cpp */; };
+		8405A620279907D3001B38A1 /* TraceFileEventObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5C0279907D3001B38A1 /* TraceFileEventObserver.h */; };
+		8405A622279907D3001B38A1 /* Scheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5C4279907D3001B38A1 /* Scheduler.h */; };
+		8405A623279907D3001B38A1 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5C5279907D3001B38A1 /* Scheduler.cpp */; };
+		8405A624279907D3001B38A1 /* ProtobufTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5C8279907D3001B38A1 /* ProtobufTest.cpp */; };
+		8405A626279907D3001B38A1 /* Protobuf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5CB279907D3001B38A1 /* Protobuf.cpp */; };
+		8405A627279907D3001B38A1 /* Protobuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5CC279907D3001B38A1 /* Protobuf.h */; };
+		8405A628279907D3001B38A1 /* ExceptionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5CF279907D3001B38A1 /* ExceptionTest.cpp */; };
+		8405A62A279907D3001B38A1 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5D2279907D3001B38A1 /* Exception.cpp */; };
+		8405A62B279907D3001B38A1 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5D3279907D3001B38A1 /* Exception.h */; };
+		8405A62C279907D3001B38A1 /* ProcessTerminationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5D6279907D3001B38A1 /* ProcessTerminationTest.cpp */; };
+		8405A62E279907D3001B38A1 /* Process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5D9279907D3001B38A1 /* Process.cpp */; };
+		8405A62F279907D3001B38A1 /* Process.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5DA279907D3001B38A1 /* Process.h */; };
+		8405A631279907D3001B38A1 /* Memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5DE279907D3001B38A1 /* Memory.cpp */; };
+		8405A632279907D3001B38A1 /* Memory.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5DF279907D3001B38A1 /* Memory.h */; };
+		8405A633279907D3001B38A1 /* GateTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5E2279907D3001B38A1 /* GateTest.cpp */; };
+		8405A635279907D3001B38A1 /* Gate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5E5279907D3001B38A1 /* Gate.h */; };
+		8405A636279907D3001B38A1 /* Gate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5E6279907D3001B38A1 /* Gate.cpp */; };
+		8405A638279907D3001B38A1 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5EA279907D3001B38A1 /* Compiler.h */; };
+		8405A639279907D3001B38A1 /* CPU.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5EB279907D3001B38A1 /* CPU.h */; };
+		8405A63A279907D3001B38A1 /* RingBufferTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5EE279907D3001B38A1 /* RingBufferTest.cpp */; };
+		8405A63C279907D3001B38A1 /* RingBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5F1279907D3001B38A1 /* RingBuffer.h */; };
+		8405A63D279907D3001B38A1 /* LZ4StreamTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A5F4279907D3001B38A1 /* LZ4StreamTest.cpp */; };
+		8405A63F279907D3001B38A1 /* LZ4Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5F7279907D3001B38A1 /* LZ4Stream.h */; };
+		8405A6A5279907ED001B38A1 /* Time.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A643279907ED001B38A1 /* Time.h */; };
+		8405A6A6279907ED001B38A1 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A644279907ED001B38A1 /* Time.cpp */; };
+		8405A6A7279907ED001B38A1 /* TraceIDTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A647279907ED001B38A1 /* TraceIDTest.cpp */; };
+		8405A6A9279907ED001B38A1 /* TraceID.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A64A279907ED001B38A1 /* TraceID.h */; };
+		8405A6AA279907ED001B38A1 /* TraceID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A64B279907ED001B38A1 /* TraceID.cpp */; };
+		8405A6AC279907ED001B38A1 /* OSLogTraceConsumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A650279907ED001B38A1 /* OSLogTraceConsumer.cpp */; };
+		8405A6AD279907ED001B38A1 /* OSLogTraceConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A651279907ED001B38A1 /* OSLogTraceConsumer.h */; };
+		8405A6AF279907ED001B38A1 /* TraceFileTraceConsumerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A655279907ED001B38A1 /* TraceFileTraceConsumerTest.cpp */; };
+		8405A6B1279907ED001B38A1 /* TraceFileTraceConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A658279907ED001B38A1 /* TraceFileTraceConsumer.h */; };
+		8405A6B2279907ED001B38A1 /* TraceFileTraceConsumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A659279907ED001B38A1 /* TraceFileTraceConsumer.cpp */; };
+		8405A6B3279907ED001B38A1 /* TraceFileWriterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A65C279907ED001B38A1 /* TraceFileWriterTest.cpp */; };
+		8405A6B5279907ED001B38A1 /* TraceFileTestUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A65F279907ED001B38A1 /* TraceFileTestUtils.cpp */; };
+		8405A6B6279907ED001B38A1 /* TraceFileTestUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A660279907ED001B38A1 /* TraceFileTestUtils.h */; };
+		8405A6B7279907ED001B38A1 /* TraceFileWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A662279907ED001B38A1 /* TraceFileWriter.h */; };
+		8405A6B8279907ED001B38A1 /* LZ4.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A663279907ED001B38A1 /* LZ4.h */; };
+		8405A6B9279907ED001B38A1 /* TraceFileWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A664279907ED001B38A1 /* TraceFileWriter.cpp */; };
+		8405A6BA279907ED001B38A1 /* EntryParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A667279907ED001B38A1 /* EntryParserTest.cpp */; };
+		8405A6BB279907ED001B38A1 /* TraceLoggerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A668279907ED001B38A1 /* TraceLoggerTest.cpp */; };
+		8405A6BC279907ED001B38A1 /* PacketStreamIDTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A669279907ED001B38A1 /* PacketStreamIDTest.cpp */; };
+		8405A6BE279907ED001B38A1 /* TestPacketWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A66C279907ED001B38A1 /* TestPacketWriter.h */; };
+		8405A6BF279907ED001B38A1 /* TestPacketWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A66D279907ED001B38A1 /* TestPacketWriter.cpp */; };
+		8405A6C0279907ED001B38A1 /* TestPacketReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A66E279907ED001B38A1 /* TestPacketReader.cpp */; };
+		8405A6C1279907ED001B38A1 /* TestPacketReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A66F279907ED001B38A1 /* TestPacketReader.h */; };
+		8405A6C2279907ED001B38A1 /* PacketReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A671279907ED001B38A1 /* PacketReader.cpp */; };
+		8405A6C3279907ED001B38A1 /* PacketReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A672279907ED001B38A1 /* PacketReader.h */; };
+		8405A6C4279907ED001B38A1 /* TraceLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A673279907ED001B38A1 /* TraceLogger.cpp */; };
+		8405A6C5279907ED001B38A1 /* EntryParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A674279907ED001B38A1 /* EntryParser.cpp */; };
+		8405A6C6279907ED001B38A1 /* PacketWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A675279907ED001B38A1 /* PacketWriter.cpp */; };
+		8405A6C7279907ED001B38A1 /* TraceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A676279907ED001B38A1 /* TraceLogger.h */; };
+		8405A6C8279907ED001B38A1 /* Packet.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A677279907ED001B38A1 /* Packet.h */; };
+		8405A6C9279907ED001B38A1 /* EntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A678279907ED001B38A1 /* EntryParser.h */; };
+		8405A6CA279907ED001B38A1 /* PacketWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A679279907ED001B38A1 /* PacketWriter.h */; };
+		8405A6CB279907ED001B38A1 /* PacketStreamID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A67A279907ED001B38A1 /* PacketStreamID.cpp */; };
+		8405A6CC279907ED001B38A1 /* PacketStreamID.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A67B279907ED001B38A1 /* PacketStreamID.h */; };
+		8405A6CE279907ED001B38A1 /* StackBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A67F279907ED001B38A1 /* StackBounds.h */; };
+		8405A6CF279907ED001B38A1 /* StackFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A680279907ED001B38A1 /* StackFrame.h */; };
+		8405A6D0279907ED001B38A1 /* RingBufferPacketReaderWriterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A683279907ED001B38A1 /* RingBufferPacketReaderWriterTest.cpp */; };
+		8405A6D1279907ED001B38A1 /* TraceControllerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A684279907ED001B38A1 /* TraceControllerTest.cpp */; };
+		8405A6D2279907ED001B38A1 /* TraceBufferConsumerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A685279907ED001B38A1 /* TraceBufferConsumerTest.cpp */; };
+		8405A6D3279907ED001B38A1 /* TraceEventSubjectTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A686279907ED001B38A1 /* TraceEventSubjectTest.cpp */; };
+		8405A6D4279907ED001B38A1 /* TraceConsumerMultiProxyTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A687279907ED001B38A1 /* TraceConsumerMultiProxyTest.cpp */; };
+		8405A6D6279907ED001B38A1 /* TestTraceConsumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A68A279907ED001B38A1 /* TestTraceConsumer.cpp */; };
+		8405A6D7279907ED001B38A1 /* TestTraceEventObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A68B279907ED001B38A1 /* TestTraceEventObserver.h */; };
+		8405A6D8279907ED001B38A1 /* TestTraceConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A68C279907ED001B38A1 /* TestTraceConsumer.h */; };
+		8405A6D9279907ED001B38A1 /* TestTraceEventObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A68D279907ED001B38A1 /* TestTraceEventObserver.cpp */; };
+		8405A6DA279907ED001B38A1 /* RingBufferPacketWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A68F279907ED001B38A1 /* RingBufferPacketWriter.h */; };
+		8405A6DB279907ED001B38A1 /* TraceBufferConsumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A690279907ED001B38A1 /* TraceBufferConsumer.cpp */; };
+		8405A6DC279907ED001B38A1 /* TraceEventSubject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A691279907ED001B38A1 /* TraceEventSubject.cpp */; };
+		8405A6DD279907ED001B38A1 /* TraceConsumerMultiProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A692279907ED001B38A1 /* TraceConsumerMultiProxy.cpp */; };
+		8405A6DE279907ED001B38A1 /* TraceEventSubject.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A693279907ED001B38A1 /* TraceEventSubject.h */; };
+		8405A6DF279907ED001B38A1 /* TraceConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A694279907ED001B38A1 /* TraceConsumer.h */; };
+		8405A6E0279907ED001B38A1 /* TraceConsumerMultiProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A695279907ED001B38A1 /* TraceConsumerMultiProxy.h */; };
+		8405A6E1279907ED001B38A1 /* RingBufferPacketReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A696279907ED001B38A1 /* RingBufferPacketReader.h */; };
+		8405A6E2279907ED001B38A1 /* TraceController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A697279907ED001B38A1 /* TraceController.cpp */; };
+		8405A6E3279907ED001B38A1 /* RingBufferPacketReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A698279907ED001B38A1 /* RingBufferPacketReader.cpp */; };
+		8405A6E4279907ED001B38A1 /* TraceController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A699279907ED001B38A1 /* TraceController.h */; };
+		8405A6E5279907ED001B38A1 /* TraceEventObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A69A279907ED001B38A1 /* TraceEventObserver.h */; };
+		8405A6E6279907ED001B38A1 /* TraceEventObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A69B279907ED001B38A1 /* TraceEventObserver.cpp */; };
+		8405A6E7279907ED001B38A1 /* TraceConsumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A69C279907ED001B38A1 /* TraceConsumer.cpp */; };
+		8405A6E8279907ED001B38A1 /* TraceBufferConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A69D279907ED001B38A1 /* TraceBufferConsumer.h */; };
+		8405A6E9279907ED001B38A1 /* RingBufferPacketWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A69E279907ED001B38A1 /* RingBufferPacketWriter.cpp */; };
+		8405A6EB279907ED001B38A1 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A6A2279907ED001B38A1 /* Thread.cpp */; };
+		8405A6EC279907ED001B38A1 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6A3279907ED001B38A1 /* Thread.h */; };
+		8405A6F7279907F4001B38A1 /* PoolTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A6EF279907F4001B38A1 /* PoolTest.cpp */; };
+		8405A6F9279907F4001B38A1 /* Pool.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6F2279907F4001B38A1 /* Pool.h */; };
+		8405A6FA279907F4001B38A1 /* spimpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6F3279907F4001B38A1 /* spimpl.h */; };
+		8405A6FB279907F4001B38A1 /* ThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6F4279907F4001B38A1 /* ThreadPool.h */; };
+		8405A6FC279907F4001B38A1 /* ScopeGuard.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6F5279907F4001B38A1 /* ScopeGuard.h */; };
+		8405A6FD279907F4001B38A1 /* ArraySize.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6F6279907F4001B38A1 /* ArraySize.h */; };
+		8405A7062799094B001B38A1 /* TestUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7012799094B001B38A1 /* TestUtils.h */; };
+		8405A7072799094B001B38A1 /* ProtobufComparison.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7022799094B001B38A1 /* ProtobufComparison.h */; };
+		8405A7082799094B001B38A1 /* ProtobufComparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A7032799094B001B38A1 /* ProtobufComparison.cpp */; };
+		8405A7092799094B001B38A1 /* TestUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A7042799094B001B38A1 /* TestUtils.cpp */; };
+		8405A7102799098E001B38A1 /* Handling.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A70D2799098E001B38A1 /* Handling.h */; };
+		8405A7112799098E001B38A1 /* Handling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A70E2799098E001B38A1 /* Handling.cpp */; };
+		8405A71F279909AF001B38A1 /* Credentials.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A715279909AF001B38A1 /* Credentials.cpp */; };
+		8405A720279909AF001B38A1 /* Credentials.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A716279909AF001B38A1 /* Credentials.h */; };
+		8405A721279909AF001B38A1 /* GlobalConfigurationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A719279909AF001B38A1 /* GlobalConfigurationTest.cpp */; };
+		8405A723279909AF001B38A1 /* GlobalConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A71C279909AF001B38A1 /* GlobalConfiguration.cpp */; };
+		8405A724279909AF001B38A1 /* GlobalConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A71D279909AF001B38A1 /* GlobalConfiguration.h */; };
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
@@ -1103,6 +1271,174 @@
 		7DC830FF239826280043DD9A /* SentryIntegrationProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProtocol.h; path = Public/SentryIntegrationProtocol.h; sourceTree = "<group>"; };
 		7DC831082398283C0043DD9A /* SentryCrashIntegration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashIntegration.h; path = include/SentryCrashIntegration.h; sourceTree = "<group>"; };
 		7DC831092398283C0043DD9A /* SentryCrashIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashIntegration.m; sourceTree = "<group>"; };
+		8405A51B27990730001B38A1 /* SamplingProfilerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SamplingProfilerTest.cpp; sourceTree = "<group>"; };
+		8405A51C27990730001B38A1 /* BacktraceTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BacktraceTest.cpp; sourceTree = "<group>"; };
+		8405A51F27990730001B38A1 /* Symbolicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Symbolicate.h; sourceTree = "<group>"; };
+		8405A52027990730001B38A1 /* Symbolicate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Symbolicate.cpp; sourceTree = "<group>"; };
+		8405A52227990730001B38A1 /* SamplingProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SamplingProfiler.h; sourceTree = "<group>"; };
+		8405A52327990730001B38A1 /* Backtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Backtrace.h; sourceTree = "<group>"; };
+		8405A52427990730001B38A1 /* SamplingProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SamplingProfiler.cpp; sourceTree = "<group>"; };
+		8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadMetadataCache.cpp; sourceTree = "<group>"; };
+		8405A52627990730001B38A1 /* Backtrace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Backtrace.cpp; sourceTree = "<group>"; };
+		8405A52727990730001B38A1 /* ThreadMetadataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadMetadataCache.h; sourceTree = "<group>"; };
+		8405A52B27990730001B38A1 /* TraceConsumerUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceConsumerUtil.cpp; sourceTree = "<group>"; };
+		8405A52C27990730001B38A1 /* TraceConsumerUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceConsumerUtil.h; sourceTree = "<group>"; };
+		8405A53027990730001B38A1 /* MemoryMappedImages.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemoryMappedImages.cpp; sourceTree = "<group>"; };
+		8405A53127990730001B38A1 /* MemoryMappedImages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemoryMappedImages.h; sourceTree = "<group>"; };
+		8405A53527990730001B38A1 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
+		8405A53627990730001B38A1 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
+		8405A53A27990730001B38A1 /* ThreadHandleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadHandleTest.cpp; sourceTree = "<group>"; };
+		8405A53D27990730001B38A1 /* ThreadHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadHandle.cpp; sourceTree = "<group>"; };
+		8405A53E27990730001B38A1 /* ThreadPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPriority.h; sourceTree = "<group>"; };
+		8405A53F27990730001B38A1 /* ThreadState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadState.h; sourceTree = "<group>"; };
+		8405A54027990730001B38A1 /* MemorySafety.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemorySafety.cpp; sourceTree = "<group>"; };
+		8405A54127990730001B38A1 /* ThreadHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadHandle.h; sourceTree = "<group>"; };
+		8405A54227990730001B38A1 /* MemorySafety.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemorySafety.h; sourceTree = "<group>"; };
+		8405A54627990730001B38A1 /* Mach.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mach.cpp; sourceTree = "<group>"; };
+		8405A54727990730001B38A1 /* Mach.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mach.h; sourceTree = "<group>"; };
+		8405A56B27990770001B38A1 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
+		8405A56C27990770001B38A1 /* Device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Device.cpp; sourceTree = "<group>"; };
+		8405A57227990780001B38A1 /* GlobalConfigurationTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalConfigurationTest.cpp; sourceTree = "<group>"; };
+		8405A57527990780001B38A1 /* GlobalConfiguration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalConfiguration.cpp; sourceTree = "<group>"; };
+		8405A57627990780001B38A1 /* GlobalConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobalConfiguration.h; sourceTree = "<group>"; };
+		8405A57E27990789001B38A1 /* Debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debugger.cpp; sourceTree = "<group>"; };
+		8405A57F27990789001B38A1 /* Debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debugger.h; sourceTree = "<group>"; };
+		8405A586279907D3001B38A1 /* IO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IO.cpp; sourceTree = "<group>"; };
+		8405A587279907D3001B38A1 /* IO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IO.h; sourceTree = "<group>"; };
+		8405A58A279907D3001B38A1 /* LoggingConfigurationTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoggingConfigurationTest.cpp; sourceTree = "<group>"; };
+		8405A58D279907D3001B38A1 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
+		8405A58E279907D3001B38A1 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
+		8405A58F279907D3001B38A1 /* BlockSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockSink.h; sourceTree = "<group>"; };
+		8405A590279907D3001B38A1 /* LogHookSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogHookSink.h; sourceTree = "<group>"; };
+		8405A593279907D3001B38A1 /* FilesystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FilesystemTest.cpp; sourceTree = "<group>"; };
+		8405A594279907D3001B38A1 /* PathTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTest.cpp; sourceTree = "<group>"; };
+		8405A597279907D3001B38A1 /* Filesystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filesystem.h; sourceTree = "<group>"; };
+		8405A598279907D3001B38A1 /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
+		8405A599279907D3001B38A1 /* Filesystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Filesystem.cpp; sourceTree = "<group>"; };
+		8405A59A279907D3001B38A1 /* Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Path.cpp; sourceTree = "<group>"; };
+		8405A59D279907D3001B38A1 /* SessionControllerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SessionControllerTest.cpp; sourceTree = "<group>"; };
+		8405A5A0279907D3001B38A1 /* SessionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SessionController.h; sourceTree = "<group>"; };
+		8405A5A1279907D3001B38A1 /* SessionController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SessionController.cpp; sourceTree = "<group>"; };
+		8405A5A4279907D3001B38A1 /* LogProcessorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogProcessorTest.cpp; sourceTree = "<group>"; };
+		8405A5A7279907D3001B38A1 /* LogProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogProcessor.cpp; sourceTree = "<group>"; };
+		8405A5A8279907D3001B38A1 /* LogProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogProcessor.h; sourceTree = "<group>"; };
+		8405A5AB279907D3001B38A1 /* PluginRegistryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginRegistryTest.cpp; sourceTree = "<group>"; };
+		8405A5AE279907D3001B38A1 /* Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
+		8405A5AF279907D3001B38A1 /* PluginRegistry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginRegistry.h; sourceTree = "<group>"; };
+		8405A5B0279907D3001B38A1 /* Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plugin.cpp; sourceTree = "<group>"; };
+		8405A5B1279907D3001B38A1 /* PluginRegistry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginRegistry.cpp; sourceTree = "<group>"; };
+		8405A5B4279907D3001B38A1 /* TraceFileManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileManagerTest.cpp; sourceTree = "<group>"; };
+		8405A5B5279907D3001B38A1 /* TraceFileEventSubjectTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileEventSubjectTest.cpp; sourceTree = "<group>"; };
+		8405A5B8279907D3001B38A1 /* TestTraceFileEventObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTraceFileEventObserver.h; sourceTree = "<group>"; };
+		8405A5B9279907D3001B38A1 /* TestTraceFileEventObserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestTraceFileEventObserver.cpp; sourceTree = "<group>"; };
+		8405A5BB279907D3001B38A1 /* TraceFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileManager.h; sourceTree = "<group>"; };
+		8405A5BC279907D3001B38A1 /* TraceFileEventObserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileEventObserver.cpp; sourceTree = "<group>"; };
+		8405A5BD279907D3001B38A1 /* TraceFileEventSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileEventSubject.h; sourceTree = "<group>"; };
+		8405A5BE279907D3001B38A1 /* TraceFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileManager.cpp; sourceTree = "<group>"; };
+		8405A5BF279907D3001B38A1 /* TraceFileEventSubject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileEventSubject.cpp; sourceTree = "<group>"; };
+		8405A5C0279907D3001B38A1 /* TraceFileEventObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileEventObserver.h; sourceTree = "<group>"; };
+		8405A5C4279907D3001B38A1 /* Scheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scheduler.h; sourceTree = "<group>"; };
+		8405A5C5279907D3001B38A1 /* Scheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scheduler.cpp; sourceTree = "<group>"; };
+		8405A5C8279907D3001B38A1 /* ProtobufTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProtobufTest.cpp; sourceTree = "<group>"; };
+		8405A5CB279907D3001B38A1 /* Protobuf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Protobuf.cpp; sourceTree = "<group>"; };
+		8405A5CC279907D3001B38A1 /* Protobuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Protobuf.h; sourceTree = "<group>"; };
+		8405A5CF279907D3001B38A1 /* ExceptionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionTest.cpp; sourceTree = "<group>"; };
+		8405A5D2279907D3001B38A1 /* Exception.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cpp; sourceTree = "<group>"; };
+		8405A5D3279907D3001B38A1 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
+		8405A5D6279907D3001B38A1 /* ProcessTerminationTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProcessTerminationTest.cpp; sourceTree = "<group>"; };
+		8405A5D9279907D3001B38A1 /* Process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Process.cpp; sourceTree = "<group>"; };
+		8405A5DA279907D3001B38A1 /* Process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Process.h; sourceTree = "<group>"; };
+		8405A5DE279907D3001B38A1 /* Memory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Memory.cpp; sourceTree = "<group>"; };
+		8405A5DF279907D3001B38A1 /* Memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Memory.h; sourceTree = "<group>"; };
+		8405A5E2279907D3001B38A1 /* GateTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GateTest.cpp; sourceTree = "<group>"; };
+		8405A5E5279907D3001B38A1 /* Gate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gate.h; sourceTree = "<group>"; };
+		8405A5E6279907D3001B38A1 /* Gate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gate.cpp; sourceTree = "<group>"; };
+		8405A5EA279907D3001B38A1 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
+		8405A5EB279907D3001B38A1 /* CPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPU.h; sourceTree = "<group>"; };
+		8405A5EE279907D3001B38A1 /* RingBufferTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingBufferTest.cpp; sourceTree = "<group>"; };
+		8405A5F1279907D3001B38A1 /* RingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingBuffer.h; sourceTree = "<group>"; };
+		8405A5F4279907D3001B38A1 /* LZ4StreamTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LZ4StreamTest.cpp; sourceTree = "<group>"; };
+		8405A5F7279907D3001B38A1 /* LZ4Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZ4Stream.h; sourceTree = "<group>"; };
+		8405A643279907ED001B38A1 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
+		8405A644279907ED001B38A1 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
+		8405A647279907ED001B38A1 /* TraceIDTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceIDTest.cpp; sourceTree = "<group>"; };
+		8405A64A279907ED001B38A1 /* TraceID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceID.h; sourceTree = "<group>"; };
+		8405A64B279907ED001B38A1 /* TraceID.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceID.cpp; sourceTree = "<group>"; };
+		8405A650279907ED001B38A1 /* OSLogTraceConsumer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OSLogTraceConsumer.cpp; sourceTree = "<group>"; };
+		8405A651279907ED001B38A1 /* OSLogTraceConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSLogTraceConsumer.h; sourceTree = "<group>"; };
+		8405A655279907ED001B38A1 /* TraceFileTraceConsumerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileTraceConsumerTest.cpp; sourceTree = "<group>"; };
+		8405A658279907ED001B38A1 /* TraceFileTraceConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileTraceConsumer.h; sourceTree = "<group>"; };
+		8405A659279907ED001B38A1 /* TraceFileTraceConsumer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileTraceConsumer.cpp; sourceTree = "<group>"; };
+		8405A65C279907ED001B38A1 /* TraceFileWriterTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileWriterTest.cpp; sourceTree = "<group>"; };
+		8405A65F279907ED001B38A1 /* TraceFileTestUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileTestUtils.cpp; sourceTree = "<group>"; };
+		8405A660279907ED001B38A1 /* TraceFileTestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileTestUtils.h; sourceTree = "<group>"; };
+		8405A662279907ED001B38A1 /* TraceFileWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceFileWriter.h; sourceTree = "<group>"; };
+		8405A663279907ED001B38A1 /* LZ4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZ4.h; sourceTree = "<group>"; };
+		8405A664279907ED001B38A1 /* TraceFileWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceFileWriter.cpp; sourceTree = "<group>"; };
+		8405A667279907ED001B38A1 /* EntryParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntryParserTest.cpp; sourceTree = "<group>"; };
+		8405A668279907ED001B38A1 /* TraceLoggerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceLoggerTest.cpp; sourceTree = "<group>"; };
+		8405A669279907ED001B38A1 /* PacketStreamIDTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PacketStreamIDTest.cpp; sourceTree = "<group>"; };
+		8405A66C279907ED001B38A1 /* TestPacketWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPacketWriter.h; sourceTree = "<group>"; };
+		8405A66D279907ED001B38A1 /* TestPacketWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestPacketWriter.cpp; sourceTree = "<group>"; };
+		8405A66E279907ED001B38A1 /* TestPacketReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestPacketReader.cpp; sourceTree = "<group>"; };
+		8405A66F279907ED001B38A1 /* TestPacketReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPacketReader.h; sourceTree = "<group>"; };
+		8405A671279907ED001B38A1 /* PacketReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PacketReader.cpp; sourceTree = "<group>"; };
+		8405A672279907ED001B38A1 /* PacketReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacketReader.h; sourceTree = "<group>"; };
+		8405A673279907ED001B38A1 /* TraceLogger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceLogger.cpp; sourceTree = "<group>"; };
+		8405A674279907ED001B38A1 /* EntryParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntryParser.cpp; sourceTree = "<group>"; };
+		8405A675279907ED001B38A1 /* PacketWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PacketWriter.cpp; sourceTree = "<group>"; };
+		8405A676279907ED001B38A1 /* TraceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceLogger.h; sourceTree = "<group>"; };
+		8405A677279907ED001B38A1 /* Packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Packet.h; sourceTree = "<group>"; };
+		8405A678279907ED001B38A1 /* EntryParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntryParser.h; sourceTree = "<group>"; };
+		8405A679279907ED001B38A1 /* PacketWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacketWriter.h; sourceTree = "<group>"; };
+		8405A67A279907ED001B38A1 /* PacketStreamID.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PacketStreamID.cpp; sourceTree = "<group>"; };
+		8405A67B279907ED001B38A1 /* PacketStreamID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacketStreamID.h; sourceTree = "<group>"; };
+		8405A67F279907ED001B38A1 /* StackBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackBounds.h; sourceTree = "<group>"; };
+		8405A680279907ED001B38A1 /* StackFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackFrame.h; sourceTree = "<group>"; };
+		8405A683279907ED001B38A1 /* RingBufferPacketReaderWriterTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingBufferPacketReaderWriterTest.cpp; sourceTree = "<group>"; };
+		8405A684279907ED001B38A1 /* TraceControllerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceControllerTest.cpp; sourceTree = "<group>"; };
+		8405A685279907ED001B38A1 /* TraceBufferConsumerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceBufferConsumerTest.cpp; sourceTree = "<group>"; };
+		8405A686279907ED001B38A1 /* TraceEventSubjectTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceEventSubjectTest.cpp; sourceTree = "<group>"; };
+		8405A687279907ED001B38A1 /* TraceConsumerMultiProxyTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceConsumerMultiProxyTest.cpp; sourceTree = "<group>"; };
+		8405A68A279907ED001B38A1 /* TestTraceConsumer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestTraceConsumer.cpp; sourceTree = "<group>"; };
+		8405A68B279907ED001B38A1 /* TestTraceEventObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTraceEventObserver.h; sourceTree = "<group>"; };
+		8405A68C279907ED001B38A1 /* TestTraceConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTraceConsumer.h; sourceTree = "<group>"; };
+		8405A68D279907ED001B38A1 /* TestTraceEventObserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestTraceEventObserver.cpp; sourceTree = "<group>"; };
+		8405A68F279907ED001B38A1 /* RingBufferPacketWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingBufferPacketWriter.h; sourceTree = "<group>"; };
+		8405A690279907ED001B38A1 /* TraceBufferConsumer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceBufferConsumer.cpp; sourceTree = "<group>"; };
+		8405A691279907ED001B38A1 /* TraceEventSubject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceEventSubject.cpp; sourceTree = "<group>"; };
+		8405A692279907ED001B38A1 /* TraceConsumerMultiProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceConsumerMultiProxy.cpp; sourceTree = "<group>"; };
+		8405A693279907ED001B38A1 /* TraceEventSubject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceEventSubject.h; sourceTree = "<group>"; };
+		8405A694279907ED001B38A1 /* TraceConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceConsumer.h; sourceTree = "<group>"; };
+		8405A695279907ED001B38A1 /* TraceConsumerMultiProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceConsumerMultiProxy.h; sourceTree = "<group>"; };
+		8405A696279907ED001B38A1 /* RingBufferPacketReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingBufferPacketReader.h; sourceTree = "<group>"; };
+		8405A697279907ED001B38A1 /* TraceController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceController.cpp; sourceTree = "<group>"; };
+		8405A698279907ED001B38A1 /* RingBufferPacketReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingBufferPacketReader.cpp; sourceTree = "<group>"; };
+		8405A699279907ED001B38A1 /* TraceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceController.h; sourceTree = "<group>"; };
+		8405A69A279907ED001B38A1 /* TraceEventObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceEventObserver.h; sourceTree = "<group>"; };
+		8405A69B279907ED001B38A1 /* TraceEventObserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceEventObserver.cpp; sourceTree = "<group>"; };
+		8405A69C279907ED001B38A1 /* TraceConsumer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TraceConsumer.cpp; sourceTree = "<group>"; };
+		8405A69D279907ED001B38A1 /* TraceBufferConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TraceBufferConsumer.h; sourceTree = "<group>"; };
+		8405A69E279907ED001B38A1 /* RingBufferPacketWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingBufferPacketWriter.cpp; sourceTree = "<group>"; };
+		8405A6A2279907ED001B38A1 /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		8405A6A3279907ED001B38A1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
+		8405A6EF279907F4001B38A1 /* PoolTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PoolTest.cpp; sourceTree = "<group>"; };
+		8405A6F2279907F4001B38A1 /* Pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pool.h; sourceTree = "<group>"; };
+		8405A6F3279907F4001B38A1 /* spimpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spimpl.h; sourceTree = "<group>"; };
+		8405A6F4279907F4001B38A1 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
+		8405A6F5279907F4001B38A1 /* ScopeGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopeGuard.h; sourceTree = "<group>"; };
+		8405A6F6279907F4001B38A1 /* ArraySize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArraySize.h; sourceTree = "<group>"; };
+		8405A7012799094B001B38A1 /* TestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
+		8405A7022799094B001B38A1 /* ProtobufComparison.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtobufComparison.h; sourceTree = "<group>"; };
+		8405A7032799094B001B38A1 /* ProtobufComparison.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProtobufComparison.cpp; sourceTree = "<group>"; };
+		8405A7042799094B001B38A1 /* TestUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestUtils.cpp; sourceTree = "<group>"; };
+		8405A70D2799098E001B38A1 /* Handling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Handling.h; sourceTree = "<group>"; };
+		8405A70E2799098E001B38A1 /* Handling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Handling.cpp; sourceTree = "<group>"; };
+		8405A715279909AF001B38A1 /* Credentials.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Credentials.cpp; sourceTree = "<group>"; };
+		8405A716279909AF001B38A1 /* Credentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Credentials.h; sourceTree = "<group>"; };
+		8405A719279909AF001B38A1 /* GlobalConfigurationTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalConfigurationTest.cpp; sourceTree = "<group>"; };
+		8405A71C279909AF001B38A1 /* GlobalConfiguration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalConfiguration.cpp; sourceTree = "<group>"; };
+		8405A71D279909AF001B38A1 /* GlobalConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobalConfiguration.h; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -2076,6 +2412,7 @@
 		7BE0DC39272AE8B3004FA8B7 /* Performance */ = {
 			isa = PBXGroup;
 			children = (
+				8405A517279906EF001B38A1 /* Profiling */,
 				D8ACE3C32762185E00F5A213 /* IO */,
 				7BE0DC37272AE83E004FA8B7 /* AppStartTracking */,
 				7BE0DC38272AE874004FA8B7 /* FramesTracking */,
@@ -2256,6 +2593,1038 @@
 			path = .github;
 			sourceTree = "<group>";
 		};
+		8405A517279906EF001B38A1 /* Profiling */ = {
+			isa = PBXGroup;
+			children = (
+				8405A717279909AF001B38A1 /* configuration */,
+				8405A57027990780001B38A1 /* configuration */,
+				8405A712279909AF001B38A1 /* credentials */,
+				8405A51827990730001B38A1 /* darwin */,
+				8405A57B27990789001B38A1 /* debugger */,
+				8405A56827990770001B38A1 /* device */,
+				8405A5CD279907D3001B38A1 /* exception */,
+				8405A591279907D3001B38A1 /* filesystem */,
+				8405A5E0279907D3001B38A1 /* gate */,
+				8405A583279907D3001B38A1 /* io */,
+				8405A588279907D3001B38A1 /* log */,
+				8405A5A2279907D3001B38A1 /* logprocess */,
+				8405A5F2279907D3001B38A1 /* lz4stream */,
+				8405A5DB279907D3001B38A1 /* memory */,
+				8405A5B2279907D3001B38A1 /* persistence */,
+				8405A5A9279907D3001B38A1 /* plugin */,
+				8405A5E7279907D3001B38A1 /* portability */,
+				8405A5D4279907D3001B38A1 /* process */,
+				8405A5C6279907D3001B38A1 /* protobuf */,
+				8405A5EC279907D3001B38A1 /* ringbuffer */,
+				8405A5C1279907D3001B38A1 /* scheduler */,
+				8405A59B279907D3001B38A1 /* session */,
+				8405A70A2799098E001B38A1 /* signals */,
+				8405A67C279907ED001B38A1 /* stack */,
+				8405A6FE2799094B001B38A1 /* testutils */,
+				8405A69F279907ED001B38A1 /* thread */,
+				8405A640279907ED001B38A1 /* time */,
+				8405A681279907ED001B38A1 /* trace */,
+				8405A64C279907ED001B38A1 /* traceconsumers */,
+				8405A645279907ED001B38A1 /* traceid */,
+				8405A65A279907ED001B38A1 /* traceio */,
+				8405A665279907ED001B38A1 /* tracelogger */,
+				8405A6ED279907F4001B38A1 /* util */,
+			);
+			path = Profiling;
+			sourceTree = "<group>";
+		};
+		8405A51827990730001B38A1 /* darwin */ = {
+			isa = PBXGroup;
+			children = (
+				8405A51927990730001B38A1 /* backtrace */,
+				8405A52827990730001B38A1 /* traceconsumer */,
+				8405A52D27990730001B38A1 /* memorymappedimages */,
+				8405A53227990730001B38A1 /* log */,
+				8405A53827990730001B38A1 /* thread */,
+				8405A54327990730001B38A1 /* exception */,
+			);
+			path = darwin;
+			sourceTree = "<group>";
+		};
+		8405A51927990730001B38A1 /* backtrace */ = {
+			isa = PBXGroup;
+			children = (
+				8405A51A27990730001B38A1 /* test */,
+				8405A51E27990730001B38A1 /* testutils */,
+				8405A52127990730001B38A1 /* src */,
+			);
+			path = backtrace;
+			sourceTree = "<group>";
+		};
+		8405A51A27990730001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A51B27990730001B38A1 /* SamplingProfilerTest.cpp */,
+				8405A51C27990730001B38A1 /* BacktraceTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A51E27990730001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A51F27990730001B38A1 /* Symbolicate.h */,
+				8405A52027990730001B38A1 /* Symbolicate.cpp */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A52127990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A52227990730001B38A1 /* SamplingProfiler.h */,
+				8405A52327990730001B38A1 /* Backtrace.h */,
+				8405A52427990730001B38A1 /* SamplingProfiler.cpp */,
+				8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */,
+				8405A52627990730001B38A1 /* Backtrace.cpp */,
+				8405A52727990730001B38A1 /* ThreadMetadataCache.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A52827990730001B38A1 /* traceconsumer */ = {
+			isa = PBXGroup;
+			children = (
+				8405A52A27990730001B38A1 /* src */,
+			);
+			path = traceconsumer;
+			sourceTree = "<group>";
+		};
+		8405A52A27990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A52B27990730001B38A1 /* TraceConsumerUtil.cpp */,
+				8405A52C27990730001B38A1 /* TraceConsumerUtil.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A52D27990730001B38A1 /* memorymappedimages */ = {
+			isa = PBXGroup;
+			children = (
+				8405A52F27990730001B38A1 /* src */,
+			);
+			path = memorymappedimages;
+			sourceTree = "<group>";
+		};
+		8405A52F27990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53027990730001B38A1 /* MemoryMappedImages.cpp */,
+				8405A53127990730001B38A1 /* MemoryMappedImages.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A53227990730001B38A1 /* log */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53427990730001B38A1 /* src */,
+			);
+			path = log;
+			sourceTree = "<group>";
+		};
+		8405A53427990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53527990730001B38A1 /* Log.cpp */,
+				8405A53627990730001B38A1 /* Log.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A53827990730001B38A1 /* thread */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53927990730001B38A1 /* test */,
+				8405A53C27990730001B38A1 /* src */,
+			);
+			path = thread;
+			sourceTree = "<group>";
+		};
+		8405A53927990730001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53A27990730001B38A1 /* ThreadHandleTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A53C27990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A53D27990730001B38A1 /* ThreadHandle.cpp */,
+				8405A53E27990730001B38A1 /* ThreadPriority.h */,
+				8405A53F27990730001B38A1 /* ThreadState.h */,
+				8405A54027990730001B38A1 /* MemorySafety.cpp */,
+				8405A54127990730001B38A1 /* ThreadHandle.h */,
+				8405A54227990730001B38A1 /* MemorySafety.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A54327990730001B38A1 /* exception */ = {
+			isa = PBXGroup;
+			children = (
+				8405A54527990730001B38A1 /* src */,
+			);
+			path = exception;
+			sourceTree = "<group>";
+		};
+		8405A54527990730001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A54627990730001B38A1 /* Mach.cpp */,
+				8405A54727990730001B38A1 /* Mach.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A56827990770001B38A1 /* device */ = {
+			isa = PBXGroup;
+			children = (
+				8405A56A27990770001B38A1 /* src */,
+			);
+			path = device;
+			sourceTree = "<group>";
+		};
+		8405A56A27990770001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A56B27990770001B38A1 /* Device.h */,
+				8405A56C27990770001B38A1 /* Device.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A57027990780001B38A1 /* configuration */ = {
+			isa = PBXGroup;
+			children = (
+				8405A57127990780001B38A1 /* test */,
+				8405A57427990780001B38A1 /* src */,
+			);
+			path = configuration;
+			sourceTree = "<group>";
+		};
+		8405A57127990780001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A57227990780001B38A1 /* GlobalConfigurationTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A57427990780001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A57527990780001B38A1 /* GlobalConfiguration.cpp */,
+				8405A57627990780001B38A1 /* GlobalConfiguration.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A57B27990789001B38A1 /* debugger */ = {
+			isa = PBXGroup;
+			children = (
+				8405A57D27990789001B38A1 /* src */,
+			);
+			path = debugger;
+			sourceTree = "<group>";
+		};
+		8405A57D27990789001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A57E27990789001B38A1 /* Debugger.cpp */,
+				8405A57F27990789001B38A1 /* Debugger.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A583279907D3001B38A1 /* io */ = {
+			isa = PBXGroup;
+			children = (
+				8405A585279907D3001B38A1 /* src */,
+			);
+			path = io;
+			sourceTree = "<group>";
+		};
+		8405A585279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A586279907D3001B38A1 /* IO.cpp */,
+				8405A587279907D3001B38A1 /* IO.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A588279907D3001B38A1 /* log */ = {
+			isa = PBXGroup;
+			children = (
+				8405A589279907D3001B38A1 /* test */,
+				8405A58C279907D3001B38A1 /* src */,
+			);
+			path = log;
+			sourceTree = "<group>";
+		};
+		8405A589279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A58A279907D3001B38A1 /* LoggingConfigurationTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A58C279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A58D279907D3001B38A1 /* Log.cpp */,
+				8405A58E279907D3001B38A1 /* Log.h */,
+				8405A58F279907D3001B38A1 /* BlockSink.h */,
+				8405A590279907D3001B38A1 /* LogHookSink.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A591279907D3001B38A1 /* filesystem */ = {
+			isa = PBXGroup;
+			children = (
+				8405A592279907D3001B38A1 /* test */,
+				8405A596279907D3001B38A1 /* src */,
+			);
+			path = filesystem;
+			sourceTree = "<group>";
+		};
+		8405A592279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A593279907D3001B38A1 /* FilesystemTest.cpp */,
+				8405A594279907D3001B38A1 /* PathTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A596279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A597279907D3001B38A1 /* Filesystem.h */,
+				8405A598279907D3001B38A1 /* Path.h */,
+				8405A599279907D3001B38A1 /* Filesystem.cpp */,
+				8405A59A279907D3001B38A1 /* Path.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A59B279907D3001B38A1 /* session */ = {
+			isa = PBXGroup;
+			children = (
+				8405A59C279907D3001B38A1 /* test */,
+				8405A59F279907D3001B38A1 /* src */,
+			);
+			path = session;
+			sourceTree = "<group>";
+		};
+		8405A59C279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A59D279907D3001B38A1 /* SessionControllerTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A59F279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5A0279907D3001B38A1 /* SessionController.h */,
+				8405A5A1279907D3001B38A1 /* SessionController.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5A2279907D3001B38A1 /* logprocess */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5A3279907D3001B38A1 /* test */,
+				8405A5A6279907D3001B38A1 /* src */,
+			);
+			path = logprocess;
+			sourceTree = "<group>";
+		};
+		8405A5A3279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5A4279907D3001B38A1 /* LogProcessorTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5A6279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5A7279907D3001B38A1 /* LogProcessor.cpp */,
+				8405A5A8279907D3001B38A1 /* LogProcessor.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5A9279907D3001B38A1 /* plugin */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5AA279907D3001B38A1 /* test */,
+				8405A5AD279907D3001B38A1 /* src */,
+			);
+			path = plugin;
+			sourceTree = "<group>";
+		};
+		8405A5AA279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5AB279907D3001B38A1 /* PluginRegistryTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5AD279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5AE279907D3001B38A1 /* Plugin.h */,
+				8405A5AF279907D3001B38A1 /* PluginRegistry.h */,
+				8405A5B0279907D3001B38A1 /* Plugin.cpp */,
+				8405A5B1279907D3001B38A1 /* PluginRegistry.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5B2279907D3001B38A1 /* persistence */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5B3279907D3001B38A1 /* test */,
+				8405A5B7279907D3001B38A1 /* testutils */,
+				8405A5BA279907D3001B38A1 /* src */,
+			);
+			path = persistence;
+			sourceTree = "<group>";
+		};
+		8405A5B3279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5B4279907D3001B38A1 /* TraceFileManagerTest.cpp */,
+				8405A5B5279907D3001B38A1 /* TraceFileEventSubjectTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5B7279907D3001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5B8279907D3001B38A1 /* TestTraceFileEventObserver.h */,
+				8405A5B9279907D3001B38A1 /* TestTraceFileEventObserver.cpp */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A5BA279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5BB279907D3001B38A1 /* TraceFileManager.h */,
+				8405A5BC279907D3001B38A1 /* TraceFileEventObserver.cpp */,
+				8405A5BD279907D3001B38A1 /* TraceFileEventSubject.h */,
+				8405A5BE279907D3001B38A1 /* TraceFileManager.cpp */,
+				8405A5BF279907D3001B38A1 /* TraceFileEventSubject.cpp */,
+				8405A5C0279907D3001B38A1 /* TraceFileEventObserver.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5C1279907D3001B38A1 /* scheduler */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5C3279907D3001B38A1 /* src */,
+			);
+			path = scheduler;
+			sourceTree = "<group>";
+		};
+		8405A5C3279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5C4279907D3001B38A1 /* Scheduler.h */,
+				8405A5C5279907D3001B38A1 /* Scheduler.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5C6279907D3001B38A1 /* protobuf */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5C7279907D3001B38A1 /* test */,
+				8405A5CA279907D3001B38A1 /* src */,
+			);
+			path = protobuf;
+			sourceTree = "<group>";
+		};
+		8405A5C7279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5C8279907D3001B38A1 /* ProtobufTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5CA279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5CB279907D3001B38A1 /* Protobuf.cpp */,
+				8405A5CC279907D3001B38A1 /* Protobuf.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5CD279907D3001B38A1 /* exception */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5CE279907D3001B38A1 /* test */,
+				8405A5D1279907D3001B38A1 /* src */,
+			);
+			path = exception;
+			sourceTree = "<group>";
+		};
+		8405A5CE279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5CF279907D3001B38A1 /* ExceptionTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5D1279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5D2279907D3001B38A1 /* Exception.cpp */,
+				8405A5D3279907D3001B38A1 /* Exception.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5D4279907D3001B38A1 /* process */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5D5279907D3001B38A1 /* test */,
+				8405A5D8279907D3001B38A1 /* src */,
+			);
+			path = process;
+			sourceTree = "<group>";
+		};
+		8405A5D5279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5D6279907D3001B38A1 /* ProcessTerminationTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5D8279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5D9279907D3001B38A1 /* Process.cpp */,
+				8405A5DA279907D3001B38A1 /* Process.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5DB279907D3001B38A1 /* memory */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5DD279907D3001B38A1 /* src */,
+			);
+			path = memory;
+			sourceTree = "<group>";
+		};
+		8405A5DD279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5DE279907D3001B38A1 /* Memory.cpp */,
+				8405A5DF279907D3001B38A1 /* Memory.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5E0279907D3001B38A1 /* gate */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5E1279907D3001B38A1 /* test */,
+				8405A5E4279907D3001B38A1 /* src */,
+			);
+			path = gate;
+			sourceTree = "<group>";
+		};
+		8405A5E1279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5E2279907D3001B38A1 /* GateTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5E4279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5E5279907D3001B38A1 /* Gate.h */,
+				8405A5E6279907D3001B38A1 /* Gate.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5E7279907D3001B38A1 /* portability */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5E9279907D3001B38A1 /* src */,
+			);
+			path = portability;
+			sourceTree = "<group>";
+		};
+		8405A5E9279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5EA279907D3001B38A1 /* Compiler.h */,
+				8405A5EB279907D3001B38A1 /* CPU.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5EC279907D3001B38A1 /* ringbuffer */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5ED279907D3001B38A1 /* test */,
+				8405A5F0279907D3001B38A1 /* src */,
+			);
+			path = ringbuffer;
+			sourceTree = "<group>";
+		};
+		8405A5ED279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5EE279907D3001B38A1 /* RingBufferTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5F0279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5F1279907D3001B38A1 /* RingBuffer.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A5F2279907D3001B38A1 /* lz4stream */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5F3279907D3001B38A1 /* test */,
+				8405A5F6279907D3001B38A1 /* src */,
+			);
+			path = lz4stream;
+			sourceTree = "<group>";
+		};
+		8405A5F3279907D3001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5F4279907D3001B38A1 /* LZ4StreamTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A5F6279907D3001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A5F7279907D3001B38A1 /* LZ4Stream.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A640279907ED001B38A1 /* time */ = {
+			isa = PBXGroup;
+			children = (
+				8405A642279907ED001B38A1 /* src */,
+			);
+			path = time;
+			sourceTree = "<group>";
+		};
+		8405A642279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A643279907ED001B38A1 /* Time.h */,
+				8405A644279907ED001B38A1 /* Time.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A645279907ED001B38A1 /* traceid */ = {
+			isa = PBXGroup;
+			children = (
+				8405A646279907ED001B38A1 /* test */,
+				8405A649279907ED001B38A1 /* src */,
+			);
+			path = traceid;
+			sourceTree = "<group>";
+		};
+		8405A646279907ED001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A647279907ED001B38A1 /* TraceIDTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A649279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A64A279907ED001B38A1 /* TraceID.h */,
+				8405A64B279907ED001B38A1 /* TraceID.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A64C279907ED001B38A1 /* traceconsumers */ = {
+			isa = PBXGroup;
+			children = (
+				8405A64D279907ED001B38A1 /* oslog */,
+				8405A653279907ED001B38A1 /* tracefile */,
+			);
+			path = traceconsumers;
+			sourceTree = "<group>";
+		};
+		8405A64D279907ED001B38A1 /* oslog */ = {
+			isa = PBXGroup;
+			children = (
+				8405A64F279907ED001B38A1 /* src */,
+			);
+			path = oslog;
+			sourceTree = "<group>";
+		};
+		8405A64F279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A650279907ED001B38A1 /* OSLogTraceConsumer.cpp */,
+				8405A651279907ED001B38A1 /* OSLogTraceConsumer.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A653279907ED001B38A1 /* tracefile */ = {
+			isa = PBXGroup;
+			children = (
+				8405A654279907ED001B38A1 /* test */,
+				8405A657279907ED001B38A1 /* src */,
+			);
+			path = tracefile;
+			sourceTree = "<group>";
+		};
+		8405A654279907ED001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A655279907ED001B38A1 /* TraceFileTraceConsumerTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A657279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A658279907ED001B38A1 /* TraceFileTraceConsumer.h */,
+				8405A659279907ED001B38A1 /* TraceFileTraceConsumer.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A65A279907ED001B38A1 /* traceio */ = {
+			isa = PBXGroup;
+			children = (
+				8405A65B279907ED001B38A1 /* test */,
+				8405A65E279907ED001B38A1 /* testutils */,
+				8405A661279907ED001B38A1 /* src */,
+			);
+			path = traceio;
+			sourceTree = "<group>";
+		};
+		8405A65B279907ED001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A65C279907ED001B38A1 /* TraceFileWriterTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A65E279907ED001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A65F279907ED001B38A1 /* TraceFileTestUtils.cpp */,
+				8405A660279907ED001B38A1 /* TraceFileTestUtils.h */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A661279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A662279907ED001B38A1 /* TraceFileWriter.h */,
+				8405A663279907ED001B38A1 /* LZ4.h */,
+				8405A664279907ED001B38A1 /* TraceFileWriter.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A665279907ED001B38A1 /* tracelogger */ = {
+			isa = PBXGroup;
+			children = (
+				8405A666279907ED001B38A1 /* test */,
+				8405A66B279907ED001B38A1 /* testutils */,
+				8405A670279907ED001B38A1 /* src */,
+			);
+			path = tracelogger;
+			sourceTree = "<group>";
+		};
+		8405A666279907ED001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A667279907ED001B38A1 /* EntryParserTest.cpp */,
+				8405A668279907ED001B38A1 /* TraceLoggerTest.cpp */,
+				8405A669279907ED001B38A1 /* PacketStreamIDTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A66B279907ED001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A66C279907ED001B38A1 /* TestPacketWriter.h */,
+				8405A66D279907ED001B38A1 /* TestPacketWriter.cpp */,
+				8405A66E279907ED001B38A1 /* TestPacketReader.cpp */,
+				8405A66F279907ED001B38A1 /* TestPacketReader.h */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A670279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A671279907ED001B38A1 /* PacketReader.cpp */,
+				8405A672279907ED001B38A1 /* PacketReader.h */,
+				8405A673279907ED001B38A1 /* TraceLogger.cpp */,
+				8405A674279907ED001B38A1 /* EntryParser.cpp */,
+				8405A675279907ED001B38A1 /* PacketWriter.cpp */,
+				8405A676279907ED001B38A1 /* TraceLogger.h */,
+				8405A677279907ED001B38A1 /* Packet.h */,
+				8405A678279907ED001B38A1 /* EntryParser.h */,
+				8405A679279907ED001B38A1 /* PacketWriter.h */,
+				8405A67A279907ED001B38A1 /* PacketStreamID.cpp */,
+				8405A67B279907ED001B38A1 /* PacketStreamID.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A67C279907ED001B38A1 /* stack */ = {
+			isa = PBXGroup;
+			children = (
+				8405A67E279907ED001B38A1 /* src */,
+			);
+			path = stack;
+			sourceTree = "<group>";
+		};
+		8405A67E279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A67F279907ED001B38A1 /* StackBounds.h */,
+				8405A680279907ED001B38A1 /* StackFrame.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A681279907ED001B38A1 /* trace */ = {
+			isa = PBXGroup;
+			children = (
+				8405A682279907ED001B38A1 /* test */,
+				8405A689279907ED001B38A1 /* testutils */,
+				8405A68E279907ED001B38A1 /* src */,
+			);
+			path = trace;
+			sourceTree = "<group>";
+		};
+		8405A682279907ED001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A683279907ED001B38A1 /* RingBufferPacketReaderWriterTest.cpp */,
+				8405A684279907ED001B38A1 /* TraceControllerTest.cpp */,
+				8405A685279907ED001B38A1 /* TraceBufferConsumerTest.cpp */,
+				8405A686279907ED001B38A1 /* TraceEventSubjectTest.cpp */,
+				8405A687279907ED001B38A1 /* TraceConsumerMultiProxyTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A689279907ED001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A68A279907ED001B38A1 /* TestTraceConsumer.cpp */,
+				8405A68B279907ED001B38A1 /* TestTraceEventObserver.h */,
+				8405A68C279907ED001B38A1 /* TestTraceConsumer.h */,
+				8405A68D279907ED001B38A1 /* TestTraceEventObserver.cpp */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A68E279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A68F279907ED001B38A1 /* RingBufferPacketWriter.h */,
+				8405A690279907ED001B38A1 /* TraceBufferConsumer.cpp */,
+				8405A691279907ED001B38A1 /* TraceEventSubject.cpp */,
+				8405A692279907ED001B38A1 /* TraceConsumerMultiProxy.cpp */,
+				8405A693279907ED001B38A1 /* TraceEventSubject.h */,
+				8405A694279907ED001B38A1 /* TraceConsumer.h */,
+				8405A695279907ED001B38A1 /* TraceConsumerMultiProxy.h */,
+				8405A696279907ED001B38A1 /* RingBufferPacketReader.h */,
+				8405A697279907ED001B38A1 /* TraceController.cpp */,
+				8405A698279907ED001B38A1 /* RingBufferPacketReader.cpp */,
+				8405A699279907ED001B38A1 /* TraceController.h */,
+				8405A69A279907ED001B38A1 /* TraceEventObserver.h */,
+				8405A69B279907ED001B38A1 /* TraceEventObserver.cpp */,
+				8405A69C279907ED001B38A1 /* TraceConsumer.cpp */,
+				8405A69D279907ED001B38A1 /* TraceBufferConsumer.h */,
+				8405A69E279907ED001B38A1 /* RingBufferPacketWriter.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A69F279907ED001B38A1 /* thread */ = {
+			isa = PBXGroup;
+			children = (
+				8405A6A1279907ED001B38A1 /* src */,
+			);
+			path = thread;
+			sourceTree = "<group>";
+		};
+		8405A6A1279907ED001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A6A2279907ED001B38A1 /* Thread.cpp */,
+				8405A6A3279907ED001B38A1 /* Thread.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A6ED279907F4001B38A1 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				8405A6EE279907F4001B38A1 /* test */,
+				8405A6F1279907F4001B38A1 /* src */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
+		8405A6EE279907F4001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A6EF279907F4001B38A1 /* PoolTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A6F1279907F4001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A6F2279907F4001B38A1 /* Pool.h */,
+				8405A6F3279907F4001B38A1 /* spimpl.h */,
+				8405A6F4279907F4001B38A1 /* ThreadPool.h */,
+				8405A6F5279907F4001B38A1 /* ScopeGuard.h */,
+				8405A6F6279907F4001B38A1 /* ArraySize.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A6FE2799094B001B38A1 /* testutils */ = {
+			isa = PBXGroup;
+			children = (
+				8405A7002799094B001B38A1 /* src */,
+			);
+			path = testutils;
+			sourceTree = "<group>";
+		};
+		8405A7002799094B001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A7012799094B001B38A1 /* TestUtils.h */,
+				8405A7022799094B001B38A1 /* ProtobufComparison.h */,
+				8405A7032799094B001B38A1 /* ProtobufComparison.cpp */,
+				8405A7042799094B001B38A1 /* TestUtils.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A70A2799098E001B38A1 /* signals */ = {
+			isa = PBXGroup;
+			children = (
+				8405A70C2799098E001B38A1 /* src */,
+			);
+			path = signals;
+			sourceTree = "<group>";
+		};
+		8405A70C2799098E001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A70D2799098E001B38A1 /* Handling.h */,
+				8405A70E2799098E001B38A1 /* Handling.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A712279909AF001B38A1 /* credentials */ = {
+			isa = PBXGroup;
+			children = (
+				8405A714279909AF001B38A1 /* src */,
+			);
+			path = credentials;
+			sourceTree = "<group>";
+		};
+		8405A714279909AF001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A715279909AF001B38A1 /* Credentials.cpp */,
+				8405A716279909AF001B38A1 /* Credentials.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8405A717279909AF001B38A1 /* configuration */ = {
+			isa = PBXGroup;
+			children = (
+				8405A718279909AF001B38A1 /* test */,
+				8405A71B279909AF001B38A1 /* src */,
+			);
+			name = configuration;
+			path = ../../../../../../Specto/specto/cpp/configuration;
+			sourceTree = "<group>";
+		};
+		8405A718279909AF001B38A1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8405A719279909AF001B38A1 /* GlobalConfigurationTest.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		8405A71B279909AF001B38A1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8405A71C279909AF001B38A1 /* GlobalConfiguration.cpp */,
+				8405A71D279909AF001B38A1 /* GlobalConfiguration.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		8E25C94F25F836AB00DC215B /* Tools */ = {
 			isa = PBXGroup;
 			children = (
@@ -2341,8 +3710,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8405A56727990731001B38A1 /* Mach.h in Headers */,
 				8E133FA625E72EB400ABD0BF /* SentrySamplingContext.h in Headers */,
 				8E4E7C7425DAAB49006AB9E2 /* SentrySpanProtocol.h in Headers */,
+				8405A604279907D3001B38A1 /* Filesystem.h in Headers */,
 				8EC4CF4A25C38DAA0093DEE9 /* SentrySpanStatus.h in Headers */,
 				8ECC673D25C23996000E2BF6 /* SentrySpanId.h in Headers */,
 				8ECC673E25C23996000E2BF6 /* SentrySpanContext.h in Headers */,
@@ -2353,26 +3724,36 @@
 				63FE717720DA4C1100CDBAE8 /* SentryCrashReportWriter.h in Headers */,
 				7B4E23BE251A2BD500060D68 /* SentrySessionCrashedHandler.h in Headers */,
 				7B88F2FE24BC5A4C00ADF90A /* SentrySdkInfo.h in Headers */,
+				8405A6B6279907ED001B38A1 /* TraceFileTestUtils.h in Headers */,
 				7BCFBD672681C95000BC27D8 /* SentryScopeObserver.h in Headers */,
 				D88817DA26D72AB800BF2251 /* SentryTraceState.h in Headers */,
 				7B6C5F8126034354007F7DFF /* SentryOutOfMemoryLogic.h in Headers */,
+				8405A6E4279907ED001B38A1 /* TraceController.h in Headers */,
 				63FE708520DA4C1000CDBAE8 /* SentryCrashReportFilter.h in Headers */,
 				D8ACE3CD2762187D00F5A213 /* SentryNSDataSwizzling.h in Headers */,
 				8EAE980C261E9F530073B6B3 /* SentryUIViewControllerPerformanceTracker.h in Headers */,
+				8405A5FE279907D3001B38A1 /* Log.h in Headers */,
+				8405A62B279907D3001B38A1 /* Exception.h in Headers */,
 				63FE717D20DA4C1100CDBAE8 /* SentryCrashCachedData.h in Headers */,
 				7BBC826D25DFCFDE005F1ED8 /* SentryInAppLogic.h in Headers */,
 				7B0A54222521C21E00A71716 /* SentryFrameRemover.h in Headers */,
+				8405A61D279907D3001B38A1 /* TraceFileEventSubject.h in Headers */,
 				63FE70CD20DA4C1000CDBAE8 /* SentryCrashDoctor.h in Headers */,
+				8405A605279907D3001B38A1 /* Path.h in Headers */,
+				8405A6BE279907ED001B38A1 /* TestPacketWriter.h in Headers */,
 				7B6438AA26A70F24000D0F65 /* UIViewController+Sentry.h in Headers */,
 				639FCFAC1EBC811400778193 /* SentryUser.h in Headers */,
 				7D7F0A5F23DF3D2C00A4629C /* SentryGlobalEventProcessor.h in Headers */,
+				8405A6EC279907ED001B38A1 /* Thread.h in Headers */,
 				7B82D54524E2A05500EE670F /* SentryId.h in Headers */,
 				63FE716520DA4C1100CDBAE8 /* SentryCrashMemory.h in Headers */,
 				7B6D125F265F778500C9BE4B /* PrivateSentrySDKOnly.h in Headers */,
 				63FE713F20DA4C1100CDBAE8 /* SentryCrashStackCursor_SelfThread.h in Headers */,
 				639FCFA41EBC809A00778193 /* SentryStacktrace.h in Headers */,
+				8405A6FD279907F4001B38A1 /* ArraySize.h in Headers */,
 				63FE716320DA4C1100CDBAE8 /* SentryCrashDynamicLinker.h in Headers */,
 				639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */,
+				8405A6E5279907ED001B38A1 /* TraceEventObserver.h in Headers */,
 				8E4E7C6D25DAAAFE006AB9E2 /* SentryTransaction.h in Headers */,
 				63FE715D20DA4C1100CDBAE8 /* SentryCrashSymbolicator.h in Headers */,
 				D8ACE3CF2762187D00F5A213 /* SentryFileIOTrackingIntegration.h in Headers */,
@@ -2382,38 +3763,53 @@
 				63AA769A1EB9C1C200D153DE /* SentryLog.h in Headers */,
 				7B56D73124616CCD00B842DA /* SentryConcurrentRateLimitsDictionary.h in Headers */,
 				63FE714D20DA4C1100CDBAE8 /* SentryCrashJSONCodec.h in Headers */,
+				8405A63F279907D3001B38A1 /* LZ4Stream.h in Headers */,
+				8405A6D8279907ED001B38A1 /* TestTraceConsumer.h in Headers */,
 				7BAF3DD4243DD40F008A5414 /* SentryTransportFactory.h in Headers */,
 				63FE717F20DA4C1100CDBAE8 /* SentryCrashReportFields.h in Headers */,
 				7BE912AB272162AF00E49E62 /* SentryNoOpSpan.h in Headers */,
 				63FE70D120DA4C1000CDBAE8 /* SentryCrashMonitorContext.h in Headers */,
 				63B818F91EC34639002FDF4C /* SentryDebugMeta.h in Headers */,
+				8405A6CA279907ED001B38A1 /* PacketWriter.h in Headers */,
 				6360850D1ED2AFE100E8599E /* SentryBreadcrumb.h in Headers */,
+				8405A55227990730001B38A1 /* ThreadMetadataCache.h in Headers */,
 				8EE3251C261FE33B00DC3FF2 /* SentryUIViewControllerSanitizer.h in Headers */,
 				7BAF3DD92440AEC8008A5414 /* SentryRequestManager.h in Headers */,
 				7BE3C77B2446111500A38442 /* SentryRateLimitParser.h in Headers */,
 				7D0637032382B34300B30749 /* SentryScope.h in Headers */,
+				8405A6B8279907ED001B38A1 /* LZ4.h in Headers */,
 				63295AF51EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h in Headers */,
 				8E4A037825F6F52100000D77 /* SentrySampleDecision.h in Headers */,
 				63FE717920DA4C1100CDBAE8 /* SentryCrashReportStore.h in Headers */,
 				A839D89824864B80003B7AFD /* SentrySystemEventBreadcrumbs.h in Headers */,
 				7B14089624878F090035403D /* SentryCrashStackEntryMapper.h in Headers */,
+				8405A6B7279907ED001B38A1 /* TraceFileWriter.h in Headers */,
 				63FE714920DA4C1100CDBAE8 /* SentryCrashStackCursor_Backtrace.h in Headers */,
+				8405A6E0279907ED001B38A1 /* TraceConsumerMultiProxy.h in Headers */,
 				7BFC169B2524995700FF6266 /* SentryMessage.h in Headers */,
 				63AA76991EB9C1C200D153DE /* SentryDefines.h in Headers */,
+				8405A627279907D3001B38A1 /* Protobuf.h in Headers */,
 				63FE70CF20DA4C1000CDBAE8 /* SentryCrashMonitor_User.h in Headers */,
 				8EAE980B261E9F530073B6B3 /* SentryPerformanceTracker.h in Headers */,
 				63FE718520DA4C1100CDBAE8 /* SentryCrashC.h in Headers */,
 				8EA1ED0D2669028C00E62B98 /* SentryUIViewControllerSwizzling.h in Headers */,
+				8405A620279907D3001B38A1 /* TraceFileEventObserver.h in Headers */,
 				7B98D7E425FB7A7200C5A389 /* SentryAppState.h in Headers */,
+				8405A6FB279907F4001B38A1 /* ThreadPool.h in Headers */,
 				7BDEAA022632A4580001EA25 /* SentryOptions+Private.h in Headers */,
+				8405A6DA279907ED001B38A1 /* RingBufferPacketWriter.h in Headers */,
 				15E0A8EA240F2C9000F044E3 /* SentrySerialization.h in Headers */,
 				63FE70EF20DA4C1000CDBAE8 /* SentryCrashMonitor_AppState.h in Headers */,
+				8405A58227990789001B38A1 /* Debugger.h in Headers */,
 				635B3F381EBC6E2500A6176D /* SentryAsynchronousOperation.h in Headers */,
 				7BBD18972449DC1D00427C76 /* SentryRateLimits.h in Headers */,
+				8405A622279907D3001B38A1 /* Scheduler.h in Headers */,
+				8405A54B27990730001B38A1 /* Symbolicate.h in Headers */,
 				7B3B473025D6CBFC00D01640 /* SentryNSError.h in Headers */,
 				630436101EC0600A00C4D3FA /* SentrySerializable.h in Headers */,
 				63FE70DD20DA4C1000CDBAE8 /* SentryCrashMonitor_Signal.h in Headers */,
 				63FE710320DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h in Headers */,
+				8405A5FA279907D3001B38A1 /* IO.h in Headers */,
 				D8479328278873A100BE8E99 /* SentryByteCountFormatter.h in Headers */,
 				63AA76981EB9C1C200D153DE /* SentryClient.h in Headers */,
 				63AA76971EB9C1C200D153DE /* Sentry.h in Headers */,
@@ -2421,44 +3817,69 @@
 				7BC3936825B1AB3E004F03D3 /* SentryLevelMapper.h in Headers */,
 				8E4E7C6E25DAAAFE006AB9E2 /* SentrySpan.h in Headers */,
 				D8ACE3CE2762187D00F5A213 /* SentryNSDataTracker.h in Headers */,
+				8405A60A279907D3001B38A1 /* SessionController.h in Headers */,
 				631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */,
+				8405A63C279907D3001B38A1 /* RingBuffer.h in Headers */,
 				7B3398632459C14000BD9C96 /* SentryEnvelopeRateLimit.h in Headers */,
 				6304360A1EC0595B00C4D3FA /* NSData+SentryCompression.h in Headers */,
 				7BF9EF7C2722B90E00B5BBEF /* SentryDefaultObjCRuntimeWrapper.h in Headers */,
 				63FE718720DA4C1100CDBAE8 /* SentryCrashReportVersion.h in Headers */,
+				8405A639279907D3001B38A1 /* CPU.h in Headers */,
 				8E7C98312693E1CC00E6336C /* SentryTraceHeader.h in Headers */,
 				7BBD18912449BE9000427C76 /* SentryDefaultRateLimits.h in Headers */,
 				7B8713AE26415ADF006D6004 /* SentryAppStartTrackingIntegration.h in Headers */,
 				7B7D873224864BB900D2ECFF /* SentryCrashMachineContextWrapper.h in Headers */,
+				8405A6C8279907ED001B38A1 /* Packet.h in Headers */,
 				861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */,
+				8405A56027990731001B38A1 /* ThreadPriority.h in Headers */,
 				63FE712320DA4C1000CDBAE8 /* SentryCrashID.h in Headers */,
 				7DC27EC523997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.h in Headers */,
 				63FE707F20DA4C1000CDBAE8 /* SentryCrashVarArgs.h in Headers */,
+				8405A632279907D3001B38A1 /* Memory.h in Headers */,
+				8405A635279907D3001B38A1 /* Gate.h in Headers */,
+				8405A56327990731001B38A1 /* ThreadHandle.h in Headers */,
 				7BB654FB253DC14A00887E87 /* SentryUserFeedback.h in Headers */,
 				7B8ECBFA26498907005FE2EF /* SentryAppStateManager.h in Headers */,
 				639FCFA01EBC804600778193 /* SentryException.h in Headers */,
 				7BA235632600B61200E12865 /* SentryInternalNotificationNames.h in Headers */,
 				7BAF3DB9243C9777008A5414 /* SentryTransport.h in Headers */,
 				6383953623ABA42C000C1594 /* SentryHttpTransport.h in Headers */,
+				8405A56E27990770001B38A1 /* Device.h in Headers */,
 				8E564AEF267AF24400FE117D /* SentryNetworkTracker.h in Headers */,
 				63FE715120DA4C1100CDBAE8 /* SentryCrashDebug.h in Headers */,
 				63FE70F520DA4C1000CDBAE8 /* SentryCrashMonitor_System.h in Headers */,
+				8405A6A5279907ED001B38A1 /* Time.h in Headers */,
 				7BE3C7672445C0CA00A38442 /* SentryCurrentDate.h in Headers */,
 				7B31C291277B04A000337126 /* SentryCrashPlatformSpecificDefines.h in Headers */,
+				8405A619279907D3001B38A1 /* TestTraceFileEventObserver.h in Headers */,
 				7B610D602512390E00B0B5D9 /* SentrySDK+Private.h in Headers */,
 				7BE3C76F2445C2F800A38442 /* SentryDefaultCurrentDateProvider.h in Headers */,
 				7B6C5EE0264E8E050010D138 /* SentryFramesTracker.h in Headers */,
 				63FE715720DA4C1100CDBAE8 /* SentryCrashThread.h in Headers */,
+				8405A6C7279907ED001B38A1 /* TraceLogger.h in Headers */,
+				8405A638279907D3001B38A1 /* Compiler.h in Headers */,
+				8405A6AD279907ED001B38A1 /* OSLogTraceConsumer.h in Headers */,
 				7BF9EF862722D10600B5BBEF /* SentryTestObjCRuntimeWrapper.h in Headers */,
 				15360CD2243277A000112302 /* SentrySessionTracker.h in Headers */,
+				8405A6B1279907ED001B38A1 /* TraceFileTraceConsumer.h in Headers */,
+				8405A6A9279907ED001B38A1 /* TraceID.h in Headers */,
 				63FE718B20DA4C1100CDBAE8 /* SentryCrashReport.h in Headers */,
 				7D0FCFB22379B915004DD83A /* SentryHub.h in Headers */,
+				8405A6C1279907ED001B38A1 /* TestPacketReader.h in Headers */,
 				7B7A30C624B48321005A4C6E /* SentryCrashAdapter.h in Headers */,
 				63FE717120DA4C1100CDBAE8 /* SentryCrashSystemCapabilities.h in Headers */,
 				7BE1E33224F7E3B6009D3AD0 /* SentryMigrateSessionInit.h in Headers */,
+				8405A55B27990731001B38A1 /* Log.h in Headers */,
 				632F43501F581D5400A18A36 /* SentryCrashExceptionApplication.h in Headers */,
+				8405A54E27990730001B38A1 /* Backtrace.h in Headers */,
+				8405A5FF279907D3001B38A1 /* BlockSink.h in Headers */,
 				7B85DC1E24EFAFCD007D01D2 /* SentryClient+Private.h in Headers */,
+				8405A6F9279907F4001B38A1 /* Pool.h in Headers */,
+				8405A6CE279907ED001B38A1 /* StackBounds.h in Headers */,
+				8405A6DE279907ED001B38A1 /* TraceEventSubject.h in Headers */,
 				7BF9EF762722B34700B5BBEF /* SentrySubClassFinder.h in Headers */,
+				8405A6C9279907ED001B38A1 /* EntryParser.h in Headers */,
+				8405A6E1279907ED001B38A1 /* RingBufferPacketReader.h in Headers */,
 				7BC852332458802C005A70F0 /* SentryRateLimitCategoryMapper.h in Headers */,
 				7BDB03B7251364F800BAE198 /* SentryDispatchQueueWrapper.h in Headers */,
 				7BF9EF842722D07B00B5BBEF /* SentryObjCRuntimeWrapper.h in Headers */,
@@ -2466,8 +3887,12 @@
 				632331F9240506DF008D91D6 /* SentryScope+Private.h in Headers */,
 				63FE712B20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */,
 				7BA61CBF247CEA8100C130A8 /* SentryHexAddressFormatter.h in Headers */,
+				8405A6C3279907ED001B38A1 /* PacketReader.h in Headers */,
 				7B8713B226415B7A006D6004 /* SentryAppStartTracker.h in Headers */,
 				D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */,
+				8405A724279909AF001B38A1 /* GlobalConfiguration.h in Headers */,
+				8405A6CC279907ED001B38A1 /* PacketStreamID.h in Headers */,
+				8405A6FA279907F4001B38A1 /* spimpl.h in Headers */,
 				7B96572026830C9100C66E25 /* SentryScopeSyncC.h in Headers */,
 				63FE70EB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h in Headers */,
 				7BC8522F24581096005A70F0 /* SentryFileContents.h in Headers */,
@@ -2480,15 +3905,19 @@
 				63FE70F920DA4C1000CDBAE8 /* SentryCrashMonitor.h in Headers */,
 				63FE70F720DA4C1000CDBAE8 /* SentryCrashMonitor_Deadlock.h in Headers */,
 				7B98D7CB25FB64EC00C5A389 /* SentryOutOfMemoryTrackingIntegration.h in Headers */,
+				8405A720279909AF001B38A1 /* Credentials.h in Headers */,
 				7B6C5ED2264E5D6C0010D138 /* SentryTransaction+Private.h in Headers */,
 				63FE710920DA4C1000CDBAE8 /* SentryCrashFileUtils.h in Headers */,
 				7BE3C76B2445C27A00A38442 /* SentryCurrentDateProvider.h in Headers */,
 				6344DDB41EC309E000D9160D /* SentryCrashReportSink.h in Headers */,
+				8405A60F279907D3001B38A1 /* LogProcessor.h in Headers */,
+				8405A56127990731001B38A1 /* ThreadState.h in Headers */,
 				7D427C62237B1D200046BAC8 /* SentrySDK.h in Headers */,
 				7B9657252683104C00C66E25 /* NSData+Sentry.h in Headers */,
 				7B6C5EDA264E8D860010D138 /* SentryFramesTrackingIntegration.h in Headers */,
 				63FE713920DA4C1100CDBAE8 /* SentryCrashMach.h in Headers */,
 				63EED6BE2237923600E02400 /* SentryOptions.h in Headers */,
+				8405A61B279907D3001B38A1 /* TraceFileManager.h in Headers */,
 				7BD86EC5264A63F6005439DB /* SentrySysctl.h in Headers */,
 				63BE85701ECEC6DE00DC44F5 /* NSDate+SentryExtras.h in Headers */,
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
@@ -2504,6 +3933,7 @@
 				7BA61E8A25F21A3A0008CAA2 /* SentryLogOutput.h in Headers */,
 				7BBD1889244841EC00427C76 /* SentryHttpDateParser.h in Headers */,
 				7D9B07A023D1E89900C5FC8E /* SentryMeta.h in Headers */,
+				8405A7102799098E001B38A1 /* Handling.h in Headers */,
 				7B4E375525822C4500059C93 /* SentryAttachment.h in Headers */,
 				63FE716F20DA4C1100CDBAE8 /* SentryCrashCPU_Apple.h in Headers */,
 				639FCFA81EBC80CC00778193 /* SentryFrame.h in Headers */,
@@ -2512,11 +3942,16 @@
 				639889BB1EDED18400EA7442 /* SentrySwizzle.h in Headers */,
 				7BF9EF722722A84800B5BBEF /* SentryClassRegistrator.h in Headers */,
 				63FE715520DA4C1100CDBAE8 /* SentryCrashStackCursor_MachineContext.h in Headers */,
+				8405A57A27990780001B38A1 /* GlobalConfiguration.h in Headers */,
+				8405A54D27990730001B38A1 /* SamplingProfiler.h in Headers */,
 				15360CF02433A16D00112302 /* SentryInstallation.h in Headers */,
+				8405A6FC279907F4001B38A1 /* ScopeGuard.h in Headers */,
 				63FE714720DA4C1100CDBAE8 /* SentryCrashMachineContext.h in Headers */,
+				8405A55827990731001B38A1 /* MemoryMappedImages.h in Headers */,
 				7BA61CAB247BA98100C130A8 /* SentryDebugImageProvider.h in Headers */,
 				638DC9A01EBC6B6400A66E41 /* SentryRequestOperation.h in Headers */,
 				7B7A599526B692540060A676 /* SentryScreenFrames.h in Headers */,
+				8405A55527990730001B38A1 /* TraceConsumerUtil.h in Headers */,
 				6344DDB01EC308E400D9160D /* SentryCrashInstallationReporter.h in Headers */,
 				8E25C95725F836EE00DC215B /* SentryRandom.h in Headers */,
 				63FE70ED20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h in Headers */,
@@ -2531,6 +3966,8 @@
 				7DC83100239826280043DD9A /* SentryIntegrationProtocol.h in Headers */,
 				7B98D7BC25FB607300C5A389 /* SentryOutOfMemoryTracker.h in Headers */,
 				7BA61CB9247BC57B00C130A8 /* SentryCrashDefaultBinaryImageProvider.h in Headers */,
+				8405A600279907D3001B38A1 /* LogHookSink.h in Headers */,
+				8405A612279907D3001B38A1 /* Plugin.h in Headers */,
 				8E4E7C7D25DAB287006AB9E2 /* SentryTracer.h in Headers */,
 				7BC8523724588115005A70F0 /* SentryRateLimitCategory.h in Headers */,
 				63FE714B20DA4C1100CDBAE8 /* SentryCrashString.h in Headers */,
@@ -2540,14 +3977,23 @@
 				7B4E24FC251C97B500060D68 /* SentrySession.h in Headers */,
 				7B7D872C2486480B00D2ECFF /* SentryStacktraceBuilder.h in Headers */,
 				6334314120AD9AE40077E581 /* SentryMechanism.h in Headers */,
+				8405A6E8279907ED001B38A1 /* TraceBufferConsumer.h in Headers */,
+				8405A6D7279907ED001B38A1 /* TestTraceEventObserver.h in Headers */,
+				8405A7062799094B001B38A1 /* TestUtils.h in Headers */,
 				7B610D642512399600B0B5D9 /* SentryHub+Private.h in Headers */,
+				8405A6DF279907ED001B38A1 /* TraceConsumer.h in Headers */,
 				639FCF9C1EBC7F9500778193 /* SentryThread.h in Headers */,
 				63FE716B20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.h in Headers */,
 				63AA76A51EB9CBC200D153DE /* SentryDsn.h in Headers */,
+				8405A7072799094B001B38A1 /* ProtobufComparison.h in Headers */,
+				8405A613279907D3001B38A1 /* PluginRegistry.h in Headers */,
 				636085131ED47BE600E8599E /* SentryFileManager.h in Headers */,
 				7BD729962463E83300EA3610 /* SentryDateUtil.h in Headers */,
+				8405A62F279907D3001B38A1 /* Process.h in Headers */,
 				63FE707B20DA4C1000CDBAE8 /* Container+SentryDeepSearch.h in Headers */,
+				8405A6CF279907ED001B38A1 /* StackFrame.h in Headers */,
 				6344DDB91EC3115C00D9160D /* SentryCrashReportConverter.h in Headers */,
+				8405A56427990731001B38A1 /* MemorySafety.h in Headers */,
 				71F116E8F40D530BB68A2987 /* SentryCrashUUIDConversion.h in Headers */,
 				A2475E1725FB63AF007D9080 /* SentryHook.h in Headers */,
 			);
@@ -2661,48 +4107,80 @@
 				7BD86ED1264A7CF6005439DB /* SentryAppStartMeasurement.m in Sources */,
 				7DC27EC723997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m in Sources */,
 				63FE717B20DA4C1100CDBAE8 /* SentryCrashReport.c in Sources */,
+				8405A6D0279907ED001B38A1 /* RingBufferPacketReaderWriterTest.cpp in Sources */,
+				8405A7082799094B001B38A1 /* ProtobufComparison.cpp in Sources */,
+				8405A55027990730001B38A1 /* ThreadMetadataCache.cpp in Sources */,
 				7B7A599726B692F00060A676 /* SentryScreenFrames.m in Sources */,
+				8405A55427990730001B38A1 /* TraceConsumerUtil.cpp in Sources */,
 				7B3398652459C15200BD9C96 /* SentryEnvelopeRateLimit.m in Sources */,
+				8405A6B5279907ED001B38A1 /* TraceFileTestUtils.cpp in Sources */,
+				8405A6DC279907ED001B38A1 /* TraceEventSubject.cpp in Sources */,
+				8405A6BC279907ED001B38A1 /* PacketStreamIDTest.cpp in Sources */,
 				A2475E1F25FB648B007D9080 /* fishhook.c in Sources */,
 				631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */,
 				7B8713B426415BAA006D6004 /* SentryAppStartTracker.m in Sources */,
+				8405A60E279907D3001B38A1 /* LogProcessor.cpp in Sources */,
+				8405A5FB279907D3001B38A1 /* LoggingConfigurationTest.cpp in Sources */,
 				7BDB03BB2513652900BAE198 /* SentryDispatchQueueWrapper.m in Sources */,
+				8405A615279907D3001B38A1 /* PluginRegistry.cpp in Sources */,
+				8405A55127990730001B38A1 /* Backtrace.cpp in Sources */,
 				7B6C5EDE264E8DF00010D138 /* SentryFramesTracker.m in Sources */,
 				7B6438AB26A70F24000D0F65 /* UIViewController+Sentry.m in Sources */,
 				63AA76A31EB9CBAA00D153DE /* SentryDsn.m in Sources */,
 				63B818FA1EC34639002FDF4C /* SentryDebugMeta.m in Sources */,
+				8405A61F279907D3001B38A1 /* TraceFileEventSubject.cpp in Sources */,
 				7B98D7D325FB65AE00C5A389 /* SentryOutOfMemoryTracker.m in Sources */,
 				8E564AE8267AF22600FE117D /* SentryNetworkTrackingIntegration.m in Sources */,
 				63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */,
+				8405A610279907D3001B38A1 /* PluginRegistryTest.cpp in Sources */,
+				8405A721279909AF001B38A1 /* GlobalConfigurationTest.cpp in Sources */,
 				7B7D873624864C9D00D2ECFF /* SentryCrashDefaultMachineContextWrapper.m in Sources */,
+				8405A602279907D3001B38A1 /* PathTest.cpp in Sources */,
+				8405A54827990730001B38A1 /* SamplingProfilerTest.cpp in Sources */,
 				63FE712F20DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */,
 				7B3B473825D6CC7E00D01640 /* SentryNSError.m in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryNSDataTracker.m in Sources */,
 				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,
+				8405A614279907D3001B38A1 /* Plugin.cpp in Sources */,
+				8405A55D27990731001B38A1 /* ThreadHandleTest.cpp in Sources */,
 				8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */,
+				8405A6E6279907ED001B38A1 /* TraceEventObserver.cpp in Sources */,
+				8405A6C6279907ED001B38A1 /* PacketWriter.cpp in Sources */,
 				7B9657262683104C00C66E25 /* NSData+Sentry.m in Sources */,
+				8405A61C279907D3001B38A1 /* TraceFileEventObserver.cpp in Sources */,
+				8405A54F27990730001B38A1 /* SamplingProfiler.cpp in Sources */,
 				15E0A8ED240F2CB000F044E3 /* SentrySerialization.m in Sources */,
+				8405A6D9279907ED001B38A1 /* TestTraceEventObserver.cpp in Sources */,
 				7BC85235245880AE005A70F0 /* SentryRateLimitCategoryMapper.m in Sources */,
 				7B7A30C824B48389005A4C6E /* SentryCrashAdapter.m in Sources */,
+				8405A61A279907D3001B38A1 /* TestTraceFileEventObserver.cpp in Sources */,
 				D8ACE3C92762187200F5A213 /* SentryFileIOTrackingIntegration.m in Sources */,
 				63FE713B20DA4C1100CDBAE8 /* SentryCrashFileUtils.c in Sources */,
+				8405A60B279907D3001B38A1 /* SessionController.cpp in Sources */,
 				63FE716920DA4C1100CDBAE8 /* SentryCrashStackCursor.c in Sources */,
 				7BA61CCA247D128B00C130A8 /* SentryThreadInspector.m in Sources */,
+				8405A723279909AF001B38A1 /* GlobalConfiguration.cpp in Sources */,
 				63FE718D20DA4C1100CDBAE8 /* SentryCrashReportStore.c in Sources */,
+				8405A7112799098E001B38A1 /* Handling.cpp in Sources */,
 				63FE712920DA4C1000CDBAE8 /* SentryCrashCPU_arm.c in Sources */,
 				7B88F30024BC5A7D00ADF90A /* SentrySdkInfo.m in Sources */,
+				8405A607279907D3001B38A1 /* Path.cpp in Sources */,
 				15360CD62432832400112302 /* SentryAutoSessionTrackingIntegration.m in Sources */,
 				7BF9EF782722B35D00B5BBEF /* SentrySubClassFinder.m in Sources */,
 				7BE3C7692445C1A800A38442 /* SentryCurrentDate.m in Sources */,
 				63EED6C02237923600E02400 /* SentryOptions.m in Sources */,
 				D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */,
 				63AA769E1EB9C57A00D153DE /* SentryError.m in Sources */,
+				8405A617279907D3001B38A1 /* TraceFileEventSubjectTest.cpp in Sources */,
 				7B8713B026415B22006D6004 /* SentryAppStartTrackingIntegration.m in Sources */,
 				8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */,
 				7B6C5F8726034395007F7DFF /* SentryOutOfMemoryLogic.m in Sources */,
 				7BBC827125DFD039005F1ED8 /* SentryInAppLogic.m in Sources */,
 				63FE708D20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */,
+				8405A6C2279907ED001B38A1 /* PacketReader.cpp in Sources */,
+				8405A61E279907D3001B38A1 /* TraceFileManager.cpp in Sources */,
 				63FE718120DA4C1100CDBAE8 /* SentryCrashDoctor.m in Sources */,
+				8405A6E9279907ED001B38A1 /* RingBufferPacketWriter.cpp in Sources */,
 				63FE713720DA4C1100CDBAE8 /* SentryCrashCPU_x86_64.c in Sources */,
 				63FE70D920DA4C1000CDBAE8 /* SentryCrashMonitor_Deadlock.m in Sources */,
 				8ECC674725C23A20000E2BF6 /* SentrySpanContext.m in Sources */,
@@ -2715,25 +4193,38 @@
 				63FE711D20DA4C1000CDBAE8 /* SentryCrashCPU_arm64.c in Sources */,
 				630435FF1EBCA9D900C4D3FA /* SentryNSURLRequest.m in Sources */,
 				639FCFA11EBC804600778193 /* SentryException.m in Sources */,
+				8405A616279907D3001B38A1 /* TraceFileManagerTest.cpp in Sources */,
 				7BA61CAD247BAA0B00C130A8 /* SentryDebugImageProvider.m in Sources */,
 				63FE70E720DA4C1000CDBAE8 /* SentryCrashMonitor.c in Sources */,
+				8405A54927990730001B38A1 /* BacktraceTest.cpp in Sources */,
+				8405A6DD279907ED001B38A1 /* TraceConsumerMultiProxy.cpp in Sources */,
 				7D5C441C237C2E1F00DAB0A3 /* SentryHub.m in Sources */,
 				63FE715920DA4C1100CDBAE8 /* SentryCrashCPU_x86_32.c in Sources */,
 				7BE912AD272162D900E49E62 /* SentryNoOpSpan.m in Sources */,
 				63FE710D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c in Sources */,
+				8405A6C5279907ED001B38A1 /* EntryParser.cpp in Sources */,
 				63FE70E120DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp in Sources */,
 				A839D89A24864BA8003B7AFD /* SentrySystemEventBreadcrumbs.m in Sources */,
+				8405A58127990789001B38A1 /* Debugger.cpp in Sources */,
 				7D082B8323C628790029866B /* SentryMeta.m in Sources */,
 				63FE710720DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.c in Sources */,
+				8405A56227990731001B38A1 /* MemorySafety.cpp in Sources */,
 				63FE711120DA4C1000CDBAE8 /* SentryCrashDebug.c in Sources */,
 				7B883F49253D714C00879E62 /* SentryCrashUUIDConversion.c in Sources */,
 				63FE716720DA4C1100CDBAE8 /* SentryCrashCPU.c in Sources */,
+				8405A6AA279907ED001B38A1 /* TraceID.cpp in Sources */,
 				63FE717320DA4C1100CDBAE8 /* SentryCrashC.c in Sources */,
+				8405A62E279907D3001B38A1 /* Process.cpp in Sources */,
 				63FE712120DA4C1000CDBAE8 /* SentryCrashSymbolicator.c in Sources */,
+				8405A628279907D3001B38A1 /* ExceptionTest.cpp in Sources */,
+				8405A54C27990730001B38A1 /* Symbolicate.cpp in Sources */,
+				8405A6DB279907ED001B38A1 /* TraceBufferConsumer.cpp in Sources */,
 				A2475E1B25FB63D7007D9080 /* SentryHook.c in Sources */,
 				63FE70D720DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.c in Sources */,
+				8405A606279907D3001B38A1 /* Filesystem.cpp in Sources */,
 				7B96572226830D2400C66E25 /* SentryScopeSyncC.c in Sources */,
 				7BBD188B244841FB00427C76 /* SentryHttpDateParser.m in Sources */,
+				8405A626279907D3001B38A1 /* Protobuf.cpp in Sources */,
 				8E4E7C8225DAB2A5006AB9E2 /* SentryTracer.m in Sources */,
 				15E0A8E5240C457D00F044E3 /* SentryEnvelope.m in Sources */,
 				8EC3AE7A25CA23B600E7591A /* SentrySpan.m in Sources */,
@@ -2741,78 +4232,117 @@
 				7B56D73324616D9500B842DA /* SentryConcurrentRateLimitsDictionary.m in Sources */,
 				8ECC674825C23A20000E2BF6 /* SentryTransaction.m in Sources */,
 				7BECF42826145CD900D9826E /* SentryMechanismMeta.m in Sources */,
+				8405A6B9279907ED001B38A1 /* TraceFileWriter.cpp in Sources */,
+				8405A55F27990731001B38A1 /* ThreadHandle.cpp in Sources */,
 				8E7C982F2693D56000E6336C /* SentryTraceHeader.m in Sources */,
 				63FE715F20DA4C1100CDBAE8 /* SentryCrashID.c in Sources */,
 				7DB3A687238EA75E00A2D442 /* SentryHttpTransport.m in Sources */,
 				63FE70D520DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.m in Sources */,
 				7B0A54282521C22C00A71716 /* SentryFrameRemover.m in Sources */,
 				7B6C5EDC264E8DA80010D138 /* SentryFramesTrackingIntegration.m in Sources */,
+				8405A6BA279907ED001B38A1 /* EntryParserTest.cpp in Sources */,
 				63295AF71EF3C7DB002D4490 /* NSDictionary+SentrySanitize.m in Sources */,
 				7B8ECBFC26498958005FE2EF /* SentryAppStateManager.m in Sources */,
 				7B82D54724E2A1AB00EE670F /* SentryId.m in Sources */,
 				D8ACE3C72762187200F5A213 /* SentryNSDataSwizzling.m in Sources */,
+				8405A6A7279907ED001B38A1 /* TraceIDTest.cpp in Sources */,
 				638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */,
 				63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */,
 				6344DDBA1EC3115C00D9160D /* SentryCrashReportConverter.m in Sources */,
 				63FE70FD20DA4C1000CDBAE8 /* SentryCrashCachedData.c in Sources */,
 				8EE32518261FE27B00DC3FF2 /* SentryUIViewControllerSanitizer.m in Sources */,
 				7BE1E33424F7E3CB009D3AD0 /* SentryMigrateSessionInit.m in Sources */,
+				8405A6D1279907ED001B38A1 /* TraceControllerTest.cpp in Sources */,
+				8405A6D6279907ED001B38A1 /* TestTraceConsumer.cpp in Sources */,
 				15E0A8F22411A45A00F044E3 /* SentrySession.m in Sources */,
 				7B6D1261265F784000C9BE4B /* SentryHybridSKdsOnly.m in Sources */,
+				8405A60C279907D3001B38A1 /* LogProcessorTest.cpp in Sources */,
+				8405A62C279907D3001B38A1 /* ProcessTerminationTest.cpp in Sources */,
+				8405A6E7279907ED001B38A1 /* TraceConsumer.cpp in Sources */,
+				8405A608279907D3001B38A1 /* SessionControllerTest.cpp in Sources */,
+				8405A6AF279907ED001B38A1 /* TraceFileTraceConsumerTest.cpp in Sources */,
 				63BE85711ECEC6DE00DC44F5 /* NSDate+SentryExtras.m in Sources */,
+				8405A71F279909AF001B38A1 /* Credentials.cpp in Sources */,
 				63FE712720DA4C1000CDBAE8 /* SentryCrashThread.c in Sources */,
+				8405A6C0279907ED001B38A1 /* TestPacketReader.cpp in Sources */,
+				8405A7092799094B001B38A1 /* TestUtils.cpp in Sources */,
+				8405A6E2279907ED001B38A1 /* TraceController.cpp in Sources */,
+				8405A6D4279907ED001B38A1 /* TraceConsumerMultiProxyTest.cpp in Sources */,
 				15360CCF2432777500112302 /* SentrySessionTracker.m in Sources */,
 				6334314320AD9AE40077E581 /* SentryMechanism.m in Sources */,
 				63FE70D320DA4C1000CDBAE8 /* SentryCrashMonitor_AppState.c in Sources */,
+				8405A62A279907D3001B38A1 /* Exception.cpp in Sources */,
+				8405A6B3279907ED001B38A1 /* TraceFileWriterTest.cpp in Sources */,
 				639FCFA51EBC809A00778193 /* SentryStacktrace.m in Sources */,
+				8405A55727990730001B38A1 /* MemoryMappedImages.cpp in Sources */,
 				63FE70DF20DA4C1000CDBAE8 /* SentryCrashMonitorType.c in Sources */,
 				7BF9EF7E2722B91F00B5BBEF /* SentryDefaultObjCRuntimeWrapper.m in Sources */,
 				7BC3936E25B1AB72004F03D3 /* SentryLevelMapper.m in Sources */,
 				63FE70AD20DA4C1000CDBAE8 /* SentryCrashCString.m in Sources */,
+				8405A6CB279907ED001B38A1 /* PacketStreamID.cpp in Sources */,
 				6304360B1EC0595B00C4D3FA /* NSData+SentryCompression.m in Sources */,
 				639889B81EDECFA800EA7442 /* SentryBreadcrumbTracker.m in Sources */,
 				7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */,
+				8405A6D2279907ED001B38A1 /* TraceBufferConsumerTest.cpp in Sources */,
 				635B3F391EBC6E2500A6176D /* SentryAsynchronousOperation.m in Sources */,
 				63FE717520DA4C1100CDBAE8 /* SentryCrash.m in Sources */,
+				8405A57727990780001B38A1 /* GlobalConfigurationTest.cpp in Sources */,
 				7BE3C7712445C30D00A38442 /* SentryDefaultCurrentDateProvider.m in Sources */,
 				6344DDB11EC308E400D9160D /* SentryCrashInstallationReporter.m in Sources */,
 				7BAF3DCE243DCBFE008A5414 /* SentryTransportFactory.m in Sources */,
 				7BB65501253DC1B500887E87 /* SentryUserFeedback.m in Sources */,
+				8405A6F7279907F4001B38A1 /* PoolTest.cpp in Sources */,
 				7D5C441A237C2E1F00DAB0A3 /* SentrySDK.m in Sources */,
 				7D65260E237F649E00113EA2 /* SentryScope.m in Sources */,
+				8405A6E3279907ED001B38A1 /* RingBufferPacketReader.cpp in Sources */,
 				63FE712D20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.m in Sources */,
 				7BBD18932449BEDD00427C76 /* SentryDefaultRateLimits.m in Sources */,
 				7BD729982463E93500EA3610 /* SentryDateUtil.m in Sources */,
 				639FCF9D1EBC7F9500778193 /* SentryThread.m in Sources */,
 				8E8C57A225EEFC07001CEEFA /* SentryTracesSampler.m in Sources */,
+				8405A63D279907D3001B38A1 /* LZ4StreamTest.cpp in Sources */,
+				8405A6C4279907ED001B38A1 /* TraceLogger.cpp in Sources */,
 				63FE714120DA4C1100CDBAE8 /* SentryCrashDate.c in Sources */,
 				63FE70DB20DA4C1000CDBAE8 /* SentryCrashMonitor_System.m in Sources */,
 				7BA61CBB247BC5D800C130A8 /* SentryCrashDefaultBinaryImageProvider.m in Sources */,
 				63FE70E320DA4C1000CDBAE8 /* SentryCrashMonitor_Zombie.c in Sources */,
 				63FE713120DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */,
+				8405A6B2279907ED001B38A1 /* TraceFileTraceConsumer.cpp in Sources */,
 				8E25C95325F836D000DC215B /* SentryRandom.m in Sources */,
 				7BC85231245812EC005A70F0 /* SentryFileContents.m in Sources */,
 				8EA1ED0B2668F8C400E62B98 /* SentryUIViewControllerSwizzling.m in Sources */,
+				8405A5F9279907D3001B38A1 /* IO.cpp in Sources */,
 				7B98D7CF25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m in Sources */,
+				8405A631279907D3001B38A1 /* Memory.cpp in Sources */,
 				8E5D38DD261D4A3E000D363D /* SentryPerformanceTrackingIntegration.m in Sources */,
 				7B4E23C2251A2C2B00060D68 /* SentrySessionCrashedHandler.m in Sources */,
+				8405A56F27990770001B38A1 /* Device.cpp in Sources */,
 				7BA61E9225F21AF80008CAA2 /* SentryLogOutput.m in Sources */,
+				8405A6D3279907ED001B38A1 /* TraceEventSubjectTest.cpp in Sources */,
 				639FCFAD1EBC811400778193 /* SentryUser.m in Sources */,
 				7DAC589123D8B2E0001CF26B /* SentryGlobalEventProcessor.m in Sources */,
 				7BBD189E244EC8D200427C76 /* SentryRetryAfterHeaderParser.m in Sources */,
+				8405A6A6279907ED001B38A1 /* Time.cpp in Sources */,
 				63FE711920DA4C1000CDBAE8 /* SentryCrashMachineContext.c in Sources */,
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
+				8405A57927990780001B38A1 /* GlobalConfiguration.cpp in Sources */,
 				7B14089824878F950035403D /* SentryCrashStackEntryMapper.m in Sources */,
+				8405A63A279907D3001B38A1 /* RingBufferTest.cpp in Sources */,
 				63FE711720DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
+				8405A6EB279907ED001B38A1 /* Thread.cpp in Sources */,
 				63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
 				63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */,
+				8405A601279907D3001B38A1 /* FilesystemTest.cpp in Sources */,
 				6344DDB51EC309E000D9160D /* SentryCrashReportSink.m in Sources */,
 				8EAE9806261E87120073B6B3 /* SentryUIViewControllerPerformanceTracker.m in Sources */,
+				8405A6BF279907ED001B38A1 /* TestPacketWriter.cpp in Sources */,
 				D88817D826D7149100BF2251 /* SentryTraceState.m in Sources */,
 				8EBF870926140D37001A6853 /* SentryPerformanceTracker.m in Sources */,
+				8405A6AC279907ED001B38A1 /* OSLogTraceConsumer.cpp in Sources */,
 				7BD86EC7264A641D005439DB /* SentrySysctl.m in Sources */,
 				639889BD1EDED18400EA7442 /* SentrySwizzle.m in Sources */,
+				8405A5FD279907D3001B38A1 /* Log.cpp in Sources */,
 				7B7D872E2486482600D2ECFF /* SentryStacktraceBuilder.m in Sources */,
 				861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */,
 				63FE711520DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */,
@@ -2820,10 +4350,17 @@
 				636085141ED47BE600E8599E /* SentryFileManager.m in Sources */,
 				63FE710B20DA4C1000CDBAE8 /* SentryCrashMach.c in Sources */,
 				63FE707720DA4C1000CDBAE8 /* Container+SentryDeepSearch.m in Sources */,
+				8405A6BB279907ED001B38A1 /* TraceLoggerTest.cpp in Sources */,
+				8405A55A27990731001B38A1 /* Log.cpp in Sources */,
 				63FE71A020DA4C1100CDBAE8 /* SentryCrashInstallation.m in Sources */,
 				63FE713520DA4C1100CDBAE8 /* SentryCrashMemory.c in Sources */,
+				8405A623279907D3001B38A1 /* Scheduler.cpp in Sources */,
 				63FE714520DA4C1100CDBAE8 /* SentryCrashObjC.c in Sources */,
+				8405A633279907D3001B38A1 /* GateTest.cpp in Sources */,
 				63FE710520DA4C1000CDBAE8 /* SentryCrashLogger.c in Sources */,
+				8405A56627990731001B38A1 /* Mach.cpp in Sources */,
+				8405A624279907D3001B38A1 /* ProtobufTest.cpp in Sources */,
+				8405A636279907D3001B38A1 /* Gate.cpp in Sources */,
 				63FE70E920DA4C1000CDBAE8 /* SentryCrashMonitor_User.c in Sources */,
 				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,
 				632F43521F581D5400A18A36 /* SentryCrashExceptionApplication.m in Sources */,
