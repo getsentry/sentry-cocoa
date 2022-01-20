@@ -1,6 +1,6 @@
 // Copyright (c) Specto Inc. All rights reserved.
 
-#include "spectoproto/global/global_generated.pb.h"
+//#include "spectoproto./global/global_generated.pb.h"
 
 namespace specto {
 namespace configuration {

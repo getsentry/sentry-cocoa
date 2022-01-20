@@ -4,7 +4,7 @@
 
 #include "Filesystem.h"
 #include "Log.h"
-#include "spectoproto/persistence/persistence_generated.pb.h"
+//#include "spectoproto./persistence/persistence_generated.pb.h"
 
 #include <algorithm>
 #include <cassert>

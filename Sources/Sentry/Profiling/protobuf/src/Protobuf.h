@@ -8,7 +8,7 @@
 #include "Thread.h"
 #include "Time.h"
 #include "ScopeGuard.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <fstream>
 #include <google/protobuf/message_lite.h>

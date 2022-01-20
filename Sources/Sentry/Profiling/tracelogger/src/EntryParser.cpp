@@ -3,7 +3,7 @@
 #include "EntryParser.h"
 
 #include "PacketReader.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <cassert>
 

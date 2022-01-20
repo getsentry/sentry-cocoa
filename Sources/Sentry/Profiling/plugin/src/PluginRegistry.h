@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Plugin.h"
-#include "spectoproto/trace/configuration_generated.pb.h"
+//#include "spectoproto./trace/configuration_generated.pb.h"
 
 #include <cstddef>
 #include <memory>

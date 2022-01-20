@@ -7,7 +7,7 @@
 #include "Thread.h"
 #include "Time.h"
 #include "TraceID.h"
-#include "spectoproto/trace/trace_metadata_generated.pb.h"
+//#include "spectoproto./trace/trace_metadata_generated.pb.h"
 
 #include <chrono>
 #include <functional>

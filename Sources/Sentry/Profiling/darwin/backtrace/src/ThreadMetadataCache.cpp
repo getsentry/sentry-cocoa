@@ -4,8 +4,8 @@
 
 #include "ThreadHandle.h"
 #include "StackBounds.h"
-#include "spectoproto/backtrace/backtrace_generated.pb.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./backtrace/backtrace_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <algorithm>
 #include <string>

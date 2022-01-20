@@ -3,7 +3,7 @@
 #include "OSLogTraceConsumer.h"
 
 #if !defined(NDEBUG)
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <mutex>

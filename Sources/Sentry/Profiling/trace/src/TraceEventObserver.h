@@ -3,7 +3,7 @@
 #pragma once
 
 #include "TraceID.h"
-#include "spectoproto/error/error_generated.pb.h"
+//#include "spectoproto./error/error_generated.pb.h"
 
 namespace specto {
 /** Notified of trace state change events (start, end, timeout, etc.). */

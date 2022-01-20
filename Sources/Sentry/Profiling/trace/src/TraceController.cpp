@@ -16,9 +16,9 @@
 #include "Packet.h"
 #include "PacketStreamID.h"
 #include "TraceLogger.h"
-#include "spectoproto/entry/entry_generated.pb.h"
-#include "spectoproto/error/error_generated.pb.h"
-#include "spectoproto/trace/configuration_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
+//#include "spectoproto./error/error_generated.pb.h"
+//#include "spectoproto./trace/configuration_generated.pb.h"
 
 #include <atomic>
 #include <cassert>

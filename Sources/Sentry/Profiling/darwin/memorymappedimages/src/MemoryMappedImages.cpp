@@ -2,7 +2,7 @@
 
 #include "MemoryMappedImages.h"
 
-#include "spectoproto/memorymappedimages/memorymappedimages_generated.pb.h"
+//#include "spectoproto./memorymappedimages/memorymappedimages_generated.pb.h"
 
 #include <cassert>
 #include <mach-o/arch.h>

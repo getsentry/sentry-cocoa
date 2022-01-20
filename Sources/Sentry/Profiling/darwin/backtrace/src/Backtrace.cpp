@@ -10,7 +10,7 @@
 #include "StackBounds.h"
 #include "StackFrame.h"
 #include "Time.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <cassert>
 

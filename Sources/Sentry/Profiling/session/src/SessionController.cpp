@@ -8,7 +8,7 @@
 #include "Thread.h"
 #include "TraceConsumer.h"
 #include "ScopeGuard.h"
-#include "spectoproto/session/session_metadata_generated.pb.h"
+//#include "spectoproto./session/session_metadata_generated.pb.h"
 
 #include <cassert>
 #include <fstream>

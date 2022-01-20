@@ -3,7 +3,7 @@
 #include "GlobalConfiguration.h"
 
 #include "Log.h"
-#include "spectoproto/global/global_generated.pb.h"
+//#include "spectoproto./global/global_generated.pb.h"
 
 #include <memory>
 #include <mutex>

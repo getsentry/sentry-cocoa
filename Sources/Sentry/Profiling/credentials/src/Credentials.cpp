@@ -3,7 +3,7 @@
 #include "Credentials.h"
 
 #include "Log.h"
-#include "spectoproto/credentials/credentials_generated.pb.h"
+//#include "spectoproto./credentials/credentials_generated.pb.h"
 
 namespace specto::credentials {
 

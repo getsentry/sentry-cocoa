@@ -4,7 +4,7 @@
 
 #include "Time.h"
 #include "TraceID.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <memory>
 #include <mutex>

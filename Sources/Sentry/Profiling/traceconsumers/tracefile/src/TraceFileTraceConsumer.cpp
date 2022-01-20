@@ -6,7 +6,7 @@
 #include "Log.h"
 #include "TraceFileWriter.h"
 #include "ThreadPool.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <cassert>
 #include <functional>

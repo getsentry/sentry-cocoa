@@ -6,7 +6,7 @@
 #include "Filesystem.h"
 #include "ScopeGuard.h"
 #include "external/com_github_lz4_lz4/lib/lz4frame.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <algorithm>
 #include <arpa/inet.h>

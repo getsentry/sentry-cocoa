@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Time.h"
-#include "spectoproto/entry/entry_generated.pb.h"
+//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <algorithm>
 #include <cstddef>
