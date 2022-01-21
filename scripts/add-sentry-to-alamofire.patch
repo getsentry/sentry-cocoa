@@ -118,7 +118,7 @@ index 1eeafe7..f5f3dea 100644
 +            SentrySDK.start { options in
 +                options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
 +                options.environment = "integration-tests"
-+                options.tracesSampler = 1.0
++                options.tracesSampleRate = 1.0
 +                options.enableFileIOTracking = true
 +            }
 +            
