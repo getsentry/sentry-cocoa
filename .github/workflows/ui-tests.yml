@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      #We copy the test from unit test in order to keep it sync here and don't have to manually update the UI test.
       - run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
       - run: git apply ./scripts/set-device-tests-environment.patch
       
