@@ -80,14 +80,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     
     func test_Writing_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_WRITE_OPERATION) {
+        assertSpans(1, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
         }
     }
     
     func test_WritingWithOption_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_WRITE_OPERATION) {
+        assertSpans(1, "file.write") {
             try? fixture.data.write(to: fixture.fileURL, options: .atomic)
         }
     }
@@ -118,14 +118,14 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     
     func test_ReadingURL_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_READ_OPERATION) {
+        assertSpans(1, "file.read") {
             let _ = try? Data(contentsOf: fixture.fileURL)
         }
     }
     
     func test_ReadingURLWithOption_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_READ_OPERATION) {
+        assertSpans(1, "file.read") {
             let data = try? Data(contentsOf: fixture.fileURL, options: .uncached)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
@@ -133,7 +133,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     
     func test_ReadingFile_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_READ_OPERATION) {
+        assertSpans(1, "file.read") {
             let data = NSData(contentsOfFile: fixture.filePath)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
@@ -141,7 +141,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     
     func test_ReadingFileWithOptions_Tracking() {
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(1, SENTRY_FILE_READ_OPERATION) {
+        assertSpans(1, "file.read") {
             let data = try? NSData(contentsOfFile: fixture.filePath, options: .uncached)
             XCTAssertEqual(data?.count, fixture.data.count)
         }
@@ -155,7 +155,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             return
         }
         
-        assertSpans(1, SENTRY_FILE_READ_OPERATION) {
+        assertSpans(1, "file.read") {
             let data = try? NSData(contentsOfFile: jsonFile, options: .uncached)
             XCTAssertEqual(data?.count, 341_431)
         }
@@ -174,7 +174,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         SentrySDK.start(options: fixture.getOptions())
         
-        assertSpans(1, SENTRY_FILE_WRITE_OPERATION) {
+        assertSpans(1, "file.write") {
             try? data.write(to: fixture.fileURL, options: .atomic)
 
             let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
@@ -218,7 +218,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
     
     private func assertWriteWithNoSpans() {
-        assertSpans(0, SENTRY_FILE_WRITE_OPERATION) {
+        assertSpans(0, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
         }
     }
