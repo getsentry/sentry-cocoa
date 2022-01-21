@@ -24,7 +24,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-      #We copy the test from unit test in order to keep it sync and don't have to manually update the UI test.
+      # Run the integration tests for NSData on iOS 11 and iOS 10. 
+      # As GitHub Actions doesn't have simulators for iOS 11 and 10
+      # on simulators, we need to run them on real devices on SauceLabs.
+      # We also want to be able to run the integration test as normal unit
+      # tests. Therefore, we copy them to the ui-tests for SauceLabs.
       - run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
       - run: git apply ./scripts/set-device-tests-environment.patch
       
