@@ -7,7 +7,7 @@ index d2d83b14..6756f31b 100644
  
  pod 'RealmSwift'
 -pod 'Sentry'
-+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => 'c9b42ad58ddce3b26df04133cf0c6355ede22410'
++pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
  pod 'UIColor_Hex_Swift'
  pod 'Version'
  pod 'XCGLogger'
