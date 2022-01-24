@@ -58,15 +58,15 @@ jobs:
           - xcode: "13.2"
             iOS: 15
 
-          - xcode: "13.2"
-            iOS: 14
+          #- xcode: "13.2"
+          #  iOS: 14
 
           # iOS 13 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1564
           # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
           # iOS 11 keeps timing out and we don't know how to fix it.
 
-          - xcode: "12.5.1"
-            iOS: 10
+          #- xcode: "12.5.1"
+          #  iOS: 10
 
     steps:
       - uses: actions/checkout@v2
