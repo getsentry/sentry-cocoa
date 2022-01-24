@@ -46,7 +46,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }*/
     
     private let app: XCUIApplication = XCUIApplication()
-
     
     override func setUp() {
         super.setUp()
@@ -58,7 +57,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         waitForExistenseOfMainScreen()
     }
     
-    func testSuccess(){
+    func testSuccess() {
         print("Just testing something")
     }
     
