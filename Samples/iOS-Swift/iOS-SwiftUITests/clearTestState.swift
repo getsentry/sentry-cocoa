@@ -1,6 +1,6 @@
-import Sentry
 import Foundation
+import Sentry
 
-func clearTestState(){
+func clearTestState() {
     SentrySDK.close()
 }
