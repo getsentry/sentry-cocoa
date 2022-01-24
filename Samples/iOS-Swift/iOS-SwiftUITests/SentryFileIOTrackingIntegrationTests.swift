@@ -263,4 +263,3 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }*/
 }
-
