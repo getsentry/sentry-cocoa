@@ -45,7 +45,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         try? fixture.data.write(to: fixture.fileURL)
     }*/
     
-    func testSuccess(){
+    func testSuccess() {
         print("Just testing something")
     }
     
@@ -246,4 +246,3 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }*/
 }
-
