@@ -1,4 +1,5 @@
 import XCTest
+import Sentry
 
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
     
