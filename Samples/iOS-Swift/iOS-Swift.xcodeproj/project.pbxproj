@@ -33,8 +33,6 @@
 		D8269A59274C100300BD5BD5 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8269A5A274C100300BD5BD5 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D83A30BD279EBF6700372D0A /* SentryFileIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83A30BC279EBF6700372D0A /* SentryFileIOTrackingIntegrationTests.swift */; };
-		D83A30BF279EC1BF00372D0A /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		D83A30C3279ED33F00372D0A /* Sentry.framework in Sources */ = {isa = PBXBuildFile; fileRef = 634C7EC224406A4200AFDE9F /* Sentry.framework */; };
 		D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D522273A07F400CDF142 /* AppDelegate.swift */; };
 		D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D524273A07F400CDF142 /* SceneDelegate.swift */; };
 		D840D527273A07F400CDF142 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D526273A07F400CDF142 /* ViewController.swift */; };
@@ -97,13 +95,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDA5243B02760034958B;
 			remoteInfo = "iOS-Swift";
-		};
-		D83A30C1279EC73700372D0A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
-			remoteInfo = Sentry;
 		};
 		D840D532273A07F600CDF142 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -233,7 +224,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83A30BF279EC1BF00372D0A /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,7 +440,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D83A30C2279EC73700372D0A /* PBXTargetDependency */,
 				7B64386E26A6C544000D0F65 /* PBXTargetDependency */,
 			);
 			name = "iOS-SwiftUITests";
@@ -665,7 +654,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D83A30C3279ED33F00372D0A /* Sentry.framework in Sources */,
 				D83A30BD279EBF6700372D0A /* SentryFileIOTrackingIntegrationTests.swift in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 			);
@@ -724,11 +712,6 @@
 			isa = PBXTargetDependency;
 			target = 637AFDA5243B02760034958B /* iOS-Swift */;
 			targetProxy = 7B64386D26A6C544000D0F65 /* PBXContainerItemProxy */;
-		};
-		D83A30C2279EC73700372D0A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Sentry;
-			targetProxy = D83A30C1279EC73700372D0A /* PBXContainerItemProxy */;
 		};
 		D840D533273A07F600CDF142 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
