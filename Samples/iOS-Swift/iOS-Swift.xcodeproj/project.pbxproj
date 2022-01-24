@@ -52,7 +52,6 @@
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8B5B467279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B5B466279194AA005EEF5E /* SentryFileIOTrackingIntegrationTests.swift */; };
-		D8B5B4692791956F005EEF5E /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B5B4712791C142005EEF5E /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D8B5B4702791C142005EEF5E /* fatal-error-binary-images-message2.json */; };
 		D8B5B4732791C39D005EEF5E /* ClearTestState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B5B4722791C39D005EEF5E /* ClearTestState.swift */; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
@@ -229,7 +228,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8B5B4692791956F005EEF5E /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

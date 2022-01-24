@@ -7,7 +7,7 @@ import XCTest
 //to any private part of the sdk
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
-  /*  private class Fixture {
+   private class Fixture {
         let data = "SOME DATA".data(using: .utf8) ?? Data()
         let filePath: String!
         let fileURL: URL!
@@ -43,29 +43,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         try? fixture.data.write(to: fixture.fileURL)
-    }*/
-    
-    private let app: XCUIApplication = XCUIApplication()
-    
-    override func setUp() {
-        super.setUp()
-        
-        continueAfterFailure = false
-        XCUIDevice.shared.orientation = .portrait
-        app.launch()
-        
-        waitForExistenseOfMainScreen()
     }
-    
-    func testSuccess() {
-        print("Just testing something")
-    }
-    
-    private func waitForExistenseOfMainScreen() {
-        XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(), "Home Screen doesn't exist.")
-    }
-    
-/*
+   
     override func tearDown() {
         super.tearDown()
         try? FileManager.default.removeItem(at: fixture.fileURL)
@@ -260,5 +239,5 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if let first = children.first {
             XCTAssertEqual(first.context.operation, operation)
         }
-    }*/
+    }
 }

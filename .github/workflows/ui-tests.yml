@@ -29,7 +29,7 @@ jobs:
       # on simulators, we need to run them on real devices on SauceLabs.
       # We also want to be able to run the integration test as normal unit
       # tests. Therefore, we copy them to the ui-tests for SauceLabs.
-      #- run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
+      - run: cp ./Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift ./Samples/iOS-Swift/iOS-SwiftUITests 
       - run: git apply ./scripts/set-device-tests-environment.patch
       
       - run: fastlane build_ios_swift_ui_test
