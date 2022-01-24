@@ -1,13 +1,13 @@
 import Foundation
 import Sentry
 import XCTest
-/*
+
 //This test is also executed under iOS-SwiftUITests
 //Thats why we need to keep it generic without access
 //to any private part of the sdk
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
-    private class Fixture {
+  /*  private class Fixture {
         let data = "SOME DATA".data(using: .utf8) ?? Data()
         let filePath: String!
         let fileURL: URL!
@@ -43,8 +43,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         try? fixture.data.write(to: fixture.fileURL)
+    }*/
+    
+    func testSuccess(){
+        print("Just testing something")
     }
-
+    
+/*
     override func tearDown() {
         super.tearDown()
         try? FileManager.default.removeItem(at: fixture.fileURL)
@@ -239,6 +244,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if let first = children.first {
             XCTAssertEqual(first.context.operation, operation)
         }
-    }
+    }*/
 }
-*/
+
