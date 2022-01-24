@@ -7,7 +7,7 @@ import XCTest
 //to any private part of the sdk
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
-    private class Fixture {
+ /*   private class Fixture {
         let data = "SOME DATA".data(using: .utf8) ?? Data()
         let filePath: String!
         let fileURL: URL!
@@ -239,5 +239,5 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if let first = children.first {
             XCTAssertEqual(first.context.operation, operation)         
         }
-    }
+    }*/
 }
