@@ -512,6 +512,8 @@
 		8494D41B279F8A8000C28060 /* ThreadPriority.h in Headers */ = {isa = PBXBuildFile; fileRef = 8494D41A279F8A8000C28060 /* ThreadPriority.h */; };
 		8494D41E279F8A9400C28060 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 8494D41C279F8A9300C28060 /* Exception.h */; };
 		8494D41F279F8A9400C28060 /* Exception.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8494D41D279F8A9300C28060 /* Exception.mm */; };
+		8494D422279F99CD00C28060 /* BacktracePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 8494D420279F99CD00C28060 /* BacktracePlugin.h */; };
+		8494D423279F99CD00C28060 /* BacktracePlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8494D421279F99CD00C28060 /* BacktracePlugin.mm */; };
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
@@ -1163,6 +1165,8 @@
 		8494D41A279F8A8000C28060 /* ThreadPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPriority.h; sourceTree = "<group>"; };
 		8494D41C279F8A9300C28060 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
 		8494D41D279F8A9300C28060 /* Exception.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Exception.mm; sourceTree = "<group>"; };
+		8494D420279F99CD00C28060 /* BacktracePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BacktracePlugin.h; sourceTree = "<group>"; };
+		8494D421279F99CD00C28060 /* BacktracePlugin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BacktracePlugin.mm; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -2328,6 +2332,8 @@
 				8494D41A279F8A8000C28060 /* ThreadPriority.h */,
 				8405A54127990730001B38A1 /* ThreadHandle.h */,
 				8405A52427990730001B38A1 /* SamplingProfiler.mm */,
+				8494D420279F99CD00C28060 /* BacktracePlugin.h */,
+				8494D421279F99CD00C28060 /* BacktracePlugin.mm */,
 				8494D41D279F8A9300C28060 /* Exception.mm */,
 				8494D41C279F8A9300C28060 /* Exception.h */,
 				8405A52227990730001B38A1 /* SamplingProfiler.h */,
@@ -2637,6 +2643,7 @@
 				63FE713D20DA4C1100CDBAE8 /* SentryCrashLogger.h in Headers */,
 				15E0A8E1240C41CE00F044E3 /* SentryEnvelope.h in Headers */,
 				630435FE1EBCA9D900C4D3FA /* SentryNSURLRequest.h in Headers */,
+				8494D422279F99CD00C28060 /* BacktracePlugin.h in Headers */,
 				7BC852392458830A005A70F0 /* SentryEnvelopeItemType.h in Headers */,
 				63AA769D1EB9C57A00D153DE /* SentryError.h in Headers */,
 				63FE714F20DA4C1100CDBAE8 /* NSError+SentrySimpleConstructor.h in Headers */,
@@ -2823,6 +2830,7 @@
 				7B6C5F8726034395007F7DFF /* SentryOutOfMemoryLogic.m in Sources */,
 				7BBC827125DFD039005F1ED8 /* SentryInAppLogic.m in Sources */,
 				63FE708D20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */,
+				8494D423279F99CD00C28060 /* BacktracePlugin.mm in Sources */,
 				63FE718120DA4C1100CDBAE8 /* SentryCrashDoctor.m in Sources */,
 				63FE713720DA4C1100CDBAE8 /* SentryCrashCPU_x86_64.c in Sources */,
 				63FE70D920DA4C1000CDBAE8 /* SentryCrashMonitor_Deadlock.m in Sources */,
