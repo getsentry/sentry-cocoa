@@ -1,9 +1,9 @@
 import Foundation
 import Sentry
 import XCTest
-
+ 
 //This test is also executed under iOS-SwiftUITests
-//Thats why we need to keep it generic without access
+//Thats why we need to keep it generic, without access
 //to any private part of the sdk
 class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
