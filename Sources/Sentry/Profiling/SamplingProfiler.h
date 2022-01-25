@@ -9,6 +9,8 @@
 #include <mutex>
 #include <thread>
 
+@class SentryProfilingEntry;
+
 namespace specto {
 namespace proto {
 class Entry;
@@ -30,7 +32,7 @@ public:
      * @param measureCost Whether to measure the cost of collecting the backtrace samples.
      * @param samplingRateHz The sampling rate, in Hz, to sample at.
      */
-    SamplingProfiler(std::function<void(std::shared_ptr<proto::Entry>)> callback,
+    SamplingProfiler(std::function<void(SentryProfilingEntry*)> callback,
                      std::uint32_t samplingRateHz = 100,
                      bool measureCost = true);
 
@@ -56,7 +58,7 @@ public:
 
 private:
     mach_timespec_t delaySpec_;
-    std::function<void(std::shared_ptr<proto::Entry>)> callback_;
+    std::function<void(SentryProfilingEntry*)> callback_;
     bool measureCost_;
     std::shared_ptr<ThreadMetadataCache> cache_;
     bool isInitialized_;

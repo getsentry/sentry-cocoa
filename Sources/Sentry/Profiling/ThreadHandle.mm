@@ -110,7 +110,7 @@ std::string ThreadHandle::dispatchQueueLabel() const noexcept {
     // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
     if ((rv != MACH_SEND_INVALID_DEST) && (SPECTO_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
         && isMemoryReadable(idInfo, sizeof(*idInfo))) {
-        const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
+        const auto queuePtr = (const dispatch_queue_t *)(const void *)idInfo->dispatch_qaddr;
         if (queuePtr != nullptr && isMemoryReadable(queuePtr, sizeof(*queuePtr))
             && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
             const auto label = dispatch_queue_get_label(*queuePtr);

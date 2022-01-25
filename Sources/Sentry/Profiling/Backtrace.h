@@ -14,6 +14,9 @@
 #include <functional>
 #include <memory>
 
+#import "SpectoProtoPolyfills.h"
+@class SentryProfilingEntry;
+
 namespace specto {
 struct StackBounds;
 namespace proto {
@@ -60,7 +63,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
  * @param cache The cache used to look up thread metadata.
  * @param measureCost Whether cost should be computed/recorded into each entry.
  */
-void enumerateBacktracesForAllThreads(const std::function<void(std::shared_ptr<proto::Entry>)> &f,
+void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry*)> &f,
                                       const std::shared_ptr<ThreadMetadataCache> &cache,
                                       bool measureCost);
 

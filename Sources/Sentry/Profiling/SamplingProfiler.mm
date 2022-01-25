@@ -24,7 +24,7 @@ void* samplingThreadMain(mach_port_t port,
                          clock_serv_t clock,
                          mach_timespec_t delaySpec,
                          std::shared_ptr<ThreadMetadataCache> cache,
-                         std::function<void(std::shared_ptr<proto::Entry>)> callback,
+                         std::function<void(SentryProfilingEntry*)> callback,
                          bool measureCost,
                          std::atomic_uint64_t& numSamples,
                          std::function<void()> onThreadStart) {
@@ -61,7 +61,7 @@ void* samplingThreadMain(mach_port_t port,
 
 } // namespace
 
-SamplingProfiler::SamplingProfiler(std::function<void(std::shared_ptr<proto::Entry>)> callback,
+SamplingProfiler::SamplingProfiler(std::function<void(SentryProfilingEntry*)> callback,
                                    std::uint32_t samplingRateHz,
                                    bool measureCost) :
     callback_(std::move(callback)),

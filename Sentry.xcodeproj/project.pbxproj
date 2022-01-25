@@ -484,32 +484,34 @@
 		7DC8310C2398283C0043DD9A /* SentryCrashIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DC831092398283C0043DD9A /* SentryCrashIntegration.m */; };
 		8405A54D27990730001B38A1 /* SamplingProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52227990730001B38A1 /* SamplingProfiler.h */; };
 		8405A54E27990730001B38A1 /* Backtrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52327990730001B38A1 /* Backtrace.h */; };
-		8405A54F27990730001B38A1 /* SamplingProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52427990730001B38A1 /* SamplingProfiler.cpp */; };
-		8405A55027990730001B38A1 /* ThreadMetadataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */; };
-		8405A55127990730001B38A1 /* Backtrace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52627990730001B38A1 /* Backtrace.cpp */; };
+		8405A54F27990730001B38A1 /* SamplingProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52427990730001B38A1 /* SamplingProfiler.mm */; };
+		8405A55027990730001B38A1 /* ThreadMetadataCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52527990730001B38A1 /* ThreadMetadataCache.mm */; };
+		8405A55127990730001B38A1 /* Backtrace.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52627990730001B38A1 /* Backtrace.mm */; };
 		8405A55227990730001B38A1 /* ThreadMetadataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52727990730001B38A1 /* ThreadMetadataCache.h */; };
-		8405A55A27990731001B38A1 /* DarwinLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53527990730001B38A1 /* DarwinLog.cpp */; };
+		8405A55A27990731001B38A1 /* DarwinLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53527990730001B38A1 /* DarwinLog.mm */; };
 		8405A55B27990731001B38A1 /* DarwinLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53627990730001B38A1 /* DarwinLog.h */; };
-		8405A55F27990731001B38A1 /* ThreadHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53D27990730001B38A1 /* ThreadHandle.cpp */; };
+		8405A55F27990731001B38A1 /* ThreadHandle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53D27990730001B38A1 /* ThreadHandle.mm */; };
 		8405A56127990731001B38A1 /* ThreadState.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53F27990730001B38A1 /* ThreadState.h */; };
-		8405A56227990731001B38A1 /* MemorySafety.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A54027990730001B38A1 /* MemorySafety.cpp */; };
+		8405A56227990731001B38A1 /* MemorySafety.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A54027990730001B38A1 /* MemorySafety.mm */; };
 		8405A56327990731001B38A1 /* ThreadHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A54127990730001B38A1 /* ThreadHandle.h */; };
 		8405A56427990731001B38A1 /* MemorySafety.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A54227990730001B38A1 /* MemorySafety.h */; };
-		8405A5FD279907D3001B38A1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A58D279907D3001B38A1 /* Log.cpp */; };
 		8405A5FE279907D3001B38A1 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A58E279907D3001B38A1 /* Log.h */; };
 		8405A5FF279907D3001B38A1 /* BlockSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A58F279907D3001B38A1 /* BlockSink.h */; };
 		8405A600279907D3001B38A1 /* LogHookSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A590279907D3001B38A1 /* LogHookSink.h */; };
 		8405A638279907D3001B38A1 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5EA279907D3001B38A1 /* Compiler.h */; };
 		8405A639279907D3001B38A1 /* CPU.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A5EB279907D3001B38A1 /* CPU.h */; };
 		8405A6A5279907ED001B38A1 /* SpectoTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A643279907ED001B38A1 /* SpectoTime.h */; };
-		8405A6A6279907ED001B38A1 /* SpectoTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A644279907ED001B38A1 /* SpectoTime.cpp */; };
+		8405A6A6279907ED001B38A1 /* SpectoTime.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A644279907ED001B38A1 /* SpectoTime.mm */; };
 		8405A6CE279907ED001B38A1 /* StackBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A67F279907ED001B38A1 /* StackBounds.h */; };
 		8405A6CF279907ED001B38A1 /* StackFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A680279907ED001B38A1 /* StackFrame.h */; };
-		8405A6EB279907ED001B38A1 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A6A2279907ED001B38A1 /* Thread.cpp */; };
+		8405A6EB279907ED001B38A1 /* Thread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A6A2279907ED001B38A1 /* Thread.mm */; };
 		8405A6EC279907ED001B38A1 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6A3279907ED001B38A1 /* Thread.h */; };
 		8405A7262799E7F3001B38A1 /* spimpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7252799E7F3001B38A1 /* spimpl.h */; };
-		8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */; };
+		8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.mm */; };
 		8405A7E92799F4A6001B38A1 /* SpectoProtoPolyfills.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */; };
+		8494D41B279F8A8000C28060 /* ThreadPriority.h in Headers */ = {isa = PBXBuildFile; fileRef = 8494D41A279F8A8000C28060 /* ThreadPriority.h */; };
+		8494D41E279F8A9400C28060 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 8494D41C279F8A9300C28060 /* Exception.h */; };
+		8494D41F279F8A9400C28060 /* Exception.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8494D41D279F8A9300C28060 /* Exception.mm */; };
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
@@ -1133,32 +1135,34 @@
 		7DC831092398283C0043DD9A /* SentryCrashIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashIntegration.m; sourceTree = "<group>"; };
 		8405A52227990730001B38A1 /* SamplingProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SamplingProfiler.h; sourceTree = "<group>"; };
 		8405A52327990730001B38A1 /* Backtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Backtrace.h; sourceTree = "<group>"; };
-		8405A52427990730001B38A1 /* SamplingProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SamplingProfiler.cpp; sourceTree = "<group>"; };
-		8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadMetadataCache.cpp; sourceTree = "<group>"; };
-		8405A52627990730001B38A1 /* Backtrace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Backtrace.cpp; sourceTree = "<group>"; };
+		8405A52427990730001B38A1 /* SamplingProfiler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SamplingProfiler.mm; sourceTree = "<group>"; };
+		8405A52527990730001B38A1 /* ThreadMetadataCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThreadMetadataCache.mm; sourceTree = "<group>"; };
+		8405A52627990730001B38A1 /* Backtrace.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Backtrace.mm; sourceTree = "<group>"; };
 		8405A52727990730001B38A1 /* ThreadMetadataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadMetadataCache.h; sourceTree = "<group>"; };
-		8405A53527990730001B38A1 /* DarwinLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DarwinLog.cpp; sourceTree = "<group>"; };
+		8405A53527990730001B38A1 /* DarwinLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DarwinLog.mm; sourceTree = "<group>"; };
 		8405A53627990730001B38A1 /* DarwinLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DarwinLog.h; sourceTree = "<group>"; };
-		8405A53D27990730001B38A1 /* ThreadHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadHandle.cpp; sourceTree = "<group>"; };
+		8405A53D27990730001B38A1 /* ThreadHandle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThreadHandle.mm; sourceTree = "<group>"; };
 		8405A53F27990730001B38A1 /* ThreadState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadState.h; sourceTree = "<group>"; };
-		8405A54027990730001B38A1 /* MemorySafety.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemorySafety.cpp; sourceTree = "<group>"; };
+		8405A54027990730001B38A1 /* MemorySafety.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MemorySafety.mm; sourceTree = "<group>"; };
 		8405A54127990730001B38A1 /* ThreadHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadHandle.h; sourceTree = "<group>"; };
 		8405A54227990730001B38A1 /* MemorySafety.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemorySafety.h; sourceTree = "<group>"; };
-		8405A58D279907D3001B38A1 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
 		8405A58E279907D3001B38A1 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
 		8405A58F279907D3001B38A1 /* BlockSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockSink.h; sourceTree = "<group>"; };
 		8405A590279907D3001B38A1 /* LogHookSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogHookSink.h; sourceTree = "<group>"; };
 		8405A5EA279907D3001B38A1 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
 		8405A5EB279907D3001B38A1 /* CPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPU.h; sourceTree = "<group>"; };
 		8405A643279907ED001B38A1 /* SpectoTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectoTime.h; sourceTree = "<group>"; };
-		8405A644279907ED001B38A1 /* SpectoTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpectoTime.cpp; sourceTree = "<group>"; };
+		8405A644279907ED001B38A1 /* SpectoTime.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SpectoTime.mm; sourceTree = "<group>"; };
 		8405A67F279907ED001B38A1 /* StackBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackBounds.h; sourceTree = "<group>"; };
 		8405A680279907ED001B38A1 /* StackFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackFrame.h; sourceTree = "<group>"; };
-		8405A6A2279907ED001B38A1 /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		8405A6A2279907ED001B38A1 /* Thread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Thread.mm; sourceTree = "<group>"; };
 		8405A6A3279907ED001B38A1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		8405A7252799E7F3001B38A1 /* spimpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spimpl.h; sourceTree = "<group>"; };
-		8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpectoProtoPolyfills.cpp; sourceTree = "<group>"; };
+		8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpectoProtoPolyfills.mm; sourceTree = "<group>"; };
 		8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpectoProtoPolyfills.h; sourceTree = "<group>"; };
+		8494D41A279F8A8000C28060 /* ThreadPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPriority.h; sourceTree = "<group>"; };
+		8494D41C279F8A9300C28060 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
+		8494D41D279F8A9300C28060 /* Exception.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Exception.mm; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -2316,33 +2320,35 @@
 		8405A517279906EF001B38A1 /* Profiling */ = {
 			isa = PBXGroup;
 			children = (
-				8405A53527990730001B38A1 /* DarwinLog.cpp */,
+				8405A53527990730001B38A1 /* DarwinLog.mm */,
 				8405A53627990730001B38A1 /* DarwinLog.h */,
-				8405A54027990730001B38A1 /* MemorySafety.cpp */,
+				8405A54027990730001B38A1 /* MemorySafety.mm */,
 				8405A54227990730001B38A1 /* MemorySafety.h */,
-				8405A53D27990730001B38A1 /* ThreadHandle.cpp */,
+				8405A53D27990730001B38A1 /* ThreadHandle.mm */,
+				8494D41A279F8A8000C28060 /* ThreadPriority.h */,
 				8405A54127990730001B38A1 /* ThreadHandle.h */,
-				8405A52427990730001B38A1 /* SamplingProfiler.cpp */,
+				8405A52427990730001B38A1 /* SamplingProfiler.mm */,
+				8494D41D279F8A9300C28060 /* Exception.mm */,
+				8494D41C279F8A9300C28060 /* Exception.h */,
 				8405A52227990730001B38A1 /* SamplingProfiler.h */,
-				8405A52627990730001B38A1 /* Backtrace.cpp */,
+				8405A52627990730001B38A1 /* Backtrace.mm */,
 				8405A52327990730001B38A1 /* Backtrace.h */,
 				8405A67F279907ED001B38A1 /* StackBounds.h */,
 				8405A680279907ED001B38A1 /* StackFrame.h */,
 				8405A5EA279907D3001B38A1 /* Compiler.h */,
 				8405A5EB279907D3001B38A1 /* CPU.h */,
-				8405A58D279907D3001B38A1 /* Log.cpp */,
 				8405A58E279907D3001B38A1 /* Log.h */,
 				8405A58F279907D3001B38A1 /* BlockSink.h */,
 				8405A590279907D3001B38A1 /* LogHookSink.h */,
-				8405A6A2279907ED001B38A1 /* Thread.cpp */,
+				8405A6A2279907ED001B38A1 /* Thread.mm */,
 				8405A6A3279907ED001B38A1 /* Thread.h */,
 				8405A53F27990730001B38A1 /* ThreadState.h */,
-				8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */,
+				8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.mm */,
 				8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */,
-				8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */,
+				8405A52527990730001B38A1 /* ThreadMetadataCache.mm */,
 				8405A52727990730001B38A1 /* ThreadMetadataCache.h */,
 				8405A643279907ED001B38A1 /* SpectoTime.h */,
-				8405A644279907ED001B38A1 /* SpectoTime.cpp */,
+				8405A644279907ED001B38A1 /* SpectoTime.mm */,
 				8405A7252799E7F3001B38A1 /* spimpl.h */,
 			);
 			path = Profiling;
@@ -2601,6 +2607,7 @@
 				7B7D873424864C6600D2ECFF /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
 				7BA61CC8247D125400C130A8 /* SentryThreadInspector.h in Headers */,
 				7BE1E32824F7AE08009D3AD0 /* SentrySession+Private.h in Headers */,
+				8494D41B279F8A8000C28060 /* ThreadPriority.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
 				63FE715B20DA4C1100CDBAE8 /* SentryCrashSignalInfo.h in Headers */,
 				63FE70E520DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h in Headers */,
@@ -2658,6 +2665,7 @@
 				8405A6CF279907ED001B38A1 /* StackFrame.h in Headers */,
 				6344DDB91EC3115C00D9160D /* SentryCrashReportConverter.h in Headers */,
 				8405A56427990731001B38A1 /* MemorySafety.h in Headers */,
+				8494D41E279F8A9400C28060 /* Exception.h in Headers */,
 				71F116E8F40D530BB68A2987 /* SentryCrashUUIDConversion.h in Headers */,
 				A2475E1725FB63AF007D9080 /* SentryHook.h in Headers */,
 			);
@@ -2771,14 +2779,14 @@
 				7BD86ED1264A7CF6005439DB /* SentryAppStartMeasurement.m in Sources */,
 				7DC27EC723997EB7006998B5 /* SentryAutoBreadcrumbTrackingIntegration.m in Sources */,
 				63FE717B20DA4C1100CDBAE8 /* SentryCrashReport.c in Sources */,
-				8405A55027990730001B38A1 /* ThreadMetadataCache.cpp in Sources */,
+				8405A55027990730001B38A1 /* ThreadMetadataCache.mm in Sources */,
 				7B7A599726B692F00060A676 /* SentryScreenFrames.m in Sources */,
 				7B3398652459C15200BD9C96 /* SentryEnvelopeRateLimit.m in Sources */,
 				A2475E1F25FB648B007D9080 /* fishhook.c in Sources */,
 				631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */,
 				7B8713B426415BAA006D6004 /* SentryAppStartTracker.m in Sources */,
 				7BDB03BB2513652900BAE198 /* SentryDispatchQueueWrapper.m in Sources */,
-				8405A55127990730001B38A1 /* Backtrace.cpp in Sources */,
+				8405A55127990730001B38A1 /* Backtrace.mm in Sources */,
 				7B6C5EDE264E8DF00010D138 /* SentryFramesTracker.m in Sources */,
 				7B6438AB26A70F24000D0F65 /* UIViewController+Sentry.m in Sources */,
 				63AA76A31EB9CBAA00D153DE /* SentryDsn.m in Sources */,
@@ -2793,7 +2801,7 @@
 				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,
 				8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */,
 				7B9657262683104C00C66E25 /* NSData+Sentry.m in Sources */,
-				8405A54F27990730001B38A1 /* SamplingProfiler.cpp in Sources */,
+				8405A54F27990730001B38A1 /* SamplingProfiler.mm in Sources */,
 				15E0A8ED240F2CB000F044E3 /* SentrySerialization.m in Sources */,
 				7BC85235245880AE005A70F0 /* SentryRateLimitCategoryMapper.m in Sources */,
 				7B7A30C824B48389005A4C6E /* SentryCrashAdapter.m in Sources */,
@@ -2838,7 +2846,7 @@
 				A839D89A24864BA8003B7AFD /* SentrySystemEventBreadcrumbs.m in Sources */,
 				7D082B8323C628790029866B /* SentryMeta.m in Sources */,
 				63FE710720DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.c in Sources */,
-				8405A56227990731001B38A1 /* MemorySafety.cpp in Sources */,
+				8405A56227990731001B38A1 /* MemorySafety.mm in Sources */,
 				63FE711120DA4C1000CDBAE8 /* SentryCrashDebug.c in Sources */,
 				7B883F49253D714C00879E62 /* SentryCrashUUIDConversion.c in Sources */,
 				63FE716720DA4C1100CDBAE8 /* SentryCrashCPU.c in Sources */,
@@ -2855,7 +2863,7 @@
 				7B56D73324616D9500B842DA /* SentryConcurrentRateLimitsDictionary.m in Sources */,
 				8ECC674825C23A20000E2BF6 /* SentryTransaction.m in Sources */,
 				7BECF42826145CD900D9826E /* SentryMechanismMeta.m in Sources */,
-				8405A55F27990731001B38A1 /* ThreadHandle.cpp in Sources */,
+				8405A55F27990731001B38A1 /* ThreadHandle.mm in Sources */,
 				8E7C982F2693D56000E6336C /* SentryTraceHeader.m in Sources */,
 				63FE715F20DA4C1100CDBAE8 /* SentryCrashID.c in Sources */,
 				7DB3A687238EA75E00A2D442 /* SentryHttpTransport.m in Sources */,
@@ -2873,7 +2881,7 @@
 				8EE32518261FE27B00DC3FF2 /* SentryUIViewControllerSanitizer.m in Sources */,
 				7BE1E33424F7E3CB009D3AD0 /* SentryMigrateSessionInit.m in Sources */,
 				15E0A8F22411A45A00F044E3 /* SentrySession.m in Sources */,
-				8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.cpp in Sources */,
+				8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.mm in Sources */,
 				7B6D1261265F784000C9BE4B /* SentryHybridSKdsOnly.m in Sources */,
 				63BE85711ECEC6DE00DC44F5 /* NSDate+SentryExtras.m in Sources */,
 				63FE712720DA4C1000CDBAE8 /* SentryCrashThread.c in Sources */,
@@ -2916,12 +2924,12 @@
 				639FCFAD1EBC811400778193 /* SentryUser.m in Sources */,
 				7DAC589123D8B2E0001CF26B /* SentryGlobalEventProcessor.m in Sources */,
 				7BBD189E244EC8D200427C76 /* SentryRetryAfterHeaderParser.m in Sources */,
-				8405A6A6279907ED001B38A1 /* SpectoTime.cpp in Sources */,
+				8405A6A6279907ED001B38A1 /* SpectoTime.mm in Sources */,
 				63FE711920DA4C1000CDBAE8 /* SentryCrashMachineContext.c in Sources */,
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				7B14089824878F950035403D /* SentryCrashStackEntryMapper.m in Sources */,
 				63FE711720DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
-				8405A6EB279907ED001B38A1 /* Thread.cpp in Sources */,
+				8405A6EB279907ED001B38A1 /* Thread.mm in Sources */,
 				63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
 				63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */,
@@ -2931,7 +2939,6 @@
 				8EBF870926140D37001A6853 /* SentryPerformanceTracker.m in Sources */,
 				7BD86EC7264A641D005439DB /* SentrySysctl.m in Sources */,
 				639889BD1EDED18400EA7442 /* SentrySwizzle.m in Sources */,
-				8405A5FD279907D3001B38A1 /* Log.cpp in Sources */,
 				7B7D872E2486482600D2ECFF /* SentryStacktraceBuilder.m in Sources */,
 				861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */,
 				63FE711520DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */,
@@ -2939,12 +2946,13 @@
 				636085141ED47BE600E8599E /* SentryFileManager.m in Sources */,
 				63FE710B20DA4C1000CDBAE8 /* SentryCrashMach.c in Sources */,
 				63FE707720DA4C1000CDBAE8 /* Container+SentryDeepSearch.m in Sources */,
-				8405A55A27990731001B38A1 /* DarwinLog.cpp in Sources */,
+				8405A55A27990731001B38A1 /* DarwinLog.mm in Sources */,
 				63FE71A020DA4C1100CDBAE8 /* SentryCrashInstallation.m in Sources */,
 				63FE713520DA4C1100CDBAE8 /* SentryCrashMemory.c in Sources */,
 				63FE714520DA4C1100CDBAE8 /* SentryCrashObjC.c in Sources */,
 				63FE710520DA4C1000CDBAE8 /* SentryCrashLogger.c in Sources */,
 				63FE70E920DA4C1000CDBAE8 /* SentryCrashMonitor_User.c in Sources */,
+				8494D41F279F8A9400C28060 /* Exception.mm in Sources */,
 				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,
 				632F43521F581D5400A18A36 /* SentryCrashExceptionApplication.m in Sources */,
 				63FE712520DA4C1000CDBAE8 /* SentryCrashSignalInfo.c in Sources */,

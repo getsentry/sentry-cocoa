@@ -8,9 +8,12 @@
 
 #include "ThreadHandle.h"
 #include "spimpl.h"
-#include "SpectoProtoPolyfills.h"
 
 #include <memory>
+
+#import <Foundation/Foundation.h>
+
+@class SentryProfilingEntry;
 
 namespace specto {
 namespace darwin {
@@ -29,11 +32,11 @@ public:
      * specified thread. If called multiple times for the same thread, this returns the same
      * pointer.
      * @param thread The thread to retrieve metadata from.
-     * @return A `proto::Entry` with the backtrace payload fields pre-populated with the
-     * thread metadata upon success, or `nullptr` in cases where a backtrace should not
+     * @return A @c SentryProfilingEntry with the backtrace payload fields pre-populated with the
+     * thread metadata upon success, or @c nil in cases where a backtrace should not
      * be collected for the specified thread.
      */
-    std::shared_ptr<proto::Entry> entryForThread(const ThreadHandle &thread);
+    SentryProfilingEntry *entryForThread(const ThreadHandle &thread);
 
     ThreadMetadataCache();
     ThreadMetadataCache(const ThreadMetadataCache &) = delete;

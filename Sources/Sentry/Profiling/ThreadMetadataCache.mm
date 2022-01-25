@@ -4,8 +4,7 @@
 
 #include "ThreadHandle.h"
 #include "StackBounds.h"
-//#include "spectoproto./backtrace/backtrace_generated.pb.h"
-//#include "spectoproto./entry/entry_generated.pb.h"
+#include "SpectoProtoPolyfills.h"
 
 #include <algorithm>
 #include <string>
@@ -47,19 +46,19 @@ namespace specto::darwin {
 
 class ThreadMetadataCache::Impl {
 public:
-    std::shared_ptr<proto::Entry> entryForThread(const ThreadHandle &thread) {
+    SentryProfilingEntry *entryForThread(const ThreadHandle &thread) {
         const auto handle = thread.nativeHandle();
         const auto it =
           std::find_if(cache_.cbegin(), cache_.cend(), [handle](const ThreadHandleEntryPair &pair) {
               return pair.handle == handle;
           });
         if (it == cache_.cend()) {
-            auto entry = std::make_shared<proto::Entry>();
-            entry->set_tid(ThreadHandle::tidFromNativeHandle(handle));
+            auto entry = [[SentryProfilingEntry alloc] init];
+            entry->tid = ThreadHandle::tidFromNativeHandle(handle);
 
-            const auto backtrace = entry->mutable_backtrace();
+            const auto backtrace = entry->backtrace;
             const auto priority = thread.priority();
-            backtrace->set_priority(priority);
+            backtrace->priority = priority;
 
             // If getting the priority fails (via pthread_getschedparam()), that
             // means the rest of this is probably going to fail too.
@@ -79,8 +78,8 @@ public:
                     dispatchQueueLabel.resize(kMaxThreadQueueNameLength);
                 }
 
-                backtrace->set_thread_name(std::move(threadName));
-                backtrace->set_queue_name(std::move(dispatchQueueLabel));
+                backtrace->threadName = [NSString stringWithUTF8String:threadName.c_str()];
+                backtrace->queueName = [NSString stringWithUTF8String:dispatchQueueLabel.c_str()];;
 
                 // QoS collection is disabled because `pthread_get_qos_class_np` is a crashy API.
                 // See reports:
@@ -106,14 +105,14 @@ public:
 private:
     struct ThreadHandleEntryPair {
         ThreadHandle::NativeHandle handle;
-        std::shared_ptr<proto::Entry> entry;
+        SentryProfilingEntry *entry;
     };
     std::vector<const ThreadHandleEntryPair> cache_;
 };
 
 ThreadMetadataCache::ThreadMetadataCache() : impl_(spimpl::make_unique_impl<Impl>()) { }
 
-std::shared_ptr<proto::Entry> ThreadMetadataCache::entryForThread(const ThreadHandle &thread) {
+SentryProfilingEntry *ThreadMetadataCache::entryForThread(const ThreadHandle &thread) {
     return impl_->entryForThread(thread);
 }
 

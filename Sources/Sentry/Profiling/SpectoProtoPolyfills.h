@@ -9,24 +9,23 @@
 #pragma once
 
 #include <string>
+#import <Foundation/Foundation.h>
 
-namespace specto::proto {
+@interface SentryBacktrace: NSObject {
+@public
+    NSInteger priority;
+    NSString *threadName;
+    NSString *queueName;
+    NSMutableArray *addresses;
+}
+@end
 
-class Backtrace {
-public:
-    void set_priority(int);
-    void set_thread_name(std::string);
-    void set_queue_name(std::string);
-private:
-    class Impl;
-};
+@interface SentryProfilingEntry: NSObject {
+@public
+    NSInteger tid;
+    SentryBacktrace *backtrace;
+    uint64_t elapsedRelativeToStartDateNs;
+    uint64_t costNs;
+}
 
-class Entry {
-public:
-    void set_tid(uint64_t);
-    Backtrace* mutable_backtrace();
-private:
-    class Impl;
-};
-
-} // namespace specto::proto
+@end

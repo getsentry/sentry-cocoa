@@ -1,6 +1,6 @@
 // Copyright (c) Specto Inc. All rights reserved.
 
-#include "Log.h"
+#include "DarwinLog.h"
 
 namespace specto {
 namespace darwin {

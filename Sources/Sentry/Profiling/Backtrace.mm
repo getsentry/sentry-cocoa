@@ -10,7 +10,6 @@
 #include "StackBounds.h"
 #include "StackFrame.h"
 #include "SpectoTime.h"
-//#include "spectoproto./entry/entry_generated.pb.h"
 
 #include <cassert>
 
@@ -111,7 +110,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
     return depth;
 }
 
-void enumerateBacktracesForAllThreads(const std::function<void(std::shared_ptr<proto::Entry>)> &f,
+void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry*)> &f,
                                       const std::shared_ptr<ThreadMetadataCache> &cache,
                                       bool measureCost) {
     const auto pair = ThreadHandle::allExcludingCurrent();
@@ -120,7 +119,7 @@ void enumerateBacktracesForAllThreads(const std::function<void(std::shared_ptr<p
             continue;
         }
         auto entry = cache->entryForThread(*thread);
-        if (entry == nullptr) {
+        if (entry == nil) {
             continue;
         }
         // This function calls `pthread_from_mach_thread_np`, which takes a lock,
@@ -158,17 +157,16 @@ void enumerateBacktracesForAllThreads(const std::function<void(std::shared_ptr<p
 
         // Consider the backtraces only if we're able to collect the full stack
         if (reachedEndOfStack) {
-            const auto backtrace = entry->mutable_backtrace();
-            backtrace->mutable_addresses()->Clear();
-            backtrace->mutable_addresses()->Reserve(depth);
+            const auto backtrace = entry->backtrace;
+            [backtrace->addresses removeAllObjects];
             for (std::remove_const<decltype(depth)>::type i = 0; i < depth; i++) {
-                backtrace->add_addresses(addresses[i]);
+                [backtrace->addresses addObject:[NSValue valueWithPointer:(const void *)addresses[i]]];
             }
-            entry->set_elapsed_relative_to_start_date_ns(startTimeNs);
+            entry->elapsedRelativeToStartDateNs = startTimeNs;
             if (measureCost) {
-                entry->set_cost_ns(time::getDurationNs(startTimeNs).count());
+                entry->costNs = time::getDurationNs(startTimeNs).count();
             }
-            f(std::move(entry));
+            f(entry);
         }
     }
 }
