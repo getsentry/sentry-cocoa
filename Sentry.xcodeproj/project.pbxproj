@@ -508,6 +508,8 @@
 		8405A6EB279907ED001B38A1 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A6A2279907ED001B38A1 /* Thread.cpp */; };
 		8405A6EC279907ED001B38A1 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A6A3279907ED001B38A1 /* Thread.h */; };
 		8405A7262799E7F3001B38A1 /* spimpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7252799E7F3001B38A1 /* spimpl.h */; };
+		8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */; };
+		8405A7E92799F4A6001B38A1 /* SpectoProtoPolyfills.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */; };
 		861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */; };
 		861265FA2404EC1500C4AFDE /* NSArray+SentrySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
@@ -1155,6 +1157,8 @@
 		8405A6A2279907ED001B38A1 /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
 		8405A6A3279907ED001B38A1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		8405A7252799E7F3001B38A1 /* spimpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spimpl.h; sourceTree = "<group>"; };
+		8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpectoProtoPolyfills.cpp; sourceTree = "<group>"; };
+		8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpectoProtoPolyfills.h; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -2333,6 +2337,8 @@
 				8405A6A2279907ED001B38A1 /* Thread.cpp */,
 				8405A6A3279907ED001B38A1 /* Thread.h */,
 				8405A53F27990730001B38A1 /* ThreadState.h */,
+				8405A7E62799F4A6001B38A1 /* SpectoProtoPolyfills.cpp */,
+				8405A7E72799F4A6001B38A1 /* SpectoProtoPolyfills.h */,
 				8405A52527990730001B38A1 /* ThreadMetadataCache.cpp */,
 				8405A52727990730001B38A1 /* ThreadMetadataCache.h */,
 				8405A643279907ED001B38A1 /* SpectoTime.h */,
@@ -2479,6 +2485,7 @@
 				8405A55227990730001B38A1 /* ThreadMetadataCache.h in Headers */,
 				8EE3251C261FE33B00DC3FF2 /* SentryUIViewControllerSanitizer.h in Headers */,
 				7BAF3DD92440AEC8008A5414 /* SentryRequestManager.h in Headers */,
+				8405A7E92799F4A6001B38A1 /* SpectoProtoPolyfills.h in Headers */,
 				7BE3C77B2446111500A38442 /* SentryRateLimitParser.h in Headers */,
 				7D0637032382B34300B30749 /* SentryScope.h in Headers */,
 				63295AF51EF3C7DB002D4490 /* NSDictionary+SentrySanitize.h in Headers */,
@@ -2866,6 +2873,7 @@
 				8EE32518261FE27B00DC3FF2 /* SentryUIViewControllerSanitizer.m in Sources */,
 				7BE1E33424F7E3CB009D3AD0 /* SentryMigrateSessionInit.m in Sources */,
 				15E0A8F22411A45A00F044E3 /* SentrySession.m in Sources */,
+				8405A7E82799F4A6001B38A1 /* SpectoProtoPolyfills.cpp in Sources */,
 				7B6D1261265F784000C9BE4B /* SentryHybridSKdsOnly.m in Sources */,
 				63BE85711ECEC6DE00DC44F5 /* NSDate+SentryExtras.m in Sources */,
 				63FE712720DA4C1000CDBAE8 /* SentryCrashThread.c in Sources */,

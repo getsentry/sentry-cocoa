@@ -8,13 +8,11 @@
 
 #include "ThreadHandle.h"
 #include "spimpl.h"
+#include "SpectoProtoPolyfills.h"
 
 #include <memory>
 
 namespace specto {
-namespace proto {
-class Entry;
-}
 namespace darwin {
 
 /**

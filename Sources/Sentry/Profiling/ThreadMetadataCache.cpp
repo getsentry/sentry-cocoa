@@ -56,7 +56,6 @@ public:
         if (it == cache_.cend()) {
             auto entry = std::make_shared<proto::Entry>();
             entry->set_tid(ThreadHandle::tidFromNativeHandle(handle));
-            entry->set_type(proto::Entry_Type_BACKTRACE);
 
             const auto backtrace = entry->mutable_backtrace();
             const auto priority = thread.priority();
