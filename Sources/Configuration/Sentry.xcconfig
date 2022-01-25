@@ -64,4 +64,3 @@ SUPPORTS_MACCATALYST = YES
 
 // settings for Specto C++ port
 CLANG_CXX_LANGUAGE_STANDARD = c++17
-HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Integrations/Performance/Profiling/**
