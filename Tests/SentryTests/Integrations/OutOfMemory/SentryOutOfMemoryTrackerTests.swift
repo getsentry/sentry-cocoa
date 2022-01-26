@@ -108,6 +108,14 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         assertNoOOMSent()
     }
     
+    func testDifferentVendorId_NoOOM() {
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: "0987654321", isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        
+        sut.start()
+        
+        assertNoOOMSent()
+    }
+    
     func testIsDebugging_NoOOM() {
         fixture.crashWrapper.internalIsBeingTraced = true
         sut.start()
