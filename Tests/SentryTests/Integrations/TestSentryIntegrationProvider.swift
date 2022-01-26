@@ -1,6 +1,6 @@
 import Foundation
 
-class TestSentryIntegrationProvider : SentryIntegrationProvider {
+class TestSentryIntegrationProvider: SentryIntegrationProvider {
     
     var integrations = Options().integrations ?? []
     
