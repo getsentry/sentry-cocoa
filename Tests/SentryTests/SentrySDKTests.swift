@@ -396,6 +396,14 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
     
+    func testGetEnabledIntegrations() {
+        SentrySDK.start(options: Options())
+        
+        let expexted = Options().integrations?.filter { !$0.contains("FileIO") }
+        
+        XCTAssertEqual(expexted, SentrySDK.enabledIntegrations)
+    }
+    
     @available(tvOS 13.0, *)
     @available(OSX 10.15, *)
     @available(iOS 13.0, *)

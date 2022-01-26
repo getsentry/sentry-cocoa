@@ -53,8 +53,11 @@ class SentryClientTest: XCTestCase {
                     "dsn": SentryClientTest.dsn
                 ])
                 configureOptions(options)
+                
+                let integrationProvider = TestSentryIntegrationProvider()
+                integrationProvider.integrations = options.integrations ?? []
 
-                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
+                client = Client(options: options, andTransport: transport, andFileManager: fileManager, andIntegrationProvider: integrationProvider)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -683,6 +686,46 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testSetSDKIntegrations() {
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString)
+        
+        let expected = shortenIntegrations(Options().integrations)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
+    func testSetSDKIntegrations_CustomIntegration() {
+        var integrations = Options().integrations
+        integrations?.append("Custom")
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.integrations = integrations
+        }).capture(message: fixture.messageAsString)
+        
+        let expected = shortenIntegrations(integrations)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
+    func testSetSDKIntegrations_NoIntegrations() {
+        let expected: [String] = []
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.integrations = expected
+        }).capture(message: fixture.messageAsString)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
         
@@ -976,6 +1019,10 @@ class SentryClientTest: XCTestCase {
             actualFrames.removeLast(3)
             thread.stacktrace?.frames = actualFrames
         }
+    }
+    
+    private func shortenIntegrations(_ integrations: [String]?) -> [String]? {
+        return integrations?.map { $0.replacingOccurrences(of: "Sentry", with: "").replacingOccurrences(of: "Integration", with: "") }
     }
 
     private func assertNothingSent() {

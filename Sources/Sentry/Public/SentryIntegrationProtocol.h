@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)installWithOptions:(SentryOptions *)options;
 
+@optional
+@property (nonatomic, assign) BOOL isEnabled;
+
 /**
  * Uninstalls the integration.
  */

@@ -1,3 +1,4 @@
+#import "SentryIntegrationProvider.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
 
@@ -11,7 +12,8 @@ SentryClient (TestInit)
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    andTransport:(id<SentryTransport>)transport
-                 andFileManager:(SentryFileManager *)fileManager;
+                 andFileManager:(SentryFileManager *)fileManager
+         andIntegrationProvider:(SentryIntegrationProvider *)integrationProvider;
 
 @end
 

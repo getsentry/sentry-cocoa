@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Send SDK integrations
+
 ## 7.9.0
 
 - fix: Crash in SentrySubClassFinder (#1635)
