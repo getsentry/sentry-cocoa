@@ -54,6 +54,10 @@ SentryOptions ()
         _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
 
+        _profilerSampleRateHz = 100;
+        _measureProfilerCost = YES;
+        _profilerEnabled = YES;
+
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
         // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not

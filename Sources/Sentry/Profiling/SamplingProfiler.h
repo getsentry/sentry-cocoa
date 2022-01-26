@@ -33,8 +33,8 @@ public:
      * @param samplingRateHz The sampling rate, in Hz, to sample at.
      */
     SamplingProfiler(std::function<void(SentryProfilingEntry*)> callback,
-                     std::uint32_t samplingRateHz = 100,
-                     bool measureCost = true);
+                     std::uint32_t samplingRateHz,
+                     bool measureCost);
 
     ~SamplingProfiler();
 

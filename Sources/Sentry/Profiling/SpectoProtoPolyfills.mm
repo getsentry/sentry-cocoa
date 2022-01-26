@@ -8,10 +8,8 @@
 
 #include "SpectoProtoPolyfills.h"
 
-@implementation SentryBacktrace
+@implementation SentryBacktrace @end
 
-@end
+@implementation SentryProfilingEntry @end
 
-@implementation SentryProfilingEntry
-
-@end
+@implementation SentryProfilingTraceLogger @end

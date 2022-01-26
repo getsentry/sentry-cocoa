@@ -16,7 +16,7 @@
     NSInteger priority;
     NSString *threadName;
     NSString *queueName;
-    NSMutableArray *addresses;
+    NSMutableArray<NSValue *> *addresses; // array of 64-bit pointer NSValues
 }
 @end
 
@@ -27,5 +27,10 @@
     uint64_t elapsedRelativeToStartDateNs;
     uint64_t costNs;
 }
+@end
 
+@interface SentryProfilingTraceLogger: NSObject {
+@public
+    NSInteger referenceUptimeNs;
+}
 @end

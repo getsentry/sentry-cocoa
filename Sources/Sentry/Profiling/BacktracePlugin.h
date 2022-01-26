@@ -1,9 +1,13 @@
 // Copyright (c) Specto Inc. All rights reserved.
 
-#import "cpp/plugin/src/Plugin.h"
-
 #import <Foundation/Foundation.h>
 #import <memory>
+
+@class SentryOptions;
+@class SentryProfilingTraceLogger;
+@class SentryFileManager;
+
+NS_ASSUME_NONNULL_BEGIN
 
 namespace specto {
 namespace darwin {
@@ -14,25 +18,28 @@ class SamplingProfiler;
 
  * BACKTRACE entries are created for each sample for each thread separately.
  */
-class BacktracePlugin : public Plugin {
+class BacktracePlugin {
 public:
     BacktracePlugin();
 
-    void start(std::shared_ptr<TraceLogger> logger,
-               const std::shared_ptr<proto::TraceConfiguration> &configuration) override;
-    void end(std::shared_ptr<TraceLogger> logger) override;
-    void abort(const proto::Error &error) override;
+    void start(SentryProfilingTraceLogger *logger,
+               SentryOptions *options);
+    void end();
+    void abort();
     bool
-      shouldEnable(const std::shared_ptr<proto::TraceConfiguration> &configuration) const override;
+      shouldEnable(SentryOptions *options) const;
 
     BacktracePlugin(const BacktracePlugin &) = delete;
     BacktracePlugin &operator=(const BacktracePlugin &) = delete;
 
 private:
     std::shared_ptr<SamplingProfiler> profiler_ {nullptr};
+    SentryFileManager *filemanager_ {nullptr};
 
     void stopCollecting();
 };
 
 } // namespace darwin
 } // namespace specto
+
+NS_ASSUME_NONNULL_END
