@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Don't track OOMs for unit tests (#1651)
+
 ## 7.9.0
 
 - fix: Crash in SentrySubClassFinder (#1635)
