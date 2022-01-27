@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased 
+
+- fix: Add verification for vendor UUID in OOM logic (#1648)
+
 ## 7.9.0
 
 - fix: Crash in SentrySubClassFinder (#1635)
