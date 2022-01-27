@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "StackFrame.h"
 #include "CPU.h"
+#include "StackFrame.h"
 
 #include <cstdint>
 
 // These architectures have a downward-growing stack, in order to support other
 // architectures, support for upward growing stacks may need to be added.
 #if !(CPU(X86) || CPU(X86_64) || CPU(ARM) || CPU(ARM64))
-#error Unsupported architecture!
+#    error Unsupported architecture!
 #endif
 
 namespace specto {
@@ -29,7 +29,9 @@ struct StackBounds {
      * @param framePtr The frame pointer to check.
      * @return Whether the pointer is within the bounds of the stack.
      */
-    inline bool contains(std::uintptr_t framePtr) const noexcept {
+    inline bool
+    contains(std::uintptr_t framePtr) const noexcept
+    {
         return (framePtr > end) && (framePtr < (start - sizeof(StackFrame)));
     }
 
@@ -37,7 +39,9 @@ struct StackBounds {
      * Performs a simple consistency check to see if the stack bounds are valid.
      * @return Whether the stack bounds are valid.
      */
-    inline bool isValid() const noexcept {
+    inline bool
+    isValid() const noexcept
+    {
         return (start != 0) && (end != 0) && (start > end);
     }
 };

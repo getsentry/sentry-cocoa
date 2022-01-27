@@ -10,5 +10,5 @@ namespace specto::darwin {
  *
  * @return True if the memory can be safely read.
  */
-bool isMemoryReadable(const void* const memory, const int byteCount);
+bool isMemoryReadable(const void *const memory, const int byteCount);
 } // namespace specto::darwin

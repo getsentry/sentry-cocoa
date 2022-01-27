@@ -9,7 +9,7 @@
 // These architectures have a downward-growing stack, in order to support other
 // architectures, support for upward growing stacks may need to be added.
 #if !(CPU(X86) || CPU(X86_64) || CPU(ARM) || CPU(ARM64))
-#error Unsupported architecture!
+#    error Unsupported architecture!
 #endif
 
 namespace specto {
@@ -27,7 +27,9 @@ struct __attribute__((packed)) StackFrame {
      * @param framePtr The frame pointer to check for alignment.
      * @return Whether the pointer is aligned.
      */
-    static inline bool isAligned(std::uintptr_t framePtr) noexcept {
+    static inline bool
+    isAligned(std::uintptr_t framePtr) noexcept
+    {
 #if CPU(X86_64) || CPU(X86) || CPU(ARM64)
         // x86_64 requires the stack pointer to be aligned to 16 bytes for
         // function calls, even though the minimum alignment is 8 bytes. We
@@ -55,11 +57,13 @@ struct __attribute__((packed)) StackFrame {
      * @param framePtr The frame pointer to check for alignment.
      * @return Whether the pointer is aligned.
      */
-    static inline bool isAligned(StackFrame *framePtr) {
+    static inline bool
+    isAligned(StackFrame *framePtr)
+    {
         return isAligned(reinterpret_cast<std::uintptr_t>(framePtr));
     }
 };
 
 static_assert(sizeof(StackFrame) == (sizeof(std::uintptr_t) * 2),
-              "The size of a StackFrame must be 2 times the pointer width");
+    "The size of a StackFrame must be 2 times the pointer width");
 } // namespace specto

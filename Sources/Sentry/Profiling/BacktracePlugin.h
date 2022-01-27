@@ -15,33 +15,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace specto {
 namespace darwin {
-class SamplingProfiler;
+    class SamplingProfiler;
 
-/**
- * A plugin that captures backtraces from all threads.
+    /**
+     * A plugin that captures backtraces from all threads.
 
- * BACKTRACE entries are created for each sample for each thread separately.
- */
-class BacktracePlugin {
-public:
-    BacktracePlugin();
+     * BACKTRACE entries are created for each sample for each thread separately.
+     */
+    class BacktracePlugin {
+    public:
+        BacktracePlugin();
 
-    void start(SentryProfilingTraceLogger *logger,
-               SentryOptions *options);
-    void end();
-    void abort();
-    bool
-      shouldEnable(SentryOptions *options) const;
+        void start(SentryProfilingTraceLogger *logger, SentryOptions *options);
+        void end();
+        void abort();
+        bool shouldEnable(SentryOptions *options) const;
 
-    BacktracePlugin(const BacktracePlugin &) = delete;
-    BacktracePlugin &operator=(const BacktracePlugin &) = delete;
+        BacktracePlugin(const BacktracePlugin &) = delete;
+        BacktracePlugin &operator=(const BacktracePlugin &) = delete;
 
-private:
-    std::shared_ptr<SamplingProfiler> profiler_ {nullptr};
-    SentryFileManager *filemanager_ {nullptr};
+    private:
+        std::shared_ptr<SamplingProfiler> profiler_ { nullptr };
+        SentryFileManager *filemanager_ { nullptr };
 
-    void stopCollecting();
-};
+        void stopCollecting();
+    };
 
 } // namespace darwin
 } // namespace specto

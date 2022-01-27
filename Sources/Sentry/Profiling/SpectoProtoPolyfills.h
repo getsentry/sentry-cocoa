@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <string>
 #import <Foundation/Foundation.h>
+#include <string>
 
-@interface SentryBacktrace: NSObject {
+@interface SentryBacktrace : NSObject {
 @public
     NSInteger priority;
     NSString *threadName;
@@ -20,7 +20,7 @@
 }
 @end
 
-@interface SentryProfilingEntry: NSObject {
+@interface SentryProfilingEntry : NSObject {
 @public
     NSInteger tid;
     SentryBacktrace *backtrace;
@@ -29,7 +29,7 @@
 }
 @end
 
-@interface SentryProfilingTraceLogger: NSObject {
+@interface SentryProfilingTraceLogger : NSObject {
 @public
     NSInteger referenceUptimeNs;
 }
