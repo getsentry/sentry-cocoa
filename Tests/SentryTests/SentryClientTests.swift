@@ -53,11 +53,8 @@ class SentryClientTest: XCTestCase {
                     "dsn": SentryClientTest.dsn
                 ])
                 configureOptions(options)
-                
-                let integrationProvider = TestSentryIntegrationProvider()
-                integrationProvider.integrations = options.integrations ?? []
 
-                client = Client(options: options, andTransport: transport, andFileManager: fileManager, andIntegrationProvider: integrationProvider)
+                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -693,7 +690,7 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
     
@@ -709,7 +706,7 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
     
@@ -722,7 +719,7 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            XCTAssertEqual(expected, actual.sdk?["integrations"] as? [String])
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
     
@@ -1030,6 +1027,10 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEventsWithSessionTraceState.count)
         XCTAssertEqual(0, fixture.transport.sendEventWithTraceStateInvocations.count)
         XCTAssertEqual(0, fixture.transport.userFeedbackInvocations.count)
+    }
+    
+    private func assertArrayEquals(expected: [String]?, actual: [String]?) {
+        XCTAssertEqual(expected?.sorted(), actual?.sorted())
     }
 
     private enum TestError: Error {

@@ -22,8 +22,6 @@ SentrySDK (Private)
 
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 
-@property (nonatomic, strong, readonly, class) NSArray<NSString *> *enabledIntegrations;
-
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */

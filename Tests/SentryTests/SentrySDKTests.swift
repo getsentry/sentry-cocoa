@@ -397,11 +397,12 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testGetEnabledIntegrations() {
-        SentrySDK.start(options: Options())
+        let options = Options()
+        SentrySDK.start(options: options)
         
         let expexted = Options().integrations?.filter { !$0.contains("FileIO") }
         
-        XCTAssertEqual(expexted, SentrySDK.enabledIntegrations)
+        XCTAssertEqual(expexted, Array(options.enabledIntegrations))
     }
     
     @available(tvOS 13.0, *)

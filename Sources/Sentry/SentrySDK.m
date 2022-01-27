@@ -337,23 +337,6 @@ static NSObject *sentrySDKappStartMeasurementLock;
     }
 }
 
-+ (NSArray<NSString *> *)enabledIntegrations
-{
-    NSMutableArray<NSString *> *integrations = [NSMutableArray new];
-    for (id<SentryIntegrationProtocol> integration in SentrySDK.currentHub.installedIntegrations) {
-        NSString *className = NSStringFromClass(integration.class);
-        if ([integration respondsToSelector:@selector(isEnabled)]) {
-            if ([integration isEnabled]) {
-                [integrations addObject:className];
-            }
-        } else {
-            [integrations addObject:className];
-        }
-    }
-
-    return integrations;
-}
-
 /**
  * Closes the SDK and uninstalls all the integrations.
  */

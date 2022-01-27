@@ -16,7 +16,6 @@
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
-#import "SentryIntegrationProvider.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -53,7 +52,6 @@ SentryClient ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryIntegrationProvider *integrationProvider;
 
 @end
 
@@ -67,7 +65,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.options = options;
 
         self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
-        self.integrationProvider = [[SentryIntegrationProvider alloc] init];
 
         SentryInAppLogic *inAppLogic =
             [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -104,13 +101,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (instancetype)initWithOptions:(SentryOptions *)options
                    andTransport:(id<SentryTransport>)transport
                  andFileManager:(SentryFileManager *)fileManager
-         andIntegrationProvider:(SentryIntegrationProvider *)integrationProvider
 {
     self = [self initWithOptions:options];
 
     self.transport = transport;
     self.fileManager = fileManager;
-    self.integrationProvider = integrationProvider;
 
     return self;
 }
@@ -512,14 +507,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Every integration starts with "Sentry" and ends with "Integration". To keep the payload of
     // the event small we remove both.
     NSMutableArray<NSString *> *integrations = [NSMutableArray new];
-    [self.integrationProvider.enabledIntegrations enumerateObjectsUsingBlock:^(
-        NSString *_Nonnull integration, NSUInteger idx, BOOL *_Nonnull stop) {
+    for (NSString *integration in self.options.enabledIntegrations) {
         NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
                                                                          withString:@""];
         NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
                                                                      withString:@""];
         [integrations addObject:trimmed];
-    }];
+    }
 
     NSMutableDictionary *sdk = @{
         @"name" : SentryMeta.sdkName,

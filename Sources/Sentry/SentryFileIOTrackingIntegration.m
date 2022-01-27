@@ -35,13 +35,11 @@
         return;
     }
 
-    self.isEnabled = YES;
     [SentryNSDataSwizzling start];
 }
 
 - (void)uninstall
 {
-    self.isEnabled = NO;
     [SentryNSDataSwizzling stop];
 }
 
