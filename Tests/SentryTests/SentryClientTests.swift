@@ -1,5 +1,9 @@
 import XCTest
 
+
+// swiftlint:disable file_length
+// We are aware that the client has a lot of logic and we should maybe
+// move some of it to other classes.
 class SentryClientTest: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -1035,3 +1039,5 @@ class SentryClientTest: XCTestCase {
         case somethingElse
     }
 }
+
+// swiftlint:enable file_length
