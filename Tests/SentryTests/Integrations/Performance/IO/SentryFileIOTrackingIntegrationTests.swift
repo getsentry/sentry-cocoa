@@ -251,4 +251,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             XCTAssertEqual(first.context.operation, operation)         
         }
     }
+    
+    private func assertArrayEquals(expected: [String]?, actual: [String]?) {
+        XCTAssertEqual(expected?.sorted(), actual?.sorted())
+    }
 }
