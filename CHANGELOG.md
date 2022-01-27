@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased 
+## Unreleased
 
+- fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)
 
 ## 7.9.0
