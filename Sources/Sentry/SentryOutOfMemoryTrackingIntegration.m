@@ -5,6 +5,7 @@
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
+#import <SentryLog.h>
 #import <SentryOutOfMemoryLogic.h>
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
@@ -17,13 +18,31 @@ NS_ASSUME_NONNULL_BEGIN
 SentryOutOfMemoryTrackingIntegration ()
 
 @property (nonatomic, strong) SentryOutOfMemoryTracker *tracker;
+@property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 
 @end
 
 @implementation SentryOutOfMemoryTrackingIntegration
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.testConfigurationFilePath
+            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+    }
+    return self;
+}
+
 - (void)installWithOptions:(SentryOptions *)options
 {
+    // The testConfigurationFilePath is not nil when running unit tests. This doesn't work for UI
+    // tests though.
+    if (self.testConfigurationFilePath) {
+        [SentryLog logWithMessage:@"Won't track OOMs, because detected that unit tests are running."
+                         andLevel:kSentryLevelDebug];
+        return;
+    }
+
     if (options.enableOutOfMemoryTracking) {
         dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
             DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);

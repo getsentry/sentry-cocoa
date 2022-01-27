@@ -466,6 +466,7 @@
 		7BFC16A125249A9D00FF6266 /* SentryMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC16A025249A9D00FF6266 /* SentryMessage.m */; };
 		7BFC16AD2524BCE700FF6266 /* SentryMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC16AC2524BCE700FF6266 /* SentryMessageTests.swift */; };
 		7BFC16BA2524D4AF00FF6266 /* SentryMessage+Equality.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFC16B92524D4AF00FF6266 /* SentryMessage+Equality.m */; };
+		7BFE7A0A27A1B6B000D2B66E /* SentryOutOfMemoryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFE7A0927A1B6B000D2B66E /* SentryOutOfMemoryIntegrationTests.swift */; };
 		7BFE7A0327A13D0300D2B66E /* SentryIntegrationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BFE7A0227A13D0300D2B66E /* SentryIntegrationProvider.h */; };
 		7BFE7A0527A13D1700D2B66E /* SentryIntegrationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFE7A0427A13D1700D2B66E /* SentryIntegrationProvider.m */; };
 		7BFE7A0827A1402600D2B66E /* TestSentryIntegrationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFE7A0627A13F2B00D2B66E /* TestSentryIntegrationProvider.swift */; };
@@ -1072,6 +1073,7 @@
 		7BFC16AC2524BCE700FF6266 /* SentryMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMessageTests.swift; sourceTree = "<group>"; };
 		7BFC16B82524D4AF00FF6266 /* SentryMessage+Equality.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryMessage+Equality.h"; sourceTree = "<group>"; };
 		7BFC16B92524D4AF00FF6266 /* SentryMessage+Equality.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SentryMessage+Equality.m"; sourceTree = "<group>"; };
+		7BFE7A0927A1B6B000D2B66E /* SentryOutOfMemoryIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryOutOfMemoryIntegrationTests.swift; sourceTree = "<group>"; };
 		7BFE7A0227A13D0300D2B66E /* SentryIntegrationProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryIntegrationProvider.h; path = include/SentryIntegrationProvider.h; sourceTree = "<group>"; };
 		7BFE7A0427A13D1700D2B66E /* SentryIntegrationProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryIntegrationProvider.m; sourceTree = "<group>"; };
 		7BFE7A0627A13F2B00D2B66E /* TestSentryIntegrationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryIntegrationProvider.swift; sourceTree = "<group>"; };
@@ -2139,6 +2141,7 @@
 			isa = PBXGroup;
 			children = (
 				7B98D7DF25FB73B900C5A389 /* SentryOutOfMemoryTrackerTests.swift */,
+				7BFE7A0927A1B6B000D2B66E /* SentryOutOfMemoryIntegrationTests.swift */,
 			);
 			path = OutOfMemory;
 			sourceTree = "<group>";
@@ -3000,6 +3003,7 @@
 				7B944FB22469C01E00A10721 /* TestClient.swift in Sources */,
 				7BC6EC0C255C3DF80059822A /* SentryThreadTests.swift in Sources */,
 				8E70B10125CB8695002B3155 /* SentrySpanIdTests.swift in Sources */,
+				7BFE7A0A27A1B6B000D2B66E /* SentryOutOfMemoryIntegrationTests.swift in Sources */,
 				7BA61CAF247BBF3C00C130A8 /* SentryDebugImageProviderTests.swift in Sources */,
 				7B965728268321CD00C66E25 /* SentryCrashScopeObserverTests.swift in Sources */,
 				7BD86ECB264A6DB5005439DB /* TestSysctl.swift in Sources */,

@@ -90,6 +90,7 @@
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryOutOfMemoryTrackingIntegration.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryQueueableRequestManager.h"
