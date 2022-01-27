@@ -109,7 +109,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         sentryCrash.internalCrashedLastLaunch = false
         
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: Date())
+        let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, vendorId: "12345678-1234-1234-1234-1234567890AB", isDebugging: false, systemBootTimestamp: Date())
         appState.isActive = true
         fileManager.store(appState)
         

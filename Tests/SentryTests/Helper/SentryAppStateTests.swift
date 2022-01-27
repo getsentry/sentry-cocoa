@@ -20,6 +20,7 @@ class SentryAppStateTests: XCTestCase {
         let dict = [
             "release_name": appState.releaseName,
             "os_version": appState.osVersion,
+            "vendor_id": appState.vendorId,
             "is_debugging": appState.isDebugging,
             "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
             "is_active": appState.isActive,
@@ -34,6 +35,7 @@ class SentryAppStateTests: XCTestCase {
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
         withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
+        withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = nil }
         withValue { $0["system_boot_timestamp"] = nil }
         withValue { $0["is_active"] = nil }
@@ -43,6 +45,7 @@ class SentryAppStateTests: XCTestCase {
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
         withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
+        withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = "" }
         withValue { $0["system_boot_timestamp"] = "" }
         withValue { $0["is_active"] = "" }
@@ -54,7 +57,7 @@ class SentryAppStateTests: XCTestCase {
         let date = Date(timeIntervalSince1970: 0.1)
         let expectedDate = Date(timeIntervalSince1970: 0)
         
-        let sut = SentryAppState(releaseName: "", osVersion: "", isDebugging: false, systemBootTimestamp: date)
+        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date)
         
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
