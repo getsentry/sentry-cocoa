@@ -61,16 +61,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_FileIOTrackingDisabled_RemovesEnabledIntegration() {
-        let options = fixture.getOptions(enableFileIOTracking: false)
-        SentrySDK.start(options: options)
-        
-        assertWriteWithNoSpans()
-        
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("FileIO") && !$0.contains("OutOfMemory") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
-    }
-    
     func test_WritingTrackingDisabled_forSwizzlingOption() {
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
         
@@ -250,9 +240,5 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if let first = children.first {
             XCTAssertEqual(first.context.operation, operation)         
         }
-    }
-    
-    private func assertArrayEquals(expected: [String]?, actual: [String]?) {
-        XCTAssertEqual(expected?.sorted(), actual?.sorted())
     }
 }

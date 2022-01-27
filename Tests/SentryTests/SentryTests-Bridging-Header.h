@@ -56,6 +56,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryFileContents.h"
+#import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+TestProperties.h"
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
