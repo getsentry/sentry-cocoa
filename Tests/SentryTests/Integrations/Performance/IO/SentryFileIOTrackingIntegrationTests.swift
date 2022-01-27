@@ -61,13 +61,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    func test_WritingTrackingDisabled_RemovesEnabledIntegration() {
+    func test_FileIOTrackingDisabled_RemovesEnabledIntegration() {
         let options = fixture.getOptions(enableFileIOTracking: false)
         SentrySDK.start(options: options)
         
         assertWriteWithNoSpans()
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("FileIO") }
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("FileIO") && !$0.contains("OutOfMemory") }
         assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
     }
     

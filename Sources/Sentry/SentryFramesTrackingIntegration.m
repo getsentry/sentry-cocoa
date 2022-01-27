@@ -1,6 +1,7 @@
 #import "SentryFramesTrackingIntegration.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
+#import "SentryOptions+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,18 +19,8 @@ SentryFramesTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
+    if ([self shouldBeDisabled:options]) {
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
@@ -43,6 +34,28 @@ SentryFramesTrackingIntegration ()
               andLevel:kSentryLevelInfo];
 #endif
 }
+
+#if SENTRY_HAS_UIKIT
+- (BOOL)shouldBeDisabled:(SentryOptions *)options
+{
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:
+                       @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+    if (!options.isTracingEnabled) {
+        [SentryLog
+            logWithMessage:
+                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
+                  andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+    return NO;
+}
+#endif
 
 - (void)uninstall
 {

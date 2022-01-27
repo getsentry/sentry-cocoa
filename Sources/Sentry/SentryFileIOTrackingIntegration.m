@@ -8,33 +8,34 @@
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeEnabled:options]) {
-        [SentryNSDataSwizzling start];
-    } else {
+    if ([self shouldBeDisabled:options]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return;
     }
+
+    [SentryNSDataSwizzling start];
 }
 
-- (BOOL)shouldBeEnabled:(SentryOptions *)options
+- (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
         [SentryLog logWithMessage:
                        @"Not going to enable FileIOTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
-        return NO;
+        return YES;
     }
 
     if (!options.isTracingEnabled) {
         [SentryLog logWithMessage:@"Not going to enable FileIOTracking because tracing is disabled."
                          andLevel:kSentryLevelDebug];
-        return NO;
+        return YES;
     }
 
     if (!options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:@"Not going to enable FileIOTracking because "
                                   @"enableAutoPerformanceTracking is disabled."
                          andLevel:kSentryLevelDebug];
-        return NO;
+        return YES;
     }
 
     if (!options.enableFileIOTracking) {
@@ -42,10 +43,10 @@
             logWithMessage:
                 @"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
                   andLevel:kSentryLevelDebug];
-        return NO;
+        return YES;
     }
 
-    return YES;
+    return NO;
 }
 
 - (void)uninstall

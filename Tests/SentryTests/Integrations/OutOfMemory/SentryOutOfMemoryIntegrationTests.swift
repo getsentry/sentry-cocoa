@@ -22,4 +22,15 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
         let path = Dynamic(sut).testConfigurationFilePath.asString
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
+    
+    func test_OOMDisabled_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableOutOfMemoryTracking = false
+        
+        let sut = SentryOutOfMemoryTrackingIntegration()
+        sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("OutOfMemory") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
 }
