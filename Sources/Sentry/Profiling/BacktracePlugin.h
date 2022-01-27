@@ -1,5 +1,5 @@
 // Copyright (c) Specto Inc. All rights reserved.
-
+#import "SentryIntegrationProtocol.h"
 #import <Foundation/Foundation.h>
 #import <memory>
 
@@ -8,6 +8,10 @@
 @class SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryBacktraceTrackerIntegration : NSObject <SentryIntegrationProtocol>
+
+@end
 
 namespace specto {
 namespace darwin {

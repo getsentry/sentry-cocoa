@@ -22,6 +22,24 @@
 #import <cstdint>
 #import <memory>
 
+@interface SentryBacktraceTrackerIntegration() {
+    std::shared_ptr<specto::darwin::BacktracePlugin> _plugin;
+    SentryProfilingTraceLogger *_logger;
+}
+
+@end
+
+@implementation SentryBacktraceTrackerIntegration
+
+- (void)installWithOptions:(SentryOptions *)options {
+    _plugin = std::make_shared<specto::darwin::BacktracePlugin>();
+    _logger = [[SentryProfilingTraceLogger alloc] init];
+
+    _plugin->start(_logger, options);
+}
+
+@end
+
 namespace specto {
 namespace darwin {
 
@@ -48,11 +66,17 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
                   @"cost_ns": @(entry->costNs),
                   @"payload": @{
                       @"addresses": entry->backtrace->addresses,
-                      @"thread_name": entry->backtrace->threadName,
-                      @"queue_name": entry->backtrace->queueName,
                       @"priority": @(entry->backtrace->priority),
                   },
               }];
+
+              if (entry->backtrace->threadName != nil) {
+                  dict[@"payload"][@"thread_name"] = entry->backtrace->threadName;
+              }
+
+              if (entry->backtrace->queueName != nil) {
+                  dict[@"payload"][@"queue_name"] = entry->backtrace->queueName;
+              }
 
 #if defined(DEBUG) && defined(__APPLE__)
               const auto addressesSize = entry->backtrace->addresses.count;
