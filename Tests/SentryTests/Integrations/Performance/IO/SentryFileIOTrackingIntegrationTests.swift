@@ -61,6 +61,16 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
+    func test_WritingTrackingDisabled_RemovesEnabledIntegration() {
+        let options = fixture.getOptions(enableFileIOTracking: false)
+        SentrySDK.start(options: options)
+        
+        assertWriteWithNoSpans()
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("FileIO") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
+    
     func test_WritingTrackingDisabled_forSwizzlingOption() {
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
         

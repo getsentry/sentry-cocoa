@@ -1028,10 +1028,6 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sendEventWithTraceStateInvocations.count)
         XCTAssertEqual(0, fixture.transport.userFeedbackInvocations.count)
     }
-    
-    private func assertArrayEquals(expected: [String]?, actual: [String]?) {
-        XCTAssertEqual(expected?.sorted(), actual?.sorted())
-    }
 
     private enum TestError: Error {
         case invalidTest
