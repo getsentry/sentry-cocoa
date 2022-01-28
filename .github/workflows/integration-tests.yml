@@ -9,6 +9,7 @@ on:
       - 'Sources/**'
       - 'Tests/**'
       - 'scripts/**'
+      - '.github/workflows/integration-tests.yml'
 
 jobs:
 
