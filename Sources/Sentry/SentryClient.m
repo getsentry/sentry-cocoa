@@ -522,7 +522,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
                                    .mutableCopy;
 
-    if (nil != sdk && nil == event.sdk) {
+    if (nil == event.sdk) {
         if (event.extra[@"__sentry_sdk_integrations"]) {
             [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
         }
