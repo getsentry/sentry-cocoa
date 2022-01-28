@@ -57,6 +57,19 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
                 logger->referenceUptimeNs, entry->elapsedRelativeToStartDateNs);
               entry->elapsedRelativeToStartDateNs = timeSinceReference.count();
 
+              const auto payload = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"addresses": entry->backtrace->addresses,
+                @"priority": @(entry->backtrace->priority),
+              }];
+
+              if (entry->backtrace->threadName != nil) {
+                  payload[@"thread_name"] = entry->backtrace->threadName;
+              }
+
+              if (entry->backtrace->queueName != nil) {
+                  payload[@"queue_name"] = entry->backtrace->queueName;
+              }
+
               NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
                   // TODO: create a dict of the values in the entry
                   @"elapsed_relative_to_start_date_ns": @(entry->elapsedRelativeToStartDateNs),
@@ -64,19 +77,8 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
                   @"type": @4, // legacy, this corresponds to //spectoproto/entry/entry.proto, field "type", enum value "BACKTRACE"
                   @"group_id": @0,
                   @"cost_ns": @(entry->costNs),
-                  @"payload": @{
-                      @"addresses": entry->backtrace->addresses,
-                      @"priority": @(entry->backtrace->priority),
-                  },
+                  @"payload": payload,
               }];
-
-              if (entry->backtrace->threadName != nil) {
-                  dict[@"payload"][@"thread_name"] = entry->backtrace->threadName;
-              }
-
-              if (entry->backtrace->queueName != nil) {
-                  dict[@"payload"][@"queue_name"] = entry->backtrace->queueName;
-              }
 
 #if defined(DEBUG) && defined(__APPLE__)
               const auto addressesSize = entry->backtrace->addresses.count;

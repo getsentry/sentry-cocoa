@@ -160,7 +160,7 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
             const auto backtrace = entry->backtrace;
             [backtrace->addresses removeAllObjects];
             for (std::remove_const<decltype(depth)>::type i = 0; i < depth; i++) {
-                [backtrace->addresses addObject:[NSValue valueWithPointer:(const void *)addresses[i]]];
+                [backtrace->addresses addObject:@(addresses[i])];
             }
             entry->elapsedRelativeToStartDateNs = startTimeNs;
             if (measureCost) {

@@ -9,7 +9,19 @@
 #include "SpectoProtoPolyfills.h"
 #import "SpectoTime.h"
 
-@implementation SentryBacktrace @end
+@implementation SentryBacktrace
+
+- (instancetype)init {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+
+    addresses = [NSMutableArray array];
+    return self;
+}
+
+@end
 
 @implementation SentryProfilingEntry
 
