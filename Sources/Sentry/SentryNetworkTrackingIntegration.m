@@ -2,6 +2,7 @@
 #import "SentryLog.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
+#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentrySwizzle.h"
 #import <objc/runtime.h>
@@ -14,6 +15,7 @@
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
@@ -52,6 +54,8 @@
 
     if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
+    } else {
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
     }
 }
 

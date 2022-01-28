@@ -42,5 +42,17 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
 
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
+    
+    func test_AutoPerformanceDisabled_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableAutoPerformanceTracking = false
+        
+        let sut = SentryPerformanceTrackingIntegration()
+        sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("PerformanceTracking") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
+    
 #endif
 }
