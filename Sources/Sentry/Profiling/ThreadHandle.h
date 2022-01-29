@@ -14,7 +14,6 @@
 #include <memory>
 #include <pthread.h>
 #include <string>
-#include <sys/qos.h>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -24,20 +23,6 @@
  */
 namespace specto {
 namespace darwin {
-
-    struct QoS {
-        /**
-         * - QOS_CLASS_USER_INTERACTIVE
-         * - QOS_CLASS_USER_INITIATED
-         * - QOS_CLASS_DEFAULT
-         * - QOS_CLASS_UTILITY
-         * - QOS_CLASS_BACKGROUND
-         * - QOS_CLASS_UNSPECIFIED
-         */
-        qos_class_t qosClass = QOS_CLASS_UNSPECIFIED;
-        /** A relative priority offset within the QOS class. */
-        int relativePriority = 0;
-    };
 
     enum class ThreadRunState { Undefined, Running, Stopped, Waiting, Uninterruptible, Halted };
 
@@ -126,13 +111,6 @@ namespace darwin {
          * @warning This function is not async-signal safe!
          */
         int priority() const noexcept;
-
-        /**
-         * @return Darwin QoS attributes associated with the thread.
-         *
-         * @warning This function is not async-signal safe!
-         */
-        QoS qos() const noexcept;
 
         /**
          * @return CPU usage information for the thread.

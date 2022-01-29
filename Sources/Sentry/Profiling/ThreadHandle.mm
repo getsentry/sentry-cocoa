@@ -135,20 +135,6 @@ int ThreadHandle::priority() const noexcept {
     return -1;
 }
 
-QoS ThreadHandle::qos() const noexcept {
-    const auto handle = pthreadHandle();
-    if (handle == nullptr) {
-        return {};
-    }
-    qos_class_t qosClass;
-    int relativePriority;
-    if (SPECTO_LOG_ERROR_RETURN(pthread_get_qos_class_np(handle, &qosClass, &relativePriority))
-        == 0) {
-        return {qosClass, relativePriority};
-    }
-    return {};
-}
-
 namespace {
 ThreadRunState runStateFromRawValue(integer_t state) {
     switch (state) {
