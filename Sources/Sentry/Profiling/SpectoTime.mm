@@ -38,7 +38,8 @@ std::chrono::seconds getSecondsSinceEpoch() noexcept {
 #include <CoreFoundation/CFDate.h>
 #include <ctime>
 
-namespace specto::time {
+namespace specto {
+namespace time {
 
 Type getUptimeNs() noexcept {
     return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
@@ -54,6 +55,7 @@ std::chrono::seconds getSecondsSinceEpoch() noexcept {
       static_cast<std::uint64_t>(CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970));
 }
 
-} // namespace specto::time
+} // namespace time
+} // namespace specto
 
 #endif

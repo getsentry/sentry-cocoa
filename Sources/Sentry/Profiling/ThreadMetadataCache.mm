@@ -22,7 +22,8 @@ constexpr std::size_t kMaxThreadQueueNameLength = 100;
 
 } // namespace
 
-namespace specto::darwin {
+namespace specto {
+namespace darwin {
 
 class ThreadMetadataCache::Impl {
 public:
@@ -83,4 +84,5 @@ SentryProfilingEntry *ThreadMetadataCache::entryForThread(const ThreadHandle &th
     return impl_->entryForThread(thread);
 }
 
-} // namespace specto::darwin
+} // namespace darwin
+} // namespace specto

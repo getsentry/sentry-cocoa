@@ -21,7 +21,8 @@ TIDType getCurrentTID() noexcept {
 
 #include <mach/mach.h>
 
-namespace specto::thread {
+namespace specto {
+namespace thread {
 
 TIDType getCurrentTID() noexcept {
     const auto port = mach_thread_self();
@@ -29,6 +30,7 @@ TIDType getCurrentTID() noexcept {
     return static_cast<TIDType>(port);
 }
 
-} // namespace specto::thread
+} // namespace thread
+} // namespace specto
 
 #endif

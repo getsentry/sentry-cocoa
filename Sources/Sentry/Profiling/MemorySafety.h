@@ -2,7 +2,8 @@
 
 #pragma once
 
-namespace specto::darwin {
+namespace specto {
+namespace darwin {
 /** Test if the specified memory is safe to read from.
  *
  * @param memory A pointer to the memory to test.
@@ -11,4 +12,5 @@ namespace specto::darwin {
  * @return True if the memory can be safely read.
  */
 bool isMemoryReadable(const void *const memory, const int byteCount);
-} // namespace specto::darwin
+} // namespace darwin
+} // namespace specto

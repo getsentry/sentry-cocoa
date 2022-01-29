@@ -14,7 +14,8 @@
 #include <mach/clock_types.h>
 #include <pthread.h>
 
-namespace specto::darwin {
+namespace specto {
+namespace darwin {
 namespace {
 void samplingThreadCleanup(void* buf) {
     free(buf);
@@ -156,4 +157,5 @@ std::uint64_t SamplingProfiler::numSamples() {
     return numSamples_.load();
 }
 
-} // namespace specto::darwin
+} // namespace darwin
+} // namespace specto

@@ -11,7 +11,8 @@
 #include <mach/mach.h>
 #include <pthread.h>
 
-namespace specto::darwin {
+namespace specto {
+namespace darwin {
 
 ThreadHandle::ThreadHandle(NativeHandle handle, bool isOwnedPort) noexcept :
     handle_(handle), isOwnedPort_(isOwnedPort), pthreadHandle_(nullptr) { }
@@ -235,4 +236,5 @@ pthread_t ThreadHandle::pthreadHandle() const noexcept {
     return pthreadHandle_;
 }
 
-} // namespace specto::darwin
+} // namespace specto
+} // namespace darwin
