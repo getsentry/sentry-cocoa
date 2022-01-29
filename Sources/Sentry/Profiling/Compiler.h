@@ -102,7 +102,7 @@
 
 #endif /* COMPILER(GCC) */
 
-#if COMPILER(GCC_COMPATIBLE) && defined(NDEBUG) && !defined(__OPTIMIZE__) && !defined(RELEASE_WITHOUT_OPTIMIZATIONS)
+#if COMPILER(GCC_COMPATIBLE) && !defined(DEBUG) && !defined(__OPTIMIZE__) && !defined(RELEASE_WITHOUT_OPTIMIZATIONS)
 #error "Building release without compiler optimizations: WebKit will be slow. Set -DRELEASE_WITHOUT_OPTIMIZATIONS if this is intended."
 #endif
 
@@ -165,11 +165,11 @@
 
 /* In GCC functions marked with no_sanitize_address cannot call functions that are marked with always_inline and not marked with no_sanitize_address.
  * Therefore we need to give up on the enforcement of ALWAYS_INLINE when bulding with ASAN. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368 */
-#if !defined(ALWAYS_INLINE) && COMPILER(GCC_COMPATIBLE) && defined(NDEBUG) && !COMPILER(MINGW) && !(COMPILER(GCC) && ASAN_ENABLED)
+#if !defined(ALWAYS_INLINE) && COMPILER(GCC_COMPATIBLE) && !defined(DEBUG) && !COMPILER(MINGW) && !(COMPILER(GCC) && ASAN_ENABLED)
 #define ALWAYS_INLINE inline __attribute__((__always_inline__))
 #endif
 
-#if !defined(ALWAYS_INLINE) && COMPILER(MSVC) && defined(NDEBUG)
+#if !defined(ALWAYS_INLINE) && COMPILER(MSVC) && !defined(DEBUG)
 #define ALWAYS_INLINE __forceinline
 #endif
 

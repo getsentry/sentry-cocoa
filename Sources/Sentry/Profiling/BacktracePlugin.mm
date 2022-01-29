@@ -12,7 +12,7 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "Log.h"
 
-#if !defined(NDEBUG) && defined(__APPLE__)
+#if defined(DEBUG)
 #include <execinfo.h>
 #endif
 
@@ -78,7 +78,7 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
                   @"payload": payload,
               }];
 
-#if defined(DEBUG) && defined(__APPLE__)
+#if defined(DEBUG)
               const auto addressesSize = entry->backtrace->addresses.count;
               const auto addressPointers = (void**)malloc(sizeof(uintptr_t) * addressesSize);
               int idx = 0;

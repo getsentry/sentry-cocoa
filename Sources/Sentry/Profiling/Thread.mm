@@ -1,22 +1,5 @@
 #include "Thread.h"
 
-#ifdef __ANDROID__
-
-namespace specto {
-namespace thread {
-
-#include <unistd.h>
-
-TIDType getCurrentTID() noexcept {
-    // https://android.googlesource.com/platform/bionic/+/master/libc/bionic/gettid.cpp
-    return static_cast<TIDType>(gettid());
-}
-
-} // namespace thread
-} // namespace specto
-
-#elif __APPLE__
-
 #include <mach/mach.h>
 
 namespace specto {
@@ -30,5 +13,3 @@ TIDType getCurrentTID() noexcept {
 
 } // namespace thread
 } // namespace specto
-
-#endif

@@ -120,7 +120,7 @@
 #endif
 
 /* CPU(ARM64) - Apple */
-#if (defined(__arm64__) && defined(__APPLE__)) || defined(__aarch64__)
+#if defined(__arm64__) || defined(__aarch64__)
 #define SPECTO_CPU_ARM64 1
 #define SPECTO_CPU_KNOWN 1
 

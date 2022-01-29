@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef __APPLE__
-#    error Non-Apple platforms are not supported!
-#endif
-
 #include "StackBounds.h"
 #include "ThreadHandle.h"
 
