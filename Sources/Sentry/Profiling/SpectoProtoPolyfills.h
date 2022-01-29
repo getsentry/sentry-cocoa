@@ -1,11 +1,3 @@
-//
-//  SpectoProtoPolyfills.hpp
-//  Sentry
-//
-//  Created by Andrew McKnight on 1/20/22.
-//  Copyright © 2022 Sentry. All rights reserved.
-//
-
 #pragma once
 
 #import <Foundation/Foundation.h>

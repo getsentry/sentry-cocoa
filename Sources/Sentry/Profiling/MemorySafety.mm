@@ -1,5 +1,3 @@
-// Copyright (c) Specto Inc. All rights reserved.
-
 // From https://github.com/kstenerud/KSCrash/blob/master/Source/KSCrash/Recording/Tools/KSMemory.c
 //
 //  Copyright (c) 2012 Karl Stenerud. All rights reserved.

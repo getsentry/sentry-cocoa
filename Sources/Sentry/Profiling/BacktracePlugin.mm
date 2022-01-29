@@ -1,5 +1,3 @@
-// Copyright (c) Specto Inc. All rights reserved.
-
 #import "BacktracePlugin.h"
 
 #import "SentryAttachment.h"

@@ -1,5 +1,3 @@
-// Copyright (c) Specto Inc. All rights reserved.
-
 #include "Thread.h"
 
 #ifdef __ANDROID__

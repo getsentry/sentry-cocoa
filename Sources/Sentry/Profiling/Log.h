@@ -1,5 +1,3 @@
-// Copyright (c) Specto Inc. All rights reserved.
-
 #pragma once
 
 // from cpp/log/src/Log.h

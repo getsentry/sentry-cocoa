@@ -1,4 +1,3 @@
-// Copyright (c) Specto Inc. All rights reserved.
 #import "SentryIntegrationProtocol.h"
 #import <Foundation/Foundation.h>
 #import <memory>
