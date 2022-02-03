@@ -73,7 +73,7 @@ dirContentsCount(const char *path)
     int count = 0;
     DIR *dir = opendir(path);
     if (dir == NULL) {
-        SentryCrashLOG_ERROR("Error reading directory %s: %s", strerror(errno));
+        SentryCrashLOG_ERROR("Error reading directory %s: %s", path, strerror(errno));
         return 0;
     }
 
