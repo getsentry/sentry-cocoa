@@ -68,7 +68,7 @@ SentrySubClassFinder ()
         // above.
 
         NSMutableArray<NSNumber *> *indexesToSwizzle = [NSMutableArray new];
-        for (NSInteger i = 0; i < numClasses; i++) {
+        for (NSInteger i = 0; i < numClasses; i++) {            
             Class superClass = classes[i];
 
             // Don't add the parent class to list of sublcasses
@@ -133,6 +133,47 @@ SentrySubClassFinder ()
     }
 
     return numClasses;
+}
+
+- (NSArray*)getClassNameList
+{
+    int numClasses = [self.objcRuntimeWrapper getClassList:NULL bufferCount:0];
+
+    if (numClasses <= 0) {
+        return nil;
+    }
+
+    int memSize = sizeof(Class) * numClasses;
+    Class * classes = (__unsafe_unretained Class *)malloc(memSize);
+
+    if (classes == NULL && memSize) {
+        [SentryLog logWithMessage:@"Couldn't allocate memory when retrieving class list."
+                         andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    // Don't assign the result getClassList again to numClasses because if a class is registered
+    // in the meantime our buffer would not be big enough and we would crash when iterating over
+    // the classes.
+    int secondNumClasses = [self.objcRuntimeWrapper getClassList:classes bufferCount:numClasses];
+
+    // When the number of classes changes between the invocation of class_getSuperclass, we run the
+    // risk of accessing bad memory when iterating over all classes, also see
+    // https://github.com/getsentry/sentry-cocoa/issues/1634
+    if (secondNumClasses != numClasses) {
+        [SentryLog logWithMessage:@"Can't find subclasses, because the number of classes changed "
+                                  @"between invocations of class_getSuperclass."
+                         andLevel:kSentryLevelDebug];
+        return nil;
+    }
+    
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    
+    for (int i = 0; i < secondNumClasses; i++) {
+        [result addObject:NSStringFromClass(classes[i])];
+    }
+
+    return result;
 }
 
 @end

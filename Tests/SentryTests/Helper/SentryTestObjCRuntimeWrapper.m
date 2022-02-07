@@ -32,6 +32,10 @@ SentryTestObjCRuntimeWrapper ()
         numClasses = self.numClasses(numClasses);
     }
 
+    if (self.afterGetClassList != nil) {
+        self.afterGetClassList();
+    }
+    
     return numClasses;
 }
 

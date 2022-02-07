@@ -8,6 +8,8 @@
 
 @property (nullable, nonatomic, copy) void (^beforeGetClassList)(void);
 
+@property (nullable, nonatomic, copy) void (^afterGetClassList)(void);
+
 @property (nullable, nonatomic, copy) int (^numClasses)(int);
 
 @property (nonatomic, assign) NSUInteger iterateClassesInvocations;

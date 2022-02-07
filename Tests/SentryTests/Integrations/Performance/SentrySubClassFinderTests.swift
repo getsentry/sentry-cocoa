@@ -36,6 +36,20 @@ class SentrySubClassFinderTests: XCTestCase {
         testActOnSubclassesOf(Child1.self, expected: [])
         XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
     }
+
+    func testActOnSubclassesOfChild2_WhenClassIsUnregistered_ReturnNoChildren() {
+        let className = SentryId().sentryIdString
+        var calls = 0
+        fixture.runtimeWrapper.afterGetClassList = {
+            if calls == 1 {
+                SentryClassRegistrator.unregisterClass(className)
+            }
+            calls += 1
+        }
+        SentryClassRegistrator.registerClass(className)
+        testActOnSubclassesOf(Child1.self, expected: [])
+        XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
+    }
     
     func testActOnSubclassesOfChild2_WhenNewClassOnlyOnceRegistered_ReturnsChildren() {
         var invocations = 0
