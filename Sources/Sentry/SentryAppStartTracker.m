@@ -136,6 +136,7 @@ SentryAppStartTracker ()
 
     // With only running this once we know that the process is a new one when the following code is
     // executed.
+// We need to make sure the block runs on each test instead of only once
 #    if TEST
     block();
 #    else
