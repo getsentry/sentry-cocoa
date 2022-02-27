@@ -139,3 +139,6 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+#import "SentryCoreDataTracker.h"
+#import "SentryCoreDataTrackingIntegration.h"
+#import "SentryCoreDataSwizzling.h"

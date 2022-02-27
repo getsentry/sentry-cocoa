@@ -1,8 +1,11 @@
-import Foundation
-import UIKit
 import CoreData
+import Foundation
+import Sentry
+import UIKit
 
-class CoreDataViewController : UITableViewController {
+class CoreDataViewController: UITableViewController {
+    
+    var people = [Person]()
     
     init() {
         super.init(style: .plain)
@@ -12,66 +15,26 @@ class CoreDataViewController : UITableViewController {
         super.init(coder: coder)
     }
     
-    @available(iOS 10.0, *)
-    lazy var persistentContainer: NSPersistentContainer = {
-        /*
-         The persistent container for the application. This implementation
-         creates and returns a container, having loaded the store for the
-         application to it. This property is optional since there are legitimate
-         error conditions that could cause the creation of the store to fail.
-         */
-        let container = NSPersistentContainer(name: "SentryData")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
-    
+    // MARK: Core Data
     
     lazy var applicationDocumentsDirectory: URL = {
-        
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return urls[urls.count-1]
+        return urls[urls.count - 1]
     }()
     
     lazy var managedObjectModel: NSManagedObjectModel = {
-        // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
         let modelURL = Bundle.main.url(forResource: "SentryData", withExtension: "momd")!
         return NSManagedObjectModel(contentsOf: modelURL)!
     }()
     
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
-        // The persistent store coordinator for the application. This implementation creates and returns a coordinator, having added the store for the application to it. This property is optional since there are legitimate error conditions that could cause the creation of the store to fail.
-        // Create the coordinator and store
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.appendingPathComponent("SingleViewCoreData.sqlite")
-        var failureReason = "There was an error creating or loading the application's saved data."
+        
         do {
             try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: nil)
         } catch {
-            // Report any error we got.
-            var dict = [String: AnyObject]()
-            dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data" as AnyObject?
-            dict[NSLocalizedFailureReasonErrorKey] = failureReason as AnyObject?
-            
-            dict[NSUnderlyingErrorKey] = error as NSError
-            let wrappedError = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
-            // Replace this with code to handle the error appropriately.
-            // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog("Unresolved error \(wrappedError), \(wrappedError.userInfo)")
+            //log error
             abort()
         }
         
@@ -79,7 +42,6 @@ class CoreDataViewController : UITableViewController {
     }()
     
     lazy var managedObjectContext: NSManagedObjectContext = {
-        // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
         let coordinator = self.persistentStoreCoordinator
         var managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = coordinator
@@ -87,64 +49,112 @@ class CoreDataViewController : UITableViewController {
     }()
     
     func getEntity<T: NSManagedObject>() -> T {
-        if #available(iOS 10, *) {
-            let obj = T(context: managedObjectContext)
-            return obj
-        } else {
-            guard let entityDescription = NSEntityDescription.entity(forEntityName: NSStringFromClass(T.self), in: managedObjectContext) else {
-                fatalError("Core Data entity name doesn't match.")
-            }
-            let obj = T(entity: entityDescription, insertInto: managedObjectContext)
-            return obj
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: NSStringFromClass(T.self), in: managedObjectContext) else {
+            fatalError("Core Data entity name doesn't match.")
         }
+        let obj = T(entity: entityDescription, insertInto: managedObjectContext)
+        return obj
     }
-    
-    // MARK: - Core Data Saving support
     
     func saveContext () {
-        if #available(iOS 10.0, *) {
-            
-            let context = persistentContainer.viewContext
-            if context.hasChanges {
-                do {
-                    try context.save()
-                } catch {
-                    // Replace this implementation with code to handle the error appropriately.
-                    // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                    let nserror = error as NSError
-                    fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-                }
-                
-            } else {
-                // iOS 9.0 and below - however you were previously handling it
-                if managedObjectContext.hasChanges {
-                    do {
-                        try managedObjectContext.save()
-                    } catch {
-                        // Replace this implementation with code to handle the error appropriately.
-                        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                        let nserror = error as NSError
-                        NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
-                        abort()
-                    }
-                }
-                
+        // iOS 9.0 and below - however you were previously handling it
+        if managedObjectContext.hasChanges {
+            do {
+                try managedObjectContext.save()
+            } catch {
+                let nserror = error as NSError
+                NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
+                abort()
             }
         }
     }
+    
+    // MARK: Table View
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return people.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CELL") ?? {
+            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "CELL")
+            cell.selectionStyle = .none
+            return cell;
+        }()
+        
+        cell.textLabel?.text = people[indexPath.row].name
+        cell.detailTextLabel?.text = people[indexPath.row].job
+        
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle != .delete {
+            return
+        }
+        
+        managedObjectContext.delete(people[indexPath.row])
+        
+        people.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+    
+    // MARK: View Controller
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let pred = NSPredicate(format: "name == %@", "Dhiogo")
         
-        let fetchRequest = NSFetchRequest<Person>(entityName: "Person")
-        fetchRequest.predicate = pred
-        
+        let fetchRequest = Person.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         do {
-            let people = try managedObjectContext.fetch(fetchRequest)
-            print("\(people.first?.name ?? "")")
+            people = try managedObjectContext.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(requestNewPerson(_:)))
+    }
+    
+    @objc
+    private func requestNewPerson(_ source : Any?){
+        let alert = UIAlertController(title: "New Person", message: nil, preferredStyle: .alert)
+        alert.addTextField {
+            $0.returnKeyType = .next
+            $0.placeholder = "Name"
+        }
+        alert.addTextField {
+            $0.returnKeyType = .done
+            $0.placeholder = "Job"
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { action in
+            self.addNewPerson(name: alert.textFields![0].text!, job: alert.textFields![1].text!)
+        }))
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func addNewPerson(name: String, job: String) {
+        let person : Person = getEntity()
+        
+        person.name = name
+        person.job = job
+        
+        people.append(person)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        let transaction = SentrySDK.startTransaction(name: "Sync person database", operation: "data.update", bindToScope: true)
+        saveContext()
+        transaction.finish()
     }
 }

@@ -190,7 +190,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func useCoreData(_ sender: Any) {
-        let controller = CoreDataViewController();
+        let controller = CoreDataViewController()
         controller.title = "CoreData"
         navigationController?.pushViewController(controller, animated: false)
     }
