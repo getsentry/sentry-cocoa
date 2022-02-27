@@ -38,10 +38,9 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull"
-    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:nil];
-#pragma clang diagnostic pop
+
+    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:[NSURL new]];
+
     Class currentClass = [localDataTask class];
     NSMutableArray *result = [[NSMutableArray alloc] init];
 
