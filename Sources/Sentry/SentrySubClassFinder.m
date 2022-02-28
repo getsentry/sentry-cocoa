@@ -3,6 +3,7 @@
 #import "SentryLog.h"
 #import "SentryObjCRuntimeWrapper.h"
 #import <objc/runtime.h>
+#import <string.h>
 
 @interface
 SentrySubClassFinder ()
@@ -70,23 +71,7 @@ SentrySubClassFinder ()
 
         NSMutableArray<NSNumber *> *indexesToSwizzle = [NSMutableArray new];
         for (NSInteger i = 0; i < numClasses; i++) {
-            Class superClass = classes[i];
-
-            // Don't add the parent class to list of sublcasses
-            if (!superClass || superClass == parentClass) {
-                continue;
-            }
-
-            // Using a do while loop, like pointed out in Cocoa with Love
-            // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
-            // can lead to EXC_I386_GPFLT which, stands for General Protection Fault and means we
-            // are doing something we shouldn't do. It's safer to use a regular while loop to check
-            // if superClass is valid.
-            while (superClass && superClass != parentClass) {
-                superClass = class_getSuperclass(superClass);
-            }
-
-            if (superClass) {
+            if ([self isClass:classes[i] subClassOf:parentClass]) {
                 [indexesToSwizzle addObject:@(i)];
             }
         }
@@ -134,6 +119,56 @@ SentrySubClassFinder ()
     }
 
     return numClasses;
+}
+
+- (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass {
+    if (!childClass || childClass == parentClass) {
+        return false;
+    }
+
+    // Using a do while loop, like pointed out in Cocoa with Love
+    // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
+    // can lead to EXC_I386_GPFLT which, stands for General Protection Fault and means we
+    // are doing something we shouldn't do. It's safer to use a regular while loop to check
+    // if superClass is valid.
+    while (childClass && childClass != parentClass) {
+        childClass = class_getSuperclass(childClass);
+    }
+
+    return childClass != nil;
+}
+
+- (void)actOnSubclassesOfViewControllerInImage:(NSString*)imageName block:(void (^)(Class))block;
+{
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        unsigned int count = 0;
+        const char ** classes = objc_copyClassNamesForImage([imageName cStringUsingEncoding:NSUTF8StringEncoding], &count);
+        Class viewControllerClass = NSClassFromString(@"UIViewController");
+        if (viewControllerClass == nil) {
+            [SentryLog logWithMessage:@"UIViewController class not found."
+                             andLevel:kSentryLevelDebug];
+            return;
+        }
+        
+        NSMutableArray<NSString *> *classesToSwizzle = [NSMutableArray new];
+        for (int i = 0; i<count; i++) {
+            NSString * className = [NSString stringWithUTF8String:classes[i]];
+            if ([className hasSuffix:@"ViewController"]) {
+                Class class = NSClassFromString(className);
+                if ([self isClass:class subClassOf:viewControllerClass]) {
+                    [classesToSwizzle addObject:className];
+                }
+            }
+        }
+        
+        [self.dispatchQueue dispatchOnMainQueue:^{
+            for (NSString * className in classesToSwizzle) {
+                block(NSClassFromString(className));
+            }
+            free(classes);
+        }];
+
+    }];
 }
 
 @end
