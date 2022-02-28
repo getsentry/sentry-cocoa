@@ -120,7 +120,8 @@ SentrySubClassFinder ()
     return numClasses;
 }
 
-- (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass {
+- (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass
+{
     if (!childClass || childClass == parentClass) {
         return false;
     }
@@ -137,21 +138,22 @@ SentrySubClassFinder ()
     return childClass != nil;
 }
 
-- (void)actOnSubclassesOfViewControllerInImage:(NSString*)imageName block:(void (^)(Class))block;
+- (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         unsigned int count = 0;
-        const char ** classes = objc_copyClassNamesForImage([imageName cStringUsingEncoding:NSUTF8StringEncoding], &count);
+        const char **classes = objc_copyClassNamesForImage(
+            [imageName cStringUsingEncoding:NSUTF8StringEncoding], &count);
         Class viewControllerClass = NSClassFromString(@"UIViewController");
         if (viewControllerClass == nil) {
             [SentryLog logWithMessage:@"UIViewController class not found."
                              andLevel:kSentryLevelDebug];
             return;
         }
-        
+
         NSMutableArray<NSString *> *classesToSwizzle = [NSMutableArray new];
-        for (int i = 0; i<count; i++) {
-            NSString * className = [NSString stringWithUTF8String:classes[i]];
+        for (int i = 0; i < count; i++) {
+            NSString *className = [NSString stringWithUTF8String:classes[i]];
             if ([className hasSuffix:@"ViewController"]) {
                 Class class = NSClassFromString(className);
                 if ([self isClass:class subClassOf:viewControllerClass]) {
@@ -159,14 +161,13 @@ SentrySubClassFinder ()
                 }
             }
         }
-        
+
         [self.dispatchQueue dispatchOnMainQueue:^{
-            for (NSString * className in classesToSwizzle) {
+            for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }
             free(classes);
         }];
-
     }];
 }
 

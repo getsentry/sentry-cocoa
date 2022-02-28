@@ -57,41 +57,44 @@ SentryUIViewControllerSwizzling ()
     id<SentryUIApplication> app = [self findApp];
     if (app != nil) {
         /**
-         * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view controller
-         * before the SentrySDK is initialized. Therefore, we manually call swizzle here not to lose
-         * auto-generated transactions for the initial view controller. As we use
-         * SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling twice. We
-         * could also use objc_getClassList to lookup sub classes of UIViewController, but the lookup can
-         * take around 60ms, which is not acceptable.
+         * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
+         * controller before the SentrySDK is initialized. Therefore, we manually call swizzle here
+         * not to lose auto-generated transactions for the initial view controller. As we use
+         * SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling
+         * twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
+         * the lookup can take around 60ms, which is not acceptable.
          */
         if (![self swizzleRootViewControllerFromUIApplication:app]) {
             NSString *message
-            = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-            @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification notification.";
+                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                  @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification "
+                  @"notification.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-            
+
             if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
                 [NSNotificationCenter.defaultCenter
-                 addObserver:self
-                 selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
-                 name:UISceneWillConnectNotification
-                 object:nil];
+                    addObserver:self
+                       selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
+                           name:UISceneWillConnectNotification
+                         object:nil];
             } else {
-                message = @"UIViewControllerSwizziling: iOS version older then 13."
-                @"There is no UISceneWillConnectNotification notification. Could not find a "
-                @"rootViewController";
-                
+                message
+                    = @"UIViewControllerSwizziling: iOS version older then 13."
+                      @"There is no UISceneWillConnectNotification notification. Could not find a "
+                      @"rootViewController";
+
                 [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             }
         }
-        
+
         [self swizzleAllSubViewControllersInApp:app];
     }
-    
+
     [self swizzleUIViewController];
 }
 
-- (id<SentryUIApplication>)findApp {
+- (id<SentryUIApplication>)findApp
+{
     if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
         NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
                             @"sharedApplication.";
@@ -106,39 +109,42 @@ SentryUIViewControllerSwizzling ()
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return nil;
     }
-    
+
     return app;
 }
 
-- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app {
+- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app
+{
     if (app.delegate == nil) {
         NSString *message = @"UIViewControllerSwizziling: App delegate is nil. Skipping "
                             @"swizzleAllSubViewControllersInApp.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
-    
-    NSString* appImage = [NSString stringWithCString:class_getImageName([app.delegate class]) encoding:NSUTF8StringEncoding];
-    
+
+    NSString *appImage = [NSString stringWithCString:class_getImageName([app.delegate class])
+                                            encoding:NSUTF8StringEncoding];
+
     SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-                                            initWithDispatchQueue:self.dispatchQueue
-                                            objcRuntimeWrapper:[[SentryDefaultObjCRuntimeWrapper alloc] init]];
-    
+        initWithDispatchQueue:self.dispatchQueue
+           objcRuntimeWrapper:[[SentryDefaultObjCRuntimeWrapper alloc] init]];
+
     // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
     // the SubClassFinder does this on a background thread, which should be fine because the SDK
     // swizzles the root view controller and its children above. After finding all subclasses of the
     // UIViewController, we swizzles them on the main thread. Swizzling the UIViewControllers on a
     // background thread led to crashes, see GH-1366.
-    
+
     // Previously, the code intercepted the ViewController initializers with swizzling to swizzle
     // the lifecycle methods. This approach led to UIViewControllers crashing when using a
     // convenience initializer, see GH-1355. The error occurred because our swizzling logic adds the
     // method to swizzle if the class doesn't implement it. It seems like adding an extra
     // initializer causes problems with the rules for initialization in Swift, see
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
-    [subClassFinder actOnSubclassesOfViewControllerInImage:appImage block:^(Class class) {
-        [self swizzleViewControllerSubClass:class];
-    }];
+    [subClassFinder actOnSubclassesOfViewControllerInImage:appImage
+                                                     block:^(Class class) {
+                                                         [self swizzleViewControllerSubClass:class];
+                                                     }];
 }
 
 /**
