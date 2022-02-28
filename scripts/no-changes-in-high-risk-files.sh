@@ -4,7 +4,7 @@ set -euo pipefail
 # To update the sha run shasum -a 256 ./Sources/Sentry/SentryNSURLSessionTaskSearch.m and copy the result in EXPECTED.
 
 ACTUAL=$(shasum -a 256 ./Sources/Sentry/SentryNSURLSessionTaskSearch.m)
-EXPECTED="9d30dbb25eb69dae7d7fa0fed9f440b9f5c19b1250a029f9387682ec645f97e7  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m"
+EXPECTED="ef3e89f281909766117c179e54dd189c19e302a1a9d8132639f26d390b95ad8f  ./Sources/Sentry/SentryNSURLSessionTaskSearch.m"
 
 if [ "$ACTUAL" = "$EXPECTED" ]; then
     echo "No changes in high risk files."
