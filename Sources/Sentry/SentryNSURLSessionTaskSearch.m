@@ -39,6 +39,10 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
 
+    // We dont use `localDataTask` as a task, we just need to know its class,
+    // thats why the URL parameter is a empty url that points nowhere.
+    // AFNetwork uses nil as parameter, but according to documentation this a nonnull parameter,
+    // and when bridged to swift, the nil parameters causes an exception.
     NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:[NSURL new]];
 
     Class currentClass = [localDataTask class];
