@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.10.0
 
 - fix: Always tracks App start for Hybrid SDKs (#1662) 
 - feat: Send SDK integrations (#1647)
