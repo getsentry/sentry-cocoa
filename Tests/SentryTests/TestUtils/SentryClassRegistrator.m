@@ -8,6 +8,7 @@
 {
     Class c = objc_allocateClassPair(
         [NSObject class], [name cStringUsingEncoding:NSUTF8StringEncoding], 0);
+
     objc_registerClassPair(c);
 }
 
