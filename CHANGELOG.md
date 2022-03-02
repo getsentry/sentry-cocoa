@@ -1,11 +1,14 @@
 # Changelog
 
-## Unreleased
+## 7.10.0
 
 - fix: Swizzling UIViewControllers crash (#1670)
+- fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669) 
+- fix: Always tracks App start for Hybrid SDKs (#1662) 
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)
+- fix crash in dirContentsCount() when dir == NULL (#1658)
 
 ## 7.9.0
 
