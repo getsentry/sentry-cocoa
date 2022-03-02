@@ -17,6 +17,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL internalIsBeingTraced;
 
+@property (nonatomic, assign) BOOL internalIsApplicationInForeground;
+
 @property (nonatomic, assign) BOOL installAsyncHooksCalled;
 
 @property (nonatomic, assign) BOOL deactivateAsyncHooksCalled;

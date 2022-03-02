@@ -9,8 +9,14 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         block()
     }
     
+    var blockOnMainInvocations = Invocations<() -> Void>()
+    var blockBeforeMainBlock : () -> Bool = { true }
+    
     override func dispatch(onMainQueue block: @escaping () -> Void) {
-        block()
+        blockOnMainInvocations.record(block)
+        if blockBeforeMainBlock() {
+            block()
+        }
     }
     
     override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {

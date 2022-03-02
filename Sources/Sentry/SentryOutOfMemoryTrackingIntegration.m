@@ -3,6 +3,7 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashAdapter.h>
 #import <SentryDefaultCurrentDateProvider.h>
+#import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentryLog.h>
@@ -11,7 +12,6 @@
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
-#import <SentrySysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,13 +48,9 @@ SentryOutOfMemoryTrackingIntegration ()
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
-    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
-            initWithOptions:options
-               crashAdapter:crashAdapter
-                fileManager:fileManager
-        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                     sysctl:[[SentrySysctl alloc] init]];
+    SentryAppStateManager *appStateManager =
+        [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryCrashAdapter *crashAdapter = [SentryDependencyContainer sharedInstance].crashAdapter;
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options
                                            crashAdapter:crashAdapter

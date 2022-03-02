@@ -49,7 +49,7 @@ class ViewController: UIViewController {
         SentrySDK.addBreadcrumb(crumb: crumb)
     }
     
-    @IBAction func captureMessage(_ sender: Any) {        
+    @IBAction func captureMessage(_ sender: Any) {
         let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
@@ -149,6 +149,22 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func causeANR(_ sender: Any) {
+        var i = 0
+
+        dispatchQueue.async {
+            for _ in 0...1_000_000 {
+                i += Int.random(in: 0...10)
+                i -= 1
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    self.dsnTextField.text = "Count to \(i)"
+                }
+                
+            }
+        }
+    }
+    
     @IBAction func dsnChanged(_ sender: UITextField) {
         let options = Options()
         options.dsn = sender.text

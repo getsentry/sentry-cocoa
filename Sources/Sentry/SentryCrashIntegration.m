@@ -13,6 +13,7 @@
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDefaultCurrentDateProvider.h>
+#import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
 
@@ -76,13 +77,8 @@ SentryCrashIntegration ()
 {
     self.options = options;
 
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
-            initWithOptions:options
-               crashAdapter:self.crashAdapter
-                fileManager:fileManager
-        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                     sysctl:[[SentrySysctl alloc] init]];
+    SentryAppStateManager *appStateManager =
+        [SentryDependencyContainer sharedInstance].appStateManager;
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options
                                            crashAdapter:self.crashAdapter
