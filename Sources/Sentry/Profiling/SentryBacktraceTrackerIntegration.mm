@@ -9,7 +9,7 @@
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentryDefaultCurrentDateProvider.h"
-#import "SentryProfilingLogAdapter.h"
+#import "SentryProfilingLogging.h"
 #import "SentryLog.h"
 
 #if defined(DEBUG)

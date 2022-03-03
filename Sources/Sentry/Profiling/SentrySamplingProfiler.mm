@@ -25,7 +25,7 @@ void* samplingThreadMain(mach_port_t port,
                          bool measureCost,
                          std::atomic_uint64_t& numSamples,
                          std::function<void()> onThreadStart) {
-    SPECTO_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
+    SENTRY_PROF_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
     const int maxSize = 512;
     const auto bufRequest = reinterpret_cast<mig_reply_error_t*>(malloc(maxSize));
     if (onThreadStart) {
@@ -34,7 +34,7 @@ void* samplingThreadMain(mach_port_t port,
     pthread_cleanup_push(samplingThreadCleanup, bufRequest);
     while (true) {
         pthread_testcancel();
-        if (SENTRY_LOG_MACH_MSG_RETURN(mach_msg(&bufRequest->Head,
+        if (SENTRY_PROF_LOG_MACH_MSG_RETURN(mach_msg(&bufRequest->Head,
                                                 MACH_RCV_MSG,
                                                 0,
                                                 maxSize,
@@ -44,7 +44,7 @@ void* samplingThreadMain(mach_port_t port,
             != MACH_MSG_SUCCESS) {
             break;
         }
-        if (SENTRY_LOG_KERN_RETURN(clock_alarm(clock, TIME_RELATIVE, delaySpec, port))
+        if (SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(clock, TIME_RELATIVE, delaySpec, port))
             != KERN_SUCCESS) {
             break;
         }
@@ -65,11 +65,11 @@ SamplingProfiler::SamplingProfiler(std::function<void(SentryProfilingEntry*)> ca
     measureCost_(measureCost), cache_(std::make_shared<ThreadMetadataCache>()),
     isInitialized_(false), isSampling_(false),
     port_(0), numSamples_(0) {
-    if (SENTRY_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
+    if (SENTRY_PROF_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
         != KERN_SUCCESS) {
         return;
     }
-    if (SENTRY_LOG_KERN_RETURN(
+    if (SENTRY_PROF_LOG_KERN_RETURN(
           mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port_))
         != KERN_SUCCESS) {
         return;
@@ -87,13 +87,13 @@ SamplingProfiler::~SamplingProfiler() {
         return;
     }
     stopSampling();
-    SENTRY_LOG_KERN_RETURN(
+    SENTRY_PROF_LOG_KERN_RETURN(
       mach_port_mod_refs(mach_task_self(), port_, MACH_PORT_RIGHT_RECEIVE, -1));
 }
 
 void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
     if (!isInitialized_) {
-        SPECTO_LOG_WARN("startSampling is no-op because SamplingProfiler failed to initialize");
+        SENTRY_PROF_LOG_WARN("startSampling is no-op because SamplingProfiler failed to initialize");
         return;
     }
     std::lock_guard<std::mutex> l(lock_);
@@ -115,15 +115,15 @@ void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
     int policy;
     sched_param param;
     const auto pthreadHandle = thread_.native_handle();
-    if (SPECTO_LOG_ERROR_RETURN(pthread_getschedparam(pthreadHandle, &policy, &param)) == 0) {
+    if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(pthreadHandle, &policy, &param)) == 0) {
         // A priority of 50 is higher than user input, according to:
         // https://chromium.googlesource.com/chromium/src/base/+/master/threading/platform_thread_mac.mm#302
         // Run at a higher priority than the main thread so that we can capture main thread backtraces even when it's busy.
         param.sched_priority = 50;
-        SPECTO_LOG_ERROR_RETURN(pthread_setschedparam(pthreadHandle, policy, &param));
+        SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(pthreadHandle, policy, &param));
     }
 
-    SENTRY_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
+    SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
 }
 
 void SamplingProfiler::stopSampling() {
@@ -134,7 +134,7 @@ void SamplingProfiler::stopSampling() {
     if (!isSampling_) {
         return;
     }
-    SENTRY_LOG_KERN_RETURN(pthread_cancel(thread_.native_handle()));
+    SENTRY_PROF_LOG_KERN_RETURN(pthread_cancel(thread_.native_handle()));
     thread_.join();
     isSampling_ = false;
 }

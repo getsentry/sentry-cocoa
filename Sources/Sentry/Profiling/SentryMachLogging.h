@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SentryProfilingLogAdapter.h"
+#include "SentryProfilingLogging.h"
 
 #include <mach/kern_return.h>
 #include <mach/message.h>
@@ -29,21 +29,21 @@ const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept;
 } // namespace profiling
 } // namespace sentry
 
-#define SENTRY_LOG_KERN_RETURN(statement)                                                          \
+#define SENTRY_PROF_LOG_KERN_RETURN(statement)                                                          \
     ({                                                                                             \
         const kern_return_t __log_kr = statement;                                                  \
         if (__log_kr != KERN_SUCCESS) {                                                            \
-            SPECTO_LOG_ERROR("{} failed with kern return code: {}, description: {}", #statement,   \
+            SENTRY_PROF_LOG_ERROR("%s failed with kern return code: %d, description: %s", #statement,   \
                 __log_kr, sentry::profiling::kernelReturnCodeDescription(__log_kr));                  \
         }                                                                                          \
         __log_kr;                                                                                  \
     })
 
-#define SENTRY_LOG_MACH_MSG_RETURN(statement)                                                      \
+#define SENTRY_PROF_LOG_MACH_MSG_RETURN(statement)                                                      \
     ({                                                                                             \
         const mach_msg_return_t __log_mr = statement;                                              \
         if (__log_mr != MACH_MSG_SUCCESS) {                                                        \
-            SPECTO_LOG_ERROR("{} failed with mach_msg return code: {}, description: {}",           \
+            SENTRY_PROF_LOG_ERROR("%s failed with mach_msg return code: %d, description: %s",           \
                 #statement, __log_mr, sentry::profiling::machMessageReturnCodeDescription(__log_mr)); \
         }                                                                                          \
         __log_mr;                                                                                  \
