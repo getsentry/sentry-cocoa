@@ -266,7 +266,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func givenOOMAppState() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
         appState.isActive = true
         fixture.fileManager.store(appState)
     }

@@ -13,6 +13,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
             options.debug = true
             options.sessionTrackingIntervalMillis = 5_000
+            options.enableFileIOTracking = true
         }
         
         SentrySDK.configureScope { scope in

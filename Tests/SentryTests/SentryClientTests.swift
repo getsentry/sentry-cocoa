@@ -1,5 +1,8 @@
 import XCTest
 
+// swiftlint:disable file_length
+// We are aware that the client has a lot of logic and we should maybe
+// move some of it to other classes.
 class SentryClientTest: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -683,6 +686,46 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testSetSDKIntegrations() {
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString)
+        
+        let expected = shortenIntegrations(Options().integrations)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
+    func testSetSDKIntegrations_CustomIntegration() {
+        var integrations = Options().integrations
+        integrations?.append("Custom")
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.integrations = integrations
+        }).capture(message: fixture.messageAsString)
+        
+        let expected = shortenIntegrations(integrations)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
+    func testSetSDKIntegrations_NoIntegrations() {
+        let expected: [String] = []
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.integrations = expected
+        }).capture(message: fixture.messageAsString)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
+        }
+    }
+    
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
         
@@ -977,6 +1020,10 @@ class SentryClientTest: XCTestCase {
             thread.stacktrace?.frames = actualFrames
         }
     }
+    
+    private func shortenIntegrations(_ integrations: [String]?) -> [String]? {
+        return integrations?.map { $0.replacingOccurrences(of: "Sentry", with: "").replacingOccurrences(of: "Integration", with: "") }
+    }
 
     private func assertNothingSent() {
         XCTAssertTrue(fixture.transport.lastSentEnvelope.isEmpty)
@@ -991,3 +1038,5 @@ class SentryClientTest: XCTestCase {
         case somethingElse
     }
 }
+
+// swiftlint:enable file_length
