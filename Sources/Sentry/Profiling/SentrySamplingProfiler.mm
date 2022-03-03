@@ -25,7 +25,7 @@ void* samplingThreadMain(mach_port_t port,
                          bool measureCost,
                          std::atomic_uint64_t& numSamples,
                          std::function<void()> onThreadStart) {
-    SPECTO_LOG_ERROR_RETURN(pthread_setname_np("dev.specto.SamplingProfiler"));
+    SPECTO_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
     const int maxSize = 512;
     const auto bufRequest = reinterpret_cast<mig_reply_error_t*>(malloc(maxSize));
     if (onThreadStart) {

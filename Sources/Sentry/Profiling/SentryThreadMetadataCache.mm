@@ -10,11 +10,11 @@
 
 namespace {
 
-bool isSpectoOwnedThreadName(const std::string &name) {
-    return name.rfind("dev.specto", 0) == 0;
+bool isSentryOwnedThreadName(const std::string &name) {
+    return name.rfind("io.sentry", 0) == 0;
 }
 
-constexpr std::size_t kMaxThreadQueueNameLength = 100;
+constexpr std::size_t kMaxThreadNameLength = 100;
 
 } // namespace
 
@@ -41,22 +41,16 @@ public:
             // means the rest of this is probably going to fail too.
             if (priority != -1) {
                 auto threadName = thread.name();
-                auto dispatchQueueLabel = thread.dispatchQueueLabel();
-                if (isSpectoOwnedThreadName(threadName)
-                    || isSpectoOwnedThreadName(dispatchQueueLabel)) {
+                if (isSentryOwnedThreadName(threadName)) {
                     // Don't collect backtraces for Specto-owned threads.
                     cache_.push_back({handle, nullptr});
                     return nullptr;
                 }
-                if (threadName.size() > kMaxThreadQueueNameLength) {
-                    threadName.resize(kMaxThreadQueueNameLength);
-                }
-                if (dispatchQueueLabel.size() > kMaxThreadQueueNameLength) {
-                    dispatchQueueLabel.resize(kMaxThreadQueueNameLength);
+                if (threadName.size() > kMaxThreadNameLength) {
+                    threadName.resize(kMaxThreadNameLength);
                 }
 
                 backtrace->threadName = [NSString stringWithUTF8String:threadName.c_str()];
-                backtrace->queueName = [NSString stringWithUTF8String:dispatchQueueLabel.c_str()];;
             }
 
             cache_.push_back({handle, entry});

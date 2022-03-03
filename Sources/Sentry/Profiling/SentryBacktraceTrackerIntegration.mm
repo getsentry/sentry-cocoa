@@ -65,10 +65,6 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
               payload[@"thread_name"] = entry->backtrace->threadName;
           }
 
-          if (entry->backtrace->queueName != nil) {
-              payload[@"queue_name"] = entry->backtrace->queueName;
-          }
-
           NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
               // TODO: create a dict of the values in the entry
               @"elapsed_relative_to_start_date_ns": @(entry->elapsedRelativeToStartDateNs),

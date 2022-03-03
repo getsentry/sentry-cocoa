@@ -1,6 +1,5 @@
 #include "SentryThreadHandle.h"
 
-#include "SentryCrashMemory.h"
 #include "SentryMachLogging.h"
 #include "SentryProfilingLogAdapter.h"
 
@@ -92,34 +91,6 @@ std::string ThreadHandle::name() const noexcept {
         return std::string(name);
     }
     return {};
-}
-
-std::string ThreadHandle::dispatchQueueLabel() const noexcept {
-#if defined(SPECTO_ENV_PRODUCTION)
-    return {};
-#else
-    if (handle_ == THREAD_NULL) {
-        return {};
-    }
-    integer_t infoBuffer[THREAD_IDENTIFIER_INFO_COUNT] = {0};
-    thread_info_t info = infoBuffer;
-    mach_msg_type_number_t count = THREAD_IDENTIFIER_INFO_COUNT;
-    const auto rv = thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count);
-    const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
-    // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-    if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
-        && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
-        const auto queuePtr = (const dispatch_queue_t *)(const void *)idInfo->dispatch_qaddr;
-        if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
-            && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
-            const auto label = dispatch_queue_get_label(*queuePtr);
-            if (label != nullptr) {
-                return std::string(label);
-            }
-        }
-    }
-    return {};
-#endif
 }
 
 int ThreadHandle::priority() const noexcept {

@@ -91,14 +91,6 @@ public:
     std::string name() const noexcept;
 
     /**
-     * @return The queue label, or an empty string if retrieving the label failed or
-     * the thread is not associated with a dispatch queue.
-     *
-     * @warning This function is not async-signal safe!
-     */
-    std::string dispatchQueueLabel() const noexcept;
-
-    /**
      * @return The priority of the specified thread, or -1 if the thread priority
      * could not be successfully determined.
      *

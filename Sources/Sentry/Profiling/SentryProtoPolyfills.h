@@ -7,7 +7,6 @@
 @public
     NSInteger priority;
     NSString *threadName;
-    NSString *queueName;
     NSMutableArray<NSValue *> *addresses; // array of 64-bit pointer NSValues
 }
 @end
