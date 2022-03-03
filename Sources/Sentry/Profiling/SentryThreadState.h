@@ -1,9 +1,9 @@
 #pragma once
 
-#include "CPU.h"
-#include "Compiler.h"
-#include "StackFrame.h"
-#include "ThreadHandle.h"
+#include "SentryCPU.h"
+#include "SentryCompiler.h"
+#include "SentryStackFrame.h"
+#include "SentryThreadHandle.h"
 
 #include <cstdint>
 #include <mach/mach.h>

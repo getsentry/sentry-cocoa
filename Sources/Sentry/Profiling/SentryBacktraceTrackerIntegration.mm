@@ -1,15 +1,15 @@
-#import "BacktracePlugin.h"
+#import "SentryBacktraceTrackerIntegration.h"
 
 #import "SentryAttachment.h"
 #import "SentryId.h"
-#import "SamplingProfiler.h"
-#import "SpectoTime.h"
-#import "SpectoProtoPolyfills.h"
+#import "SentrySamplingProfiler.h"
+#import "SentryTime.h"
+#import "SentryProtoPolyfills.h"
 #import "SentryEnvelope.h"
 #import "SentryFileManager.h"
 #import "SentryOptions.h"
 #import "SentryDefaultCurrentDateProvider.h"
-#import "Log.h"
+#import "SentryProfilingLogAdapter.h"
 
 #if defined(DEBUG)
 #include <execinfo.h>
@@ -96,19 +96,19 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
           free(addressPointers);
           dict[@"payload"][@"symbols"] = symbolStrings;
 #endif
-
-          if (!SPECTO_ASSERT([NSJSONSerialization isValidJSONObject:dict], @"Encountered a dict that can't be converted to JSON: %@", dict)) {
-              return;
-          }
+//
+//          if (!SPECTO_ASSERT([NSJSONSerialization isValidJSONObject:dict], @"Encountered a dict that can't be converted to JSON: %@", dict)) {
+//              return;
+//          }
 
           NSError *serializationError;
           const auto json = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&serializationError];
-          if (!SPECTO_ASSERT_NULL(serializationError, @"Encountered an error serializing dictionary (%@): %@", dict, serializationError)) {
-              return;
-          }
-          if (!SPECTO_ASSERT_NOT_NULL(json, @"Successfully serialized dictionary but got nil data back. (Input dict: %@)", dict)) {
-              return;
-          }
+//          if (!SPECTO_ASSERT_NULL(serializationError, @"Encountered an error serializing dictionary (%@): %@", dict, serializationError)) {
+//              return;
+//          }
+//          if (!SPECTO_ASSERT_NOT_NULL(json, @"Successfully serialized dictionary but got nil data back. (Input dict: %@)", dict)) {
+//              return;
+//          }
 
           const auto uuid = [NSUUID UUID];
           const auto attachment = [[SentryAttachment alloc] initWithData:json filename:uuid.UUIDString];

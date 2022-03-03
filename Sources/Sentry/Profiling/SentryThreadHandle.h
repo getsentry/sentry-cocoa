@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StackBounds.h"
-#include "Thread.h"
+#include "SentryStackBounds.h"
+#include "SentryProfilingThread.h"
 
 #include <chrono>
 #include <mach/mach.h>

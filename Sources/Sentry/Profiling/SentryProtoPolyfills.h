@@ -1,7 +1,7 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
-#include <string>
+#import <string>
 
 @interface SentryBacktrace : NSObject {
 @public

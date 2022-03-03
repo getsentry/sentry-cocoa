@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "Compiler.h"
+#include "SentryCompiler.h"
 
 /* ==== Platform adaptation macros: these describe properties of the target environment. ==== */
 

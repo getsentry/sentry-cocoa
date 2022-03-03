@@ -1,8 +1,8 @@
-#include "ThreadMetadataCache.h"
+#include "SentryThreadMetadataCache.h"
 
-#include "ThreadHandle.h"
-#include "StackBounds.h"
-#include "SpectoProtoPolyfills.h"
+#include "SentryThreadHandle.h"
+#include "SentryStackBounds.h"
+#include "SentryProtoPolyfills.h"
 
 #include <algorithm>
 #include <string>

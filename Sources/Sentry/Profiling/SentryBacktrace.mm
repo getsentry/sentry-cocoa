@@ -1,15 +1,15 @@
-#include "Backtrace.h"
+#include "SentryBacktrace.h"
 
-#include "ThreadMetadataCache.h"
-#include "AsyncSafeLogging.h"
-#include "MachLogging.h"
-#include "ThreadHandle.h"
-#include "ThreadState.h"
-#include "Compiler.h"
-#include "StackBounds.h"
-#include "StackFrame.h"
-#include "SpectoTime.h"
-#include "SpectoProtoPolyfills.h"
+#include "SentryThreadMetadataCache.h"
+#include "SentryAsyncSafeLogging.h"
+#include "SentryMachLogging.h"
+#include "SentryThreadHandle.h"
+#include "SentryThreadState.h"
+#include "SentryCompiler.h"
+#include "SentryStackBounds.h"
+#include "SentryStackFrame.h"
+#include "SentryTime.h"
+#include "SentryProtoPolyfills.h"
 
 #include <cassert>
 

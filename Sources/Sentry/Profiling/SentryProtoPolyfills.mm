@@ -1,5 +1,5 @@
-#import "SpectoProtoPolyfills.h"
-#import "SpectoTime.h"
+#import "SentryProtoPolyfills.h"
+#import "SentryTime.h"
 
 @implementation SentryBacktrace
 

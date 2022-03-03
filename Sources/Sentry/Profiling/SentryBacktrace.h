@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StackBounds.h"
-#include "ThreadHandle.h"
+#include "SentryStackBounds.h"
+#include "SentryThreadHandle.h"
 
 #include <cstddef>
 #include <cstdint>

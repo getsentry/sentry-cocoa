@@ -1,8 +1,8 @@
-#include "ThreadHandle.h"
+#include "SentryThreadHandle.h"
 
-#include "MemorySafety.h"
-#include "MachLogging.h"
-#include "Log.h"
+#include "SentryCrashMemory.h"
+#include "SentryMachLogging.h"
+#include "SentryProfilingLogAdapter.h"
 
 #include <cstdint>
 #include <dispatch/dispatch.h>
@@ -108,9 +108,9 @@ std::string ThreadHandle::dispatchQueueLabel() const noexcept {
     const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
     // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
     if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
-        && isMemoryReadable(idInfo, sizeof(*idInfo))) {
+        && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
         const auto queuePtr = (const dispatch_queue_t *)(const void *)idInfo->dispatch_qaddr;
-        if (queuePtr != nullptr && isMemoryReadable(queuePtr, sizeof(*queuePtr))
+        if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
             && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
             const auto label = dispatch_queue_get_label(*queuePtr);
             if (label != nullptr) {

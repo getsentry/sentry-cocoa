@@ -1,4 +1,4 @@
-#include "Thread.h"
+#include "SentryProfilingThread.h"
 
 #include <mach/mach.h>
 

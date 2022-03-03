@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Log.h"
+#include "SentryProfilingLogAdapter.h"
 
 #include <mach/kern_return.h>
 #include <mach/message.h>
