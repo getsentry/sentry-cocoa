@@ -110,15 +110,17 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
     return depth;
 }
 
-void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry*)> &f,
+void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
                                       const std::shared_ptr<ThreadMetadataCache> &cache) {
     const auto pair = ThreadHandle::allExcludingCurrent();
     for (const auto &thread : pair.first) {
         if (thread->isIdle()) {
             continue;
         }
-        auto entry = cache->entryForThread(*thread);
-        if (entry == nil) {
+        Backtrace bt;
+        if (auto metadata = cache->metadataForThread(*thread)) {
+            bt.threadMetadata = std::move(*metadata);
+        } else {
             continue;
         }
         // This function calls `pthread_from_mach_thread_np`, which takes a lock,
@@ -129,7 +131,7 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
         // This one is probably safe to call while the thread is suspended, but
         // being conservative here in case the platform time functions take any
         // locks that we're not aware of.
-        const auto startTimeNs = time::getUptimeNs();
+        bt.uptimeNs = time::getUptimeNs();
 
         // ############################################
         // DEADLOCK WARNING: It is not safe to call any functions that acquire a
@@ -156,13 +158,10 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
 
         // Consider the backtraces only if we're able to collect the full stack
         if (reachedEndOfStack) {
-            const auto backtrace = entry->backtrace;
-            [backtrace->addresses removeAllObjects];
             for (std::remove_const<decltype(depth)>::type i = 0; i < depth; i++) {
-                [backtrace->addresses addObject:@(addresses[i])];
+                bt.addresses.push_back(addresses[i]);
             }
-            entry->elapsedRelativeToStartDateNs = startTimeNs;
-            f(entry);
+            f(bt);
         }
     }
 }

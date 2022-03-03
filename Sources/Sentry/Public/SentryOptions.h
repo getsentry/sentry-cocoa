@@ -270,8 +270,6 @@ NS_SWIFT_NAME(Options)
 
 @property (nonatomic, assign) NSInteger profilerSampleRateHz;
 
-@property (nonatomic, assign) BOOL measureProfilerCost;
-
 @property (nonatomic, assign) BOOL profilerEnabled;
 
 @end

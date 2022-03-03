@@ -1,6 +1,7 @@
 #import "SentryBacktraceTrackerIntegration.h"
 
 #import "SentryAttachment.h"
+#import "SentryBacktrace.h"
 #import "SentryId.h"
 #import "SentrySamplingProfiler.h"
 #import "SentryTime.h"
@@ -51,47 +52,36 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
     NSError *error;
     filemanager_ = [[SentryFileManager alloc] initWithOptions:options andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance] error:&error];
     profiler_ = std::make_shared<SamplingProfiler>(
-      [logger = std::move(logger), this](auto entry) {
-          // Perform the same timestamp transformation that TraceLogger::log() does
-          const auto timeSinceReference = time::getDurationNs(
-            logger->referenceUptimeNs, entry->elapsedRelativeToStartDateNs);
-          entry->elapsedRelativeToStartDateNs = timeSinceReference.count();
-
-          const auto payload = [NSMutableDictionary dictionaryWithDictionary:@{
-            @"addresses": entry->backtrace->addresses,
-            @"priority": @(entry->backtrace->priority),
-          }];
-
-          if (entry->backtrace->threadName != nil) {
-              payload[@"thread_name"] = entry->backtrace->threadName;
+      [logger = std::move(logger), this](auto &backtrace) {
+          const auto addresses = [NSMutableArray<NSNumber *> array];
+          for (const auto address : backtrace.addresses) {
+              [addresses addObject:@(address)];
           }
-
+          const auto payload = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"addresses": addresses,
+            @"priority": @(backtrace.threadMetadata.priority),
+          }];
+          payload[@"thread_name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
           NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
-              // TODO: create a dict of the values in the entry
-              @"elapsed_relative_to_start_date_ns": @(entry->elapsedRelativeToStartDateNs),
-              @"tid": @(entry->tid),
-              @"type": @4, // legacy, this corresponds to //spectoproto/entry/entry.proto, field "type", enum value "BACKTRACE"
-              @"group_id": @0,
-              @"cost_ns": @(entry->costNs),
               @"payload": payload,
           }];
 
 #if defined(DEBUG)
-          const auto addressesSize = entry->backtrace->addresses.count;
-          const auto addressPointers = (void**)malloc(sizeof(uintptr_t) * addressesSize);
-          int idx = 0;
-          for (NSValue *value in entry->backtrace->addresses) {
-              addressPointers[idx] = (void *)value.pointerValue;
-          }
-          char **symbols = backtrace_symbols(
-            addressPointers, (int)addressesSize);
-          const auto symbolStrings = [NSMutableArray arrayWithCapacity:addressesSize];
-          for (idx = 0; idx < addressesSize; idx++) {
-              [symbolStrings addObject:[NSString stringWithUTF8String:symbols[idx]]];
-          }
-          free(symbols);
-          free(addressPointers);
-          dict[@"payload"][@"symbols"] = symbolStrings;
+//          const auto addressesSize = entry->backtrace->addresses.count;
+//          const auto addressPointers = (void**)malloc(sizeof(uintptr_t) * addressesSize);
+//          int idx = 0;
+//          for (NSValue *value in entry->backtrace->addresses) {
+//              addressPointers[idx] = (void *)value.pointerValue;
+//          }
+//          char **symbols = backtrace_symbols(
+//            addressPointers, (int)addressesSize);
+//          const auto symbolStrings = [NSMutableArray arrayWithCapacity:addressesSize];
+//          for (idx = 0; idx < addressesSize; idx++) {
+//              [symbolStrings addObject:[NSString stringWithUTF8String:symbols[idx]]];
+//          }
+//          free(symbols);
+//          free(addressPointers);
+//          dict[@"payload"][@"symbols"] = symbolStrings;
 #endif
           if (![NSJSONSerialization isValidJSONObject:dict]) {
               [SentryLog logWithMessage:[NSString stringWithFormat:@"Dict (%@) cannot be converted to JSON", dict] andLevel:kSentryLevelError];
@@ -112,8 +102,7 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
           const auto envelope = [[SentryEnvelope alloc] initWithId:[[SentryId alloc] initWithUUID:uuid] items:items];
           [filemanager_ storeEnvelope:envelope];
       },
-      options.profilerSampleRateHz,
-      options.measureProfilerCost);
+      options.profilerSampleRateHz);
     profiler_->startSampling();
 }
 

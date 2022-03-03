@@ -2,19 +2,25 @@
 
 #include "SentryStackBounds.h"
 #include "SentryThreadHandle.h"
+#include "SentryThreadMetadataCache.h"
+#include "SentryTime.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
-
-@class SentryProfilingEntry;
+#include <vector>
 
 namespace sentry {
 namespace profiling {
 
 struct StackBounds;
-class ThreadMetadataCache;
+
+struct Backtrace {
+    ThreadMetadata threadMetadata;
+    time::Type uptimeNs;
+    std::vector<std::uint64_t> addresses;
+};
 
 /**
  * Async-signal-safe implementation of backtrace(3), collects a backtrace
@@ -48,7 +54,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
  * @param f The function to call for each entry.
  * @param cache The cache used to look up thread metadata.
  */
-void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry *)> &f,
+void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
     const std::shared_ptr<ThreadMetadataCache> &cache);
 
 } // namespace profiling

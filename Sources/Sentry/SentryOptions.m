@@ -57,7 +57,6 @@ SentryOptions ()
         _enableSwizzling = YES;
 
         _profilerSampleRateHz = 100;
-        _measureProfilerCost = YES;
         _profilerEnabled = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic

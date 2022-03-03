@@ -7,11 +7,10 @@
 #include <mutex>
 #include <thread>
 
-@class SentryProfilingEntry;
-
 namespace sentry {
 namespace profiling {
 class ThreadMetadataCache;
+struct Backtrace;
 
 /**
  * Samples the stacks on all threads at a specified interval, using the mach clock
@@ -26,7 +25,7 @@ public:
      * timestamp that the sample was collected at.
      * @param samplingRateHz The sampling rate, in Hz, to sample at.
      */
-    SamplingProfiler(std::function<void(SentryProfilingEntry *)> callback,
+    SamplingProfiler(std::function<void(const Backtrace &)> callback,
         std::uint32_t samplingRateHz);
 
     ~SamplingProfiler();
@@ -51,7 +50,7 @@ public:
 
 private:
     mach_timespec_t delaySpec_;
-    std::function<void(SentryProfilingEntry *)> callback_;
+    std::function<void(const Backtrace &)> callback_;
     std::shared_ptr<ThreadMetadataCache> cache_;
     bool isInitialized_;
     std::mutex lock_;
