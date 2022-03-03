@@ -143,7 +143,6 @@ bool BacktracePlugin::shouldEnable(
 // https://github.com/envoyproxy/envoy/issues/2561
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
-    SPECTO_LOG_INFO("Disabling backtrace collection because TSAN is enabled.");
     return false;
 #endif
 #endif
