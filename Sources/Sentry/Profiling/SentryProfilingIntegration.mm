@@ -1,4 +1,4 @@
-#import "SentryBacktraceTrackerIntegration.h"
+#import "SentryProfilingIntegration.h"
 
 #import "SentryAttachment.h"
 #import "SentryBacktrace.h"
@@ -23,14 +23,14 @@
 
 using namespace sentry::profiling;
 
-@interface SentryBacktraceTrackerIntegration() {
+@interface SentryProfilingIntegration () {
     std::shared_ptr<BacktracePlugin> _plugin;
     SentryProfilingTraceLogger *_logger;
 }
 
 @end
 
-@implementation SentryBacktraceTrackerIntegration
+@implementation SentryProfilingIntegration
 
 - (void)installWithOptions:(SentryOptions *)options {
     _plugin = std::make_shared<BacktracePlugin>();

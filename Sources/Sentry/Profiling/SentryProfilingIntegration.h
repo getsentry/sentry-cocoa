@@ -8,7 +8,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryBacktraceTrackerIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryProfilingIntegration : NSObject <SentryIntegrationProtocol>
 
 @end
 
