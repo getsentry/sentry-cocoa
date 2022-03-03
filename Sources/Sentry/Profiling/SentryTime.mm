@@ -18,11 +18,6 @@ std::chrono::nanoseconds getDurationNs(std::uint64_t fromNs, std::uint64_t toNs)
     return std::chrono::nanoseconds(toNs - fromNs);
 }
 
-std::chrono::seconds getSecondsSinceEpoch() noexcept {
-    return std::chrono::seconds(
-      static_cast<std::uint64_t>(CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970));
-}
-
 } // namespace time
 } // namespace profiling
 } // namespace sentry

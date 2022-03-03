@@ -16,9 +16,6 @@ Type getUptimeNs() noexcept;
 /** @return Time between two absolute timestamps, in nano-seconds. */
 std::chrono::nanoseconds getDurationNs(Type fromNs, Type toNs = getUptimeNs()) noexcept;
 
-/** @return Seconds since UNIX epoch. */
-std::chrono::seconds getSecondsSinceEpoch() noexcept;
-
 } // namespace time
 } // namespace profiling
 } // namespace sentry
