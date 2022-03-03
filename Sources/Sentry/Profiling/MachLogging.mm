@@ -1,4 +1,4 @@
-#include "DarwinLog.h"
+#include "MachLogging.h"
 
 namespace sentry {
 namespace profiling {

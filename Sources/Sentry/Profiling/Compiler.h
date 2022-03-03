@@ -29,13 +29,13 @@
 #pragma once
 
 /* COMPILER() - the compiler being used to build the project */
-#define COMPILER(SPECTO_FEATURE) (defined SPECTO_COMPILER_##SPECTO_FEATURE  && SPECTO_COMPILER_##SPECTO_FEATURE)
+#define COMPILER(SENTRY_FEATURE) (defined SENTRY_COMPILER_##SENTRY_FEATURE  && SENTRY_COMPILER_##SENTRY_FEATURE)
 
 /* COMPILER_SUPPORTS() - whether the compiler being used to build the project supports the given feature. */
-#define COMPILER_SUPPORTS(SPECTO_COMPILER_FEATURE) (defined SPECTO_COMPILER_SUPPORTS_##SPECTO_COMPILER_FEATURE  && SPECTO_COMPILER_SUPPORTS_##SPECTO_COMPILER_FEATURE)
+#define COMPILER_SUPPORTS(SENTRY_COMPILER_FEATURE) (defined SENTRY_COMPILER_SUPPORTS_##SENTRY_COMPILER_FEATURE  && SENTRY_COMPILER_SUPPORTS_##SENTRY_COMPILER_FEATURE)
 
 /* COMPILER_QUIRK() - whether the compiler being used to build the project requires a given quirk. */
-#define COMPILER_QUIRK(SPECTO_COMPILER_QUIRK) (defined SPECTO_COMPILER_QUIRK_##SPECTO_COMPILER_QUIRK  && SPECTO_COMPILER_QUIRK_##SPECTO_COMPILER_QUIRK)
+#define COMPILER_QUIRK(SENTRY_COMPILER_QUIRK) (defined SENTRY_COMPILER_QUIRK_##SENTRY_COMPILER_QUIRK  && SENTRY_COMPILER_QUIRK_##SENTRY_COMPILER_QUIRK)
 
 /* COMPILER_HAS_CLANG_BUILTIN() - whether the compiler supports a particular clang builtin. */
 #ifdef __has_builtin
@@ -65,19 +65,19 @@
 /* COMPILER(CLANG) - Clang  */
 
 #if defined(__clang__)
-#define SPECTO_COMPILER_CLANG 1
-#define SPECTO_COMPILER_SUPPORTS_BLOCKS COMPILER_HAS_CLANG_FEATURE(blocks)
-#define SPECTO_COMPILER_SUPPORTS_C_STATIC_ASSERT COMPILER_HAS_CLANG_FEATURE(c_static_assert)
-#define SPECTO_COMPILER_SUPPORTS_CXX_EXCEPTIONS COMPILER_HAS_CLANG_FEATURE(cxx_exceptions)
-#define SPECTO_COMPILER_SUPPORTS_BUILTIN_IS_TRIVIALLY_COPYABLE COMPILER_HAS_CLANG_FEATURE(is_trivially_copyable)
+#define SENTRY_COMPILER_CLANG 1
+#define SENTRY_COMPILER_SUPPORTS_BLOCKS COMPILER_HAS_CLANG_FEATURE(blocks)
+#define SENTRY_COMPILER_SUPPORTS_C_STATIC_ASSERT COMPILER_HAS_CLANG_FEATURE(c_static_assert)
+#define SENTRY_COMPILER_SUPPORTS_CXX_EXCEPTIONS COMPILER_HAS_CLANG_FEATURE(cxx_exceptions)
+#define SENTRY_COMPILER_SUPPORTS_BUILTIN_IS_TRIVIALLY_COPYABLE COMPILER_HAS_CLANG_FEATURE(is_trivially_copyable)
 
 #ifdef __cplusplus
 #if __cplusplus <= 201103L
-#define SPECTO_CPP_STD_VER 11
+#define SENTRY_CPP_STD_VER 11
 #elif __cplusplus <= 201402L
-#define SPECTO_CPP_STD_VER 14
+#define SENTRY_CPP_STD_VER 14
 #elif __cplusplus <= 201703L
-#define SPECTO_CPP_STD_VER 17
+#define SENTRY_CPP_STD_VER 17
 #endif
 #endif
 
@@ -85,19 +85,19 @@
 
 /* COMPILER(GCC_COMPATIBLE) - GNU Compiler Collection or compatibles */
 #if defined(__GNUC__)
-#define SPECTO_COMPILER_GCC_COMPATIBLE 1
+#define SENTRY_COMPILER_GCC_COMPATIBLE 1
 #endif
 
 /* COMPILER(GCC) - GNU Compiler Collection */
 /* Note: This section must come after the Clang section since we check !COMPILER(CLANG) here. */
 #if COMPILER(GCC_COMPATIBLE) && !COMPILER(CLANG)
-#define SPECTO_COMPILER_GCC 1
+#define SENTRY_COMPILER_GCC 1
 
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #define GCC_VERSION_AT_LEAST(major, minor, patch) (GCC_VERSION >= (major * 10000 + minor * 100 + patch))
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define SPECTO_COMPILER_SUPPORTS_C_STATIC_ASSERT 1
+#define SENTRY_COMPILER_SUPPORTS_C_STATIC_ASSERT 1
 #endif
 
 #endif /* COMPILER(GCC) */
@@ -109,7 +109,7 @@
 /* COMPILER(MINGW) - MinGW GCC */
 
 #if defined(__MINGW32__)
-#define SPECTO_COMPILER_MINGW 1
+#define SENTRY_COMPILER_MINGW 1
 #include <_mingw.h>
 #endif
 
@@ -118,14 +118,14 @@
 /* Note: This section must come after the MinGW section since we check COMPILER(MINGW) here. */
 
 #if COMPILER(MINGW) && defined(__MINGW64_VERSION_MAJOR) /* best way to check for mingw-w64 vs mingw.org */
-#define SPECTO_COMPILER_MINGW64 1
+#define SENTRY_COMPILER_MINGW64 1
 #endif
 
 /* COMPILER(MSVC) - Microsoft Visual C++ */
 
 #if defined(_MSC_VER)
 
-#define SPECTO_COMPILER_MSVC 1
+#define SENTRY_COMPILER_MSVC 1
 
 #if _MSC_VER < 1910
 #error "Please use a newer version of Visual Studio. WebKit requires VS2017 or newer to compile."
@@ -134,7 +134,7 @@
 #endif
 
 #if !COMPILER(CLANG) && !COMPILER(MSVC)
-#define SPECTO_COMPILER_QUIRK_CONSIDERS_UNREACHABLE_CODE 1
+#define SENTRY_COMPILER_QUIRK_CONSIDERS_UNREACHABLE_CODE 1
 #endif
 
 /* ==== COMPILER_SUPPORTS - additional compiler feature detection, in alphabetical order ==== */
@@ -142,7 +142,7 @@
 /* COMPILER_SUPPORTS(EABI) */
 
 #if defined(__ARM_EABI__) || defined(__EABI__)
-#define SPECTO_COMPILER_SUPPORTS_EABI 1
+#define SENTRY_COMPILER_SUPPORTS_EABI 1
 #endif
 
 /* ASAN_ENABLED and SUPPRESS_ASAN */
@@ -183,14 +183,14 @@
 #define ALWAYS_INLINE_EXCEPT_MSVC ALWAYS_INLINE
 #endif
 
-/* SPECTO_EXTERN_C_{BEGIN, END} */
+/* SENTRY_EXTERN_C_{BEGIN, END} */
 
 #ifdef __cplusplus
-#define SPECTO_EXTERN_C_BEGIN extern "C" {
-#define SPECTO_EXTERN_C_END }
+#define SENTRY_EXTERN_C_BEGIN extern "C" {
+#define SENTRY_EXTERN_C_END }
 #else
-#define SPECTO_EXTERN_C_BEGIN
-#define SPECTO_EXTERN_C_END
+#define SENTRY_EXTERN_C_BEGIN
+#define SENTRY_EXTERN_C_END
 #endif
 
 /* FALLTHROUGH */
@@ -388,7 +388,7 @@
 
 /* IGNORE_WARNINGS */
 
-/* Can't use SPECTO_CONCAT() and STRINGIZE() because they are defined in
+/* Can't use SENTRY_CONCAT() and STRINGIZE() because they are defined in
  * StdLibExtras.h, which includes this file. */
 #define _COMPILER_CONCAT_I(a, b) a ## b
 #define _COMPILER_CONCAT(a, b) _COMPILER_CONCAT_I(a, b)

@@ -8,28 +8,28 @@
 namespace sentry {
 namespace profiling {
 
-    /**
-     * Returns a human readable description string for a kernel return code.
-     *
-     * @param kr The kernel return code to get a description for.
-     * @return A string containing the description, or an unknown error message if
-     * the error code is not known.
-     */
-    const char *kernelReturnCodeDescription(kern_return_t kr) noexcept;
+/**
+ * Returns a human readable description string for a kernel return code.
+ *
+ * @param kr The kernel return code to get a description for.
+ * @return A string containing the description, or an unknown error message if
+ * the error code is not known.
+ */
+const char *kernelReturnCodeDescription(kern_return_t kr) noexcept;
 
-    /**
-     * Returns a human readable description string for a mach message return code.
-     *
-     * @param mr The mach message return code to get a description for.
-     * @return A string containing the description, or an unknown error message if
-     * the error code is not known.
-     */
-    const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept;
+/**
+ * Returns a human readable description string for a mach message return code.
+ *
+ * @param mr The mach message return code to get a description for.
+ * @return A string containing the description, or an unknown error message if
+ * the error code is not known.
+ */
+const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept;
 
 } // namespace profiling
 } // namespace sentry
 
-#define SPECTO_LOG_KERN_RETURN(statement)                                                          \
+#define SENTRY_LOG_KERN_RETURN(statement)                                                          \
     ({                                                                                             \
         const kern_return_t __log_kr = statement;                                                  \
         if (__log_kr != KERN_SUCCESS) {                                                            \
@@ -39,7 +39,7 @@ namespace profiling {
         __log_kr;                                                                                  \
     })
 
-#define SPECTO_LOG_MACH_MSG_RETURN(statement)                                                      \
+#define SENTRY_LOG_MACH_MSG_RETURN(statement)                                                      \
     ({                                                                                             \
         const mach_msg_return_t __log_mr = statement;                                              \
         if (__log_mr != MACH_MSG_SUCCESS) {                                                        \

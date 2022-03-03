@@ -491,8 +491,8 @@
 		8405A55027990730001B38A1 /* ThreadMetadataCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52527990730001B38A1 /* ThreadMetadataCache.mm */; };
 		8405A55127990730001B38A1 /* Backtrace.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A52627990730001B38A1 /* Backtrace.mm */; };
 		8405A55227990730001B38A1 /* ThreadMetadataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A52727990730001B38A1 /* ThreadMetadataCache.h */; };
-		8405A55A27990731001B38A1 /* DarwinLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53527990730001B38A1 /* DarwinLog.mm */; };
-		8405A55B27990731001B38A1 /* DarwinLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53627990730001B38A1 /* DarwinLog.h */; };
+		8405A55A27990731001B38A1 /* MachLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53527990730001B38A1 /* MachLogging.mm */; };
+		8405A55B27990731001B38A1 /* MachLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53627990730001B38A1 /* MachLogging.h */; };
 		8405A55F27990731001B38A1 /* ThreadHandle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A53D27990730001B38A1 /* ThreadHandle.mm */; };
 		8405A56127990731001B38A1 /* ThreadState.h in Headers */ = {isa = PBXBuildFile; fileRef = 8405A53F27990730001B38A1 /* ThreadState.h */; };
 		8405A56227990731001B38A1 /* MemorySafety.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8405A54027990730001B38A1 /* MemorySafety.mm */; };
@@ -1143,8 +1143,8 @@
 		8405A52527990730001B38A1 /* ThreadMetadataCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThreadMetadataCache.mm; sourceTree = "<group>"; };
 		8405A52627990730001B38A1 /* Backtrace.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Backtrace.mm; sourceTree = "<group>"; };
 		8405A52727990730001B38A1 /* ThreadMetadataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadMetadataCache.h; sourceTree = "<group>"; };
-		8405A53527990730001B38A1 /* DarwinLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DarwinLog.mm; sourceTree = "<group>"; };
-		8405A53627990730001B38A1 /* DarwinLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DarwinLog.h; sourceTree = "<group>"; };
+		8405A53527990730001B38A1 /* MachLogging.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MachLogging.mm; sourceTree = "<group>"; };
+		8405A53627990730001B38A1 /* MachLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MachLogging.h; sourceTree = "<group>"; };
 		8405A53D27990730001B38A1 /* ThreadHandle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThreadHandle.mm; sourceTree = "<group>"; };
 		8405A53F27990730001B38A1 /* ThreadState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadState.h; sourceTree = "<group>"; };
 		8405A54027990730001B38A1 /* MemorySafety.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MemorySafety.mm; sourceTree = "<group>"; };
@@ -2330,8 +2330,8 @@
 				8494D421279F99CD00C28060 /* BacktracePlugin.mm */,
 				8405A5EA279907D3001B38A1 /* Compiler.h */,
 				8405A5EB279907D3001B38A1 /* CPU.h */,
-				8405A53627990730001B38A1 /* DarwinLog.h */,
-				8405A53527990730001B38A1 /* DarwinLog.mm */,
+				8405A53627990730001B38A1 /* MachLogging.h */,
+				8405A53527990730001B38A1 /* MachLogging.mm */,
 				8405A58E279907D3001B38A1 /* Log.h */,
 				8405A54227990730001B38A1 /* MemorySafety.h */,
 				8405A54027990730001B38A1 /* MemorySafety.mm */,
@@ -2565,7 +2565,7 @@
 				7B7A30C624B48321005A4C6E /* SentryCrashAdapter.h in Headers */,
 				63FE717120DA4C1100CDBAE8 /* SentryCrashSystemCapabilities.h in Headers */,
 				7BE1E33224F7E3B6009D3AD0 /* SentryMigrateSessionInit.h in Headers */,
-				8405A55B27990731001B38A1 /* DarwinLog.h in Headers */,
+				8405A55B27990731001B38A1 /* MachLogging.h in Headers */,
 				632F43501F581D5400A18A36 /* SentryCrashExceptionApplication.h in Headers */,
 				8405A54E27990730001B38A1 /* Backtrace.h in Headers */,
 				7B85DC1E24EFAFCD007D01D2 /* SentryClient+Private.h in Headers */,
@@ -2948,7 +2948,7 @@
 				636085141ED47BE600E8599E /* SentryFileManager.m in Sources */,
 				63FE710B20DA4C1000CDBAE8 /* SentryCrashMach.c in Sources */,
 				63FE707720DA4C1000CDBAE8 /* Container+SentryDeepSearch.m in Sources */,
-				8405A55A27990731001B38A1 /* DarwinLog.mm in Sources */,
+				8405A55A27990731001B38A1 /* MachLogging.mm in Sources */,
 				63FE71A020DA4C1100CDBAE8 /* SentryCrashInstallation.m in Sources */,
 				63FE713520DA4C1100CDBAE8 /* SentryCrashMemory.c in Sources */,
 				63FE714520DA4C1100CDBAE8 /* SentryCrashObjC.c in Sources */,

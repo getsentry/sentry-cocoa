@@ -2,7 +2,7 @@
 
 #include "Backtrace.h"
 #include "ThreadMetadataCache.h"
-#include "DarwinLog.h"
+#include "MachLogging.h"
 
 #include <chrono>
 #include <mach/clock.h>
@@ -34,7 +34,7 @@ void* samplingThreadMain(mach_port_t port,
     pthread_cleanup_push(samplingThreadCleanup, bufRequest);
     while (true) {
         pthread_testcancel();
-        if (SPECTO_LOG_MACH_MSG_RETURN(mach_msg(&bufRequest->Head,
+        if (SENTRY_LOG_MACH_MSG_RETURN(mach_msg(&bufRequest->Head,
                                                 MACH_RCV_MSG,
                                                 0,
                                                 maxSize,
@@ -44,7 +44,7 @@ void* samplingThreadMain(mach_port_t port,
             != MACH_MSG_SUCCESS) {
             break;
         }
-        if (SPECTO_LOG_KERN_RETURN(clock_alarm(clock, TIME_RELATIVE, delaySpec, port))
+        if (SENTRY_LOG_KERN_RETURN(clock_alarm(clock, TIME_RELATIVE, delaySpec, port))
             != KERN_SUCCESS) {
             break;
         }
@@ -65,11 +65,11 @@ SamplingProfiler::SamplingProfiler(std::function<void(SentryProfilingEntry*)> ca
     measureCost_(measureCost), cache_(std::make_shared<ThreadMetadataCache>()),
     isInitialized_(false), isSampling_(false),
     port_(0), numSamples_(0) {
-    if (SPECTO_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
+    if (SENTRY_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
         != KERN_SUCCESS) {
         return;
     }
-    if (SPECTO_LOG_KERN_RETURN(
+    if (SENTRY_LOG_KERN_RETURN(
           mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port_))
         != KERN_SUCCESS) {
         return;
@@ -87,7 +87,7 @@ SamplingProfiler::~SamplingProfiler() {
         return;
     }
     stopSampling();
-    SPECTO_LOG_KERN_RETURN(
+    SENTRY_LOG_KERN_RETURN(
       mach_port_mod_refs(mach_task_self(), port_, MACH_PORT_RIGHT_RECEIVE, -1));
 }
 
@@ -123,7 +123,7 @@ void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
         SPECTO_LOG_ERROR_RETURN(pthread_setschedparam(pthreadHandle, policy, &param));
     }
 
-    SPECTO_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
+    SENTRY_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
 }
 
 void SamplingProfiler::stopSampling() {
@@ -134,7 +134,7 @@ void SamplingProfiler::stopSampling() {
     if (!isSampling_) {
         return;
     }
-    SPECTO_LOG_KERN_RETURN(pthread_cancel(thread_.native_handle()));
+    SENTRY_LOG_KERN_RETURN(pthread_cancel(thread_.native_handle()));
     thread_.join();
     isSampling_ = false;
 }

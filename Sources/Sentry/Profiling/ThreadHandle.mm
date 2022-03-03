@@ -1,7 +1,7 @@
 #include "ThreadHandle.h"
 
 #include "MemorySafety.h"
-#include "DarwinLog.h"
+#include "MachLogging.h"
 #include "Log.h"
 
 #include <cstdint>
@@ -22,13 +22,13 @@ ThreadHandle::~ThreadHandle() {
     // If the ThreadHandle object owns the mach_port (i.e. with a +1 reference count)
     // the port must be deallocated.
     if (isOwnedPort_) {
-        SPECTO_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), handle_));
+        SENTRY_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), handle_));
     }
 }
 
 std::unique_ptr<ThreadHandle> ThreadHandle::current() noexcept {
     const auto port = mach_thread_self();
-    SPECTO_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), port));
+    SENTRY_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), port));
     return std::make_unique<ThreadHandle>(port);
 }
 
@@ -36,14 +36,14 @@ std::vector<std::unique_ptr<ThreadHandle>> ThreadHandle::all() noexcept {
     std::vector<std::unique_ptr<ThreadHandle>> threads;
     mach_msg_type_number_t count;
     thread_act_array_t list;
-    if (SPECTO_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
+    if (SENTRY_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
         for (decltype(count) i = 0; i < count; i++) {
             const auto thread = list[i];
             threads.push_back(
               std::unique_ptr<ThreadHandle>(new ThreadHandle(thread, true /* isOwnedPort */)));
         }
     }
-    SPECTO_LOG_KERN_RETURN(
+    SENTRY_LOG_KERN_RETURN(
       vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
     return threads;
 }
@@ -54,18 +54,18 @@ std::pair<std::vector<std::unique_ptr<ThreadHandle>>, std::unique_ptr<ThreadHand
     mach_msg_type_number_t count;
     thread_act_array_t list;
     auto current = ThreadHandle::current();
-    if (SPECTO_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
+    if (SENTRY_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
         for (decltype(count) i = 0; i < count; i++) {
             const auto thread = list[i];
             if (thread != current->nativeHandle()) {
                 threads.push_back(
                   std::unique_ptr<ThreadHandle>(new ThreadHandle(thread, true /* isOwnedPort */)));
             } else {
-                SPECTO_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), thread));
+                SENTRY_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), thread));
             }
         }
     }
-    SPECTO_LOG_KERN_RETURN(
+    SENTRY_LOG_KERN_RETURN(
       vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
     return std::make_pair(std::move(threads), std::move(current));
 }
@@ -107,7 +107,7 @@ std::string ThreadHandle::dispatchQueueLabel() const noexcept {
     const auto rv = thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count);
     const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
     // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-    if ((rv != MACH_SEND_INVALID_DEST) && (SPECTO_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
+    if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
         && isMemoryReadable(idInfo, sizeof(*idInfo))) {
         const auto queuePtr = (const dispatch_queue_t *)(const void *)idInfo->dispatch_qaddr;
         if (queuePtr != nullptr && isMemoryReadable(queuePtr, sizeof(*queuePtr))
@@ -163,7 +163,7 @@ ThreadCPUInfo ThreadHandle::cpuInfo() const noexcept {
     const auto rv =
       thread_info(handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
     // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-    if ((rv != MACH_SEND_INVALID_DEST) && (SPECTO_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
+    if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
         cpuInfo.userTimeMicros = std::chrono::seconds(data.user_time.seconds)
                                  + std::chrono::microseconds(data.user_time.microseconds);
         cpuInfo.systemTimeMicros = std::chrono::seconds(data.system_time.seconds)
@@ -184,7 +184,7 @@ bool ThreadHandle::isIdle() const noexcept {
     const auto rv =
       thread_info(handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
     // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-    if ((rv != MACH_SEND_INVALID_DEST) && (SPECTO_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
+    if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
         return ((data.flags & TH_FLAGS_IDLE) == TH_FLAGS_IDLE)
                || (data.run_state != TH_STATE_RUNNING);
     }
@@ -205,14 +205,14 @@ bool ThreadHandle::suspend() const noexcept {
     if (handle_ == THREAD_NULL) {
         return false;
     }
-    return SPECTO_LOG_KERN_RETURN(thread_suspend(handle_)) == KERN_SUCCESS;
+    return SENTRY_LOG_KERN_RETURN(thread_suspend(handle_)) == KERN_SUCCESS;
 }
 
 bool ThreadHandle::resume() const noexcept {
     if (handle_ == THREAD_NULL) {
         return false;
     }
-    return SPECTO_LOG_KERN_RETURN(thread_resume(handle_)) == KERN_SUCCESS;
+    return SENTRY_LOG_KERN_RETURN(thread_resume(handle_)) == KERN_SUCCESS;
 }
 
 bool ThreadHandle::operator==(const ThreadHandle &other) const {
