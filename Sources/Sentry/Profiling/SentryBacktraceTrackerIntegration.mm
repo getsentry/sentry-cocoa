@@ -10,6 +10,7 @@
 #import "SentryOptions.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryProfilingLogAdapter.h"
+#import "SentryLog.h"
 
 #if defined(DEBUG)
 #include <execinfo.h>
@@ -92,19 +93,17 @@ void BacktracePlugin::start(SentryProfilingTraceLogger *logger,
           free(addressPointers);
           dict[@"payload"][@"symbols"] = symbolStrings;
 #endif
-//
-//          if (!SPECTO_ASSERT([NSJSONSerialization isValidJSONObject:dict], @"Encountered a dict that can't be converted to JSON: %@", dict)) {
-//              return;
-//          }
+          if (![NSJSONSerialization isValidJSONObject:dict]) {
+              [SentryLog logWithMessage:[NSString stringWithFormat:@"Dict (%@) cannot be converted to JSON", dict] andLevel:kSentryLevelError];
+              return;
+          }
 
           NSError *serializationError;
           const auto json = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&serializationError];
-//          if (!SPECTO_ASSERT_NULL(serializationError, @"Encountered an error serializing dictionary (%@): %@", dict, serializationError)) {
-//              return;
-//          }
-//          if (!SPECTO_ASSERT_NOT_NULL(json, @"Successfully serialized dictionary but got nil data back. (Input dict: %@)", dict)) {
-//              return;
-//          }
+          if (json == nil) {
+              [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to serialize dict (%@) to JSON: %@", dict, serializationError] andLevel:kSentryLevelError];
+              return;
+          }
 
           const auto uuid = [NSUUID UUID];
           const auto attachment = [[SentryAttachment alloc] initWithData:json filename:uuid.UUIDString];

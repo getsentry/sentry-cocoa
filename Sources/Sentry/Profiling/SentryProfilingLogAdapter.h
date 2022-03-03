@@ -23,35 +23,3 @@
         }                                                                                          \
         __log_errnum;                                                                              \
     })
-
-/**
- * Test a condition and if it fails, log and abort; return the value of the condition
- * so execution may be branched in the event of a failure.
- */
-#if defined(SPECTO_TEST_ENVIRONMENT)
-#    define SPECTO_ASSERT(cond, ...)                                                               \
-        ({                                                                                         \
-            const auto __cond_result = (cond);                                                     \
-            if (!__cond_result) {                                                                  \
-                SPECTO_LOG_WARN_OBJC(__VA_ARGS__);                                                 \
-            }                                                                                      \
-            (__cond_result);                                                                       \
-        })
-#else
-#    define SPECTO_ASSERT(cond, ...)                                                               \
-        ({                                                                                         \
-            const auto __cond_result = (cond);                                                     \
-            if (!__cond_result) {                                                                  \
-                SPECTO_LOG_WARN_OBJC(__VA_ARGS__);                                                 \
-                NSCAssert(NO, __VA_ARGS__);                                                        \
-            }                                                                                      \
-            (__cond_result);                                                                       \
-        })
-#endif
-
-#define SPECTO_ASSERT_TYPE(object, klass, ...)                                                     \
-    SPECTO_ASSERT([object isKindOfClass:[klass class]], __VA_ARGS__)
-
-#define SPECTO_ASSERT_NULL(value, ...) SPECTO_ASSERT(value == nil, __VA_ARGS__)
-
-#define SPECTO_ASSERT_NOT_NULL(value, ...) SPECTO_ASSERT(value != nil, __VA_ARGS__)
