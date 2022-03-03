@@ -42,7 +42,7 @@ public:
             if (priority != -1) {
                 auto threadName = thread.name();
                 if (isSentryOwnedThreadName(threadName)) {
-                    // Don't collect backtraces for Specto-owned threads.
+                    // Don't collect backtraces for Sentry-owned threads.
                     cache_.push_back({handle, nullptr});
                     return nullptr;
                 }
