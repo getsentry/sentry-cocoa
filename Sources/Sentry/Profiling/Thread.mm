@@ -2,7 +2,8 @@
 
 #include <mach/mach.h>
 
-namespace specto {
+namespace sentry {
+namespace profiling {
 namespace thread {
 
 TIDType getCurrentTID() noexcept {
@@ -12,4 +13,5 @@ TIDType getCurrentTID() noexcept {
 }
 
 } // namespace thread
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

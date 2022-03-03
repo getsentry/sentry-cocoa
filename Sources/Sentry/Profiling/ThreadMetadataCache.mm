@@ -8,8 +8,6 @@
 #include <string>
 #include <vector>
 
-using namespace specto;
-
 namespace {
 
 bool isSpectoOwnedThreadName(const std::string &name) {
@@ -20,8 +18,8 @@ constexpr std::size_t kMaxThreadQueueNameLength = 100;
 
 } // namespace
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 
 class ThreadMetadataCache::Impl {
 public:
@@ -82,5 +80,5 @@ SentryProfilingEntry *ThreadMetadataCache::entryForThread(const ThreadHandle &th
     return impl_->entryForThread(thread);
 }
 
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

@@ -22,8 +22,8 @@
 
 #include <mach/mach.h>
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 namespace {
 inline int
   copySafely(const void *__restrict const src, void *__restrict const dst, const int byteCount) {
@@ -55,5 +55,5 @@ bool isMemoryReadable(const void *const memory, const int byteCount) {
     }
     return bytesRemaining == 0;
 }
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

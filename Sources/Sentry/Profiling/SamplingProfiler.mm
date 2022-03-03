@@ -3,8 +3,6 @@
 #include "Backtrace.h"
 #include "ThreadMetadataCache.h"
 #include "DarwinLog.h"
-#include "ThreadPriority.h"
-#include "Exception.h"
 
 #include <chrono>
 #include <mach/clock.h>
@@ -12,8 +10,8 @@
 #include <mach/clock_types.h>
 #include <pthread.h>
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 namespace {
 void samplingThreadCleanup(void* buf) {
     free(buf);
@@ -65,7 +63,7 @@ SamplingProfiler::SamplingProfiler(std::function<void(SentryProfilingEntry*)> ca
                                    bool measureCost) :
     callback_(std::move(callback)),
     measureCost_(measureCost), cache_(std::make_shared<ThreadMetadataCache>()),
-    isInitialized_(false), hasAddedExceptionKillswitchObserver_(false), isSampling_(false),
+    isInitialized_(false), isSampling_(false),
     port_(0), numSamples_(0) {
     if (SPECTO_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
         != KERN_SUCCESS) {
@@ -103,14 +101,6 @@ void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
         return;
     }
     isSampling_ = true;
-    if (!hasAddedExceptionKillswitchObserver_) {
-        addCppExceptionKillswitchObserver([weakPtr = weak_from_this()] {
-            if (auto self = weakPtr.lock()) {
-                self->stopSampling();
-            }
-        });
-        hasAddedExceptionKillswitchObserver_ = true;
-    }
     numSamples_ = 0;
     thread_ = std::thread(samplingThreadMain,
                           port_,
@@ -126,7 +116,10 @@ void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
     sched_param param;
     const auto pthreadHandle = thread_.native_handle();
     if (SPECTO_LOG_ERROR_RETURN(pthread_getschedparam(pthreadHandle, &policy, &param)) == 0) {
-        param.sched_priority = thread::backtraceThreadPriority;
+        // A priority of 50 is higher than user input, according to:
+        // https://chromium.googlesource.com/chromium/src/base/+/master/threading/platform_thread_mac.mm#302
+        // Run at a higher priority than the main thread so that we can capture main thread backtraces even when it's busy.
+        param.sched_priority = 50;
         SPECTO_LOG_ERROR_RETURN(pthread_setschedparam(pthreadHandle, policy, &param));
     }
 
@@ -155,5 +148,5 @@ std::uint64_t SamplingProfiler::numSamples() {
     return numSamples_.load();
 }
 
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

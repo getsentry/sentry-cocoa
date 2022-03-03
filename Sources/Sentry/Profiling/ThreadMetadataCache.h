@@ -9,8 +9,8 @@
 
 @class SentryProfilingEntry;
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 
     /**
      * Caches thread metadata (name, priority, etc.) and prepopulates a recycled `proto::Entry`
@@ -40,5 +40,5 @@ namespace darwin {
         class Impl;
         spimpl::unique_impl_ptr<Impl> impl_;
     };
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

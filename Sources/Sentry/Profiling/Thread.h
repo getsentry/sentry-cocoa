@@ -2,14 +2,15 @@
 
 #include <cstdint>
 
-namespace specto {
-/** Cross-platform threading helpers. */
+namespace sentry {
+namespace profiling {
 namespace thread {
 
-    using TIDType = std::uint64_t;
+using TIDType = std::uint64_t;
 
-    /** @return Platform-specific thread identifier. */
-    TIDType getCurrentTID() noexcept;
+/** @return Platform-specific thread identifier. */
+TIDType getCurrentTID() noexcept;
 
 } // namespace thread
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

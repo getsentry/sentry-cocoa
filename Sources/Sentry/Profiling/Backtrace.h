@@ -8,16 +8,11 @@
 #include <functional>
 #include <memory>
 
-#import "SpectoProtoPolyfills.h"
 @class SentryProfilingEntry;
 
-namespace specto {
-struct StackBounds;
-namespace proto {
-    class Entry;
-}
-
-namespace darwin {
+namespace sentry {
+namespace profiling {
+    struct StackBounds;
     class ThreadMetadataCache;
 
     /**
@@ -56,5 +51,5 @@ namespace darwin {
     void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry *)> &f,
         const std::shared_ptr<ThreadMetadataCache> &cache, bool measureCost);
 
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

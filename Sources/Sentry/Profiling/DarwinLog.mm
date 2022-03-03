@@ -1,7 +1,7 @@
 #include "DarwinLog.h"
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 
 const char *kernelReturnCodeDescription(kern_return_t kr) noexcept {
     switch (kr) {
@@ -204,5 +204,5 @@ const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept {
     }
 }
 
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

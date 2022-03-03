@@ -1,7 +1,7 @@
 #pragma once
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
     /** Test if the specified memory is safe to read from.
      *
      * @param memory A pointer to the memory to test.
@@ -10,5 +10,5 @@ namespace darwin {
      * @return True if the memory can be safely read.
      */
     bool isMemoryReadable(const void *const memory, const int byteCount);
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

@@ -1,4 +1,4 @@
-#include "SpectoProtoPolyfills.h"
+#import "SpectoProtoPolyfills.h"
 #import "SpectoTime.h"
 
 @implementation SentryBacktrace
@@ -37,7 +37,7 @@
         return nil;
     }
 
-    referenceUptimeNs = specto::time::getUptimeNs();
+    referenceUptimeNs = sentry::profiling::time::getUptimeNs();
     return self;
 }
 

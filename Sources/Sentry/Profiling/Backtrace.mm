@@ -8,6 +8,7 @@
 #include "StackBounds.h"
 #include "StackFrame.h"
 #include "SpectoTime.h"
+#include "SpectoProtoPolyfills.h"
 
 #include <cassert>
 
@@ -17,16 +18,15 @@
 #define ptrauth_strip(__value, __key) __value
 #endif
 
-using namespace specto;
-using namespace specto::darwin;
-using namespace specto::darwin::thread;
+using namespace sentry::profiling;
+using namespace sentry::profiling::thread;
 
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 namespace {
-ALWAYS_INLINE bool isValidFrame(std::uintptr_t frame, const specto::StackBounds &bounds) {
-    return bounds.contains(frame) && specto::StackFrame::isAligned(frame);
+ALWAYS_INLINE bool isValidFrame(std::uintptr_t frame, const StackBounds &bounds) {
+    return bounds.contains(frame) && StackFrame::isAligned(frame);
 }
 
 ALWAYS_INLINE std::uintptr_t stripPtrAuthentication(std::uintptr_t retAddr) {
@@ -39,7 +39,8 @@ constexpr std::size_t kMaxBacktraceDepth = 128;
 
 } // namespace
 
-namespace specto::darwin {
+namespace sentry {
+namespace profiling {
 NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThread,
                                                    const ThreadHandle &callingThread,
                                                    std::uintptr_t *addresses,
@@ -145,7 +146,7 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
 
         bool reachedEndOfStack = false;
         std::uintptr_t addresses[kMaxBacktraceDepth];
-        const auto depth = specto::darwin::backtrace(
+        const auto depth = backtrace(
           *thread, *pair.second, addresses, stackBounds, &reachedEndOfStack, kMaxBacktraceDepth, 0);
 
         thread->resume();
@@ -169,4 +170,5 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
     }
 }
 
-} // namespace specto::darwin
+} // namespace profiling
+} // namespace sentry

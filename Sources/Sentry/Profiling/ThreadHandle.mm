@@ -9,8 +9,8 @@
 #include <mach/mach.h>
 #include <pthread.h>
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
 
 ThreadHandle::ThreadHandle(NativeHandle handle, bool isOwnedPort) noexcept :
     handle_(handle), isOwnedPort_(isOwnedPort), pthreadHandle_(nullptr) { }
@@ -234,5 +234,5 @@ pthread_t ThreadHandle::pthreadHandle() const noexcept {
     return pthreadHandle_;
 }
 
-} // namespace specto
-} // namespace darwin
+} // namespace profiling
+} // namespace sentry

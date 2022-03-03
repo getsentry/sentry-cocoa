@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-namespace specto {
-namespace darwin {
+namespace sentry {
+namespace profiling {
     class SamplingProfiler;
 
     /**
@@ -40,7 +40,7 @@ namespace darwin {
         void stopCollecting();
     };
 
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry
 
 NS_ASSUME_NONNULL_END

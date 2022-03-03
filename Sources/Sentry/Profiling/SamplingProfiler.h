@@ -9,11 +9,8 @@
 
 @class SentryProfilingEntry;
 
-namespace specto {
-namespace proto {
-    class Entry;
-}
-namespace darwin {
+namespace sentry {
+namespace profiling {
     class ThreadMetadataCache;
 
     /**
@@ -60,12 +57,11 @@ namespace darwin {
         std::shared_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;
         std::mutex lock_;
-        bool hasAddedExceptionKillswitchObserver_;
         bool isSampling_;
         std::thread thread_;
         clock_serv_t clock_;
         mach_port_t port_;
         std::atomic_uint64_t numSamples_;
     };
-} // namespace darwin
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

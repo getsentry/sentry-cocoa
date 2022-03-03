@@ -11,7 +11,8 @@
 #    error Unsupported architecture!
 #endif
 
-namespace specto {
+namespace sentry {
+namespace profiling {
 /**
  * Represents the bounds of a downward-growing stack.
  */
@@ -43,4 +44,5 @@ struct StackBounds {
         return (start != 0) && (end != 0) && (start > end);
     }
 };
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

@@ -10,7 +10,8 @@
 #    error Unsupported architecture!
 #endif
 
-namespace specto {
+namespace sentry {
+namespace profiling {
 /**
  * Represents the structure of a stack frame in memory.
  */
@@ -64,4 +65,6 @@ struct __attribute__((packed)) StackFrame {
 
 static_assert(sizeof(StackFrame) == (sizeof(std::uintptr_t) * 2),
     "The size of a StackFrame must be 2 times the pointer width");
-} // namespace specto
+
+} // namespace profiling
+} // namespace sentry

@@ -4,13 +4,13 @@
 #include <cstdint>
 #include <functional>
 
-namespace specto {
-/** Cross-platform time helpers. */
+namespace sentry {
+namespace profiling {
 namespace time {
 
     using Type = std::uint64_t;
 
-    /** @return Platform-specific device uptime. */
+    /** @return Device uptime. */
     Type getUptimeNs() noexcept;
 
     /** @return Time between two absolute timestamps, in nano-seconds. */
@@ -20,4 +20,5 @@ namespace time {
     std::chrono::seconds getSecondsSinceEpoch() noexcept;
 
 } // namespace time
-} // namespace specto
+} // namespace profiling
+} // namespace sentry

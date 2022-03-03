@@ -5,7 +5,8 @@
 #include <CoreFoundation/CFDate.h>
 #include <ctime>
 
-namespace specto {
+namespace sentry {
+namespace profiling {
 namespace time {
 
 Type getUptimeNs() noexcept {
@@ -23,4 +24,5 @@ std::chrono::seconds getSecondsSinceEpoch() noexcept {
 }
 
 } // namespace time
-} // namespace specto
+} // namespace profiling
+} // namespace sentry
