@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SentryStackBounds.h"
-#include "SentryProfilingThread.h"
 
 #include <chrono>
 #include <mach/mach.h>
@@ -17,6 +16,9 @@
  */
 namespace sentry {
 namespace profiling {
+namespace thread {
+using TIDType = std::uint64_t;
+} // namespace thread
 
 enum class ThreadRunState { Undefined, Running, Stopped, Waiting, Uninterruptible, Halted };
 
