@@ -111,8 +111,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
 }
 
 void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEntry*)> &f,
-                                      const std::shared_ptr<ThreadMetadataCache> &cache,
-                                      bool measureCost) {
+                                      const std::shared_ptr<ThreadMetadataCache> &cache) {
     const auto pair = ThreadHandle::allExcludingCurrent();
     for (const auto &thread : pair.first) {
         if (thread->isIdle()) {
@@ -163,9 +162,6 @@ void enumerateBacktracesForAllThreads(const std::function<void(SentryProfilingEn
                 [backtrace->addresses addObject:@(addresses[i])];
             }
             entry->elapsedRelativeToStartDateNs = startTimeNs;
-            if (measureCost) {
-                entry->costNs = time::getDurationNs(startTimeNs).count();
-            }
             f(entry);
         }
     }

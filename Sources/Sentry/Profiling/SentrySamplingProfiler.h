@@ -24,11 +24,10 @@ public:
      * @param callback The callback that is called with each trace entry containing the
      * backtrace for a particular thread. The timestamp of the entry will be set to the
      * timestamp that the sample was collected at.
-     * @param measureCost Whether to measure the cost of collecting the backtrace samples.
      * @param samplingRateHz The sampling rate, in Hz, to sample at.
      */
     SamplingProfiler(std::function<void(SentryProfilingEntry *)> callback,
-        std::uint32_t samplingRateHz, bool measureCost);
+        std::uint32_t samplingRateHz);
 
     ~SamplingProfiler();
 
@@ -53,7 +52,6 @@ public:
 private:
     mach_timespec_t delaySpec_;
     std::function<void(SentryProfilingEntry *)> callback_;
-    bool measureCost_;
     std::shared_ptr<ThreadMetadataCache> cache_;
     bool isInitialized_;
     std::mutex lock_;

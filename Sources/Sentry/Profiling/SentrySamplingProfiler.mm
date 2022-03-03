@@ -22,7 +22,6 @@ void* samplingThreadMain(mach_port_t port,
                          mach_timespec_t delaySpec,
                          std::shared_ptr<ThreadMetadataCache> cache,
                          std::function<void(SentryProfilingEntry*)> callback,
-                         bool measureCost,
                          std::atomic_uint64_t& numSamples,
                          std::function<void()> onThreadStart) {
     SENTRY_PROF_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
@@ -50,7 +49,7 @@ void* samplingThreadMain(mach_port_t port,
         }
 
         numSamples.fetch_add(1, std::memory_order_relaxed);
-        enumerateBacktracesForAllThreads(callback, cache, measureCost);
+        enumerateBacktracesForAllThreads(callback, cache);
     }
     pthread_cleanup_pop(1);
     return nullptr;
@@ -59,10 +58,8 @@ void* samplingThreadMain(mach_port_t port,
 } // namespace
 
 SamplingProfiler::SamplingProfiler(std::function<void(SentryProfilingEntry*)> callback,
-                                   std::uint32_t samplingRateHz,
-                                   bool measureCost) :
-    callback_(std::move(callback)),
-    measureCost_(measureCost), cache_(std::make_shared<ThreadMetadataCache>()),
+                                   std::uint32_t samplingRateHz) :
+    callback_(std::move(callback)), cache_(std::make_shared<ThreadMetadataCache>()),
     isInitialized_(false), isSampling_(false),
     port_(0), numSamples_(0) {
     if (SENTRY_PROF_LOG_KERN_RETURN(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_))
@@ -108,7 +105,6 @@ void SamplingProfiler::startSampling(std::function<void()> onThreadStart) {
                           delaySpec_,
                           cache_,
                           callback_,
-                          measureCost_,
                           std::ref(numSamples_),
                           onThreadStart);
 
