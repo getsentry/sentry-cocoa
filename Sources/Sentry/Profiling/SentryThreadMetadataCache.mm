@@ -23,55 +23,52 @@ namespace profiling {
 
 class ThreadMetadataCache::Impl {
 public:
-    SentryProfilingEntry *entryForThread(const ThreadHandle &thread) {
+    std::optional<ThreadMetadata> metadataForThread(const ThreadHandle &thread) {
         const auto handle = thread.nativeHandle();
         const auto it =
-          std::find_if(cache_.cbegin(), cache_.cend(), [handle](const ThreadHandleEntryPair &pair) {
+          std::find_if(cache_.cbegin(), cache_.cend(), [handle](const ThreadHandleMetadataPair &pair) {
               return pair.handle == handle;
           });
         if (it == cache_.cend()) {
-            auto entry = [[SentryProfilingEntry alloc] init];
-            entry->tid = ThreadHandle::tidFromNativeHandle(handle);
-
-            const auto backtrace = entry->backtrace;
-            const auto priority = thread.priority();
-            backtrace->priority = priority;
+            ThreadMetadata metadata;
+            metadata.tid = ThreadHandle::tidFromNativeHandle(handle);
+            metadata.priority = thread.priority();
 
             // If getting the priority fails (via pthread_getschedparam()), that
             // means the rest of this is probably going to fail too.
-            if (priority != -1) {
+            if (metadata.priority != -1) {
                 auto threadName = thread.name();
                 if (isSentryOwnedThreadName(threadName)) {
                     // Don't collect backtraces for Sentry-owned threads.
-                    cache_.push_back({handle, nullptr});
-                    return nullptr;
+                    cache_.push_back({handle, std::nullopt});
+                    return std::nullopt;
                 }
                 if (threadName.size() > kMaxThreadNameLength) {
                     threadName.resize(kMaxThreadNameLength);
                 }
 
-                backtrace->threadName = [NSString stringWithUTF8String:threadName.c_str()];
+                metadata.name = threadName;
             }
 
-            cache_.push_back({handle, entry});
-            return entry;
+            cache_.push_back({handle, metadata});
+            return metadata;
         } else {
-            return (*it).entry;
+            return (*it).metadata;
         }
     }
 
 private:
-    struct ThreadHandleEntryPair {
+    struct ThreadHandleMetadataPair {
         ThreadHandle::NativeHandle handle;
-        SentryProfilingEntry *entry;
+        std::optional<ThreadMetadata> metadata;
     };
-    std::vector<const ThreadHandleEntryPair> cache_;
+    std::vector<const ThreadHandleMetadataPair> cache_;
 };
 
 ThreadMetadataCache::ThreadMetadataCache() : impl_(spimpl::make_unique_impl<Impl>()) { }
 
-SentryProfilingEntry *ThreadMetadataCache::entryForThread(const ThreadHandle &thread) {
-    return impl_->entryForThread(thread);
+std::optional<ThreadMetadata> ThreadMetadataCache::metadataForThread(const ThreadHandle &thread) {
+    return impl_->metadataForThread(thread);
 }
 
 } // namespace profiling
