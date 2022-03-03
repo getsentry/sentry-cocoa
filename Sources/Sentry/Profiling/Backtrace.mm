@@ -1,6 +1,7 @@
 #include "Backtrace.h"
 
 #include "ThreadMetadataCache.h"
+#include "AsyncSafeLogging.h"
 #include "MachLogging.h"
 #include "ThreadHandle.h"
 #include "ThreadState.h"
@@ -55,7 +56,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t backtrace(const ThreadHandle &targetThr
     std::size_t depth = 0;
     MachineContext machineContext;
     if (fillThreadState(targetThread.nativeHandle(), &machineContext) != KERN_SUCCESS) {
-        SPECTO_LOG_ASYNC_SAFE_ERROR("Failed to fill thread state");
+        SENTRY_LOG_ASYNC_SAFE_ERROR("Failed to fill thread state");
         return 0;
     }
     if (LIKELY(skip == 0)) {

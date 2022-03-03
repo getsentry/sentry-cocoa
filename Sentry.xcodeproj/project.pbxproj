@@ -609,6 +609,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		034C335C27D151AC00C13531 /* AsyncSafeLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AsyncSafeLogging.h; sourceTree = "<group>"; };
 		15360CCE2432777400112302 /* SentrySessionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentrySessionTracker.m; sourceTree = "<group>"; };
 		15360CD12432779F00112302 /* SentrySessionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySessionTracker.h; path = include/SentrySessionTracker.h; sourceTree = "<group>"; };
 		15360CD52432832400112302 /* SentryAutoSessionTrackingIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAutoSessionTrackingIntegration.m; sourceTree = "<group>"; };
@@ -1463,6 +1464,7 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
+				8405A517279906EF001B38A1 /* Profiling */,
 				7BE0DC33272AE74A004FA8B7 /* Breadcrumbs */,
 				7BE0DC34272AE78C004FA8B7 /* OutOfMemory */,
 				7BE0DC39272AE8B3004FA8B7 /* Performance */,
@@ -2138,7 +2140,6 @@
 		7BE0DC39272AE8B3004FA8B7 /* Performance */ = {
 			isa = PBXGroup;
 			children = (
-				8405A517279906EF001B38A1 /* Profiling */,
 				D8ACE3C32762185E00F5A213 /* IO */,
 				7BE0DC37272AE83E004FA8B7 /* AppStartTracking */,
 				7BE0DC38272AE874004FA8B7 /* FramesTracking */,
@@ -2352,6 +2353,7 @@
 				8405A52527990730001B38A1 /* ThreadMetadataCache.mm */,
 				8494D41A279F8A8000C28060 /* ThreadPriority.h */,
 				8405A53F27990730001B38A1 /* ThreadState.h */,
+				034C335C27D151AC00C13531 /* AsyncSafeLogging.h */,
 			);
 			path = Profiling;
 			sourceTree = "<group>";
