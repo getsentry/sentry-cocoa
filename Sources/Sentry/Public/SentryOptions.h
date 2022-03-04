@@ -268,9 +268,10 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableSwizzling;
 
-@property (nonatomic, assign) NSInteger profilerSampleRateHz;
-
-@property (nonatomic, assign) BOOL profilerEnabled;
+/**
+ * Whether to enable the sampling profiler. Default is NO.
+ */
+@property (nonatomic, assign) BOOL enableProfiling;
 
 @end
 
