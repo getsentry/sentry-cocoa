@@ -15,7 +15,8 @@ class SentrySubClassFinderTests: XCTestCase {
         let imageName: String
         let testClassesNames = [NSStringFromClass(FirstViewController.self),
                                 NSStringFromClass(SecondViewController.self),
-                                NSStringFromClass(ViewControllerWrongName.self),
+                                NSStringFromClass(ViewControllerNumberThree.self),
+                                NSStringFromClass(VCWrongNaming.self),
                                 NSStringFromClass(FakeViewController.self)]
         init() {
             if let name = class_getImageName(FirstViewController.self) {
@@ -38,11 +39,23 @@ class SentrySubClassFinderTests: XCTestCase {
     }
     
     func testActOnSubclassesOfViewController() {
-        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self])
+        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self])
     }
     
     func testActOnSubclassesOfViewController_NoViewController() {
         fixture.runtimeWrapper.classesNames = { _ in [] }
+        testActOnSubclassesOfViewController(expected: [])
+        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
+    }
+    
+    func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
+        fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(FakeViewController.self)] }
+        testActOnSubclassesOfViewController(expected: [])
+        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
+    }
+    
+    func testActOnSubclassesOfViewController_IgnoreWrongNaming() {
+        fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(VCWrongNaming.self)] }
         testActOnSubclassesOfViewController(expected: [])
         XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
     }
@@ -98,6 +111,7 @@ class SentrySubClassFinderTests: XCTestCase {
 
 class FirstViewController: UIViewController {}
 class SecondViewController: UIViewController {}
-class ViewControllerWrongName: UIViewController {}
+class ViewControllerNumberThree: UIViewController {}
+class VCWrongNaming: UIViewController {}
 class FakeViewController {}
 #endif
