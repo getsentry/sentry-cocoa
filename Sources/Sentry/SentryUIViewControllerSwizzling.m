@@ -95,7 +95,7 @@ SentryUIViewControllerSwizzling ()
 - (id<SentryUIApplication>)findApp
 {
     if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
+        NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respond to "
                             @"sharedApplication.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return nil;
