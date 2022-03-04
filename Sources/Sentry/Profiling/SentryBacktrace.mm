@@ -8,10 +8,10 @@
 #include "SentryCompiler.h"
 #include "SentryStackBounds.h"
 #include "SentryStackFrame.h"
-#include "SentryTime.h"
 #include "SentryProtoPolyfills.h"
 
 #include <cassert>
+#include <ctime>
 
 #if __has_include(<ptrauth.h>)
 #include <ptrauth.h>
@@ -131,7 +131,7 @@ void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &
         // This one is probably safe to call while the thread is suspended, but
         // being conservative here in case the platform time functions take any
         // locks that we're not aware of.
-        bt.uptimeNs = time::getUptimeNs();
+        bt.uptimeNs = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
 
         // ############################################
         // DEADLOCK WARNING: It is not safe to call any functions that acquire a
