@@ -1,8 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669)
+
 ## 7.10.0
 
-- fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669) 
 - fix: Always tracks App start for Hybrid SDKs (#1662) 
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
