@@ -69,8 +69,8 @@
 {
     NSMutableArray<NSString *> * fields = [NSMutableArray new];
     for (NSSortDescriptor* descriptor in sortList) {
-        NSString * direction = descriptor.ascending ? @"ASCENDING" : @"DESCENDING";
-        [fields addObject:[NSString stringWithFormat:@"%@ %@",descriptor.key, direction]];
+        NSString * direction = descriptor.ascending ? @"" : @" DESCENDING";
+        [fields addObject:[NSString stringWithFormat:@"%@%@",descriptor.key, direction]];
     }
     return [fields componentsJoinedByString:@", "];
 }
