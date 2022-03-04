@@ -56,13 +56,13 @@ SentryUIViewControllerSwizzling ()
 {
     id<SentryUIApplication> app = [self findApp];
     if (app != nil) {
-        
-         // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
-         // controller before the SentrySDK is initialized. Therefore, we manually call swizzle here
-         // not to lose auto-generated transactions for the initial view controller. As we use
-         // SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling
-         // twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
-         // the lookup can take around 60ms, which is not acceptable.
+
+        // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
+        // controller before the SentrySDK is initialized. Therefore, we manually call swizzle here
+        // not to lose auto-generated transactions for the initial view controller. As we use
+        // SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling
+        // twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
+        // the lookup can take around 60ms, which is not acceptable.
         if (![self swizzleRootViewControllerFromUIApplication:app]) {
             NSString *message
                 = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
