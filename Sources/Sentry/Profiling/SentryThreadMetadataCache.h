@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SentryThreadHandle.h"
-#include "spimpl.h"
 
 #include <memory>
 #include <optional>
@@ -31,13 +30,16 @@ public:
      */
     std::optional<ThreadMetadata> metadataForThread(const ThreadHandle &thread);
 
-    ThreadMetadataCache();
+    ThreadMetadataCache() = default;
     ThreadMetadataCache(const ThreadMetadataCache &) = delete;
     ThreadMetadataCache &operator=(const ThreadMetadataCache &) = delete;
 
 private:
-    class Impl;
-    spimpl::unique_impl_ptr<Impl> impl_;
+    struct ThreadHandleMetadataPair {
+        ThreadHandle::NativeHandle handle;
+        std::optional<ThreadMetadata> metadata;
+    };
+    std::vector<const ThreadHandleMetadataPair> cache_;
 };
 
 } // namespace profiling
