@@ -19,7 +19,7 @@ struct StackBounds;
 struct Backtrace {
     ThreadMetadata threadMetadata;
     time::Type uptimeNs;
-    std::vector<std::uint64_t> addresses;
+    std::vector<std::uintptr_t> addresses;
 };
 
 /**
