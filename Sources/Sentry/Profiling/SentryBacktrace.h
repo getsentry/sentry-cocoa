@@ -3,7 +3,6 @@
 #include "SentryStackBounds.h"
 #include "SentryThreadHandle.h"
 #include "SentryThreadMetadataCache.h"
-#include "SentryTime.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -18,7 +17,7 @@ struct StackBounds;
 
 struct Backtrace {
     ThreadMetadata threadMetadata;
-    time::Type uptimeNs;
+    std::uint64_t uptimeNs;
     std::vector<std::uintptr_t> addresses;
 };
 

@@ -2,7 +2,6 @@
 
 #include "SentryThreadHandle.h"
 #include "SentryStackBounds.h"
-#include "SentryProtoPolyfills.h"
 
 #include <algorithm>
 #include <string>

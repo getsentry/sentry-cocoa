@@ -8,7 +8,6 @@
 #include "SentryCompiler.h"
 #include "SentryStackBounds.h"
 #include "SentryStackFrame.h"
-#include "SentryProtoPolyfills.h"
 
 #include <cassert>
 #include <ctime>

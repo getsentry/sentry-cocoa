@@ -1,17 +1,7 @@
 #import "SentryProfiler.h"
 
-#import "SentryAttachment.h"
 #import "SentryBacktrace.h"
-#import "SentryId.h"
 #import "SentrySamplingProfiler.h"
-#import "SentryTime.h"
-#import "SentryProtoPolyfills.h"
-#import "SentryEnvelope.h"
-#import "SentryFileManager.h"
-#import "SentryOptions+Private.h"
-#import "SentryDefaultCurrentDateProvider.h"
-#import "SentryProfilingLogging.h"
-#import "SentryLog.h"
 #import "SentryHexAddressFormatter.h"
 
 #if defined(DEBUG)
