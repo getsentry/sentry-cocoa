@@ -129,6 +129,41 @@ return context->__ss.__eip;
 #endif
 }
     
+/**
+ * Returns the address of the instruction that comes before `address`.
+ *
+ * In some cases the return address that we read from the stack frame might
+ * be for a different symbol, so this function is used to get the address of
+ * the previous instruction to make sure we get the call address.
+ *
+ * More details here: https://reviews.llvm.org/D29992
+ *
+ * @param address The address to get the previous address relative to.
+ *
+ * @return The address that comes before `address`.
+ */
+ALWAYS_INLINE std::uintptr_t getPreviousInstructionAddress(std::uintptr_t address) {
+    // From
+    // https://github.com/llvm-mirror/compiler-rt/blob/master/lib/sanitizer_common/sanitizer_stacktrace.h#L75-L91
+    //
+    // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+    // See https://llvm.org/LICENSE.txt for license information.
+    // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#if CPU(ARM)
+    // T32 (Thumb) branch instructions might be 16 or 32 bit long,
+    // so we return (pc-2) in that case in order to be safe.
+    // For A32 mode we return (pc-4) because all instructions are 32 bit long.
+    return (address - 3) & (~1);
+#elif CPU(ARM64)
+    // PCs are always 4 byte aligned.
+    return address - 4;
+#elif CPU(X86_64) || CPU(X86)
+    return address - 1;
+#else
+#error Unsupported architecture!
+#endif
+}
+    
 } // namespace thread
 } // namespace profiling
 } // namespace sentry

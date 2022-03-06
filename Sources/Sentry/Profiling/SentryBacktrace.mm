@@ -32,7 +32,7 @@ ALWAYS_INLINE bool isValidFrame(std::uintptr_t frame, const StackBounds &bounds)
 ALWAYS_INLINE std::uintptr_t stripPtrAuthentication(std::uintptr_t retAddr) {
     // https://github.com/apple/darwin-xnu/blob/8f02f2a044b9bb1ad951987ef5bab20ec9486310/osfmk/kern/backtrace.c#L120
     return reinterpret_cast<std::uintptr_t>(
-      ptrauth_strip(reinterpret_cast<void *>(retAddr), ptrauth_key_return_address));
+      ptrauth_strip(reinterpret_cast<void *>(getPreviousInstructionAddress(retAddr)), ptrauth_key_return_address));
 }
 
 constexpr std::size_t kMaxBacktraceDepth = 128;
