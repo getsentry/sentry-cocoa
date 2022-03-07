@@ -21,24 +21,6 @@ SentryTestObjCRuntimeWrapper ()
     return self;
 }
 
-- (int)getClassList:(__unsafe_unretained Class *)buffer bufferCount:(int)bufferCount
-{
-    if (self.beforeGetClassList != nil) {
-        self.beforeGetClassList();
-    }
-    int numClasses = [self.objcRuntimeWrapper getClassList:buffer bufferCount:bufferCount];
-
-    if (self.numClasses != nil) {
-        numClasses = self.numClasses(numClasses);
-    }
-
-    if (self.afterGetClassList != nil) {
-        self.afterGetClassList();
-    }
-
-    return numClasses;
-}
-
 - (const char **)copyClassNamesForImage:(const char *)image amount:(unsigned int *)outCount
 {
     if (self.beforeGetClassList != nil) {
@@ -67,11 +49,6 @@ SentryTestObjCRuntimeWrapper ()
     }
 
     return result;
-}
-
-- (void)countIterateClasses
-{
-    self.iterateClassesInvocations++;
 }
 
 @end

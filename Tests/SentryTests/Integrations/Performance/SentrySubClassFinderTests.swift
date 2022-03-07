@@ -45,25 +45,21 @@ class SentrySubClassFinderTests: XCTestCase {
     func testActOnSubclassesOfViewController_NoViewController() {
         fixture.runtimeWrapper.classesNames = { _ in [] }
         testActOnSubclassesOfViewController(expected: [])
-        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
     }
     
     func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
         fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(FakeViewController.self)] }
         testActOnSubclassesOfViewController(expected: [])
-        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
     }
     
     func testActOnSubclassesOfViewController_IgnoreWrongNaming() {
         fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(VCWrongNaming.self)] }
         testActOnSubclassesOfViewController(expected: [])
-        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
     }
     
     func testActOnSubclassesOfViewController_WrongImage_NoViewController() {
         fixture.runtimeWrapper.classesNames = nil
         testActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
-        XCTAssertEqual(1, fixture.runtimeWrapper.iterateClassesInvocations)
     }
   
     func testGettingSublcasses_DoesNotCallInitializer() {
