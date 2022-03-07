@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add CoreData performance tracking (#1682)
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)
