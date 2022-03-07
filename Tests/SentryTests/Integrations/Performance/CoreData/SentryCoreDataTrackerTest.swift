@@ -3,12 +3,6 @@ import CoreData
 
 
 class SentryCoreDataTrackerTests: XCTestCase {
-
-    @objc(TestEntity)
-    public class TestEntity: NSManagedObject {
-        var field1: String?
-        var field2: Int?
-    }
     
     private class Fixture {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)

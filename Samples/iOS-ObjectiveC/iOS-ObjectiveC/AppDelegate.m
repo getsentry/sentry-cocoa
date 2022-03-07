@@ -22,7 +22,7 @@ AppDelegate ()
         options.tracesSampleRate = @1.0;
         options.enableFileIOTracking = YES;
     }];
-    
+
     return YES;
 }
 

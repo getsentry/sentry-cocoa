@@ -83,7 +83,7 @@ class CoreDataViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CELL") ?? {
             let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "CELL")
             cell.selectionStyle = .none
-            return cell;
+            return cell
         }()
         
         cell.textLabel?.text = people[indexPath.row].name
@@ -124,7 +124,7 @@ class CoreDataViewController: UITableViewController {
     }
     
     @objc
-    private func requestNewPerson(_ source : Any?){
+    private func requestNewPerson(_ source: Any?) {
         let alert = UIAlertController(title: "New Person", message: nil, preferredStyle: .alert)
         alert.addTextField {
             $0.returnKeyType = .next
@@ -136,7 +136,7 @@ class CoreDataViewController: UITableViewController {
         }
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { action in
+        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { _ in
             self.addNewPerson(name: alert.textFields![0].text!, job: alert.textFields![1].text!)
         }))
         
@@ -144,7 +144,7 @@ class CoreDataViewController: UITableViewController {
     }
     
     private func addNewPerson(name: String, job: String) {
-        let person : Person = getEntity()
+        let person: Person = getEntity()
         
         person.name = name
         person.job = job

@@ -6,7 +6,6 @@
 #import "SentryTracer.h"
 #import <XCTest/XCTest.h>
 
-
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase
 
 @end

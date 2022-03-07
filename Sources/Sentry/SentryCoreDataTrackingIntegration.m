@@ -6,9 +6,14 @@
 #import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 
-@implementation SentryCoreDataTrackingIntegration {
-    SentryCoreDataTracker *tracker;
-}
+@interface
+SentryCoreDataTrackingIntegration ()
+
+@property (nonatomic, strong) SentryCoreDataTracker *tracker;
+
+@end
+
+@implementation SentryCoreDataTrackingIntegration
 
 - (void)installWithOptions:(SentryOptions *)options
 {
@@ -20,8 +25,8 @@
         return;
     }
 
-    tracker = [[SentryCoreDataTracker alloc] init];
-    [SentryCoreDataSwizzling.sharedInstance startWithMiddleware:tracker];
+    self.tracker = [[SentryCoreDataTracker alloc] init];
+    [SentryCoreDataSwizzling.sharedInstance startWithMiddleware:self.tracker];
 }
 
 - (void)uninstall
