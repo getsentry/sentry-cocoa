@@ -153,7 +153,7 @@ jobs:
         shell: sh
 
   ui-tests-swift-ui:
-    name: UI Tests for ${{matrix.device}}
+    name: UI Tests for SwiftUI on ${{matrix.device}}
     runs-on: macos-11
     strategy:
       fail-fast: false
