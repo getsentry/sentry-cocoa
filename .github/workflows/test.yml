@@ -165,10 +165,8 @@ jobs:
           - xcode: "12.5.1"
             device: "iPhone 8 (14.5)"
 
-          - xcode: "11.7"
-            device: "iPhone 8 (13.7)"
+        # Our SwiftUI requires iOS 14 or higher
             
-
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -177,7 +175,6 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
         shell: sh
-
 
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ui-ios-12:
