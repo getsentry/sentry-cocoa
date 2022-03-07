@@ -53,6 +53,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
     }
     
+    func testGetInstallationId() {
+        XCTAssertEqual(SentryInstallation.id(), PrivateSentrySDKOnly.installationID)
+    }
+    
     func testSendAppStartMeasurement() {
         XCTAssertFalse(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
         
