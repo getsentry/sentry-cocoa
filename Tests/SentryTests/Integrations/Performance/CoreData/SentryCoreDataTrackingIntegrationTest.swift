@@ -1,6 +1,5 @@
-import XCTest
 import CoreData
-
+import XCTest
 
 class SentryCoreDataTrackingIntegrationTests: XCTestCase {
 
@@ -37,7 +36,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         options.enableSwizzling = true
         
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
-        sut.install(with:  options)
+        sut.install(with: options)
         XCTAssertNotNil(SentryCoreDataSwizzling.sharedInstance.middleware)
         sut.uninstall()
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
@@ -50,9 +49,8 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         options.enableSwizzling = false
         
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
-        sut.install(with:  options)
+        sut.install(with: options)
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
     }
-    
     
 }

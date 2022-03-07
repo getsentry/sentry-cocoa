@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 @objc(TestEntity)
 public class TestEntity: NSManagedObject {
