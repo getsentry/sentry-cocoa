@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Swizzling UIViewControllers crash (#1670)
+- feat: Expose Installation ID for Hybrid SDKs (#1680)
 - fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669)
 
 ## 7.10.0
