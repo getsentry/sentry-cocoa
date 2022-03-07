@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Expose Installation ID for Hybrid SDKs (#1680)
+
 ## 7.10.0
 
 - fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669) 
