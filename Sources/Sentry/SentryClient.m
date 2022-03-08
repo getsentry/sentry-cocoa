@@ -478,6 +478,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // User can't be nil as setUserIdIfNoUserSet sets it.
     if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
         // Let Sentry infer the IP address from the connection.
+        // Due to backward compatibility concerns, Sentry servers set the IP address to {{auto}} out
+        // of the box for only Cocoa and JavaScript, which makes this toggle currently somewhat
+        // useless. Still, we keep it for future compatibility reasons.
         event.user.ipAddress = @"{{auto}}";
     }
 
