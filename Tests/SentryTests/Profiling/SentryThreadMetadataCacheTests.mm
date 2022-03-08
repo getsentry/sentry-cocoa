@@ -4,6 +4,7 @@
 #import "SentryMachLogging.h"
 
 #import <pthread.h>
+#import <thread>
 
 using namespace sentry::profiling;
 
@@ -39,6 +40,8 @@ void *threadSpin(void *name) {
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
     
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
     if (auto metadata = cache->metadataForThread(handle)) {
@@ -63,6 +66,8 @@ void *threadSpin(void *name) {
         param.sched_priority = 50;
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
@@ -90,6 +95,8 @@ void *threadSpin(void *name) {
     pthread_t thread;
     char name[] = "io.sentry.SentryThreadMetadataCacheTests";
     XCTAssertEqual(pthread_create(&thread, nullptr, threadSpin, reinterpret_cast<void *>(name)), 0);
+    
+    std::this_thread::sleep_for(std::chrono::seconds(1));
         
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
