@@ -133,7 +133,7 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
                                         <rect key="frame" x="0.0" y="450" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
                                         <state key="normal" title="Use CoreData"/>
                                         <connections>
                                             <action selector="useCoreData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ycl-fG-7Bk"/>
