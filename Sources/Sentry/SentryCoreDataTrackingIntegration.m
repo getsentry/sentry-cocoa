@@ -17,9 +17,25 @@ SentryCoreDataTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:
+                       @"Not going to enable NetworkTracking because enableAutoPerformanceTracking is disabled."
+                         andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return;
+    }
+    
     if (!options.enableSwizzling) {
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
+                         andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return;
+    }
+    
+    if (!options.enableCoreDataTracking) {
+        [SentryLog logWithMessage:
+                       @"Not going to enable NetworkTracking because enableCoreDataTracking is disabled."
                          andLevel:kSentryLevelDebug];
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
