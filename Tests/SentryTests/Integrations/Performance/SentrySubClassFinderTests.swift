@@ -1,9 +1,30 @@
+import ObjectiveC
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentrySubClassFinderTests: XCTestCase {
-
+    
     private class Fixture {
-        let runtimeWrapper = SentryTestObjCRuntimeWrapper()
+        lazy var runtimeWrapper: SentryTestObjCRuntimeWrapper = {
+            let result = SentryTestObjCRuntimeWrapper()
+            result.classesNames = { _ in
+                return self.testClassesNames
+            }
+            return result
+        }()
+        let imageName: String
+        let testClassesNames = [NSStringFromClass(FirstViewController.self),
+                                NSStringFromClass(SecondViewController.self),
+                                NSStringFromClass(ViewControllerNumberThree.self),
+                                NSStringFromClass(VCWrongNaming.self),
+                                NSStringFromClass(FakeViewController.self)]
+        init() {
+            if let name = class_getImageName(FirstViewController.self) {
+                imageName = String(cString: name, encoding: .utf8) ?? ""
+            } else {
+                imageName = ""
+            }
+        }
         
         var sut: SentrySubClassFinder {
             return SentrySubClassFinder(dispatchQueue: SentryDispatchQueueWrapper(), objcRuntimeWrapper: runtimeWrapper)
@@ -11,92 +32,52 @@ class SentrySubClassFinderTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-
+    
     override func setUp() {
         super.setUp()
         fixture = Fixture()
     }
-
-    func testActOnSubclassesOfParent_ReturnsChildren() {
-        testActOnSubclassesOf(Parent.self, expected: [Child1.self, Child2.self, GrandChild1.self, GrandChild2.self])
+    
+    func testActOnSubclassesOfViewController() {
+        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self])
     }
     
-    func testActOnSubclassesOfChild1_ReturnsChildren() {
-        testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
-    }
-
-    func testActOnSubclassesOfChild2_ReturnsChildren() {
-        testActOnSubclassesOf(Child2.self, expected: [])
+    func testActOnSubclassesOfViewController_NoViewController() {
+        fixture.runtimeWrapper.classesNames = { _ in [] }
+        testActOnSubclassesOfViewController(expected: [])
     }
     
-    func testActOnSubclassesOfChild2_WhenNewClassesRegistered_ReturnNoChildren() {
-        fixture.runtimeWrapper.beforeGetClassList = {
-            SentryClassRegistrator.registerClass(SentryId().sentryIdString)
-        }
-        testActOnSubclassesOf(Child1.self, expected: [])
-        XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
+    func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
+        fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(FakeViewController.self)] }
+        testActOnSubclassesOfViewController(expected: [])
     }
     
-    func testActOnSubclassesOfChild2_WhenNewClassOnlyOnceRegistered_ReturnsChildren() {
-        var invocations = 0
-        fixture.runtimeWrapper.beforeGetClassList = {
-            if invocations == 1 {
-                SentryClassRegistrator.registerClass(SentryId().sentryIdString)
-            }
-            invocations += 1
-        }
-        testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
+    func testActOnSubclassesOfViewController_IgnoreWrongNaming() {
+        fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(VCWrongNaming.self)] }
+        testActOnSubclassesOfViewController(expected: [])
     }
     
-    func testActOnSubclasses_SecondClassListReturns0_NoChildrenFound() {
-        var invocations = -1
-        fixture.runtimeWrapper.numClasses = { numClasses in
-            invocations += 1
-            return invocations > 0 ? 0 : numClasses
-        }
-        
-        testActOnSubclassesOf(Child1.self, expected: [])
+    func testActOnSubclassesOfViewController_WrongImage_NoViewController() {
+        fixture.runtimeWrapper.classesNames = nil
+        testActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
     }
-    
-    func testActOnSubclasses_SecondClassListReturnsOneLess_ReturnsChildren() {
-        var invocations = -1
-        fixture.runtimeWrapper.numClasses = { numClasses in
-            invocations += 1
-            return invocations > 0 ? numClasses - 1 : numClasses
-        }
-        
-        testActOnSubclassesOf(Child1.self, expected: [GrandChild2.self, GrandChild1.self])
-    }
-    
-    func testActOnSubclasses_ClassListKeepsReturnsOneLess_ReturnsNoChildren() {
-        var invocations = -1
-        fixture.runtimeWrapper.numClasses = { numClasses in
-            invocations += 1
-            return numClasses - Int32(invocations)
-        }
-        
-        testActOnSubclassesOf(Child1.self, expected: [])
-        XCTAssertEqual(0, fixture.runtimeWrapper.iterateClassesInvocations)
-    }
-    
-    func testActOnSubclasses_NoClassesFound_ReturnsNoChildren() {
-        fixture.runtimeWrapper.numClasses = { _ in 0 }
-        
-        testActOnSubclassesOf(Child1.self, expected: [])
-    }
-    
+  
     func testGettingSublcasses_DoesNotCallInitializer() {
         let sut = SentrySubClassFinder(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: fixture.runtimeWrapper)
         
         var actual: [AnyClass] = []
-        sut.act(onSubclassesOf: NSObject.self) { subClass in
+        sut.actOnSubclassesOfViewController(inImage: fixture.imageName) { subClass in
             actual.append(subClass)
         }
         
         XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
-    private func testActOnSubclassesOf(_ type: AnyClass, expected: [AnyClass]) {
+    private func testActOnSubclassesOfViewController(expected: [AnyClass]) {
+        testActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName)
+    }
+    
+    private func testActOnSubclassesOfViewController(expected: [AnyClass], imageName: String) {
         let expect = expectation(description: "")
         
         if expected.isEmpty {
@@ -106,7 +87,7 @@ class SentrySubClassFinderTests: XCTestCase {
         }
         
         var actual: [AnyClass] = []
-        fixture.sut.act(onSubclassesOf: type) { subClass in
+        fixture.sut.actOnSubclassesOfViewController(inImage: imageName) { subClass in
             XCTAssertTrue(Thread.isMainThread, "Block must be executed on the main thread.")
             actual.append(subClass)
             expect.fulfill()
@@ -124,8 +105,9 @@ class SentrySubClassFinderTests: XCTestCase {
     }
 }
 
-class Parent {}
-class Child1: Parent {}
-class Child2: Parent {}
-class GrandChild1: Child1 {}
-class GrandChild2: Child1 {}
+class FirstViewController: UIViewController {}
+class SecondViewController: UIViewController {}
+class ViewControllerNumberThree: UIViewController {}
+class VCWrongNaming: UIViewController {}
+class FakeViewController {}
+#endif

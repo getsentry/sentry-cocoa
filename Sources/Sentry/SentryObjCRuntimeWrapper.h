@@ -2,8 +2,6 @@
 
 @protocol SentryObjCRuntimeWrapper <NSObject>
 
-- (int)getClassList:(__unsafe_unretained Class *)buffer bufferCount:(int)bufferCount;
-
-- (void)countIterateClasses;
+- (const char **)copyClassNamesForImage:(const char *)image amount:(unsigned int *)outCount;
 
 @end

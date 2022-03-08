@@ -1,5 +1,6 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryDebugImageProvider.h"
+#import "SentryInstallation.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
@@ -48,6 +49,11 @@ static BOOL _appStartMeasurementHybridSDKMode = NO;
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
     return [SentrySDK getAppStartMeasurement];
+}
+
++ (NSString *)installationID
+{
+    return [SentryInstallation id];
 }
 
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable

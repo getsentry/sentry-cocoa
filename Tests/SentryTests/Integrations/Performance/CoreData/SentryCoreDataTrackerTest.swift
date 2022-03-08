@@ -1,6 +1,5 @@
-import XCTest
 import CoreData
-
+import XCTest
 
 class SentryCoreDataTrackerTests: XCTestCase {
     
@@ -66,7 +65,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' WHERE field1 == \"First Argument\" SORT BY field1 DESCENDING")
     }
     
-    func assertRequest(_ fetch : NSFetchRequest<TestEntity>, expectedDescription : String) {
+    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String) {
         let transaction = startTransaction()
         let sut = fixture.getSut()
         
@@ -74,7 +73,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let someEntity = fixture.testEntity()
         
-        let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { request, error in
+        let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
       
@@ -84,7 +83,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
         XCTAssertEqual(transaction.children[0].data!["result_amount"] as? Int, 1)
     }
-    
     
     private func startTransaction() -> SentryTracer {
         return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
