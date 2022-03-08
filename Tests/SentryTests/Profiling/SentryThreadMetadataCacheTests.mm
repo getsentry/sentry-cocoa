@@ -42,8 +42,9 @@ void *threadSpin(void *name) {
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
     if (auto metadata = cache->metadataForThread(handle)) {
-        XCTAssertTrue(metadata->name == "SentryThreadMetadataCacheTests");
-        XCTAssertEqual(metadata->priority, 50);
+        XCTAssertTrue(metadata->name == handle.name());
+        XCTAssertEqual(metadata->priority, handle.priority());
+        XCTAssertEqual(metadata->threadID, handle.tid());
     } else {
         XCTFail(@"Failed to retrieve metadata");
     }

@@ -170,7 +170,7 @@ constexpr std::size_t countof(Array&) {
     for (int i = 0; i < 3; i++) {
         enumerateBacktracesForAllThreads(
           [&](auto &backtrace) {
-              const auto thread = backtrace.threadMetadata.tid;
+              const auto thread = backtrace.threadMetadata.threadID;
               if (thread == pthread_mach_thread_np(thread1)) {
                   const auto start =
                     indexOfSymbol(reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),

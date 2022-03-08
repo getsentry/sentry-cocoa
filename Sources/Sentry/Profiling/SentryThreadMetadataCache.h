@@ -9,7 +9,7 @@
 namespace sentry {
 namespace profiling {
 struct ThreadMetadata {
-    thread::TIDType tid;
+    thread::TIDType threadID;
     std::string name;
     int priority;
 };

@@ -30,9 +30,9 @@ using namespace sentry::profiling;
                 return;
             }
             assert(backtrace.uptimeNs >= strongSelf->_referenceUptimeNs);
-            const auto tid = @(backtrace.threadMetadata.tid);
+            const auto tid = [@(backtrace.threadMetadata.threadID) stringValue];
             NSMutableDictionary<NSString *, id> *const sampledProfile = strongSelf->_profile[@"sampled_profile"];
-            NSMutableDictionary<NSNumber *, NSDictionary *> *const threadMetadata = sampledProfile[@"thread_metadata"];
+            NSMutableDictionary<NSString *, NSDictionary *> *const threadMetadata = sampledProfile[@"thread_metadata"];
             if (threadMetadata[tid] == nil) {
                 const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
                 if (!backtrace.threadMetadata.name.empty()) {
@@ -79,7 +79,7 @@ using namespace sentry::profiling;
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         sampledProfile[@"samples"] = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        sampledProfile[@"thread_metadata"] = [NSMutableDictionary<NSNumber *, NSDictionary *> dictionary];
+        sampledProfile[@"thread_metadata"] = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         _profile[@"sampled_profile"] = sampledProfile;
         _referenceUptimeNs = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
         _profiler->startSampling();

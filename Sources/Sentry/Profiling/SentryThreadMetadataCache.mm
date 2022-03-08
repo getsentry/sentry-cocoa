@@ -28,7 +28,7 @@ std::optional<ThreadMetadata> ThreadMetadataCache::metadataForThread(const Threa
       });
     if (it == cache_.cend()) {
         ThreadMetadata metadata;
-        metadata.tid = ThreadHandle::tidFromNativeHandle(handle);
+        metadata.threadID = ThreadHandle::tidFromNativeHandle(handle);
         metadata.priority = thread.priority();
 
         // If getting the priority fails (via pthread_getschedparam()), that
