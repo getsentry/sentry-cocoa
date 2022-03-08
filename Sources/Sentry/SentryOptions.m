@@ -249,7 +249,7 @@ SentryOptions ()
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
-    
+
     [self setBool:options[@"enableCoreDataTracking"]
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 

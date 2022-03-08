@@ -5,10 +5,10 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        let options : Options
+        let options: Options
         let coreDataStack = TestCoreDataStack()
         
-        init(){
+        init() {
             options = Options()
             options.enableCoreDataTracking = true
             options.enableSwizzling = true
@@ -74,7 +74,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
         let transaction = startTransaction()
-        let newEntity : TestEntity  = stack.getEntity()
+        let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
         try? stack.managedObjectContext.save()
         XCTAssertEqual(transaction.children.count, 1)
@@ -96,14 +96,14 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.options)
         let stack = fixture.coreDataStack
         let transaction = startTransaction()
-        let newEntity : TestEntity  = stack.getEntity()
+        let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
         SentryCoreDataSwizzling.sharedInstance.stop()
         try? stack.managedObjectContext.save()
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    private func test_DontInstall(_ confOptions : ((Options) -> Void)) {
+    private func test_DontInstall(_ confOptions: ((Options) -> Void)) {
         let sut = fixture.getSut()
         confOptions(fixture.options)
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
