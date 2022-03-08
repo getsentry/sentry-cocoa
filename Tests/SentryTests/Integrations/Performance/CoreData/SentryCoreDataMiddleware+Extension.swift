@@ -2,7 +2,7 @@ import Foundation
 
 extension SentryCoreDataMiddleware {
     
-    func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [T] where T: NSManagedObject {
+    func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [T] {
         
         var error: NSError?
         
