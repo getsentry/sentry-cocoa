@@ -4,6 +4,7 @@
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import <Foundation/Foundation.h>
+#import <PrivateSentrySDKOnly.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashAdapter.h>
@@ -59,6 +60,12 @@ SentryAppStartTrackingIntegration ()
 #if SENTRY_HAS_UIKIT
 - (BOOL)shouldBeEnabled:(SentryOptions *)options
 {
+    // If the cocoa SDK is being used by a hybrid SDK,
+    // we install App start tracking and let the hybrid SDK decide what to do.
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
+        return YES;
+    }
+
     if (!options.enableAutoPerformanceTracking) {
         [SentryLog
             logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."

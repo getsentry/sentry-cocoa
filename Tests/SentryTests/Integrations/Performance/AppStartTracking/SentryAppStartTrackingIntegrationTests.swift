@@ -29,6 +29,8 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAppState()
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDK.setAppStartMeasurement(nil)
         sut.stop()
     }
     
@@ -51,9 +53,23 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
+    func testHybridSDKModeEnabled_DoesUpdatesAppState() {
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
+        sut.install(with: options)
+        
+        TestNotificationCenter.uiWindowDidBecomeVisible()
+        
+        XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
+    }
+    
     func testOnlyAppStartMeasuringEnabled_DoesNotUpdatesAppState() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
         sut.install(with: options)
         
         TestNotificationCenter.uiWindowDidBecomeVisible()

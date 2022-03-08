@@ -153,21 +153,28 @@ jobs:
         shell: sh
 
   ui-tests-swift-ui:
-    name: UI Tests for ${{matrix.device}}
+    name: UI Tests for SwiftUI on ${{matrix.device}}
     runs-on: macos-11
     strategy:
-      matrix:
-        device: ["iPhone 8 (15.2)", "iPhone 8 (14.5)", "iPhone 8 (13.7)"]
+      fail-fast: false
+      matrix:  
+        include:
+          - xcode: "13.2.1"
+            device: "iPhone 8 (15.2)"
 
+          - xcode: "12.5.1"
+            device: "iPhone 8 (14.5)"
+
+        # Our SwiftUI requires iOS 14 or higher
+            
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 13.2
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
         shell: sh
-
 
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ui-ios-12:
