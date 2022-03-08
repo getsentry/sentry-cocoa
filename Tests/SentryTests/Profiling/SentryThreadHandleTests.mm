@@ -2,10 +2,10 @@
 
 #import "SentryThreadHandle.h"
 
-#include <atomic>
-#include <csignal>
-#include <mach/mach.h>
-#include <pthread.h>
+#import <atomic>
+#import <csignal>
+#import <mach/mach.h>
+#import <pthread.h>
 
 using namespace sentry::profiling;
 

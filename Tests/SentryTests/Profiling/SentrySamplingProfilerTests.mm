@@ -1,22 +1,14 @@
-//
-//  SentrySamplingProfilerTests.m
-//  SentryTests
-//
-//  Created by Indragie Karunaratne on 3/6/22.
-//  Copyright © 2022 Sentry. All rights reserved.
-//
-
 #import <XCTest/XCTest.h>
 
 #import "SentryBacktrace.h"
 #import "SentryThreadMetadataCache.h"
 #import "SentrySamplingProfiler.h"
 
-#include <chrono>
-#include <ctime>
-#include <iostream>
-#include <pthread.h>
-#include <thread>
+#import <chrono>
+#import <ctime>
+#import <iostream>
+#import <pthread.h>
+#import <thread>
 
 using namespace sentry::profiling;
 
