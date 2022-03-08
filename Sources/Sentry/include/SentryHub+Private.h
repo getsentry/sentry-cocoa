@@ -1,6 +1,6 @@
 #import "SentryHub.h"
 
-@class SentryId, SentryScope, SentryTransaction;
+@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +19,9 @@ SentryHub (Private)
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
 
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
+
 @end
 
 NS_ASSUME_NONNULL_END

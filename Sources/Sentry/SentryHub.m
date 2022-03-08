@@ -231,11 +231,15 @@ SentryHub ()
     [client captureCrashEvent:event withScope:self.scope];
 }
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope {
+    return [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
+}
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     if (transaction.trace.context.sampled != kSentrySampleDecisionYes)
         return SentryId.empty;
-    return [self captureEvent:transaction withScope:scope];
+    return [self captureEvent:transaction withScope:scope additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -248,6 +252,14 @@ SentryHub ()
     SentryClient *client = _client;
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems {
+    SentryClient *client = _client;
+    if (nil != client) {
+        return [client captureEvent:event withScope:scope additionalEnvelopeItems:additionalEnvelopeItems];
     }
     return SentryId.empty;
 }
