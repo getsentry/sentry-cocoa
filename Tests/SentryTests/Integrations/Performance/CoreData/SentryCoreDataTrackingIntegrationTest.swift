@@ -22,7 +22,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         func testEntity() -> TestEntity {
             let entityDescription = NSEntityDescription()
             entityDescription.name = "TestEntity"
-            return TestEntity(entity: entityDescription, insertInto: context)
+            return TestEntity(entity: entityDescription, insertInto: nil)
         }
     }
     
