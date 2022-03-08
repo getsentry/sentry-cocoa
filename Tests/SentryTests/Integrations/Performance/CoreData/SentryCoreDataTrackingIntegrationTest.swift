@@ -29,7 +29,6 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     private var fixture: Fixture!
     var deleteDocuments = false
     
-    
     override func setUp() {
         super.setUp()
         fixture = Fixture()
