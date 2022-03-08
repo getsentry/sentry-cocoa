@@ -28,6 +28,8 @@ SentryThreadInspector ()
 {
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
 
+    sentrycrashmc_suspendEnvironment();
+
     SentryCrashMC_NEW_CONTEXT(context);
     [self.machineContextWrapper fillContextForCurrentThread:context];
 
@@ -46,10 +48,14 @@ SentryThreadInspector ()
         // For now we can only retrieve the stack trace of the current thread.
         if (isCurrent) {
             sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
+        } else {
+            sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForThread:thread];
         }
 
         [threads addObject:sentryThread];
     }
+
+    sentrycrashmc_resumeEnvironment();
 
     return threads;
 }

@@ -141,6 +141,16 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
+ * When this and attachStacktrace are enabled the SDK attaches the stacktrace for all threads for
+ * non fatal events. For crashes and ANRs (application not responding) the SDK always adds the
+ * stacktrace for all threads.
+ *
+ * This feature is disabled by default, because capturing the stacktrace of all threads requires
+ * suspending all threads shortly.
+ */
+@property (nonatomic, assign) BOOL attachAllThreads;
+
+/**
  * Attention: This is an experimental feature. Turning this feature on can have an impact on
  * the grouping of your issues.
  *

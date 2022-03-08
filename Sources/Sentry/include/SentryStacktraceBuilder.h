@@ -1,3 +1,4 @@
+#import "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
@@ -19,6 +20,8 @@ SENTRY_NO_INIT
  * without skipping frames.
  */
 - (SentryStacktrace *)buildStacktraceForCurrentThread;
+
+- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread;
 
 @end
 
