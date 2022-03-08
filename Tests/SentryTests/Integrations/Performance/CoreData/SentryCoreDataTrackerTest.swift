@@ -73,13 +73,10 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let someEntity = fixture.testEntity()
         
-        let expect = expectation(description: "")
-        let result = try? sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
-            expect.fulfill()
+        let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
       
-        wait(for: [expect], timeout: 1)
         XCTAssertEqual(result?.count, 1)
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].context.operation, "db.query")

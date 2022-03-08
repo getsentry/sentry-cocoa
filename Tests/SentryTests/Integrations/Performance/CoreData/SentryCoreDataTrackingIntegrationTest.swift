@@ -27,16 +27,39 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
+    var deleteDocuments = false
+    
     
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        
+        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            XCTFail("Could not retrieve documents directory")
+            return
+        }
+        
+        if !FileManager.default.fileExists(atPath: tempDir.path) {
+            do {
+                try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: false, attributes: nil)
+                deleteDocuments = true
+            } catch {
+                XCTFail("Could not create documents directory")
+            }
+        }
     }
     
     override func tearDown() {
         super.tearDown()
         fixture.coreDataStack.reset()
         clearTestState()
+        
+        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return
+        }
+        
+        deleteDocuments = false
+        try? FileManager.default.removeItem(at: tempDir)
     }
     
     func test_InstallAndUninstall() {
@@ -77,9 +100,19 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
         try? stack.managedObjectContext.save()
-        XCTAssertEqual(transaction.children.count, 1)
         
-        stack.managedObjectContext.delete(newEntity)
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertEqual(transaction.children[0].context.operation, "db.transaction")
+    }
+    
+    func test_Save_noChanges() {
+        SentrySDK.start(options: fixture.options)
+        let stack = fixture.coreDataStack
+        let transaction = startTransaction()
+        
+        try? stack.managedObjectContext.save()
+        
+        XCTAssertEqual(transaction.children.count, 0)
     }
     
     func test_Fetch_StoppedSwizzling() {
