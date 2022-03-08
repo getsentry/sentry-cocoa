@@ -76,9 +76,10 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let transaction = startTransaction()
         let newEntity : TestEntity  = stack.getEntity()
         newEntity.field1 = "Some Update"
-        
         try? stack.managedObjectContext.save()
         XCTAssertEqual(transaction.children.count, 1)
+        
+        stack.managedObjectContext.delete(newEntity)
     }
     
     func test_Fetch_StoppedSwizzling() {
