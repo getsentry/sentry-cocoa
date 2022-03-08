@@ -22,13 +22,17 @@ class CoreDataViewController: UITableViewController {
         return urls[urls.count - 1]
     }()
     
-    lazy var managedObjectModel: NSManagedObjectModel = {
-        let modelURL = Bundle.main.url(forResource: "SentryData", withExtension: "momd")!
-        return NSManagedObjectModel(contentsOf: modelURL)!
+    lazy var managedObjectModel: NSManagedObjectModel? = {
+        guard let modelURL = Bundle.main.url(forResource: "SentryData", withExtension: "momd") else { return nil }
+        return NSManagedObjectModel(contentsOf: modelURL)
     }()
     
-    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
-        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
+    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
+        guard let managedObjectModel = managedObjectModel else {
+            return nil
+        }
+
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         let url = self.applicationDocumentsDirectory.appendingPathComponent("SingleViewCoreData.sqlite")
         
         do {
@@ -137,7 +141,10 @@ class CoreDataViewController: UITableViewController {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { _ in
-            self.addNewPerson(name: alert.textFields![0].text!, job: alert.textFields![1].text!)
+            if let tf1 = alert.textFields?[0], let tf2 = alert.textFields?[1], let name = tf1.text, let job = tf2.text {
+                self.addNewPerson(name: name, job: job)
+            }
+            
         }))
         
         present(alert, animated: true, completion: nil)
@@ -156,5 +163,6 @@ class CoreDataViewController: UITableViewController {
         let transaction = SentrySDK.startTransaction(name: "Sync person database", operation: "data.update", bindToScope: true)
         saveContext()
         transaction.finish()
+        super.viewWillDisappear(animated)
     }
 }
