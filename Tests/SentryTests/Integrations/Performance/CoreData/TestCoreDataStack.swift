@@ -9,7 +9,7 @@ public class TestEntity: NSManagedObject {
 
 class TestCoreDataStack {
     
-    lazy var managedObjectModel : NSManagedObjectModel = {
+    lazy var managedObjectModel: NSManagedObjectModel = {
         let model = NSManagedObjectModel()
         
         // Create the entity
@@ -61,7 +61,7 @@ class TestCoreDataStack {
     }()
     
     func reset() {
-        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return  }
+        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         let url = tempDir.appendingPathComponent("SingleViewCoreData.sqlite")
         try? FileManager.default.removeItem(at: url)
     }
