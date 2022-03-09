@@ -3,7 +3,9 @@
 #import "SentryBacktrace.h"
 #import "SentryDebugMeta.h"
 #import "SentryEnvelope.h"
+#import "SentryId.h"
 #import "SentryLog.h"
+#import "SentryProfilingLogging.h"
 #import "SentrySamplingProfiler.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryTransaction.h"
@@ -16,8 +18,34 @@
 #import <cstdint>
 #import <ctime>
 #import <memory>
+#import <sys/sysctl.h>
+#import <sys/utsname.h>
+
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
 
 using namespace sentry::profiling;
+
+namespace {
+NSString *getDeviceModel() {
+    utsname info;
+    if (SENTRY_PROF_LOG_ERRNO(uname(&info)) == 0) {
+        return [NSString stringWithUTF8String:info.machine];
+    }
+    return @"";
+}
+
+NSString *getOSBuildNumber() {
+    char str[32];
+    size_t size = sizeof(str);
+    int cmd[2] = { CTL_KERN, KERN_OSVERSION };
+    if (SENTRY_PROF_LOG_ERRNO(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
+        return [NSString stringWithUTF8String:str];
+    }
+    return @"";
+}
+} // namespace
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
@@ -104,6 +132,25 @@ using namespace sentry::profiling;
     if (debugImages.count > 0) {
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
+    
+    profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
+    profile[@"device_manufacturer"] = @"Apple";
+    profile[@"device_model"] = getDeviceModel();
+    profile[@"device_os_build_number"] = getOSBuildNumber();
+#if SENTRY_HAS_UIKIT
+    profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
+    profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
+#endif
+    profile[@"environment"] = transaction.environment;
+    profile[@"platform"] = transaction.platform;
+    profile[@"transaction_id"] = transaction.eventId.sentryIdString;
+    profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
+    profile[@"stacktrace_id"] = [[SentryId alloc] init].sentryIdString;
+    profile[@"transaction_name"] = transaction.transaction;
+    
+    const auto bundle = NSBundle.mainBundle;
+    profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
+    profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     
     NSError *error = nil;
     const auto JSONData = [NSJSONSerialization dataWithJSONObject:profile options:0 error:&error];
