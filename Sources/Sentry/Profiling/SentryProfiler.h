@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Builds an envelope item using the currently accumulated profile data.
  */
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction;
+- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction;
 
 @end
 

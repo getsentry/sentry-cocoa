@@ -1,8 +1,12 @@
 #import "SentryProfiler.h"
 
 #import "SentryBacktrace.h"
+#import "SentryDebugMeta.h"
+#import "SentryEnvelope.h"
+#import "SentryLog.h"
 #import "SentrySamplingProfiler.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryTransaction.h"
 
 #if defined(DEBUG)
 #include <execinfo.h>
@@ -21,25 +25,43 @@ using namespace sentry::profiling;
     std::shared_ptr<SamplingProfiler> _profiler;
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
+
+- (void)start {
+    // Disable profiling when running with TSAN because it produces a TSAN false
+    // positive, similar to the situation described here:
+    // https://github.com/envoyproxy/envoy/issues/2561
+    #if defined(__has_feature)
+    #if __has_feature(thread_sanitizer)
+    return;
+    #endif
+    #endif
+    @synchronized(self) {
+        if (_profiler != nullptr) {
+            _profiler->stopSampling();
+        }
+        _profile = [NSMutableDictionary<NSString *, id> dictionary];
+        const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
+        sampledProfile[@"samples"] = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        sampledProfile[@"thread_metadata"] = threadMetadata;
+        _profile[@"sampled_profile"] = sampledProfile;
+        _referenceUptimeNs = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+        
         __weak const auto weakSelf = self;
-        _profiler = std::make_shared<SamplingProfiler>([weakSelf](auto &backtrace) {
+        _profiler = std::make_shared<SamplingProfiler>([weakSelf, sampledProfile, threadMetadata](auto &backtrace) {
             const auto strongSelf = weakSelf;
             if (strongSelf == nil) {
                 return;
             }
             assert(backtrace.uptimeNs >= strongSelf->_referenceUptimeNs);
-            const auto tid = [@(backtrace.threadMetadata.threadID) stringValue];
-            NSMutableDictionary<NSString *, id> *const sampledProfile = strongSelf->_profile[@"sampled_profile"];
-            NSMutableDictionary<NSString *, NSDictionary *> *const threadMetadata = sampledProfile[@"thread_metadata"];
-            if (threadMetadata[tid] == nil) {
+            const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+            if (threadMetadata[threadID] == nil) {
                 const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
                 if (!backtrace.threadMetadata.name.empty()) {
                     metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
                 }
                 metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-                threadMetadata[tid] = metadata;
+                threadMetadata[threadID] = metadata;
             }
 #if defined(DEBUG)
             const auto symbols = backtrace_symbols(
@@ -57,31 +79,12 @@ using namespace sentry::profiling;
 
             const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
             sample[@"frames"] = frames;
-            sample[@"relative_timestamp_ns"] = @(backtrace.uptimeNs - strongSelf->_referenceUptimeNs);
+            sample[@"relative_timestamp_ns"] = [@(backtrace.uptimeNs - strongSelf->_referenceUptimeNs) stringValue];
+            sample[@"thread_id"] = threadID;
             
             NSMutableArray<NSDictionary<NSString *, id> *> *const samples = sampledProfile[@"samples"];
             [samples addObject:sample];
         }, 100 /** Sample 100 times per second */);
-    }
-    return self;
-}
-
-- (void)start {
-    // Disable profiling when running with TSAN because it produces a TSAN false
-    // positive, similar to the situation described here:
-    // https://github.com/envoyproxy/envoy/issues/2561
-    #if defined(__has_feature)
-    #if __has_feature(thread_sanitizer)
-    return;
-    #endif
-    #endif
-    @synchronized(self) {
-        _profile = [NSMutableDictionary<NSString *, id> dictionary];
-        const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
-        sampledProfile[@"samples"] = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        sampledProfile[@"thread_metadata"] = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-        _profile[@"sampled_profile"] = sampledProfile;
-        _referenceUptimeNs = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
         _profiler->startSampling();
     }
 }
@@ -93,7 +96,24 @@ using namespace sentry::profiling;
 }
 
 - (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction {
-    return [_profile copy];
+    NSMutableDictionary<NSString *, id> *const profile = [_profile mutableCopy];
+    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *>  new];
+    for (SentryDebugMeta *debugImage in transaction.debugMeta) {
+        [debugImages addObject:[debugImage serialize]];
+    }
+    if (debugImages.count > 0) {
+        profile[@"debug_meta"] = @{ @"images" : debugImages };
+    }
+    
+    NSError *error = nil;
+    const auto JSONData = [NSJSONSerialization dataWithJSONObject:profile options:0 error:&error];
+    if (JSONData == nil) {
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to encode profile to JSON: %@", error] andLevel:kSentryLevelError];
+        return nil;
+    }
+    
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile" length:JSONData.length];
+    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
 @end

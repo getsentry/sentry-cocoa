@@ -294,10 +294,13 @@ static BOOL appStartMeasurementRead;
         }
     }];
     
-    NSMutableArray<SentryEnvelopeItem *> *const additionalEnvelopeItems = [NSMutableArray array];
-    SentryTransaction *const transaction = [self toTransaction];
+    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+    SentryTransaction *transaction = [self toTransaction];
     if (_profiler != nil) {
-        [additionalEnvelopeItems addObject:[_profiler buildEnvelopeItemForTransaction:transaction]];
+        SentryEnvelopeItem *profile = [_profiler buildEnvelopeItemForTransaction:transaction];
+        if (profile != nil) {
+            [additionalEnvelopeItems addObject:profile];
+        }
     }
     [_hub captureTransaction:transaction withScope:_hub.scope additionalEnvelopeItems:additionalEnvelopeItems];
 }
