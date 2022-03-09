@@ -4,7 +4,7 @@ import XCTest
 class SentryCoreDataTrackerTests: XCTestCase {
     
     private class Fixture {
-        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        let context = TestNSManagedObjectContext()
         
         func getSut() -> SentryCoreDataTracker {
             return SentryCoreDataTracker()
@@ -27,6 +27,13 @@ class SentryCoreDataTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+    }
+    
+    func testConstants() {
+        //Test constants to make sure we don't accidentally change it
+        XCTAssertEqual(SENTRY_COREDATA_FETCH_OPERATION, "db.query")
+        XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.transaction")
+        
     }
     
     func testFetchRequest() {
@@ -65,6 +72,33 @@ class SentryCoreDataTrackerTests: XCTestCase {
         assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' WHERE field1 == \"First Argument\" SORT BY field1 DESCENDING")
     }
     
+    func test_Save() {
+        let sut = fixture.getSut()
+        
+        let transaction = startTransaction()
+        
+        try? sut.saveManagedObjectContext(fixture.context) { _ in
+            return true
+        }
+        
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_SAVE_OPERATION)
+        XCTAssertEqual(transaction.children[0].context.spanDescription, "Saving Database")
+    }
+    
+    func test_Save_NoChanges() {
+        let sut = fixture.getSut()
+        
+        let transaction = startTransaction()
+        fixture.context.withChanges = false
+        
+        try? sut.saveManagedObjectContext(fixture.context) { _ in
+            return true
+        }
+        
+        XCTAssertEqual(transaction.children.count, 0)
+    }
+    
     func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String) {
         let transaction = startTransaction()
         let sut = fixture.getSut()
@@ -79,13 +113,23 @@ class SentryCoreDataTrackerTests: XCTestCase {
       
         XCTAssertEqual(result?.count, 1)
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].context.operation, "db.query")
+        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
         XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
         XCTAssertEqual(transaction.children[0].data!["result_amount"] as? Int, 1)
     }
     
     private func startTransaction() -> SentryTracer {
         return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
+    }
+    
+}
+
+class TestNSManagedObjectContext: NSManagedObjectContext {
+    
+    var withChanges = false
+    
+    override var hasChanges: Bool {
+        return withChanges
     }
     
 }

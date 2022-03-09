@@ -15,7 +15,7 @@
 {
     __block id<SentrySpan> fetchSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        fetchSpan = [span startChildWithOperation:@"db.query"
+        fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
     }];
     NSArray *result = original(request, error);
@@ -36,7 +36,7 @@
     __block id<SentrySpan> fetchSpan = nil;
     if (context.hasChanges) {
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            fetchSpan = [span startChildWithOperation:@"db.transaction"
+            fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
                                           description:@"Saving Database"];
         }];
     }
