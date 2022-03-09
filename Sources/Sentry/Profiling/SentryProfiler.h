@@ -1,14 +1,21 @@
 #import <Foundation/Foundation.h>
 
+@class SentryEnvelopeItem, SentryTransaction;
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface SentryProfiler : NSObject
 
-/**
- * Returns a copy of the currently accumulated profile data. This
- * data will be cleared each time -start is called.
- */
-@property (nonatomic, copy, readonly) NSDictionary *profile;
-
+/** Clears all accumulated profiling data and starts profiling. */
 - (void)start;
+/** Stops profiling. */
 - (void)stop;
 
+/**
+ * Builds an envelope item using the currently accumulated profile data.
+ */
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction;
+
 @end
+
+NS_ASSUME_NONNULL_END

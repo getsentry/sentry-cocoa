@@ -92,7 +92,7 @@ using namespace sentry::profiling;
     }
 }
 
-- (NSDictionary *)profile {
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction {
     return [_profile copy];
 }
 
