@@ -66,7 +66,6 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
         
         let options = fixture.options
-        options.tracesSampleRate = 0.1
         options.enableAutoPerformanceTracking = false
         sut.install(with: options)
         
