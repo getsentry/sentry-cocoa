@@ -2,7 +2,7 @@ import Foundation
 
 extension SentryCoreDataMiddleware {
     
-    func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [T] {
+    func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [Any] {
         
         var error: NSError?
         
@@ -14,7 +14,7 @@ extension SentryCoreDataMiddleware {
             throw er
         }
     
-        return result as? [T] ?? []
+        return result
     }
     
 }
