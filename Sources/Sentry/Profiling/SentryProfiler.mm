@@ -135,12 +135,15 @@ NSString *getOSBuildNumber() {
     
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
-    profile[@"device_model"] = getDeviceModel();
+    const auto model = getDeviceModel();
+    profile[@"device_model"] = model;
     profile[@"device_os_build_number"] = getOSBuildNumber();
 #if SENTRY_HAS_UIKIT
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #endif
+    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] || [model isEqualToString:@"x86_64"]);
+    profile[@"device_physical_memory_bytes"] = [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = transaction.environment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
