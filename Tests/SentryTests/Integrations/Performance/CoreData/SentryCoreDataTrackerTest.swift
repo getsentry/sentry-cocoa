@@ -76,6 +76,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         
         let transaction = startTransaction()
+        fixture.context.withChanges = true
         
         try? sut.saveManagedObjectContext(fixture.context) { _ in
             return true
@@ -90,7 +91,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         
         let transaction = startTransaction()
-        fixture.context.withChanges = false
         
         try? sut.saveManagedObjectContext(fixture.context) { _ in
             return true
@@ -127,6 +127,14 @@ class SentryCoreDataTrackerTests: XCTestCase {
 class TestNSManagedObjectContext: NSManagedObjectContext {
     
     var withChanges = false
+    
+    init(){
+        super.init(concurrencyType: .mainQueueConcurrencyType)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
     override var hasChanges: Bool {
         return withChanges
