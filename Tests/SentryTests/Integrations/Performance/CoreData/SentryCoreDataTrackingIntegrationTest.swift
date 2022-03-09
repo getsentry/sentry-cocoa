@@ -27,38 +27,16 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    var deleteDocuments = false
     
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        
-        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            XCTFail("Could not retrieve documents directory")
-            return
-        }
-        
-        if !FileManager.default.fileExists(atPath: tempDir.path) {
-            do {
-                try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: false, attributes: nil)
-                deleteDocuments = true
-            } catch {
-                XCTFail("Could not create documents directory")
-            }
-        }
     }
     
     override func tearDown() {
         super.tearDown()
         fixture.coreDataStack.reset()
         clearTestState()
-        
-        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return
-        }
-        
-        deleteDocuments = false
-        try? FileManager.default.removeItem(at: tempDir)
     }
     
     func test_InstallAndUninstall() {

@@ -44,8 +44,12 @@ class TestCoreDataStack {
     
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
         
-        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
         
+        if !FileManager.default.fileExists(atPath: tempDir.path) {
+            try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true, attributes: nil)
+        }
+            
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         let url = tempDir.appendingPathComponent("SingleViewCoreData.sqlite")
         
@@ -61,7 +65,7 @@ class TestCoreDataStack {
     }()
     
     func reset() {
-        guard let tempDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
         let url = tempDir.appendingPathComponent("SingleViewCoreData.sqlite")
         try? FileManager.default.removeItem(at: url)
     }
