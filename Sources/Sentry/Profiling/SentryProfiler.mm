@@ -157,7 +157,7 @@ NSString *getOSBuildNumber() {
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
-    profile[@"stacktrace_id"] = [[SentryId alloc] init].sentryIdString;
+    profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
     
     const auto bundle = NSBundle.mainBundle;
