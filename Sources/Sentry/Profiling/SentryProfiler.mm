@@ -2,6 +2,7 @@
 
 #import "SentryBacktrace.h"
 #import "SentryDebugMeta.h"
+#import "SentryDebugImageProvider.h"
 #import "SentryEnvelope.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -51,8 +52,15 @@ NSString *getOSBuildNumber() {
     NSMutableDictionary<NSString *, id> *_profile;
     uint64_t _referenceUptimeNs;
     std::shared_ptr<SamplingProfiler> _profiler;
+    SentryDebugImageProvider *_debugImageProvider;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+    }
+    return self;
+}
 
 - (void)start {
     // Disable profiling when running with TSAN because it produces a TSAN false
@@ -126,7 +134,8 @@ NSString *getOSBuildNumber() {
 - (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction {
     NSMutableDictionary<NSString *, id> *const profile = [_profile mutableCopy];
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *>  new];
-    for (SentryDebugMeta *debugImage in transaction.debugMeta) {
+    const auto debugMeta = [_debugImageProvider getDebugImages];
+    for (SentryDebugMeta *debugImage in debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }
     if (debugImages.count > 0) {
