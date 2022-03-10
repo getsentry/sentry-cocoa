@@ -151,7 +151,7 @@ NSString *getOSBuildNumber() {
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #endif
-    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] || [model isEqualToString:@"x86_64"]);
+    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] || [model isEqualToString:@"x86_64"] || [model isEqualToString:@"arm64"]);
     profile[@"device_physical_memory_bytes"] = [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = transaction.environment;
     profile[@"platform"] = transaction.platform;
