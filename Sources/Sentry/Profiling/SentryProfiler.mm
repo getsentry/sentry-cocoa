@@ -136,7 +136,10 @@ std::uint64_t getReferenceTimestamp() {
 }
 
 - (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction {
-    NSMutableDictionary<NSString *, id> *const profile = [_profile mutableCopy];
+    NSMutableDictionary<NSString *, id> *profile = nil;
+    @synchronized (self) {
+        profile = [_profile mutableCopy];
+    }
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *>  new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
     for (SentryDebugMeta *debugImage in debugMeta) {
