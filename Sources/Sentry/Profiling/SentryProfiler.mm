@@ -46,6 +46,10 @@ NSString *getOSBuildNumber() {
     }
     return @"";
 }
+
+std::uint64_t getReferenceTimestamp() {
+    return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+}
 } // namespace
 
 @implementation SentryProfiler {
@@ -81,7 +85,7 @@ NSString *getOSBuildNumber() {
         const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"thread_metadata"] = threadMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
-        _referenceUptimeNs = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+        _referenceUptimeNs = getReferenceTimestamp();
         
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>([weakSelf, sampledProfile, threadMetadata](auto &backtrace) {
@@ -115,7 +119,7 @@ NSString *getOSBuildNumber() {
 
             const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
             sample[@"frames"] = frames;
-            sample[@"relative_timestamp_ns"] = [@(backtrace.uptimeNs - strongSelf->_referenceUptimeNs) stringValue];
+            sample[@"relative_timestamp_ns"] = [[strongSelf getElapsedDuration:backtrace.uptimeNs] stringValue];
             sample[@"thread_id"] = threadID;
             
             NSMutableArray<NSDictionary<NSString *, id> *> *const samples = sampledProfile[@"samples"];
@@ -159,6 +163,7 @@ NSString *getOSBuildNumber() {
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
+    profile[@"duration_ns"] = [[self getElapsedDuration:getReferenceTimestamp()] stringValue];
     
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
@@ -173,6 +178,11 @@ NSString *getOSBuildNumber() {
     
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile" length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+}
+
+- (NSNumber *)getElapsedDuration:(std::uint64_t)timestamp {
+    NSAssert(timestamp >= _referenceUptimeNs, @"timestamp must be greater than the reference timestamp");
+    return @(timestamp - _referenceUptimeNs);
 }
 
 @end
