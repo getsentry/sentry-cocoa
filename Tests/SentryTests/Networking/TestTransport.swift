@@ -20,6 +20,11 @@ public class TestTransport: NSObject, Transport {
     public func send(event: Event, traceState: SentryTraceState?, attachments: [Attachment]) {
         sendEventWithTraceStateInvocations.record((event, traceState, attachments))
     }
+    
+    var sendEventWithAdditionalEnvelopeItemsInvocations = Invocations<(event: Event, traceState: SentryTraceState?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    public func send(event: Event, traceState: SentryTraceState?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem]) {
+        sendEventWithAdditionalEnvelopeItemsInvocations.record((event, traceState, attachments, additionalEnvelopeItems))
+    }
           
     var userFeedbackInvocations = Invocations<UserFeedback>()
     public func send(userFeedback: UserFeedback) {
