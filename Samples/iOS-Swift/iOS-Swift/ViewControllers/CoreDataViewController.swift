@@ -142,8 +142,8 @@ class CoreDataViewController: UITableViewController {
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { _ in
             if let tf1 = alert.textFields?[0], let tf2 = alert.textFields?[1], let name = tf1.text, let job = tf2.text {
                 self.addNewPerson(name: name, job: job)
+                self.tableView.reloadData()
             }
-            
         }))
         
         present(alert, animated: true, completion: nil)

@@ -128,7 +128,7 @@ class TestNSManagedObjectContext: NSManagedObjectContext {
     
     var withChanges = false
     
-    init(){
+    init() {
         super.init(concurrencyType: .mainQueueConcurrencyType)
     }
     
