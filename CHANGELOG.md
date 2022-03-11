@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add support for profiling on iOS (#1652)
+
 ## 7.10.1
 
 - fix: Swizzling UIViewControllers crash (#1670)
