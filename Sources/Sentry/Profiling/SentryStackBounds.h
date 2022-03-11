@@ -13,36 +13,36 @@
 
 namespace sentry {
 namespace profiling {
-/**
- * Represents the bounds of a downward-growing stack.
- */
-struct StackBounds {
-    /** Start address of the stack. */
-    std::uintptr_t start = 0;
-    /** End address of the stack. */
-    std::uintptr_t end = 0;
-
     /**
-     * Returns whether the specified frame pointer is within the bounds of the
-     * stack.
-     * @param framePtr The frame pointer to check.
-     * @return Whether the pointer is within the bounds of the stack.
+     * Represents the bounds of a downward-growing stack.
      */
-    inline bool
-    contains(std::uintptr_t framePtr) const noexcept
-    {
-        return (framePtr > end) && (framePtr < (start - sizeof(StackFrame)));
-    }
+    struct StackBounds {
+        /** Start address of the stack. */
+        std::uintptr_t start = 0;
+        /** End address of the stack. */
+        std::uintptr_t end = 0;
 
-    /**
-     * Performs a simple consistency check to see if the stack bounds are valid.
-     * @return Whether the stack bounds are valid.
-     */
-    inline bool
-    isValid() const noexcept
-    {
-        return (start != 0) && (end != 0) && (start > end);
-    }
-};
+        /**
+         * Returns whether the specified frame pointer is within the bounds of the
+         * stack.
+         * @param framePtr The frame pointer to check.
+         * @return Whether the pointer is within the bounds of the stack.
+         */
+        inline bool
+        contains(std::uintptr_t framePtr) const noexcept
+        {
+            return (framePtr > end) && (framePtr < (start - sizeof(StackFrame)));
+        }
+
+        /**
+         * Performs a simple consistency check to see if the stack bounds are valid.
+         * @return Whether the stack bounds are valid.
+         */
+        inline bool
+        isValid() const noexcept
+        {
+            return (start != 0) && (end != 0) && (start > end);
+        }
+    };
 } // namespace profiling
 } // namespace sentry

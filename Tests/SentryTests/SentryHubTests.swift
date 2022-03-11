@@ -295,7 +295,7 @@ class SentryHubTests: XCTestCase {
     func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
         let options = fixture.options
         options.enableProfiling = true
-        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 1
         }
         let hub = fixture.getSut(options)
@@ -328,7 +328,7 @@ class SentryHubTests: XCTestCase {
     func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
         let options = fixture.options
         options.enableProfiling = false
-        options.tracesSampler = {(context: SamplingContext) -> NSNumber in
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 1
         }
         let hub = fixture.getSut(options)

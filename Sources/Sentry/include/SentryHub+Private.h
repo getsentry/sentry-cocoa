@@ -18,11 +18,16 @@ SentryHub (Private)
                               waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
 
-- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
 
-- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+                       withScope:(SentryScope *)scope
+         additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
 @end
 

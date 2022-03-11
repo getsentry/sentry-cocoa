@@ -1,8 +1,8 @@
 #import "SentryTracer.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryFramesTracker.h"
 #import "SentryClient.h"
+#import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
@@ -294,7 +294,7 @@ static BOOL appStartMeasurementRead;
             [self->_hub.scope setSpan:nil];
         }
     }];
-    
+
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
     SentryTransaction *transaction = [self toTransaction];
     if (_profiler != nil) {
@@ -303,7 +303,9 @@ static BOOL appStartMeasurementRead;
             [additionalEnvelopeItems addObject:profile];
         }
     }
-    [_hub captureTransaction:transaction withScope:_hub.scope additionalEnvelopeItems:additionalEnvelopeItems];
+    [_hub captureTransaction:transaction
+                      withScope:_hub.scope
+        additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
 - (SentryTransaction *)toTransaction
