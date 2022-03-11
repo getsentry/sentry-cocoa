@@ -3,8 +3,10 @@
 namespace sentry {
 namespace profiling {
 
-const char *kernelReturnCodeDescription(kern_return_t kr) noexcept {
-    switch (kr) {
+    const char *
+    kernelReturnCodeDescription(kern_return_t kr) noexcept
+    {
+        switch (kr) {
         case KERN_SUCCESS:
             return "Success.";
         case KERN_INVALID_ADDRESS:
@@ -125,11 +127,13 @@ const char *kernelReturnCodeDescription(kern_return_t kr) noexcept {
             return "The provided buffer is of insufficient size for the requested data.";
         default:
             return "Unknown error.";
+        }
     }
-}
 
-const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept {
-    switch (mr) {
+    const char *
+    machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept
+    {
+        switch (mr) {
         case MACH_MSG_SUCCESS:
             return "Success.";
         case MACH_SEND_NO_BUFFER:
@@ -201,8 +205,8 @@ const char *machMessageReturnCodeDescription(mach_msg_return_t mr) noexcept {
                    "memory region in the message body.";
         default:
             return "Unknown error.";
+        }
     }
-}
 
 } // namespace profiling
 } // namespace sentry
