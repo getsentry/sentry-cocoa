@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.10.1
 
 - fix: Swizzling UIViewControllers crash (#1670)
 - feat: Expose Installation ID for Hybrid SDKs (#1680)
