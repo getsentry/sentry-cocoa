@@ -62,5 +62,4 @@ MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 // will not emit this value unless it is explicitly set.
 SUPPORTS_MACCATALYST = YES
 
-// settings for Specto C++ port
 CLANG_CXX_LANGUAGE_STANDARD = c++17
