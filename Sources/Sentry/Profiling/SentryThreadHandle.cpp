@@ -1,7 +1,7 @@
-#include "SentryThreadHandle.h"
+#include "SentryThreadHandle.hpp"
 
-#include "SentryMachLogging.h"
-#include "SentryProfilingLogging.h"
+#include "SentryMachLogging.hpp"
+#include "SentryProfilingLogging.hpp"
 
 #include <cstdint>
 #include <dispatch/dispatch.h>

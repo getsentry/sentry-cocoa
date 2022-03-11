@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SentryThreadHandle.h"
+#include "SentryThreadHandle.hpp"
 
 #include <memory>
 #include <optional>

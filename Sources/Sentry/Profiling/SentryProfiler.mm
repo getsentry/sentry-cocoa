@@ -1,13 +1,13 @@
 #import "SentryProfiler.h"
 
-#import "SentryBacktrace.h"
+#import "SentryBacktrace.hpp"
 #import "SentryDebugMeta.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryEnvelope.h"
 #import "SentryId.h"
 #import "SentryLog.h"
-#import "SentryProfilingLogging.h"
-#import "SentrySamplingProfiler.h"
+#import "SentryProfilingLogging.hpp"
+#import "SentrySamplingProfiler.hpp"
 #import "SentryHexAddressFormatter.h"
 #import "SentryTransaction.h"
 

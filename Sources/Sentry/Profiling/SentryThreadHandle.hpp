@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SentryStackBounds.h"
+#include "SentryStackBounds.hpp"
 
 #include <chrono>
 #include <mach/mach.h>

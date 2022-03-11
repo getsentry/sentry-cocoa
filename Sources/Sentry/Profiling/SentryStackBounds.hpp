@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SentryCPU.h"
-#include "SentryStackFrame.h"
+#include "SentryStackFrame.hpp"
 
 #include <cstdint>
 

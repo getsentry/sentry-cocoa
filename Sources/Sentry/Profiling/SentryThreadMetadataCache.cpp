@@ -1,7 +1,7 @@
-#include "SentryThreadMetadataCache.h"
+#include "SentryThreadMetadataCache.hpp"
 
-#include "SentryThreadHandle.h"
-#include "SentryStackBounds.h"
+#include "SentryThreadHandle.hpp"
+#include "SentryStackBounds.hpp"
 
 #include <algorithm>
 #include <string>

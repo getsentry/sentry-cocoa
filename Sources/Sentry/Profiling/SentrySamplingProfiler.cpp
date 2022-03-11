@@ -1,8 +1,8 @@
-#include "SentrySamplingProfiler.h"
+#include "SentrySamplingProfiler.hpp"
 
-#include "SentryBacktrace.h"
-#include "SentryThreadMetadataCache.h"
-#include "SentryMachLogging.h"
+#include "SentryBacktrace.hpp"
+#include "SentryThreadMetadataCache.hpp"
+#include "SentryMachLogging.hpp"
 
 #include <chrono>
 #include <mach/clock.h>

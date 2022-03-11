@@ -2,8 +2,8 @@
 
 #include "SentryCPU.h"
 #include "SentryCompiler.h"
-#include "SentryStackFrame.h"
-#include "SentryThreadHandle.h"
+#include "SentryStackFrame.hpp"
+#include "SentryThreadHandle.hpp"
 
 #include <cstdint>
 #include <mach/mach.h>

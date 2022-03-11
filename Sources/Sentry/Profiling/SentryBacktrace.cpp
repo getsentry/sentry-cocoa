@@ -1,13 +1,13 @@
-#include "SentryBacktrace.h"
+#include "SentryBacktrace.hpp"
 
-#include "SentryThreadMetadataCache.h"
+#include "SentryThreadMetadataCache.hpp"
 #include "SentryAsyncSafeLogging.h"
-#include "SentryMachLogging.h"
-#include "SentryThreadHandle.h"
-#include "SentryThreadState.h"
+#include "SentryMachLogging.hpp"
+#include "SentryThreadHandle.hpp"
+#include "SentryThreadState.hpp"
 #include "SentryCompiler.h"
-#include "SentryStackBounds.h"
-#include "SentryStackFrame.h"
+#include "SentryStackBounds.hpp"
+#include "SentryStackFrame.hpp"
 
 #include <cassert>
 #include <ctime>

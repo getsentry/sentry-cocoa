@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SentryStackBounds.h"
-#include "SentryThreadHandle.h"
-#include "SentryThreadMetadataCache.h"
+#include "SentryStackBounds.hpp"
+#include "SentryThreadHandle.hpp"
+#include "SentryThreadMetadataCache.hpp"
 
 #include <cstddef>
 #include <cstdint>
