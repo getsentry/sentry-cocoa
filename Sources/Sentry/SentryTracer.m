@@ -2,6 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryFramesTracker.h"
+#import "SentryClient.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
@@ -95,7 +96,7 @@ static BOOL appStartMeasurementRead;
             initFrozenFrames = currentFrames.frozen;
         }
 #endif
-        if (SentrySDK.options.enableProfiling) {
+        if ([_hub getClient].options.enableProfiling) {
             _profiler = [[SentryProfiler alloc] init];
             [_profiler start];
         }

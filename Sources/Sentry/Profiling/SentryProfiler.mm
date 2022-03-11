@@ -81,14 +81,15 @@ std::uint64_t getReferenceTimestamp() {
         }
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
-        sampledProfile[@"samples"] = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
         _referenceUptimeNs = getReferenceTimestamp();
         
         __weak const auto weakSelf = self;
-        _profiler = std::make_shared<SamplingProfiler>([weakSelf, sampledProfile, threadMetadata](auto &backtrace) {
+        _profiler = std::make_shared<SamplingProfiler>([weakSelf, sampledProfile, threadMetadata, samples](auto &backtrace) {
             const auto strongSelf = weakSelf;
             if (strongSelf == nil) {
                 return;
@@ -121,8 +122,6 @@ std::uint64_t getReferenceTimestamp() {
             sample[@"frames"] = frames;
             sample[@"relative_timestamp_ns"] = [[strongSelf getElapsedDuration:backtrace.uptimeNs] stringValue];
             sample[@"thread_id"] = threadID;
-            
-            NSMutableArray<NSDictionary<NSString *, id> *> *const samples = sampledProfile[@"samples"];
             [samples addObject:sample];
         }, 100 /** Sample 100 times per second */);
         _profiler->startSampling();

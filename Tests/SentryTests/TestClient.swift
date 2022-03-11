@@ -31,6 +31,12 @@ class TestClient: Client {
         return event.eventId
     }
     
+    var captureEventWithAdditionalEnvelopeItemsInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    override func capture(_ event: Event, with scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+        captureEventWithAdditionalEnvelopeItemsInvocations.record((event, scope, additionalEnvelopeItems))
+        return event.eventId
+    }
+    
     var captureMessageInvocations = Invocations<String>()
     override func capture(message: String) -> SentryId {
         self.captureMessageInvocations.record(message)
