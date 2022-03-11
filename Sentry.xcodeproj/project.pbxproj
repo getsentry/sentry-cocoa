@@ -1465,7 +1465,6 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
-				8405A517279906EF001B38A1 /* Profiling */,
 				7BE0DC33272AE74A004FA8B7 /* Breadcrumbs */,
 				7BE0DC34272AE78C004FA8B7 /* OutOfMemory */,
 				7BE0DC39272AE8B3004FA8B7 /* Performance */,
@@ -1601,6 +1600,7 @@
 		63AA75C61EB8B06100D153DE /* Sentry */ = {
 			isa = PBXGroup;
 			children = (
+				8405A517279906EF001B38A1 /* Profiling */,
 				630436031EC058FA00C4D3FA /* Categories */,
 				639889D51EDF10BE00EA7442 /* Helper */,
 				630436001EBCB87500C4D3FA /* Networking */,
