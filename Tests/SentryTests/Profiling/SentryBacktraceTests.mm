@@ -2,6 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#import <XCTest/XCTest.h>
+
 #import "SentryBacktrace.hpp"
 #import "SentryThreadHandle.hpp"
 
