@@ -58,6 +58,15 @@ getReferenceTimestamp()
 {
     return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
 }
+
+bool isSimulatorBuild()
+{
+#if TARGET_OS_SIMULATOR
+    return true;
+#else
+    return false;
+#endif
+}
 } // namespace
 
 @implementation SentryProfiler {
@@ -175,8 +184,7 @@ getReferenceTimestamp()
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #    endif
-    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] ||
-        [model isEqualToString:@"x86_64"] || [model isEqualToString:@"arm64"]);
+    profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = transaction.environment;
