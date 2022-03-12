@@ -1,8 +1,8 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryBacktrace.h"
-#import "SentryThreadMetadataCache.h"
-#import "SentrySamplingProfiler.h"
+#import "SentryBacktrace.hpp"
+#import "SentryThreadMetadataCache.hpp"
+#import "SentrySamplingProfiler.hpp"
 
 #import <chrono>
 #import <ctime>

@@ -122,10 +122,11 @@ namespace profiling {
                 continue;
             }
             Backtrace bt;
-            if (auto metadata = cache->metadataForThread(*thread)) {
-                bt.threadMetadata = std::move(*metadata);
-            } else {
+            auto metadata = cache->metadataForThread(*thread);
+            if (metadata.threadID == 0) {
                 continue;
+            } else {
+                bt.threadMetadata = std::move(metadata);
             }
             // This function calls `pthread_from_mach_thread_np`, which takes a lock,
             // so we must read the value before suspending the thread to avoid risking

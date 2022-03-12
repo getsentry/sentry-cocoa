@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryBacktrace.h"
-#import "SentryThreadHandle.h"
+#import "SentryBacktrace.hpp"
+#import "SentryThreadHandle.hpp"
 
 #import <cmath>
 #import <dlfcn.h>

@@ -22,7 +22,7 @@ constexpr std::size_t kMaxThreadNameLength = 100;
 namespace sentry {
 namespace profiling {
 
-    std::optional<ThreadMetadata>
+ThreadMetadata
     ThreadMetadataCache::metadataForThread(const ThreadHandle &thread)
     {
         const auto handle = thread.nativeHandle();
@@ -39,8 +39,10 @@ namespace profiling {
                 auto threadName = thread.name();
                 if (isSentryOwnedThreadName(threadName)) {
                     // Don't collect backtraces for Sentry-owned threads.
-                    cache_.push_back({ handle, std::nullopt });
-                    return std::nullopt;
+                    metadata.priority = 0;
+                    metadata.threadID = 0;
+                    cache_.push_back({ handle, metadata });
+                    return metadata;
                 }
                 if (threadName.size() > kMaxThreadNameLength) {
                     threadName.resize(kMaxThreadNameLength);

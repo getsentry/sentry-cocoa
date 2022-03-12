@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryThreadHandle.h"
+#import "SentryThreadHandle.hpp"
 
 #import <atomic>
 #import <csignal>

@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryThreadMetadataCache.h"
-#import "SentryMachLogging.h"
+#import "SentryThreadMetadataCache.hpp"
+#import "SentryMachLogging.hpp"
 
 #import <pthread.h>
 #import <thread>
@@ -43,14 +43,11 @@ void *threadSpin(void *name) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     
     const auto cache = std::make_shared<ThreadMetadataCache>();
-    const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
-    if (auto metadata = cache->metadataForThread(handle)) {
-        XCTAssertTrue(metadata->name == handle.name());
-        XCTAssertEqual(metadata->priority, handle.priority());
-        XCTAssertEqual(metadata->threadID, handle.tid());
-    } else {
-        XCTFail(@"Failed to retrieve metadata");
-    }
+    ThreadHandle handle(pthread_mach_thread_np(thread));
+    const auto metadata = cache->metadataForThread(handle);
+    XCTAssertTrue(metadata.name == handle.name());
+    XCTAssertEqual(metadata.priority, handle.priority());
+    XCTAssertEqual(metadata.threadID, handle.tid());
     
     XCTAssertEqual(pthread_cancel(thread), 0);
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
@@ -70,22 +67,14 @@ void *threadSpin(void *name) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     
     const auto cache = std::make_shared<ThreadMetadataCache>();
-    const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
-    if (auto metadata = cache->metadataForThread(handle)) {
-        XCTAssertEqual(metadata->priority, 50);
-    } else {
-        XCTFail(@"Failed to retrieve metadata");
-    }
+    ThreadHandle handle(pthread_mach_thread_np(thread));
+    XCTAssertEqual(cache->metadataForThread(handle).priority, 50);
     
     if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(thread, &policy, &param)) == 0) {
         param.sched_priority = 100;
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
-    if (auto metadata = cache->metadataForThread(handle)) {
-        XCTAssertEqual(metadata->priority, 50);
-    } else {
-        XCTFail(@"Failed to retrieve metadata");
-    }
+    XCTAssertEqual(cache->metadataForThread(handle).priority, 50);
     
     XCTAssertEqual(pthread_cancel(thread), 0);
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
@@ -99,8 +88,8 @@ void *threadSpin(void *name) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
         
     const auto cache = std::make_shared<ThreadMetadataCache>();
-    const auto handle = ThreadHandle(pthread_mach_thread_np(thread));
-    XCTAssertEqual(cache->metadataForThread(handle), std::nullopt);
+    ThreadHandle handle(pthread_mach_thread_np(thread));
+    XCTAssertEqual(cache->metadataForThread(handle).threadID, static_cast<unsigned long long>(0));
     
     XCTAssertEqual(pthread_cancel(thread), 0);
     XCTAssertEqual(pthread_join(thread, nullptr), 0);

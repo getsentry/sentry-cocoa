@@ -3,7 +3,6 @@
 #include "SentryThreadHandle.hpp"
 
 #include <memory>
-#include <optional>
 #include <string>
 
 namespace sentry {
@@ -25,10 +24,11 @@ namespace profiling {
         /**
          * Returns the metadata for the thread represented by the specified handle.
          * @param thread The thread handle to retrieve metadata from.
-         * @return @c ThreadMetadata upon success, or @c std::nullopt if the metadata could not be
-         * queried. A failure in this case might mean that the thread is no longer alive.
+         * @return @c ThreadMetadata with a non-zero threadID upon success, or a zero
+         * threadID upon failure, which means that metadata cannot be collected
+         * for this thread.
          */
-        std::optional<ThreadMetadata> metadataForThread(const ThreadHandle &thread);
+        ThreadMetadata metadataForThread(const ThreadHandle &thread);
 
         ThreadMetadataCache() = default;
         ThreadMetadataCache(const ThreadMetadataCache &) = delete;
@@ -37,7 +37,7 @@ namespace profiling {
     private:
         struct ThreadHandleMetadataPair {
             ThreadHandle::NativeHandle handle;
-            std::optional<ThreadMetadata> metadata;
+            ThreadMetadata metadata;
         };
         std::vector<const ThreadHandleMetadataPair> cache_;
     };
