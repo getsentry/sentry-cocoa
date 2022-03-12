@@ -1,5 +1,7 @@
 #include "SentryMachLogging.hpp"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 namespace sentry {
 namespace profiling {
 
@@ -210,3 +212,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif
