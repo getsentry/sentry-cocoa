@@ -305,7 +305,7 @@ class SentryHubTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             span.finish()
 
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithAdditionalEnvelopeItemsInvocations.first?.additionalEnvelopeItems else {
+            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
                 XCTFail("Expected to capture at least 1 event")
                 return
             }
@@ -335,7 +335,7 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         span.finish()
         
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithAdditionalEnvelopeItemsInvocations.first?.additionalEnvelopeItems else {
+        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
             XCTFail("Expected to capture at least 1 event")
             return
         }

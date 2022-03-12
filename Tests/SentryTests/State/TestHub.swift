@@ -28,22 +28,21 @@ class TestHub: SentryHub {
         sentCrashEvents.append(event)
     }
     
-    var capturedEventsWithScopes: [(event: Event, scope: Scope)] = []
+    var capturedEventsWithScopes: [(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])] = []
     override func capture(event: Event, scope: Scope) -> SentryId {
         group.enter()
         queue.async(flags: .barrier) {
-            self.capturedEventsWithScopes.append((event, scope))
+            self.capturedEventsWithScopes.append((event, scope, []))
             self.group.leave()
         }
         
         return event.eventId
     }
     
-    var capturedEventsWithAdditionalEnvelopeItems: [(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])] = []
     override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         group.enter()
         queue.async(flags: .barrier) {
-            self.capturedEventsWithAdditionalEnvelopeItems.append((event, scope, additionalEnvelopeItems))
+            self.capturedEventsWithScopes.append((event, scope, additionalEnvelopeItems))
             self.group.leave()
         }
         
