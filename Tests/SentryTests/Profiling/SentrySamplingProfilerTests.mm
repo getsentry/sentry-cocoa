@@ -1,8 +1,8 @@
 #import <XCTest/XCTest.h>
 
 #import "SentryBacktrace.hpp"
-#import "SentryThreadMetadataCache.hpp"
 #import "SentrySamplingProfiler.hpp"
+#import "SentryThreadMetadataCache.hpp"
 
 #import <chrono>
 #import <ctime>
@@ -17,11 +17,12 @@ using namespace sentry::profiling;
 
 @implementation SentrySamplingProfilerTests
 
-- (void)testProfiling {
+- (void)testProfiling
+{
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const std::uint32_t samplingRateHz = 300;
-    const auto profiler =
-      std::make_shared<SamplingProfiler>([](__unused auto backtrace) {}, samplingRateHz);
+    const auto profiler
+        = std::make_shared<SamplingProfiler>([](__unused auto backtrace) {}, samplingRateHz);
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;

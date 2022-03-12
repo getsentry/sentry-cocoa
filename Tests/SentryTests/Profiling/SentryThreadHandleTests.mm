@@ -10,13 +10,17 @@
 using namespace sentry::profiling;
 
 namespace {
-mach_port_t currentMachThread() {
+mach_port_t
+currentMachThread()
+{
     const auto port = mach_thread_self();
     mach_port_deallocate(mach_task_self(), port);
     return port;
 }
 
-void *threadSpin(__unused void *ptr) {
+void *
+threadSpin(__unused void *ptr)
+{
     if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr) != 0) {
         return nullptr;
     }
@@ -29,7 +33,9 @@ void *threadSpin(__unused void *ptr) {
     return nullptr;
 }
 
-void *threadGetName(void *namePtr) {
+void *
+threadGetName(void *namePtr)
+{
     const auto name = static_cast<const char *>(namePtr);
     pthread_setname_np(name);
     if (ThreadHandle::current()->name() == std::string(name)) {
@@ -45,16 +51,19 @@ void *threadGetName(void *namePtr) {
 
 @implementation SentryThreadHandleTests
 
-- (void)testGetNativeHandle {
-    ThreadHandle handle {currentMachThread()};
+- (void)testGetNativeHandle
+{
+    ThreadHandle handle { currentMachThread() };
     XCTAssertEqual(handle.nativeHandle(), currentMachThread());
 }
 
-- (void)testCurrent {
+- (void)testCurrent
+{
     XCTAssertEqual(ThreadHandle::current()->nativeHandle(), currentMachThread());
 }
 
-- (void)testAll {
+- (void)testAll
+{
     pthread_t thread1, thread2;
     XCTAssertEqual(pthread_create(&thread1, nullptr, threadSpin, nullptr), 0);
     XCTAssertEqual(pthread_create(&thread2, nullptr, threadSpin, nullptr), 0);
@@ -84,7 +93,8 @@ void *threadGetName(void *namePtr) {
     XCTAssertTrue(foundCurrentThread);
 }
 
-- (void)testAllExcludingCurrent {
+- (void)testAllExcludingCurrent
+{
     pthread_t thread1, thread2;
     XCTAssertEqual(pthread_create(&thread1, nullptr, threadSpin, nullptr), 0);
     XCTAssertEqual(pthread_create(&thread2, nullptr, threadSpin, nullptr), 0);
@@ -113,7 +123,8 @@ void *threadGetName(void *namePtr) {
     XCTAssertFalse(foundCurrentThread);
 }
 
-- (void)testName {
+- (void)testName
+{
     pthread_t thread;
     char name[] = "test-thread";
 
@@ -123,11 +134,12 @@ void *threadGetName(void *namePtr) {
     XCTAssertEqual(rv, reinterpret_cast<void *>(1));
 }
 
-- (void)testPriority {
+- (void)testPriority
+{
     pthread_attr_t attr;
     XCTAssertEqual(pthread_attr_init(&attr), 0);
     const int priority = 50;
-    struct sched_param param = {.sched_priority = priority};
+    struct sched_param param = { .sched_priority = priority };
     XCTAssertEqual(pthread_attr_setschedparam(&attr, &param), 0);
 
     pthread_t thread;
@@ -140,7 +152,8 @@ void *threadGetName(void *namePtr) {
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
 }
 
-- (void)testGetStackBounds {
+- (void)testGetStackBounds
+{
     const auto bounds = ThreadHandle::current()->stackBounds();
     XCTAssertGreaterThan(bounds.start, static_cast<unsigned long>(0));
     XCTAssertGreaterThan(bounds.end, static_cast<unsigned long>(0));

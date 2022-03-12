@@ -15,52 +15,68 @@ using namespace sentry::profiling;
 // Avoid name mangling
 extern "C" {
 NOT_TAIL_CALLED NEVER_INLINE std::size_t
-  c(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip) {
+c(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip)
+{
     auto current = ThreadHandle::current();
-    return backtrace(
-      *current, *current, addresses, current->stackBounds(), reachedEndOfStackPtr, maxDepth, skip);
+    return backtrace(*current, *current, addresses, current->stackBounds(), reachedEndOfStackPtr,
+        maxDepth, skip);
 }
 
-NOT_TAIL_CALLED NEVER_INLINE  std::size_t
-  b(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip) {
+NOT_TAIL_CALLED NEVER_INLINE std::size_t
+b(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip)
+{
     return c(addresses, reachedEndOfStackPtr, maxDepth, skip);
 }
 
 NOT_TAIL_CALLED NEVER_INLINE std::size_t
-  a(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip) {
+a(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip)
+{
     return b(addresses, reachedEndOfStackPtr, maxDepth, skip);
 }
 
-[[noreturn]] NOT_TAIL_CALLED NEVER_INLINE void cancelLoop() {
+[[noreturn]] NOT_TAIL_CALLED NEVER_INLINE void
+cancelLoop()
+{
     while (true) {
         pthread_testcancel();
     }
 }
 
-NOT_TAIL_CALLED NEVER_INLINE void bc_c() {
+NOT_TAIL_CALLED NEVER_INLINE void
+bc_c()
+{
     cancelLoop();
 }
 
-NOT_TAIL_CALLED NEVER_INLINE void bc_e() {
+NOT_TAIL_CALLED NEVER_INLINE void
+bc_e()
+{
     bc_c();
 }
 
-NOT_TAIL_CALLED NEVER_INLINE void bc_d() {
+NOT_TAIL_CALLED NEVER_INLINE void
+bc_d()
+{
     bc_e();
 }
 
-NOT_TAIL_CALLED NEVER_INLINE void bc_b() {
+NOT_TAIL_CALLED NEVER_INLINE void
+bc_b()
+{
     bc_c();
 }
 
-NOT_TAIL_CALLED NEVER_INLINE void bc_a() {
+NOT_TAIL_CALLED NEVER_INLINE void
+bc_a()
+{
     bc_b();
 }
 }
 
-
 namespace {
-std::string symbolicate(std::uintptr_t address) noexcept {
+std::string
+symbolicate(std::uintptr_t address) noexcept
+{
     if (address == 0) {
         return {};
     }
@@ -73,8 +89,10 @@ std::string symbolicate(std::uintptr_t address) noexcept {
     }
     return std::string(info.dli_sname);
 }
-    
-long indexOfSymbol(const std::uintptr_t *addresses, unsigned long depth, const char *symbol) {
+
+long
+indexOfSymbol(const std::uintptr_t *addresses, unsigned long depth, const char *symbol)
+{
     long index = -1;
     for (decltype(depth) i = 0; i < depth; i++) {
         const auto name = symbolicate(addresses[i]);
@@ -86,7 +104,9 @@ long indexOfSymbol(const std::uintptr_t *addresses, unsigned long depth, const c
     return index;
 }
 
-void *threadEntry(__unused void *ptr) {
+void *
+threadEntry(__unused void *ptr)
+{
     if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr) != 0) {
         return nullptr;
     }
@@ -97,31 +117,36 @@ void *threadEntry(__unused void *ptr) {
     fn();
     return nullptr;
 }
-    
+
 /** Returns the size of a primitive array at compile time. */
-template<std::size_t N, class T>
-constexpr std::size_t countof(T (&)[N]) {
+template <std::size_t N, class T>
+constexpr std::size_t
+countof(T (&)[N])
+{
     return N;
 }
 
 /** Returns the size of an std::array at compile time. */
-template<class Array, std::size_t N = std::tuple_size<Array>::value>
-constexpr std::size_t countof(Array&) {
+template <class Array, std::size_t N = std::tuple_size<Array>::value>
+constexpr std::size_t
+countof(Array &)
+{
     return N;
 }
 } // namespace
-
 
 @interface SentryBacktraceTests : XCTestCase
 @end
 
 @implementation SentryBacktraceTests
 
-- (void)testBacktrace {
+- (void)testBacktrace
+{
     std::uintptr_t addresses[128];
     std::memset(addresses, 0, countof(addresses));
     bool reachedEndOfStack = false;
-    XCTAssertGreaterThanOrEqual(a(addresses, &reachedEndOfStack, countof(addresses), 0), static_cast<unsigned long>(3));
+    XCTAssertGreaterThanOrEqual(
+        a(addresses, &reachedEndOfStack, countof(addresses), 0), static_cast<unsigned long>(3));
     XCTAssertTrue(reachedEndOfStack);
 
     const auto index = indexOfSymbol(addresses, countof(addresses), "c");
@@ -132,11 +157,13 @@ constexpr std::size_t countof(Array&) {
     }
 }
 
-- (void)testBacktraceRespectsSkip {
+- (void)testBacktraceRespectsSkip
+{
     std::uintptr_t addresses[128];
     std::memset(addresses, 0, countof(addresses));
     bool reachedEndOfStack = false;
-    XCTAssertGreaterThanOrEqual(a(addresses, &reachedEndOfStack, countof(addresses), 2), static_cast<unsigned long>(3));
+    XCTAssertGreaterThanOrEqual(
+        a(addresses, &reachedEndOfStack, countof(addresses), 2), static_cast<unsigned long>(3));
     XCTAssertTrue(reachedEndOfStack);
 
     const auto indexC = indexOfSymbol(addresses, countof(addresses), "c");
@@ -149,7 +176,8 @@ constexpr std::size_t countof(Array&) {
     }
 }
 
-- (void)testBacktraceRespectsMaxDepth {
+- (void)testBacktraceRespectsMaxDepth
+{
     std::uintptr_t addresses[2];
     std::memset(addresses, 0, countof(addresses));
     addresses[1] = 0x8BADF00D;
@@ -159,50 +187,51 @@ constexpr std::size_t countof(Array&) {
     XCTAssertEqual(addresses[1], 0x8BADF00D);
 }
 
-- (void)testCollectsMultiThreadBacktrace {
+- (void)testCollectsMultiThreadBacktrace
+{
     pthread_t thread1, thread2;
-    XCTAssertEqual(pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
-    XCTAssertEqual(pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
+    XCTAssertEqual(
+        pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
+    XCTAssertEqual(
+        pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     bool foundThread1 = false, foundThread2 = false;
     // Try up to 3 times.
     for (int i = 0; i < 3; i++) {
         enumerateBacktracesForAllThreads(
-          [&](auto &backtrace) {
-              const auto thread = backtrace.threadMetadata.threadID;
-              if (thread == pthread_mach_thread_np(thread1)) {
-                  const auto start =
-                    indexOfSymbol(reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
-                                  backtrace.addresses.size(),
-                                  "bc_c");
-                  std::cout << start << '\n';
-                  if (start != -1 && backtrace.addresses.size() >= 3) {
-                      foundThread1 = true;
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start]), "bc_c");
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start + 1]), "bc_b");
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start + 2]), "bc_a");
-                  }
-              } else if (thread == pthread_mach_thread_np(thread2)) {
-                  const auto start =
-                    indexOfSymbol(reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
-                                  backtrace.addresses.size(),
-                                  "bc_c");
-                  std::cout << start << '\n';
-                  if (start != -1 && backtrace.addresses.size() >= 3) {
-                      foundThread2 = true;
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start]), "bc_c");
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start + 1]), "bc_e");
-                      XCTAssertEqual(symbolicate(backtrace.addresses[start + 2]), "bc_d");
-                  }
-              }
-          },
-          cache);
+            [&](auto &backtrace) {
+                const auto thread = backtrace.threadMetadata.threadID;
+                if (thread == pthread_mach_thread_np(thread1)) {
+                    const auto start = indexOfSymbol(
+                        reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
+                        backtrace.addresses.size(), "bc_c");
+                    std::cout << start << '\n';
+                    if (start != -1 && backtrace.addresses.size() >= 3) {
+                        foundThread1 = true;
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start]), "bc_c");
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start + 1]), "bc_b");
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start + 2]), "bc_a");
+                    }
+                } else if (thread == pthread_mach_thread_np(thread2)) {
+                    const auto start = indexOfSymbol(
+                        reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
+                        backtrace.addresses.size(), "bc_c");
+                    std::cout << start << '\n';
+                    if (start != -1 && backtrace.addresses.size() >= 3) {
+                        foundThread2 = true;
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start]), "bc_c");
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start + 1]), "bc_e");
+                        XCTAssertEqual(symbolicate(backtrace.addresses[start + 2]), "bc_d");
+                    }
+                }
+            },
+            cache);
         if (foundThread1 && foundThread2) {
             break;
         }
         std::this_thread::sleep_for(
-          std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1)) * 1000));
+            std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1)) * 1000));
     }
 
     XCTAssertEqual(pthread_cancel(thread1), 0);

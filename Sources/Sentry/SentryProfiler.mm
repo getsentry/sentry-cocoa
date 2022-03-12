@@ -1,18 +1,18 @@
 #import "SentryProfiler.h"
 
 #import "SentryBacktrace.hpp"
-#import "SentryDebugMeta.h"
 #import "SentryDebugImageProvider.h"
+#import "SentryDebugMeta.h"
 #import "SentryEnvelope.h"
+#import "SentryHexAddressFormatter.h"
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryProfilingLogging.hpp"
 #import "SentrySamplingProfiler.hpp"
-#import "SentryHexAddressFormatter.h"
 #import "SentryTransaction.h"
 
 #if defined(DEBUG)
-#include <execinfo.h>
+#    include <execinfo.h>
 #endif
 
 #import <chrono>
@@ -23,13 +23,15 @@
 #import <sys/utsname.h>
 
 #if SENTRY_HAS_UIKIT
-#import <UIKit/UIKit.h>
+#    import <UIKit/UIKit.h>
 #endif
 
 using namespace sentry::profiling;
 
 namespace {
-NSString *getDeviceModel() {
+NSString *
+getDeviceModel()
+{
     utsname info;
     if (SENTRY_PROF_LOG_ERRNO(uname(&info)) == 0) {
         return [NSString stringWithUTF8String:info.machine];
@@ -37,7 +39,9 @@ NSString *getDeviceModel() {
     return @"";
 }
 
-NSString *getOSBuildNumber() {
+NSString *
+getOSBuildNumber()
+{
     char str[32];
     size_t size = sizeof(str);
     int cmd[2] = { CTL_KERN, KERN_OSVERSION };
@@ -47,7 +51,9 @@ NSString *getOSBuildNumber() {
     return @"";
 }
 
-std::uint64_t getReferenceTimestamp() {
+std::uint64_t
+getReferenceTimestamp()
+{
     return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
 }
 } // namespace
@@ -59,22 +65,24 @@ std::uint64_t getReferenceTimestamp() {
     SentryDebugImageProvider *_debugImageProvider;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         _debugImageProvider = [[SentryDebugImageProvider alloc] init];
     }
     return self;
 }
 
-- (void)start {
-    // Disable profiling when running with TSAN because it produces a TSAN false
-    // positive, similar to the situation described here:
-    // https://github.com/envoyproxy/envoy/issues/2561
-    #if defined(__has_feature)
-    #if __has_feature(thread_sanitizer)
+- (void)start
+{
+// Disable profiling when running with TSAN because it produces a TSAN false
+// positive, similar to the situation described here:
+// https://github.com/envoyproxy/envoy/issues/2561
+#if defined(__has_feature)
+#    if __has_feature(thread_sanitizer)
     return;
-    #endif
-    #endif
+#    endif
+#endif
     @synchronized(self) {
         if (_profiler != nullptr) {
             _profiler->stopSampling();
@@ -87,59 +95,66 @@ std::uint64_t getReferenceTimestamp() {
         sampledProfile[@"thread_metadata"] = threadMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
         _referenceUptimeNs = getReferenceTimestamp();
-        
-        __weak const auto weakSelf = self;
-        _profiler = std::make_shared<SamplingProfiler>([weakSelf, sampledProfile, threadMetadata, samples](auto &backtrace) {
-            const auto strongSelf = weakSelf;
-            if (strongSelf == nil) {
-                return;
-            }
-            assert(backtrace.uptimeNs >= strongSelf->_referenceUptimeNs);
-            const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-            if (threadMetadata[threadID] == nil) {
-                const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                if (!backtrace.threadMetadata.name.empty()) {
-                    metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-                }
-                metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-                threadMetadata[threadID] = metadata;
-            }
-#if defined(DEBUG)
-            const auto symbols = backtrace_symbols(
-                          reinterpret_cast<void *const *>(backtrace.addresses.data()), static_cast<int>(backtrace.addresses.size()));
-#endif
-            const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
-            for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
-                const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-                frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
-#if defined(DEBUG)
-                frame[@"function"] = [NSString stringWithUTF8String:symbols[i]];
-#endif
-                [frames addObject:frame];
-            }
 
-            const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-            sample[@"frames"] = frames;
-            sample[@"relative_timestamp_ns"] = [[strongSelf getElapsedDuration:backtrace.uptimeNs] stringValue];
-            sample[@"thread_id"] = threadID;
-            [samples addObject:sample];
-        }, 100 /** Sample 100 times per second */);
+        __weak const auto weakSelf = self;
+        _profiler = std::make_shared<SamplingProfiler>(
+            [weakSelf, sampledProfile, threadMetadata, samples](auto &backtrace) {
+                const auto strongSelf = weakSelf;
+                if (strongSelf == nil) {
+                    return;
+                }
+                assert(backtrace.uptimeNs >= strongSelf->_referenceUptimeNs);
+                const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+                if (threadMetadata[threadID] == nil) {
+                    const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
+                    if (!backtrace.threadMetadata.name.empty()) {
+                        metadata[@"name"] =
+                            [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+                    }
+                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                    threadMetadata[threadID] = metadata;
+                }
+#if defined(DEBUG)
+                const auto symbols
+                    = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
+                        static_cast<int>(backtrace.addresses.size()));
+#endif
+                const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
+                for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
+                    const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
+                    frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
+#if defined(DEBUG)
+                    frame[@"function"] = [NSString stringWithUTF8String:symbols[i]];
+#endif
+                    [frames addObject:frame];
+                }
+
+                const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
+                sample[@"frames"] = frames;
+                sample[@"relative_timestamp_ns"] =
+                    [[strongSelf getElapsedDuration:backtrace.uptimeNs] stringValue];
+                sample[@"thread_id"] = threadID;
+                [samples addObject:sample];
+            },
+            100 /** Sample 100 times per second */);
         _profiler->startSampling();
     }
 }
 
-- (void)stop {
+- (void)stop
+{
     @synchronized(self) {
         _profiler->stopSampling();
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction {
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+{
     NSMutableDictionary<NSString *, id> *profile = nil;
-    @synchronized (self) {
+    @synchronized(self) {
         profile = [_profile mutableCopy];
     }
-    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *>  new];
+    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
     for (SentryDebugMeta *debugImage in debugMeta) {
         [debugImages addObject:[debugImage serialize]];
@@ -147,7 +162,7 @@ std::uint64_t getReferenceTimestamp() {
     if (debugImages.count > 0) {
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
-    
+
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
     const auto model = getDeviceModel();
@@ -157,8 +172,10 @@ std::uint64_t getReferenceTimestamp() {
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #endif
-    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] || [model isEqualToString:@"x86_64"] || [model isEqualToString:@"arm64"]);
-    profile[@"device_physical_memory_bytes"] = [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
+    profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] ||
+        [model isEqualToString:@"x86_64"] || [model isEqualToString:@"arm64"]);
+    profile[@"device_physical_memory_bytes"] =
+        [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = transaction.environment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
@@ -166,24 +183,30 @@ std::uint64_t getReferenceTimestamp() {
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
     profile[@"duration_ns"] = [[self getElapsedDuration:getReferenceTimestamp()] stringValue];
-    
+
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    
+
     NSError *error = nil;
     const auto JSONData = [NSJSONSerialization dataWithJSONObject:profile options:0 error:&error];
     if (JSONData == nil) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to encode profile to JSON: %@", error] andLevel:kSentryLevelError];
+        [SentryLog
+            logWithMessage:[NSString
+                               stringWithFormat:@"Failed to encode profile to JSON: %@", error]
+                  andLevel:kSentryLevelError];
         return nil;
     }
-    
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile" length:JSONData.length];
+
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile"
+                                                                length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
-- (NSNumber *)getElapsedDuration:(std::uint64_t)timestamp {
-    NSAssert(timestamp >= _referenceUptimeNs, @"timestamp must be greater than the reference timestamp");
+- (NSNumber *)getElapsedDuration:(std::uint64_t)timestamp
+{
+    NSAssert(
+        timestamp >= _referenceUptimeNs, @"timestamp must be greater than the reference timestamp");
     return @(timestamp - _referenceUptimeNs);
 }
 
