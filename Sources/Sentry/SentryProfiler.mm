@@ -59,13 +59,14 @@ getReferenceTimestamp()
     return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
 }
 
-bool isSimulatorBuild()
+bool
+isSimulatorBuild()
 {
-#if TARGET_OS_SIMULATOR
+#    if TARGET_OS_SIMULATOR
     return true;
-#else
+#    else
     return false;
-#endif
+#    endif
 }
 } // namespace
 
@@ -91,7 +92,8 @@ bool isSimulatorBuild()
 // https://github.com/envoyproxy/envoy/issues/2561
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
-    [SentryLog logWithMessage:@"Disabling profiling when running with TSAN" andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"Disabling profiling when running with TSAN"
+                     andLevel:kSentryLevelDebug];
     return;
 #        endif
 #    endif
