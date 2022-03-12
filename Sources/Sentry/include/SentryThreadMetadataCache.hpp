@@ -4,10 +4,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryThreadHandle.hpp"
+#    include "SentryThreadHandle.hpp"
 
-#include <memory>
-#include <string>
+#    include <memory>
+#    include <string>
 
 namespace sentry {
 namespace profiling {

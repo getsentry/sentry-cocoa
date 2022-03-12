@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
 #import "SentryProfilingConditionals.h"
+#import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 

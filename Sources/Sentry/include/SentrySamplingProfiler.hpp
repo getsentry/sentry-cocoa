@@ -4,12 +4,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include <cstdint>
-#include <functional>
-#include <mach/mach.h>
-#include <memory>
-#include <mutex>
-#include <thread>
+#    include <cstdint>
+#    include <functional>
+#    include <mach/mach.h>
+#    include <memory>
+#    include <mutex>
+#    include <thread>
 
 namespace sentry {
 namespace profiling {

@@ -4,15 +4,15 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryStackBounds.hpp"
-#include "SentryThreadHandle.hpp"
-#include "SentryThreadMetadataCache.hpp"
+#    include "SentryStackBounds.hpp"
+#    include "SentryThreadHandle.hpp"
+#    include "SentryThreadMetadataCache.hpp"
 
-#include <cstddef>
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <vector>
+#    include <cstddef>
+#    include <cstdint>
+#    include <functional>
+#    include <memory>
+#    include <vector>
 
 namespace sentry {
 namespace profiling {

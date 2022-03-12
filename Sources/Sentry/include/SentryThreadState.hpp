@@ -4,14 +4,14 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryCPU.h"
-#include "SentryCompiler.h"
-#include "SentryStackFrame.hpp"
-#include "SentryThreadHandle.hpp"
+#    include "SentryCPU.h"
+#    include "SentryCompiler.h"
+#    include "SentryStackFrame.hpp"
+#    include "SentryThreadHandle.hpp"
 
-#include <cstdint>
-#include <mach/mach.h>
-#include <sys/types.h>
+#    include <cstdint>
+#    include <mach/mach.h>
+#    include <sys/types.h>
 
 namespace sentry {
 namespace profiling {
@@ -29,21 +29,21 @@ namespace profiling {
         ALWAYS_INLINE kern_return_t
         fillThreadState(ThreadHandle::NativeHandle thread, MachineContext *context) noexcept
         {
-#if CPU(X86_64)
-#    define SENTRY_THREAD_STATE_COUNT x86_THREAD_STATE64_COUNT
-#    define SENTRY_THREAD_STATE_FLAVOR x86_THREAD_STATE64
-#elif CPU(X86)
-#    define SENTRY_THREAD_STATE_COUNT x86_THREAD_STATE32_COUNT
-#    define SENTRY_THREAD_STATE_FLAVOR x86_THREAD_STATE32
-#elif CPU(ARM64)
-#    define SENTRY_THREAD_STATE_COUNT ARM_THREAD_STATE64_COUNT
-#    define SENTRY_THREAD_STATE_FLAVOR ARM_THREAD_STATE64
-#elif CPU(ARM)
-#    define SENTRY_THREAD_STATE_COUNT ARM_THREAD_STATE_COUNT
-#    define SENTRY_THREAD_STATE_FLAVOR ARM_THREAD_STATE
-#else
-#    error Unsupported architecture!
-#endif
+#    if CPU(X86_64)
+#        define SENTRY_THREAD_STATE_COUNT x86_THREAD_STATE64_COUNT
+#        define SENTRY_THREAD_STATE_FLAVOR x86_THREAD_STATE64
+#    elif CPU(X86)
+#        define SENTRY_THREAD_STATE_COUNT x86_THREAD_STATE32_COUNT
+#        define SENTRY_THREAD_STATE_FLAVOR x86_THREAD_STATE32
+#    elif CPU(ARM64)
+#        define SENTRY_THREAD_STATE_COUNT ARM_THREAD_STATE64_COUNT
+#        define SENTRY_THREAD_STATE_FLAVOR ARM_THREAD_STATE64
+#    elif CPU(ARM)
+#        define SENTRY_THREAD_STATE_COUNT ARM_THREAD_STATE_COUNT
+#        define SENTRY_THREAD_STATE_FLAVOR ARM_THREAD_STATE
+#    else
+#        error Unsupported architecture!
+#    endif
             mach_msg_type_number_t count = SENTRY_THREAD_STATE_COUNT;
             return thread_get_state(
                 thread, SENTRY_THREAD_STATE_FLAVOR, (thread_state_t)&context->__ss, &count);
@@ -62,20 +62,20 @@ namespace profiling {
             // frame pointer optimization.
             // https://gcc.gnu.org/onlinedocs/gcc-4.9.2/gcc/Optimize-Options.html
             // http://www.keil.com/support/man/docs/armclang_ref/armclang_ref_vvi1466179578564.htm
-#if CPU(X86_64)
+#    if CPU(X86_64)
             return context->__ss.__rbp;
-#elif CPU(X86)
+#    elif CPU(X86)
             return context->__ss.__ebp;
-#elif CPU(ARM64)
+#    elif CPU(ARM64)
             // fp is an alias for frame pointer register x29:
             // https://developer.apple.com/library/archive/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARM64FunctionCallingConventions.html
             return context->__ss.__fp;
-#elif CPU(ARM)
+#    elif CPU(ARM)
             // https://developer.apple.com/library/archive/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARMv6FunctionCallingConventions.html#//apple_ref/doc/uid/TP40009021-SW1
             return context->__ss.__r[7];
-#else
-#    error Unsupported architecture!
-#endif
+#    else
+#        error Unsupported architecture!
+#    endif
         }
 
         /**
@@ -99,18 +99,18 @@ namespace profiling {
  * @param context Machine context to get link register value from.
  * @return Contents of the link register.
  */
-#if CPU(ARM64) || CPU(ARM)
+#    if CPU(ARM64) || CPU(ARM)
         ALWAYS_INLINE std::uintptr_t
         getLinkRegister(const MachineContext *context) noexcept
         {
             // https://stackoverflow.com/a/8236974
             return context->__ss.__lr;
-#else
+#    else
         ALWAYS_INLINE std::uintptr_t
         getLinkRegister(__unused const MachineContext *context) noexcept
         {
             return 0;
-#endif
+#    endif
         }
 
         /**
@@ -122,15 +122,15 @@ namespace profiling {
         ALWAYS_INLINE std::uintptr_t
         getProgramCounter(const MachineContext *context) noexcept
         {
-#if CPU(ARM64) || CPU(ARM)
+#    if CPU(ARM64) || CPU(ARM)
             return context->__ss.__pc;
-#elif CPU(X86_64)
+#    elif CPU(X86_64)
             return context->__ss.__rip;
-#elif CPU(X86)
+#    elif CPU(X86)
         return context->__ss.__eip;
-#else
-#    error Unsupported architecture!
-#endif
+#    else
+#        error Unsupported architecture!
+#    endif
         }
 
         /**
@@ -155,19 +155,19 @@ namespace profiling {
             // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
             // See https://llvm.org/LICENSE.txt for license information.
             // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-#if CPU(ARM)
+#    if CPU(ARM)
             // T32 (Thumb) branch instructions might be 16 or 32 bit long,
             // so we return (pc-2) in that case in order to be safe.
             // For A32 mode we return (pc-4) because all instructions are 32 bit long.
             return (address - 3) & (~1);
-#elif CPU(ARM64)
+#    elif CPU(ARM64)
             // PCs are always 4 byte aligned.
             return address - 4;
-#elif CPU(X86_64) || CPU(X86)
+#    elif CPU(X86_64) || CPU(X86)
         return address - 1;
-#else
-#    error Unsupported architecture!
-#endif
+#    else
+#        error Unsupported architecture!
+#    endif
         }
 
     } // namespace thread

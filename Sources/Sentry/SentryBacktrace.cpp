@@ -2,29 +2,29 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryAsyncSafeLogging.h"
-#include "SentryCompiler.h"
-#include "SentryMachLogging.hpp"
-#include "SentryStackBounds.hpp"
-#include "SentryStackFrame.hpp"
-#include "SentryThreadHandle.hpp"
-#include "SentryThreadMetadataCache.hpp"
-#include "SentryThreadState.hpp"
+#    include "SentryAsyncSafeLogging.h"
+#    include "SentryCompiler.h"
+#    include "SentryMachLogging.hpp"
+#    include "SentryStackBounds.hpp"
+#    include "SentryStackFrame.hpp"
+#    include "SentryThreadHandle.hpp"
+#    include "SentryThreadMetadataCache.hpp"
+#    include "SentryThreadState.hpp"
 
-#include <cassert>
-#include <ctime>
+#    include <cassert>
+#    include <ctime>
 
-#if __has_include(<ptrauth.h>)
-#    include <ptrauth.h>
-#else
-#    define ptrauth_strip(__value, __key) __value
-#endif
+#    if __has_include(<ptrauth.h>)
+#        include <ptrauth.h>
+#    else
+#        define ptrauth_strip(__value, __key) __value
+#    endif
 
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
 
-#define LIKELY(x) __builtin_expect(!!(x), 1)
-#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#    define LIKELY(x) __builtin_expect(!!(x), 1)
+#    define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 namespace {
 ALWAYS_INLINE bool

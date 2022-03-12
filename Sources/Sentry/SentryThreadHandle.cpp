@@ -2,13 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryMachLogging.hpp"
-#include "SentryProfilingLogging.hpp"
+#    include "SentryMachLogging.hpp"
+#    include "SentryProfilingLogging.hpp"
 
-#include <cstdint>
-#include <dispatch/dispatch.h>
-#include <mach/mach.h>
-#include <pthread.h>
+#    include <cstdint>
+#    include <dispatch/dispatch.h>
+#    include <mach/mach.h>
+#    include <pthread.h>
 
 namespace sentry {
 namespace profiling {

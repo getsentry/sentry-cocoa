@@ -2,15 +2,15 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryBacktrace.hpp"
-#include "SentryMachLogging.hpp"
-#include "SentryThreadMetadataCache.hpp"
+#    include "SentryBacktrace.hpp"
+#    include "SentryMachLogging.hpp"
+#    include "SentryThreadMetadataCache.hpp"
 
-#include <chrono>
-#include <mach/clock.h>
-#include <mach/clock_reply.h>
-#include <mach/clock_types.h>
-#include <pthread.h>
+#    include <chrono>
+#    include <mach/clock.h>
+#    include <mach/clock_reply.h>
+#    include <mach/clock_types.h>
+#    include <pthread.h>
 
 namespace sentry {
 namespace profiling {

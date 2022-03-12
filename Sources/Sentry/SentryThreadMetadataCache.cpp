@@ -2,12 +2,12 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryStackBounds.hpp"
-#include "SentryThreadHandle.hpp"
+#    include "SentryStackBounds.hpp"
+#    include "SentryThreadHandle.hpp"
 
-#include <algorithm>
-#include <string>
-#include <vector>
+#    include <algorithm>
+#    include <string>
+#    include <vector>
 
 namespace {
 

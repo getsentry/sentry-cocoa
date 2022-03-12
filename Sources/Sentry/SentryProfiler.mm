@@ -2,31 +2,31 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import "SentryBacktrace.hpp"
-#import "SentryDebugImageProvider.h"
-#import "SentryDebugMeta.h"
-#import "SentryEnvelope.h"
-#import "SentryHexAddressFormatter.h"
-#import "SentryId.h"
-#import "SentryLog.h"
-#import "SentryProfilingLogging.hpp"
-#import "SentrySamplingProfiler.hpp"
-#import "SentryTransaction.h"
+#    import "SentryBacktrace.hpp"
+#    import "SentryDebugImageProvider.h"
+#    import "SentryDebugMeta.h"
+#    import "SentryEnvelope.h"
+#    import "SentryHexAddressFormatter.h"
+#    import "SentryId.h"
+#    import "SentryLog.h"
+#    import "SentryProfilingLogging.hpp"
+#    import "SentrySamplingProfiler.hpp"
+#    import "SentryTransaction.h"
 
-#if defined(DEBUG)
-#    include <execinfo.h>
-#endif
+#    if defined(DEBUG)
+#        include <execinfo.h>
+#    endif
 
-#import <chrono>
-#import <cstdint>
-#import <ctime>
-#import <memory>
-#import <sys/sysctl.h>
-#import <sys/utsname.h>
+#    import <chrono>
+#    import <cstdint>
+#    import <ctime>
+#    import <memory>
+#    import <sys/sysctl.h>
+#    import <sys/utsname.h>
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
+#    if SENTRY_HAS_UIKIT
+#        import <UIKit/UIKit.h>
+#    endif
 
 using namespace sentry::profiling;
 
@@ -80,11 +80,11 @@ getReferenceTimestamp()
 // Disable profiling when running with TSAN because it produces a TSAN false
 // positive, similar to the situation described here:
 // https://github.com/envoyproxy/envoy/issues/2561
-#if defined(__has_feature)
-#    if __has_feature(thread_sanitizer)
+#    if defined(__has_feature)
+#        if __has_feature(thread_sanitizer)
     return;
+#        endif
 #    endif
-#endif
     @synchronized(self) {
         if (_profiler != nullptr) {
             _profiler->stopSampling();
@@ -116,18 +116,18 @@ getReferenceTimestamp()
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                     threadMetadata[threadID] = metadata;
                 }
-#if defined(DEBUG)
+#    if defined(DEBUG)
                 const auto symbols
                     = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                         static_cast<int>(backtrace.addresses.size()));
-#endif
+#    endif
                 const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
                     const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                     frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
-#if defined(DEBUG)
+#    if defined(DEBUG)
                     frame[@"function"] = [NSString stringWithUTF8String:symbols[i]];
-#endif
+#    endif
                     [frames addObject:frame];
                 }
 
@@ -170,10 +170,10 @@ getReferenceTimestamp()
     const auto model = getDeviceModel();
     profile[@"device_model"] = model;
     profile[@"device_os_build_number"] = getOSBuildNumber();
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
-#endif
+#    endif
     profile[@"device_is_emulator"] = @([model isEqualToString:@"i386"] ||
         [model isEqualToString:@"x86_64"] || [model isEqualToString:@"arm64"]);
     profile[@"device_physical_memory_bytes"] =

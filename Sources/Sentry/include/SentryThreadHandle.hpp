@@ -4,16 +4,16 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#include "SentryStackBounds.hpp"
+#    include "SentryStackBounds.hpp"
 
-#include <chrono>
-#include <mach/mach.h>
-#include <memory>
-#include <pthread.h>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <vector>
+#    include <chrono>
+#    include <mach/mach.h>
+#    include <memory>
+#    include <pthread.h>
+#    include <string>
+#    include <type_traits>
+#    include <utility>
+#    include <vector>
 
 /**
  * Threading helpers for Darwin-based platforms.
