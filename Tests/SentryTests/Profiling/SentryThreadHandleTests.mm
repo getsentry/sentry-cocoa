@@ -2,14 +2,14 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryThreadHandle.hpp"
+#    import "SentryThreadHandle.hpp"
 
-#import <atomic>
-#import <csignal>
-#import <mach/mach.h>
-#import <pthread.h>
+#    import <atomic>
+#    import <csignal>
+#    import <mach/mach.h>
+#    import <pthread.h>
 
 using namespace sentry::profiling;
 

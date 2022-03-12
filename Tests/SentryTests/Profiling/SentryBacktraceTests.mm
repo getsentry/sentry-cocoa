@@ -2,17 +2,17 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryBacktrace.hpp"
-#import "SentryThreadHandle.hpp"
+#    import "SentryBacktrace.hpp"
+#    import "SentryThreadHandle.hpp"
 
-#import <cmath>
-#import <dlfcn.h>
-#import <iostream>
-#import <pthread.h>
-#import <string>
-#import <thread>
+#    import <cmath>
+#    import <dlfcn.h>
+#    import <iostream>
+#    import <pthread.h>
+#    import <string>
+#    import <thread>
 
 using namespace sentry::profiling;
 
