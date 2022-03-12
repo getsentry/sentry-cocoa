@@ -1,4 +1,6 @@
-#import <XCTest/XCTest.h>
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "SentryBacktrace.hpp"
 #import "SentryThreadHandle.hpp"
@@ -244,3 +246,5 @@ countof(Array &)
 }
 
 @end
+
+#endif

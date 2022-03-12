@@ -1,3 +1,7 @@
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #import <XCTest/XCTest.h>
 
 #import "SentryThreadHandle.hpp"
@@ -166,3 +170,5 @@ threadGetName(void *namePtr)
 }
 
 @end
+
+#endif

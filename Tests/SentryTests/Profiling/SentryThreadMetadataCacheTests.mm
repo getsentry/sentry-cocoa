@@ -1,3 +1,7 @@
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #import <XCTest/XCTest.h>
 
 #import "SentryMachLogging.hpp"
@@ -101,3 +105,5 @@ threadSpin(void *name)
 }
 
 @end
+
+#endif

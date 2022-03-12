@@ -1,3 +1,7 @@
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #import <XCTest/XCTest.h>
 
 #import "SentryBacktrace.hpp"
@@ -41,3 +45,5 @@ using namespace sentry::profiling;
 }
 
 @end
+
+#endif
