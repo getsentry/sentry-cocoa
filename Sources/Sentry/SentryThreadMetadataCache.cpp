@@ -1,5 +1,7 @@
 #include "SentryThreadMetadataCache.hpp"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include "SentryStackBounds.hpp"
 #include "SentryThreadHandle.hpp"
 
@@ -60,3 +62,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include "SentryStackBounds.hpp"
 #include "SentryThreadHandle.hpp"
 #include "SentryThreadMetadataCache.hpp"
@@ -58,3 +62,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif

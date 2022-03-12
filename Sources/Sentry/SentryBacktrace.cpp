@@ -1,5 +1,7 @@
 #include "SentryBacktrace.hpp"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include "SentryAsyncSafeLogging.h"
 #include "SentryCompiler.h"
 #include "SentryMachLogging.hpp"
@@ -173,3 +175,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif

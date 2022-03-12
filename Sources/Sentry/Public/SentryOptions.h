@@ -273,6 +273,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Whether to enable the sampling profiler. Default is NO.
+ * @note Not supported on watchOS or tvOS, this option will have no effect.
  */
 @property (nonatomic, assign) BOOL enableProfiling;
 

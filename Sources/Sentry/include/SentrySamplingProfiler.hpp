@@ -1,5 +1,9 @@
 #pragma once
 
+#include "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include <cstdint>
 #include <functional>
 #include <mach/mach.h>
@@ -63,3 +67,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif

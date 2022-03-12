@@ -1,5 +1,9 @@
 #pragma once
 
+#include "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include "SentryProfilingLogging.hpp"
 
 #include <mach/kern_return.h>
@@ -49,3 +53,5 @@ namespace profiling {
         }                                                                                          \
         __log_mr;                                                                                  \
     })
+
+#endif

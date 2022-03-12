@@ -6,6 +6,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
@@ -50,7 +51,9 @@ SentryTracer ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
 #endif
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryProfiler *_profiler;
+#endif
 }
 
 static NSObject *appStartMeasurementLock;
@@ -96,10 +99,12 @@ static BOOL appStartMeasurementRead;
             initFrozenFrames = currentFrames.frozen;
         }
 #endif
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         if ([_hub getClient].options.enableProfiling) {
             _profiler = [[SentryProfiler alloc] init];
             [_profiler start];
         }
+#endif
     }
 
     return self;
@@ -268,7 +273,9 @@ static BOOL appStartMeasurementRead;
         return;
 
     [_rootSpan finishWithStatus:_finishStatus];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [_profiler stop];
+#endif
     [self captureTransaction];
 }
 
@@ -295,14 +302,16 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
     SentryTransaction *transaction = [self toTransaction];
+    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profiler != nil) {
         SentryEnvelopeItem *profile = [_profiler buildEnvelopeItemForTransaction:transaction];
         if (profile != nil) {
             [additionalEnvelopeItems addObject:profile];
         }
     }
+#endif
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
         additionalEnvelopeItems:additionalEnvelopeItems];

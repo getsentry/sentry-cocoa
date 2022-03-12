@@ -1,5 +1,7 @@
 #include "SentrySamplingProfiler.hpp"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #include "SentryBacktrace.hpp"
 #include "SentryMachLogging.hpp"
 #include "SentryThreadMetadataCache.hpp"
@@ -153,3 +155,5 @@ namespace profiling {
 
 } // namespace profiling
 } // namespace sentry
+
+#endif

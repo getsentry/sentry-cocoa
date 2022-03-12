@@ -1,4 +1,7 @@
 #import <Foundation/Foundation.h>
+#import "SentryProfilingConditionals.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 
 @class SentryEnvelopeItem, SentryTransaction;
 
@@ -19,3 +22,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

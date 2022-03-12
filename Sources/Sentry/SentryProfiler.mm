@@ -1,5 +1,7 @@
 #import "SentryProfiler.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 #import "SentryBacktrace.hpp"
 #import "SentryDebugImageProvider.h"
 #import "SentryDebugMeta.h"
@@ -211,3 +213,5 @@ getReferenceTimestamp()
 }
 
 @end
+
+#endif
