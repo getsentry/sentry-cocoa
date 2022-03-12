@@ -300,7 +300,7 @@ class SentryHubTests: XCTestCase {
         }
         let hub = fixture.getSut(options)
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        let expectation = expectation(description: "collects profiling data")
+        let profileExpectation = expectation(description: "collects profiling data")
         // Give it time to collect a profile, otherwise there will be no samples.
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             span.finish()
@@ -316,7 +316,7 @@ class SentryHubTests: XCTestCase {
             }
             XCTAssertEqual("profile", profileItem.header.type)
             self.assertValidProfileData(data: profileItem.data)
-            expectation.fulfill()
+            profileExpectation.fulfill()
         }
         waitForExpectations(timeout: 5.0) {
             if let error = $0 {
