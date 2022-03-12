@@ -22,7 +22,7 @@ constexpr std::size_t kMaxThreadNameLength = 100;
 namespace sentry {
 namespace profiling {
 
-ThreadMetadata
+    ThreadMetadata
     ThreadMetadataCache::metadataForThread(const ThreadHandle &thread)
     {
         const auto handle = thread.nativeHandle();
