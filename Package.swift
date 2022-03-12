@@ -21,6 +21,7 @@ let package = Package(
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
+                .define("CLANG_CXX_LANGUAGE_STANDARD", to: "c++14"),
                 .headerSearchPath("Sentry/include"),
                 .headerSearchPath("Sentry/Public"),
                 .headerSearchPath("SentryCrash/Installations"),
