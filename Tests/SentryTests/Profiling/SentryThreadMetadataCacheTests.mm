@@ -2,13 +2,13 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryMachLogging.hpp"
-#import "SentryThreadMetadataCache.hpp"
+#    import "SentryMachLogging.hpp"
+#    import "SentryThreadMetadataCache.hpp"
 
-#import <pthread.h>
-#import <thread>
+#    import <pthread.h>
+#    import <thread>
 
 using namespace sentry::profiling;
 
