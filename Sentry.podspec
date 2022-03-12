@@ -17,7 +17,9 @@ Pod::Spec.new do |s|
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
   s.xcconfig = {
-      'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES'
+      'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
+      'CLANG_CXX_LIBRARY' => 'libc++'
 }
 
   s.default_subspecs = ['Core']
