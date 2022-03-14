@@ -1,7 +1,9 @@
 #import "SentryPerformanceTrackingIntegration.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
+#import "SentrySubClassFinder.h"
 #import "SentryUIViewControllerSwizzling.h"
 
 @interface
@@ -28,8 +30,16 @@ SentryPerformanceTrackingIntegration ()
     SentryDispatchQueueWrapper *dispatchQueue =
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
                                               attributes:attributes];
-    self.swizzling = [[SentryUIViewControllerSwizzling alloc] initWithOptions:options
-                                                                dispatchQueue:dispatchQueue];
+
+    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
+        initWithDispatchQueue:dispatchQueue
+           objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+
+    self.swizzling = [[SentryUIViewControllerSwizzling alloc]
+           initWithOptions:options
+             dispatchQueue:dispatchQueue
+        objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
+            subClassFinder:subClassFinder];
 
     [self.swizzling start];
 #else

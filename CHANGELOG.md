@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+fix: Crash in UIViewControllerSwizzling (#1691)
+
 ## 7.10.1
 
 - fix: Swizzling UIViewControllers crash (#1670)
