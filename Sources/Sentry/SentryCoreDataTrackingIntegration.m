@@ -17,33 +17,50 @@ SentryCoreDataTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
-    }
-
-    if (!options.enableCoreDataTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable NetworkTracking because enableCoreDataTracking is disabled."
-                  andLevel:kSentryLevelDebug];
+    if ([self shouldBeDisabled:options]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
     self.tracker = [[SentryCoreDataTracker alloc] init];
     [SentryCoreDataSwizzling.sharedInstance startWithMiddleware:self.tracker];
+}
+
+- (BOOL)shouldBeDisabled:(SentryOptions *)options
+{
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:@"Not going to enable CoreData tracking because "
+                                  @"enableAutoPerformanceTracking is disabled."
+                         andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return YES;
+    }
+
+    if (!options.enableSwizzling) {
+        [SentryLog logWithMessage:
+                       @"Not going to enable CoreData tracking because enableSwizzling is disabled."
+                         andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return YES;
+    }
+
+    if (!options.isTracingEnabled) {
+        [SentryLog
+            logWithMessage:@"Not going to enable CoreData tracking because tracing is disabled."
+                  andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+    if (!options.enableCoreDataTracking) {
+        [SentryLog
+            logWithMessage:
+                @"Not going to enable CoreData tracking because enableCoreDataTracking is disabled."
+                  andLevel:kSentryLevelDebug];
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return YES;
+    }
+
+    return NO;
 }
 
 - (void)uninstall
