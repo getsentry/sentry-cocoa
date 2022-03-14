@@ -5,8 +5,13 @@ import XCTest
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private class Fixture {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
-        let subClassFinder = TestSubClassFinder()
+        let subClassFinder: TestSubClassFinder
+        
+        init() {
+            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)
+        }
         
         var options: Options {
             let options = Options()
@@ -18,11 +23,11 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
         }
         
         var testableSut: TestSentryUIViewControllerSwizzling {
-            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
         }
         
         var delegate: MockApplication.MockApplicationDelegate {
@@ -261,10 +266,6 @@ class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
 }
 
 class TestSubClassFinder: SentrySubClassFinder {
-    
-    init() {
-        super.init(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: SentryTestObjCRuntimeWrapper())
-    }
     
     var invocations = Invocations<(imageName: String, block: (AnyClass) -> Void)>()
     override func actOnSubclassesOfViewController(inImage imageName: String, block: @escaping (AnyClass) -> Void) {
