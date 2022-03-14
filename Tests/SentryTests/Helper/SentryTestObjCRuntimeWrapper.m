@@ -15,7 +15,7 @@ SentryTestObjCRuntimeWrapper ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.objcRuntimeWrapper = [[SentryDefaultObjCRuntimeWrapper alloc] init];
+        self.objcRuntimeWrapper = [SentryDefaultObjCRuntimeWrapper sharedInstance];
     }
 
     return self;
@@ -49,6 +49,11 @@ SentryTestObjCRuntimeWrapper ()
     }
 
     return result;
+}
+
+- (const char *)class_getImageName:(Class)cls
+{
+    return self.imageName;
 }
 
 @end

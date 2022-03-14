@@ -5,6 +5,14 @@ import XCTest
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private class Fixture {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
+        let subClassFinder: TestSubClassFinder
+        
+        init() {
+            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)
+        }
+        
         var options: Options {
             let options = Options()
             let imageName = String(
@@ -15,7 +23,17 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
+        }
+        
+        var testableSut: TestSentryUIViewControllerSwizzling {
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
+        }
+        
+        var delegate: MockApplication.MockApplicationDelegate {
+            let window = UIWindow()
+            window.rootViewController = UIViewController()
+            return MockApplication.MockApplicationDelegate(window)
         }
     }
     
@@ -76,8 +94,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 
     func testSwizzle_fromScene() {
-        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
-        
+        let swizzler = fixture.testableSut
         let window = UIWindow()
         window.rootViewController = TestViewController()
         let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: [window])
@@ -95,7 +112,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromScene_invalidNotification_NoObject() {
-        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = fixture.testableSut
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: nil)
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
@@ -104,7 +121,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromScene_invalidNotification_ObjectNotAnArray() {
-        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = fixture.testableSut
         
         let window = UIWindow()
         window.rootViewController = TestViewController()
@@ -117,7 +134,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromScene_invalidNotification_WrongObjectType() {
-        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = fixture.testableSut
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: "Other type of Object")
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
@@ -126,7 +143,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromScene_invalidNotification_ObjectWithWrongWindowProperty() {
-        let swizzler = TestSentryUIViewControllerSwizzling(options: fixture.options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let swizzler = fixture.testableSut
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: ObjectWithWindowsProperty(resultOfWindows: "Windows property of the wrong type"))
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
         
@@ -150,13 +167,50 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testSwizzle_fromApplication() {
-        let window = UIWindow()
-        window.rootViewController = UIViewController()
-        let delegate = MockApplication.MockApplicationDelegate(window)
-        let app = MockApplication(delegate)
-        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: app))
+        // We must keep one strong reference to the delegate. The mock has only a weak.
+        let delegate = fixture.delegate
+        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: MockApplication(delegate)))
     }
     
+    func testSwizzleSubViewControllers_ImageNameIsNULL_NotCalled() {
+        let imageName = UnsafeMutablePointer<CChar>(nil)
+        fixture.objcRuntimeWrapper.imageName = UnsafePointer(imageName)
+        
+        // We must keep one strong reference to the delegate. The mock has only a weak.
+        let delegate = fixture.delegate
+        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
+        
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+    }
+    
+    func testSwizzleSubViewControllers_ImageName_Called() {
+        let imageName = "imageName"
+        let bytes: [CChar] = imageName.cString(using: .ascii)!
+        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: bytes.count)
+        pointer.initialize(from: bytes, count: bytes.count)
+        fixture.objcRuntimeWrapper.imageName = UnsafePointer(pointer)
+        
+        // We must keep one strong reference to the delegate. The mock has only a weak.
+        let delegate = fixture.delegate
+        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
+        
+        XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
+        
+        XCTAssertEqual(imageName, fixture.subClassFinder.invocations.first?.imageName)
+    }
+    
+    func testSwizzleSubViewControllers_ImageNameIsGarbage_NotCalled() {
+        let bytes: [CChar] = [0, 2, 3, 4]
+        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: bytes.count)
+        pointer.initialize(from: bytes, count: bytes.count)
+        fixture.objcRuntimeWrapper.imageName = UnsafePointer(pointer)
+        
+        // We must keep one strong reference to the delegate. The mock has only a weak.
+        let delegate = fixture.delegate
+        fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
+        
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+    }
 }
 
 class MockApplication: NSObject, SentryUIApplication {
@@ -208,6 +262,14 @@ class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
     
     override func swizzleRootViewControllerAndDescendant(_ rootViewController: UIViewController) {
         viewControllers.append(rootViewController)
+    }
+}
+
+class TestSubClassFinder: SentrySubClassFinder {
+    
+    var invocations = Invocations<(imageName: String, block: (AnyClass) -> Void)>()
+    override func actOnSubclassesOfViewController(inImage imageName: String, block: @escaping (AnyClass) -> Void) {
+        invocations.record((imageName, block))
     }
 }
 
