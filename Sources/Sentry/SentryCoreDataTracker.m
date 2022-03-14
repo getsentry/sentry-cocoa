@@ -37,7 +37,7 @@
     if (context.hasChanges) {
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
-                                          description:@"Saving Database"];
+                                          description:@"Saving database"];
         }];
     }
 
