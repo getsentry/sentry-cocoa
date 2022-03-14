@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-fix: Crash in UIViewControllerSwizzling (#1691)
+fix: Crash in UIViewControllerSwizzling (#1692)
 
 ## 7.10.1
 
