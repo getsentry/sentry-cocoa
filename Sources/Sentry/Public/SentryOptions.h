@@ -272,7 +272,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
- * This feature is EXPERIMENTAL.
+ * This feature is experimental.
  *
  * When enabled, the SDK tracks performance for CoreData operations if auto
  * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.

@@ -20,7 +20,7 @@
     }];
     NSArray *result = original(request, error);
 
-    [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"result_amount"];
+    [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
 
     [fetchSpan
         finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
@@ -52,7 +52,7 @@
 - (NSString *)descriptionFromRequest:(NSFetchRequest *)request
 {
     NSMutableString *result =
-        [[NSMutableString alloc] initWithFormat:@"FETCH '%@'", request.entityName];
+        [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@", [self predicateDescription:request.predicate]];
