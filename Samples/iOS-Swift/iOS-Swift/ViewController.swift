@@ -4,6 +4,8 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var dsnTextField: UITextField!
+    @IBOutlet weak var anrFullyBlockingButton: UIButton!
+    @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController")
 
@@ -149,18 +151,36 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func causeANR(_ sender: Any) {
+    @IBAction func anrFullyBlocking(_ sender: Any) {
+        let buttonTitle = self.anrFullyBlockingButton.currentTitle
+        var i = 0
+        
+        for _ in 0...5_000_000 {
+            i += Int.random(in: 0...10)
+            i -= 1
+            
+            self.anrFullyBlockingButton.setTitle("\(i)", for: .normal)
+        }
+        
+        self.anrFullyBlockingButton.setTitle(buttonTitle, for: .normal)
+    }
+    
+    @IBAction func anrFillingRunLoop(_ sender: Any) {
+        let buttonTitle = self.anrFillingRunLoopButton.currentTitle
         var i = 0
 
         dispatchQueue.async {
-            for _ in 0...1_000_000 {
+            for _ in 0...100_000 {
                 i += Int.random(in: 0...10)
                 i -= 1
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                    self.dsnTextField.text = "Count to \(i)"
+                DispatchQueue.main.async {
+                    self.anrFillingRunLoopButton.setTitle("Work in Progress \(i)", for: .normal)
                 }
-                
+            }
+            
+            DispatchQueue.main.async {
+                self.anrFillingRunLoopButton.setTitle(buttonTitle, for: .normal)
             }
         }
     }

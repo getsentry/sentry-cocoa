@@ -85,6 +85,8 @@ SentryANRTracker ()
             [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
+            [SentryLog logWithMessage:@"Ignoring ANR because the delta is too big."
+                             andLevel:kSentryLevelDebug];
             continue;
         }
 
