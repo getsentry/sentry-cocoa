@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Detecting ANRs as false OOMs (#1695)
+
 ## 7.10.2
 
 fix: Crash in UIViewControllerSwizzling (#1692)
