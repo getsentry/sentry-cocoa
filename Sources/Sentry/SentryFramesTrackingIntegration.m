@@ -1,4 +1,5 @@
 #import "SentryFramesTrackingIntegration.h"
+#import "PrivateSentrySDKOnly.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
@@ -38,6 +39,12 @@ SentryFramesTrackingIntegration ()
 #if SENTRY_HAS_UIKIT
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
+    // If the cocoa SDK is being used by a hybrid SDK,
+    // we let the hybrid SDK decide whether to track frames or not.
+    if (PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode) {
+        return NO;
+    }
+
     if (!options.enableAutoPerformanceTracking) {
         [SentryLog logWithMessage:
                        @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
