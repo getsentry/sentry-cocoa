@@ -5,7 +5,7 @@
 #    import "SentryBacktrace.hpp"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
-#import "SentryDefines.h"
+#    import "SentryDefines.h"
 #    import "SentryEnvelope.h"
 #    import "SentryHexAddressFormatter.h"
 #    import "SentryId.h"
