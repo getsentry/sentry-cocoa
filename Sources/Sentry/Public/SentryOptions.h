@@ -279,7 +279,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableANRTracking;
 
 /**
- * Enable or disable ANR in Debug mode. Default is NO.
+ * Enable or disable ANR in Debug. Default is NO.
  */
 @property (nonatomic, assign) BOOL enableANRTrackingInDebug;
 
