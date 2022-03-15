@@ -754,10 +754,12 @@ class SentryHubTests: XCTestCase {
     private func assertValidProfileData(data: Data) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
-        XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
+#if os(iOS)
+        XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
+        #endif
         XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
         XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
         XCTAssertFalse((profile["device_model"] as! String).isEmpty)

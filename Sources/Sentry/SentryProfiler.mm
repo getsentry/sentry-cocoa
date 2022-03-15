@@ -26,7 +26,7 @@
 #    import <sys/sysctl.h>
 #    import <sys/utsname.h>
 
-#    if SENTRY_HAS_UIKIT
+#    if TARGET_OS_IOS
 #        import <UIKit/UIKit.h>
 #    endif
 
@@ -184,7 +184,7 @@ isSimulatorBuild()
     const auto model = getDeviceModel();
     profile[@"device_model"] = model;
     profile[@"device_os_build_number"] = getOSBuildNumber();
-#    if SENTRY_HAS_UIKIT
+#    if TARGET_OS_IOS
     profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #    endif
