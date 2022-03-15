@@ -35,9 +35,18 @@
 
     __block id<SentrySpan> fetchSpan = nil;
     if (context.hasChanges) {
+        __block NSDictionary<NSString *, NSDictionary *> *operations = @{
+            @"INSERTED" : [self countEntities:context.insertedObjects],
+            @"UPDATED" : [self countEntities:context.updatedObjects],
+            @"DELETED" : [self countEntities:context.deletedObjects]
+        };
+
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
-                                          description:@"Saving database"];
+                                          description:[self descriptionForOperations:operations
+                                                                           inContext:context]];
+
+            [fetchSpan setDataValue:operations forKey:@"operations"];
         }];
     }
 
@@ -45,6 +54,61 @@
 
     [fetchSpan
         finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+
+    return result;
+}
+
+- (NSString *)descriptionForOperations:
+                  (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)operations
+                             inContext:(NSManagedObjectContext *)context
+{
+    NSMutableArray *resultParts = [NSMutableArray new];
+
+    NSDictionary<NSString *, NSNumber *> *inserts = operations[@"INSERTED"];
+    if (inserts.count > 0) {
+        if (inserts.count == 1) {
+            [resultParts addObject:[NSString stringWithFormat:@"INSERTED %@ '%@'",
+                                             inserts.allValues[0], inserts.allKeys[0]]];
+        } else {
+            [resultParts addObject:[NSString stringWithFormat:@"INSERTED %lu itens",
+                                             context.insertedObjects.count]];
+        }
+    }
+
+    NSDictionary<NSString *, NSNumber *> *updates = operations[@"UPDATED"];
+    if (updates.count > 0) {
+        if (updates.count == 1) {
+            [resultParts addObject:[NSString stringWithFormat:@"UPDATED %@ '%@'",
+                                             updates.allValues[0], updates.allKeys[0]]];
+        } else {
+            [resultParts addObject:[NSString stringWithFormat:@"UPDATED %lu itens",
+                                             context.updatedObjects.count]];
+        }
+    }
+
+    NSDictionary<NSString *, NSNumber *> *deletes = operations[@"DELETED"];
+    if (deletes.count > 0) {
+        if (deletes.count == 1) {
+            [resultParts addObject:[NSString stringWithFormat:@"DELETED %@ '%@'",
+                                             deletes.allValues[0], deletes.allKeys[0]]];
+        } else {
+            [resultParts addObject:[NSString stringWithFormat:@"DELETED %lu itens",
+                                             context.deletedObjects.count]];
+        }
+    }
+
+    return [resultParts componentsJoinedByString:@", "];
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)countEntities:(NSSet *)entities
+{
+    NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
+
+    for (id item in entities) {
+        NSString *cl = NSStringFromClass([item class]);
+        NSNumber *count = result[cl];
+        result[cl] = [NSNumber numberWithInt:count.intValue + 1];
+    }
 
     return result;
 }

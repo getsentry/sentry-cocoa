@@ -11,8 +11,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         init() {
             options = Options()
             options.enableCoreDataTracking = true
-            options.enableSwizzling = true
-            options.enableAutoPerformanceTracking = true
+            options.tracesSampleRate = 1
         }
         
         func getSut() -> SentryCoreDataTrackingIntegration {

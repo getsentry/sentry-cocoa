@@ -7,38 +7,45 @@ public class TestEntity: NSManagedObject {
     var field2: Int?
 }
 
+@objc(SecondTestEntity)
+public class SecondTestEntity: NSManagedObject {
+    var field1: String?
+    var field2: Int?
+}
+
 class TestCoreDataStack {
     
     lazy var managedObjectModel: NSManagedObjectModel = {
         let model = NSManagedObjectModel()
         
-        // Create the entity
-        let entity = NSEntityDescription()
-        entity.name = "TestEntity"
-        entity.managedObjectClassName = NSStringFromClass(TestEntity.self) as String
+        let buildEntityDescription: ((AnyClass) -> NSEntityDescription) = { (entityClass: AnyClass) in
+            let entity = NSEntityDescription()
+            entity.name = NSStringFromClass(entityClass)
+            entity.managedObjectClassName = entity.name
+            
+            var properties = [NSAttributeDescription]()
+            
+            let field1Attribute = NSAttributeDescription()
+            field1Attribute.name = "field1"
+            field1Attribute.attributeType = .stringAttributeType
+            field1Attribute.isOptional = true
+            properties.append(field1Attribute)
+            
+            let field2Attribute = NSAttributeDescription()
+            field2Attribute.name = "field2"
+            field2Attribute.attributeType = .integer64AttributeType
+            field2Attribute.isOptional = true
+            properties.append(field2Attribute)
+            
+            entity.properties = properties
+            return entity
+        }
         
-        // Create the attributes
-        var properties = [NSAttributeDescription]()
+        let entity1 = buildEntityDescription(TestEntity.self)
+        let entity2 = buildEntityDescription(SecondTestEntity.self)
         
-        let remoteURLAttribute = NSAttributeDescription()
-        remoteURLAttribute.name = "field1"
-        remoteURLAttribute.attributeType = .stringAttributeType
-        remoteURLAttribute.isOptional = true
-        properties.append(remoteURLAttribute)
+        model.entities = [entity1, entity2]
         
-        let fileDataAttribute = NSAttributeDescription()
-        fileDataAttribute.name = "field2"
-        fileDataAttribute.attributeType = .integer64AttributeType
-        fileDataAttribute.isOptional = true
-        properties.append(fileDataAttribute)
-        
-        // Add attributes to entity
-        entity.properties = properties
-        
-        // Add entity to model
-        model.entities = [entity]
-        
-        // Done :]
         return model
     }()
     

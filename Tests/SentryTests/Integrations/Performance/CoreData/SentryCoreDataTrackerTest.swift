@@ -38,53 +38,97 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func testFetchRequest() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity'")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'")
     }
     
     func test_FetchRequest_WithPredicate() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@ and field2 = %@", argumentArray: ["First Argument", 2])
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' WHERE field1 == \"First Argument\" AND field2 == 2")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == \"First Argument\" AND field2 == 2")
     }
     
     func test_FetchRequest_WithSortAscending() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: true)]
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' SORT BY field1")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1")
     }
     
     func test_FetchRequest_WithSortDescending() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' SORT BY field1 DESCENDING")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING")
     }
     
     func test_FetchRequest_WithSortTwoFields() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false), NSSortDescriptor(key: "field2", ascending: true)]
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' SORT BY field1 DESCENDING, field2")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' SORT BY field1 DESCENDING, field2")
     }
     
     func test_FetchRequest_WithPredicateAndSort() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@", argumentArray: ["First Argument"])
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        assertRequest(fetch, expectedDescription: "FETCH 'TestEntity' WHERE field1 == \"First Argument\" SORT BY field1 DESCENDING")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == \"First Argument\" SORT BY field1 DESCENDING")
     }
     
-    func test_Save() {
-        let sut = fixture.getSut()
-        
-        let transaction = startTransaction()
-        fixture.context.withChanges = true
-        
-        try? sut.saveManagedObjectContext(fixture.context) { _ in
-            return true
-        }
-        
-        XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_SAVE_OPERATION)
-        XCTAssertEqual(transaction.children[0].context.spanDescription, "Saving Database")
+    func test_Save_1Insert_1Entity() {
+        fixture.context.inserted = [TestEntity()]
+        assertSave("INSERTED 1 'TestEntity'")
+    }
+    
+    func test_Save_2Insert_1Entity() {
+        fixture.context.inserted = [TestEntity(), TestEntity()]
+        assertSave("INSERTED 2 'TestEntity'")
+    }
+    
+    func test_Save_2Insert_2Entity() {
+        fixture.context.inserted = [TestEntity(), SecondTestEntity()]
+        assertSave("INSERTED 2 itens")
+    }
+    
+    func test_Save_1Update_1Entity() {
+        fixture.context.updated = [TestEntity()]
+        assertSave("UPDATED 1 'TestEntity'")
+    }
+    
+    func test_Save_2Update_1Entity() {
+        fixture.context.updated = [TestEntity(), TestEntity()]
+        assertSave("UPDATED 2 'TestEntity'")
+    }
+    
+    func test_Save_2Update_2Entity() {
+        fixture.context.updated = [TestEntity(), SecondTestEntity()]
+        assertSave("UPDATED 2 itens")
+    }
+    
+    func test_Save_1Delete_1Entity() {
+        fixture.context.deleted = [TestEntity()]
+        assertSave("DELETED 1 'TestEntity'")
+    }
+    
+    func test_Save_2Delete_1Entity() {
+        fixture.context.deleted = [TestEntity(), TestEntity()]
+        assertSave("DELETED 2 'TestEntity'")
+    }
+    
+    func test_Save_2Delete_2Entity() {
+        fixture.context.deleted = [TestEntity(), SecondTestEntity()]
+        assertSave("DELETED 2 itens")
+    }
+    
+    func test_Save_Insert_Update_Delete_1Entity() {
+        fixture.context.inserted = [TestEntity()]
+        fixture.context.updated = [TestEntity()]
+        fixture.context.deleted = [TestEntity()]
+        assertSave("INSERTED 1 'TestEntity', UPDATED 1 'TestEntity', DELETED 1 'TestEntity'")
+    }
+    
+    func test_Save_Insert_Update_Delete_2Entity() {
+        fixture.context.inserted = [TestEntity(), SecondTestEntity()]
+        fixture.context.updated = [TestEntity(), SecondTestEntity()]
+        fixture.context.deleted = [TestEntity(), SecondTestEntity()]
+        assertSave("INSERTED 2 itens, UPDATED 2 itens, DELETED 2 itens")
     }
     
     func test_Save_NoChanges() {
@@ -97,6 +141,21 @@ class SentryCoreDataTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(transaction.children.count, 0)
+    }
+    
+    func assertSave(_ expectedDescription: String) {
+        let sut = fixture.getSut()
+        
+        let transaction = startTransaction()
+        fixture.context.withChanges = true
+        
+        try? sut.saveManagedObjectContext(fixture.context) { _ in
+            return true
+        }
+        
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_SAVE_OPERATION)
+        XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
     }
     
     func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String) {
@@ -115,7 +174,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
         XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
-        XCTAssertEqual(transaction.children[0].data!["result_amount"] as? Int, 1)
+        XCTAssertEqual(transaction.children[0].data!["read_count"] as? Int, 1)
     }
     
     private func startTransaction() -> SentryTracer {
@@ -127,6 +186,21 @@ class SentryCoreDataTrackerTests: XCTestCase {
 class TestNSManagedObjectContext: NSManagedObjectContext {
     
     var withChanges = false
+    var inserted: Set<NSManagedObject>?
+    var updated: Set<NSManagedObject>?
+    var deleted: Set<NSManagedObject>?
+    
+    override var insertedObjects: Set<NSManagedObject> {
+        inserted ?? []
+    }
+    
+    override var updatedObjects: Set<NSManagedObject> {
+        updated ?? []
+    }
+    
+    override var deletedObjects: Set<NSManagedObject> {
+        deleted ?? []
+    }
     
     init() {
         super.init(concurrencyType: .mainQueueConcurrencyType)
