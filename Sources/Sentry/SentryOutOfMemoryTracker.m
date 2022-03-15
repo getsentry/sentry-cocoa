@@ -110,6 +110,8 @@ SentryOutOfMemoryTracker ()
 #endif
 }
 
+#if SENTRY_HAS_UIKIT
+
 /**
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
  * SentryHybridSdkDidBecomeActiveNotification.
@@ -143,5 +145,7 @@ SentryOutOfMemoryTracker ()
     // thread.
     [self.dispatchQueue dispatchAsyncWithBlock:^{ [self.appStateManager updateAppState:block]; }];
 }
+
+#endif
 
 @end

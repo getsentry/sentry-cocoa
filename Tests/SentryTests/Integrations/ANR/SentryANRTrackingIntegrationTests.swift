@@ -53,7 +53,11 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     func testWhenNoUnitTests_TrackerInitialized() {
         givenInitializedTracker()
         
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
+        #else
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
+        #endif
     }
     
     func testTestConfigurationFilePath() {
@@ -82,7 +86,12 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             XCTFail("appState must not be nil")
             return
         }
+        
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertTrue(appState.isANROngoing)
+        #else
+        XCTAssertFalse(appState.isANROngoing)
+        #endif
     }
     
     func testANRStopped_UpdatesAppStateToFalse() {

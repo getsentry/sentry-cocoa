@@ -73,7 +73,14 @@ SentryANRTrackingIntegration ()
         return YES;
     }
 
+#if SENTRY_HAS_UIKIT
     return NO;
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> SentryANRTrackingIntegration will not track ANRs, "
+                              @"because we only track them to avoid false positives OOMs."
+                     andLevel:kSentryLevelInfo];
+    return YES;
+#endif
 }
 
 - (void)uninstall
@@ -85,14 +92,18 @@ SentryANRTrackingIntegration ()
 
 - (void)anrDetected
 {
+#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
+#endif
 }
 
 - (void)anrStopped
 {
+#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
+#endif
 }
 
 @end
