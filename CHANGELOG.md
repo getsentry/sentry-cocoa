@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 7.10.2
+
+fix: Crash in UIViewControllerSwizzling (#1692)
+
+## 7.10.1
 
 - feat: Add CoreData performance tracking (#1682)
 - fix: Swizzling UIViewControllers crash (#1670)

@@ -30,6 +30,8 @@ SentryUIViewControllerSwizzling ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
+@property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 
 @end
 
@@ -37,11 +39,15 @@ SentryUIViewControllerSwizzling ()
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+             objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
+                 subClassFinder:(SentrySubClassFinder *)subClassFinder
 {
     if (self = [super init]) {
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
         self.dispatchQueue = dispatchQueue;
+        self.objcRuntimeWrapper = objcRuntimeWrapper;
+        self.subClassFinder = subClassFinder;
     }
 
     return self;
@@ -121,12 +127,24 @@ SentryUIViewControllerSwizzling ()
         return;
     }
 
-    NSString *appImage = [NSString stringWithCString:class_getImageName([app.delegate class])
-                                            encoding:NSUTF8StringEncoding];
+    const char *imageName = [self.objcRuntimeWrapper class_getImageName:[app.delegate class]];
 
-    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-        initWithDispatchQueue:self.dispatchQueue
-           objcRuntimeWrapper:[[SentryDefaultObjCRuntimeWrapper alloc] init]];
+    if (imageName == NULL) {
+        NSString *message = @"UIViewControllerSwizziling: Wasn't able to get image name of the app "
+                            @"delegate class. Skipping swizzleAllSubViewControllersInApp.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    NSString *appImage = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
+
+    if (appImage == nil || appImage.length == 0) {
+        NSString *message
+            = @"UIViewControllerSwizziling: Wasn't able to get the app image name of the app "
+              @"delegate class. Skipping swizzleAllSubViewControllersInApp.";
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
 
     // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
     // the SubClassFinder does this on a background thread, which should be fine because the SDK
@@ -140,10 +158,11 @@ SentryUIViewControllerSwizzling ()
     // method to swizzle if the class doesn't implement it. It seems like adding an extra
     // initializer causes problems with the rules for initialization in Swift, see
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
-    [subClassFinder actOnSubclassesOfViewControllerInImage:appImage
-                                                     block:^(Class class) {
-                                                         [self swizzleViewControllerSubClass:class];
-                                                     }];
+    [self.subClassFinder
+        actOnSubclassesOfViewControllerInImage:appImage
+                                         block:^(Class class) {
+                                             [self swizzleViewControllerSubClass:class];
+                                         }];
 }
 
 /**
