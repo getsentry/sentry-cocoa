@@ -52,6 +52,7 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryDsn.h"

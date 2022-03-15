@@ -11,12 +11,19 @@
 
 @implementation SentryDependencyContainer
 
+static SentryDependencyContainer *instance;
+
 + (instancetype)sharedInstance
 {
-    static SentryDependencyContainer *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    if (instance == nil) {
+        instance = [[self alloc] init];
+    }
     return instance;
+}
+
++ (void)reset
+{
+    instance = nil;
 }
 
 - (SentryAppStateManager *)appStateManager
