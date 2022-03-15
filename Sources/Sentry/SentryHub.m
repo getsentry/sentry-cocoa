@@ -254,11 +254,7 @@ SentryHub ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    SentryClient *client = _client;
-    if (nil != client) {
-        return [client captureEvent:event withScope:scope];
-    }
-    return SentryId.empty;
+    return [self captureEvent:event withScope:scope additionalEnvelopeItems:@[]];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
