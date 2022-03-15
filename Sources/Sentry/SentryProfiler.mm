@@ -11,6 +11,7 @@
 #    import "SentryLog.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
+#import "SentrySerialization.h"
 #    import "SentryTransaction.h"
 
 #    if defined(DEBUG)
@@ -202,7 +203,7 @@ isSimulatorBuild()
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 
     NSError *error = nil;
-    const auto JSONData = [NSJSONSerialization dataWithJSONObject:profile options:0 error:&error];
+    const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
         [SentryLog
             logWithMessage:[NSString
