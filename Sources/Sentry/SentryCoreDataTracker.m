@@ -71,7 +71,7 @@
                                              inserts.allValues[0], inserts.allKeys[0]]];
         } else {
             [resultParts addObject:[NSString stringWithFormat:@"INSERTED %lu itens",
-                                             context.insertedObjects.count]];
+                                             (unsigned long)context.insertedObjects.count]];
         }
     }
 
@@ -82,7 +82,7 @@
                                              updates.allValues[0], updates.allKeys[0]]];
         } else {
             [resultParts addObject:[NSString stringWithFormat:@"UPDATED %lu itens",
-                                             context.updatedObjects.count]];
+                                             (unsigned long)context.updatedObjects.count]];
         }
     }
 
@@ -93,7 +93,7 @@
                                              deletes.allValues[0], deletes.allKeys[0]]];
         } else {
             [resultParts addObject:[NSString stringWithFormat:@"DELETED %lu itens",
-                                             context.deletedObjects.count]];
+                                             (unsigned long)context.deletedObjects.count]];
         }
     }
 
