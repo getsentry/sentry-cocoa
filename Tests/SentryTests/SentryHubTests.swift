@@ -763,7 +763,11 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
         XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
         XCTAssertFalse((profile["device_model"] as! String).isEmpty)
+#if os(iOS)
         XCTAssertTrue(profile["device_is_emulator"] as! Bool)
+        #else
+        XCTAssertFalse(profile["device_is_emulator"] as! Bool)
+        #endif
         XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["version_code"] as! String).isEmpty)
         XCTAssertFalse((profile["version_name"] as! String).isEmpty)
