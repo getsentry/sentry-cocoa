@@ -530,6 +530,7 @@
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+    XCTAssertEqual(NO, options.enableProfiling);
 }
 
 - (void)testSetValidDsn
