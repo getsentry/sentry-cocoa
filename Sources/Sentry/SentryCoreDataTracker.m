@@ -136,7 +136,7 @@
 
 - (NSString *)sortDescription:(NSArray<NSSortDescriptor *> *)sortList
 {
-    NSMutableArray<NSString *> *fields = [NSMutableArray new];
+    NSMutableArray<NSString *> *fields = [[NSMutableArray alloc] initWithCapacity:sortList.count];
     for (NSSortDescriptor *descriptor in sortList) {
         NSString *direction = descriptor.ascending ? @"" : @" DESCENDING";
         [fields addObject:[NSString stringWithFormat:@"%@%@", descriptor.key, direction]];
