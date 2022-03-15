@@ -299,10 +299,10 @@ class SentryHubTests: XCTestCase {
             return 1
         }
         let hub = fixture.getSut(options)
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             span.finish()
 
             guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
@@ -318,6 +318,14 @@ class SentryHubTests: XCTestCase {
             self.assertValidProfileData(data: profileItem.data)
             profileExpectation.fulfill()
         }
+        
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100000 {
+            concatStr = concatStr.appending(str)
+        }
+        
         waitForExpectations(timeout: 5.0) {
             if let error = $0 {
                 print(error)
