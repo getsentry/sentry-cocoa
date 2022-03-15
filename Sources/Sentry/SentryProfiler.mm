@@ -11,7 +11,7 @@
 #    import "SentryLog.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
-#import "SentrySerialization.h"
+#    import "SentrySerialization.h"
 #    import "SentryTransaction.h"
 
 #    if defined(DEBUG)
