@@ -9,7 +9,7 @@ class SentryOutOfMemoryLogicTests: XCTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashAdapter
+        let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
@@ -22,13 +22,13 @@ class SentryOutOfMemoryLogicTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashAdapter.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
         }
         
         func getSut() -> SentryOutOfMemoryLogic {
-            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             return SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
         }
     }

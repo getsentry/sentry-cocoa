@@ -1,5 +1,5 @@
 #import "SentryANRTracker.h"
-#import "SentryCrashAdapter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryThreadWrapper.h"
@@ -11,7 +11,7 @@ SentryANRTracker ()
 @property (weak, nonatomic) id<SentryANRTrackerDelegate> delegate;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 
@@ -24,7 +24,7 @@ SentryANRTracker ()
 - (instancetype)initWithDelegate:(id<SentryANRTrackerDelegate>)delegate
            timeoutIntervalMillis:(NSUInteger)timeoutIntervalMillis
              currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    crashAdapter:(SentryCrashAdapter *)crashAdapter
+                    crashAdapter:(SentryCrashWrapper *)crashAdapter
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper
 {

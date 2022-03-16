@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
-#import <SentryCrashAdapter.h>
+#import <SentryCrashWrapper.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
@@ -33,7 +33,7 @@ static SentryDependencyContainer *instance;
         SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
         _appStateManager = [[SentryAppStateManager alloc]
                 initWithOptions:options
-                   crashAdapter:self.crashAdapter
+                   crashWrapper:self.crashWrapper
                     fileManager:fileManager
             currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                          sysctl:[[SentrySysctl alloc] init]];
@@ -41,12 +41,12 @@ static SentryDependencyContainer *instance;
     return _appStateManager;
 }
 
-- (SentryCrashAdapter *)crashAdapter
+- (SentryCrashWrapper *)crashWrapper
 {
-    if (_crashAdapter == nil) {
-        _crashAdapter = [SentryCrashAdapter sharedInstance];
+    if (_crashWrapper == nil) {
+        _crashWrapper = [SentryCrashWrapper sharedInstance];
     }
-    return _crashAdapter;
+    return _crashWrapper;
 }
 
 - (SentryThreadWrapper *)threadWrapper

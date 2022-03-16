@@ -1,6 +1,6 @@
 #import "SentryCrashIntegration.h"
-#import "SentryCrashAdapter.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
@@ -32,7 +32,7 @@ SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
@@ -42,14 +42,14 @@ SentryCrashIntegration ()
 
 - (instancetype)init
 {
-    self = [self initWithCrashAdapter:[SentryCrashAdapter sharedInstance]
+    self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
               andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 
     return self;
 }
 
 /** Internal constructor for testing */
-- (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashAdapter
+- (instancetype)initWithCrashAdapter:(SentryCrashWrapper *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {

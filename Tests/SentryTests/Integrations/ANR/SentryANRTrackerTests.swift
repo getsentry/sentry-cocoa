@@ -11,12 +11,12 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     private class Fixture {
         let timeoutInterval: TimeInterval = 5
         let currentDate = TestCurrentDateProvider()
-        let crashWrapper: TestSentryCrashAdapter
+        let crashWrapper: TestSentryCrashWrapper
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
         
         init() {
-            crashWrapper = TestSentryCrashAdapter.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper.sharedInstance()
         }
     }
     

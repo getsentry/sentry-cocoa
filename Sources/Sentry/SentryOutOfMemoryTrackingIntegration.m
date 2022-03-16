@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
-#import <SentryCrashAdapter.h>
+#import <SentryCrashWrapper.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
@@ -50,10 +50,10 @@ SentryOutOfMemoryTrackingIntegration ()
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
-    SentryCrashAdapter *crashAdapter = [SentryDependencyContainer sharedInstance].crashAdapter;
+    SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
     SentryOutOfMemoryLogic *logic =
         [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:crashAdapter
+                                           crashAdapter:crashWrapper
                                         appStateManager:appStateManager];
 
     self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options

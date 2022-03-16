@@ -1,11 +1,11 @@
-#import "TestSentryCrashAdapter.h"
+#import "TestSentryCrashWrapper.h"
 #import <Foundation/Foundation.h>
 
-@implementation TestSentryCrashAdapter
+@implementation TestSentryCrashWrapper
 
 + (instancetype)sharedInstance
 {
-    TestSentryCrashAdapter *instance = [[self alloc] init];
+    TestSentryCrashWrapper *instance = [[self alloc] init];
     instance.internalActiveDurationSinceLastCrash = NO;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;

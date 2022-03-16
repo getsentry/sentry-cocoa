@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryAppStateManager, SentryCrashAdapter, SentryThreadWrapper;
+@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,7 +16,7 @@ SENTRY_NO_INIT
 + (void)reset;
 
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 
 @end
