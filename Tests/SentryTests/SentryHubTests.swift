@@ -291,7 +291,8 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.context.sampled, .no)
     }
-    
+
+#if os(iOS)
     func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
         let options = fixture.options
         options.enableProfiling = true
@@ -349,6 +350,7 @@ class SentryHubTests: XCTestCase {
         }
         XCTAssertEqual(0, additionalEnvelopeItems.count)
     }
+#endif
         
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
@@ -767,15 +769,15 @@ class SentryHubTests: XCTestCase {
 #if os(iOS)
         XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
-        #endif
+#endif
         XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
         XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
         XCTAssertFalse((profile["device_model"] as! String).isEmpty)
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
         XCTAssertTrue(profile["device_is_emulator"] as! Bool)
-        #else
+#else
         XCTAssertFalse(profile["device_is_emulator"] as! Bool)
-        #endif
+#endif
         XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["version_code"] as! String).isEmpty)
         XCTAssertFalse((profile["version_name"] as! String).isEmpty)
