@@ -4,6 +4,8 @@
 #import <mach/mach_time.h>
 #import <ctime>
 
+#import "SentryMachLogging.hpp"
+
 uint64_t getAbsoluteTime() {
     if (@available(macOS 10.12, iOS 10.0, *)) {
         return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
@@ -21,7 +23,7 @@ uint64_t getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp) {
     static struct mach_timebase_info info;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        mach_timebase_info(&info);
+        SENTRY_PROF_LOG_KERN_RETURN(mach_timebase_info(&info));
     });
     duration *= info.numer;
     duration /= info.denom;
