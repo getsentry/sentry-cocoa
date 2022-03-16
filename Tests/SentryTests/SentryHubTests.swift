@@ -322,7 +322,7 @@ class SentryHubTests: XCTestCase {
         // Some busy work to try and get it to show up in the profile.
         let str = "a"
         var concatStr = ""
-        for _ in 0..<100000 {
+        for _ in 0..<100_000 {
             concatStr = concatStr.appending(str)
         }
         
