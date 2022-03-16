@@ -1,16 +1,18 @@
-#import "SentryANRTrackingIntegration.h"
-#import "SentryANRTracker.h"
-#import "SentryCrashAdapter.h"
-#import "SentryDefaultCurrentDateProvider.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
-#import "SentryThreadWrapper.h"
-#import <Foundation/Foundation.h>
-#import <SentryAppState.h>
-#import <SentryAppStateManager.h>
-#import <SentryCrashAdapter.h>
-#import <SentryDependencyContainer.h>
-#import <SentryOptions+Private.h>
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryANRTrackingIntegration.h"
+#    import "SentryANRTracker.h"
+#    import "SentryCrashAdapter.h"
+#    import "SentryDefaultCurrentDateProvider.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryLog.h"
+#    import "SentryThreadWrapper.h"
+#    import <Foundation/Foundation.h>
+#    import <SentryAppState.h>
+#    import <SentryAppStateManager.h>
+#    import <SentryCrashAdapter.h>
+#    import <SentryDependencyContainer.h>
+#    import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,7 +57,7 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-#if SENTRY_HAS_UIKIT
+
     if (!options.enableOutOfMemoryTracking) {
         return YES;
     }
@@ -65,12 +67,6 @@ SentryANRTrackingIntegration ()
     }
 
     return NO;
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryANRTrackingIntegration will not track ANRs, "
-                              @"because we only track them to avoid false positives OOMs."
-                     andLevel:kSentryLevelInfo];
-    return YES;
-#endif
 }
 
 - (void)uninstall
@@ -82,20 +78,22 @@ SentryANRTrackingIntegration ()
 
 - (void)anrDetected
 {
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
-#endif
+#    endif
 }
 
 - (void)anrStopped
 {
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
-#endif
+#    endif
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

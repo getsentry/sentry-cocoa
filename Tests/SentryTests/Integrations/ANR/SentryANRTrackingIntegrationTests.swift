@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackingIntegrationTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
@@ -54,11 +55,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     func testWhenNoUnitTests_TrackerInitialized() {
         givenInitializedTracker()
         
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
-        #else
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
-        #endif
     }
     
     func test_OOMDisabled_RemovesEnabledIntegration() {
@@ -108,3 +105,5 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         sut.install(with: options)
     }
 }
+
+#endif
