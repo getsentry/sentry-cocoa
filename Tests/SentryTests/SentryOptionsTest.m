@@ -530,7 +530,9 @@
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     XCTAssertEqual(NO, options.enableProfiling);
+#endif
 }
 
 - (void)testSetValidDsn

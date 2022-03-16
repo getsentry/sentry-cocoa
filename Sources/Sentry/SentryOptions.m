@@ -55,7 +55,9 @@ SentryOptions ()
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableProfiling = NO;
+#endif
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
