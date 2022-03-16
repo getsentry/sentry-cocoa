@@ -71,25 +71,19 @@ SentryANRTrackingIntegration ()
 
 - (void)uninstall
 {
-    if (nil != self.tracker) {
-        [self.tracker stop];
-    }
+    [self.tracker stop];
 }
 
 - (void)anrDetected
 {
-#    if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
-#    endif
 }
 
 - (void)anrStopped
 {
-#    if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
-#    endif
 }
 
 @end
