@@ -66,7 +66,7 @@ NSLock *profilerLock = nil;
     if (self == [SentryTracer class]) {
         appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
-        
+
         profilerLock = [[NSLock alloc] init];
     }
 }
