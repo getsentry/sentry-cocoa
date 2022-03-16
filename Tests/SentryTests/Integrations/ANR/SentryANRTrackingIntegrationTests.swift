@@ -18,6 +18,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             client = TestClient(options: options)
             
             crashWrapper = TestSentryCrashAdapter.sharedInstance()
+            SentryDependencyContainer.sharedInstance().crashAdapter = crashWrapper
             
             let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
@@ -46,6 +47,13 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     func testWhenUnitTests_TrackerNotInitialized() {
         sut = SentryANRTrackingIntegration()
         sut.install(with: Options())
+        
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
+    }
+    
+    func testWhenBeingTraced_TrackerNotInitialized() {
+        fixture.crashWrapper.internalIsBeingTraced = true
+        givenInitializedTracker()
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }

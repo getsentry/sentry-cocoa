@@ -25,6 +25,7 @@ SentryANRTrackingIntegration ()
 
 @property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) SentryCrashAdapter *crashWrapper;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 
 @end
@@ -42,12 +43,14 @@ SentryANRTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
+    SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
+    self.crashWrapper = dependencies.crashAdapter;
+
     if ([self shouldBeDisabled:options]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
-    SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
     self.appStateManager = dependencies.appStateManager;
 
     self.tracker =
@@ -66,8 +69,7 @@ SentryANRTrackingIntegration ()
         return YES;
     }
 
-    SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
-    if ([crashAdapter isBeingTraced]) {
+    if ([self.crashWrapper isBeingTraced]) {
         return YES;
     }
 
