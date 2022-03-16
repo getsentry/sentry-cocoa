@@ -64,7 +64,7 @@ SentryANRTracker ()
 
         if (blockExecutedOnMainThread) {
             if (wasPreviousANR) {
-                [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelDebug];
+                [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
                 [self.delegate anrStopped];
             }
 
