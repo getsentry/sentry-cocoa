@@ -26,7 +26,9 @@ SentryANRTrackingIntegration ()
 @property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashAdapter *crashWrapper;
+#if TEST
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
+#endif
 
 @end
 
@@ -35,8 +37,10 @@ SentryANRTrackingIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
+#if TEST
         self.testConfigurationFilePath
             = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+#endif
     }
     return self;
 }
@@ -65,14 +69,6 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-    if (!options.enableOutOfMemoryTracking) {
-        return YES;
-    }
-
-    if ([self.crashWrapper isBeingTraced]) {
-        return YES;
-    }
-
 #if TEST
     // The testConfigurationFilePath is not nil when running unit tests. This doesn't work for UI
     // tests though.
@@ -84,6 +80,14 @@ SentryANRTrackingIntegration ()
 #endif
 
 #if SENTRY_HAS_UIKIT
+    if (!options.enableOutOfMemoryTracking) {
+        return YES;
+    }
+
+    if ([self.crashWrapper isBeingTraced]) {
+        return YES;
+    }
+
     return NO;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryANRTrackingIntegration will not track ANRs, "
