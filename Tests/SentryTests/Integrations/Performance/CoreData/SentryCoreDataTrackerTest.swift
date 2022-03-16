@@ -133,8 +133,8 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func test_Operation_InData() {
         fixture.context.inserted = [TestEntity(), TestEntity(), SecondTestEntity()]
-        fixture.context.updated = [TestEntity(), SecondTestEntity(),SecondTestEntity()]
-        fixture.context.deleted = [TestEntity(),TestEntity(), SecondTestEntity(),SecondTestEntity(),SecondTestEntity()]
+        fixture.context.updated = [TestEntity(), SecondTestEntity(), SecondTestEntity()]
+        fixture.context.deleted = [TestEntity(), TestEntity(), SecondTestEntity(), SecondTestEntity(), SecondTestEntity()]
         
         let sut = fixture.getSut()
         
