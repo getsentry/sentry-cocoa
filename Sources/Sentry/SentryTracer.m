@@ -51,19 +51,23 @@ SentryTracer ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
 #endif
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentryProfiler *_profiler;
-#endif
 }
 
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+SentryProfiler *profiler = nil;
+NSLock *profilerLock = nil;
+#endif
 
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
         appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
+        
+        profilerLock = [[NSLock alloc] init];
     }
 }
 
@@ -100,10 +104,12 @@ static BOOL appStartMeasurementRead;
         }
 #endif
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        if ([_hub getClient].options.enableProfiling) {
-            _profiler = [[SentryProfiler alloc] init];
-            [_profiler start];
+        [profilerLock lock];
+        if (profiler == nil && [_hub getClient].options.enableProfiling) {
+            profiler = [[SentryProfiler alloc] init];
+            [profiler start];
         }
+        [profilerLock unlock];
 #endif
     }
 
@@ -274,7 +280,9 @@ static BOOL appStartMeasurementRead;
 
     [_rootSpan finishWithStatus:_finishStatus];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [_profiler stop];
+    [profilerLock lock];
+    [profiler stop];
+    [profilerLock unlock];
 #endif
     [self captureTransaction];
 }
@@ -305,12 +313,15 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [self toTransaction];
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_profiler != nil) {
-        SentryEnvelopeItem *profile = [_profiler buildEnvelopeItemForTransaction:transaction];
+    [profilerLock lock];
+    if (profiler != nil) {
+        SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
         if (profile != nil) {
             [additionalEnvelopeItems addObject:profile];
         }
+        profiler = nil;
     }
+    [profilerLock unlock];
 #endif
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
