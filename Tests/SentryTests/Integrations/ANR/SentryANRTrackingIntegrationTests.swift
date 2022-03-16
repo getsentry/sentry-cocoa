@@ -46,13 +46,12 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     }
     
     func testWhenBeingTraced_TrackerNotInitialized() {
-        fixture.crashWrapper.internalIsBeingTraced = true
-        givenInitializedTracker()
+        givenInitializedTracker(isBeingTraced: true)
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
     
-    func testWhenNoUnitTests_TrackerInitialized() {
+    func testWhenNoDebuggerAttached_TrackerInitialized() {
         givenInitializedTracker()
         
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
@@ -79,11 +78,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             return
         }
         
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertTrue(appState.isANROngoing)
-        #else
-        XCTAssertFalse(appState.isANROngoing)
-        #endif
     }
     
     func testANRStopped_UpdatesAppStateToFalse() {
@@ -98,7 +93,8 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
     }
 
-    private func givenInitializedTracker() {
+    private func givenInitializedTracker(isBeingTraced: Bool = false) {
+        fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration()
         let options = Options()
         Dynamic(sut).setTestConfigurationFilePath(nil)

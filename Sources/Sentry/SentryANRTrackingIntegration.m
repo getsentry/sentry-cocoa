@@ -57,7 +57,6 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-
     if (!options.enableOutOfMemoryTracking) {
         return YES;
     }

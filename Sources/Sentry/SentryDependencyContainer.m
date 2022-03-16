@@ -57,7 +57,12 @@ static NSObject *sentryDependencyContainerLock;
 
 - (SentryCrashAdapter *)crashAdapter
 {
-    return [SentryCrashAdapter sharedInstance];
+    @synchronized(sentryDependencyContainerLock) {
+        if (_crashAdapter == nil) {
+            _crashAdapter = [SentryCrashAdapter sharedInstance];
+        }
+        return _crashAdapter;
+    }
 }
 
 - (SentryThreadWrapper *)threadWrapper
