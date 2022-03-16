@@ -106,6 +106,7 @@ SentryANRTracker ()
 
 - (void)stop
 {
+    [SentryLog logWithMessage:@"Stopping ANR detection" andLevel:kSentryLevelInfo];
     [self.thread cancel];
 }
 
