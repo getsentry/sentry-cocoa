@@ -275,8 +275,8 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to enable the sampling profiler. Default is NO.
- * @note This is a beta feature that is currently not available to all Sentry customers. This feature
- * is not supported on watchOS or tvOS.
+ * @note This is a beta feature that is currently not available to all Sentry customers. This
+ * feature is not supported on watchOS or tvOS.
  */
 @property (nonatomic, assign) BOOL enableProfiling;
 #endif
