@@ -35,11 +35,8 @@
 
     __block id<SentrySpan> fetchSpan = nil;
     if (context.hasChanges) {
-        __block NSDictionary<NSString *, NSDictionary *> *operations = @{
-            @"INSERTED" : [self countEntities:context.insertedObjects],
-            @"UPDATED" : [self countEntities:context.updatedObjects],
-            @"DELETED" : [self countEntities:context.deletedObjects]
-        };
+        __block NSDictionary<NSString *, NSDictionary *> *operations =
+            [self groupEntitiesOperations:context];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
@@ -62,42 +59,42 @@
                   (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)operations
                              inContext:(NSManagedObjectContext *)context
 {
-    NSMutableArray *resultParts = [NSMutableArray new];
+    __block NSMutableArray *resultParts = [NSMutableArray new];
 
-    NSDictionary<NSString *, NSNumber *> *inserts = operations[@"INSERTED"];
-    if (inserts.count > 0) {
-        if (inserts.count == 1) {
-            [resultParts addObject:[NSString stringWithFormat:@"INSERTED %@ '%@'",
-                                             inserts.allValues[0], inserts.allKeys[0]]];
-        } else {
-            [resultParts addObject:[NSString stringWithFormat:@"INSERTED %lu itens",
-                                             (unsigned long)context.insertedObjects.count]];
+    void (^operationInfo)(NSUInteger, NSString *) = ^void(NSUInteger total, NSString *op) {
+        NSDictionary *itens = operations[op];
+        if (itens && itens.count > 0) {
+            if (itens.count == 1) {
+                [resultParts addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op,
+                                                 itens.allValues[0], itens.allKeys[0]]];
+            } else {
+                [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op,
+                                                 (unsigned long)total]];
+            }
         }
-    }
+    };
 
-    NSDictionary<NSString *, NSNumber *> *updates = operations[@"UPDATED"];
-    if (updates.count > 0) {
-        if (updates.count == 1) {
-            [resultParts addObject:[NSString stringWithFormat:@"UPDATED %@ '%@'",
-                                             updates.allValues[0], updates.allKeys[0]]];
-        } else {
-            [resultParts addObject:[NSString stringWithFormat:@"UPDATED %lu itens",
-                                             (unsigned long)context.updatedObjects.count]];
-        }
-    }
-
-    NSDictionary<NSString *, NSNumber *> *deletes = operations[@"DELETED"];
-    if (deletes.count > 0) {
-        if (deletes.count == 1) {
-            [resultParts addObject:[NSString stringWithFormat:@"DELETED %@ '%@'",
-                                             deletes.allValues[0], deletes.allKeys[0]]];
-        } else {
-            [resultParts addObject:[NSString stringWithFormat:@"DELETED %lu itens",
-                                             (unsigned long)context.deletedObjects.count]];
-        }
-    }
+    operationInfo(context.insertedObjects.count, @"INSERTED");
+    operationInfo(context.updatedObjects.count, @"UPDATED");
+    operationInfo(context.deletedObjects.count, @"DELETED");
 
     return [resultParts componentsJoinedByString:@", "];
+}
+
+- (NSDictionary<NSString *, NSDictionary *> *)groupEntitiesOperations:
+    (NSManagedObjectContext *)context
+{
+    NSMutableDictionary<NSString *, NSDictionary *> *operations =
+        [[NSMutableDictionary alloc] initWithCapacity:3];
+
+    if (context.insertedObjects.count > 0)
+        [operations setValue:[self countEntities:context.insertedObjects] forKey:@"INSERTED"];
+    if (context.updatedObjects.count > 0)
+        [operations setValue:[self countEntities:context.updatedObjects] forKey:@"UPDATED"];
+    if (context.deletedObjects.count > 0)
+        [operations setValue:[self countEntities:context.deletedObjects] forKey:@"DELETED"];
+
+    return operations;
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)countEntities:(NSSet *)entities

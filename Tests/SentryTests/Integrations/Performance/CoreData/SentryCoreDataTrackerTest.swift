@@ -84,7 +84,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func test_Save_2Insert_2Entity() {
         fixture.context.inserted = [TestEntity(), SecondTestEntity()]
-        assertSave("INSERTED 2 itens")
+        assertSave("INSERTED 2 items")
     }
     
     func test_Save_1Update_1Entity() {
@@ -99,7 +99,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func test_Save_2Update_2Entity() {
         fixture.context.updated = [TestEntity(), SecondTestEntity()]
-        assertSave("UPDATED 2 itens")
+        assertSave("UPDATED 2 items")
     }
     
     func test_Save_1Delete_1Entity() {
@@ -114,7 +114,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func test_Save_2Delete_2Entity() {
         fixture.context.deleted = [TestEntity(), SecondTestEntity()]
-        assertSave("DELETED 2 itens")
+        assertSave("DELETED 2 items")
     }
     
     func test_Save_Insert_Update_Delete_1Entity() {
@@ -128,7 +128,59 @@ class SentryCoreDataTrackerTests: XCTestCase {
         fixture.context.inserted = [TestEntity(), SecondTestEntity()]
         fixture.context.updated = [TestEntity(), SecondTestEntity()]
         fixture.context.deleted = [TestEntity(), SecondTestEntity()]
-        assertSave("INSERTED 2 itens, UPDATED 2 itens, DELETED 2 itens")
+        assertSave("INSERTED 2 items, UPDATED 2 items, DELETED 2 items")
+    }
+    
+    func test_Operation_InData() {
+        fixture.context.inserted = [TestEntity(), TestEntity(), SecondTestEntity()]
+        fixture.context.updated = [TestEntity(), SecondTestEntity(),SecondTestEntity()]
+        fixture.context.deleted = [TestEntity(),TestEntity(), SecondTestEntity(),SecondTestEntity(),SecondTestEntity()]
+        
+        let sut = fixture.getSut()
+        
+        let transaction = startTransaction()
+        
+        try? sut.saveManagedObjectContext(fixture.context) { _ in
+            return true
+        }
+        
+        XCTAssertEqual(transaction.children.count, 1)
+        
+        guard let operations = transaction.children[0].data?["operations"] as? [String: Any?] else {
+            XCTFail("Transaction has no `operations` extra")
+            return
+        }
+        
+        XCTAssertEqual(operations.count, 3)
+        
+        guard let inserted = operations["INSERTED"] as? [String: Any] else {
+            XCTFail("Operations has no `INSERTED` data")
+            return
+        }
+        
+        guard let updated = operations["UPDATED"] as? [String: Any] else {
+            XCTFail("Operations has no `UPDATED` data")
+            return
+        }
+        
+        guard let deleted = operations["DELETED"] as? [String: Any] else {
+            XCTFail("Operations has no `DELETED` data")
+            return
+        }
+        
+        XCTAssertNotNil(inserted["TestEntity"])
+        XCTAssertNotNil(inserted["SecondTestEntity"])
+        XCTAssertNotNil(deleted["TestEntity"])
+        XCTAssertNotNil(deleted["SecondTestEntity"])
+        XCTAssertNotNil(updated["TestEntity"])
+        XCTAssertNotNil(updated["SecondTestEntity"])
+        
+        XCTAssertEqual(inserted["TestEntity"] as? Int, 2)
+        XCTAssertEqual(inserted["SecondTestEntity"] as? Int, 1)
+        XCTAssertEqual(deleted["TestEntity"] as? Int, 2)
+        XCTAssertEqual(deleted["SecondTestEntity"] as? Int, 3)
+        XCTAssertEqual(updated["TestEntity"] as? Int, 1)
+        XCTAssertEqual(updated["SecondTestEntity"] as? Int, 2)
     }
     
     func test_Save_NoChanges() {
@@ -147,7 +199,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         
         let transaction = startTransaction()
-        fixture.context.withChanges = true
         
         try? sut.saveManagedObjectContext(fixture.context) { _ in
             return true
@@ -169,7 +220,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
-      
+        
         XCTAssertEqual(result?.count, 1)
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
@@ -185,7 +236,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
 
 class TestNSManagedObjectContext: NSManagedObjectContext {
     
-    var withChanges = false
     var inserted: Set<NSManagedObject>?
     var updated: Set<NSManagedObject>?
     var deleted: Set<NSManagedObject>?
@@ -211,7 +261,8 @@ class TestNSManagedObjectContext: NSManagedObjectContext {
     }
     
     override var hasChanges: Bool {
-        return withChanges
+        return  ((inserted?.count ?? 0) > 0) ||
+        ((deleted?.count ?? 0) > 0) ||
+        ((updated?.count ?? 0) > 0)
     }
-    
 }
