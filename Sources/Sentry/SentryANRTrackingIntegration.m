@@ -62,6 +62,7 @@ SentryANRTrackingIntegration ()
         return YES;
     }
 
+    // In case the debugger is attached
     if ([self.crashWrapper isBeingTraced]) {
         return YES;
     }
