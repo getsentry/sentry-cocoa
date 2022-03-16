@@ -31,7 +31,7 @@ class TestClient: Client {
         return event.eventId
     }
  
-    override func capture(_ event: Event, with scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+    override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
         return event.eventId
     }
