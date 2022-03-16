@@ -47,9 +47,47 @@ SentryTransaction ()
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
-    mutableContext[@"trace"] = [_trace serialize];
+    
+    NSMutableDictionary *traceDict = [[_trace serialize] mutableCopy];
+    
+    // We need to remove tags and data from trace, and move them to the top level
+    // https://github.com/getsentry/sentry-cocoa/issues/1311
+    NSMutableDictionary *traceTags = [NSMutableDictionary new];
+    if(traceDict[@"tags"] != nil && [traceDict[@"tags"] isKindOfClass:NSDictionary.class]) {
+        [traceTags addEntriesFromDictionary:traceDict[@"tags"]];
+        traceDict[@"tags"] = nil;
+    }
+    
+    NSMutableDictionary *traceData = [NSMutableDictionary new];
+    if(traceDict[@"data"] != nil && [traceDict[@"data"] isKindOfClass:NSDictionary.class]) {
+        [traceData addEntriesFromDictionary:traceDict[@"data"]];
+        traceDict[@"data"] = nil;
+    }
+    
+    mutableContext[@"trace"] = traceDict;
+    
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
+    // Adding tags from Trace to serializedData dictionary
+    if (serializedData[@"tags"] != nil && [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *tags = [NSMutableDictionary new];
+        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        [tags addEntriesFromDictionary:traceTags];
+        serializedData[@"tags"] = tags;
+    } else {
+        serializedData[@"tags"] = traceTags;
+    }
+    
+    // Adding data from Trace to serializedData dictionary
+    if (serializedData[@"extra"] != nil && [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *extra = [NSMutableDictionary new];
+        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        [extra addEntriesFromDictionary:traceData];
+        serializedData[@"extra"] = extra;
+    } else {
+        serializedData[@"extra"] = traceData;
+    }
+    
     if (self.measurements.count > 0) {
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
     }
