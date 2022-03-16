@@ -302,7 +302,7 @@ class SentryHubTests: XCTestCase {
         let profileExpectation = expectation(description: "collects profiling data")
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
             span.finish()
 
             guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
