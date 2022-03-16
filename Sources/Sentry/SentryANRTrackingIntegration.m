@@ -14,6 +14,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * As we only use the ANR tracking integration for detecting falsely reported OOMs we can use a more
+ * defensive value, because we are not reporting any ANRs.
+ */
+static NSUInteger const SENTRY_ANR_TRACKER_TIMEOUT_MILLIS = 2000;
+
 @interface
 SentryANRTrackingIntegration ()
 
@@ -46,7 +52,7 @@ SentryANRTrackingIntegration ()
 
     self.tracker =
         [[SentryANRTracker alloc] initWithDelegate:self
-                             timeoutIntervalMillis:options.anrTimeoutIntervalMillis
+                             timeoutIntervalMillis:SENTRY_ANR_TRACKER_TIMEOUT_MILLIS
                                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                                       crashAdapter:dependencies.crashAdapter
                               dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
@@ -56,12 +62,12 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-    if (!options.enableANRTracking) {
+    if (!options.enableOutOfMemoryTracking) {
         return YES;
     }
 
     SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
-    if ([crashAdapter isBeingTraced] && !options.enableANRTrackingInDebug) {
+    if ([crashAdapter isBeingTraced]) {
         return YES;
     }
 

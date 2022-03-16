@@ -55,9 +55,6 @@ SentryOptions ()
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
-        self.enableANRTracking = YES;
-        self.enableANRTrackingInDebug = NO;
-        self.anrTimeoutIntervalMillis = 5000;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -251,16 +248,6 @@ SentryOptions ()
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
-
-    [self setBool:options[@"enableANRTracking"]
-            block:^(BOOL value) { self->_enableANRTracking = value; }];
-
-    [self setBool:options[@"enableANRTrackingInDebug"]
-            block:^(BOOL value) { self->_enableANRTrackingInDebug = value; }];
-
-    if ([options[@"anrTimeoutIntervalMillis"] isKindOfClass:[NSNumber class]]) {
-        self.anrTimeoutIntervalMillis = [options[@"anrTimeoutIntervalMillis"] unsignedIntValue];
-    }
 
     if (nil != error && nil != *error) {
         return NO;

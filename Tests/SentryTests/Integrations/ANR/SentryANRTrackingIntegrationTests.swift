@@ -66,9 +66,9 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
-    func test_ANRDisabled_RemovesEnabledIntegration() {
+    func test_OOMDisabled_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableANRTracking = false
+        options.enableOutOfMemoryTracking = false
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)
@@ -109,7 +109,6 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     private func givenInitializedTracker() {
         sut = SentryANRTrackingIntegration()
         let options = Options()
-        options.enableANRTrackingInDebug = true
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)
     }

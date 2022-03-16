@@ -440,15 +440,6 @@
     [self testBooleanField:@"enableANRTrackingInDebug" defaultValue:NO];
 }
 
-- (void)testAnrTimeoutIntervalMillis
-{
-    NSNumber *anrTimeoutIntervalMillis = @2000;
-    SentryOptions *options =
-        [self getValidOptions:@{ @"anrTimeoutIntervalMillis" : anrTimeoutIntervalMillis }];
-
-    XCTAssertEqual([anrTimeoutIntervalMillis unsignedIntValue], options.anrTimeoutIntervalMillis);
-}
-
 - (void)testEnableTraceSampling
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -508,10 +499,7 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null],
-        @"enableANRTracking" : [NSNull null],
-        @"enableANRTrackingInDebug" : [NSNull null],
-        @"anrTimeoutIntervalMillis" : [NSNull null],
+        @"enableIOTracking" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -552,9 +540,6 @@
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
-    XCTAssertEqual(YES, options.enableANRTracking);
-    XCTAssertEqual(NO, options.enableANRTrackingInDebug);
-    XCTAssertEqual(5000, options.anrTimeoutIntervalMillis);
 }
 
 - (void)testSetValidDsn

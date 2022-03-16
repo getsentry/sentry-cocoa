@@ -271,23 +271,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableSwizzling;
 
-/**
- * If ANR (Application Not Responding) should be enabled or not. For now, this feature only prevents
- * ANRs from being falsely detected as out of memory errors. The SDK doesn't report actual ANRs yet.
- * Default is YES.
- */
-@property (nonatomic, assign) BOOL enableANRTracking;
-
-/**
- * Enable or disable ANR in Debug. Default is NO.
- */
-@property (nonatomic, assign) BOOL enableANRTrackingInDebug;
-
-/**
- * The ANR timeout interval in milliseconds. The default is 5000 = 5s.
- */
-@property (nonatomic, assign) NSUInteger anrTimeoutIntervalMillis;
-
 @end
 
 NS_ASSUME_NONNULL_END
