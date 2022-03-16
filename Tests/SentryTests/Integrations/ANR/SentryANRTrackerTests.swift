@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     
     private var sut: SentryANRTracker!
@@ -123,3 +124,4 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
     }
 }
+#endif

@@ -5,6 +5,10 @@
 #import "SentryThreadWrapper.h"
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_HAS_UIKIT
+
 @interface
 SentryANRTracker ()
 
@@ -111,3 +115,7 @@ SentryANRTracker ()
 }
 
 @end
+
+#endif
+
+NS_ASSUME_NONNULL_END
