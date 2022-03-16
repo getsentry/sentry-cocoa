@@ -1,20 +1,20 @@
-#if SENTRY_HAS_UIKIT
-
-#    import "SentryANRTrackingIntegration.h"
-#    import "SentryANRTracker.h"
-#    import "SentryCrashAdapter.h"
-#    import "SentryDefaultCurrentDateProvider.h"
-#    import "SentryDispatchQueueWrapper.h"
-#    import "SentryLog.h"
-#    import "SentryThreadWrapper.h"
-#    import <Foundation/Foundation.h>
-#    import <SentryAppState.h>
-#    import <SentryAppStateManager.h>
-#    import <SentryCrashAdapter.h>
-#    import <SentryDependencyContainer.h>
-#    import <SentryOptions+Private.h>
+#import "SentryANRTrackingIntegration.h"
+#import "SentryANRTracker.h"
+#import "SentryCrashAdapter.h"
+#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDispatchQueueWrapper.h"
+#import "SentryLog.h"
+#import "SentryThreadWrapper.h"
+#import <Foundation/Foundation.h>
+#import <SentryAppState.h>
+#import <SentryAppStateManager.h>
+#import <SentryCrashAdapter.h>
+#import <SentryDependencyContainer.h>
+#import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_HAS_UIKIT
 
 /**
  * As we only use the ANR tracking integration for detecting falsely reported OOMs we can use a more
@@ -94,6 +94,6 @@ SentryANRTrackingIntegration ()
 
 @end
 
-NS_ASSUME_NONNULL_END
-
 #endif
+
+NS_ASSUME_NONNULL_END
