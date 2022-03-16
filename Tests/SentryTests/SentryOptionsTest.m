@@ -430,16 +430,6 @@
     [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
 }
 
-- (void)testEnableANRTracking
-{
-    [self testBooleanField:@"enableANRTracking" defaultValue:YES];
-}
-
-- (void)testEnableANRTrackingInDebug
-{
-    [self testBooleanField:@"enableANRTrackingInDebug" defaultValue:NO];
-}
-
 - (void)testEnableTraceSampling
 {
     SentryOptions *options = [self getValidOptions:@{}];
