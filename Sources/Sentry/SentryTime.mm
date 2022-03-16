@@ -2,11 +2,11 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import <Foundation/Foundation.h>
-#import <ctime>
-#import <mach/mach_time.h>
+#    import <Foundation/Foundation.h>
+#    import <ctime>
+#    import <mach/mach_time.h>
 
-#import "SentryMachLogging.hpp"
+#    import "SentryMachLogging.hpp"
 
 uint64_t
 getAbsoluteTime()

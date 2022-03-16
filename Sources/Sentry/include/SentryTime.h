@@ -2,8 +2,8 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#import "SentryCompiler.h"
-#import <stdint.h>
+#    import "SentryCompiler.h"
+#    import <stdint.h>
 
 SENTRY_EXTERN_C_BEGIN
 
