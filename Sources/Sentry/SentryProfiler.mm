@@ -13,6 +13,7 @@
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentrySerialization.h"
+#    import "SentryTime.h"
 #    import "SentryTransaction.h"
 
 #    if defined(DEBUG)
@@ -21,7 +22,6 @@
 
 #    import <chrono>
 #    import <cstdint>
-#    import <ctime>
 #    import <memory>
 #    import <sys/sysctl.h>
 #    import <sys/utsname.h>
@@ -55,12 +55,6 @@ getOSBuildNumber()
     return @"";
 }
 
-std::uint64_t
-getReferenceTimestamp()
-{
-    return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-}
-
 bool
 isSimulatorBuild()
 {
@@ -74,7 +68,7 @@ isSimulatorBuild()
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
-    uint64_t _referenceUptimeNs;
+    uint64_t _startTimestamp;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
 }
@@ -110,7 +104,7 @@ isSimulatorBuild()
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
-        _referenceUptimeNs = getReferenceTimestamp();
+        _startTimestamp = getAbsoluteTime();
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
@@ -119,7 +113,6 @@ isSimulatorBuild()
                 if (strongSelf == nil) {
                     return;
                 }
-                assert(backtrace.uptimeNs >= strongSelf->_referenceUptimeNs);
                 const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
                 if (threadMetadata[threadID] == nil) {
                     const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
@@ -148,7 +141,7 @@ isSimulatorBuild()
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
                 sample[@"frames"] = frames;
                 sample[@"relative_timestamp_ns"] =
-                    [[strongSelf getElapsedDuration:backtrace.uptimeNs] stringValue];
+                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp)) stringValue];
                 sample[@"thread_id"] = threadID;
                 [samples addObject:sample];
             },
@@ -197,7 +190,7 @@ isSimulatorBuild()
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
-    profile[@"duration_ns"] = [[self getElapsedDuration:getReferenceTimestamp()] stringValue];
+    profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
@@ -216,13 +209,6 @@ isSimulatorBuild()
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile"
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-}
-
-- (NSNumber *)getElapsedDuration:(std::uint64_t)timestamp
-{
-    NSAssert(
-        timestamp >= _referenceUptimeNs, @"timestamp must be greater than the reference timestamp");
-    return @(timestamp - _referenceUptimeNs);
 }
 
 @end

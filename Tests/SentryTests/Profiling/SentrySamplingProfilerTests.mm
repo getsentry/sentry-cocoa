@@ -7,9 +7,9 @@
 #    import "SentryBacktrace.hpp"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryThreadMetadataCache.hpp"
+#    import "SentryTime.h"
 
 #    import <chrono>
-#    import <ctime>
 #    import <iostream>
 #    import <pthread.h>
 #    import <thread>
@@ -30,7 +30,7 @@ using namespace sentry::profiling;
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;
-    profiler->startSampling([&start] { start = clock_gettime_nsec_np(CLOCK_UPTIME_RAW); });
+    profiler->startSampling([&start] { start = getAbsoluteTime(); });
     XCTAssertTrue(profiler->isSampling());
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -38,7 +38,7 @@ using namespace sentry::profiling;
 
     XCTAssertFalse(profiler->isSampling());
 
-    const auto duration = std::chrono::nanoseconds(clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start);
+    const auto duration = std::chrono::nanoseconds(getDurationNs(start, getAbsoluteTime()));
     XCTAssertGreaterThan(start, static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(std::chrono::duration_cast<std::chrono::seconds>(duration).count(), 0);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
