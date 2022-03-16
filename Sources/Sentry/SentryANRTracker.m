@@ -85,8 +85,10 @@ SentryANRTracker ()
             [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
-            [SentryLog logWithMessage:@"Ignoring ANR because the delta is too big."
-                             andLevel:kSentryLevelDebug];
+            NSString *message =
+                [NSString stringWithFormat:@"Ignoring ANR because the delta is too big: %f.",
+                          deltaFromNowToBlockDeadline];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             continue;
         }
 
@@ -97,7 +99,7 @@ SentryANRTracker ()
         }
 
         wasPreviousANR = YES;
-        [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
         [self.delegate anrDetected];
     }
 }
