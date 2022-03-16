@@ -73,6 +73,7 @@ SentryANRTrackingIntegration ()
         return YES;
     }
 
+#if TEST
     // The testConfigurationFilePath is not nil when running unit tests. This doesn't work for UI
     // tests though.
     if (self.testConfigurationFilePath) {
@@ -80,6 +81,7 @@ SentryANRTrackingIntegration ()
                          andLevel:kSentryLevelDebug];
         return YES;
     }
+#endif
 
 #if SENTRY_HAS_UIKIT
     return NO;
