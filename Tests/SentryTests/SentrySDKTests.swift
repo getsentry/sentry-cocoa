@@ -526,6 +526,20 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(SentrySDK.isEnabled)
     }
     
+    func testClose_ResetsDependencyContainer() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let first = SentryDependencyContainer.sharedInstance()
+        
+        SentrySDK.close()
+        
+        let second = SentryDependencyContainer.sharedInstance()
+        
+        XCTAssertNotEqual(first, second)
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
