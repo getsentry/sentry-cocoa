@@ -12,49 +12,62 @@
 @implementation SentryDependencyContainer
 
 static SentryDependencyContainer *instance;
+static NSObject *sentryDependencyContainerLock;
+
++ (void)initialize
+{
+    if (self == [SentryDependencyContainer class]) {
+        sentryDependencyContainerLock = [[NSObject alloc] init];
+    }
+}
 
 + (instancetype)sharedInstance
 {
-    if (instance == nil) {
-        instance = [[self alloc] init];
+    @synchronized(sentryDependencyContainerLock) {
+        if (instance == nil) {
+            instance = [[self alloc] init];
+        }
+        return instance;
     }
-    return instance;
 }
 
 + (void)reset
 {
-    instance = nil;
+    @synchronized(sentryDependencyContainerLock) {
+        instance = nil;
+    }
 }
 
 - (SentryAppStateManager *)appStateManager
 {
-    if (_appStateManager == nil) {
-        SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-        SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-        _appStateManager = [[SentryAppStateManager alloc]
-                initWithOptions:options
-                   crashAdapter:self.crashAdapter
-                    fileManager:fileManager
-            currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                         sysctl:[[SentrySysctl alloc] init]];
+    @synchronized(sentryDependencyContainerLock) {
+        if (_appStateManager == nil) {
+            SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+            SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+            _appStateManager = [[SentryAppStateManager alloc]
+                    initWithOptions:options
+                       crashAdapter:self.crashAdapter
+                        fileManager:fileManager
+                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                             sysctl:[[SentrySysctl alloc] init]];
+        }
+        return _appStateManager;
     }
-    return _appStateManager;
 }
 
 - (SentryCrashAdapter *)crashAdapter
 {
-    if (_crashAdapter == nil) {
-        _crashAdapter = [SentryCrashAdapter sharedInstance];
-    }
-    return _crashAdapter;
+    return [SentryCrashAdapter sharedInstance];
 }
 
 - (SentryThreadWrapper *)threadWrapper
 {
-    if (_threadWrapper == nil) {
-        _threadWrapper = [[SentryThreadWrapper alloc] init];
+    @synchronized(sentryDependencyContainerLock) {
+        if (_threadWrapper == nil) {
+            _threadWrapper = [[SentryThreadWrapper alloc] init];
+        }
+        return _threadWrapper;
     }
-    return _threadWrapper;
 }
 
 @end
