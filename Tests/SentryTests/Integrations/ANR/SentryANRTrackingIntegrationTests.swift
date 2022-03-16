@@ -43,13 +43,6 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         fixture.fileManager.deleteAllFolders()
         clearTestState()
     }
-
-    func testWhenUnitTests_TrackerNotInitialized() {
-        sut = SentryANRTrackingIntegration()
-        sut.install(with: Options())
-        
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
-    }
     
     func testWhenBeingTraced_TrackerNotInitialized() {
         fixture.crashWrapper.internalIsBeingTraced = true
@@ -66,12 +59,6 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         #else
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
         #endif
-    }
-    
-    func testTestConfigurationFilePath() {
-        sut = SentryANRTrackingIntegration()
-        let path = Dynamic(sut).testConfigurationFilePath.asString
-        XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
     func test_OOMDisabled_RemovesEnabledIntegration() {
