@@ -140,7 +140,8 @@ isSimulatorBuild()
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
                 sample[@"frames"] = frames;
                 sample[@"relative_timestamp_ns"] =
-                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp)) stringValue];
+                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
+                        stringValue];
                 sample[@"thread_id"] = threadID;
                 [samples addObject:sample];
             },
