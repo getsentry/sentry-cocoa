@@ -26,7 +26,8 @@ SentryClient (Private)
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope
-   additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
