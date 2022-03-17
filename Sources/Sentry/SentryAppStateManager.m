@@ -72,6 +72,17 @@ SentryAppStateManager ()
     [self.fileManager deleteAppState];
 }
 
+- (void)updateAppState:(void (^)(SentryAppState *))block
+{
+    @synchronized(self) {
+        SentryAppState *appState = [self.fileManager readAppState];
+        if (nil != appState) {
+            block(appState);
+            [self.fileManager storeAppState:appState];
+        }
+    }
+}
+
 #endif
 
 @end

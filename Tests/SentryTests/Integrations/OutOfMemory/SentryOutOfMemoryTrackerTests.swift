@@ -170,6 +170,18 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         assertOOMEventSent()
     }
     
+    func testANR_NoOOM() {
+        sut.start()
+        goToForeground()
+        
+        update(appState: { appState in
+            appState.isANROngoing = true
+        })
+
+        sut.start()
+        assertNoOOMSent()
+    }
+    
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
         TestNotificationCenter.hybridSdkDidBecomeActive()
@@ -231,6 +243,13 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
+    }
+    
+    private func update(appState: (SentryAppState) -> Void) {
+        if let currentAppState = fixture.fileManager.readAppState() {
+            appState(currentAppState)
+            fixture.fileManager.store(currentAppState)
+        }
     }
     
     private func goToForeground() {

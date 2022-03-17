@@ -85,6 +85,10 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
+    if (previousAppState.isANROngoing) {
+        return NO;
+    }
+
     return YES;
 #else
     // We can only track OOMs for iOS, tvOS and macCatalyst. Therefore we return NO for other

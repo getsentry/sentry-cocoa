@@ -7,6 +7,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
+#import "SentryANRTracker.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"
@@ -50,6 +51,7 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryDsn.h"
@@ -122,6 +124,7 @@
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
+#import "SentryThreadWrapper.h"
 #import "SentryTraceState.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracer.h"
@@ -139,3 +142,7 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryANRTrackingIntegration.h"
+#endif

@@ -1,5 +1,6 @@
 #import "SentryCrashAdapter.h"
 #import "SentryCrash.h"
+#import "SentryCrashMonitor_AppState.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashDebug.h>
@@ -29,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isBeingTraced
 {
     return sentrycrashdebug_isBeingTraced();
+}
+
+- (BOOL)isApplicationInForeground
+{
+    return sentrycrashstate_currentState()->applicationIsInForeground;
 }
 
 - (void)installAsyncHooks
