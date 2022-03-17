@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Move tags and data from trace dict to transaction level (#1311)
+
 ## 7.10.2
 
 fix: Crash in UIViewControllerSwizzling (#1692)
