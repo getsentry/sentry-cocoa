@@ -1,7 +1,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashAdapter, SentryDispatchQueueWrapper, SentryThreadWrapper;
+@class SentryOptions, SentryCrashWrapper, SentryDispatchQueueWrapper, SentryThreadWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +29,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithDelegate:(id<SentryANRTrackerDelegate>)delegate
            timeoutIntervalMillis:(NSUInteger)timeoutIntervalMillis
              currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    crashAdapter:(SentryCrashAdapter *)crashAdapter
+                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper;
 

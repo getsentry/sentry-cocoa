@@ -8,7 +8,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     private class Fixture {
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashAdapter
+        let crashWrapper: TestSentryCrashWrapper
         let currentDate = TestCurrentDateProvider()
         let fileManager: SentryFileManager
         
@@ -18,10 +18,10 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
     
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashAdapter.sharedInstance()
-            SentryDependencyContainer.sharedInstance().crashAdapter = crashWrapper
-            
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper, andCurrentDateProvider: currentDate)
+            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
@@ -44,16 +44,16 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         fixture.fileManager.deleteAllFolders()
         clearTestState()
     }
-    
+
     func testWhenBeingTraced_TrackerNotInitialized() {
         givenInitializedTracker(isBeingTraced: true)
-        
+
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
-    
+
     func testWhenNoDebuggerAttached_TrackerInitialized() {
         givenInitializedTracker()
-        
+
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
@@ -77,7 +77,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             XCTFail("appState must not be nil")
             return
         }
-        
+
         XCTAssertTrue(appState.isANROngoing)
     }
     

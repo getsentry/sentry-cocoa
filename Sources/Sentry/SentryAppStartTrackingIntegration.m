@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <PrivateSentrySDKOnly.h>
 #import <SentryAppStateManager.h>
-#import <SentryCrashAdapter.h>
+#import <SentryCrashWrapper.h>
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentrySysctl.h>

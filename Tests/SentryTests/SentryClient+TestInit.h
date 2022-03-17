@@ -1,7 +1,7 @@
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
 
-@class SentryCrashAdapter;
+@class SentryCrashWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,5 +1,5 @@
 #import "SentryANRTracker.h"
-#import "SentryCrashAdapter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryThreadWrapper.h"
@@ -15,7 +15,7 @@ SentryANRTracker ()
 @property (weak, nonatomic) id<SentryANRTrackerDelegate> delegate;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 
@@ -28,7 +28,7 @@ SentryANRTracker ()
 - (instancetype)initWithDelegate:(id<SentryANRTrackerDelegate>)delegate
            timeoutIntervalMillis:(NSUInteger)timeoutIntervalMillis
              currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    crashAdapter:(SentryCrashAdapter *)crashAdapter
+                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper
 {
@@ -36,7 +36,7 @@ SentryANRTracker ()
         self.delegate = delegate;
         self.timeoutInterval = (double)timeoutIntervalMillis / 1000;
         self.currentDate = currentDateProvider;
-        self.crashAdapter = crashAdapter;
+        self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
     }
@@ -96,7 +96,7 @@ SentryANRTracker ()
             continue;
         }
 
-        if (![self.crashAdapter isApplicationInForeground]) {
+        if (![self.crashWrapper isApplicationInForeground]) {
             [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
                              andLevel:kSentryLevelDebug];
             continue;

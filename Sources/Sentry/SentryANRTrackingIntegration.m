@@ -1,6 +1,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryANRTracker.h"
-#import "SentryCrashAdapter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
@@ -8,7 +8,6 @@
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
-#import <SentryCrashAdapter.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
 
@@ -27,7 +26,7 @@ SentryANRTrackingIntegration ()
 
 @property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentryCrashAdapter *crashWrapper;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 @end
 
@@ -36,7 +35,7 @@ SentryANRTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
-    self.crashWrapper = dependencies.crashAdapter;
+    self.crashWrapper = dependencies.crashWrapper;
 
     if ([self shouldBeDisabled:options]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
@@ -49,7 +48,7 @@ SentryANRTrackingIntegration ()
         [[SentryANRTracker alloc] initWithDelegate:self
                              timeoutIntervalMillis:SENTRY_ANR_TRACKER_TIMEOUT_MILLIS
                                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                                      crashAdapter:dependencies.crashAdapter
+                                      crashWrapper:dependencies.crashWrapper
                               dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                                      threadWrapper:dependencies.threadWrapper];
     [self.tracker start];
