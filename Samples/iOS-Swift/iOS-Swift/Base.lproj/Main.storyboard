@@ -145,6 +145,14 @@
                                             <segue destination="DGj-BO-BQ5" kind="presentation" id="G2z-UO-upZ"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
+                                        <rect key="frame" x="0.0" y="450" width="398" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
+                                        <state key="normal" title="Use CoreData"/>
+                                        <connections>
+                                            <action selector="useCoreData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ycl-fG-7Bk"/>
+                                        </connections>
+                                    </button>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
                                         <rect key="frame" x="0.0" y="510" width="398" height="124.5"/>
                                         <subviews>
@@ -225,7 +233,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JzG-vp-oCD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1722" y="305"/>
+            <point key="canvasLocation" x="1383" y="155"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="0gQ-IO-Fn5">
@@ -344,7 +352,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1723" y="-353"/>
+            <point key="canvasLocation" x="1367" y="-493"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="LFx-vP-o2F">

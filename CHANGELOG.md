@@ -10,6 +10,7 @@ fix: Crash in UIViewControllerSwizzling (#1692)
 
 ## 7.10.1
 
+- feat: Add CoreData performance tracking (#1682)
 - fix: Swizzling UIViewControllers crash (#1670)
 - feat: Expose Installation ID for Hybrid SDKs (#1680)
 - fix: SentryNSURLSessionTaskSearch using invalid nil parameter with NSURLSession (#1669)

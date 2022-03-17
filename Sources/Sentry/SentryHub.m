@@ -315,7 +315,7 @@ SentryHub ()
                                                                          hub:self
                                                              waitForChildren:waitForChildren];
     if (bindToScope)
-        _scope.span = tracer;
+        self.scope.span = tracer;
 
     return tracer;
 }

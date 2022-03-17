@@ -27,7 +27,8 @@ SentryOptions ()
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
         @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration"
+        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
+        @"SentryCoreDataTrackingIntegration"
     ];
 }
 
@@ -56,6 +57,7 @@ SentryOptions ()
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
+        self.enableCoreDataTracking = NO;
         _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
 
@@ -251,6 +253,9 @@ SentryOptions ()
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
+
+    [self setBool:options[@"enableCoreDataTracking"]
+            block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
     if (nil != error && nil != *error) {
         return NO;

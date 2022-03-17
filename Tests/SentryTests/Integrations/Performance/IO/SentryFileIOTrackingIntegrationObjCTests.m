@@ -6,13 +6,6 @@
 #import "SentryTracer.h"
 #import <XCTest/XCTest.h>
 
-@interface
-SentryTracer ()
-
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
-
-@end
-
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase
 
 @end

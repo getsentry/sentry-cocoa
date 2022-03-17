@@ -224,4 +224,10 @@ class ViewController: UIViewController {
         controller.title = "Table View Controller"
         navigationController?.pushViewController(controller, animated: false)
     }
+    
+    @IBAction func useCoreData(_ sender: Any) {
+        let controller = CoreDataViewController()
+        controller.title = "CoreData"
+        navigationController?.pushViewController(controller, animated: false)
+    }
 }
