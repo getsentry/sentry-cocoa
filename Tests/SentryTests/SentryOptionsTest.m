@@ -494,7 +494,7 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null],
+        @"enableIOTracking" : [NSNull null]
     }
                                                 didFailWithError:nil];
 

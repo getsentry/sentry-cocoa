@@ -10,7 +10,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashAdapter
+        let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
@@ -23,9 +23,9 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashAdapter.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
@@ -36,7 +36,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
             return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
         }
@@ -170,6 +170,18 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         assertOOMEventSent()
     }
     
+    func testANR_NoOOM() {
+        sut.start()
+        goToForeground()
+        
+        update(appState: { appState in
+            appState.isANROngoing = true
+        })
+
+        sut.start()
+        assertNoOOMSent()
+    }
+    
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
         TestNotificationCenter.hybridSdkDidBecomeActive()
@@ -231,6 +243,13 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
+    }
+    
+    private func update(appState: (SentryAppState) -> Void) {
+        if let currentAppState = fixture.fileManager.readAppState() {
+            appState(currentAppState)
+            fixture.fileManager.store(currentAppState)
+        }
     }
     
     private func goToForeground() {

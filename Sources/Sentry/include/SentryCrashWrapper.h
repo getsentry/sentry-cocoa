@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A wrapper around SentryCrash for testability.
  */
-@interface SentryCrashAdapter : NSObject
+@interface SentryCrashWrapper : NSObject
 SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
@@ -15,6 +15,8 @@ SENTRY_NO_INIT
 - (NSTimeInterval)activeDurationSinceLastCrash;
 
 - (BOOL)isBeingTraced;
+
+- (BOOL)isApplicationInForeground;
 
 - (void)installAsyncHooks;
 

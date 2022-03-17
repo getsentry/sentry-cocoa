@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         _isActive = NO;
         _wasTerminated = NO;
+        _isANROngoing = NO;
     }
     return self;
 }
@@ -82,6 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             _wasTerminated = [wasTerminated boolValue];
         }
+
+        id isANROngoing = [jsonObject valueForKey:@"is_anr_ongoing"];
+        if (isANROngoing == nil || ![isANROngoing isKindOfClass:[NSNumber class]]) {
+            return nil;
+        } else {
+            _isANROngoing = [isANROngoing boolValue];
+        }
     }
     return self;
 }
@@ -98,6 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
             forKey:@"system_boot_timestamp"];
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
+    [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
 
     return data;
 }

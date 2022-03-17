@@ -28,6 +28,10 @@ To run the unit tests with the thread sanitizer enabled in Xcode click on edit s
 
 ![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
 
+## Performance API Overview
+
+![Performance API Overview](./performance-api.svg)
+
 ## Generating classes
 
 You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
