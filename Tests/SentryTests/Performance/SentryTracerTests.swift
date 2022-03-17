@@ -400,6 +400,7 @@ class SentryTracerTests: XCTestCase {
         let scope = Scope()
         let options = Options()
         options.enableProfiling = true
+        options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
         
@@ -407,13 +408,14 @@ class SentryTracerTests: XCTestCase {
         tracer.finish()
         hub.group.wait()
         
-        XCTAssertEqual("profile", hub.capturedTransactionsWithScopes.first?.additionalEnvelopeItems.first?.header.type)
+        XCTAssertEqual("profile", hub.capturedEventsWithScopes.first?.additionalEnvelopeItems.first?.header.type)
     }
     
     func testDoesNotCapturesProfile_whenProfilingDisabled() {
         let scope = Scope()
         let options = Options()
         options.enableProfiling = false
+        options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
         
@@ -421,7 +423,7 @@ class SentryTracerTests: XCTestCase {
         tracer.finish()
         hub.group.wait()
         
-        if let items = hub.capturedTransactionsWithScopes.first?.additionalEnvelopeItems {
+        if let items = hub.capturedEventsWithScopes.first?.additionalEnvelopeItems {
             for item in items {
                 XCTAssertNotEqual("profile", item.header.type)
             }

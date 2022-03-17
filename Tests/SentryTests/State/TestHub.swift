@@ -48,15 +48,4 @@ class TestHub: SentryHub {
         
         return event.eventId
     }
-    
-    var capturedTransactionsWithScopes: [(transaction: Transaction, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])] = []
-    override func capture(_ transaction: Transaction, with scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
-        group.enter()
-        queue.async(flags: .barrier) {
-            self.capturedTransactionsWithScopes.append((transaction, scope, additionalEnvelopeItems))
-            self.group.leave()
-        }
-        
-        return transaction.eventId
-    }
 }
