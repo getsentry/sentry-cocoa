@@ -292,7 +292,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.context.sampled, .no)
     }
 
-#if os(iOS)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
         let options = fixture.options
         options.enableProfiling = true

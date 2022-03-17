@@ -395,7 +395,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
     }
     
-    #if os(iOS)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testCapturesProfile_whenProfilingEnabled() {
         let scope = Scope()
         let options = Options()
