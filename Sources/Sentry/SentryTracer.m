@@ -40,6 +40,7 @@ SentryTracer ()
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceState *_traceState;
+    NSMutableDictionary<NSString *, id> *_tags;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -79,6 +80,7 @@ static BOOL appStartMeasurementRead;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
+        _tags = [[NSMutableDictionary alloc] init];
 
 #if SENTRY_HAS_UIKIT
         _startTimeChanged = NO;
@@ -188,7 +190,9 @@ static BOOL appStartMeasurementRead;
 
 - (NSDictionary<NSString *, id> *)tags
 {
-    return self.rootSpan.tags;
+    @synchronized(_tags) {
+        return [_tags copy];
+    }
 }
 
 - (BOOL)isFinished
@@ -213,12 +217,16 @@ static BOOL appStartMeasurementRead;
 
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
-    [self.rootSpan setTagValue:value forKey:key];
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
 }
 
 - (void)removeTagForKey:(NSString *)key
 {
-    [self.rootSpan removeTagForKey:key];
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
+    }
 }
 
 - (void)finish

@@ -1,6 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,7 +15,7 @@ SentryTransaction ()
 
 @implementation SentryTransaction
 
-- (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
+- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
 {
     if (self = [super init]) {
         self.timestamp = trace.timestamp;
@@ -48,6 +49,12 @@ SentryTransaction ()
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
     mutableContext[@"trace"] = [_trace serialize];
+
+    NSDictionary<NSString *, id> *tags = [_trace.tags sentry_sanitize];
+    if (tags.count > 0) {
+        serializedData[@"tags"] = tags;
+    }
+
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     if (self.measurements.count > 0) {
