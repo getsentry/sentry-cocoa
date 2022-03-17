@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     
     private var sut: SentryANRTracker!
@@ -32,7 +33,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         sut = SentryANRTracker(delegate: self,
                                timeoutIntervalMillis: UInt(fixture.timeoutInterval) * 1_000,
                                currentDateProvider: fixture.currentDate,
-                               crashAdapter: fixture.crashWrapper,
+                               crashWrapper: fixture.crashWrapper,
                                dispatchQueueWrapper: fixture.dispatchQueue,
                                threadWrapper: fixture.threadWrapper)
     }
@@ -123,3 +124,4 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
     }
 }
+#endif

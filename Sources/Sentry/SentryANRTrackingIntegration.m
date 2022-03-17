@@ -13,6 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
+
 /**
  * As we only use the ANR tracking integration for detecting falsely reported OOMs we can use a more
  * defensive value, because we are not reporting any ANRs.
@@ -25,24 +27,10 @@ SentryANRTrackingIntegration ()
 @property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-#if TEST
-@property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
-#endif
 
 @end
 
 @implementation SentryANRTrackingIntegration
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-#if TEST
-        self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
-#endif
-    }
-    return self;
-}
 
 - (void)installWithOptions:(SentryOptions *)options
 {
@@ -60,7 +48,7 @@ SentryANRTrackingIntegration ()
         [[SentryANRTracker alloc] initWithDelegate:self
                              timeoutIntervalMillis:SENTRY_ANR_TRACKER_TIMEOUT_MILLIS
                                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                                      crashAdapter:dependencies.crashWrapper
+                                      crashWrapper:dependencies.crashWrapper
                               dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                                      threadWrapper:dependencies.threadWrapper];
     [self.tracker start];
@@ -68,57 +56,37 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-#if TEST
-    // The testConfigurationFilePath is not nil when running unit tests. This doesn't work for UI
-    // tests though.
-    if (self.testConfigurationFilePath) {
-        [SentryLog logWithMessage:@"Won't track ANRs, because detected that unit tests are running."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-#endif
-
-#if SENTRY_HAS_UIKIT
     if (!options.enableOutOfMemoryTracking) {
         return YES;
     }
 
+    // In case the debugger is attached
     if ([self.crashWrapper isBeingTraced]) {
         return YES;
     }
 
     return NO;
-#else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryANRTrackingIntegration will not track ANRs, "
-                              @"because we only track them to avoid false positives OOMs."
-                     andLevel:kSentryLevelInfo];
-    return YES;
-#endif
 }
 
 - (void)uninstall
 {
-    if (nil != self.tracker) {
-        [self.tracker stop];
-    }
+    [self.tracker stop];
 }
 
 - (void)anrDetected
 {
-#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
-#endif
 }
 
 - (void)anrStopped
 {
-#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
-#endif
 }
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

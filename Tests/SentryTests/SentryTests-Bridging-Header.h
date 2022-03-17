@@ -8,7 +8,6 @@
 #import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTracker.h"
-#import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"
@@ -143,3 +142,7 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryANRTrackingIntegration.h"
+#endif

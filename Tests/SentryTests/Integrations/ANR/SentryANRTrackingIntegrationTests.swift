@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackingIntegrationTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
@@ -19,7 +20,7 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-            
+
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
@@ -44,34 +45,16 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         clearTestState()
     }
 
-    func testWhenUnitTests_TrackerNotInitialized() {
-        sut = SentryANRTrackingIntegration()
-        sut.install(with: Options())
-        
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
-    }
-
     func testWhenBeingTraced_TrackerNotInitialized() {
-        fixture.crashWrapper.internalIsBeingTraced = true
-        givenInitializedTracker()
+        givenInitializedTracker(isBeingTraced: true)
 
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
-    
-    func testWhenNoUnitTests_TrackerInitialized() {
+
+    func testWhenNoDebuggerAttached_TrackerInitialized() {
         givenInitializedTracker()
-        
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
-        #else
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
-        #endif
-    }
-    
-    func testTestConfigurationFilePath() {
-        sut = SentryANRTrackingIntegration()
-        let path = Dynamic(sut).testConfigurationFilePath.asString
-        XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
     func test_OOMDisabled_RemovesEnabledIntegration() {
@@ -94,12 +77,8 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
             XCTFail("appState must not be nil")
             return
         }
-        
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         XCTAssertTrue(appState.isANROngoing)
-        #else
-        XCTAssertFalse(appState.isANROngoing)
-        #endif
     }
     
     func testANRStopped_UpdatesAppStateToFalse() {
@@ -114,10 +93,13 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
     }
 
-    private func givenInitializedTracker() {
+    private func givenInitializedTracker(isBeingTraced: Bool = false) {
+        fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration()
         let options = Options()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)
     }
 }
+
+#endif

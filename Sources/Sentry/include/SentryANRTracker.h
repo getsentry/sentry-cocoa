@@ -5,6 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
+
 @protocol SentryANRTrackerDelegate;
 
 /**
@@ -27,7 +29,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithDelegate:(id<SentryANRTrackerDelegate>)delegate
            timeoutIntervalMillis:(NSUInteger)timeoutIntervalMillis
              currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    crashAdapter:(SentryCrashWrapper *)crashAdapter
+                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
@@ -44,5 +46,7 @@ SENTRY_NO_INIT
 - (void)anrStopped;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END
